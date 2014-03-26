@@ -18,7 +18,7 @@ $(document).ready(function() {
             target: e,
             paintStyle: {
                 lineWidth: 3,
-                strokeStyle: "red"
+                strokeStyle: "#999"
             },
             connector: ["Straight"]
         });

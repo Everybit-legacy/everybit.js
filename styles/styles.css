@@ -4,13 +4,21 @@ body {
 	background: #efefef;
 }
 
+.r {
+	float: right;
+}
+
+.clear {
+	clear: both;
+}
+
 .block {
 	background: #fff;
 	width: 400px;
-	border-top: 5px solid #dc9d7c;
+	border-top: 5px solid #999;
 	font-family: sans-serif;
 	font-size: 14px;
-	margin-top: 20px;
+	margin: 20px;
 	display: inline-block;
 	box-sizing: border-box;
 }
@@ -22,8 +30,8 @@ body {
 
 .block .bar {
 	height: 60px;
-	background: #ffb78f;
-	border-top: solid 1px #dc9d7c;
+	background: #ccc;
+	border-top: solid 1px #999;
 	text-align: left;
 }
 
@@ -41,13 +49,13 @@ header h1 {
 .btn {
 	display: inline-block;
 	padding: 0 20px;
-	color: #a7765f;
+	color: #777;
 }
 
 .btn:hover {
-	background: #ffcfb6;
+	background: #ddd;
 	cursor: pointer;
-
+	color: #555;
 }
 
 .btn i {

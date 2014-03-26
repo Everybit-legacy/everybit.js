@@ -46,7 +46,7 @@ body {
 header {
 	background-color: #fff;
 	height: 70px;
-	margin-bottom: 40px;
+	margin-bottom: 20px;
 }
 
 header h1 {
@@ -60,9 +60,13 @@ header h1 {
 	margin: 0 70px;
 }
 
-.children, .parent {
+.parent {
 	text-align: center;
 	margin-bottom: 80px;
+}
+
+.children {
+	text-align: center;
 }
 
 .btn {

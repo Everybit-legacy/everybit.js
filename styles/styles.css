@@ -1,0 +1,12 @@
+@charset "utf-8";
+
+body {
+	background: #333;
+}
+
+div.block {
+	background: #ddd;
+	width: 400px;
+	border-top: 6px solid #526aff;
+	font-family: sans-serif;
+}

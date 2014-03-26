@@ -1,12 +1,32 @@
 @charset "utf-8";
 
 body {
-	background: #333;
+	background: #eee;
 }
 
-div.block {
-	background: #ddd;
+.block {
+	background: #fff;
 	width: 400px;
-	border-top: 6px solid #526aff;
+	border-top: 5px solid #526aff;
 	font-family: sans-serif;
+	font-size: 14px;
+	padding: 20px;
+}
+
+header h1 {
+	font-family: sans-serif;
+	text-align: center;
+	color: #333;
+}
+
+.children, .parent {
+	text-align: center;
+	margin-bottom: 80px;
+}
+
+.children div, .parent div {
+	margin-top: 20px;
+	display: inline-block;
+	box-sizing: border-box;
+	margin: 0 10px;
 }

@@ -1,5 +1,13 @@
 @charset "utf-8";
 
+body,
+html {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
 body {
 	background: #efefef;
 }
@@ -27,10 +35,21 @@ body {
 	text-align: left;
 }
 
+header {
+	background-color: #fff;
+	height: 70px;
+	margin-bottom: 40px;
+}
+
 header h1 {
+	display: inline-block;
 	font-family: sans-serif;
 	text-align: center;
 	color: #333;
+	height: 70px;
+	line-height: 70px;
+	vertical-align: middle;
+	margin: 0 70px;
 }
 
 .children, .parent {

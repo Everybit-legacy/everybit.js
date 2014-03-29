@@ -12,6 +12,12 @@ Puffball's [GitHub page is here](https://github.com/puffball/puffball)
 
 Please see the [guide to the puffball platform](http://extrazoom.com/image-10847.html) This guide visually outlines Puffball usage and provides an overview of the development roadmap, user accounts/naming, user generated content, the Blockchain, and the Freebeer demo GUI.
 
+Freebeer uses:
+   [jQuery](www.jquery.com)
+   [jQueryUI](http://www.jqueryui.com)
+   [jsPlumb](http://jsplumbtoolkit.com/demo/home/jquery.html)
+   [FontAwesome](http://fortawesome.github.io/Font-Awesome)
+
 The main Puffball site is here [www.PuffBall.io](http://www.puffball.io)
 
 License: [MIT](http://opensource.org/licenses/MIT)

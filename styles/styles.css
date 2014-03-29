@@ -12,7 +12,7 @@ body {
 	background: #efefef;
 }
 
-.r {
+.float-right {
 	float: right;
 }
 
@@ -93,8 +93,20 @@ header h1 {
 	line-height: 60px;
 }
 
+.zoom-controls {
+
+}
+
+
 #text-zoom {
 	width: 50px;
+	border: 2; 
+	color: black; 
+	font-weight: bold;
+}
+
+#puff-filter {
+	width: 80px;
 	border: 2; 
 	color: black; 
 	font-weight: bold;

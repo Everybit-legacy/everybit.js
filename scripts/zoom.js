@@ -12,7 +12,7 @@ $(function() {
     //
     $( "#slider-puff-detail" ).slider({
       range: "min",
-      value: 5,
+      value: 50,
       min: 1,
       max: 100,
       slide: function( event, ui ) {
@@ -24,7 +24,7 @@ $(function() {
     //
     //  Slider for Puff/Block text font zoom.
     //
-    $( "#slider-puff-size" ).slider({
+    $( "#slider-puff-text-zoom" ).slider({
       range: "min",
       value: 18,
       min: 10,
@@ -44,8 +44,24 @@ $(function() {
     // TODO: This just updates the text input field, 
     // can get rid of it if we aren't keeping this part of the GUI, see TODO above.
     // It may be usefull for debugging until the GUI is more finalized.
-    $( "#text-zoom" ).val( $( "#slider-puff-size" ).slider( "value" ) );
+    $( "#text-zoom" ).val( $( "#slider-puff-text-zoom" ).slider( "value" ) );
 
-  });
+
+    //
+    //  Slider for Puff/Block Branching level.
+    //
+    $( "#slider-puff-branching-level" ).slider({
+      range: "min",
+      value: 50,
+      min: 1,
+      max: 100,
+      slide: function( event, ui ) {
+        // TODO: Put code here to update details, or trigger an action.
+        $( "#puff-branching-level" ).val( ui.value );
+      }
+    });    
+
+    $( "#puff-branching-level" ).val( $( "#slider-puff-branching-level" ).slider( "value" ) );
+});
 
 // End zoom.js

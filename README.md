@@ -6,7 +6,7 @@ Puffball is a decentralized discussion platform. Front end web & mobile develope
 
 `Freebeer` currently reads data from a sample JSON file so GUI development can continue in parallel with Puffball's API team. Once Puffball's API is released Freebeer will connect to the live API. 
 
-Freebeer and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
+`Freebeer` and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
 
 Puffball's [GitHub page is here](https://github.com/puffball/puffball)
 

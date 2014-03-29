@@ -4,7 +4,7 @@
 //    This will be rip & replaced once the Puffball API is ready.
 //
 
-var data = [
+var data_JSON_sample = [
    {
       "author":"greyhawk",
       "ID":"",

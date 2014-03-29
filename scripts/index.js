@@ -19,13 +19,19 @@ $(document).ready(function() {
             </div>\
             <div class="bar">\
                 <span class="btn">\
-                    <i class="fa fa-thumbs-up fa-2x"></i>\
+                    <i class="fa fa-thumbs-up fa-1x"></i>\
                 </span>\
                 <span class="btn">\
-                    <i class="fa fa-thumbs-down fa-2x"></i>\
+                    <i class="fa fa-thumbs-down fa-1x"></i>\
                 </span>\
-                <span class="btn r">\
-                    <i class="fa fa-mail-reply fa-2x"></i>\
+                <span class="btn">\
+                    <i class="fa fa-tags fa-1x"></i>\
+                </span>\
+                <span class="btn float-right">\
+                    <i class="fa fa-cloud-download fa-1x"></i>\
+                </span>\
+                <span class="btn float-right">\
+                    <i class="fa fa-mail-reply fa-1x"></i>\
                 </span>\
                 <span class="clear"></span>\
             </div>\

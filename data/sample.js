@@ -1,3 +1,9 @@
+//
+// Sample.js
+//    Hard coded sample data. This is only for Phase 1 of Freebeer GUI development.
+//    This will be rip & replaced once the Puffball API is ready.
+//
+
 var data = [
    {
       "author":"greyhawk",
@@ -153,3 +159,5 @@ var data = [
       "zones":"[bitcointalk]"
    }
 ]
+
+// End.

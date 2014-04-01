@@ -1,0 +1,26 @@
+{
+  "name": "freebeer",
+  "version": "0.0.1",
+  "description": "Forum software that runs on the puffball platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/puffball/freebeer.git"
+  },
+  "keywords": [
+    "puffball",
+    "freebeer"
+  ],
+  "author": "puffball",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/puffball/freebeer/issues"
+  },
+  "dependencies": {
+    "express": "~3.5.1",
+    "less-middleware": "~0.2.1-beta"
+  }
+}

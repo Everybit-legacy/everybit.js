@@ -1,0 +1,28 @@
+{
+  "name": "freebeer",
+  "version": "0.0.1",
+  "homepage": "https://github.com/puffball/freebeer",
+  "authors": [
+    "puffball"
+  ],
+  "description": "Forum software that runs on the puffball platform",
+  "main": "index.js",
+  "keywords": [
+    "puffball",
+    "freebeer"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "public/node_modules",
+    "public/components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.1.1",
+    "modernizr": "~2.7.2",
+    "jquery": "1.11"
+  }
+}

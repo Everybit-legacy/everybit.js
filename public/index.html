@@ -1,0 +1,43 @@
+<!doctype>
+<html>
+  <head>
+	<meta charset="UTF-8">
+	<title>Freebeer</title>
+	<link rel="stylesheet" href="styles/styles.css"/>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<script src="components/modernizr/modernizr.js"></script>
+  </head>
+  <body>
+	  <!-- Static navbar -->
+	  <div class="navbar navbar-default navbar-inverse" role="navigation">
+		<div class="container-fluid">
+		  <div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			  <span class="sr-only">Toggle navigation</span>
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">Free Beer</a>
+		  </div>
+		  <div class="navbar-collapse collapse">
+		  	<ul class="nav navbar-nav navbar-right">
+			  <li class="active"><a href="./">Home</a></li>
+			  <li><a href="about">About</a></li>
+			</ul>
+		  </div><!--/.nav-collapse -->
+		</div><!--/.container-fluid -->
+	  </div>
+	  <div class="container">
+	  	<div class="row">
+	  		<section class="parent"></section>
+	  		<section class="children"></section>
+	  	</div>
+	  </div>
+	<script src="components/jquery/dist/jquery.min.js"></script>
+	<script src="scripts/jsPlumb.js"></script>
+	<script src="data/sample.js"></script>
+	<script src="scripts/index.js"></script>
+  </body>
+</html>

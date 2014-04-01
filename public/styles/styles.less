@@ -1,12 +1,7 @@
 @charset "utf-8";
-
+@import  "components/bootstrap/less/bootstrap.less";
+@import  "_freebeer_variables.less";
 body,
-html {
-	height: 100%;
-	width: 100%;
-	padding: 0;
-	margin: 0;
-}
 
 body {
 	background: #efefef;
@@ -24,7 +19,6 @@ body {
 	background: #fff;
 	width: 400px;
 	border-top: 5px solid #999;
-	font-family: sans-serif;
 	font-size: 14px;
 	margin: 20px;
 	display: inline-block;
@@ -59,7 +53,7 @@ header {
 
 header h1 {
 	display: inline-block;
-	font-family: sans-serif;
+	
 	text-align: center;
 	color: #333;
 	height: 70px;
@@ -77,18 +71,17 @@ header h1 {
 	text-align: center;
 }
 
-.btn {
+.thumbs-btn {
 	display: inline-block;
 	padding: 0 20px;
 	color: #777;
-}
+	&:hover {
+		background: #ddd;
+		cursor: pointer;
+		color: #555;
+	}
 
-.btn:hover {
-	background: #ddd;
-	cursor: pointer;
-	color: #555;
-}
-
-.btn i {
-	line-height: 60px;
+	i {
+		line-height: 60px;
+	}
 }

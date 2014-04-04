@@ -12,7 +12,7 @@ body {
 	background: #efefef;
 }
 
-.r {
+.float-right {
 	float: right;
 }
 
@@ -25,7 +25,7 @@ body {
 	width: 400px;
 	border-top: 5px solid #999;
 	font-family: sans-serif;
-	font-size: 14px;
+	
 	margin: 20px;
 	display: inline-block;
 	box-sizing: border-box;
@@ -91,4 +91,23 @@ header h1 {
 
 .btn i {
 	line-height: 60px;
+}
+
+.zoom-controls {
+
+}
+
+
+#text-zoom {
+	width: 50px;
+	border: 2; 
+	color: black; 
+	font-weight: bold;
+}
+
+#puff-filter {
+	width: 80px;
+	border: 2; 
+	color: black; 
+	font-weight: bold;
 }

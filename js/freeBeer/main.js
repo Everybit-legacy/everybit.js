@@ -43,55 +43,57 @@ var puffTemplate = function(puff) {
 //      var hardcoded = parseInt(window.location.hash.substring(1));
 var hardcoded = 9;
 
-// data_JSON_sample[] is hardcoded sample JSON in file: sample.js
-// This will all be replaced by the Puffball API once it's released.
-var parentPuff = data_JSON_sample[hardcoded];
+window.threshold = 200;
 
-$(".parent").append( puffTemplate(parentPuff.author, parentPuff.content, "parent-puff") );
+$(document).ready(function() {
 
-// Append no more than 3 children to DOM.
-for (var i = 0, c = 0; i < data_JSON_sample.length && c < 3; i++) {
-    var e = data_JSON_sample[i];
+  // data_JSON_sample[] is hardcoded sample JSON in file: sample.js
+  // This will all be replaced by the Puffball API once it's released.
+  var parentPuff = PuffForum.getContentById(hardcoded);
 
-    if (e.ID != parentPuff.ID && e.parents.indexOf(parentPuff.ID) != -1) {
-        $(".children").append( blockContents(e.author, e.content, "child" + c) );
-        c++;
-    }
-}
+  $(".parent").append( puffTemplate(parentPuff) );
 
-// Draw lines between Puff's using jsPlumb library.
-// Home page for jsPlumb:
-//      http://jsplumbtoolkit.com/demo/home/jquery.html
-//
-// Does this for each child Puff and the block of HTML that makes up the Puff.
-$(".children .block").each(function () {
+  // Append no more than 3 children to DOM.
+  var childrenPuffs = PuffForum.getChildren(parentPuff)
 
-    // Define jsPlumb end points.
-    var e0 = jsPlumb.addEndpoint("parent-puff", {
-        anchor: "BottomCenter",
-        endpoint: "Blank"
-    });
+  childrenPuffs.forEach(function(puff) {
+    $(".children").append( puffTemplate(puff) );
+  })
 
-    var e = jsPlumb.addEndpoint($(this).attr("id"), {
-        anchor: "TopCenter",
-        endpoint: "Blank"
-    });
+  // Draw lines between Puff's using jsPlumb library.
+  // Home page for jsPlumb:
+  //      http://jsplumbtoolkit.com/demo/home/jquery.html
+  //
+  // Does this for each child Puff and the block of HTML that makes up the Puff.
+  $(".children .block").each(function () {
 
-    // Draw lines between end points.
-    jsPlumb.connect({
-        source: e0,
-        target: e,
-        paintStyle: {
-            lineWidth: 3,
-            strokeStyle: "#999"
-        },
-        connector: "StateMachine",
-        endpoint: "Blank",
-        overlays:[ ["PlainArrow", {location:100, width:20, length:10} ]]
-    });
-});
+      // Define jsPlumb end points.
+      var e0 = jsPlumb.addEndpoint("parent-puff", {
+          anchor: "BottomCenter",
+          endpoint: "Blank"
+      });
 
-// When browser window is resized, refresh jsPlumb connecting lines.
-$(window).resize(function(){
-    jsPlumb.repaintEverything();
-});
+      var e = jsPlumb.addEndpoint($(this).attr("id"), {
+          anchor: "TopCenter",
+          endpoint: "Blank"
+      });
+
+      // Draw lines between end points.
+      jsPlumb.connect({
+          source: e0,
+          target: e,
+          paintStyle: {
+              lineWidth: 3,
+              strokeStyle: "#999"
+          },
+          connector: "StateMachine",
+          endpoint: "Blank",
+          overlays:[ ["PlainArrow", {location:100, width:20, length:10} ]]
+      });
+  });
+
+  // When browser window is resized, refresh jsPlumb connecting lines.
+  $(window).resize(function(){
+      jsPlumb.repaintEverything();
+  });
+})

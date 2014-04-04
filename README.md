@@ -6,11 +6,17 @@ Puffball is a decentralized discussion platform. Front end web & mobile develope
 
 `Freebeer` currently reads data from a sample JSON file so GUI development can continue in parallel with Puffball's API team. Once Puffball's API is released Freebeer will connect to the live API. 
 
-Freebeer and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
+`Freebeer` and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
 
-Puffball's [GitHub page is here](https://github.com/puffball/puffball)
+Puffball's [GitHub page is here.](https://github.com/puffball/puffball)
 
 Please see the [guide to the puffball platform](http://extrazoom.com/image-10847.html) This guide visually outlines Puffball usage and provides an overview of the development roadmap, user accounts/naming, user generated content, the Blockchain, and the Freebeer demo GUI.
+
+Freebeer uses the following libraries, if there's a CDN we're pointing to it instead of loading it all into GitHub:
+   [jQuery](http://www.jquery.com), 
+   [jQueryUI](http://www.jqueryui.com), 
+   [jsPlumb](http://jsplumbtoolkit.com/demo/home/jquery.html), 
+   [FontAwesome](http://fortawesome.github.io/Font-Awesome).
 
 The main Puffball site is here [www.PuffBall.io](http://www.puffball.io)
 

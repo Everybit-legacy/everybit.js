@@ -45,11 +45,11 @@ var hardcoded = 9;
 
 window.threshold = 200;
 
-$(document).ready(function() {
-
+document.addEventListener('DOMContentLoaded', function() {
+  
   // data_JSON_sample[] is hardcoded sample JSON in file: sample.js
   // This will all be replaced by the Puffball API once it's released.
-  var parentPuff = PuffForum.getContentById(hardcoded);
+  var parentPuff = PuffForum.getPuffById(hardcoded);
 
   $(".parent").append( puffTemplate(parentPuff) );
 

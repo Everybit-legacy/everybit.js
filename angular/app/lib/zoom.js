@@ -33,6 +33,7 @@ $(function() {
         // Updated text field with font size. 
         // TODO: Showing the sliders value isn't on the main spec here http://extrazoom.com/image-10847.html, delete or keep?
         $( "#text-zoom" ).val( ui.value );
+
         console.log( "Text Size: " + $( "#slider-puff-text-zoom" ).slider( "value" ) );
 
         // When slider is changed updated font-size in main Puff block text.

@@ -26,20 +26,9 @@
 </head>
 <body>
 
-  <h1>Freebeer. The Puffball GUI demo.</h1>
-
-  <ul class="menu">
-    <li><a href="#/main">Home</a></li>
-    <li><a href="#/about">About</a></li>
-  </ul>
-
-  <div ng-controller="includesController">
-    <div ng-include="template.url"></div>
-  </div>
+  <div ng-include src=" 'partials/subs/my-header.html' "></div>
 
   <div ng-view></div>
-
-
 
   <div ng-controller="displayChange">
     <br>

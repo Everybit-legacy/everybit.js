@@ -25,9 +25,9 @@ PuffForum.init = function() {
   // THINK: maybe you can only call this once?
   // THINK: maybe take a zone arg and just default to CONFIG
   
-  // Puff.onNewPuffs(PuffForum.receiveNewContent)
+  Puff.onNewPuffs(PuffForum.receiveNewContent)
   
-  // Puff.init(CONFIG.zone)
+  Puff.init(CONFIG.zone)
   // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 

@@ -34,7 +34,7 @@ var puffTemplate = function(puff) {
             <span class="clear"></span>\
         </div>\
     </div>');
-};
+}; 
 
 // window.location.hash returns the anchor part of the browsers URL,
 // including the #. Hence substring removes the #.

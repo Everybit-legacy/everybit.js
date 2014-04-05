@@ -2,9 +2,11 @@
 
 /* Controllers */
 
-var myApp = angular.module('myApp', []);
+// var myApp = angular.module('myApp', []);
 
-myApp.controller('displayChange', function ($scope) {
+angular.module('myApp.controllers', [])
+
+	.controller('displayChange', function ($scope) {
 	// console.log('test to be sure controller works');
 
 	// Presets on load
@@ -13,5 +15,15 @@ myApp.controller('displayChange', function ($scope) {
   	$scope.positionX = 10,
   	$scope.positionY = 10;
 
-});
+	})
+
+	.controller('mainController', [function () {
+	// console.log('test to be sure controller works');
+
+	}])
+
+	.controller('aboutController', [function () {
+	// console.log('test to be sure controller works');
+
+	}]);
 

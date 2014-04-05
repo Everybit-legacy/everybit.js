@@ -2,55 +2,113 @@
 <html lang="en" ng-app="myApp">
 <head>
   <meta charset="utf-8">
-  <title>My AngularJS App</title>
+  <title>Freebeer for Puffball</title>
+  <!-- AngularJS CSS -->
   <link rel="stylesheet" href="css/app.css"/>
+
+  <!-- jQuery -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <!-- jQuery UI -->
+  <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+  <!-- App specifics CSS -->
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/normalize.css"/>
+
+    <!-- Favicon links: two forms for compliance -->
+  <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
+  <link id='favicon_def2' rel='icon' type='image/x-icon' href='img/favicon.ico' />
+
+  <!-- Fonts as icons from Font Awesome -->
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
 </head>
-<body ng-controller="displayChange">
-  <!-- <ul class="menu">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-  </ul> -->
+<body>
 
-  Height: {{height}}
-  Width: {{width}}
-  X-Pos: {{positionX}}
-  Y-Pos: {{positionY}}
+  <h1>Freebeer. The Puffball GUI demo.</h1>
 
-  <ul class="sizeControl">
-    <li>
-      <label for="height">Height:</label>
-      <input type="range" ng-model="height" min="1" max="10">
-      <br>
-      <label for="width">Width:</label>
-      <input type="range" ng-model="width" min="1" max="10">
-    </li>
+  <ul class="menu">
+    <li><a href="#/main">Home</a></li>
+    <li><a href="#/about">About</a></li>
+  </ul>
 
-    <li>
-      <label for="positionX">X-Position:</label>
-      <input type="range" ng-model="positionX" min="1" max="10">
-      <br>
-      <label for="positionY">Y-Position:</label>
-      <input type="range" ng-model="positionY" min="1" max="10">
-    </li>
-  </ul><!-- sizeControl -->
+    <section>
+      <table class="zoom-controls">
+        <tr>
+          <td>  
+            <a href="#"><i class="fa fa-pencil-square-o"></i></a>
+            <a href="#">UserName_Placeholder</a>
+          </td>
+          <td>  
+              <label for="puff-filter">Filter:</label>
+              <input type="text" id="puff-filter">
+          </td>
+          <td>  
+              <label>Detail:</label>
+            <div id="slider-puff-detail"></div>
+          </td>
+          <td>  
+              <label for="text-zoom">Text Size:</label>
+              <input type="text" id="text-zoom">
 
-  <div class="sizeRecipient" style="height: {{10 * height| number:0}}%; width: {{10 * width| number:0}}%; left: {{10 * positionX| number:0}}%; top: {{10 * positionY| number:0}}%;">
-    Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum <br>Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum <br>Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum 
-  </div>
+            <div id="slider-puff-text-zoom"></div>
+          </td>
+          <td>  
+              <label for="puff-branching-level">Branching:</label>
+              <input type="text" id="puff-branching-level">
 
-  <!-- 
-    Step 1: for the above, need to create scope in controller, 
-    call filter from html, then pull from controller to 
-    created filter 
+            <div id="slider-puff-branching-level"></div>
+          </td>
+        <tr>
+      </table>
+    </section>
 
-    Step 2: Get viewport height/width, 
-    get sliders to scale with current viewport size.
-    Important: in any case, get position-related css into pixels
-  -->
+  <div ng-view></div>
+
+  <section class="parent"></section>
+  <section class="children"></section>
+
+  <div ng-controller="displayChange">
+    <br>
+    <b>FOR DEBUGGING</b>
+    Height: {{height}}
+    Width: {{width}}
+    X-Pos: {{positionX}}
+    Y-Pos: {{positionY}}
+
+    <!-- 
+      Step 1: For sliders, need to create scope in controller, 
+      call filter from html, then pull from controller to 
+      created filter 
+
+      Step 2: Get viewport height/width, 
+      get sliders to scale with current viewport size.
+      Important: in any case, get position-related css into pixels
+    -->
+      <ul class="sizeControl">
+        <li>
+          <label for="height">Height:</label>
+          <input type="range" ng-model="height" min="1" max="10">
+          <br>
+          <label for="width">Width:</label>
+          <input type="range" ng-model="width" min="1" max="10">
+        </li>
+
+        <li>
+          <label for="positionX">X-Position:</label>
+          <input type="range" ng-model="positionX" min="1" max="10">
+          <br>
+          <label for="positionY">Y-Position:</label>
+          <input type="range" ng-model="positionY" min="1" max="10">
+        </li>
+      </ul><!-- sizeControl -->
+    </div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
   -->
+  <!-- AngularJS Scripts. -->
   <script src="../bower_components/angular/angular.js"></script>
   <script src="../bower_components/angular-route/angular-route.js"></script>
   <script src="js/app.js"></script>
@@ -58,5 +116,12 @@
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
+
+
+  <!-- Freebeer non-Angular scripts, i.e. jQuery code.  -->
+  <script src="lib/jsPlumb.js"></script>
+  <script src="sample-data/sample-data.js"></script>
+  <script src="lib/zoom.js"></script>
+  <script src="lib/index.js"></script>
 </body>
 </html>

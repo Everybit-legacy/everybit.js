@@ -1,32 +1,57 @@
 /*
- addPost(content) #Takes content field from the form as a string, returns an id
- - Looks for the users name is the system.
+                   _____  _____  _____                           
+    ______  __ ___/ ____\/ ____\/ ____\___________ __ __  _____  
+    \____ \|  |  \   __\\   __\\   __\/  _ \_  __ \  |  \/     \ 
+    |  |_> >  |  /|  |   |  |   |  | (  <_> )  | \/  |  /  Y Y  \
+    |   __/|____/ |__|   |__|   |__|  \____/|__|  |____/|__|_|  /
+    |__|                                                      \/ 
+  
+  
+  A Puffball module for managing forum-style puffs. Wraps the core Puffball API in a fluffy layer of syntactic spun sugar.
 
- # Pulls info from localStorage and from network into a graph db stored client side
- # By calling puff.js and asking for things.
- puffGraph
- .edges
- .nodes
+ // # Pulls info from localStorage and from network into a graph db stored client side
+ // # By calling puff.js and asking for things.
+ // puffGraph
+ // .edges
+ // .nodes
 
- onNewContent()
+*/
 
- getRootPuffs(N) # Goes into puffGraph, gets out N most recent root puffs
- */
+PuffForum = {}
 
- PuffForum = {}
- PuffForum.getContentById = function(id) {
-   return {
-      "author":"greyhawk",
-      "id":"3kk3k3k3",
-      "content":"Exactly. Which is a good thing.",
-      "contentType":"bcc30999b194564f",
-      "tags":"",
-      "parents":"[8bce02938015e9f845]",
-      "zones":"[bitcointalk]"
-   }
- }
+PuffForum.newContentCallbacks = []
+PuffForum.graph = {}
+
+PuffForum.init = function() {
+  // set up everything. THINK: maybe you can only call this once...
+  
+  // Puff.onNewContent(PuffForum.receiveNewContent)
+  
+  // Puff.init(callback)
+  // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
+}
+
+PuffForum.getPuffById = function(id) {
+  // get a particular puff
+  
+  // check the graph...
+  
+  return {
+    "author":"greyhawk",
+    "id":"3kk3k3k3",
+    "content":"Exactly. Which is a good thing.",
+    "contentType":"bcc30999b194564f",
+    "tags":"",
+    "parents":"[8bce02938015e9f845]",
+    "zones":"[bitcointalk]"
+  }
+}
 
 PuffForum.getChildren = function(puff) {
+  // get children from a puff
+  
+  // THINK: do we really need this? the puff will have links to its children...
+  
   return [{
      "author":"freewil",
      "id":"143f94ec6f96da570ed0",
@@ -55,3 +80,47 @@ PuffForum.getChildren = function(puff) {
      "zones":"[bitcointalk]"
   }]
 }
+
+PuffForum.getRootPuffs = function(limit) {
+  // returns the most recent parentless puffs, sorted by time
+
+  // limit defaults to 0, which returns all root puffs
+  
+  // we should probably index these rather than doing a full graph traversal
+} 
+
+
+PuffForum.addPost = function(content, parents) {
+  // Given a string of content, create a puff and push it into the system
+
+  // if there's no user, add an anonymous one
+ 
+  // scrub parents -- if they're puffs extract ids, then ensure parents is an array
+ 
+  // var sig = Puff.addPuff(user, privkey, 'text', content, {time: Date.now(), parents: parents})
+ 
+  // return sig;
+}
+
+PuffForum.onNewContent = function(callback) {
+  // callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+  PuffForum.newContentCallbacks.push(callback)
+}
+
+PuffForum.receiveNewContent = function(puffs) {
+  // called by core Puff library any time puffs are added to the system
+  PuffForum.addToGraph(puffs)
+  PuffForum.newContentCallbacks.forEach(function(callback) {callback(puffs)})
+}
+
+PuffForum.addToGraph = function(puffs) {
+  // add a set of puffs to our internal graph
+  puffs.forEach(function(puff) {
+    // if puff.username isn't in the graph, add it
+    // add parent references to puff
+    // add child references to puff
+    // add puff to graph
+    // add parent & child & user edges to graph
+  })
+}
+

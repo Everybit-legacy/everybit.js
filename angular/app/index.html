@@ -33,41 +33,13 @@
     <li><a href="#/about">About</a></li>
   </ul>
 
-    <section>
-      <table class="zoom-controls">
-        <tr>
-          <td>  
-            <a href="#"><i class="fa fa-pencil-square-o"></i></a>
-            <a href="#">UserName_Placeholder</a>
-          </td>
-          <td>  
-              <label for="puff-filter">Filter:</label>
-              <input type="text" id="puff-filter">
-          </td>
-          <td>  
-              <label>Detail:</label>
-            <div id="slider-puff-detail"></div>
-          </td>
-          <td>  
-              <label for="text-zoom">Text Size:</label>
-              <input type="text" id="text-zoom">
-
-            <div id="slider-puff-text-zoom"></div>
-          </td>
-          <td>  
-              <label for="puff-branching-level">Branching:</label>
-              <input type="text" id="puff-branching-level">
-
-            <div id="slider-puff-branching-level"></div>
-          </td>
-        <tr>
-      </table>
-    </section>
+  <div ng-controller="includesController">
+    <div ng-include="template.url"></div>
+  </div>
 
   <div ng-view></div>
 
-  <section class="parent"></section>
-  <section class="children"></section>
+
 
   <div ng-controller="displayChange">
     <br>
@@ -116,12 +88,10 @@
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
+  <script src="js/nginclude-templates.js"></script>
 
 
   <!-- Freebeer non-Angular scripts, i.e. jQuery code.  -->
-  <script src="lib/jsPlumb.js"></script>
-  <script src="sample-data/sample-data.js"></script>
-  <script src="lib/zoom.js"></script>
-  <script src="lib/index.js"></script>
+ 
 </body>
 </html>

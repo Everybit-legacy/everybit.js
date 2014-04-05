@@ -1,1 +1,12 @@
 .DS_Store
+
+npm-debug.log
+
+angular/bower_components/angular-loader/.bower.json
+
+angular/bower_components/angular-loader/README.md
+
+angular/bower_components/*
+
+angular/node_modules/*
+

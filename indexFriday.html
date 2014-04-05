@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>Freebeer</title>
 
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <link rel="stylesheet" href="styles/jquery-ui.css">
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/jquery-ui.js"></script>
 
     <link rel="stylesheet" href="styles/styles.css"/>
     <link rel="stylesheet" href="styles/normalize.css"/>
@@ -18,6 +18,13 @@
 
 </head>
 <body>
+
+<!--
+TODO:
+* make the id of the node the signature hash
+* Create a standard style wrapper for the canvas call, so they all look the same.
+
+-->
 
 <header>
     <h1>FreeBeer</h1>
@@ -60,8 +67,35 @@
 <section class="children">
 </section>
 
+<!-- jsPlumb stuff 1 by 1 for now -->
+<script src="scripts/jsPlumb/util.js"></script>
+<script src="scripts/jsPlumb/dom-adapter.js"></script>
+<script src="scripts/jsPlumb/dom.jsPlumb.js"></script>
+<script src="scripts/jsPlumb/jsPlumb.js"></script>
 
-<script src="scripts/jsPlumb.js"></script>
+
+<script src="scripts/jsPlumb/anchors.js"></script>
+<script src="scripts/jsPlumb/connection.js"></script>
+<script src="scripts/jsPlumb/connector-editors.js"></script>
+<script src="scripts/jsPlumb/connectors-bezier.js"></script>
+<script src="scripts/jsPlumb/connectors-flowchart.js"></script>
+<script src="scripts/jsPlumb/connectors-statemachine.js"></script>
+<script src="scripts/jsPlumb/defaults.js"></script>
+
+<script src="scripts/jsPlumb/drag.js"></script>
+<script src="scripts/jsPlumb/endpoint.js"></script>
+<script src="scripts/jsPlumb/jquery.jsPlumb.js"></script>
+
+<script src="scripts/jsPlumb/mootools.jsPlumb.js"></script>
+<script src="scripts/jsPlumb/overlays-guidelines.js"></script>
+<script src="scripts/jsPlumb/renderers-canvas.js"></script>
+<script src="scripts/jsPlumb/renderers-svg.js"></script>
+<script src="scripts/jsPlumb/renderers-vml.js"></script>
+
+<script src="scripts/jsPlumb/yui.jsPlumb.js"></script>
+<!-- end jsPlumb -->
+
+
 <script src="js/forum/puffForum.js"></script>
 <script src="js/freeBeer/config.js"></script>
 <script src="js/freeBeer/main.js"></script>

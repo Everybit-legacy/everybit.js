@@ -54,11 +54,11 @@ $(document).ready(function() {
   $(".parent").append( puffTemplate(parentPuff) );
 
   // Append no more than 3 children to DOM.
-  var childrenPuffs = PuffForum.getChildren(parentPuff)
+  var childrenPuffs = PuffForum.getChildren(parentPuff);
 
   childrenPuffs.forEach(function(puff) {
     $(".children").append( puffTemplate(puff) );
-  })
+  });
 
   // Draw lines between Puff's using jsPlumb library.
   // Home page for jsPlumb:
@@ -96,4 +96,4 @@ $(document).ready(function() {
   $(window).resize(function(){
       jsPlumb.repaintEverything();
   });
-})
+});

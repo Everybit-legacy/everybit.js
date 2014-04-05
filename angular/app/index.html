@@ -2,55 +2,74 @@
 <html lang="en" ng-app="myApp">
 <head>
   <meta charset="utf-8">
-  <title>My AngularJS App</title>
+  <title>Freebeer for Puffball</title>
+  <!-- AngularJS CSS -->
   <link rel="stylesheet" href="css/app.css"/>
+
+  <!-- jQuery -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <!-- jQuery UI -->
+  <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+  <!-- App specifics CSS -->
+  <link rel="stylesheet" href="css/styles.css"/>
+  <link rel="stylesheet" href="css/normalize.css"/>
+
+    <!-- Favicon links: two forms for compliance -->
+  <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
+  <link id='favicon_def2' rel='icon' type='image/x-icon' href='img/favicon.ico' />
+
+  <!-- Fonts as icons from Font Awesome -->
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
 </head>
-<body ng-controller="displayChange">
-  <!-- <ul class="menu">
-    <li><a href="#/view1">view1</a></li>
-    <li><a href="#/view2">view2</a></li>
-  </ul> -->
+<body>
 
-  Height: {{height}}
-  Width: {{width}}
-  X-Pos: {{positionX}}
-  Y-Pos: {{positionY}}
+  <div ng-include src=" 'partials/subs/my-header.html' "></div>
 
-  <ul class="sizeControl">
-    <li>
-      <label for="height">Height:</label>
-      <input type="range" ng-model="height" min="1" max="10">
-      <br>
-      <label for="width">Width:</label>
-      <input type="range" ng-model="width" min="1" max="10">
-    </li>
+  <div ng-view></div>
 
-    <li>
-      <label for="positionX">X-Position:</label>
-      <input type="range" ng-model="positionX" min="1" max="10">
-      <br>
-      <label for="positionY">Y-Position:</label>
-      <input type="range" ng-model="positionY" min="1" max="10">
-    </li>
-  </ul><!-- sizeControl -->
+  <div ng-controller="displayChange">
+    <br>
+    <b>FOR DEBUGGING</b>
+    Height: {{height}}
+    Width: {{width}}
+    X-Pos: {{positionX}}
+    Y-Pos: {{positionY}}
 
-  <div class="sizeRecipient" style="height: {{10 * height| number:0}}%; width: {{10 * width| number:0}}%; left: {{10 * positionX| number:0}}%; top: {{10 * positionY| number:0}}%;">
-    Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum <br>Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum <br>Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum Testing Lorum Ipsum 
-  </div>
+    <!-- 
+      Step 1: For sliders, need to create scope in controller, 
+      call filter from html, then pull from controller to 
+      created filter 
 
-  <!-- 
-    Step 1: for the above, need to create scope in controller, 
-    call filter from html, then pull from controller to 
-    created filter 
+      Step 2: Get viewport height/width, 
+      get sliders to scale with current viewport size.
+      Important: in any case, get position-related css into pixels
+    -->
+      <ul class="sizeControl">
+        <li>
+          <label for="height">Height:</label>
+          <input type="range" ng-model="height" min="1" max="10">
+          <br>
+          <label for="width">Width:</label>
+          <input type="range" ng-model="width" min="1" max="10">
+        </li>
 
-    Step 2: Get viewport height/width, 
-    get sliders to scale with current viewport size.
-    Important: in any case, get position-related css into pixels
-  -->
+        <li>
+          <label for="positionX">X-Position:</label>
+          <input type="range" ng-model="positionX" min="1" max="10">
+          <br>
+          <label for="positionY">Y-Position:</label>
+          <input type="range" ng-model="positionY" min="1" max="10">
+        </li>
+      </ul><!-- sizeControl -->
+    </div>
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
   -->
+  <!-- AngularJS Scripts. -->
   <script src="../bower_components/angular/angular.js"></script>
   <script src="../bower_components/angular-route/angular-route.js"></script>
   <script src="js/app.js"></script>
@@ -58,5 +77,10 @@
   <script src="js/controllers.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/directives.js"></script>
+  <script src="js/nginclude-templates.js"></script>
+
+
+  <!-- Freebeer non-Angular scripts, i.e. jQuery code.  -->
+ 
 </body>
 </html>

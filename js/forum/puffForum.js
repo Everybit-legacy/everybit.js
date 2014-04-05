@@ -9,25 +9,25 @@
   
   A Puffball module for managing forum-style puffs. Wraps the core Puffball API in a fluffy layer of syntactic spun sugar.
 
- // # Pulls info from localStorage and from network into a graph db stored client side
- // # By calling puff.js and asking for things.
- // puffGraph
- // .edges
- // .nodes
+  Usage example:
+  PuffForum.onNewPuffs( function(puffs) { console.log(puffs) } )
+  PuffForum.init()
 
 */
 
 PuffForum = {}
 
-PuffForum.newContentCallbacks = []
 PuffForum.graph = {}
+PuffForum.newContentCallbacks = []
 
 PuffForum.init = function() {
-  // set up everything. THINK: maybe you can only call this once...
+  // set up everything. 
+  // THINK: maybe you can only call this once?
+  // THINK: maybe take a zone arg and just default to CONFIG
   
-  // Puff.onNewContent(PuffForum.receiveNewContent)
+  // Puff.onNewPuffs(PuffForum.receiveNewContent)
   
-  // Puff.init(callback)
+  // Puff.init(CONFIG.zone)
   // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 
@@ -102,19 +102,22 @@ PuffForum.addPost = function(content, parents) {
   // return sig;
 }
 
-PuffForum.onNewContent = function(callback) {
+PuffForum.onNewPuffs = function(callback) {
   // callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+  
   PuffForum.newContentCallbacks.push(callback)
 }
 
 PuffForum.receiveNewContent = function(puffs) {
   // called by core Puff library any time puffs are added to the system
+  
   PuffForum.addToGraph(puffs)
   PuffForum.newContentCallbacks.forEach(function(callback) {callback(puffs)})
 }
 
 PuffForum.addToGraph = function(puffs) {
   // add a set of puffs to our internal graph
+  
   puffs.forEach(function(puff) {
     // if puff.username isn't in the graph, add it
     // add parent references to puff

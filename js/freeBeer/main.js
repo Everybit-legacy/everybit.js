@@ -1,5 +1,21 @@
-//Bridge between visulization framework (plumb, angular? d3) and js/forum files
-//Calls the initializer puffForumInit(zone)
+// Bridge between visulization framework (plumb, angular? d3) and js/forum files
+
+// register our update function
+var eatPuffs = function(puffs) {
+  // call the display logic
+  console.log(puffs)
+}
+
+PuffForum.onNewPuffs(eatPuffs)
+
+// initialize the forum module (and by extension the puffball network)
+PuffForum.init()
+
+data_JSON_sample.forEach(function(post) {
+  // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
+  post.time = Date.now()
+  Puff.addPuff(post.author, post.id+'zzz', 'text', post.content, post)
+})
 
 
 

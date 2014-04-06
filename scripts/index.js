@@ -4,16 +4,25 @@
 
 // .threshold is NOT a standard DOM property. This adds the property to the DOM.
 // Sets the MAXIMUM characters shown in a post.
+// Using other method
 window.threshold = 200;
+// window.threshold = 10000;
 
 $(document).ready(function() {
 
     // Creates the contents of a Puff (or block).
     var blockContents = function(author, content, id) {
-        var dots = content.length > window.threshold ? ' ...' : '';
+        var dots = content.length > window.threshold ? ' •••' : '';
 
-        return $('<div class="block" id="' + id + '">\
-            <div class="author">' + author + ' says:</div>\
+        // For pure styling test, condition on parent-puff
+        if(id == "parent-puff") {
+            var classToUse = 'blockMain';
+        } else {
+            var classToUse = 'block';
+        }
+
+        return $('<div class="' + classToUse + '" id="' + id + '">\
+            <div class="author">' + author + ':</div>\
             <div class="txt">\
             ' + content.substring(0, window.threshold) + dots + '\
             </div>\
@@ -84,12 +93,12 @@ $(document).ready(function() {
             source: e0,
             target: e,
             paintStyle: {
-                lineWidth: 3,
-                strokeStyle: "#999"
+                lineWidth: 4,
+                strokeStyle: "#a1a1a1"
             },
-            connector: "StateMachine",
+            connector: "Straight",
             endpoint: "Blank",
-            overlays:[ ["PlainArrow", {location:100, width:20, length:10} ]]
+            overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
         });
     });
 

@@ -23,7 +23,7 @@ PuffForum.newPuffCallbacks = []
 PuffForum.init = function() {
   //// set up everything. 
   // THINK: maybe you can only call this once?
-  // THINK: maybe take a zone arg and just default to CONFIG
+  // THINK: maybe take a zone arg, but default to config
   
   Puff.onNewPuffs(PuffForum.receiveNewPuffs)
   
@@ -34,17 +34,21 @@ PuffForum.init = function() {
 PuffForum.getPuffById = function(id) {
   //// get a particular puff
   
-  // check the graph...
+  // TODO: check the graph instead of this
   
-  return {
-    "author":"greyhawk",
-    "id":"3kk3k3k3",
-    "content":"Exactly. Which is a good thing.",
-    "contentType":"bcc30999b194564f",
-    "tags":"",
-    "parents":"[8bce02938015e9f845]",
-    "zones":"[bitcointalk]"
-  }
+  return Puff.puffs.filter(function(puff) { return id === puff.sig })[0]
+}
+
+
+PuffForum.getParents = function(puff) {
+  //// get children from a puff
+  
+  // THINK: do we really need this? the puff will have links to its parents...
+  
+  if(typeof puff === 'string')
+    puff = PuffForum.getPuffById(puff)
+  
+  return puff.payload.parents.map(PuffForum.getPuffById)
 }
 
 PuffForum.getChildren = function(puff) {
@@ -52,34 +56,12 @@ PuffForum.getChildren = function(puff) {
   
   // THINK: do we really need this? the puff will have links to its children...
   
-  return [{
-     "author":"freewil",
-     "id":"143f94ec6f96da570ed0",
-     "content":"This is a great step forward for Bitcoin, but yes I agree the barrier to membership for Bitcoin businesses seems to be a bit high.",
-     "contentType":"text",
-     "tags":"",
-     "parents":"[8f69722abb89ec45]",
-     "zones":"[bitcointalk]"
-  },
-  {
-     "author":"adamas",
-     "id":"299535726f5b6fcfd2",
-     "content":"",
-     "contentType":"moderation",
-     "tags":"[+1]",
-     "parents":"[9ffdfa031c5b1e2f6c]",
-     "zones":""
-  },
-  {
-     "author":"Technomage",
-     "id":"2a31a8adb852b8d058",
-     "content":"This is not your standard industry. Bitcoin economy has perhaps half a dozen companies currently that can possibly afford the higher industry membership fees. Half a dozen, give or take. Mostly it's filled with startup companies that likely can't afford even the Silver membership.\r\n\r\nI don't really see a problem other than the fact that they have priced it in a way that they will actually get less money than they would if they would price it in another way. I'm fairly certain of this. The individual pricing is very good though, I have no issue with that.",
-     "contentType":"text",
-     "tags":"",
-     "parents":"[a0a61c5c97dbf78578]",
-     "zones":"[bitcointalk]"
-  }]
+  if(typeof puff === 'string')
+    puff = PuffForum.getPuffById(puff)
+  
+  return Puff.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
 }
+
 
 PuffForum.getRootPuffs = function(limit) {
   //// returns the most recent parentless puffs, sorted by time
@@ -119,6 +101,7 @@ PuffForum.addToGraph = function(puffs) {
   //// add a set of puffs to our internal graph
   
   puffs.forEach(function(puff) {
+    
     // if puff.username isn't in the graph, add it
     // add parent references to puff
     // add child references to puff

@@ -18,21 +18,21 @@
 PuffForum = {}
 
 PuffForum.graph = {}
-PuffForum.newContentCallbacks = []
+PuffForum.newPuffCallbacks = []
 
 PuffForum.init = function() {
-  // set up everything. 
+  //// set up everything. 
   // THINK: maybe you can only call this once?
   // THINK: maybe take a zone arg and just default to CONFIG
   
-  Puff.onNewPuffs(PuffForum.receiveNewContent)
+  Puff.onNewPuffs(PuffForum.receiveNewPuffs)
   
   Puff.init(CONFIG.zone)
   // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 
 PuffForum.getPuffById = function(id) {
-  // get a particular puff
+  //// get a particular puff
   
   // check the graph...
   
@@ -48,7 +48,7 @@ PuffForum.getPuffById = function(id) {
 }
 
 PuffForum.getChildren = function(puff) {
-  // get children from a puff
+  //// get children from a puff
   
   // THINK: do we really need this? the puff will have links to its children...
   
@@ -82,7 +82,7 @@ PuffForum.getChildren = function(puff) {
 }
 
 PuffForum.getRootPuffs = function(limit) {
-  // returns the most recent parentless puffs, sorted by time
+  //// returns the most recent parentless puffs, sorted by time
 
   // limit defaults to 0, which returns all root puffs
   
@@ -91,32 +91,32 @@ PuffForum.getRootPuffs = function(limit) {
 
 
 PuffForum.addPost = function(content, parents) {
-  // Given a string of content, create a puff and push it into the system
+  //// Given a string of content, create a puff and push it into the system
 
   // if there's no user, add an anonymous one
  
   // scrub parents -- if they're puffs extract ids, then ensure parents is an array
  
-  // var sig = Puff.addPuff(user, privkey, 'text', content, {time: Date.now(), parents: parents})
+  // var sig = Puff.createPuff(user, privkey, 'text', content, {time: Date.now(), parents: parents})
  
   // return sig;
 }
 
 PuffForum.onNewPuffs = function(callback) {
-  // callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+  //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
-  PuffForum.newContentCallbacks.push(callback)
+  PuffForum.newPuffCallbacks.push(callback)
 }
 
-PuffForum.receiveNewContent = function(puffs) {
-  // called by core Puff library any time puffs are added to the system
+PuffForum.receiveNewPuffs = function(puffs) {
+  //// called by core Puff library any time puffs are added to the system
   
   PuffForum.addToGraph(puffs)
-  PuffForum.newContentCallbacks.forEach(function(callback) {callback(puffs)})
+  PuffForum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
 }
 
 PuffForum.addToGraph = function(puffs) {
-  // add a set of puffs to our internal graph
+  //// add a set of puffs to our internal graph
   
   puffs.forEach(function(puff) {
     // if puff.username isn't in the graph, add it

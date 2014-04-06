@@ -31,18 +31,18 @@
 
 Puff = {}
 
-Puff.all_puffs = []
-Puff.newContentCallbacks = []
+Puff.puffs = []
+Puff.newPuffCallbacks = []
 
 
 Puff.init = function(zone) {
   // initialize the network layer 
-  // slurp in all available data
+  // slurp in available data
   // do other amazing things
   
   
   // next steps:
-  // - fix puff fields
+  // -- fix puff fields
   // - import sample data through backdoor instead of Puff.addPuff
   // - get Puff.addPuff actually working w/ random sig
   // - try adding new puffs once loaded
@@ -53,53 +53,90 @@ Puff.init = function(zone) {
   // - network access for initial load
   // - network access for updates
   
-  
-  
+  // HACK: BACKDOOR ACCESS
+  // all new puffs should always go though Puff.createPuff
+  // this is just for bootstrapping
   data_JSON_sample.forEach(function(post) {
     // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
     post.time = Date.now()
-    Puff.addPuff(post.author, post.id, 'text', post.content, post)
+    Puff.createPuff(post.author, post.id, 'text', post.content, post)
   })
-
+  
 }
 
 
-// Puff.addPuff(user, privkey, 'text', content, {time: Date.now(), parents: parents})
-Puff.addPuff = function(username, privatekey, contentType, content, metadata) {
-  // M-A-G-I-C !!!
+Puff.createPuff = function(username, privatekey, type, content, meta) {
+  //// M-A-G-I-C !!!
   
-  // yuck yuck yuck this is ridiculous
+  // THINK: by the time we arrive here u/pk should already be in our cache, so this never requires a network hit... right?
+  if(!Puff.checkUserKey(username, privatekey)) 
+    return false
   
-  var puff = { username: username
-             , type: contentType
-             , content: content }
-             
-  puff.parents = metadata.parents
-  puff.zones = metadata.zones
-  puff.time = metadata.time
-  puff.tags = metadata.tags
-  puff.sig = privatekey // oh the humanity
+  var payload = { username: username                    // these first four are universal
+                ,  content: content                
+                ,    zones: meta.zones
+                ,     type: type
+                ,     time: meta.time                   // these are for forum puffs
+                ,     tags: meta.tags
+                ,  parents: meta.parents               
+                }
+
+  var puff = {payload: payload, sig: Puff.signPayload(payload, privatekey)}
   
-  // TODO: sign it and set sig for real
+  Puff.addPuff(puff) // THINK: move this somewhere else...
   
-  Puff.receiveNewContent([puff])
+  return puff
+}
+
+
+Puff.signPayload = function(payload, privatekey) {
+  //// sign the hash of a payload with a private key and return the sig
+
+  // TODO: this is a very silly hash function. replace it with something more reasonable.
+  var sillyHash = function(s) {
+    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)
+  }
+
+  // TODO: sign the hash instead of just returning it
+  return "" + sillyHash(JSON.stringify(payload))
+}
+
+
+Puff.checkUserKey = function(username, privatekey) {
+  return true // oh dear
+}
+
+ 
+Puff.addPuff = function(puff) {
+  //// add a puff to our local cache and fire the callback for new content
   
-  return puff.sig
+  Puff.receiveNewPuffs([puff])
+
+  Puff.sendPuff(puff)
+}
+
+
+Puff.sendPuff = function(puff) {
+  //// broadcast a puff to the network    
 }
 
 
 Puff.onNewPuffs = function(callback) {
-  // callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+  //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
-  Puff.newContentCallbacks.push(callback)
+  Puff.newPuffCallbacks.push(callback)
 }
 
-Puff.receiveNewContent = function(puffs) {
-  // called by core Puff library any time puffs are added to the system
+
+Puff.receiveNewPuffs = function(puffs) {
+  //// called by core Puff library any time puffs are added to the system
   
-  puffs.forEach(function(puff) {Puff.all_puffs.push(puff)})
+  puffs = Array.isArray(puffs) ? puffs : [puffs]                            // make puffs an array
   
-  Puff.newContentCallbacks.forEach(function(callback) {callback(puffs)})
+  puffs.forEach(function(puff) { Puff.puffs.push(puff) })                   // cache all the puffs
+  
+  Puff.newPuffCallbacks.forEach(function(callback) { callback(puffs) })     // call all callbacks back
 }
 
+// THINK: do we still need this?
 // getAllPuffs() # Gets every existing puff sends off as POJO

@@ -14,7 +14,7 @@ Basics: Clone this Repository to your local machine. Or download the ZIP file he
 https://github.com/puffball/freebeer/archive/master.zip
 
 To run the static mock up: open this file in a browser:
-/server/static-mock/indexFriday.html
+/server/static-mock/index.html
 
 To try the Angular app: follow the instructions here:
 /client-angular/README.md 

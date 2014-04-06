@@ -43,9 +43,11 @@ Puff.init = function(zone) {
   
   // next steps:
   // -- fix puff fields
-  // - import sample data through backdoor instead of Puff.addPuff
-  // - get Puff.addPuff actually working w/ random sig
-  // - try adding new puffs once loaded
+  // -- import sample data "correctly"
+  // -- get Puff.addPuff actually working w/ random sig
+  // -- try adding new puffs once loaded
+  // -- working parents/children in puffforum
+  // - fancy parents/children in puffforum
   // - get puffs out of puffforum's storage
   // - get display working
   // - persist puffs
@@ -53,12 +55,19 @@ Puff.init = function(zone) {
   // - network access for initial load
   // - network access for updates
   
-  // HACK: BACKDOOR ACCESS
-  // all new puffs should always go though Puff.createPuff
-  // this is just for bootstrapping
+  // HACK: this is just for bootstrapping
   data_JSON_sample.forEach(function(post) {
     // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
     post.time = Date.now()
+    
+    // hack hack hack
+    post.parents = [ Puff.puffs[~~(Math.random()*Puff.puffs.length)]
+                   , Puff.puffs[~~(Math.random()*Puff.puffs.length)]
+                   , Puff.puffs[~~(Math.random()*Puff.puffs.length)]
+                   ].filter(function(x) { return x !== undefined })
+                    .map(function(x) { return x.sig })
+                    .filter(function(value, index, self) { return self.indexOf(value) === index })
+                   
     Puff.createPuff(post.author, post.id, 'text', post.content, post)
   })
   
@@ -77,8 +86,8 @@ Puff.createPuff = function(username, privatekey, type, content, meta) {
                 ,    zones: meta.zones
                 ,     type: type
                 ,     time: meta.time                   // these are for forum puffs
-                ,     tags: meta.tags
-                ,  parents: meta.parents               
+                ,     tags: meta.tags                   // so they don't belong here
+                ,  parents: meta.parents                // they should go elsewhere
                 }
 
   var puff = {payload: payload, sig: Puff.signPayload(payload, privatekey)}

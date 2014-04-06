@@ -26,3 +26,6 @@ Code style
 
 * Configuration variables should go in the global CONFIG object defined in js/config.js
 
+* This JavaScript style guide from Google is a good reference, AngularJS recommends this too:
+https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml
+

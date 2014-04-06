@@ -23,6 +23,9 @@ Please see the [guide to the puffball platform](http://extrazoom.com/image-10847
 The main Puffball site is here [www.PuffBall.io](http://www.puffball.io)
 
 ### Contributor Guide
+Before making any changes or Pull requests please check the issues and/or post a question here to coordinate tasks. This will help avoid duplicate efforts. Happy coding :-)
+https://github.com/puffball/freebeer/issues?state=open
+
 Please don't edit files on the Master repository. Create a branch or a Fork. This will help avoid collisions and prevent defects from being introduced from merges & pull requests.
 
 Submit feature requests, questions, bugs, etc here:

@@ -9,7 +9,7 @@ Puffball is a decentralized discussion platform. Front end web & mobile develope
 
 `Freebeer` and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
 
-### Running the app examples.
+### Running the Freebeer GUI examples
 Basics: Clone this Repository to your local machine. Or download the ZIP file here:
 https://github.com/puffball/freebeer/archive/master.zip
 

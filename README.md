@@ -49,5 +49,7 @@ Please don't edit files on the Master repository. Create a branch or a Fork. Thi
 Submit feature requests, questions, bugs, etc here:
 https://github.com/puffball/freebeer/issues
 
+Coding Guidlines - please review them here:
+https://github.com/puffball/freebeer/tree/master/non-production
 
 License: [MIT](http://opensource.org/licenses/MIT)

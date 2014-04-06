@@ -9,11 +9,29 @@ Puffball is a decentralized discussion platform. Front end web & mobile develope
 
 `Freebeer` and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
 
+### Running the app examples.
+Basics: Clone this Repository to your local machine. Or download the ZIP file here:
+https://github.com/puffball/freebeer/archive/master.zip
+
+To run the static mock up: open this file in a browser:
+/server/static-mock/indexFriday.html
+
+To try the Angular app: follow the instructions here:
+/client-angular/README.md 
+
+In a nut shell, from this directory /client-angular/ just run: npm start
+You will need NPM (Node Package Manager) to be installed but again, the instructions are in the above mentioned README.
+
+Note: This repo currently includes the AngularJS libs so you dont't need to run npm install.
+
+
+### More Dev notes
 `Freebeer` uses the following libraries, if there's a CDN we're pointing to it instead of loading it all into GitHub:
    [jQuery](http://www.jquery.com), 
    [jQueryUI](http://www.jqueryui.com), 
    [jsPlumb](http://jsplumbtoolkit.com/demo/home/jquery.html), 
    [FontAwesome](http://fortawesome.github.io/Font-Awesome).
+   [AngularJS](http://angularjs.org/).
 
 ### Puffball
 Puffball's [GitHub page is here.](https://github.com/puffball/puffball)

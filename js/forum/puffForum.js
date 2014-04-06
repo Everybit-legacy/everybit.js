@@ -69,6 +69,10 @@ PuffForum.getRootPuffs = function(limit) {
   // limit defaults to 0, which returns all root puffs
   
   // we should probably index these rather than doing a full graph traversal
+  
+  // TODO: add limit
+  
+  return Puff.puffs.filter(function(puff) { return !puff.payload.parents.length })
 } 
 
 

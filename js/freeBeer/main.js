@@ -1,6 +1,15 @@
-//Bridge between visulization framework (plumb, angular? d3) and js/forum files
-//Calls the initializer puffForumInit(zone)
+// Bridge between visulization framework (plumb, angular? d3) and js/forum files
 
+// register our update function
+var eatPuffs = function(puffs) {
+  // call the display logic
+  console.log(puffs)
+}
+
+PuffForum.onNewPuffs(eatPuffs)
+
+// initialize the forum module (and by extension the puffball network)
+PuffForum.init()
 
 
 // Creates the contents of a Puff (or block).
@@ -34,7 +43,7 @@ var puffTemplate = function(puff) {
             <span class="clear"></span>\
         </div>\
     </div>');
-};
+}; 
 
 // window.location.hash returns the anchor part of the browsers URL,
 // including the #. Hence substring removes the #.
@@ -45,11 +54,11 @@ var hardcoded = 9;
 
 window.threshold = 200;
 
-$(document).ready(function() {
-
+document.addEventListener('DOMContentLoaded', function() {
+  
   // data_JSON_sample[] is hardcoded sample JSON in file: sample.js
   // This will all be replaced by the Puffball API once it's released.
-  var parentPuff = PuffForum.getContentById(hardcoded);
+  var parentPuff = PuffForum.getPuffById(hardcoded);
 
   $(".parent").append( puffTemplate(parentPuff) );
 

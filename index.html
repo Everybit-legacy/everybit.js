@@ -1,0 +1,70 @@
+<!doctype>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Freebeer</title>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+    <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/normalize.css"/>
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+    <!-- Favicon links: two forms for compliance -->
+    <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
+    <link id='favicon_def2' rel='icon' type='image/x-icon' href='img/favicon.ico' />
+
+</head>
+<body>
+
+<header>
+    <h1>FreeBeer</h1>
+</header>
+
+<section>
+    <table class="zoom-controls">
+        <tr>
+            <td>
+                <a href="#"><i class="fa fa-pencil-square-o"></i></a>
+                <a href="#">UserName_Placeholder</a>
+            </td>
+            <td>
+                <label for="puff-filter">Filter:</label>
+                <input type="text" id="puff-filter">
+            </td>
+            <td>
+                <label>Detail:</label>
+                <div id="slider-puff-detail"></div>
+            </td>
+            <td>
+                <label for="text-zoom">Text Size:</label>
+                <input type="text" id="text-zoom">
+
+                <div id="slider-puff-text-zoom"></div>
+            </td>
+            <td>
+                <label for="puff-branching-level">Branching:</label>
+                <input type="text" id="puff-branching-level">
+
+                <div id="slider-puff-branching-level"></div>
+            </td>
+        <tr>
+    </table>
+</section>
+
+<section class="parent">
+</section>
+
+<section class="children">
+</section>
+
+
+<script src="scripts/jsPlumb.js"></script>
+<script src="data/sample.js"></script>
+<script src="scripts/zoom.js"></script>
+<script src="scripts/index.js"></script>
+
+</body>
+</html>

@@ -9,7 +9,7 @@ html {
 }
 
 body {
-	background: #efefef;
+	background: #fdf9c3;
 }
 
 .float-right {
@@ -20,36 +20,64 @@ body {
 	clear: both;
 }
 
+.blockMain {
+    background: #FAFAFA;
+    width: 35%;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
+    max-height: 70%;
+    border: 5px solid #a1a1a1;
+    font-family: sans-serif;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 15px;
+    margin-right: 12px;
+    display: inline-block;
+    box-sizing: border-box;
+    text-align: left;
+    min-width: 400px;
+}
+
+.author {
+    padding: 2px;
+    text-align: left;
+    font-weight: bold;
+    /* color: #2d479a; */
+    color: #006738;
+}
+
+.txt {
+    margin: 10px 5px;
+    padding: 5px;
+    text-align: left;
+}
+
+.bar {
+    border-top: solid 1px #999;
+    text-align: left;
+}
+
 .block {
 	background: #fff;
-	width: 400px;
-	border-top: 5px solid #999;
+	width: 25%;
+    min-width: 300px;
+    max-height: 30%;
+    border-radius: 25px;
+    border: 4px solid #a1a1a1;
+
 	font-family: sans-serif;
-	
-	margin: 20px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 15px;
+    margin-right: 12px;
+
 	display: inline-block;
 	box-sizing: border-box;
 }
 
-.block .author {
-	padding: 10px;
-	text-align: left;
-	font-weight: bold;
-	color: #444;
-}
-
-.block .txt {
-	margin: 0 10px;
-	padding: 20px;
-	text-align: left;
-}
-
-.block .bar {
-	height: 60px;
-	background: #ccc;
-	border-top: solid 1px #999;
-	text-align: left;
-}
 
 header {
 	background-color: #fff;
@@ -79,7 +107,7 @@ header h1 {
 
 .btn {
 	display: inline-block;
-	padding: 0 20px;
+	padding: 5px 5px;
 	color: #777;
 }
 
@@ -90,24 +118,24 @@ header h1 {
 }
 
 .btn i {
-	line-height: 60px;
+	/* line-height: 60px; */
 }
 
 .zoom-controls {
-
+    width: 100%;
 }
 
 
 #text-zoom {
 	width: 50px;
-	border: 2; 
+	border: 2px;
 	color: black; 
 	font-weight: bold;
 }
 
 #puff-filter {
 	width: 80px;
-	border: 2; 
+	border: 2px;
 	color: black; 
 	font-weight: bold;
 }

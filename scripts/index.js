@@ -21,10 +21,15 @@ $(document).ready(function() {
             var classToUse = 'block';
         }
 
+        // BBCODE parse it
+        bbcodeParse = XBBCODE.process({
+            text: content
+        });
+
         return $('<div class="' + classToUse + '" id="' + id + '">\
             <div class="author">' + author + ':</div>\
             <div class="txt">\
-            ' + content.substring(0, window.threshold) + dots + '\
+            ' + bbcodeParse.html.substring(0, window.threshold) + dots + '\
             </div>\
             <div class="bar">\
                 <span class="btn">\
@@ -56,7 +61,7 @@ $(document).ready(function() {
 
     // data_JSON_sample[] is hardcoded sample JSON in file: sample.js
     // This will all be replaced by the Puffball API once it's released.
-    var parentPuff = data_JSON_sample[hardcoded]; 
+    var parentPuff = data_JSON_sample[hardcoded];
 
     $(".parent").append( blockContents(parentPuff.author, parentPuff.content, "parent-puff") );
 

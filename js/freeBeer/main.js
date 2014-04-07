@@ -14,9 +14,9 @@ PuffForum.init()
 
 // Creates the contents of a Puff (or block).
 var puffTemplate = function(puff) {
-    var author = puff.author
-    var content = puff.content
-    var id = puff.id
+    var author = puff.payload.username
+    var content = puff.payload.content
+    var id = puff.sig
     var dots = content.length > window.threshold ? ' ...' : '';
 
     return $('<div class="block" id="' + id + '">\
@@ -50,7 +50,7 @@ var puffTemplate = function(puff) {
 // Use the line below to allow the data to be selected in the browser addressbar
 // i.e. /index.html#8 will select the 8th position in data_JSON_sample.
 //      var hardcoded = parseInt(window.location.hash.substring(1));
-var hardcoded = 9;
+// var hardcoded = 9;
 
 window.threshold = 200;
 
@@ -58,7 +58,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // data_JSON_sample[] is hardcoded sample JSON in file: sample.js
   // This will all be replaced by the Puffball API once it's released.
-  var parentPuff = PuffForum.getPuffById(hardcoded);
+
+  // var parentPuff = PuffForum.getPuffById(hardcoded);
+  var parentPuff = PuffForum.getRootPuffs()[0];
 
   $(".parent").append( puffTemplate(parentPuff) );
 

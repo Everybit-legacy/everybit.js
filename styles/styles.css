@@ -2,22 +2,22 @@
 
 body,
 html {
-	height: 100%;
-	width: 100%;
-	padding: 0;
-	margin: 0;
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 body {
-	background: #fdf9c3;
+    background: #fdf9c3;
 }
 
 .float-right {
-	float: right;
+    float: right;
 }
 
 .clear {
-	clear: both;
+    clear: both;
 }
 
 .blockMain {
@@ -60,65 +60,65 @@ body {
 }
 
 .block {
-	background: #fff;
-	width: 25%;
+    background: #fff;
+    width: 25%;
     min-width: 300px;
     max-height: 30%;
     border-radius: 25px;
     border: 4px solid #a1a1a1;
 
-	font-family: sans-serif;
+    font-family: sans-serif;
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left: 15px;
     margin-right: 12px;
 
-	display: inline-block;
-	box-sizing: border-box;
+    display: inline-block;
+    box-sizing: border-box;
 }
 
 
 header {
-	background-color: #fff;
-	height: 70px;
-	margin-bottom: 20px;
+    background-color: #fff;
+    height: 70px;
+    margin-bottom: 20px;
 }
 
 header h1 {
-	display: inline-block;
-	font-family: sans-serif;
-	text-align: center;
-	color: #333;
-	height: 70px;
-	line-height: 70px;
-	vertical-align: middle;
-	margin: 0 70px;
+    display: inline-block;
+    font-family: sans-serif;
+    text-align: center;
+    color: #333;
+    height: 70px;
+    line-height: 70px;
+    vertical-align: middle;
+    margin: 0 70px;
 }
 
 .parent {
-	text-align: center;
-	margin-bottom: 80px;
+    text-align: center;
+    margin-bottom: 80px;
 }
 
 .children {
-	text-align: center;
+    text-align: center;
 }
 
 .btn {
-	display: inline-block;
-	padding: 5px 5px;
-	color: #777;
+    display: inline-block;
+    padding: 5px 5px;
+    color: #777;
 }
 
 .btn:hover {
-	background: #ddd;
-	cursor: pointer;
-	color: #555;
+    background: #ddd;
+    cursor: pointer;
+    color: #555;
 }
 
 .btn i {
-	/* line-height: 60px; */
+    /* line-height: 60px; */
 }
 
 .zoom-controls {
@@ -127,15 +127,15 @@ header h1 {
 
 
 #text-zoom {
-	width: 50px;
-	border: 2px;
-	color: black; 
-	font-weight: bold;
+    width: 50px;
+    border: 2px;
+    color: black;
+    font-weight: bold;
 }
 
 #puff-filter {
-	width: 80px;
-	border: 2px;
-	color: black; 
-	font-weight: bold;
+    width: 80px;
+    border: 2px;
+    color: black;
+    font-weight: bold;
 }

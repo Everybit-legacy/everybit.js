@@ -36,7 +36,7 @@ PuffForum.getPuffById = function(id) {
   
   // TODO: check the graph instead of this
   
-  return Puff.puffs.filter(function(puff) { return id === puff.sig })[0]
+  return Puff.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
 }
 
 
@@ -59,7 +59,7 @@ PuffForum.getChildren = function(puff) {
   if(typeof puff === 'string')
     puff = PuffForum.getPuffById(puff)
   
-  return Puff.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+  return Puff.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
 }
 
 
@@ -72,7 +72,7 @@ PuffForum.getRootPuffs = function(limit) {
   
   // TODO: add limit
   
-  return Puff.puffs.filter(function(puff) { return !puff.payload.parents.length })
+  return Puff.Data.puffs.filter(function(puff) { return !puff.payload.parents.length })
 } 
 
 

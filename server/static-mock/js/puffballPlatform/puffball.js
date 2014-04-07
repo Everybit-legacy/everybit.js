@@ -31,7 +31,6 @@
 
 Puff = {}
 
-Puff.puffs = []
 Puff.newPuffCallbacks = []
 
 
@@ -47,30 +46,18 @@ Puff.init = function(zone) {
   // -- get Puff.addPuff actually working w/ random sig
   // -- try adding new puffs once loaded
   // -- working parents/children in puffforum
-  // - fancy parents/children in puffforum
-  // - get puffs out of puffforum's storage
+  // ~- linked parents/children in puffforum
+  // -- persist puffs
+  // - fancy forum's db
   // - get display working
-  // - persist puffs
   // - use real keys 
+  // - server-based usernames
   // - network access for initial load
   // - network access for updates
   
-  // HACK: this is just for bootstrapping
-  data_JSON_sample.forEach(function(post) {
-    // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
-    post.time = Date.now()
-    
-    // hack hack hack
-    post.parents = [ Puff.puffs[~~(Math.random()*Puff.puffs.length)]
-                   , Puff.puffs[~~(Math.random()*Puff.puffs.length)]
-                   , Puff.puffs[~~(Math.random()*Puff.puffs.length)]
-                   ].filter(function(x) { return x !== undefined })
-                    .map(function(x) { return x.sig })
-                    .filter(function(value, index, self) { return self.indexOf(value) === index })
-                   
-    Puff.createPuff(post.author, post.id, 'text', post.content, post)
-  })
+  Puff.receiveNewPuffs(Puff.Data.getPuffs())
   
+  Puff.Data.make_fake_puffs()
 }
 
 
@@ -108,6 +95,19 @@ Puff.signPayload = function(payload, privatekey) {
 
   // TODO: sign the hash instead of just returning it
   return "" + sillyHash(JSON.stringify(payload))
+  
+  /*
+  
+      x = new Bitcoin.ECKey('bananas')
+        Bitcoin.ECKey.r {priv: BigInteger, compressed: false, setCompressed: function, getPub: function, getPubPoint: function…}
+      sig = sign_message(x, 'foo123 ok hi')
+        "HClTjwQouFwuzK5YGqxj/WfYF8jjlEeGa2woU9Kpvf4TuG58B9So4PYiT+ReBduTeHPtc8YzeLIoK2idAi3DPxQ="
+      verify_message(sig, 'foo123 ok hi')
+        "1LDShdXPqw85q5FmkuXdBmZm3bMfw423uw"
+      x.getBitcoinAddress().toString()
+        "1LDShdXPqw85q5FmkuXdBmZm3bMfw423uw"
+  
+  */
 }
 
 
@@ -142,10 +142,47 @@ Puff.receiveNewPuffs = function(puffs) {
   
   puffs = Array.isArray(puffs) ? puffs : [puffs]                            // make puffs an array
   
-  puffs.forEach(function(puff) { Puff.puffs.push(puff) })                   // cache all the puffs
+  puffs.forEach(function(puff) { Puff.Data.eat(puff) })                     // cache all the puffs
   
   Puff.newPuffCallbacks.forEach(function(callback) { callback(puffs) })     // call all callbacks back
 }
 
-// THINK: do we still need this?
-// getAllPuffs() # Gets every existing puff sends off as POJO
+
+// DATA LAYER
+
+Puff.Data = {}
+Puff.Data.puffs = []
+
+Puff.Data.eat = function(puff) {
+  Puff.Data.puffs.push(puff)  // THINK: make this a map to avoid dupes?
+  Puff.Data.persist(Puff.Data.puffs)
+}
+
+Puff.Data.persist = function(puffs) {
+  localStorage.setItem('puffs', JSON.stringify(puffs))
+}
+
+Puff.Data.getPuffs = function() {
+  return JSON.parse(localStorage.getItem('puffs') || '[]')
+}
+
+
+
+Puff.Data.make_fake_puffs = function() {
+  // HACK: this is just for bootstrapping
+  data_JSON_sample.forEach(function(post) {
+    // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
+    post.time = Date.now()
+    
+    // hack hack hack
+    var len = Puff.Data.puffs.length
+    post.parents = [ Puff.Data.puffs[ ~~(Math.random()*len) ]
+                   , Puff.Data.puffs[ ~~(Math.random()*len) ]
+                   , Puff.Data.puffs[ ~~(Math.random()*len) ]
+                   ].filter(function(x) { return x != null })
+                    .map   (function(x) { return x.sig })
+                    .filter(function(value, index, list) { return list.indexOf(value) === index })
+                   
+    Puff.createPuff(post.author, post.id, 'text', post.content, post)
+  })
+}

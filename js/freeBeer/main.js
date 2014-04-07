@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
   $(".children .block").each(function () {
 
       // Define jsPlumb end points.
-      var e0 = jsPlumb.addEndpoint("parent-puff", {
+      var e0 = jsPlumb.addEndpoint(parentPuff.sig, {
           anchor: "BottomCenter",
           endpoint: "Blank"
       });

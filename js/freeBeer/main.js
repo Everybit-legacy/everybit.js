@@ -6,41 +6,35 @@ var eatPuffs = function(puffs) {
   console.log(puffs)
 }
 
-PuffForum.onNewPuffs(eatPuffs)
+PuffForum.onNewPuffs(eatPuffs);
 
 // initialize the forum module (and by extension the puffball network)
-PuffForum.init()
+PuffForum.init();
 
 
 // Creates the contents of a Puff (or block).
-puffTemplate = function(puff) {
-  var author = puff.payload.username
-  var content = puff.payload.content
-  var id = puff.sig
+puffTemplate = function(puff, isMain) {
+    if(isMain) {
+        var classToUse = 'blockMain';
+    } else {
+        var classToUse = 'block';
+    }
+
+
+  var author = puff.payload.username;
+  var content = puff.payload.content;
+  var id = puff.sig;
   var dots = content.length > window.threshold ? ' ...' : '';
 
-  return $('<div class="block" id="' + id + '">\
-    <div class="author">' + author + ' says:</div>\
+    return $('<div class="' + classToUse + '" id="' + id + '">\
+    <div class="author">' + author + '</div>\
     <div class="txt">\
     ' + content.substring(0, window.threshold) + dots + '\
     </div>\
     <div class="bar">\
-      <span class="btn">\
-        <i class="fa fa-thumbs-up fa-1x"></i>\
+      <span class="icon">\
+        <img src="img/reply.png" width="16" height="16"> \
       </span>\
-      <span class="btn">\
-        <i class="fa fa-thumbs-down fa-1x"></i>\
-      </span>\
-      <span class="btn">\
-        <i class="fa fa-tags fa-1x"></i>\
-      </span>\
-      <span class="btn float-right">\
-        <i class="fa fa-cloud-download fa-1x"></i>\
-      </span>\
-      <span class="btn float-right">\
-        <i class="fa fa-mail-reply fa-1x"></i>\
-      </span>\
-      <span class="clear"></span>\
     </div>\
   </div>');
 }; 
@@ -48,16 +42,16 @@ puffTemplate = function(puff) {
 
 // show a puff, its children, and some arrows
 showPuff = function(puff) {
-  $('.parent').empty()
-  $('.children').empty()
+  $('.parent').empty();
+  $('.children').empty();
   
-  $(".parent").append( puffTemplate(puff) );
+  $(".parent").append( puffTemplate(puff, true) );
 
   // Append no more than 3 children to DOM.
   var childrenPuffs = PuffForum.getChildren(puff);
 
   childrenPuffs.forEach(function(puff) {
-    $(".children").append( puffTemplate(puff) );
+    $(".children").append( puffTemplate(puff, false) );
   });
 
   // Draw lines between Puff's using jsPlumb library.
@@ -79,17 +73,18 @@ showPuff = function(puff) {
     });
 
     // Draw lines between end points.
-    jsPlumb.connect({
-      source: e0,
-      target: e,
-      paintStyle: {
-        lineWidth: 3,
-        strokeStyle: "#999"
-      },
-      connector: "StateMachine",
-      endpoint: "Blank",
-      overlays:[ ["PlainArrow", {location:100, width:20, length:10} ]]
-    });
+      jsPlumb.connect({
+          source: e0,
+          target: e,
+          paintStyle: {
+              lineWidth: 4,
+              strokeStyle: "#c1c1c1"
+          },
+          connector: "Straight",
+          endpoint: "Blank",
+          overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+      });
+
   });
 }
 
@@ -110,13 +105,24 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
-    var id   = ev.target.parentNode.id
-    var puff = PuffForum.getPuffById(id)
+    var id   = ev.target.parentNode.id;
+    var puff = PuffForum.getPuffById(id);
     showPuff(puff)
-  })
+  });
 
   // When browser window is resized, refresh jsPlumb connecting lines.
   $(window).resize(function(){
       jsPlumb.repaintEverything();
   });
+});
+
+// Looking for double click to add content
+jQuery(document).ready(function(){
+    jQuery(document).dblclick(function(event){
+        // TODO: Toggle show div on double click
+
+        var toShow = '<div id="addContentDiv" class="mainForm"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>';
+        $( "body" ).append(toShow);
+
+    });
 });

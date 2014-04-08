@@ -1,5 +1,17 @@
 <!doctype>
 <html>
+<!--
+TODO: Next steps
+(X) Remove font-awesone stuff, replace icons
+* Add in font Gudea
+* Deal with content overflow in a reasonable way.
+http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
+* Work on making content submit form look better
+* Add back in bbCode rendering
+* Put freeBeer image in the background or top right
+* Add ability to drag around pop-up div
+* Make the pop-up div always there, the function toggles display of it.
+-->
 <head>
     <title>
         FreeBeer.com: A puffball forum.
@@ -26,6 +38,39 @@
 </head>
 <body>
 
+
+<script>
+    $("#contentForm").submit(function( event ) {
+        // Is this user in localStorage
+
+        // Generate new anon user
+        $.ajax({
+            type: "POST",
+            url: "api.php",
+            data: {
+                type: "addUser",
+                usernames: $("#usernames").val(),
+                publicKey: $("#publicKey").val(),
+                secret: $("#secret").val()
+            },
+            success:function(result){
+                console.log(JSON.stringify(result));
+                // console.log(result);
+            },
+            error: function() {
+                alert('error!');
+            },
+            dataType: "json"
+        });
+
+        puffForum.addPuff($("#content").val(), JSON.parse($("#parents").val()));
+
+    });
+
+
+</script>
+
+<!--
 <section>
     <table class="zoom-controls">
         <tr>
@@ -55,6 +100,10 @@
             </td>
         <tr>
     </table>
+</section>
+-->
+
+<section class="form">
 </section>
 
 <section class="parent">

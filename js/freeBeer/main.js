@@ -1,5 +1,9 @@
 // Bridge between visulization framework (plumb, angular? d3) and js/forum files
 
+// Globals
+var FESYSTEM = new Object(); // holds anything required for front-end works
+FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>'; 
+
 // register our update function
 var eatPuffs = function(puffs) {
   // call the display logic
@@ -134,8 +138,21 @@ jQuery(document).ready(function(){
     jQuery(document).dblclick(function(event){
         // TODO: Toggle show div on double click
 
-        var toShow = '<div id="addContentDiv" class="mainForm"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>';
-        $( "body" ).append(toShow);
+        if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+          // user dbl clicks & wants to hide input form
+          FESYSTEM.tempContent = $('textarea#content').val();
+          $('#addContentDiv').eq(0).remove();
 
+        } else {
+          // case for input form reappearing
+          $( "body" ).append(FESYSTEM.toShow);
+          $('#addContentDiv').eq(0).draggable();
+
+          if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+            // user has already hidden a previous input form
+            $('textarea#content').val(FESYSTEM.tempContent);
+          }
+          // otherwise, just a brand new input form, no content inside
+        }
     });
 });

@@ -23,13 +23,23 @@ puffTemplate = function(puff, isMain) {
 
   var author = puff.payload.username;
   var content = puff.payload.content;
+
+  // Apply BBCODE styling
+    // TODO: Condition on contentType
+    // BBCODE parse it
+    bbcodeParse = XBBCODE.process({
+        text: content
+    });
+
+    var parsedText = bbcodeParse.html;
+
   var id = puff.sig;
-  var dots = content.length > window.threshold ? ' ...' : '';
+  var dots = parsedText.length > window.threshold ? ' ...' : '';
 
     return $('<div class="' + classToUse + '" id="' + id + '">\
     <div class="author">' + author + '</div>\
     <div class="txt">\
-    ' + content.substring(0, window.threshold) + dots + '\
+    ' + parsedText.substring(0, window.threshold) + dots + '\
     </div>\
     <div class="bar">\
       <span class="icon">\
@@ -86,6 +96,9 @@ showPuff = function(puff) {
       });
 
   });
+
+
+
 }
 
 

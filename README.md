@@ -13,16 +13,17 @@ Puffball is a decentralized discussion platform. Front end web & mobile develope
 Basics: Clone this Repository to your local machine. Or download the ZIP file here:
 https://github.com/puffball/freebeer/archive/master.zip
 
-To run the static mock up: open this file in a browser:
-/server/static-mock/index.html
+To run the static HTML GUI mock up, open this file in a browser:
+/index.html
 
-To try the Angular app: follow the instructions here:
-/client-angular/README.md 
-
+To try the Angular app example: 
 In a nut shell, from this directory /client-angular/ just run: npm start
 You will need NPM (Node Package Manager) to be installed but again, the instructions are in the above mentioned README.
 
-Note: This repo currently includes the AngularJS libs so you dont't need to run npm install.
+More info to run Angular app, follow the instructions here:
+/client-angular/README.md 
+
+Note: This repo currently includes the AngularJS libs so you don't need to run npm install.
 
 
 ### More Dev notes

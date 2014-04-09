@@ -1,8 +1,8 @@
 # Server side code.
 
-Need to decide if we go with Static HTMl or Angular app for Phase 1.
+For Angular app for Phase 1.
 
-Static HTML mock up is in /server/static/
+Static HTML mock up is in root /index.html
 
 The Angular client app is in /client-angular/
 

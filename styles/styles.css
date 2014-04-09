@@ -1,5 +1,15 @@
 @charset "utf-8";
 
+@font-face {
+    font-family: Gudea;
+    src: url("fonts/Gudea-Regular.otf");
+}
+
+@font-face {
+    font-family: GudeaBold;
+    src: url("fonts/Gudea-Bold.otf");
+}
+
 body,
 html {
     height: 100%;
@@ -10,6 +20,7 @@ html {
 
 body {
     background: #fdf9c3;
+    font-family: Gudea, sans-serif;
 }
 
 .float-right {
@@ -27,8 +38,7 @@ body {
     -moz-border-radius: 25px;
     border-radius: 25px;
     max-height: 70%;
-    border: 5px solid #a1a1a1;
-    font-family: sans-serif;
+    border: 1px solid #a1a1a1;
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 0px;
@@ -38,14 +48,17 @@ body {
     box-sizing: border-box;
     text-align: left;
     min-width: 400px;
+    z-index: 999;
 }
 
 .author {
+    font-family: GudeaBold;
     padding: 2px;
     text-align: left;
     font-weight: bold;
     /* color: #2d479a; */
     color: #006738;
+    border-bottom: 1px solid #a1a1a1;;
 }
 
 .txt {
@@ -55,19 +68,17 @@ body {
 }
 
 .bar {
-    border-top: solid 1px #999;
-    text-align: left;
+    text-align: right;
+    padding-right: 10px;
 }
 
 .block {
-    background: #fff;
+    background: #FAFAFA;
     width: 25%;
     min-width: 300px;
     max-height: 30%;
     border-radius: 25px;
-    border: 4px solid #a1a1a1;
-
-    font-family: sans-serif;
+    border: 1px solid #a1a1a1;
     padding: 10px;
     margin-top: 10px;
     margin-bottom: 0px;
@@ -76,8 +87,13 @@ body {
 
     display: inline-block;
     box-sizing: border-box;
-}
 
+    z-index: 999;
+}
+.bar .icon:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
 
 header {
     background-color: #fff;
@@ -87,7 +103,6 @@ header {
 
 header h1 {
     display: inline-block;
-    font-family: sans-serif;
     text-align: center;
     color: #333;
     height: 70px;
@@ -138,4 +153,43 @@ header h1 {
     border: 2px;
     color: black;
     font-weight: bold;
+}
+
+._jsPlumb_connector {
+    z-index: -1;
+}
+
+._jsPlumb_endpoint {
+    z-index: 5;
+}
+
+.mainForm {
+    z-index: 300;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: #FAFAFA;
+    border-radius: 25px;
+    text-align: center;
+    padding: 8px;
+    border: 1px solid #a1a1a1;
+}
+
+#addContentDiv:hover, #addContentDiv form:hover {
+    cursor: all-scroll;
+}
+#addContentDiv form > * {
+    cursor: auto;
+}
+#addContentDiv form button,
+#addContentDiv form input {
+    cursor: pointer;
+}
+
+.textarea {
+    font-family: Gudea, sans-serif;
+    border: 4px solid #006738;
+    padding-left: 15px;
+    padding-right: 15px;
+
 }

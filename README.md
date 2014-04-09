@@ -14,16 +14,17 @@ Basics: Clone this Repository to your local machine. Or download the ZIP file he
 https://github.com/puffball/freebeer/archive/master.zip
 
 To run the static HTML GUI mock up, open this file in a browser:
-/index.html
+`/index.html`
 
-To try the Angular app example: 
-In a nut shell, from this directory /client-angular/ just run: npm start
+To try the AngularJS app example: 
+In a nut shell, from this directory `/client-angular` just run: `npm start`
+
 You will need NPM (Node Package Manager) to be installed but again, the instructions are in the above mentioned README.
 
 More info to run Angular app, follow the instructions here:
-/client-angular/README.md 
+`/client-angular/README.md` 
 
-Note: This repo currently includes the AngularJS libs so you don't need to run npm install.
+Note: This repo currently includes the AngularJS libs so you don't need to run: `npm install`
 
 
 ### More Dev notes

@@ -90,7 +90,10 @@ body {
 
     z-index: 999;
 }
-
+.bar .icon:hover {
+    opacity: 0.8;
+    cursor: pointer;
+}
 
 header {
     background-color: #fff;
@@ -170,6 +173,17 @@ header h1 {
     text-align: center;
     padding: 8px;
     border: 1px solid #a1a1a1;
+}
+
+#addContentDiv:hover, #addContentDiv form:hover {
+    cursor: all-scroll;
+}
+#addContentDiv form > * {
+    cursor: auto;
+}
+#addContentDiv form button,
+#addContentDiv form input {
+    cursor: pointer;
 }
 
 .textarea {

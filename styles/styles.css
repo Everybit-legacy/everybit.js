@@ -5,6 +5,11 @@
     src: url("fonts/Gudea-Regular.otf");
 }
 
+@font-face {
+    font-family: GudeaBold;
+    src: url("fonts/Gudea-Bold.otf");
+}
+
 body,
 html {
     height: 100%;
@@ -47,6 +52,7 @@ body {
 }
 
 .author {
+    font-family: GudeaBold;
     padding: 2px;
     text-align: left;
     font-weight: bold;
@@ -167,6 +173,7 @@ header h1 {
 }
 
 .textarea {
+    font-family: Gudea, sans-serif;
     border: 4px solid #006738;
     padding-left: 15px;
     padding-right: 15px;

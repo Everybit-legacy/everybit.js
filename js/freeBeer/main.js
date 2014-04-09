@@ -30,7 +30,6 @@ puffTemplate = function(puff, isMain) {
 
   // Apply BBCODE styling
     // TODO: Condition on contentType
-    // BBCODE parse it
     bbcodeParse = XBBCODE.process({
         text: content
     });
@@ -91,8 +90,8 @@ showPuff = function(puff) {
           source: e0,
           target: e,
           paintStyle: {
-              lineWidth: 4,
-              strokeStyle: "#c1c1c1"
+              lineWidth: 2,
+              strokeStyle: "#d1d1d1"
           },
           connector: "Straight",
           endpoint: "Blank",
@@ -114,7 +113,7 @@ showPuff = function(puff) {
 //      var hardcoded = parseInt(window.location.hash.substring(1));
 // var hardcoded = 9;
 
-window.threshold = 200;
+window.threshold = 400;
 
 document.addEventListener('DOMContentLoaded', function() {
   

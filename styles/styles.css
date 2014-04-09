@@ -19,7 +19,7 @@ html {
 }
 
 body {
-    background: #fdf9c3;
+    background: #1616A8;
     font-family: Gudea, sans-serif;
 }
 
@@ -64,7 +64,7 @@ body {
 .txt {
     margin: 10px 5px;
     padding: 5px;
-    text-align: left;
+    text-align:left;
 }
 
 .bar {
@@ -84,7 +84,6 @@ body {
     margin-bottom: 0px;
     margin-left: 15px;
     margin-right: 12px;
-
     display: inline-block;
     box-sizing: border-box;
 
@@ -192,4 +191,18 @@ header h1 {
     padding-left: 15px;
     padding-right: 15px;
 
+}
+
+.logo {
+    position: absolute;
+    z-index: -2;
+    top: 20px;
+    right: 20px;
+}
+
+.puffballIocn {
+    position: absolute;
+    z-index: -2;
+    top: 20px;
+    left: 20px;
 }

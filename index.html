@@ -3,14 +3,15 @@
 <!--
 TODO: Next steps
 (X) Remove font-awesone stuff, replace icons
-* Add in font Gudea
+(X) Add in font Gudea
 * Deal with content overflow in a reasonable way.
 http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 * Work on making content submit form look better
-* Add back in bbCode rendering
+(X) Add back in bbCode rendering
 * Put freeBeer image in the background or top right
-* Add ability to drag around pop-up div
-* Make the pop-up div always there, the function toggles display of it.
+(X) Add ability to drag around pop-up div
+(X) Make the pop-up div always there, the function toggles display of it.
+* Add "CANCEL" button next to GO! that clears out global.
 -->
 <head>
     <title>
@@ -24,8 +25,6 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
     <link rel="stylesheet" href="styles/styles.css"/>
     <link rel="stylesheet" href="styles/normalize.css"/>
-    
-    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
     <!-- Favicon links: two forms for compliance -->
     <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
@@ -37,7 +36,8 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
     <script type="text/javascript" src="scripts/xbbcode.js"></script>
 </head>
 <body>
-
+<img src="img/FreeBeerPuffball.gif" class="logo">
+<img src="img/puffballIcon.gif" class="puffballIocn">
 
 <script>
     $("#contentForm").submit(function( event ) {
@@ -49,9 +49,8 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
             url: "api.php",
             data: {
                 type: "addUser",
-                usernames: $("#usernames").val(),
-                publicKey: $("#publicKey").val(),
-                secret: $("#secret").val()
+                username: $("#username").val(),
+                publicKey: $("#publicKey").val()
             },
             success:function(result){
                 console.log(JSON.stringify(result));
@@ -69,39 +68,6 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
 
 </script>
-
-<!--
-<section>
-    <table class="zoom-controls">
-        <tr>
-            <td>
-                <a href="#"><i class="fa fa-pencil-square-o"></i></a>
-                <a href="#">UserName_Placeholder</a>
-            </td>
-            <td>
-                <label for="puff-filter">Filter:</label>
-                <input type="text" id="puff-filter">
-            </td>
-            <td>
-                <label>Detail:</label>
-                <div id="slider-puff-detail"></div>
-            </td>
-            <td>
-                <label for="text-zoom">Text Size:</label>
-                <input type="text" id="text-zoom">
-
-                <div id="slider-puff-text-zoom"></div>
-            </td>
-            <td>
-                <label for="puff-branching-level">Branching:</label>
-                <input type="text" id="puff-branching-level">
-
-                <div id="slider-puff-branching-level"></div>
-            </td>
-        <tr>
-    </table>
-</section>
--->
 
 <section class="form">
 </section>

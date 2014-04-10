@@ -19,7 +19,7 @@ PuffForum = {}
 
 PuffForum.graph = {}
 PuffForum.newPuffCallbacks = []
-PuffForum.userinfo = {}
+PuffForum.userinfoLivesHereForNow = {}
 
 PuffForum.init = function() {
   //// set up everything. 
@@ -81,6 +81,8 @@ PuffForum.addPost = function(content, parents) {
   //// Given a string of content, create a puff and push it into the system
   
   // scrub parents -- if they're puffs extract ids, then ensure parents is an array
+  if(!parents)
+    parents = []
   if(!Array.isArray(parents))
     parents = [parents]
     
@@ -89,10 +91,11 @@ PuffForum.addPost = function(content, parents) {
  
   // if there's no user, add an anonymous one
   // THINK: where should the username/privatekey live? we'll put it here for now, but some other layer should take responsibility.
-  if(!PuffForum.userinfo.username || !PuffForum.userinfo.privateKey)
+  // THINK: posting this as its own callback is probably not ideal
+  if(!PuffForum.userinfoLivesHereForNow.username || !PuffForum.userinfoLivesHereForNow.privateKey)
     return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
 
-  var sig = Puff.createPuff(PuffForum.userinfo.username, PuffForum.userinfo.privateKey, 'text', content, {time: Date.now(), parents: parents})
+  var sig = Puff.createPuff(PuffForum.userinfoLivesHereForNow.username, PuffForum.userinfoLivesHereForNow.privateKey, 'text', content, {time: Date.now(), parents: parents})
  
   // THINK: actually we can't return this because we might go async
   // return sig;
@@ -103,30 +106,21 @@ PuffForum.addAnonUser = function(callback) {
   //// statefully state a new user and register it and store it and oh dear
   
   // gen privkey
-  var privateKey = Puff.generatePrivateKey()
+  var privateKey = Puff.Crypto.generatePrivateKey()
   
   // gen pubkey
-  var publicKey = ""
+  var publicKey = Puff.Crypto.privateToPublic(privateKey)
   
-  PuffForum.userinfo.privateKey = privateKey
-  PuffForum.userinfo.publicKey  = publicKey
+  PuffForum.userinfoLivesHereForNow.privateKey = privateKey
+  PuffForum.userinfoLivesHereForNow.publicKey  = publicKey
   
-  $.ajax({
-    type: 'POST',
-    url: 'api.php',
-    data: {
-      type: 'addUser',
-      publicKey: PuffForum.userinfo.publicKey
-    },
-    success:function(result){
-      PuffForum.userinfo.username = result.username
-      callback(result.username)
-    },
-    error: function() {
-      console.log('Error Error Error: the anonymous user could not be added')
-    },
-    dataType: 'json'
-  });
+  var my_callback = function(username) {
+    PuffForum.userinfoLivesHereForNow.username = username
+    if(typeof callback == 'function') 
+      callback(username)
+  }
+  
+  Puff.Network.addAnonUser(publicKey, my_callback)
 }
 
 PuffForum.onNewPuffs = function(callback) {

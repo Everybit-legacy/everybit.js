@@ -302,12 +302,20 @@ Puff.Crypto.verifyPuff = function(puff, publicKeyBase58) {
   return Puff.Crypto.verifyMessage(puff.sig, puff.payload, publicKeyBase58)
 }
 
+Puff.Crypto.verifyBlock = function(block, publicKeyBase58) {
+  return Puff.Crypto.verifyMessage(block.blockSig.replace(/\*/g, ""), block.blockPayload, publicKeyBase58)
+}
+
 Puff.Crypto.verifyMessage = function(sig, message, publicKeyBase58) {
   //// accept a base 58 sig, a message (can be an object) and a base 58 public key. returns true if they match, false otherwise
   
   var address = new Bitcoin.Address(Bitcoin.Util.sha256ripe160(Bitcoin.Base58.decode(publicKeyBase58))).toString()
   var sigBase64 = Crypto.util.bytesToBase64(Bitcoin.Base58.decode(sig))
   return verify_message(sigBase64, message) === address  // TODO: this is complete lunacy
+}
+
+Puff.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+  return Puff.Crypto.signPayload(blockPayload, privateKeyWIF)
 }
 
 Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
@@ -318,4 +326,90 @@ Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
   var sig = sign_message(eckey, payload, true) // 'true' is for compressed keys
   var sigBase58 = Bitcoin.Base58.encode(Crypto.util.base64ToBytes(sig))
   return sigBase58 // base64 sigs don't work as DOM ids
+}
+
+
+/*
+
+  Puff.Blockchain
+
+  A JSON Object.
+  Fixed size: 10k bytes
+  Fixed attributes:
+    blockSig: (Size: 100 bytes)
+    blockPayload:
+      prevSig: (Size: 100 bytes)
+      puff:
+      padding:
+
+*/
+
+Puff.Blockchain = {}
+
+Puff.Blockchain.BLOCKSIZE = 10000
+Puff.Blockchain.SIGSIZE = 100
+
+Puff.Blockchain.createBlock = function(prevSig, puff, privateKeyWIF) {
+  //// Creates a new block, by adding the payload (puff and the signature
+  //// of the previous block), adding necessary padding and signing it 
+
+  // get a blank new block we can fill
+  var newBlock = Puff.Blockchain.getNewBlankBlock()
+
+  var paddingSize = Puff.Blockchain.BLOCKSIZE 
+                  - 2*Puff.Blockchain.SIGSIZE 
+                  - JSON.stringify(newBlock).length 
+                  - JSON.stringify(puff).length 
+                  + 2;
+  // Why +2? Because we need to take the quotation marks of the
+  // attributes into account. Turns out we need to add 2 in the end.
+
+  // add the content
+  newBlock.blockPayload.prevSig = Puff.Blockchain.paddSig(prevSig)
+  newBlock.blockPayload.puff = puff
+  newBlock.blockPayload.padding = Puff.Blockchain.generatePadding(paddingSize)
+
+  // sign the content
+  newBlock.blockSig = Puff.Blockchain.paddSig(Puff.Crypto.signBlock(newBlock.blockPayload, privateKeyWIF))
+
+  return newBlock
+
+}
+
+Puff.Blockchain.getNewBlankBlock = function(){
+  //// template of a blank block
+
+  return {
+    blockSig: "",
+    blockPayload: {
+      prevSig: "",
+      puff: "",
+      padding: ""
+    }
+  }
+
+}
+
+Puff.Blockchain.generatePadding = function(size) {
+  //// Generates padding content to ensure block size, for now just zeros
+
+  out = "0"
+
+  while(out.length < size) {
+    out = out + "0"
+  }
+
+  return out
+
+}
+
+Puff.Blockchain.paddSig = function(sig) {
+  //// Padds a signature to a length of 100 characters
+
+  while(sig.length < Puff.Blockchain.SIGSIZE) {
+    sig = sig + "*"
+  }
+
+  return sig
+
 }

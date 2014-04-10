@@ -67,16 +67,23 @@ puffTemplate = function(puff, isMain) {
 
 // show a puff, its children, and some arrows
 showPuff = function(puff) {
-  $('.parent').empty();
-  $('.children').empty();
+  $('#parents').empty();
+  $('#main-content').empty();
+  $('#children').empty();
   
-  $(".parent").append( puffTemplate(puff, true) );
+  $("#main-content").append( puffTemplate(puff, true) );
+
+  // Append parents to the DOM 
+  var parentPuffs = PuffForum.getParents(puff);
+  parentPuffs.forEach(function(puff) {
+    $('#parents').append( puffTemplate(puff, false) )
+  })
 
   // Append no more than 3 children to DOM.
   var childrenPuffs = PuffForum.getChildren(puff);
 
   childrenPuffs.forEach(function(puff) {
-    $(".children").append( puffTemplate(puff, false) );
+    $("#children").append( puffTemplate(puff, false) );
   });
 
   // Draw lines between Puff's using jsPlumb library.
@@ -84,7 +91,7 @@ showPuff = function(puff) {
   //      http://jsplumbtoolkit.com/demo/home/jquery.html
   //
   // Does this for each child Puff and the block of HTML that makes up the Puff.
-  $(".children .block").each(function () {
+  $("#children .block").each(function () {
 
     // Define jsPlumb end points.
     var e0 = jsPlumb.addEndpoint(puff.sig, {

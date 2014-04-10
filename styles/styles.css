@@ -110,12 +110,16 @@ header h1 {
     margin: 0 70px;
 }
 
-.parent {
+#parent {
+    text-align: center;
+}
+
+#main-content {
     text-align: center;
     margin-bottom: 80px;
 }
 
-.children {
+#children {
     text-align: center;
 }
 

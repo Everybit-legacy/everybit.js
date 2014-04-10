@@ -55,9 +55,12 @@ Puff.init = function(zone) {
   // - network access for initial load
   // - network access for updates
   
-  Puff.receiveNewPuffs(Puff.Data.getPuffs())
+  // TODO: merge our local cache with the server/network's storage and only get the latest ones we're missing
+  // Puff.receiveNewPuffs(Puff.Data.getLocalPuffs())
+
+  Puff.Network.getAllPuffs(Puff.receiveNewPuffs)
   
-  Puff.Data.make_fake_puffs()
+  // Puff.Data.make_fake_puffs()
 }
 
 
@@ -77,130 +80,11 @@ Puff.createPuff = function(username, privatekey, type, content, meta) {
                 ,  parents: meta.parents                // they should go elsewhere
                 }
 
-  var puff = {payload: payload, sig: Puff.signPayload(payload, privatekey)}
+  var puff = {payload: payload, sig: Puff.Crypto.signPayload(payload, privatekey)}
   
   Puff.addPuff(puff) // THINK: move this somewhere else...
   
   return puff
-}
-
-Puff.generatePrivateKey = function() {
-  //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
-  
-  var randArr = new Uint8Array(32) //create a typed array of 32 bytes (256 bits)
-  window.crypto.getRandomValues(randArr) //populate array with cryptographically secure random numbers
-  
-  var privateKeyBytes = []  //some Bitcoin and Crypto methods don't like Uint8Array for input. They expect regular JS arrays.
-  for (var i = 0; i < randArr.length; ++i)
-    privateKeyBytes[i] = randArr[i]
-  
-  return privateKeyBytes
-  // var privateKeyWIF = new Bitcoin.Address(privateKeyBytes) 
-  // privateKeyWIF.version = 0x80 //0x80 = 128, https://en.bitcoin.it/wiki/List_of_address_prefixes
-  // return privateKeyWIF.toString()  
-}
-
-Puff.privateToPublic = function(privateKeyBytes) {
-  //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
-  
-  //privateKeyBytes is the private key array from the top
-  var eckey = new Bitcoin.ECKey(privateKeyBytes) 
-  eckey.compressed = true
-  var publicKeyHex = Crypto.util.bytesToHex(eckey.getPub())
-  return publicKeyHex
-}
-
-Puff.signPayload = function(payload, privatekey) {
-  //// sign the hash of a payload with a private key and return the sig
-
-  // TODO: this is a very silly hash function. replace it with something more reasonable.
-  var sillyHash = function(s) {
-    return s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)
-  }
-
-  // TODO: sign the hash instead of just returning it
-  return "" + sillyHash(JSON.stringify(payload))
-  
-  /*
-  
-  - generate privkey, store in local as 256bit int in hex (or as a base58 WIF)
-  - generate compressed pubkey, store in local as 33 bytes of hex (or base58)
-  - send pubkey to server, get username
-  - 
-  
-      x = new Bitcoin.ECKey('bananas')
-        Bitcoin.ECKey.r {priv: BigInteger, compressed: false, setCompressed: function, getPub: function, getPubPoint: function…}
-      sig = sign_message(x, 'foo123 ok hi')
-        "HClTjwQouFwuzK5YGqxj/WfYF8jjlEeGa2woU9Kpvf4TuG58B9So4PYiT+ReBduTeHPtc8YzeLIoK2idAi3DPxQ="
-      verify_message(sig, 'foo123 ok hi')
-        "1LDShdXPqw85q5FmkuXdBmZm3bMfw423uw"
-      x.getBitcoinAddress().toString()
-        "1LDShdXPqw85q5FmkuXdBmZm3bMfw423uw"
-  
-var curve = getSECCurveByName("secp256k1") //found in bitcoinjs-lib/src/jsbn/sec.js
-
-//convert our random array or private key to a Big Integer
-var privateKeyBN = BigInteger.fromByteArrayUnsigned(input) 
-
-var curvePt = curve.getG().multiply(privateKeyBN)
-var x = curvePt.getX().toBigInteger()
-var y = curvePt.getY().toBigInteger()
-var publicKeyBytes = integerToBytes(x,32) //integerToBytes is found in bitcoinjs-lib/src/ecdsa.js
-publicKeyBytes = publicKeyBytes.concat(integerToBytes(y,32))
-publicKeyBytes.unshift(0x04)
-var publicKeyHex = Crypto.util.bytesToHex(publicKeyBytes)
-
-console.log(publicKeyHex)
-  
-  
-  
-  
-var randArr = new Uint8Array(32) //create a typed array of 32 bytes (256 bits)
-window.crypto.getRandomValues(randArr) //populate array with cryptographically secure random numbers
-
-[129, 9, 142, 182, 195, 40, 51, 173, 166, 150, 242, 111, 180, 170, 80, 63, 191, 176, 216, 68, 236, 149, 166, 100, 175, 180, 5, 93, 176, 247, 106, 47]
-var privateKeyBytes = []
-for (var i = 0; i < randArr.length; ++i)
-  privateKeyBytes[i] = randArr[i]
-47
-privateKeyBytes
-[129, 9, 142, 182, 195, 40, 51, 173, 166, 150, 242, 111, 180, 170, 80, 63, 191, 176, 216, 68, 236, 149, 166, 100, 175, 180, 5, 93, 176, 247, 106, 47]
-var privateKeyHex = Crypto.util.bytesToHex(privateKeyBytes).toUpperCase()
-console.log(privateKeyHex) //1184CD2CDD640CA42CFC3A091C51D549B2F016D454B2774019C2B2D2E08529FD
-81098EB6C32833ADA696F26FB4AA503FBFB0D844EC95A664AFB4055DB0F76A2F VM5968:3
-undefined
-var privateKeyHex = Crypto.util.bytesToHex(privateKeyBytes).toUpperCase()
-undefined
-privateKeyHex
-"81098EB6C32833ADA696F26FB4AA503FBFB0D844EC95A664AFB4055DB0F76A2F"
-privateKeyHex = Crypto.util.bytesToHex(privateKeyBytes).toUpperCase()
-"81098EB6C32833ADA696F26FB4AA503FBFB0D844EC95A664AFB4055DB0F76A2F"
-var privateKeyWIF = new Bitcoin.Address(privateKeyBytes) 
-undefined
-privateKeyWIF = new Bitcoin.Address(privateKeyBytes) 
-Bitcoin.Address {hash: Array[32], version: 0, toString: function, getHashBase64: function}
-privateKeyWIF.version = 0x80
-128
-privateKeyWIF = privateKeyWIF.toString()
-"5Jo7fe6hD4HfVJRgHuRRy7prRUpP1x2LmM4wXVMf3FLVXJKme4F"
-  
-  
-var curve = getSECCurveByName("secp256k1") //found in bitcoinjs-lib/src/jsbn/sec.js
-
-//convert our random array or private key to a Big Integer
-var privateKeyBN = BigInteger.fromByteArrayUnsigned(privateKeyWIF) 
-
-var curvePt = curve.getG().multiply(privateKeyBN)
-var x = curvePt.getX().toBigInteger()
-var y = curvePt.getY().toBigInteger()
-var publicKeyBytes = integerToBytes(x,32) //integerToBytes is found in bitcoinjs-lib/src/ecdsa.js
-publicKeyBytes = publicKeyBytes.concat(integerToBytes(y,32))
-publicKeyBytes.unshift(0x04)
-var publicKeyHex = Crypto.util.bytesToHex(publicKeyBytes)
-
-console.log(publicKeyHex)
-04b9961810aa99c96413840ac443e8929c95ac462e713e0d2abfe3f20a3351cc39ca75c7818341e679b610876feb320b7a294ddd0bd399aeb0e7e339e80c502833 
-  */
 }
 
 
@@ -214,12 +98,7 @@ Puff.addPuff = function(puff) {
   
   Puff.receiveNewPuffs([puff])
 
-  Puff.sendPuff(puff)
-}
-
-
-Puff.sendPuff = function(puff) {
-  //// broadcast a puff to the network    
+  Puff.Network.distributePuff(puff)
 }
 
 
@@ -245,6 +124,7 @@ Puff.receiveNewPuffs = function(puffs) {
 
 Puff.Data = {}
 Puff.Data.puffs = []
+Puff.Data.users = []
 
 Puff.Data.eat = function(puff) {
   Puff.Data.puffs.push(puff)  // THINK: make this a map to avoid dupes?
@@ -255,27 +135,187 @@ Puff.Data.persist = function(puffs) {
   localStorage.setItem('puffs', JSON.stringify(puffs))
 }
 
-Puff.Data.getPuffs = function() {
+Puff.Data.getLocalPuffs = function() {
   return JSON.parse(localStorage.getItem('puffs') || '[]')
+}
+
+Puff.Data.getUser = function(username, callback) {
+  // FIXME: call Puff.Network.getUserFile, add the returned users to Puff.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+  
+  var my_callback = function(users) {
+    users.forEach(Puff.Data.addUser)
+    callback(username)
+  }
+  
+  $.getJSON("http://162.219.162.56/users/api.php?type=getUser&username=" + username, my_callback);
+}
+
+Puff.Data.addUser = function(user) {
+  Puff.Data.users.push(user)
+  // TODO: index by username
+  // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
+}
+
+
+// Puff.Data.make_fake_puffs = function() {
+//   // HACK: this is just for bootstrapping
+//   data_JSON_sample.forEach(function(post) {
+//     // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
+//     post.time = Date.now()
+//     
+//     // hack hack hack
+//     var len = Puff.Data.puffs.length
+//     post.parents = [ Puff.Data.puffs[ ~~(Math.random()*len) ]
+//                    , Puff.Data.puffs[ ~~(Math.random()*len) ]
+//                    , Puff.Data.puffs[ ~~(Math.random()*len) ]
+//                    ].filter(function(x) { return x != null })
+//                     .map   (function(x) { return x.sig })
+//                     .filter(function(value, index, list) { return list.indexOf(value) === index })
+//                    
+//     Puff.createPuff(post.author, post.id, 'text', post.content, post)
+//   })
+// }
+
+
+
+Puff.Network = {}
+
+Puff.Network.getAllPuffs = function(callback) {
+  //// get all the puffs from this zone
+  
+  // TODO: remove jQuery dependency
+  // TODO: add zone parameter (default to CONFIG.zone)
+  // THINK: use promises instead of callbacks? 
+  $.getJSON("http://162.219.162.56/users/api.php?type=getAllPuffs", callback)
+}
+
+Puff.Network.distributePuff = function(puff) {
+  //// distribute a puff to the network
+  
+  // add it to the server's pufflist
+  // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails 
+  $.ajax({
+    type: "POST",
+    url: "http://162.219.162.56/users/api.php",
+    data: {
+      type: "addPuff",
+      puff: JSON.stringify(puff)
+    },
+    success:function(result){
+      console.log(JSON.stringify(result));      // TODO: make this smarter
+    },
+    error: function() {
+      console.log('error!');                    // TODO: smartify this also
+    },
+  });
+  
+  // broadcast it to peers
+  // TODO: send it out via WS and RTC
+}
+
+Puff.Network.getUserFile = function(username, callback) {
+  var my_callback = function(users) {
+    Puff.Data.users = Puff.Data.users.concat(users)
+    callback(username)
+  }
+  
+  $.getJSON("http://162.219.162.56/users/api.php?type=getUserFile&username=" + username, my_callback);
+}
+
+Puff.Network.addAnonUser = function(publicKey, callback) {
+  $.ajax({
+    type: 'POST',
+    url: 'http://162.219.162.56/users/api.php"',
+    data: {
+      type: 'addUser',
+      publicKey: publicKey
+    },
+    success:function(result) {
+      if(result.username) {
+        if(typeof callback == 'function') 
+          callback(result.username)
+      } else {
+        console.log('Error Error Error: issue with adding anonymous user', result)
+      }
+    },
+    error: function(err) {
+      console.log('Error Error Error: the anonymous user could not be added', err)
+    },
+    dataType: 'json'
+  });
 }
 
 
 
-Puff.Data.make_fake_puffs = function() {
-  // HACK: this is just for bootstrapping
-  data_JSON_sample.forEach(function(post) {
-    // This is super hacky, but it gets us some cheap data. Next phase requires real users and private keys.
-    post.time = Date.now()
+
+
+/*
+
+  Puff.Crypto
+
+  Using bitcoin.js is pretty nightmarish for our purposes. 
+  It pollutes everything with extraneous strings, always forces down to addresses, 
+  and has a terrible API for compressed keys. Actually, the API is terrible in general.
+  It's also not currently maintained and is dog slow.
+
+  HOWEVER. 
+
+  Until we get some real crypto experts on board or a new js lib comes out that has good community support, 
+  leave this code alone.
+*/
+
+Puff.Crypto = {}
+
+Puff.Crypto.generatePrivateKey = function() {
+  //// generates a new private key and returns the base58 WIF string version
+  //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
     
-    // hack hack hack
-    var len = Puff.Data.puffs.length
-    post.parents = [ Puff.Data.puffs[ ~~(Math.random()*len) ]
-                   , Puff.Data.puffs[ ~~(Math.random()*len) ]
-                   , Puff.Data.puffs[ ~~(Math.random()*len) ]
-                   ].filter(function(x) { return x != null })
-                    .map   (function(x) { return x.sig })
-                    .filter(function(value, index, list) { return list.indexOf(value) === index })
-                   
-    Puff.createPuff(post.author, post.id, 'text', post.content, post)
-  })
+  var randArr = new Uint8Array(32) //create a typed array of 32 bytes (256 bits)
+  window.crypto.getRandomValues(randArr) //populate array with cryptographically secure random numbers
+  
+  var privateKeyBytes = []  //some Bitcoin and Crypto methods don't like Uint8Array for input. They expect regular JS arrays.
+  for (var i = 0; i < randArr.length; ++i)
+    privateKeyBytes[i] = randArr[i]
+
+  // return privateKeyBytes
+
+  // NOTE: the 'Address' below isn't a bitcoin address -- it's still the private key, but in Wallet Import Format
+  privateKeyBytes.push(0x01) // for compressed format
+  var privateKeyWIF = new Bitcoin.Address(privateKeyBytes) 
+  privateKeyWIF.version = 0x80 //0x80 = 128, https://en.bitcoin.it/wiki/List_of_address_prefixes
+  return privateKeyWIF.toString() // base58 string version of privatekey
+}
+
+Puff.Crypto.privateToPublic = function(privateKeyWIF) {
+  //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
+  
+  // privateKeyWIF is returned by Puff.Crypto.generatePrivateKey
+  var eckey = new Bitcoin.ECKey(privateKeyWIF)
+  eckey.compressed = true
+  // var publicKeyHex = Crypto.util.bytesToHex(eckey.getPub()) 
+  // var publicKeyBase58 = Bitcoin.Base58.encode(publicKeyHex)
+  var publicKeyBase58 = Bitcoin.Base58.encode(eckey.getPub()) // FIXME: doing bytesToHex breaks sigs... but is skipping it ok?
+  return publicKeyBase58
+}
+
+Puff.Crypto.verifyPuff = function(puff, publicKeyBase58) {
+  return Puff.Crypto.verifyMessage(puff.sig, puff.payload, publicKeyBase58)
+}
+
+Puff.Crypto.verifyMessage = function(sig, message, publicKeyBase58) {
+  //// accept a base 58 sig, a message (can be an object) and a base 58 public key. returns true if they match, false otherwise
+  
+  var address = new Bitcoin.Address(Bitcoin.Util.sha256ripe160(Bitcoin.Base58.decode(publicKeyBase58))).toString()
+  var sigBase64 = Crypto.util.bytesToBase64(Bitcoin.Base58.decode(sig))
+  return verify_message(sigBase64, message) === address  // TODO: this is complete lunacy
+}
+
+Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
+  //// sign the hash of a payload with a private key and return the sig in base 58
+
+  var eckey = new Bitcoin.ECKey(privateKeyWIF)
+  eckey.compressed = true
+  var sig = sign_message(eckey, payload, true) // 'true' is for compressed keys
+  var sigBase58 = Bitcoin.Base58.encode(Crypto.util.base64ToBytes(sig))
+  return sigBase58 // base64 sigs don't work as DOM ids
 }

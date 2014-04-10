@@ -8,6 +8,19 @@ FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="con
 var eatPuffs = function(puffs) {
   // call the display logic
   console.log(puffs)
+  
+  if(!Array.isArray(puffs) || !puffs.length)
+    return false
+  
+  if(typeof stupidTempGlobalFlagDeleteMe == 'undefined')
+    stupidTempGlobalFlagDeleteMe = false
+  
+  // is anything showing? no? ok, show something.
+  if(!stupidTempGlobalFlagDeleteMe) {
+    showPuff(puffs[0])   // show the first root
+    stupidTempGlobalFlagDeleteMe = true
+  }
+  
 }
 
 PuffForum.onNewPuffs(eatPuffs);
@@ -18,37 +31,36 @@ PuffForum.init();
 
 // Creates the contents of a Puff (or block).
 puffTemplate = function(puff, isMain) {
-    if(isMain) {
-        var classToUse = 'blockMain';
-    } else {
-        var classToUse = 'block';
-    }
-
+  if(isMain) {
+    var classToUse = 'blockMain';
+  } else {
+    var classToUse = 'block';
+  }
 
   var author = puff.payload.username;
   var content = puff.payload.content;
 
   // Apply BBCODE styling
-    // TODO: Condition on contentType
-    bbcodeParse = XBBCODE.process({
-        text: content
-    });
+  // TODO: Condition on contentType
+  bbcodeParse = XBBCODE.process({
+    text: content
+  });
 
-    var parsedText = bbcodeParse.html;
+  var parsedText = bbcodeParse.html;
 
   var id = puff.sig;
   var dots = parsedText.length > window.threshold ? ' ...' : '';
 
-    return $('<div class="' + classToUse + '" id="' + id + '">\
-    <div class="author">' + author + '</div>\
-    <div class="txt">\
-    ' + parsedText.substring(0, window.threshold) + dots + '\
-    </div>\
-    <div class="bar">\
-      <span class="icon">\
-        <img src="img/reply.png" width="16" height="16"> \
-      </span>\
-    </div>\
+  return $('<div class="' + classToUse + '" id="' + id + '">\
+  <div class="author">' + author + '</div>\
+  <div class="txt">\
+  ' + parsedText.substring(0, window.threshold) + dots + '\
+  </div>\
+  <div class="bar">\
+  <span class="icon">\
+  <img src="img/reply.png" width="16" height="16"> \
+  </span>\
+  </div>\
   </div>');
 }; 
 
@@ -86,22 +98,18 @@ showPuff = function(puff) {
     });
 
     // Draw lines between end points.
-      jsPlumb.connect({
-          source: e0,
-          target: e,
-          paintStyle: {
-              lineWidth: 2,
-              strokeStyle: "#d1d1d1"
-          },
-          connector: "Straight",
-          endpoint: "Blank",
-          overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-      });
-
+    jsPlumb.connect({
+      source: e0,
+      target: e,
+      paintStyle: {
+        lineWidth: 2,
+        strokeStyle: "#d1d1d1"
+      },
+      connector: "Straight",
+      endpoint: "Blank",
+      overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+    });
   });
-
-
-
 }
 
 
@@ -117,8 +125,6 @@ window.threshold = 400;
 
 document.addEventListener('DOMContentLoaded', function() {
   
-  showPuff(PuffForum.getRootPuffs()[0]);   // show the first root
-  
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
     var id   = ev.target.parentNode.id;
@@ -128,30 +134,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // When browser window is resized, refresh jsPlumb connecting lines.
   $(window).resize(function(){
-      jsPlumb.repaintEverything();
+    jsPlumb.repaintEverything();
   });
 });
 
 // Looking for double click to add content
 jQuery(document).ready(function(){
-    jQuery(document).dblclick(function(event){
-        // TODO: Toggle show div on double click
+  jQuery(document).dblclick(function(event){
+    // TODO: Toggle show div on double click
 
-        if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-          // user dbl clicks & wants to hide input form
-          FESYSTEM.tempContent = $('textarea#content').val();
-          $('#addContentDiv').eq(0).remove();
+    if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+      // user dbl clicks & wants to hide input form
+      FESYSTEM.tempContent = $('textarea#content').val();
+      $('#addContentDiv').eq(0).remove();
 
-        } else {
-          // case for input form reappearing
-          $( "body" ).append(FESYSTEM.toShow);
-          $('#addContentDiv').eq(0).draggable();
+    } else {
+      // case for input form reappearing
+      $( "body" ).append(FESYSTEM.toShow);
+      $('#addContentDiv').eq(0).draggable();
 
-          if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-            // user has already hidden a previous input form
-            $('textarea#content').val(FESYSTEM.tempContent);
-          }
-          // otherwise, just a brand new input form, no content inside
-        }
-    });
+      if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+        // user has already hidden a previous input form
+        $('textarea#content').val(FESYSTEM.tempContent);
+      }
+      // otherwise, just a brand new input form, no content inside
+    }
+  });
 });

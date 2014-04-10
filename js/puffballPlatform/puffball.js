@@ -348,6 +348,7 @@ Puff.Blockchain = {}
 
 Puff.Blockchain.BLOCKSIZE = 10000
 Puff.Blockchain.SIGSIZE = 100
+Puff.Blockchain.BLOCKS = {}
 
 Puff.Blockchain.createBlock = function(prevSig, puff, privateKeyWIF) {
   //// Creates a new block, by adding the payload (puff and the signature
@@ -372,8 +373,25 @@ Puff.Blockchain.createBlock = function(prevSig, puff, privateKeyWIF) {
   // sign the content
   newBlock.blockSig = Puff.Blockchain.paddSig(Puff.Crypto.signBlock(newBlock.blockPayload, privateKeyWIF))
 
-  return newBlock
+  BLOCKS[newBlock.blockSig] = newBlock
 
+  return newBlock  
+
+}
+
+Puff.Blockchain.readBlock = function(sig) {
+  return BLOCKS[sig]
+}
+
+Puff.Blockchain.updateBlock = function(sig, puff, privateKeyWIF) {
+  var newBlock = createBlock(BLOCKS[sig].blockPayload.prevSig, puff, privateKeyWIF)
+  delete BLOCKS[sig]
+  BLOCKS[newBlock.blockSig] = newBlock
+  return newBlock
+}
+
+Puff.Blockchain.deleteBlock = function(sig) {
+  delete BLOCKS[sig]
 }
 
 Puff.Blockchain.getNewBlankBlock = function(){

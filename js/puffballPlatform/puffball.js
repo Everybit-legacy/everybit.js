@@ -211,6 +211,9 @@ Puff.Network.distributePuff = function(puff) {
   
   // broadcast it to peers
   // TODO: send it out via WS and RTC
+  
+  // Puff.
+  
 }
 
 Puff.Network.getUserFile = function(username, callback) {

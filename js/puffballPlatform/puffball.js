@@ -60,6 +60,8 @@ Puff.init = function(zone) {
 
   Puff.Network.getAllPuffs(Puff.receiveNewPuffs)
   Puff.Blockchain.BLOCKS = JSON.parse(localStorage.getItem("blocks"))
+  if(Puff.Blockchain.BLOCKS === null)
+    Puff.Blockchain.BLOCKS = {}
 
   // Puff.Data.make_fake_puffs()
 }
@@ -84,7 +86,8 @@ Puff.createPuff = function(username, privatekey, type, content, meta) {
   var puff = {payload: payload, sig: Puff.Crypto.signPayload(payload, privatekey)}
   
   Puff.addPuff(puff) // THINK: move this somewhere else...
-  Puff.Blockchain.createBlock(Puff.Blockchain.BLOCKS[Puff.Blockchain.BLOCKS.length - 1].blockSig, puff, privatekey)
+  var userBlockchain = Puff.Blockchain.BLOCKS[username]
+  Puff.Blockchain.createBlock(username, userBlockchain[userBlockchain.length - 1].blockSig, puff, privatekey)
   
   return puff
 }
@@ -238,9 +241,6 @@ Puff.Network.addAnonUser = function(publicKey, callback) {
       if(result.username) {
         if(typeof callback == 'function')
           callback(result.username)
-          if(Puff.Blockchain.BLOCKS === null) {
-            Puff.Blockchain.BLOCKS = []
-          }
           Puff.Blockchain.createGenesisBlock(result.username)
       } else {
         console.log('Error Error Error: issue with adding anonymous user', result)
@@ -341,7 +341,7 @@ Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
 
   Puff.Blockchain
 
-  A JSON Object.
+  Each block is JSON Object.
   Fixed size: 10k bytes
   Fixed attributes:
     blockSig: (Size: 100 bytes)
@@ -350,11 +350,15 @@ Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
       puff:
       padding:
 
-  Example verifying blocks:
-  Puff.Crypto.verifyBlock(BLOCKS[lastSig2], pub2)
-    lastSig2: the signature of the last block of user 2
-    BLOCKS[lastSig2]: retrieves a BLOCK from memory corresponding to the signature
-    pub2: the public key of user 2
+  The blocks are stored in Puff.Blockchain.BLOCKS.
+  BLOCKS is an object with properties that correspond
+  to usernames and points to this users blockchain.
+      Each users blockchain is an array, where the
+  actual blocks relevant for this user are stored.
+  
+  Example:
+    Puff.Blockchain.BLOCKS['username'] 
+    retrieves the blockchain of 'username' as an array
 
 */
 
@@ -362,9 +366,8 @@ Puff.Blockchain = {}
 
 Puff.Blockchain.BLOCKSIZE = 10000
 Puff.Blockchain.SIGSIZE = 100
-Puff.Blockchain.BLOCKS = []
 
-Puff.Blockchain.createBlock = function(prevSig, puff, privateKeyWIF) {
+Puff.Blockchain.createBlock = function(username, prevSig, puff, privateKeyWIF) {
   //// Creates a new block, by adding the payload (puff and the signature
   //// of the previous block), adding necessary padding and signing it 
 
@@ -387,26 +390,29 @@ Puff.Blockchain.createBlock = function(prevSig, puff, privateKeyWIF) {
   // sign the content
   newBlock.blockSig = Puff.Blockchain.paddSig(Puff.Crypto.signBlock(newBlock.blockPayload, privateKeyWIF))
 
-  Puff.Blockchain.BLOCKS.push(newBlock)
+  Puff.Blockchain.BLOCKS[username].push(newBlock)
   localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS))
 
   return newBlock.blockSig
 }
 
-Puff.Blockchain.readBlock = function(sig) {
-  return Puff.Blockchain.BLOCKS[Puff.Blockchain.BLOCKS.indexOf(sig)]
+Puff.Blockchain.readBlock = function(username, sig) {
+  var userBlockchain = Puff.Blockchain.BLOCKS.username
+  return userBlockchain[userBlockchain.indexOf(sig)]
 }
 
-Puff.Blockchain.updateBlock = function(sig, puff, privateKeyWIF) {
-  var newBlock = createBlock(BLOCKS[sig].blockPayload.prevSig, puff, privateKeyWIF)
-  Puff.Blockchain.BLOCKS.splice(Puff.Blockchain.BLOCKS.indexOf(sig), Puff.Blockchain.BLOCKS.length)
-  Puff.Blockchain.BLOCKS.push(newBlock)
+Puff.Blockchain.updateBlock = function(username, sig, puff, privateKeyWIF) {
+  var userBlockchain = Puff.Blockchain.BLOCKS.username
+  var newBlock = createBlock(userBlockchain[sig].blockPayload.prevSig, puff, privateKeyWIF)
+  userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length)
+  userBlockchain.push(newBlock)
   localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS))
   return newBlock.blockSig
 }
 
-Puff.Blockchain.deleteBlock = function(sig) {
-  Puff.Blockchain.BLOCKS.splice(Puff.Blockchain.BLOCKS.indexOf(sig), Puff.Blockchain.BLOCKS.length)
+Puff.Blockchain.deleteBlock = function(username, sig) {
+  var userBlockchain = Puff.Blockchain.BLOCKS.username
+  userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length)
   localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS))
 }
 
@@ -446,10 +452,12 @@ Puff.Blockchain.paddSig = function(sig) {
 
 Puff.Blockchain.createGenesisBlock = function(username) {
 
-  var newBlock = Puff.Blockchain.getNewBlankBlock()
-  newBlock.blockSig = Puff.Blockchain.paddSig(username)
-  Puff.Blockchain.BLOCKS.push(newBlock)
+  Puff.Blockchain.BLOCKS[username] = []
 
+  var newBlock = Puff.Blockchain.getNewBlankBlock()
+  newBlock.blockSig = Puff.Blockchain.paddSig(username + "_1")
+
+  Puff.Blockchain.BLOCKS[username].push(newBlock)
   return newBlock.blockSig
 
 }

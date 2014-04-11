@@ -59,12 +59,12 @@ PuffForum.init();
 var updateMinimap = function() {  
   var mapdom = $('#minimap')
   
-  Puff.Data.puffs.forEach(function(puff) {
-    template = '<a href="#" onclick="showPuff(PuffForum.getPuffById(' 
-             + puff.sig + '));return false;" class="under">' 
-             + puff.sig + '</a>'
-    mapdom.append($(template))
-  })
+  // Puff.Data.puffs.forEach(function(puff) {
+  //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
+  //            + puff.sig + '\'));return false;" class="under">' 
+  //            + puff.sig + '</a></p>'
+  //   mapdom.append($(template))
+  // })
 }
 
 

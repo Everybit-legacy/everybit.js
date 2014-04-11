@@ -101,6 +101,13 @@ $(document).ready(function() {
 </div>
 
 <div class="menuItem">
+    <a href="#" onclick="getBlockchian();return false;" class="under">Download your blockchin</a>
+</div>
+
+<div class="menuItem" id="blockchainLink">
+</div>
+
+<div class="menuItem">
     <form id="setUserInfo">
         Set your username and private key:<br>
         Username: <input type="text" id="usernameSet"><br />
@@ -233,6 +240,35 @@ $(document).ready(function() {
         puffs.slice(0, CONFIG.maxLatestRootsToShow).forEach(function(puff) {
             $("#children").append( puffTemplate(puff, false) );
         });
+
+    }
+
+    function getBlockchian() {
+        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
+            return false;
+        } else {
+
+            // return
+
+
+           var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
+           var linkData = encodeURIComponent(JSON.stringify(blocks))
+
+           // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+           // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+
+           // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+           // pom.setAttribute('download', filename);
+
+            var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+
+
+            document.getElementById('blockchainLink').innerHTML = linkHTML;
+            console.log(link);
+            console.log(linkHTML);
+
+        }
+
 
     }
 

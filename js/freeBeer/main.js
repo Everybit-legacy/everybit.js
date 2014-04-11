@@ -1,5 +1,18 @@
 // Bridge between visualization framework (plumb? angular? d3?) and js/forum files
 
+/*
+
+  Demo todos:
+  - P2P on FB
+  - alternate server + p2p
+  - fancy graphics
+  - chess posts
+  - parent styling
+  - tree styling
+
+*/
+
+
 
 ///////// PuffForum Interface ////////////
 

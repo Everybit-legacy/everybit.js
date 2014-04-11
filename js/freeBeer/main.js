@@ -248,7 +248,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
-    var id   = ev.target.parentNode.id;
+    var id   = $(ev.target).parents('.block, .blockMain').attr('id')
+    if(!id) return false
     var puff = PuffForum.getPuffById(id);
     showPuff(puff)
   });

@@ -36,6 +36,8 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
     <link rel="stylesheet" type="text/css" href="styles/xbbcode.css" />
     <script type="text/javascript" src="scripts/xbbcode.js"></script>
     <script type="text/javascript" src="js/freeBeer/validations.js"></script>
+    <script type="text/javascript" src="scripts/qrcode.js"></script>
+    <script type="text/javascript" src="scripts/qrcodeSample.js"></script>
 </head>
 <body>
 
@@ -104,6 +106,10 @@ function toggleAddContentDiv() {
     <a href="#" onclick="hidePublic();return false;">Hide your public key</a>
 </div>
 <div class="menuItem">
+    <a href="#" onclick="update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);return false;">Generate QR code for PRIVATE key</a>
+</div>
+
+<div class="menuItem">
     <form id="setUserInfo">
         Set your username and private key for content signing (this will be converted into a public key and then the public key will be compared with that user's record):<br>
         Username: <input type="text" id="usernameSet"><br />
@@ -114,8 +120,9 @@ function toggleAddContentDiv() {
 <div class="menuItem" id="currentUser"></div>
 <div class="menuItem" id="publicKeyMenuItem"></div>
 <div class="menuItem" id="privateKeyMenuItem"></div>
+<div class="menuItem" id="qr"></div>
 
-    </ul>
+
 </div>
 <script>
     $("#setUserInfo").submit(function( event ) {

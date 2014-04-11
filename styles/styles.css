@@ -55,7 +55,6 @@ body {
     font-family: GudeaBold;
     padding: 2px;
     text-align: left;
-    font-weight: bold;
     /* color: #2d479a; */
     color: #006738;
     border-bottom: 1px solid #a1a1a1;;
@@ -169,13 +168,32 @@ header h1 {
 .mainForm {
     z-index: 300;
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 200px;
+    left: 200px;
     background: #FAFAFA;
     border-radius: 25px;
     text-align: center;
     padding: 8px;
-    border: 1px solid #a1a1a1;
+    border: 4px solid #a1a1a1;
+}
+
+#otherForm {
+    display: none;
+}
+
+#otherForm:hover, form:hover {
+    cursor: all-scroll;
+}
+#otherForm form > * {
+    cursor: auto;
+}
+#otherForm form button,
+#otherForm form input {
+    cursor: pointer;
+}
+
+#addContentDiv {
+    z-index: 20;
 }
 
 #addContentDiv:hover, #addContentDiv form:hover {
@@ -191,7 +209,7 @@ header h1 {
 
 .textarea {
     font-family: Gudea, sans-serif;
-    border: 4px solid #006738;
+    border: 0px solid #006738;
     padding-left: 15px;
     padding-right: 15px;
 
@@ -199,14 +217,38 @@ header h1 {
 
 .logo {
     position: absolute;
-    z-index: -2;
+    z-index: 4;
     top: 20px;
     right: 20px;
 }
 
-.puffballIocn {
+.puffballIcon {
     position: absolute;
-    z-index: -2;
+    z-index: 5;
     top: 20px;
     left: 20px;
+}
+
+.menu {
+    font-family: Gudea;
+    padding-left: 10px;
+    margin: 0;
+    text-align: left;
+    font-weight: bold;
+    color: #000000;
+    position: absolute;
+    left: 15px;
+    top: 60px;
+    background-color: rgba(255, 255, 255, 0.95);
+    z-index: 10;
+    min-width: 200px;
+    max-width: 30%;
+    display: none;
+}
+
+.menuItem {
+    list-style-type: none;
+    padding-top: 15px;
+    /* border-bottom: 1px solid #a1a1a1; */
+    margin: 0px;
 }

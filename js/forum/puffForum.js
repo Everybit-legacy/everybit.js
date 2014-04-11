@@ -106,21 +106,22 @@ PuffForum.addAnonUser = function(callback) {
   //// statefully state a new user and register it and store it and oh dear
   
   // gen privkey
-  var privateKey = Puff.Crypto.generatePrivateKey()
+  var privateKey = Puff.Crypto.generatePrivateKey();
   
   // gen pubkey
-  var publicKey = Puff.Crypto.privateToPublic(privateKey)
+  var publicKey = Puff.Crypto.privateToPublic(privateKey);
   
-  PuffForum.userinfoLivesHereForNow.privateKey = privateKey
-  PuffForum.userinfoLivesHereForNow.publicKey  = publicKey
+  PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
+  PuffForum.userinfoLivesHereForNow.publicKey  = publicKey;
   
   var my_callback = function(username) {
-    PuffForum.userinfoLivesHereForNow.username = username
-    if(typeof callback == 'function') 
-      callback(username)
+    PuffForum.userinfoLivesHereForNow.username = username;
+    if(typeof callback == 'function') {
+        callback(username)
+    }
   }
   
-  Puff.Network.addAnonUser(publicKey, my_callback)
+  Puff.Network.addAnonUser(publicKey, my_callback);
 }
 
 PuffForum.onNewPuffs = function(callback) {

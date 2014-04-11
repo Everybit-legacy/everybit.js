@@ -222,7 +222,7 @@ $(document).ready(function() {
 
     function viewLatestConversations() {
         var puffs = PuffForum.getRootPuffs();
-        puffs.sort(function(a, b) {return a.payload.time < b.payload.time});
+        puffs.sort(function(a, b) {return b.payload.time - a.payload.time});
 
         $('#parents').empty();
         $('#main-content').empty();

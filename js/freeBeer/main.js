@@ -107,7 +107,7 @@ showPuff = function(puff) {
   var childrenPuffs = PuffForum.getChildren(puff);
 
   childrenPuffs.sort(function(a, b) {
-    return a.payload.time < b.payload.time
+    return b.payload.time - a.payload.time
   });
 
   childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {

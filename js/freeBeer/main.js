@@ -3,13 +3,13 @@
 /*
 
   Demo todos:
-  - P2P on FB
+  -- P2P on FB
   - alternate server + p2p
   - fancy graphics
   - chess posts
   - parent styling
   - tree styling
-
+  - tree map
 */
 
 
@@ -49,6 +49,18 @@ PuffForum.onNewPuffs(eatPuffs);
 PuffForum.init();
 
 ////////// End PuffForum Interface ////////////
+
+
+
+/////// minimap ////////
+
+var updateMinimap = function() {  
+  var mapdom = $('#minimap')
+  mapdom.append(JSON.stringify(Puff.Data.puffs))
+}
+
+
+////// end minimap /////
 
 
 
@@ -178,6 +190,17 @@ showPuff = function(puff) {
 }
 
 
+// set state to current puff
+function setBrowserHistoryPuffStateToSomething(puff) {
+  var state = { 'puff': puff.sig }
+  history.pushState(state, '', '#puff=' + puff.sig)
+}
+
+// onload, store the puff id we're looking for
+function storePuffIdToSomePlaceOnLoad() {
+  someSillyGlobalPuffId = window.location.hash.substring(1)
+}
+
 
 // window.location.hash returns the anchor part of the browsers URL,
 // including the #. Hence substring removes the #.
@@ -231,7 +254,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
-    var id   = ev.target.parentNode.id;
+    var id   = $(ev.target).parents('.block, .blockMain').attr('id')
+    if(!id) return false
     var puff = PuffForum.getPuffById(id);
     showPuff(puff)
   });

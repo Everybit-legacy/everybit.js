@@ -44,7 +44,6 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 <script>
     // Globals
     var FESYSTEM = new Object(); // holds anything required for front-end works
-    FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>';
 </script>
 
 
@@ -60,38 +59,30 @@ $(document).ready(function() {
         $("#menu").toggle();
     });
 
+    $("#otherNewContentLink").click(function() {
+        $("#otherForm").toggle();
+    });
+
+    $('#otherForm').eq(0).draggable();
 
 });
 
-function toggleAddContentDiv() {
-    if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-        // user dbl clicks & wants to hide input form
-        FESYSTEM.tempContent = $('textarea#content').val();
-        $('#addContentDiv').eq(0).remove();
 
-    } else {
-        // case for input form reappearing
-        $( "body" ).append(FESYSTEM.toShow);
-        $('#addContentDiv').eq(0).draggable();
-
-        if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-            // user has already hidden a previous input form
-            $('textarea#content').val(FESYSTEM.tempContent);
-        }
-        // otherwise, just a brand new input form, no content inside
-    }
-}
 </script>
+
+<div id="otherForm" class="mainForm">
+    <div id="authorDiv"></div>
+    <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>
+
+
 
 <div class="menu" id="menu">
 <div class="menuItem">
+    <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;'>Add new content</a>
+</div>
+
+<div class="menuItem">
     <a href="#" onclick="newAnon();return false;">Generate a new username</a>
-</div>
-<div class="menuItem">
-    <a href="#" id="newContentLink" onclick="toggleAddContentDiv();return false;">Add new content</a>
-</div>
-<div class="menuItem">
-    Set username and key to use
 </div>
 <div class="menuItem">
     <a href="#" onclick="viewPrivate();return false;">Show your private key</a>
@@ -111,10 +102,11 @@ function toggleAddContentDiv() {
 
 <div class="menuItem">
     <form id="setUserInfo">
-        Set your username and private key for content signing (this will be converted into a public key and then the public key will be compared with that user's record):<br>
+        Set your username and private key:<br>
         Username: <input type="text" id="usernameSet"><br />
         Private Key: <input type="text" id="privateKeySet"><br />
-        <input type="submit" value="set">
+        <input type="submit" value="set"><br>
+        <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
     </form>
 </div>
 <div class="menuItem" id="currentUser"></div>
@@ -168,15 +160,13 @@ function toggleAddContentDiv() {
                 }
             },
             error: function () {
-                alert('Unable to find a maching user for that information!');
+                alert('Unable to find a matching user for that information!');
             },
             dataType: "json"
         });
 
-
-
-        // Put this info into
-
+        // Put this info into authorDiv
+        document.getElementById('authorDiv').innerHTML = '<span class="author">' + username + '</span>';
 
 
     });
@@ -186,6 +176,7 @@ function toggleAddContentDiv() {
         PuffForum.addAnonUser(function(newName) {
             // PuffForum.userinfoLivesHereForNow.username
             document.getElementById('currentUser').innerHTML = "New user: " + newName;
+            document.getElementById('authorDiv').innerHTML = '<span class="author">' + newName + '</span>';
         });
 
     }

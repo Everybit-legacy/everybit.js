@@ -2,7 +2,10 @@
 
 // Globals
 var FESYSTEM = new Object(); // holds anything required for front-end works
-FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>'; 
+FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"><input type="hidden" name="parentids" id="parentids" value="[]"></form></div>'; 
+
+
+///////// PuffForm Interface ////////////
 
 // register our update function
 var eatPuffs = function(puffs) {
@@ -19,14 +22,25 @@ var eatPuffs = function(puffs) {
   if(!stupidTempGlobalFlagDeleteMe) {
     showPuff(puffs[0])   // show the first root
     stupidTempGlobalFlagDeleteMe = true
+    return false
   }
   
+  // ok. now that the stupid stuff is done, let's do something smart.
+  // what's my main content item? is this new puff a child of it?
+  
+  var currentId = $('.blockMain').attr('id') // oh dear why would you do this use app data & react instead
+  
+  if(puffs.some(function(puff) {return !!~puff.payload.parents.indexOf(currentId)}))
+    showPuff(PuffForum.getPuffById(currentId))
 }
 
 PuffForum.onNewPuffs(eatPuffs);
 
 // initialize the forum module (and by extension the puffball network)
 PuffForum.init();
+
+////////// End PuffForum Interface ////////////
+
 
 
 // Creates the contents of a Puff (or block).
@@ -58,7 +72,7 @@ puffTemplate = function(puff, isMain) {
   </div>\
   <div class="bar">\
   <span class="icon">\
-  <img src="img/reply.png" width="16" height="16"> \
+  <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16"> \
   </span>\
   </div>\
   </div>');
@@ -132,6 +146,29 @@ window.threshold = 400;
 
 document.addEventListener('DOMContentLoaded', function() {
   
+  // add content form
+  $(document).on('submit', "#contentForm", function( event ) {
+    event.preventDefault()
+    PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
+    $('#addContentDiv').eq(0).remove(); // THINK: maybe just hide this?
+  });
+
+  // reply-to
+  $(document).on('click', '.reply', function( event ) {
+    event.preventDefault()
+    var sig = event.target.dataset.value
+    var parents = $('#parentids').val()
+    if(!parents) return false
+    
+    var newParents = JSON.parse(parents)
+    newParents.push(sig)
+    
+    $('#parentids').val(JSON.stringify(newParents))
+    
+    // TODO: draw arrows
+    // TODO: undo if sig is already in parents array
+  });
+
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
     var id   = ev.target.parentNode.id;
@@ -143,10 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
   $(window).resize(function(){
     jsPlumb.repaintEverything();
   });
-});
 
-// Looking for double click to add content
-jQuery(document).ready(function(){
+  // Looking for double click to add content
   jQuery(document).dblclick(function(event){
     // TODO: Toggle show div on double click
 
@@ -167,4 +202,5 @@ jQuery(document).ready(function(){
       // otherwise, just a brand new input form, no content inside
     }
   });
+  
 });

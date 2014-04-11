@@ -151,15 +151,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // reply-to
   $(document).on('click', '.reply', function( event ) {
-    event.preventDefault()
-    var sig = event.target.dataset.value
-    var parents = $('#parentids').val()
-    if(!parents) return false
+    event.preventDefault();
+
+    var sig = event.target.dataset.value;
+    var parents = $('#parentids').val();
+    if(!parents) return false;
     
-    var newParents = JSON.parse(parents)
-    newParents.push(sig)
-    
-    $('#parentids').val(JSON.stringify(newParents))
+    var newParents = JSON.parse(parents);
+
+      if($.inArray(sig, newParents) !== -1) {
+          var index = newParents.indexOf(sig);
+          newParents.splice(index, 1);
+          // TODO: Set class of reply arrow to Black. Will need to use transparent gif in front and background css image change
+
+
+      } else {
+          newParents.push(sig);
+
+          $('#parentids').val(JSON.stringify(newParents));
+
+          // TODO: Set class of reply arrow to red
+      }
+
     
     // TODO: draw arrows
     // TODO: undo if sig is already in parents array

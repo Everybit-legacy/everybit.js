@@ -150,8 +150,8 @@ $(document).ready(function() {
                 username: username
             },
             success: function (result) {
-                userInfo = (JSON.stringify(result));
-                if(userInfo.publicKey === currPublic) {
+
+                if(result.publicKey === currPublic) {
                     // Register this user in client memory so they can sign content
                     PuffForum.userinfoLivesHereForNow.username = username;
                     PuffForum.userinfoLivesHereForNow.privateKey = privateKey;

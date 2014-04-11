@@ -224,16 +224,31 @@ document.addEventListener('DOMContentLoaded', function() {
   // add content form
   $(document).on('submit', "#otherContentForm", function( event ) {
     event.preventDefault()
-    PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
-    $('#otherForm').toggle();
 
-      // TODO: Clear out parentids on post. could need to set direct?
-      $("#parentids").val('[]');
+    // PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
+    // $('#otherForm').toggle();
+    // 
+    //   // TODO: Clear out parentids on post. could need to set direct?
+    //   $("#parentids").val('[]');
+// =======
+
+    content = $("#content").val();
+    $("#content").val("");//clean form after
+
+    PuffForum.addPost( content, JSON.parse( $("#parentids").val() ));
+    
+// >>>>>>> origin/minor-bugs
   });
 
   // reply-to
+  $(document).on('click', '#cancel-form', function( event ) {
+    $('#otherForm').hide();
+    $('#content').val("");
+  })
+
   $(document).on('click', '.reply', function( event ) {
     event.preventDefault();
+    $("#otherForm").show();
 
     var sig = event.target.dataset.value;
     var parents = $('#parentids').val();

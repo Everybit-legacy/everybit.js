@@ -190,6 +190,8 @@ header h1 {
 
 #otherForm {
     display: none;
+    left: 50% !important;
+    margin-left: -250px !important;
 }
 
 #otherForm:hover, form:hover {

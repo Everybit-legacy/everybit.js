@@ -106,7 +106,9 @@ showPuff = function(puff) {
     // Use CONFIG.maxChildrenToShow
   var childrenPuffs = PuffForum.getChildren(puff);
 
-  childrenPuffs.sort(function(a, b) {return a.payload.time < b.payload.time});
+  childrenPuffs.sort(function(a, b) {
+    return a.payload.time < b.payload.time
+  });
 
   childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
     $("#children").append( puffTemplate(puff, false) );

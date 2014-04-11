@@ -39,38 +39,6 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 <img src="img/FreeBeerPuffball.gif" class="logo">
 <img src="img/puffballIcon.gif" class="puffballIocn">
 
-<script>
-    $("#contentForm").submit(function( event ) {
-        // Is this user in localStorage
-
-        // Generate new anon user
-        $.ajax({
-            type: "POST",
-            url: "api.php",
-            data: {
-                type: "addUser",
-                username: $("#username").val(),
-                publicKey: $("#publicKey").val()
-            },
-            success:function(result){
-                console.log(JSON.stringify(result));
-                // console.log(result);
-            },
-            error: function() {
-                alert('error!');
-            },
-            dataType: "json"
-        });
-
-        puffForum.addPuff($("#content").val(), JSON.parse($("#parents").val()));
-
-    });
-
-
-</script>
-
-<section class="form"></section>
-
 <section id="parents"></section>
 
 <section id="main-content"></section>

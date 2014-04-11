@@ -91,6 +91,9 @@ puffTemplate = function(puff, isMain) {
 
   var parsedText = bbcodeParse.html;
 
+    // Replace newline chars with <br />
+    parsedText = parsedText.replace(/\n/g, '<br />');
+
   var id = puff.sig;
   var dots = parsedText.length > window.threshold ? ' ...' : '';
 
@@ -223,6 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
     event.preventDefault()
     PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
     $('#otherForm').toggle();
+
+      // TODO: Clear out parentids on post. could need to set direct?
+      $("#parentids").val('[]');
   });
 
   // reply-to
@@ -275,14 +281,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /*
-// Looking for double click to add content
 jQuery(document).ready(function(){
 
-  jQuery(document).dblclick(function(event){
-    // TODO: Toggle show div on double click
-
-
-  });
+  jQuery(document).click(function(e){
+          var obj = (e.target ? e.target : e.srcElement);
+          if (obj.tagName != 'BODY') return true;
+          alert("BODY!");
+          return false;
+      });
 
 });
 */

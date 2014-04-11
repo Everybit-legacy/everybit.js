@@ -463,3 +463,9 @@ Puff.Blockchain.createGenesisBlock = function(username) {
   return newBlock.blockSig
 
 }
+
+Puff.Blockchain.exportChain = function(username){
+  //// Returns the username's blockchain as serialized JSON
+  var userBlockchain = Puff.Blockchain.BLOCKS[username]
+  return "data:application/octet-stream;charset=utf-8;base64" + encodeURIComponent(JSON.stringify(userBlockchain))
+}

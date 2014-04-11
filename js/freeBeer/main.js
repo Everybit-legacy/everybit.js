@@ -24,6 +24,8 @@ var eatPuffs = function(puffs) {
   if(!Array.isArray(puffs) || !puffs.length)
     return false
   
+  updateMinimap()    
+  
   if(typeof stupidTempGlobalFlagDeleteMe == 'undefined')
     stupidTempGlobalFlagDeleteMe = false
   
@@ -56,7 +58,13 @@ PuffForum.init();
 
 var updateMinimap = function() {  
   var mapdom = $('#minimap')
-  mapdom.append(JSON.stringify(Puff.Data.puffs))
+  
+  Puff.Data.puffs.forEach(function(puff) {
+    template = '<a href="#" onclick="showPuff(PuffForum.getPuffById(' 
+             + puff.sig + '));return false;" class="under">' 
+             + puff.sig + '</a>'
+    mapdom.append($(template))
+  })
 }
 
 

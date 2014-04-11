@@ -79,7 +79,8 @@ $(document).ready(function() {
 
 
 <div class="menu" id="menu">
-<div class="menuItem" id="currentUser"></div>
+<div class="closeBox" id="closeDiv"><a href="#" onclick='$("#menu").toggle();return false;' class="under"><img src="img/close.png" width="24" height="24"></a></div>
+<div class="menuItem" id="currentUser"> </div>
 <div class="menuItem">
     <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' class="under">Add new content</a>
 </div>
@@ -229,7 +230,7 @@ $(document).ready(function() {
         $('#children').empty();
 
         // TODO: set max root to show
-        puffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
+        puffs.slice(0, CONFIG.maxLatestRootsToShow).forEach(function(puff) {
             $("#children").append( puffTemplate(puff, false) );
         });
 

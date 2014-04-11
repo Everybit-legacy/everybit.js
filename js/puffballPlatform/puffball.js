@@ -424,12 +424,13 @@ Puff.Blockchain.getNewBlankBlock = function(){
 
 }
 
+// TODO: Make random
 Puff.Blockchain.generatePadding = function(size) {
   //// Generates padding content to ensure block size, for now just zeros
 
   out = "0"
   while(out.length < size) {
-    out = out + "0"
+    out = out + "0";
   }
   return out
 }

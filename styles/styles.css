@@ -30,6 +30,10 @@ a {
     color: #1616A8;
 }
 
+a.under {
+    text-decoration:underline;
+}
+
 .float-right {
     float: right;
 }
@@ -44,7 +48,7 @@ a {
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
-    max-height: 70%;
+    max-height: 50%;
     border: 1px solid #a1a1a1;
     padding: 10px;
     margin-top: 10px;
@@ -116,7 +120,7 @@ header h1 {
     margin: 0 70px;
 }
 
-#parent {
+#parents {
     text-align: center;
 }
 

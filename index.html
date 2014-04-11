@@ -73,36 +73,30 @@ $(document).ready(function() {
 
 <div id="otherForm" class="mainForm">
   <div id="authorDiv"></div>
-  <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
+  <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input type="reset" value="NO!">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
 </div>
 
 
 
 <div class="menu" id="menu">
+<div class="menuItem" id="currentUser"></div>
 <div class="menuItem">
-    <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;'>Add new content</a>
+    <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' class="under">Add new content</a>
 </div>
 
 
 <div class="menuItem">
-    <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();'>View latest conversations</a>
+    <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' class="under">View latest conversations</a>
 </div>
 
 <div class="menuItem">
-    <a href="#" onclick="newAnon();return false;">Generate a new username</a>
+    <a href="#" onclick="newAnon();return false;" class="under">Generate a new username</a>
 </div>
 <div class="menuItem">
-    <a href="#" onclick="viewPublic();return false;">Show</a> / <a href="#" onclick="hidePublic();return false;">Hide</a> your public key.
+    <a href="#" onclick="viewPublic();return false;" class="under">Show</a> / <a href="#" onclick="hidePublic();return false;" class="under">Hide</a> your public key.
 </div>
 <div class="menuItem">
-    <a href="#" onclick="viewPrivate();return false;">Show</a> / <a href="#" onclick="hidePrivate();return false;">Hide</a> your private key</a>
-</div>
-
-<div class="menuItem">
-    Hide your public key</a>
-</div>
-<div class="menuItem">
-    <a href="#" onclick="update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);return false;">Generate QR code for PRIVATE key</a>
+    <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key</a>
 </div>
 
 <div class="menuItem">
@@ -114,7 +108,9 @@ $(document).ready(function() {
         <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
     </form>
 </div>
-<div class="menuItem" id="currentUser"></div>
+<div class="menuItem">
+    <a href="#" onclick="qrcodeWrapper(); return false;">Show QR code for private key</a>
+</div>
 <div class="menuItem" id="publicKeyMenuItem"></div>
 <div class="menuItem" id="privateKeyMenuItem"></div>
 <div class="menuItem" id="qr"></div>
@@ -171,9 +167,9 @@ $(document).ready(function() {
             dataType: "json"
         });
 
-        // Put this info into authorDiv
-        document.getElementById('authorDiv').innerHTML = '<span class="author">' + username + '</span>';
-
+        var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
+        buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
+        document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
 
     });
 
@@ -181,8 +177,10 @@ $(document).ready(function() {
     function newAnon() {
         PuffForum.addAnonUser(function(newName) {
             // PuffForum.userinfoLivesHereForNow.username
-            document.getElementById('currentUser').innerHTML = "New user: " + newName;
-            document.getElementById('authorDiv').innerHTML = '<span class="author">' + newName + '</span>';
+            var authorText = '<span class="author">' + newName + '</span>';
+            var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
+            buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
+            document.getElementById('currentUser').innerHTML = buttonCode + authorText;
         });
 
     }
@@ -207,6 +205,35 @@ $(document).ready(function() {
 
     }
 
+    function clearPrivateKey() {
+
+        document.getElementById('currentUser').innerHTML = '';
+        document.getElementById('publicKeyMenuItem').innerHTML = '';
+        document.getElementById('privateKeyMenuItem').innerHTML = '';
+        document.getElementById('qr').innerHTML = '';
+
+    }
+
+    // Do this so we don't have to store privateKey link
+    function qrcodeWrapper() {
+        update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);
+
+    }
+
+    function viewLatestConversations() {
+        var puffs = PuffForum.getRootPuffs();
+        puffs.sort(function(a, b) {return a.payload.time < b.payload.time});
+
+        $('#parents').empty();
+        $('#main-content').empty();
+        $('#children').empty();
+
+        // TODO: set max root to show
+        puffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
+            $("#children").append( puffTemplate(puff, false) );
+        });
+
+    }
 
 </script>
 

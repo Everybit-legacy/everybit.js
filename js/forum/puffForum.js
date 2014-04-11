@@ -56,10 +56,13 @@ PuffForum.getChildren = function(puff) {
   //// get children from a puff
   
   // THINK: do we really need this? the puff will have links to its children...
+
+    // Find out how many, but only return the latest CONFIG.maxChildrenToShow
   
-  if(typeof puff === 'string')
-    puff = PuffForum.getPuffById(puff)
-  
+  if(typeof puff === 'string') {
+      puff = PuffForum.getPuffById(puff);
+  }
+
   return Puff.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
 }
 

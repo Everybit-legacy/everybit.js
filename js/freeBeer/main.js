@@ -87,12 +87,15 @@ showPuff = function(puff) {
   var parentPuffs = PuffForum.getParents(puff);
   parentPuffs.forEach(function(puff) {
     $('#parents').append( puffTemplate(puff, false) )
-  })
+  });
 
   // Append no more than 3 children to DOM.
+    // Use CONFIG.maxChildrenToShow
   var childrenPuffs = PuffForum.getChildren(puff);
 
-  childrenPuffs.forEach(function(puff) {
+  childrenPuffs.sort(function(a, b) {return a.payload.time < b.payload.time});
+
+  childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
     $("#children").append( puffTemplate(puff, false) );
   });
 
@@ -127,6 +130,33 @@ showPuff = function(puff) {
       overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
     });
   });
+
+    $("#parents .block").each(function () {
+
+        // Define jsPlumb end points.
+        var e0 = jsPlumb.addEndpoint(puff.sig, {
+            anchor: "TopCenter",
+            endpoint: "Blank"
+        });
+
+        var e = jsPlumb.addEndpoint($(this).attr("id"), {
+            anchor: "BottomCenter",
+            endpoint: "Blank"
+        });
+
+        // Draw lines between end points.
+        jsPlumb.connect({
+            source: e,
+            target: e0,
+            paintStyle: {
+                lineWidth: 2,
+                strokeStyle: "#d1d1d1"
+            },
+            connector: "Straight",
+            endpoint: "Blank",
+            overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+        });
+    });
 }
 
 
@@ -162,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if($.inArray(sig, newParents) !== -1) {
           var index = newParents.indexOf(sig);
           newParents.splice(index, 1);
-          // TODO: Set class of reply arrow to Black. Will need to use transparent gif in front and background css image change
+          // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
 
 
       } else {

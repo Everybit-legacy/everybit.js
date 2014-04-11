@@ -289,3 +289,20 @@ header h1 {
     width: 16px;
     height: 16px;
 }
+
+.private {
+  background-color: #FFFFAD;
+}
+
+.private .author {
+}
+.private .author:before {
+  display: inline-block;
+  content: "";
+  background-image: url(../img/sneaky.gif);
+  background-size: 50% 50%;
+  width: 19px;
+  height: 19px;
+  background-size: 100% 100%;
+  margin-right: 8px;
+}

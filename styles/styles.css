@@ -253,8 +253,8 @@ header h1 {
     top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
     z-index: 10;
-    min-width: 200px;
-    max-width: 30%;
+    min-width: 300px;
+    max-width: 35%;
     display: none;
     font-size: 1.1em;
     line-height: 1.35em;
@@ -267,6 +267,16 @@ header h1 {
     padding-left: 5px;
     padding-bottom: 7px;
     margin-bottom: 3px;
+    color: #1616A8;
+}
+
+.closeBox {
+    padding-top: 5px;
+    padding-left: 3px;
+    padding-right: 5px;
+    padding-bottom: 0px;
+    margin-bottom: 3px;
+    text-align: right;
     color: #1616A8;
 }
 

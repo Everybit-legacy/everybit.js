@@ -217,7 +217,7 @@ header h1 {
 
 .logo {
     position: absolute;
-    z-index: 4;
+    z-index: -1;
     top: 20px;
     right: 20px;
 }
@@ -251,4 +251,14 @@ header h1 {
     padding-top: 15px;
     /* border-bottom: 1px solid #a1a1a1; */
     margin: 0px;
+}
+
+.replyBlack {
+    width: 16px;
+    height: 16px;
+}
+
+.replyRed {
+    width: 16px;
+    height: 16px;
 }

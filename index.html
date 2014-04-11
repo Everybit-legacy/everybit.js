@@ -38,6 +38,7 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
     <script type="text/javascript" src="js/freeBeer/validations.js"></script>
     <script type="text/javascript" src="scripts/qrcode.js"></script>
     <script type="text/javascript" src="scripts/qrcodeSample.js"></script>
+    <script type="text/javascript" src="scripts/underscore.js"></script>
 </head>
 <body>
 
@@ -82,20 +83,23 @@ $(document).ready(function() {
     <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;'>Add new content</a>
 </div>
 
+
+<div class="menuItem">
+    <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();'>View latest conversations</a>
+</div>
+
 <div class="menuItem">
     <a href="#" onclick="newAnon();return false;">Generate a new username</a>
 </div>
 <div class="menuItem">
-    <a href="#" onclick="viewPrivate();return false;">Show your private key</a>
+    <a href="#" onclick="viewPublic();return false;">Show</a> / <a href="#" onclick="hidePublic();return false;">Hide</a> your public key.
 </div>
 <div class="menuItem">
-    <a href="#" onclick="hidePrivate();return false;">Hide private key</a>
+    <a href="#" onclick="viewPrivate();return false;">Show</a> / <a href="#" onclick="hidePrivate();return false;">Hide</a> your private key</a>
 </div>
+
 <div class="menuItem">
-    <a href="#" onclick="viewPublic();return false;">Show your public key</a>
-</div>
-<div class="menuItem">
-    <a href="#" onclick="hidePublic();return false;">Hide your public key</a>
+    Hide your public key</a>
 </div>
 <div class="menuItem">
     <a href="#" onclick="update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);return false;">Generate QR code for PRIVATE key</a>
@@ -150,11 +154,12 @@ $(document).ready(function() {
                 username: username
             },
             success: function (result) {
-                userInfo = (JSON.stringify(result));
-                if(userInfo.publicKey === currPublic) {
+
+                if(result.publicKey === currPublic) {
                     // Register this user in client memory so they can sign content
                     PuffForum.userinfoLivesHereForNow.username = username;
                     PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
+                    PuffForum.userinfoLivesHereForNow.publicKey = currPublic;
                 }  else {
                     alert("That generates a public key that doesn't match!");
                     return false;
@@ -183,7 +188,7 @@ $(document).ready(function() {
     }
 
     function viewPrivate() {
-        document.getElementById('privateKeyMenuItem').innerHTML = "Private key: " + PuffForum.userinfoLivesHereForNow.privateKey;
+        document.getElementById('privateKeyMenuItem').innerHTML = 'Private key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.privateKey + '">';
 
     }
 
@@ -193,7 +198,7 @@ $(document).ready(function() {
     }
 
     function viewPublic() {
-        document.getElementById('publicKeyMenuItem').innerHTML = "PUblic key: " + PuffForum.userinfoLivesHereForNow.publicKey;
+        document.getElementById('publicKeyMenuItem').innerHTML = 'Public key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.publicKey + '">';
 
     }
 

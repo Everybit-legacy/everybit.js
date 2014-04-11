@@ -16,11 +16,18 @@ html {
     width: 100%;
     padding: 0;
     margin: 0;
+
 }
 
 body {
     background: #1616A8;
     font-family: Gudea, sans-serif;
+    font-size: 1em;
+}
+
+a {
+    text-decoration:none;
+    color: #1616A8;
 }
 
 .float-right {
@@ -217,7 +224,7 @@ header h1 {
 
 .logo {
     position: absolute;
-    z-index: 4;
+    z-index: -1;
     top: 20px;
     right: 20px;
 }
@@ -231,11 +238,12 @@ header h1 {
 
 .menu {
     font-family: Gudea;
-    padding-left: 10px;
-    margin: 0;
+    padding: 0px;
+    margin-bottom: 3px;
     text-align: left;
     font-weight: bold;
     color: #000000;
+    border: 2px solid #a1a1a1;
     position: absolute;
     left: 15px;
     top: 60px;
@@ -244,11 +252,26 @@ header h1 {
     min-width: 200px;
     max-width: 30%;
     display: none;
+    font-size: 1.1em;
+    line-height: 1.35em;
+    text-decoration:none;
 }
 
 .menuItem {
     list-style-type: none;
-    padding-top: 15px;
-    /* border-bottom: 1px solid #a1a1a1; */
-    margin: 0px;
+    padding-top: 12px;
+    padding-left: 5px;
+    padding-bottom: 7px;
+    margin-bottom: 3px;
+    color: #1616A8;
+}
+
+.replyBlack {
+    width: 16px;
+    height: 16px;
+}
+
+.replyRed {
+    width: 16px;
+    height: 16px;
 }

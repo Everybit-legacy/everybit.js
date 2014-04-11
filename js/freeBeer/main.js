@@ -195,6 +195,9 @@ document.addEventListener('DOMContentLoaded', function() {
     event.preventDefault()
     PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
     $('#otherForm').toggle();
+
+      // TODO: Clear out parentids on post. could need to set direct?
+      $("#parentids").val('[]');
   });
 
   // reply-to

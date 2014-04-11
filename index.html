@@ -20,6 +20,7 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
     <meta charset="UTF-8">
 
     <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
+    <script src="js/freeBeer/config.js"></script>
     <script src="scripts/jquery.min.js"></script>
     <script src="scripts/jquery-ui.js"></script>
 
@@ -34,34 +35,202 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
     <link rel="stylesheet" type="text/css" href="styles/xbbcode.css" />
     <script type="text/javascript" src="scripts/xbbcode.js"></script>
+    <script type="text/javascript" src="js/freeBeer/validations.js"></script>
 </head>
 <body>
+
+<script>
+    // Globals
+    var FESYSTEM = new Object(); // holds anything required for front-end works
+    FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"></form></div>';
+</script>
+
+
 <img src="img/FreeBeerPuffball.gif" class="logo">
-<img src="img/puffballIcon.gif" class="puffballIocn">
+<a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
+<script>
+$(document).ready(function() {
+    $("#puffballIcon").click(function() {
+        $("#menu").toggle();
+    });
+
+    $("#newContentLink").click(function() {
+        $("#menu").toggle();
+    });
+
+
+});
+
+function toggleAddContentDiv() {
+    if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+        // user dbl clicks & wants to hide input form
+        FESYSTEM.tempContent = $('textarea#content').val();
+        $('#addContentDiv').eq(0).remove();
+
+    } else {
+        // case for input form reappearing
+        $( "body" ).append(FESYSTEM.toShow);
+        $('#addContentDiv').eq(0).draggable();
+
+        if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
+            // user has already hidden a previous input form
+            $('textarea#content').val(FESYSTEM.tempContent);
+        }
+        // otherwise, just a brand new input form, no content inside
+    }
+}
+</script>
+
+<div class="menu" id="menu">
+<div class="menuItem">
+    <a href="#" onclick="newAnon();return false;">Generate a new username</a>
+</div>
+<div class="menuItem">
+    <a href="#" id="newContentLink" onclick="toggleAddContentDiv();return false;">Add new content</a>
+</div>
+<div class="menuItem">
+    Set username and key to use
+</div>
+<div class="menuItem">
+    <a href="#" onclick="viewPrivate();return false;">Show your private key</a>
+</div>
+<div class="menuItem">
+    <a href="#" onclick="hidePrivate();return false;">Hide private key</a>
+</div>
+<div class="menuItem">
+    <a href="#" onclick="viewPublic();return false;">Show your public key</a>
+</div>
+<div class="menuItem">
+    <a href="#" onclick="hidePublic();return false;">Hide your public key</a>
+</div>
+<div class="menuItem">
+    <form id="setUserInfo">
+        Set your username and private key for content signing (this will be converted into a public key and then the public key will be compared with that user's record):<br>
+        Username: <input type="text" id="usernameSet"><br />
+        Private Key: <input type="text" id="privateKeySet"><br />
+        <input type="submit" value="set">
+    </form>
+</div>
+<div class="menuItem" id="currentUser"></div>
+<div class="menuItem" id="publicKeyMenuItem"></div>
+<div class="menuItem" id="privateKeyMenuItem"></div>
+
+    </ul>
+</div>
+<script>
+    $("#setUserInfo").submit(function( event ) {
+        event.preventDefault();
+
+        var username = $("#usernameSet").val();
+        var privateKey = $("#privateKeySet").val();
+
+        // Check that this is a valid username (ascii etc)
+        if(!isValidUsername(username)) {
+            alert("invalid username!");
+            return false;
+        }
+
+        // Generate their public key from private key
+        try {
+            var currPublic = Puff.Crypto.privateToPublic(privateKey);
+        } catch(err) {
+            alert("invalid private key!");
+            return false;
+        }
+
+        // user lookup.
+        // Check the public key against API:
+
+        // Generate new anon user
+        $.ajax({
+            type: "GET",
+            url: CONFIG.userApi,
+            data: {
+                type: "getUser",
+                username: username
+            },
+            success: function (result) {
+                userInfo = (JSON.stringify(result));
+                if(userInfo.publicKey === currPublic) {
+                    // Register this user in client memory so they can sign content
+                    PuffForum.userinfoLivesHereForNow.username = username;
+                    PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
+                }  else {
+                    alert("That generates a public key that doesn't match!");
+                    return false;
+                }
+            },
+            error: function () {
+                alert('Unable to find a maching user for that information!');
+            },
+            dataType: "json"
+        });
+
+
+
+        // Put this info into
+
+
+
+    });
+
+
+    function newAnon() {
+        PuffForum.addAnonUser(function(newName) {
+            // PuffForum.userinfoLivesHereForNow.username
+            document.getElementById('currentUser').innerHTML = "New user: " + newName;
+        });
+
+    }
+
+    function viewPrivate() {
+        document.getElementById('privateKeyMenuItem').innerHTML = "Private key: " + PuffForum.userinfoLivesHereForNow.privateKey;
+
+    }
+
+    function hidePrivate() {
+        document.getElementById('privateKeyMenuItem').innerHTML = "";
+
+    }
+
+    function viewPublic() {
+        document.getElementById('publicKeyMenuItem').innerHTML = "PUblic key: " + PuffForum.userinfoLivesHereForNow.publicKey;
+
+    }
+
+    function hidePublic() {
+        document.getElementById('publicKeyMenuItem').innerHTML = "";
+
+    }
+
+
+</script>
+
 
 <script>
     $("#contentForm").submit(function( event ) {
         // Is this user in localStorage
 
         // Generate new anon user
-        $.ajax({
-            type: "POST",
-            url: "api.php",
-            data: {
-                type: "addUser",
-                username: $("#username").val(),
-                publicKey: $("#publicKey").val()
-            },
-            success:function(result){
-                console.log(JSON.stringify(result));
-                // console.log(result);
-            },
-            error: function() {
-                alert('error!');
-            },
-            dataType: "json"
-        });
-
+        if(!isset(CURRENTUSER) && CURRENTUSER != '') {
+            $.ajax({
+                type: "POST",
+                url: "api.php",
+                data: {
+                    type: "addUser",
+                    username: $("#username").val(),
+                    publicKey: $("#publicKey").val()
+                },
+                success: function (result) {
+                    console.log(JSON.stringify(result));
+                    // console.log(result);
+                },
+                error: function () {
+                    alert('error!');
+                },
+                dataType: "json"
+            });
+        }
         puffForum.addPuff($("#content").val(), JSON.parse($("#parents").val()));
 
     });
@@ -79,7 +248,7 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
 <script src="scripts/bson.js"></script>
 
-<script src="js/freeBeer/config.js"></script>
+
 <script src="js/puffballPlatform/puffball.js"></script>
 <script src="js/forum/puffForum.js"></script>
 <script src="data/sample2.js"></script>
@@ -91,12 +260,7 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 <script src="scripts/jsPlumb.js"></script>
 <script src="scripts/zoom.js"></script>
 
-<!--
-  <script src="data/sample.js"></script>
-  <script src="scripts/index.js"></script>
--->
 
 <script src="js/freeBeer/main.js"></script>
-
 </body>
 </html>

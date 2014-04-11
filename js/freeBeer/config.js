@@ -4,3 +4,4 @@
 CONFIG = {};
 
 CONFIG.version = '0.1a';
+CONFIG.userApi = 'http://162.219.162.56/users/api.php'

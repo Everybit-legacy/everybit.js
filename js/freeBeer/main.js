@@ -1,11 +1,7 @@
-// Bridge between visulization framework (plumb, angular? d3) and js/forum files
-
-// Globals
-var FESYSTEM = new Object(); // holds anything required for front-end works
-FESYSTEM.toShow = '<div id="addContentDiv" class="mainForm unused"><form id="contentForm"><br><textarea id="content" name="content" rows="10" cols="30" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br><input type="submit" value="GO!"><input type="hidden" name="parentids" id="parentids" value="[]"></form></div>'; 
+// Bridge between visualization framework (plumb? angular? d3?) and js/forum files
 
 
-///////// PuffForm Interface ////////////
+///////// PuffForum Interface ////////////
 
 // register our update function
 var eatPuffs = function(puffs) {
@@ -147,10 +143,10 @@ window.threshold = 400;
 document.addEventListener('DOMContentLoaded', function() {
   
   // add content form
-  $(document).on('submit', "#contentForm", function( event ) {
+  $(document).on('submit', "#otherContentForm", function( event ) {
     event.preventDefault()
     PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
-    $('#addContentDiv').eq(0).remove(); // THINK: maybe just hide this?
+    $('#otherForm').toggle();
   });
 
   // reply-to
@@ -181,26 +177,22 @@ document.addEventListener('DOMContentLoaded', function() {
     jsPlumb.repaintEverything();
   });
 
-  // Looking for double click to add content
+  // Pull down menu show and hide div
+  $('#puffballIcon').click(function(){
+    $('#menu').toggle();
+  });
+
+});
+
+/*
+// Looking for double click to add content
+jQuery(document).ready(function(){
+
   jQuery(document).dblclick(function(event){
     // TODO: Toggle show div on double click
 
-    if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-      // user dbl clicks & wants to hide input form
-      FESYSTEM.tempContent = $('textarea#content').val();
-      $('#addContentDiv').eq(0).remove();
 
-    } else {
-      // case for input form reappearing
-      $( "body" ).append(FESYSTEM.toShow);
-      $('#addContentDiv').eq(0).draggable();
-
-      if (($('#addContentDiv').length > 0) && ($('#addContentDiv').hasClass('unused') === true)) {
-        // user has already hidden a previous input form
-        $('textarea#content').val(FESYSTEM.tempContent);
-      }
-      // otherwise, just a brand new input form, no content inside
-    }
   });
-  
+
 });
+*/

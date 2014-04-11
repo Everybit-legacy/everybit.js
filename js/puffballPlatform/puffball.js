@@ -60,6 +60,8 @@ Puff.init = function(zone) {
 
   Puff.Network.getAllPuffs(Puff.receiveNewPuffs)
   
+  Puff.actualP2P = new Puff.P2P()
+  
   // Puff.Data.make_fake_puffs()
 }
 
@@ -211,6 +213,8 @@ Puff.Network.distributePuff = function(puff) {
   
   // broadcast it to peers
   // TODO: send it out via WS and RTC
+  
+  Puff.actualP2P.swarm.send(puff)
 }
 
 Puff.Network.getUserFile = function(username, callback) {

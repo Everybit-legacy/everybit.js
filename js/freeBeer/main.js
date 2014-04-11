@@ -1,5 +1,18 @@
 // Bridge between visualization framework (plumb? angular? d3?) and js/forum files
 
+/*
+
+  Demo todos:
+  - P2P on FB
+  - alternate server + p2p
+  - fancy graphics
+  - chess posts
+  - parent styling
+  - tree styling
+
+*/
+
+
 
 ///////// PuffForum Interface ////////////
 
@@ -96,7 +109,9 @@ showPuff = function(puff) {
     // Use CONFIG.maxChildrenToShow
   var childrenPuffs = PuffForum.getChildren(puff);
 
-  childrenPuffs.sort(function(a, b) {return a.payload.time < b.payload.time});
+  childrenPuffs.sort(function(a, b) {
+    return b.payload.time - a.payload.time
+  });
 
   childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
     $("#children").append( puffTemplate(puff, false) );

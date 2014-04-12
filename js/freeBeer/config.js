@@ -10,11 +10,14 @@ CONFIG.version = '0.2a';
 CONFIG.puffVersions = [];
 
 CONFIG.userApi = 'http://162.219.162.56/users/api.php';
+CONFIG.puffApi = 'http://162.219.162.56/users/api.php';
 
 CONFIG.maxChildrenToShow = 3;
 CONFIG.maxLatestRootsToShow = 26;
 
 CONFIG.sortOrder = 'recent';
+
+CONFIG.zone = 'freebeer';
 
 // Signature of default puff to display on homepage load
 CONFIG.defaultPuff = '3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ';

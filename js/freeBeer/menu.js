@@ -56,8 +56,6 @@ function getBlockchian() {
     } else {
 
         // return
-
-
         var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
         var linkData = encodeURIComponent(JSON.stringify(blocks))
 
@@ -71,9 +69,6 @@ function getBlockchian() {
 
 
         document.getElementById('blockchainLink').innerHTML = linkHTML;
-        console.log(link);
-        console.log(linkHTML);
-
     }
 
 

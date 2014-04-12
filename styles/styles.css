@@ -60,6 +60,7 @@ a.under {
     text-align: left;
     min-width: 400px;
     z-index: 999;
+    overflow: auto;
 }
 
 .author {

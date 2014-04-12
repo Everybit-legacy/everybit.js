@@ -1,48 +1,36 @@
 // Bridge between visualization framework (plumb? angular? d3?) and js/forum files
 
-/*
-
-  Demo todos:
-  -- P2P on FB
-  - alternate server + p2p
-  - fancy graphics
-  - chess posts
-  - parent styling
-  - tree styling
-  - tree map
-*/
-
-
-
 ///////// PuffForum Interface ////////////
 
-// register our update function
+// Register our update function
 var eatPuffs = function(puffs) {
   // call the display logic
-  console.log(puffs)
+  console.log(puffs);
   
   if(!Array.isArray(puffs) || !puffs.length)
     return false
-  
-  updateMinimap()    
+
+    // Not yet implemented
+  // updateMinimap();
   
   if(typeof stupidTempGlobalFlagDeleteMe == 'undefined')
     stupidTempGlobalFlagDeleteMe = false
   
   // is anything showing? no? ok, show something.
   if(!stupidTempGlobalFlagDeleteMe) {
-    showPuff(puffs[0])   // show the first root
-    stupidTempGlobalFlagDeleteMe = true
-    return false
+    showPuff(PuffForum.getPuffById(CONFIG.defaultPuff));   // show the first root
+    stupidTempGlobalFlagDeleteMe = true;
+    return false;
   }
   
   // ok. now that the stupid stuff is done, let's do something smart.
   // what's my main content item? is this new puff a child of it?
+  // oh dear why would you do this use app data & react instead
+  var currentId = $('.blockMain').attr('id');
   
-  var currentId = $('.blockMain').attr('id') // oh dear why would you do this use app data & react instead
-  
-  if(puffs.some(function(puff) {return !!~puff.payload.parents.indexOf(currentId)}))
-    showPuff(PuffForum.getPuffById(currentId))
+  if(puffs.some(function(puff) {return !!~puff.payload.parents.indexOf(currentId)}));
+
+    showPuff(PuffForum.getPuffById(currentId));
 }
 
 PuffForum.onNewPuffs(eatPuffs);
@@ -73,7 +61,7 @@ var updateMinimap = function() {
 
 
 // Creates the contents of a Puff (or block).
-puffTemplate = function(puff, isMain) {
+puffTemplate = function(puff, isMain, viewFull) {
   if(isMain) {
     var classToUse = 'blockMain';
   } else {
@@ -95,118 +83,40 @@ puffTemplate = function(puff, isMain) {
     parsedText = parsedText.replace(/\n/g, '<br />');
 
   var id = puff.sig;
-  var dots = parsedText.length > window.threshold ? ' ...' : '';
+  var dots = parsedText.length > window.threshold ? ' •••' : '';
+
+  if(viewFull) {
+      var contentToShow = parsedText;
+  } else {
+      var contentToShow = parsedText.substring(0, window.threshold);
+      contentToShow += '<a href="#" onclick="showPuff(puff, true, true); return false;">';
+      contentToShow +=  dots;
+      contentToShow += '</a>';
+  }
 
   return $('<div class="' + classToUse + '" id="' + id + '">\
   <div class="author">' + author + '</div>\
   <div class="txt">\
-  ' + parsedText.substring(0, window.threshold) + dots + '\
+  ' + contentToShow + '\
   </div>\
   <div class="bar">\
   <span class="icon">\
-  <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16"> \
+  <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16">\
   </span>\
   </div>\
   </div>');
 }; 
 
 
-// show a puff, its children, and some arrows
-showPuff = function(puff) {
-  $('#parents').empty();
-  $('#main-content').empty();
-  $('#children').empty();
-  
-  $("#main-content").append( puffTemplate(puff, true) );
-
-  // Append parents to the DOM 
-  var parentPuffs = PuffForum.getParents(puff);
-  parentPuffs.forEach(function(puff) {
-    $('#parents').append( puffTemplate(puff, false) )
-  });
-
-  // Append no more than 3 children to DOM.
-    // Use CONFIG.maxChildrenToShow
-  var childrenPuffs = PuffForum.getChildren(puff);
-
-  childrenPuffs.sort(function(a, b) {
-    return b.payload.time - a.payload.time
-  });
-
-  childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
-    $("#children").append( puffTemplate(puff, false) );
-  });
-
-  // Draw lines between Puff's using jsPlumb library.
-  // Home page for jsPlumb:
-  //      http://jsplumbtoolkit.com/demo/home/jquery.html
-  //
-  // Does this for each child Puff and the block of HTML that makes up the Puff.
-  $("#children .block").each(function () {
-
-    // Define jsPlumb end points.
-    var e0 = jsPlumb.addEndpoint(puff.sig, {
-      anchor: "BottomCenter",
-      endpoint: "Blank"
-    });
-
-    var e = jsPlumb.addEndpoint($(this).attr("id"), {
-      anchor: "TopCenter",
-      endpoint: "Blank"
-    });
-
-    // Draw lines between end points.
-    jsPlumb.connect({
-      source: e0,
-      target: e,
-      paintStyle: {
-        lineWidth: 2,
-        strokeStyle: "#d1d1d1"
-      },
-      connector: "Straight",
-      endpoint: "Blank",
-      overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-    });
-  });
-
-    $("#parents .block").each(function () {
-
-        // Define jsPlumb end points.
-        var e0 = jsPlumb.addEndpoint(puff.sig, {
-            anchor: "TopCenter",
-            endpoint: "Blank"
-        });
-
-        var e = jsPlumb.addEndpoint($(this).attr("id"), {
-            anchor: "BottomCenter",
-            endpoint: "Blank"
-        });
-
-        // Draw lines between end points.
-        jsPlumb.connect({
-            source: e,
-            target: e0,
-            paintStyle: {
-                lineWidth: 2,
-                strokeStyle: "#d1d1d1"
-            },
-            connector: "Straight",
-            endpoint: "Blank",
-            overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-        });
-    });
-}
-
-
 // set state to current puff
 function setBrowserHistoryPuffStateToSomething(puff) {
-  var state = { 'puff': puff.sig }
-  history.pushState(state, '', '#puff=' + puff.sig)
+  var state = { 'puff': puff.sig };
+  history.pushState(state, '', '#puff=' + puff.sig);
 }
 
 // onload, store the puff id we're looking for
 function storePuffIdToSomePlaceOnLoad() {
-  someSillyGlobalPuffId = window.location.hash.substring(1)
+  someSillyGlobalPuffId = window.location.hash.substring(1);
 }
 
 
@@ -223,32 +133,30 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // add content form
   $(document).on('submit', "#otherContentForm", function( event ) {
-    event.preventDefault()
+    event.preventDefault();
 
     // PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
     // $('#otherForm').toggle();
-    // 
-    //   // TODO: Clear out parentids on post. could need to set direct?
-    //   $("#parentids").val('[]');
-// =======
+
+
 
     content = $("#content").val();
     $("#content").val("");//clean form after
 
     PuffForum.addPost( content, JSON.parse( $("#parentids").val() ));
-    
-// >>>>>>> origin/minor-bugs
+      $("#parentids").val('[]');
   });
 
   // reply-to
   $(document).on('click', '#cancel-form', function( event ) {
     $('#otherForm').hide();
     $('#content').val("");
-  })
+  });
 
   $(document).on('click', '.reply', function( event ) {
     event.preventDefault();
     $("#otherForm").show();
+    $("#otherForm [name='content']").focus();
 
     var sig = event.target.dataset.value;
     var parents = $('#parentids').val();
@@ -256,19 +164,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     var newParents = JSON.parse(parents);
 
-      if($.inArray(sig, newParents) !== -1) {
-          var index = newParents.indexOf(sig);
-          newParents.splice(index, 1);
-          // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
+    if($.inArray(sig, newParents) !== -1) {
+      var index = newParents.indexOf(sig);
+      newParents.splice(index, 1);
 
+      // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
 
-      } else {
-          newParents.push(sig);
+    } else {
+      newParents.push(sig);
 
-          $('#parentids').val(JSON.stringify(newParents));
+      $('#parentids').val(JSON.stringify(newParents));
 
-          // TODO: Set class of reply arrow to red
-      }
+      // TODO: Set class of reply arrow to red
+    }
 
     
     // TODO: draw arrows
@@ -294,6 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
 });
+
+
 
 /*
 jQuery(document).ready(function(){

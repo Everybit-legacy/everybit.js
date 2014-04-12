@@ -15,20 +15,20 @@
 
 */
 
-PuffForum = {}
+PuffForum = {};
 
-PuffForum.graph = {}
-PuffForum.newPuffCallbacks = []
-PuffForum.userinfoLivesHereForNow = {}
+PuffForum.graph = {};
+PuffForum.newPuffCallbacks = [];
+PuffForum.userinfoLivesHereForNow = {};
 
 PuffForum.init = function() {
   //// set up everything. 
   // THINK: maybe you can only call this once?
   // THINK: maybe take a zone arg, but default to config
   
-  Puff.onNewPuffs(PuffForum.receiveNewPuffs)
+  Puff.onNewPuffs(PuffForum.receiveNewPuffs);
   
-  Puff.init(CONFIG.zone)
+  Puff.init(CONFIG.zone);
   // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 
@@ -46,8 +46,9 @@ PuffForum.getParents = function(puff) {
   
   // THINK: do we really need this? the puff will have links to its parents...
   
-  if(typeof puff === 'string')
-    puff = PuffForum.getPuffById(puff)
+  if(typeof puff === 'string') {
+    puff = PuffForum.getPuffById(puff);
+  }
   
   return puff.payload.parents.map(PuffForum.getPuffById)
 }

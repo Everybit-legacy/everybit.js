@@ -29,9 +29,9 @@
     localStorage.js
  */
 
-Puff = {}
+Puff = {};
 
-Puff.newPuffCallbacks = []
+Puff.newPuffCallbacks = [];
 
 
 Puff.init = function(zone) {
@@ -58,7 +58,7 @@ Puff.init = function(zone) {
   // TODO: merge our local cache with the server/network's storage and only get the latest ones we're missing
   // Puff.receiveNewPuffs(Puff.Data.getLocalPuffs())
 
-  Puff.Network.getAllPuffs(Puff.receiveNewPuffs)
+  Puff.Network.getAllPuffs(Puff.receiveNewPuffs);
   Puff.Blockchain.BLOCKS = JSON.parse(localStorage.getItem("blocks"))
   if(Puff.Blockchain.BLOCKS === null)
     Puff.Blockchain.BLOCKS = {}
@@ -213,7 +213,7 @@ Puff.Network.distributePuff = function(puff) {
     },
     error: function() {
       console.log('error!');                    // TODO: smartify this also
-    },
+    }
   });
   
   // broadcast it to peers

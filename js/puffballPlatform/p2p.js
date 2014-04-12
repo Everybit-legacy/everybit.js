@@ -60,10 +60,10 @@ Puff.P2P = (function() {
 
   P2P.prototype.connection = function(connection) {
     console.log("Connection", connection);
-    Puff.actualP2P.reloadPeers()
+    Puff.actualP2P.reloadPeers();
     
     return connection.on('data', function(data) {
-      Puff.receiveNewPuffs(data)
+      Puff.receiveNewPuffs(data);
       return console.log("Got data", data);
     });
   };

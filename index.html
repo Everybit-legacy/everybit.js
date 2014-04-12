@@ -1,39 +1,28 @@
 <!doctype>
 <html>
-<!--
-TODO: Next steps
-(X) Remove font-awesone stuff, replace icons
-(X) Add in font Gudea
-* Deal with content overflow in a reasonable way.
-http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
-* Work on making content submit form look better
-(X) Add back in bbCode rendering
-* Put freeBeer image in the background or top right
-(X) Add ability to drag around pop-up div
-(X) Make the pop-up div always there, the function toggles display of it.
-* Add "CANCEL" button next to GO! that clears out global.
--->
 <head>
     <title>
-        FreeBeer.com: A puffball forum.
+        FreeBeer.com: A sample forum running on the puffball platform.
     </title>
     <meta charset="UTF-8">
-
-    <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
-    <script src="js/freeBeer/config.js"></script>
-    <script src="scripts/jquery.min.js"></script>
-    <script src="scripts/jquery-ui.js"></script>
-
-    <link rel="stylesheet" href="styles/styles.css"/>
-    <link rel="stylesheet" href="styles/normalize.css"/>
 
     <!-- Favicon links: two forms for compliance -->
     <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
     <link id='favicon_def2' rel='icon' type='image/x-icon' href='img/favicon.ico' />
 
+    <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
+    <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/normalize.css"/>
     <link rel="stylesheet" type="text/css" href="styles/layout.css" />
-
     <link rel="stylesheet" type="text/css" href="styles/xbbcode.css" />
+
+    <script src="js/freeBeer/config.js"></script>
+    <script src="js/freeBeer/menu.js"></script>
+    <script src="js/freeBeer/display.js"></script>
+
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/jquery-ui.js"></script>
+
     <script type="text/javascript" src="scripts/xbbcode.js"></script>
     <script type="text/javascript" src="js/freeBeer/validations.js"></script>
     <script type="text/javascript" src="scripts/qrcode.js"></script>
@@ -41,15 +30,9 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
     <script type="text/javascript" src="scripts/underscore.js"></script>
 </head>
 <body>
+    <img src="img/FreeBeerPuffball.gif" class="logo">
+    <a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
 
-<script>
-    // Globals
-    var FESYSTEM = new Object(); // holds anything required for front-end works
-</script>
-
-
-<img src="img/FreeBeerPuffball.gif" class="logo">
-<a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
 <script>
 $(document).ready(function() {
     $("#puffballIcon").click(function() {
@@ -67,24 +50,22 @@ $(document).ready(function() {
     $('#otherForm').eq(0).draggable();
 
 });
-
-
 </script>
 
 <div id="otherForm" class="mainForm">
   <div id="authorDiv"></div>
-  <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="Reply"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
+  <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
 </div>
 
-
-
 <div class="menu" id="menu">
+
 <div class="closeBox" id="closeDiv"><a href="#" onclick='$("#menu").toggle();return false;' class="under"><img src="img/close.png" width="24" height="24"></a></div>
+
 <div class="menuItem" id="currentUser"> </div>
+
 <div class="menuItem">
     <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' class="under">Add new content</a>
 </div>
-
 
 <div class="menuItem">
     <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' class="under">View latest conversations</a>
@@ -93,11 +74,13 @@ $(document).ready(function() {
 <div class="menuItem">
     <a href="#" onclick="newAnon();return false;" class="under">Generate a new username</a>
 </div>
+
 <div class="menuItem">
     <a href="#" onclick="viewPublic();return false;" class="under">Show</a> / <a href="#" onclick="hidePublic();return false;" class="under">Hide</a> your public key.
 </div>
+
 <div class="menuItem">
-    <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key</a>
+    <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key.
 </div>
 
 <div class="menuItem">
@@ -120,18 +103,16 @@ $(document).ready(function() {
     <a href="#" onclick="qrcodeWrapper(); return false;">Show QR code for private key</a>
 </div>
 
-
 <div class="menuItem">
-    <a href="#" onclick="showPuff(PuffForum.getPuffById('3rKfoBK4ZEZwy6KRcYWcWv3CtGEfNtdu2XRvmgtu87iahrEVLK9HVTWqWhwcYxfzjPErbfkFHxmKttavUxFxsnKqx'));return false;" class="under">Go to specific puff!</a>
+    <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" class="under">Learn more about FreeBeer!</a>
 </div>
-
 
 <div class="menuItem" id="publicKeyMenuItem"></div>
 <div class="menuItem" id="privateKeyMenuItem"></div>
 <div class="menuItem" id="qr"></div>
 
-
 </div>
+
 <script>
     $("#setUserInfo").submit(function( event ) {
         event.preventDefault();
@@ -153,9 +134,7 @@ $(document).ready(function() {
             return false;
         }
 
-        // user lookup.
-        // Check the public key against API:
-
+        // User info lookup
         // Generate new anon user
         $.ajax({
             type: "GET",
@@ -183,105 +162,12 @@ $(document).ready(function() {
         });
 
         var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
-        buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
+        buttonCode += '<img src="img/logout.png" width="24" height="24" title="Remove private key from browser memory"></a>&nbsp;';
         document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
-
     });
-
-
-    function newAnon() {
-        PuffForum.addAnonUser(function(newName) {
-            // PuffForum.userinfoLivesHereForNow.username
-            var authorText = '<span class="author">' + newName + '</span>';
-            var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
-            buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
-            document.getElementById('currentUser').innerHTML = buttonCode + authorText;
-        });
-
-    }
-
-    function viewPrivate() {
-        document.getElementById('privateKeyMenuItem').innerHTML = 'Private key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.privateKey + '">';
-
-    }
-
-    function hidePrivate() {
-        document.getElementById('privateKeyMenuItem').innerHTML = "";
-
-    }
-
-    function viewPublic() {
-        document.getElementById('publicKeyMenuItem').innerHTML = 'Public key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.publicKey + '">';
-
-    }
-
-    function hidePublic() {
-        document.getElementById('publicKeyMenuItem').innerHTML = "";
-
-    }
-
-    function clearPrivateKey() {
-
-        document.getElementById('currentUser').innerHTML = '';
-        document.getElementById('publicKeyMenuItem').innerHTML = '';
-        document.getElementById('privateKeyMenuItem').innerHTML = '';
-        document.getElementById('qr').innerHTML = '';
-
-    }
-
-    // Do this so we don't have to store privateKey link
-    function qrcodeWrapper() {
-        update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);
-
-    }
-
-    function viewLatestConversations() {
-        var puffs = PuffForum.getRootPuffs();
-        puffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-
-        $('#parents').empty();
-        $('#main-content').empty();
-        $('#children').empty();
-
-        // TODO: set max root to show
-        puffs.slice(0, CONFIG.maxLatestRootsToShow).forEach(function(puff) {
-            $("#children").append( puffTemplate(puff, false) );
-        });
-
-    }
-
-    function getBlockchian() {
-        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
-            return false;
-        } else {
-
-            // return
-
-
-           var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
-           var linkData = encodeURIComponent(JSON.stringify(blocks))
-
-           // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-           // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-
-           // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-           // pom.setAttribute('download', filename);
-
-            var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-
-
-            document.getElementById('blockchainLink').innerHTML = linkHTML;
-            console.log(link);
-            console.log(linkHTML);
-
-        }
-
-
-    }
 
 </script>
 
-<section class="form"></section>
 
 <section id="parents"></section>
 
@@ -297,15 +183,12 @@ $(document).ready(function() {
 
 <script src="js/puffballPlatform/puffball.js"></script>
 <script src="js/forum/puffForum.js"></script>
-<script src="data/sample2.js"></script>
 
 <script src="scripts/peer.js"></script>
 <script src="js/puffballPlatform/p2p.js"></script>
 
-
 <script src="scripts/jsPlumb.js"></script>
 <script src="scripts/zoom.js"></script>
-
 
 <script src="js/freeBeer/main.js"></script>
 </body>

@@ -11,7 +11,7 @@ Puff.Swarm = (function() {
 
   Swarm.prototype.send = function(data) {
     return _.each(this.peers, function(peer, id) {
-      console.log("Sending data", peer, id, data);
+      // console.log("Sending data", peer, id, data);
       return peer.send(data);
     });
   };

@@ -44,11 +44,11 @@ a.under {
 
 .blockMain {
     background: #FAFAFA;
-    width: 35%;
+    width: 30%;
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
-    max-height: 50%;
+    max-height: 60%;
     border: 1px solid #a1a1a1;
     padding: 10px;
     margin-top: 10px;
@@ -58,7 +58,7 @@ a.under {
     display: inline-block;
     box-sizing: border-box;
     text-align: left;
-    min-width: 400px;
+    min-width: 300px;
     z-index: 999;
     overflow: auto;
 }
@@ -85,7 +85,7 @@ a.under {
 
 .block {
     background: #FAFAFA;
-    width: 25%;
+    width: 30%;
     min-width: 300px;
     max-height: 30%;
     border-radius: 25px;
@@ -308,4 +308,23 @@ header h1 {
   height: 19px;
   background-size: 100% 100%;
   margin-right: 8px;
+}
+
+.footer {
+    text-align: center;
+    color: #ffffff;
+    font-family: GudeaBold;
+    font-size: .9em;
+    bottom: 15px;
+    position: absolute;
+    left:0;
+    right:0;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+a.footerText {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: .9em;
 }

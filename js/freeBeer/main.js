@@ -7,18 +7,33 @@ var eatPuffs = function(puffs) {
   // call the display logic
   console.log(puffs);
   
-  if(!Array.isArray(puffs) || !puffs.length)
-    return false
+  if(!Array.isArray(puffs) || !puffs.length) {
+      return false;
+  }
 
     // Not yet implemented
   // updateMinimap();
   
-  if(typeof stupidTempGlobalFlagDeleteMe == 'undefined')
-    stupidTempGlobalFlagDeleteMe = false
-  
-  // is anything showing? no? ok, show something.
+  if(typeof stupidTempGlobalFlagDeleteMe == 'undefined') {
+      stupidTempGlobalFlagDeleteMe = false;
+  }
+
+    // Do they want to go to a specific puff?
+    var pid = gup('pid');
+    console.log(pid);
+    // Why is there / at end? remove it.
+
+    pid = pid.replace('/','');
+    if(pid.length > 0) {
+        var gotoPuff = pid;
+    } else {
+        var gotoPuff = CONFIG.defaultPuff;
+    }
+
+
+    // is anything showing? no? ok, show something.
   if(!stupidTempGlobalFlagDeleteMe) {
-    showPuff(PuffForum.getPuffById(CONFIG.defaultPuff));   // show the first root
+    showPuff(PuffForum.getPuffById(gotoPuff));   // show the first root
     stupidTempGlobalFlagDeleteMe = true;
     return false;
   }
@@ -101,6 +116,7 @@ puffTemplate = function(puff, isMain, viewFull) {
   </div>\
   <div class="bar">\
   <span class="icon">\
+  <a href="?pid=' + id + '"><img class="permalink" src="img/permalink.png" alt="permalink"  width="16" height="16"></a>&nbsp;&nbsp;\
   <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16">\
   </span>\
   </div>\
@@ -201,9 +217,16 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#menu').toggle();
   });
 
+
+
 });
 
-
+// find $_GET var in url
+// http://stackoverflow.com/questions/8460265/
+function gup (name) {
+    name = RegExp ('[?&]' + name.replace (/([[\]])/, '\\$1') + '=([^&#]*)');
+    return (window.location.href.match (name) || ['', ''])[1];
+}
 
 /*
 jQuery(document).ready(function(){

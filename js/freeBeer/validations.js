@@ -22,5 +22,10 @@ function isValidPrivateKey(privateKey) {
     } else {
         return true;
     }
+}
+
+// TODO implement
+function isValidPid(pid) {
+    // Validate puff id in terms of characters
 
 }

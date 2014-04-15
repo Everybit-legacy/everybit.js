@@ -157,8 +157,8 @@ PuffForum.addToGraph = function(puffs) {
 
 
 PuffForum.addContentType = function(name, type) {
-    if(!name) return PuffForum.error('Invalid content type name')
-    if(!type.toHtml) return PuffForum.error('Invalid content type: object is missing toHtml method')
+    if(!name) return Puff.onError('Invalid content type name')
+    if(!type.toHtml) return Puff.onError('Invalid content type: object is missing toHtml method')
     
     // TODO: add more thorough name/type checks
     PuffForum.contentTypes[name] = type
@@ -192,9 +192,3 @@ PuffForum.addContentType('bbcode', {
         return parsedText;
     }
 })
-
-
-PuffForum.error = function(msg) {
-    console.log(msg)
-    return false
-}

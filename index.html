@@ -21,18 +21,7 @@
   <img src="img/logo.gif" class="logo">
   <a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
 
-  <div id="otherForm" class="mainForm">
-    <div id="authorDiv"></div>
-    <form id="otherContentForm">
-      <br>
-      <textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
-      <br /><br />
-      <input id='cancel-form' type="reset" value="Cancel">
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      <input onclick="$('#otherForm').hide();" type="submit" value="GO!">
-      <input type="hidden" id="parentids" name="parentids" value="[]">
-    </form>
-  </div>
+  <div id="replyForm" class="mainForm"></div>
 
   <div class="menu" id="menu">
     
@@ -60,11 +49,6 @@
     <div class="menuItem">
       <a href="#" onclick="viewPublic();return false;" class="under">Show</a> / <a href="#" onclick="hidePublic();return false;" class="under">Hide</a> your public key.
     </div>
-
-<div id="otherForm" class="mainForm">
-  <div id="authorDiv" class="author">New anonymous user</div>
-  <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
-</div>
 
     <div class="menuItem">
       <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key.

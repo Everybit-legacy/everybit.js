@@ -8,6 +8,10 @@ var PuffWorld = React.createClass({
     }
 });
 
+var createPuffBox = function(puff) {
+    return <PuffBox puff={puff} key={puff.sig} />
+}
+
 var PuffRoots = React.createClass({
     render: function() {
         var puffs = PuffForum.getRootPuffs();
@@ -16,13 +20,7 @@ var PuffRoots = React.createClass({
 
         puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
 
-        return (
-            <section id="children">
-                {puffs.map(function(puff) {
-                    return <PuffBox puff={puff} key={puff.sig} />
-                })}
-            </section>
-        );
+        return <section id="children">{puffs.map(createPuffBox)}</section>
     }
 });
 
@@ -35,10 +33,6 @@ var PuffTree = React.createClass({
         
         childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
         childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
-        
-        var createPuffBox = function(puff) {
-            return <PuffBox puff={puff} key={puff.sig} />
-        }
         
         return (
             <div>
@@ -126,28 +120,117 @@ var PuffBox = React.createClass({
         var puff = this.props.puff
         return (
             <div className="block" id={puff.sig} key={puff.sig}>
-                <div className="author">{puff.payload.username}</div>
-                <div className="txt"><PuffContent puff={puff} /></div>
-                <div className="bar">
-                    <span className="icon">
-                        <a href={'?pid=' + puff.sig}>
-                            <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16"></img>
-                        </a>
-                        &nbsp;&nbsp;
-                        <img className="reply" data-value={puff.sig} src="img/reply.png" width="16" height="16"></img>
-                    </span>
-                </div>
+                <PuffAuthor username={puff.payload.username} />
+                <PuffContent puff={puff} />
+                <PuffBar puff={puff} />
             </div>
-        );                
+        );
+    }
+});
+
+var PuffAuthor = React.createClass({
+    render: function() {
+        return (
+            <div className="author">{this.props.username}</div>
+        );
     }
 });
 
 var PuffContent = React.createClass({
+    handleClick: function() {
+        var sig  = this.props.puff.sig
+        var puff = PuffForum.getPuffById(sig);
+        showPuff(puff)
+    },
     render: function() {
         var puff = this.props.puff
         var puffcontent = PuffForum.getProcessedPuffContent(puff)
-        // FIXME: this is bad and stupid because user content becomes unescaped html don't do this
-        return <div dangerouslySetInnerHTML={{__html: puffcontent}}></div>
+        // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
+        return <div className="txt" onClick={this.handleClick} dangerouslySetInnerHTML={{__html: puffcontent}}></div>
+    }
+});
+
+var PuffBar = React.createClass({
+    render: function() {
+        var puff = this.props.puff
+        return (
+            <div className="bar">
+                <span className="icon">
+                    <PuffPermaLink sig={puff.sig} />
+                    &nbsp;&nbsp;
+                    <PuffReplyLink sig={puff.sig} />
+                </span>
+            </div>
+        );
+    }
+});
+
+var PuffPermaLink = React.createClass({
+    render: function() {
+        return (
+            <a href={'?pid=' + this.props.sig}>
+                <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16"></img>
+            </a>
+        );
+    }
+});
+
+var PuffReplyLink = React.createClass({
+    handleClick: function() {
+
+        $("#replyForm").show();
+        React.renderComponent(PuffReply(), document.getElementById('replyForm'));
+        
+        $("#replyForm [name='content']").focus();
+
+        var sig = this.props.sig;
+        var parents = $('#parentids').val();
+        if(!parents) return false;
+    
+        var newParents = JSON.parse(parents);
+
+        if($.inArray(sig, newParents) !== -1) {
+            var index = newParents.indexOf(sig);
+            newParents.splice(index, 1);
+
+            // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
+
+        } else {
+            newParents.push(sig);
+
+            $('#parentids').val(JSON.stringify(newParents));
+
+            // TODO: Set class of reply arrow to red
+        }
+
+    
+        // TODO: draw arrows
+        // TODO: undo if sig is already in parents array
+        
+    },
+    render: function() {
+        return (
+            <img className="reply" onClick={this.handleClick} src="img/reply.png" width="16" height="16"></img>
+        );
+    }
+});
+
+var PuffReply = React.createClass({
+    render: function() {
+        return (
+            <div>
+                <div id="authorDiv"></div>
+                <form id="otherContentForm">
+                  <br />
+                  <textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
+                  <br /><br />
+                  <input id='cancel-form' type="reset" value="Cancel" />
+                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input onclick="$('#replyForm').hide();" type="submit" value="GO!" />
+                  <input type="hidden" id="parentids" name="parentids" value="[]" />
+                </form>
+            </div>
+        );
     }
 });
 

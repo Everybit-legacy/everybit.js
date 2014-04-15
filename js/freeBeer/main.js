@@ -77,13 +77,13 @@ PuffForum.init();
 
 document.addEventListener('DOMContentLoaded', function() {
   
-    // add content form
+    // content form
   
     $(document).on('submit', "#otherContentForm", function( event ) {
         event.preventDefault();
 
         // PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
-        // $('#otherForm').toggle();
+        // $('#replyForm').toggle();
 
 
 
@@ -96,46 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // reply-to
     $(document).on('click', '#cancel-form', function( event ) {
-        $('#otherForm').hide();
+        $('#replyForm').hide();
         $('#content').val("");
-    });
-
-    $(document).on('click', '.reply', function( event ) {
-        event.preventDefault();
-        $("#otherForm").show();
-        $("#otherForm [name='content']").focus();
-
-        var sig = event.target.dataset.value;
-        var parents = $('#parentids').val();
-        if(!parents) return false;
-    
-        var newParents = JSON.parse(parents);
-
-        if($.inArray(sig, newParents) !== -1) {
-            var index = newParents.indexOf(sig);
-            newParents.splice(index, 1);
-
-            // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
-
-        } else {
-            newParents.push(sig);
-
-            $('#parentids').val(JSON.stringify(newParents));
-
-            // TODO: Set class of reply arrow to red
-        }
-
-    
-        // TODO: draw arrows
-        // TODO: undo if sig is already in parents array
-    });
-
-    // change root when text is clicked [TEMP]
-    $(document).on('click', '.txt', function(ev) {
-        var id   = $(ev.target).parents('.block').attr('id')
-        if(!id) return false
-        var puff = PuffForum.getPuffById(id);
-        showPuff(puff)
     });
 
     // When browser window is resized, refresh jsPlumb connecting lines.
@@ -205,10 +167,10 @@ $(document).ready(function() {
     });
 
     $("#otherNewContentLink").click(function() {
-        $("#otherForm").toggle();
+        $("#replyForm").toggle();
     });
 
-    $('#otherForm').eq(0).draggable();
+    $('#replyForm').eq(0).draggable();
 
 });
 

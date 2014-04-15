@@ -1,3 +1,82 @@
+/** @jsx React.DOM */
+var PuffView = React.createClass({
+  render: function() {
+    // Apply BBCODE styling
+    // TODO: Condition on contentType
+    var bbcodeParse = XBBCODE.process({ text: this.props.payload.content });
+    var parsedText  = bbcodeParse.html.replace(/\n/g, '<br />'); 
+    var content     = parsedText;
+    
+    if(!this.props.viewFull) // TODO: pull this in to the template instead of living dangerously
+      content = parsedText.substring(0, CONFIG.text_threshold)
+              + '<a href="#" onclick="showPuff(puff, true); return false;">'
+              + (parsedText.length > CONFIG.text_threshold ? ' •••' : '')
+              + '</a>';
+    
+    return (
+      <div className="block" id={this.props.sig}>
+        <div className="author">{this.props.payload.username}</div>
+        <div className="txt" dangerouslySetInnerHTML={{__html: content}}></div>
+        <div className="bar">
+          <span className="icon">
+            <a href={'?pid=' + this.props.sig}>
+              <img className="permalink" src="img/permalink.png" alt="permalink"  width="16" height="16"></img>
+            </a>
+            &nbsp;&nbsp;
+            <img className="reply" data-value={this.props.sig} src="img/reply.png" width="16" height="16"></img>
+          </span>
+        </div>
+      </div>
+    );        
+  }
+});
+
+
+
+
+// Creates the contents of a Puff (or block).
+// puffTemplate = function(puff, isMain, viewFull) {
+//   var author = puff.payload.username;
+//   var content = puff.payload.content;
+// 
+//   // Apply BBCODE styling
+//   // TODO: Condition on contentType
+//   bbcodeParse = XBBCODE.process({
+//     text: content
+//   });
+// 
+//   var parsedText = bbcodeParse.html;
+// 
+//     // Replace newline chars with <br />
+//     parsedText = parsedText.replace(/\n/g, '<br />');
+// 
+//   var id = puff.sig;
+//   var dots = parsedText.length > CONFIG.text_threshold ? ' •••' : '';
+// 
+//   if(viewFull) {
+//       var contentToShow = parsedText;
+//   } else {
+//       var contentToShow = parsedText.substring(0, CONFIG.text_threshold);
+//       contentToShow += '<a href="#" onclick="showPuff(puff, true, true); return false;">';
+//       contentToShow +=  dots;
+//       contentToShow += '</a>';
+//   }
+// 
+//   return $('<div class="block" id="' + id + '">\
+//   <div class="author">' + author + '</div>\
+//   <div class="txt">\
+//   ' + contentToShow + '\
+//   </div>\
+//   <div class="bar">\
+//   <span class="icon">\
+//   <a href="?pid=' + id + '"><img class="permalink" src="img/permalink.png" alt="permalink"  width="16" height="16"></a>&nbsp;&nbsp;\
+//   <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16">\
+//   </span>\
+//   </div>\
+//   </div>');
+// }
+
+
 /**
 * Functions related to rendering different configurations of puffs
 */
@@ -108,74 +187,3 @@ showPuff = function(puff, viewFull) {
 
 
 
-$(document).ready(function() {
-  $("#puffballIcon").click(function() {
-    $("#menu").toggle();
-  });
-
-  $("#newContentLink").click(function() {
-    $("#menu").toggle();
-  });
-
-  $("#otherNewContentLink").click(function() {
-    $("#otherForm").toggle();
-  });
-
-  $('#otherForm').eq(0).draggable();
-
-});
-
-$("#setUserInfo").submit(function( event ) {
-  event.preventDefault();
-
-  var username = $("#usernameSet").val();
-  var privateKey = $("#privateKeySet").val();
-
-  // Check that this is a valid username (ascii etc)
-  if(!isValidUsername(username)) {
-    alert("invalid username!");
-    return false;
-  }
-
-  // Generate their public key from private key
-  try {
-    var currPublic = Puff.Crypto.privateToPublic(privateKey);
-  } catch(err) {
-    alert("invalid private key!");
-    return false;
-  }
-
-  // user lookup.
-  // Check the public key against API:
-
-  // Generate new anon user
-  $.ajax({
-    type: "GET",
-    url: CONFIG.userApi,
-    data: {
-      type: "getUser",
-      username: username
-    },
-    success: function (result) {
-
-      if(result.publicKey === currPublic) {
-        // Register this user in client memory so they can sign content
-        PuffForum.userinfoLivesHereForNow.username = username;
-        PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
-        PuffForum.userinfoLivesHereForNow.publicKey = currPublic;
-      }  else {
-        alert("That generates a public key that doesn't match!");
-        return false;
-      }
-    },
-    error: function () {
-      alert('Unable to find a matching user for that information!');
-    },
-    dataType: "json"
-  });
-
-  var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
-  buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
-  document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
-
-});

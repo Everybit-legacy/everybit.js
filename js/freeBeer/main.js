@@ -41,7 +41,7 @@ var eatPuffs = function(puffs) {
   // ok. now that the stupid stuff is done, let's do something smart.
   // what's my main content item? is this new puff a child of it?
   // oh dear why would you do this use app data & react instead
-  var currentId = $('.blockMain').attr('id');
+  var currentId = $('#main-content .block').attr('id');
   
   if(puffs.some(function(puff) {return !!~puff.payload.parents.indexOf(currentId)}));
 
@@ -59,16 +59,16 @@ PuffForum.init();
 
 /////// minimap ////////
 
-var updateMinimap = function() {  
-  var mapdom = $('#minimap')
-  
-  // Puff.Data.puffs.forEach(function(puff) {
-  //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
-  //            + puff.sig + '\'));return false;" class="under">' 
-  //            + puff.sig + '</a></p>'
-  //   mapdom.append($(template))
-  // })
-}
+// var updateMinimap = function() {  
+//   var mapdom = $('#minimap')
+//   
+//   // Puff.Data.puffs.forEach(function(puff) {
+//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
+//   //            + puff.sig + '\'));return false;" class="under">' 
+//   //            + puff.sig + '</a></p>'
+//   //   mapdom.append($(template))
+//   // })
+// }
 
 
 ////// end minimap /////
@@ -77,12 +77,6 @@ var updateMinimap = function() {
 
 // Creates the contents of a Puff (or block).
 puffTemplate = function(puff, isMain, viewFull) {
-  if(isMain) {
-    var classToUse = 'blockMain';
-  } else {
-    var classToUse = 'block';
-  }
-
   var author = puff.payload.username;
   var content = puff.payload.content;
 
@@ -98,18 +92,18 @@ puffTemplate = function(puff, isMain, viewFull) {
     parsedText = parsedText.replace(/\n/g, '<br />');
 
   var id = puff.sig;
-  var dots = parsedText.length > window.threshold ? ' •••' : '';
+  var dots = parsedText.length > CONFIG.text_threshold ? ' •••' : '';
 
   if(viewFull) {
       var contentToShow = parsedText;
   } else {
-      var contentToShow = parsedText.substring(0, window.threshold);
+      var contentToShow = parsedText.substring(0, CONFIG.text_threshold);
       contentToShow += '<a href="#" onclick="showPuff(puff, true, true); return false;">';
       contentToShow +=  dots;
       contentToShow += '</a>';
   }
 
-  return $('<div class="' + classToUse + '" id="' + id + '">\
+  return $('<div class="block" id="' + id + '">\
   <div class="author">' + author + '</div>\
   <div class="txt">\
   ' + contentToShow + '\
@@ -124,30 +118,22 @@ puffTemplate = function(puff, isMain, viewFull) {
 }; 
 
 
-// set state to current puff
-function setBrowserHistoryPuffStateToSomething(puff) {
-  var state = { 'puff': puff.sig };
-  history.pushState(state, '', '#puff=' + puff.sig);
-}
 
-// onload, store the puff id we're looking for
-function storePuffIdToSomePlaceOnLoad() {
-  someSillyGlobalPuffId = window.location.hash.substring(1);
-}
-
-
-// window.location.hash returns the anchor part of the browsers URL,
-// including the #. Hence substring removes the #.
-// Use the line below to allow the data to be selected in the browser addressbar
-// i.e. /index.html#8 will select the 8th position in data_JSON_sample.
-//      var hardcoded = parseInt(window.location.hash.substring(1));
-// var hardcoded = 9;
-
-window.threshold = 400;
+// /** @jsx React.DOM */
+// var Puff = React.createClass({
+//   render: function() {
+//     var createItem = function(itemText) {
+//       return <li>{itemText}</li>;
+//     };
+//     return <ul>{this.props.items.map(createItem)}</ul>;
+//   }
+// });
+// 
 
 document.addEventListener('DOMContentLoaded', function() {
   
   // add content form
+  
   $(document).on('submit', "#otherContentForm", function( event ) {
     event.preventDefault();
 
@@ -201,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // change root when text is clicked [TEMP]
   $(document).on('click', '.txt', function(ev) {
-    var id   = $(ev.target).parents('.block, .blockMain').attr('id')
+    var id   = $(ev.target).parents('.block').attr('id')
     if(!id) return false
     var puff = PuffForum.getPuffById(id);
     showPuff(puff)
@@ -240,3 +226,22 @@ jQuery(document).ready(function(){
 
 });
 */
+
+// set state to current puff
+function setBrowserHistoryPuffStateToSomething(puff) {
+  var state = { 'puff': puff.sig };
+  history.pushState(state, '', '#puff=' + puff.sig);
+}
+
+// onload, store the puff id we're looking for
+function storePuffIdToSomePlaceOnLoad() {
+  someSillyGlobalPuffId = window.location.hash.substring(1);
+}
+
+
+// window.location.hash returns the anchor part of the browsers URL,
+// including the #. Hence substring removes the #.
+// Use the line below to allow the data to be selected in the browser addressbar
+// i.e. /index.html#8 will select the 8th position in data_JSON_sample.
+//      var hardcoded = parseInt(window.location.hash.substring(1));
+// var hardcoded = 9;

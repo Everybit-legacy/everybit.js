@@ -23,12 +23,24 @@
 
   <div id="otherForm" class="mainForm">
     <div id="authorDiv"></div>
-    <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
+    <form id="otherContentForm">
+      <br>
+      <textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
+      <br /><br />
+      <input id='cancel-form' type="reset" value="Cancel">
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <input onclick="$('#otherForm').hide();" type="submit" value="GO!">
+      <input type="hidden" id="parentids" name="parentids" value="[]">
+    </form>
   </div>
 
   <div class="menu" id="menu">
-
-    <div class="closeBox" id="closeDiv"><a href="#" onclick='$("#menu").toggle();return false;' class="under"><img src="img/close.png" width="24" height="24"></a></div>
+    
+    <div class="closeBox" id="closeDiv">
+      <a href="#" onclick='$("#menu").toggle();return false;' class="under">
+        <img src="img/close.png" width="24" height="24">
+      </a>
+    </div>
 
     <div class="publicKeyMenuItem" id="currentUser"> </div>
 
@@ -56,8 +68,7 @@
       <a href="#" onclick="getBlockchian();return false;" class="under">Download your blockchin</a>
     </div>
 
-    <div class="menuItem" id="blockchainLink">
-    </div>
+    <div class="menuItem" id="blockchainLink"> </div>
 
     <div class="menuItem">
       <form id="setUserInfo">
@@ -68,12 +79,15 @@
         <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
       </form>
     </div>
+    
     <div class="menuItem">
       <a href="#" onclick="qrcodeWrapper(); return false;">Show QR code for private key</a>
     </div>
 
     <div class="menuItem">
-      <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" class="under">Learn more about FreeBeer!</a>
+      <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" class="under">
+        Learn more about FreeBeer!
+      </a>
     </div>
 
     <div class="menuItem" id="publicKeyMenuItem"></div>

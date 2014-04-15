@@ -41,27 +41,6 @@ a.under {
     clear: both;
 }
 
-.blockMain {
-    background: #FAFAFA;
-    width: 30%;
-    -webkit-border-radius: 25px;
-    -moz-border-radius: 25px;
-    border-radius: 25px;
-    max-height: 60%;
-    border: 1px solid #a1a1a1;
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 15px;
-    margin-right: 12px;
-    display: inline-block;
-    box-sizing: border-box;
-    text-align: left;
-    min-width: 300px;
-    z-index: 999;
-    overflow: auto;
-}
-
 .author {
     font-family: GudeaBold;
     padding: 2px;
@@ -87,6 +66,8 @@ a.under {
     width: 30%;
     min-width: 300px;
     max-height: 30%;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
@@ -96,9 +77,16 @@ a.under {
     margin-right: 12px;
     display: inline-block;
     box-sizing: border-box;
-
+    text-align: left;
     z-index: 999;
 }
+
+#main-content>div.block {
+    width: 30%;
+    max-height: 60%;
+    overflow: auto;
+}
+
 .bar .icon:hover {
     opacity: 0.8;
     cursor: pointer;

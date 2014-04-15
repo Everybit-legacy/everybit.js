@@ -31,7 +31,7 @@ Puff.P2P = (function() {
       host: '162.219.162.56',
       port: 9000,
       path: '/',
-      debug: 3
+      debug: 1
     });
     this.swarm = new Puff.Swarm();
     this.peer.on('open', this.open);

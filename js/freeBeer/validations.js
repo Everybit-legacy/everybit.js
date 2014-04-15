@@ -1,5 +1,4 @@
 function isValidUsername(username) {
-
     if (!username.match(/^[A-Za-z0-9]+$/)) {
         return false;
     } else {
@@ -23,5 +22,10 @@ function isValidPrivateKey(privateKey) {
     } else {
         return true;
     }
+}
+
+// TODO implement
+function isValidPid(pid) {
+    // Validate puff id in terms of characters
 
 }

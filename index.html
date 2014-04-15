@@ -1,106 +1,87 @@
 <!doctype>
 <html>
-<!--
-TODO: Next steps
-(X) Remove font-awesone stuff, replace icons
-(X) Add in font Gudea
-* Deal with content overflow in a reasonable way.
-http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
-* Work on making content submit form look better
-(X) Add back in bbCode rendering
-* Put freeBeer image in the background or top right
-(X) Add ability to drag around pop-up div
-(X) Make the pop-up div always there, the function toggles display of it.
-* Add "CANCEL" button next to GO! that clears out global.
--->
 <head>
     <title>
-        FreeBeer.com: A puffball forum.
+        FreeBeer.com: A sample forum running on the puffball platform.
     </title>
     <meta charset="UTF-8">
-
-    <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
-
-    <link rel="stylesheet" href="styles/styles.css"/>
-    <link rel="stylesheet" href="styles/normalize.css"/>
 
     <!-- Favicon links: two forms for compliance -->
     <link id='favicon_def' rel='shortcut icon' href='img/favicon.ico' />
     <link id='favicon_def2' rel='icon' type='image/x-icon' href='img/favicon.ico' />
 
+    <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
+    <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/normalize.css"/>
     <link rel="stylesheet" type="text/css" href="styles/layout.css" />
-
     <link rel="stylesheet" type="text/css" href="styles/xbbcode.css" />
-
 </head>
 <body>
-
-  <img src="img/FreeBeerPuffball.gif" class="logo">
+  <img src="img/logo.gif" class="logo">
   <a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
 
   <div id="otherForm" class="mainForm">
     <div id="authorDiv"></div>
-    <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="Reply"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
+    <form id="otherContentForm"><br><textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea><br /><br /><input id='cancel-form' type="reset" value="Cancel">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input onclick="$('#otherForm').hide();" type="submit" value="GO!"><input type="hidden" id="parentids" name="parentids" value="[]"></form>
   </div>
-
-
 
   <div class="menu" id="menu">
-  <div class="closeBox" id="closeDiv"><a href="#" onclick='$("#menu").toggle();return false;' class="under"><img src="img/close.png" width="24" height="24"></a></div>
-  <div class="menuItem" id="currentUser"> </div>
-  <div class="menuItem">
+
+    <div class="closeBox" id="closeDiv"><a href="#" onclick='$("#menu").toggle();return false;' class="under"><img src="img/close.png" width="24" height="24"></a></div>
+
+    <div class="menuItem" id="currentUser"> </div>
+
+    <div class="menuItem">
       <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' class="under">Add new content</a>
-  </div>
+    </div>
 
-
-  <div class="menuItem">
+    <div class="menuItem">
       <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' class="under">View latest conversations</a>
-  </div>
+    </div>
 
-  <div class="menuItem">
+    <div class="menuItem">
       <a href="#" onclick="newAnon();return false;" class="under">Generate a new username</a>
-  </div>
-  <div class="menuItem">
+    </div>
+
+    <div class="menuItem">
       <a href="#" onclick="viewPublic();return false;" class="under">Show</a> / <a href="#" onclick="hidePublic();return false;" class="under">Hide</a> your public key.
-  </div>
-  <div class="menuItem">
-      <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key</a>
-  </div>
+    </div>
 
-  <div class="menuItem">
+    <div class="menuItem">
+      <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key.
+    </div>
+
+    <div class="menuItem">
       <a href="#" onclick="getBlockchian();return false;" class="under">Download your blockchin</a>
-  </div>
+    </div>
 
-  <div class="menuItem" id="blockchainLink">
-  </div>
+    <div class="menuItem" id="blockchainLink">
+    </div>
 
-  <div class="menuItem">
+    <div class="menuItem">
       <form id="setUserInfo">
-          Set your username and private key:<br>
-          Username: <input type="text" id="usernameSet"><br />
-          Private Key: <input type="text" id="privateKeySet"><br />
-          <input type="submit" value="set"><br>
-          <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
+        Set your username and private key:<br>
+        Username: <input type="text" id="usernameSet"><br />
+        Private Key: <input type="text" id="privateKeySet"><br />
+        <input type="submit" value="set"><br>
+        <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
       </form>
-  </div>
-  <div class="menuItem">
+    </div>
+    <div class="menuItem">
       <a href="#" onclick="qrcodeWrapper(); return false;">Show QR code for private key</a>
-  </div>
+    </div>
 
+    <div class="menuItem">
+      <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" class="under">Learn more about FreeBeer!</a>
+    </div>
 
-  <div class="menuItem">
-      <a href="#" onclick="showPuff(PuffForum.getPuffById('3rKfoBK4ZEZwy6KRcYWcWv3CtGEfNtdu2XRvmgtu87iahrEVLK9HVTWqWhwcYxfzjPErbfkFHxmKttavUxFxsnKqx'));return false;" class="under">Go to specific puff!</a>
-  </div>
-
-
-  <div class="menuItem" id="publicKeyMenuItem"></div>
-  <div class="menuItem" id="privateKeyMenuItem"></div>
-  <div class="menuItem" id="qr"></div>
-
+    <div class="menuItem" id="publicKeyMenuItem"></div>
+    <div class="menuItem" id="privateKeyMenuItem"></div>
+    <div class="menuItem" id="qr"></div>
 
   </div>
 
-  <section class="form"></section>
+  <section id="minimap"></section>
 
   <section id="parents"></section>
 
@@ -108,7 +89,6 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
   <section id="children"></section>
 
-  <section id="minimap"></section>
 
 
   <script type="text/javascript" src="js/freeBeer/config.js"></script>
@@ -125,19 +105,24 @@ http://stackoverflow.com/questions/6406843/detect-if-text-has-overflown
 
   <script src="scripts/bitcoinjs-min.js"></script>
   <script src="scripts/bitcoinsig.js"></script>
-  <script src="scripts/bson.js"></script>
 
   <script src="js/puffballPlatform/puffball.js"></script>
   <script src="js/forum/puffForum.js"></script>
-  <script src="data/sample2.js"></script>
 
   <script src="scripts/peer.js"></script>
   <script src="js/puffballPlatform/p2p.js"></script>
 
-
   <script src="scripts/jsPlumb.js"></script>
   <script src="scripts/zoom.js"></script>
 
+  <script src="js/freeBeer/display.js"></script>
   <script src="js/freeBeer/main.js"></script>
+
+  <div class="footer"> 
+    <div class="footerText">
+      Powered by <a href="http://www.puffball.io" class="footerText">puffball</a>. 
+      Responsibility for all content lies with the publishing author and not this website.
+    </div>
+  </div>
 </body>
 </html>

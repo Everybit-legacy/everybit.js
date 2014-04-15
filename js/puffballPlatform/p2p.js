@@ -11,7 +11,7 @@ Puff.Swarm = (function() {
 
   Swarm.prototype.send = function(data) {
     return _.each(this.peers, function(peer, id) {
-      console.log("Sending data", peer, id, data);
+      // console.log("Sending data", peer, id, data);
       return peer.send(data);
     });
   };
@@ -60,10 +60,10 @@ Puff.P2P = (function() {
 
   P2P.prototype.connection = function(connection) {
     console.log("Connection", connection);
-    Puff.actualP2P.reloadPeers()
+    Puff.actualP2P.reloadPeers();
     
     return connection.on('data', function(data) {
-      Puff.receiveNewPuffs(data)
+      Puff.receiveNewPuffs(data);
       return console.log("Got data", data);
     });
   };

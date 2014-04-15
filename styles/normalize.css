@@ -71,6 +71,13 @@ html {
     -webkit-text-size-adjust: 100%; /* 2 */
 }
 
+/* Apply intuitive box-model for CSS */
+*, *:before, *:after {
+  -moz-box-sizing: border-box; 
+  -webkit-box-sizing: border-box; 
+  box-sizing: border-box;
+ }
+
 /**
  * Address `font-family` inconsistency between `textarea` and other form
  * elements.

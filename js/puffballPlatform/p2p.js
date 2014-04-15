@@ -52,7 +52,7 @@ Puff.P2P = (function() {
     console.log("Got peers", peers);
     if (peers.length > 0) {
       return _.each(peers, function(peer) {
-        console.log("Adding peer to swarm", peer);
+        // console.log("Adding peer to swarm", peer);
         return Puff.actualP2P.swarm.add(peer);
       });
     }

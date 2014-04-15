@@ -54,6 +54,11 @@ a.under {
     margin: 10px 5px;
     padding: 5px;
     text-align:left;
+    cursor:pointer;
+}
+
+.txt:hover {
+    background:rgba(200,15,15,.5);
 }
 
 .bar {

@@ -75,60 +75,6 @@ PuffForum.init();
 
 
 
-// Creates the contents of a Puff (or block).
-puffTemplate = function(puff, isMain, viewFull) {
-  var author = puff.payload.username;
-  var content = puff.payload.content;
-
-  // Apply BBCODE styling
-  // TODO: Condition on contentType
-  bbcodeParse = XBBCODE.process({
-    text: content
-  });
-
-  var parsedText = bbcodeParse.html;
-
-    // Replace newline chars with <br />
-    parsedText = parsedText.replace(/\n/g, '<br />');
-
-  var id = puff.sig;
-  var dots = parsedText.length > CONFIG.text_threshold ? ' •••' : '';
-
-  if(viewFull) {
-      var contentToShow = parsedText;
-  } else {
-      var contentToShow = parsedText.substring(0, CONFIG.text_threshold);
-      contentToShow += '<a href="#" onclick="showPuff(puff, true, true); return false;">';
-      contentToShow +=  dots;
-      contentToShow += '</a>';
-  }
-
-  return $('<div class="block" id="' + id + '">\
-  <div class="author">' + author + '</div>\
-  <div class="txt">\
-  ' + contentToShow + '\
-  </div>\
-  <div class="bar">\
-  <span class="icon">\
-  <a href="?pid=' + id + '"><img class="permalink" src="img/permalink.png" alt="permalink"  width="16" height="16"></a>&nbsp;&nbsp;\
-  <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16">\
-  </span>\
-  </div>\
-  </div>');
-}; 
-
-
-
-// /** @jsx React.DOM */
-// var Puff = React.createClass({
-//   render: function() {
-//     var createItem = function(itemText) {
-//       return <li>{itemText}</li>;
-//     };
-//     return <ul>{this.props.items.map(createItem)}</ul>;
-//   }
-// });
-// 
 
 document.addEventListener('DOMContentLoaded', function() {
   
@@ -245,3 +191,79 @@ function storePuffIdToSomePlaceOnLoad() {
 // i.e. /index.html#8 will select the 8th position in data_JSON_sample.
 //      var hardcoded = parseInt(window.location.hash.substring(1));
 // var hardcoded = 9;
+
+
+
+
+
+$(document).ready(function() {
+  $("#puffballIcon").click(function() {
+    $("#menu").toggle();
+  });
+
+  $("#newContentLink").click(function() {
+    $("#menu").toggle();
+  });
+
+  $("#otherNewContentLink").click(function() {
+    $("#otherForm").toggle();
+  });
+
+  $('#otherForm').eq(0).draggable();
+
+});
+
+$("#setUserInfo").submit(function( event ) {
+  event.preventDefault();
+
+  var username = $("#usernameSet").val();
+  var privateKey = $("#privateKeySet").val();
+
+  // Check that this is a valid username (ascii etc)
+  if(!isValidUsername(username)) {
+    alert("invalid username!");
+    return false;
+  }
+
+  // Generate their public key from private key
+  try {
+    var currPublic = Puff.Crypto.privateToPublic(privateKey);
+  } catch(err) {
+    alert("invalid private key!");
+    return false;
+  }
+
+  // user lookup.
+  // Check the public key against API:
+
+  // Generate new anon user
+  $.ajax({
+    type: "GET",
+    url: CONFIG.userApi,
+    data: {
+      type: "getUser",
+      username: username
+    },
+    success: function (result) {
+
+      if(result.publicKey === currPublic) {
+        // Register this user in client memory so they can sign content
+        PuffForum.userinfoLivesHereForNow.username = username;
+        PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
+        PuffForum.userinfoLivesHereForNow.publicKey = currPublic;
+      }  else {
+        alert("That generates a public key that doesn't match!");
+        return false;
+      }
+    },
+    error: function () {
+      alert('Unable to find a matching user for that information!');
+    },
+    dataType: "json"
+  });
+
+  var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
+  buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
+  document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
+
+});

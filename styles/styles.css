@@ -79,6 +79,7 @@ a.under {
     box-sizing: border-box;
     text-align: left;
     z-index: 999;
+    overflow: hidden;
 }
 
 #main-content>div.block {

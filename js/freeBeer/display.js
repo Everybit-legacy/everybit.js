@@ -1,7 +1,10 @@
 /** @jsx React.DOM */
 var PuffWorld = React.createClass({
     render: function() {
-        // decide whether we're showing a particular puff or all roots
+        // use this to control the state of the master viewport,
+        // and always call it instead of calling PuffRoots and PuffTree directly.
+        
+        // TODO: decide whether we're showing a particular puff or all roots
     }
 });
 
@@ -10,14 +13,16 @@ var PuffRoots = React.createClass({
         var puffs = PuffForum.getRootPuffs();
 
         puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
-    
+
         puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
 
-        var createPuffBox = function(puff) {
-            return <PuffBox puff={puff} />
-        }
-
-        return <section id="children">{puffs.map(createPuffBox)}</section>
+        return (
+            <section id="children">
+                {puffs.map(function(puff) {
+                    return <PuffBox puff={puff} key={puff.sig} />
+                })}
+            </section>
+        );
     }
 });
 
@@ -32,7 +37,7 @@ var PuffTree = React.createClass({
         childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
         
         var createPuffBox = function(puff) {
-            return <PuffBox puff={puff} />
+            return <PuffBox puff={puff} key={puff.sig} />
         }
         
         return (
@@ -120,7 +125,7 @@ var PuffBox = React.createClass({
     render: function() {
         var puff = this.props.puff
         return (
-            <div className="block" id={puff.sig}>
+            <div className="block" id={puff.sig} key={puff.sig}>
                 <div className="author">{puff.payload.username}</div>
                 <div className="txt"><PuffContent puff={puff} /></div>
                 <div className="bar">

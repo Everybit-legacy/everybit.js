@@ -265,5 +265,5 @@ $("#setUserInfo").submit(function( event ) {
   var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
   buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
   document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
-
+  document.getElementById('authorDiv').innerHTML = username;
 });

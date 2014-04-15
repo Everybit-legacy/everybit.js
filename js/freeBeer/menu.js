@@ -5,18 +5,20 @@
 
 // Generate a and display info for new anonymous user
 function newAnon() {
-  PuffForum.addAnonUser(function(newName) {
-    // PuffForum.userinfoLivesHereForNow.username
-    var authorText = '<span class="author">' + newName + '</span>';
-    var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
-    buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
-    document.getElementById('currentUser').innerHTML = buttonCode + authorText;
-  });
+    PuffForum.addAnonUser(function(newName) {
+        // PuffForum.userinfoLivesHereForNow.username
+        console.log("Created user " + newName);
+        var authorText = '<span class="author">' + newName + '</span>';
+        var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
+        buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
+        document.getElementById('currentUser').innerHTML = buttonCode + authorText;
+        document.getElementById('authorDiv').innerHTML = newName;
+
+    });
 }
 
 function viewPrivate() {
-  document.getElementById('privateKeyMenuItem').innerHTML = 'Private key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.privateKey + '">';
-
+    document.getElementById('privateKeyMenuItem').innerHTML = 'Private key: <input type="text" onClick="this.select();" value="' + PuffForum.userinfoLivesHereForNow.privateKey + '">';
 }
 
 function hidePrivate() {
@@ -25,8 +27,7 @@ function hidePrivate() {
 }
 
 function viewPublic() {
-  document.getElementById('publicKeyMenuItem').innerHTML = 'Public key: <input type="text" value="' + PuffForum.userinfoLivesHereForNow.publicKey + '">';
-
+    document.getElementById('publicKeyMenuItem').innerHTML = 'Public key: <input type="text" onClick="this.select();" value="' + PuffForum.userinfoLivesHereForNow.publicKey + '">';
 }
 
 function hidePublic() {
@@ -35,12 +36,11 @@ function hidePublic() {
 }
 
 function clearPrivateKey() {
-
-  document.getElementById('currentUser').innerHTML = '';
-  document.getElementById('publicKeyMenuItem').innerHTML = '';
-  document.getElementById('privateKeyMenuItem').innerHTML = '';
-  document.getElementById('qr').innerHTML = '';
-
+    document.getElementById('currentUser').innerHTML = '';
+    document.getElementById('publicKeyMenuItem').innerHTML = '';
+    document.getElementById('privateKeyMenuItem').innerHTML = '';
+    document.getElementById('qr').innerHTML = '';
+    document.getElementById('authorDiv').innerHTML = '';
 }
 
 

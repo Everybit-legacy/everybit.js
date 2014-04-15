@@ -178,8 +178,8 @@ header h1 {
 
 #otherForm {
     display: none;
-    left: 50% !important;
-    margin-left: -250px !important;
+    left: 50%;
+    margin-left: -250px;
 }
 
 #otherForm:hover, form:hover {

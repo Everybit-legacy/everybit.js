@@ -21,3 +21,5 @@ CONFIG.zone = 'freebeer';
 
 // Signature of default puff to display on homepage load
 CONFIG.defaultPuff = '3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ';
+
+CONFIG.text_threshold = 400

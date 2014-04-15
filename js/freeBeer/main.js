@@ -102,6 +102,7 @@ puffTemplate = function(puff, isMain, viewFull) {
       contentToShow +=  dots;
       contentToShow += '</a>';
   }
+    var localTime = new Date(puff.payload.time).toLocaleString();
 
   return $('<div class="block" id="' + id + '">\
   <div class="author">' + author + '</div>\
@@ -110,6 +111,8 @@ puffTemplate = function(puff, isMain, viewFull) {
   </div>\
   <div class="bar">\
   <span class="icon">\
+  <img class="infoIcon" src="img/info.gif" width="16" height="16" \
+  alt="' + localTime + '" title="' + localTime + '"></a>&nbsp;&nbsp;\
   <a href="?pid=' + id + '"><img class="permalink" src="img/permalink.png" alt="permalink"  width="16" height="16"></a>&nbsp;&nbsp;\
   <img class="reply" data-value="' + id + '" src="img/reply.png" width="16" height="16">\
   </span>\

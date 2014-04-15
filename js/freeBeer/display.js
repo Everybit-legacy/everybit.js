@@ -1,181 +1,165 @@
+/** @jsx React.DOM */
+var PuffWorld = React.createClass({
+    render: function() {
+        // decide whether we're showing a particular puff or all roots
+    }
+});
+
+var PuffRoots = React.createClass({
+    render: function() {
+        var puffs = PuffForum.getRootPuffs();
+
+        puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+    
+        puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
+
+        var createPuffBox = function(puff) {
+            return <PuffBox puff={puff} />
+        }
+
+        return <section id="children">{puffs.map(createPuffBox)}</section>
+    }
+});
+
+var PuffTree = React.createClass({
+    render: function() {
+        
+        var puff = this.props.puff;
+        var parentPuffs = PuffForum.getParents(puff);
+        var childrenPuffs = PuffForum.getChildren(puff);
+        
+        childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
+        
+        var createPuffBox = function(puff) {
+            return <PuffBox puff={puff} />
+        }
+        
+        return (
+            <div>
+                <section id="parents">{parentPuffs.map(createPuffBox)}</section>
+                <section id="main-content"><PuffBox puff={puff} /></section>
+                <section id="children">{childrenPuffs.map(createPuffBox)}</section>
+            </div>
+        );
+    },
+    
+    componentDidMount: function() {
+        this.doSillyJsPlumbStuff()
+    },
+    
+    componentDidUpdate: function() {
+        this.doSillyJsPlumbStuff()
+    },
+    
+    doSillyJsPlumbStuff: function() {
+        jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
+        $('#plumbing').empty()
+        
+        var puff = this.props.puff
+        
+        // Draw lines between Puff's using jsPlumb library.
+        // Does this for each child Puff and the block of HTML that makes up the Puff.
+        $("#children .block").each(function () {
+
+            // Define jsPlumb end points.
+            var e0 = jsPlumb.addEndpoint(puff.sig, {
+                anchor: "BottomCenter",
+                endpoint: "Blank"
+            });
+
+            var e = jsPlumb.addEndpoint($(this).attr("id"), {
+                anchor: "TopCenter",
+                endpoint: "Blank"
+            });
+
+            // Draw lines between end points.
+            jsPlumb.connect({
+                source: e0,
+                target: e,
+                paintStyle: {
+                    lineWidth: 2,
+                    strokeStyle: "#d1d1d1"
+                },
+                connector: "Straight",
+                endpoint: "Blank",
+                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+            });
+        });
+
+        $("#parents .block").each(function () {
+
+            // Define jsPlumb end points.
+            var e0 = jsPlumb.addEndpoint(puff.sig, {
+                anchor: "TopCenter",
+                endpoint: "Blank"
+            });
+
+            var e = jsPlumb.addEndpoint($(this).attr("id"), {
+                anchor: "BottomCenter",
+                endpoint: "Blank"
+            });
+
+            // Draw lines between end points.
+            jsPlumb.connect({
+                source: e,
+                target: e0,
+                paintStyle: {
+                    lineWidth: 2,
+                    strokeStyle: "#d1d1d1"
+                },
+                connector: "Straight",
+                endpoint: "Blank",
+                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+            });
+        });
+    }
+});
+
+var PuffBox = React.createClass({
+    render: function() {
+        var puff = this.props.puff
+        return (
+            <div className="block" id={puff.sig}>
+                <div className="author">{puff.payload.username}</div>
+                <div className="txt"><PuffContent puff={puff} /></div>
+                <div className="bar">
+                    <span className="icon">
+                        <a href={'?pid=' + puff.sig}>
+                            <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16"></img>
+                        </a>
+                        &nbsp;&nbsp;
+                        <img className="reply" data-value={puff.sig} src="img/reply.png" width="16" height="16"></img>
+                    </span>
+                </div>
+            </div>
+        );                
+    }
+});
+
+var PuffContent = React.createClass({
+    render: function() {
+        var puff = this.props.puff
+        var puffcontent = PuffForum.getProcessedPuffContent(puff)
+        // FIXME: this is bad and stupid because user content becomes unescaped html don't do this
+        return <div dangerouslySetInnerHTML={{__html: puffcontent}}></div>
+    }
+});
+
+
+
 /**
 * Functions related to rendering different configurations of puffs
 */
 function viewLatestConversations() {
-  var puffs = PuffForum.getRootPuffs();
-
-  // Sorting function based on payload time
-  puffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-
-  $('#parents').empty();
-  $('#main-content').empty();
-  $('#children').empty();
-
-  puffs.slice(0, CONFIG.maxLatestRootsToShow).forEach(function(puff) {
-    $("#children").append( puffTemplate(puff, false) );
-  });
+    React.renderComponent(PuffRoots(), document.getElementById('puffworld'));
 }
 
 // show a puff, its children, and some arrows
-showPuff = function(puff, viewFull) {
-  if(typeof viewFull !== 'undefined' && viewFull) {
-    viewFull = false;
-  } else {
-    viewFull = true;
-  }
-
-  $('#parents').empty();
-  $('#main-content').empty();
-  $('#children').empty();
-
-  $("#main-content").append( puffTemplate(puff, true, viewFull) );
-
-  // Append parents to the DOM
-  var parentPuffs = PuffForum.getParents(puff);
-  parentPuffs.forEach(function(puff) {
-    $('#parents').append( puffTemplate(puff, false) )
-  });
-
-  // Append no more than 3 children to DOM.
-  // Use CONFIG.maxChildrenToShow
-  var childrenPuffs = PuffForum.getChildren(puff);
-
-  childrenPuffs.sort(function(a, b) {
-    return b.payload.time - a.payload.time
-  });
-
-  childrenPuffs.slice(0, CONFIG.maxChildrenToShow).forEach(function(puff) {
-    $("#children").append( puffTemplate(puff, false) );
-  });
-
-  // Draw lines between Puff's using jsPlumb library.
-  // Does this for each child Puff and the block of HTML that makes up the Puff.
-  $("#children .block").each(function () {
-
-    // Define jsPlumb end points.
-    var e0 = jsPlumb.addEndpoint(puff.sig, {
-      anchor: "BottomCenter",
-      endpoint: "Blank"
-    });
-
-    var e = jsPlumb.addEndpoint($(this).attr("id"), {
-      anchor: "TopCenter",
-      endpoint: "Blank"
-    });
-
-    // Draw lines between end points.
-    jsPlumb.connect({
-      source: e0,
-      target: e,
-      paintStyle: {
-        lineWidth: 2,
-        strokeStyle: "#d1d1d1"
-      },
-      connector: "Straight",
-      endpoint: "Blank",
-      overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-    });
-  });
-
-  $("#parents .block").each(function () {
-
-    // Define jsPlumb end points.
-    var e0 = jsPlumb.addEndpoint(puff.sig, {
-      anchor: "TopCenter",
-      endpoint: "Blank"
-    });
-
-    var e = jsPlumb.addEndpoint($(this).attr("id"), {
-      anchor: "BottomCenter",
-      endpoint: "Blank"
-    });
-
-    // Draw lines between end points.
-    jsPlumb.connect({
-      source: e,
-      target: e0,
-      paintStyle: {
-        lineWidth: 2,
-        strokeStyle: "#d1d1d1"
-      },
-      connector: "Straight",
-      endpoint: "Blank",
-      overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-    });
-  });
+showPuff = function(puff) {
+    React.renderComponent(PuffTree({puff: puff}), document.getElementById('puffworld'))
 }
 
 
 
 
-$(document).ready(function() {
-  $("#puffballIcon").click(function() {
-    $("#menu").toggle();
-  });
-
-  $("#newContentLink").click(function() {
-    $("#menu").toggle();
-  });
-
-  $("#otherNewContentLink").click(function() {
-    $("#otherForm").toggle();
-  });
-
-  $('#otherForm').eq(0).draggable();
-
-});
-
-$("#setUserInfo").submit(function( event ) {
-  event.preventDefault();
-
-  var username = $("#usernameSet").val();
-  var privateKey = $("#privateKeySet").val();
-
-  // Check that this is a valid username (ascii etc)
-  if(!isValidUsername(username)) {
-    alert("invalid username!");
-    return false;
-  }
-
-  // Generate their public key from private key
-  try {
-    var currPublic = Puff.Crypto.privateToPublic(privateKey);
-  } catch(err) {
-    alert("invalid private key!");
-    return false;
-  }
-
-  // user lookup.
-  // Check the public key against API:
-
-  // Generate new anon user
-  $.ajax({
-    type: "GET",
-    url: CONFIG.userApi,
-    data: {
-      type: "getUser",
-      username: username
-    },
-    success: function (result) {
-
-      if(result.publicKey === currPublic) {
-        // Register this user in client memory so they can sign content
-        PuffForum.userinfoLivesHereForNow.username = username;
-        PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
-        PuffForum.userinfoLivesHereForNow.publicKey = currPublic;
-      }  else {
-        alert("That generates a public key that doesn't match!");
-        return false;
-      }
-    },
-    error: function () {
-      alert('Unable to find a matching user for that information!');
-    },
-    dataType: "json"
-  });
-
-  var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
-  buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
-  document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
-
-});

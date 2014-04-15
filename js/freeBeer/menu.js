@@ -22,7 +22,7 @@ function viewPrivate() {
 }
 
 function hidePrivate() {
-  document.getElementById('privateKeyMenuItem').innerHTML = "";
+    document.getElementById('privateKeyMenuItem').innerHTML = "";
 
 }
 
@@ -31,7 +31,7 @@ function viewPublic() {
 }
 
 function hidePublic() {
-  document.getElementById('publicKeyMenuItem').innerHTML = "";
+    document.getElementById('publicKeyMenuItem').innerHTML = "";
 
 }
 
@@ -46,27 +46,27 @@ function clearPrivateKey() {
 
 // Do this so we don't have to store privateKey link
 function qrcodeWrapper() {
-  update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);
+    update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);
 
 }
 
 function getBlockchian() {
-  if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
-    return false;
-  } else {
+    if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
+        return false;
+    } else {
 
-    // return
-    var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
-    var linkData = encodeURIComponent(JSON.stringify(blocks))
+        // return
+        var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
+        var linkData = encodeURIComponent(JSON.stringify(blocks))
 
-    // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-    // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
 
-    // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    // pom.setAttribute('download', filename);
+        // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        // pom.setAttribute('download', filename);
 
-    var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
 
-    document.getElementById('blockchainLink').innerHTML = linkHTML;
-  }
+        document.getElementById('blockchainLink').innerHTML = linkHTML;
+    }
 }

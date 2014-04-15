@@ -178,10 +178,11 @@ var PuffPermaLink = React.createClass({
 var PuffReplyLink = React.createClass({
     handleClick: function() {
 
-        $("#replyForm").show();
+            $("#replyForm").show();
+
         React.renderComponent(PuffReply(), document.getElementById('replyForm'));
         
-        $("#replyForm [name='content']").focus();
+            $("#replyForm [name='content']").focus();
 
         var sig = this.props.sig;
         var parents = $('#parentids').val();
@@ -216,18 +217,47 @@ var PuffReplyLink = React.createClass({
 });
 
 var PuffReply = React.createClass({
+    // getInitialState: function() {
+    //   return {items: [], text: ''};
+    // },
+    // onChange: function(e) {
+    //   this.setState({text: e.target.value});
+    // },
+    // handleSubmit: function(e) {
+    //   e.preventDefault();
+    //   var nextItems = this.state.items.concat([this.state.text]);
+    //   var nextText = '';
+    //   this.setState({items: nextItems, text: nextText});
+    // },
+    handleSubmit: function() {
+        var content = this.refs.content.getDOMNode().value.trim();
+        var parents = JSON.parse(this.refs.parentids.getDOMNode().value.trim());
+
+        PuffForum.addPost( content, parents );
+
+            $("#parentids").val('[]');
+            $('#replyForm').hide();
+
+        return false
+    },
+    handleCancel: function() {
+            $('#replyForm').hide();
+            $('#content').val("");
+      
+      return false  
+    },
     render: function() {
         return (
             <div>
                 <div id="authorDiv"></div>
-                <form id="otherContentForm">
+                <form id="otherContentForm" onSubmit={this.handleSubmit}>
                   <br />
-                  <textarea id="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
+                  <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
                   <br /><br />
                   <input id='cancel-form' type="reset" value="Cancel" />
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <input onclick="$('#replyForm').hide();" type="submit" value="GO!" />
-                  <input type="hidden" id="parentids" name="parentids" value="[]" />
+                  <input type="submit" value="GO!" />
+                  <input type="hidden" ref="parentids" id="parentids" name="parentids" value="[]" />
                 </form>
             </div>
         );

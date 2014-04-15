@@ -77,29 +77,6 @@ PuffForum.init();
 
 document.addEventListener('DOMContentLoaded', function() {
   
-    // content form
-  
-    $(document).on('submit', "#otherContentForm", function( event ) {
-        event.preventDefault();
-
-        // PuffForum.addPost( $("#content").val(), JSON.parse( $("#parentids").val() ));
-        // $('#replyForm').toggle();
-
-
-
-        content = $("#content").val();
-        $("#content").val("");//clean form after
-
-        PuffForum.addPost( content, JSON.parse( $("#parentids").val() ));
-        $("#parentids").val('[]');
-    });
-
-    // reply-to
-    $(document).on('click', '#cancel-form', function( event ) {
-        $('#replyForm').hide();
-        $('#content').val("");
-    });
-
     // When browser window is resized, refresh jsPlumb connecting lines.
     $(window).resize(function(){
         jsPlumb.repaintEverything();

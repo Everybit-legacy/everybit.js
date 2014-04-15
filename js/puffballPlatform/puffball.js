@@ -80,11 +80,12 @@ Puff.createPuff = function(username, privatekey, type, content, meta) {
                   ,  parents: meta.parents                // they should go elsewhere
                   };
 
-    var puff = {payload: payload, sig: Puff.Crypto.signPayload(payload, privatekey)};
+    var puff = { payload: payload
+               , sig: Puff.Crypto.signPayload(payload, privatekey)
+               , version: '0.0.1'                         // version accounts for crypto type and puff shape
+               };                                         // early versions will be aggressively deprecated and unsupported
 
-    Puff.addPuff(puff) // THINK: move this somewhere else...
-    var userBlockchain = Puff.Blockchain.BLOCKS[username];
-    Puff.Blockchain.createBlock(username, userBlockchain[userBlockchain.length - 1].blockSig, puff, privatekey);
+    Puff.addPuff(puff, privatekey) // THINK: move this somewhere else...
 
     return puff;
 }
@@ -95,14 +96,14 @@ Puff.checkUserKey = function(username, privatekey) {
 }
 
  
-Puff.addPuff = function(puff) {
+Puff.addPuff = function(puff, privatekey) {
     //// add a puff to our local cache and fire the callback for new content
   
-    // Puff.Blockchain.createBlock(, puff)
-
     Puff.receiveNewPuffs([puff]);
 
     Puff.Network.distributePuff(puff);
+    
+    Puff.Blockchain.createBlock(puff.payload.username, puff, privatekey);
 }
 
 
@@ -346,8 +347,22 @@ Puff.Blockchain = {};
 Puff.Blockchain.BLOCKSIZE = 10000;
 Puff.Blockchain.SIGSIZE = 100;
 
-Puff.Blockchain.createBlock = function(username, prevSig, puff, privateKeyWIF) {
+Puff.Blockchain.createBlock = function(username, puff, privateKeyWIF) {
     //// Creates a new block, by adding the payload (puff and the signature of the previous block), adding necessary padding and signing it 
+
+    // is everything ok?
+    if(!username) return Puff.onError('Could not create the block due to invalid username');
+    
+    var userBlockchain = Puff.Blockchain.BLOCKS[username];
+
+    if(!userBlockchain) {
+        Puff.Blockchain.createGenesisBlock(username);
+        userBlockchain = Puff.Blockchain.BLOCKS[username];
+    }
+    
+    if(!userBlockchain) return Puff.onError('Failed to create new block due to blockchain wonkiness');
+    
+    var prevSig = userBlockchain[userBlockchain.length - 1].blockSig
 
     // get a blank new block we can fill
     var newBlock = Puff.Blockchain.getNewBlankBlock();
@@ -442,4 +457,12 @@ Puff.Blockchain.createGenesisBlock = function(username) {
 Puff.Blockchain.exportChain = function(username){
     // Returns the username's blockchain as serialized JSON
     return Puff.Blockchain.BLOCKS[username];
+}
+
+
+
+
+Puff.onError = function(msg) {
+    console.log(msg)
+    return false
 }

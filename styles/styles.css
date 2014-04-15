@@ -177,20 +177,20 @@ header h1 {
     border: 4px solid #a1a1a1;
 }
 
-#otherForm {
+#replyForm {
     display: none;
     left: 50%;
     margin-left: -250px;
 }
 
-#otherForm:hover, form:hover {
+#replyForm:hover, form:hover {
     cursor: all-scroll;
 }
-#otherForm form > * {
+#replyForm form > * {
     cursor: auto;
 }
-#otherForm form button,
-#otherForm form input {
+#replyForm form button,
+#replyForm form input {
     cursor: pointer;
 }
 

@@ -237,10 +237,12 @@ var PuffReply = React.createClass({
 
             $("#parentids").val('[]');
             $('#replyForm').hide();
+            $('#content').val("");
 
         return false
     },
     handleCancel: function() {
+            $("#parentids").val('[]');
             $('#replyForm').hide();
             $('#content').val("");
       

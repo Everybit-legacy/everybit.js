@@ -172,6 +172,8 @@ var PuffBar = React.createClass({
         return (
             <div className="bar">
                 <span className="icon">
+                    <PuffInfoLink puff={puff} />
+                    &nbsp;&nbsp;
                     <PuffPermaLink sig={puff.sig} />
                     &nbsp;&nbsp;
                     <PuffReplyLink sig={puff.sig} />
@@ -179,6 +181,20 @@ var PuffBar = React.createClass({
             </div>
         );
     }
+});
+
+var PuffInfoLink = React.createClass({
+   render: function() {
+       var puff = this.props.puff;
+       var date = new Date(puff.payload.time);
+       var hours = date.getHours();
+       var minutes = date.getMinutes();
+       var seconds = date.getSeconds();
+       var formattedTime = hours + ':' + minutes + ':' + seconds;
+       return (
+           <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+           );
+   }
 });
 
 var PuffPermaLink = React.createClass({

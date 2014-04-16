@@ -3,7 +3,18 @@
 *
 */
 
-// Generate a and display info for new anonymous user
+// Initialize Menu on load.
+$(function() {
+    initMenu();
+});
+
+// Hide DIVs that dispay public & private keys until user clicks to show.
+function initMenu() {
+    $('#privateKeyMenuItem').hide();
+    $('#publicKeyMenuItem').hide();
+}
+
+// Generate and display info for new anonymous user
 function newAnon() {
     PuffForum.addAnonUser(function(newName) {
         // PuffForum.userinfoLivesHereForNow.username
@@ -19,23 +30,28 @@ function newAnon() {
 
 function viewPrivate() {
     document.getElementById('privateKeyMenuItem').innerHTML = 'Private key: <input type="text" onClick="this.select();" value="' + PuffForum.userinfoLivesHereForNow.privateKey + '">';
+    $('#privateKeyMenuItem').show();
 }
 
 function hidePrivate() {
     document.getElementById('privateKeyMenuItem').innerHTML = "";
-
+    $('#privateKeyMenuItem').hide();
 }
 
 function viewPublic() {
     document.getElementById('publicKeyMenuItem').innerHTML = 'Public key: <input type="text" onClick="this.select();" value="' + PuffForum.userinfoLivesHereForNow.publicKey + '">';
+    $('#publicKeyMenuItem').show();
 }
 
 function hidePublic() {
     document.getElementById('publicKeyMenuItem').innerHTML = "";
-
+    $('#publicKeyMenuItem').hide();
 }
 
 function clearPrivateKey() {
+    console.log("CALL: clearPrivateKey()");
+    initMenu();
+
     document.getElementById('currentUser').innerHTML = '';
     document.getElementById('publicKeyMenuItem').innerHTML = '';
     document.getElementById('privateKeyMenuItem').innerHTML = '';

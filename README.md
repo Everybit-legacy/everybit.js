@@ -2,7 +2,18 @@ Freebeer
 ========
 `Freebeer` is a demo GUI front end to the Puffball project. 
 
-Puffball is a decentralized discussion platform. Front end web & mobile developers can create their own GUI front end to Puffball, using the Puffball API, to host their own Puffball server. All user content is encrypted via the Blockchain, allowing a secure & decentralized social platform for sharing of text, audio, video and images.
+Puffball is a decentralized discussion platform. Front end web and mobile developers can create their own GUI front end to Puffball using the Puffball API. All user content is encoded to individual blockchains, allowing a secure & decentralized social platform for sharing of text, audio, video and images.
+
+Please see the [guide to the puffball platform](http://extrazoom.com/image-10847.html). This guide visually outlines the puffball platform and provides an overview of the development roadmap, user accounts/naming, user generated content, the Blockchain, and the Freebeer demo GUI.
+
+Puffball is currently in Phase 1 of the Development roadmap. 
+
+Freebeer is a demo GUI front end for Puffball.
+
+The main Puffball site is here [www.PuffBall.io](http://www.puffball.io)
+
+License: [MIT](http://opensource.org/licenses/MIT)
+
 
 ### Current Development
 `Freebeer` currently reads data from a sample JSON file so GUI development can continue in parallel with Puffball's API team. Once Puffball's API is released `Freebeer` will connect to the live API. 
@@ -15,17 +26,6 @@ https://github.com/puffball/freebeer/archive/master.zip
 
 To run the static HTML GUI mock up, open this file in a browser:
 `/index.html`
-
-To try the AngularJS app example: 
-In a nut shell, from this directory `/client-angular` just run: `npm start`
-
-You will need NPM (Node Package Manager) to be installed but again, the instructions are in the above mentioned README.
-
-More info to run Angular app, follow the instructions here:
-`/client-angular/README.md` 
-
-Note: This repo currently includes the AngularJS libs so you don't need to run: `npm install`
-
 
 ### More Dev notes
 `Freebeer` uses the following libraries, if there's a CDN we're pointing to it instead of loading it all into GitHub:

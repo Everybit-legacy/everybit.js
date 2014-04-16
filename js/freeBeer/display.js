@@ -1,10 +1,26 @@
 /** @jsx React.DOM */
 var PuffWorld = React.createClass({
+    // getInitialState: function() {
+    getDefaultProps: function() {
+        var defaultPuff = CONFIG.defaultPuff
+                        ? PuffForum.getPuffById(CONFIG.defaultPuff)
+                        : Puff.Data.puffs[0]
+        
+        return { style: 'PuffTree'
+               ,  puff: defaultPuff
+               }
+    },
     render: function() {
         // use this to control the state of the master viewport,
         // and always call it instead of calling PuffRoots and PuffTree directly.
         
-        // TODO: decide whether we're showing a particular puff or all roots
+        var comp
+        if( this.props.style == 'PuffTree')
+            comp = <PuffTree puff={this.props.puff} />
+        else
+            comp = <PuffRoots />
+            
+        return comp
     }
 });
 
@@ -272,14 +288,12 @@ var PuffReply = React.createClass({
 * Functions related to rendering different configurations of puffs
 */
 function viewLatestConversations() {
-    React.renderComponent(PuffRoots(), document.getElementById('puffworld'));
+    React.renderComponent(PuffWorld({style: 'PuffRoots'}), document.getElementById('puffworld'))
 }
 
 // show a puff, its children, and some arrows
 showPuff = function(puff) {
-    React.renderComponent(PuffTree({puff: puff}), document.getElementById('puffworld'))
+    React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
 }
-
-
 
 

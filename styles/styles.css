@@ -305,11 +305,12 @@ header h1 {
 
 .footer {
     text-align: center;
+    background: #1616A8;
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;
-    bottom: 15px;
-    position: absolute;
+    bottom: 0;
+    position: fixed;
     left:0;
     right:0;
     margin-left:auto;

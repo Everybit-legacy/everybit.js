@@ -12,6 +12,7 @@ $(function() {
 function initMenu() {
     $('#privateKeyMenuItem').hide();
     $('#publicKeyMenuItem').hide();
+    $('#qr').hide();
 }
 
 // Generate and display info for new anonymous user
@@ -63,7 +64,7 @@ function clearPrivateKey() {
 // Do this so we don't have to store privateKey link
 function qrcodeWrapper() {
     update_qrcode(PuffForum.userinfoLivesHereForNow.privateKey);
-
+    $('#qr').show();
 }
 
 function getBlockchian() {

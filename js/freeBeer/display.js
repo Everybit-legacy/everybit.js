@@ -254,7 +254,7 @@ var PuffReply = React.createClass({
                   <br />
                   <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
                   <br /><br />
-                  <input id='cancel-form' type="reset" value="Cancel" />
+                  <input id='cancel-form' type="reset" value="Cancel" onClick={this.handleCancel}/>
                   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   <input type="submit" value="GO!" />
                   <input type="hidden" ref="parentids" id="parentids" name="parentids" value="[]" />

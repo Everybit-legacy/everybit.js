@@ -52,10 +52,10 @@ Puff.init = function(zone) {
     // - network access for initial load
     // - network access for updates
   
-    // TODO: merge our local cache with the server/network's storage and only get the latest ones we're missing
-    // Puff.receiveNewPuffs(Puff.Data.getLocalPuffs())
+    Puff.Data.getLocalPuffs(Puff.receiveNewPuffs)
 
-    Puff.Network.getAllPuffs(Puff.receiveNewPuffs);
+    Puff.Network.getAllPuffs(Puff.receiveNewPuffs); // OPT: only ask for puffs we're missing
+
     Puff.Blockchain.BLOCKS = JSON.parse(localStorage.getItem("blocks"))
     if(Puff.Blockchain.BLOCKS === null)
         Puff.Blockchain.BLOCKS = {}
@@ -132,7 +132,8 @@ Puff.Data.puffs = [];
 Puff.Data.users = [];
 
 Puff.Data.eat = function(puff) {
-    Puff.Data.puffs.push(puff);  // THINK: make this a map to avoid dupes?
+    if(!!~Puff.Data.puffs.indexOf(puff)) return false // OPT: check the sig index instead
+    Puff.Data.puffs.push(puff);  
     Puff.Data.persist(Puff.Data.puffs);
 }
 
@@ -140,8 +141,10 @@ Puff.Data.persist = function(puffs) {
     localStorage.setItem('puffs', JSON.stringify(puffs));
 }
 
-Puff.Data.getLocalPuffs = function() {
-    return JSON.parse(localStorage.getItem('puffs') || '[]');
+Puff.Data.getLocalPuffs = function(callback) {
+    // we're doing this asynchronously in order to not interrupt the loading process
+    // should probably wrap this a bit better (use a promise, or setImmediate)
+    return setTimeout(function() {callback(JSON.parse(localStorage.getItem('puffs') || '[]'))}, 0)
 }
 
 Puff.Data.getUser = function(username, callback) {

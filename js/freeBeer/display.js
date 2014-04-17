@@ -5,7 +5,7 @@ var PuffWorld = React.createClass({
         var defaultPuff = CONFIG.defaultPuff
                         ? PuffForum.getPuffById(CONFIG.defaultPuff)
                         : Puff.Data.puffs[0]
-        
+
         return { style: 'PuffTree'
                ,  puff: defaultPuff
                }
@@ -14,13 +14,19 @@ var PuffWorld = React.createClass({
         // use this to control the state of the master viewport,
         // and always call it instead of calling PuffRoots and PuffTree directly.
         
-        var comp
-        if( this.props.style == 'PuffTree')
-            comp = <PuffTree puff={this.props.puff} />
-        else
-            comp = <PuffRoots />
-            
-        return comp
+        $('#plumbing').empty() // THINK: where should this live and should it at all?
+        
+        if( this.props.style == 'PuffTree' )
+            return <PuffTree puff={this.props.puff} />
+        
+        if( this.props.style == 'PuffAllChildren' )
+            return <PuffAllChildren puff={this.props.puff} />
+        
+        if( this.props.style == 'PuffAllParents' )
+            return <PuffAllParents puff={this.props.puff} />
+        
+        // default to showing root nodes
+        return <PuffRoots />
     }
 });
 
@@ -37,6 +43,26 @@ var PuffRoots = React.createClass({
         puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
 
         return <section id="children">{puffs.map(createPuffBox)}</section>
+    }
+});
+
+var PuffAllChildren = React.createClass({
+    render: function() {
+        var kids = PuffForum.getChildren(this.props.puff);
+
+        kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+
+        return <section id="children">{kids.map(createPuffBox)}</section>
+    }
+});
+
+var PuffAllParents = React.createClass({
+    render: function() {
+        var kids = PuffForum.getParents(this.props.puff);
+
+        kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+
+        return <section id="children">{kids.map(createPuffBox)}</section>
     }
 });
 
@@ -69,7 +95,6 @@ var PuffTree = React.createClass({
     
     doSillyJsPlumbStuff: function() {
         jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
-        $('#plumbing').empty()
         
         var puff = this.props.puff
         
@@ -174,6 +199,10 @@ var PuffBar = React.createClass({
                 <span className="icon">
                     <PuffInfoLink puff={puff} />
                     &nbsp;&nbsp;
+                    <PuffParentCount puff={puff} />
+                    &nbsp;&nbsp;
+                    <PuffChildrenCount puff={puff} />
+                    &nbsp;&nbsp;
                     <PuffPermaLink sig={puff.sig} />
                     &nbsp;&nbsp;
                     <PuffReplyLink sig={puff.sig} />
@@ -184,23 +213,57 @@ var PuffBar = React.createClass({
 });
 
 var PuffInfoLink = React.createClass({
-   render: function() {
-       var puff = this.props.puff;
-       var date = new Date(puff.payload.time);
-       var hours = date.getHours();
-       var minutes = date.getMinutes();
-       var seconds = date.getSeconds();
-       var formattedTime = hours + ':' + minutes + ':' + seconds;
-       return (
-           <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
-           );
-   }
+    render: function() {
+        var puff = this.props.puff;
+        var date = new Date(puff.payload.time);
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var seconds = date.getSeconds();
+        var formattedTime = hours + ':' + minutes + ':' + seconds;
+        return (
+            <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+        );
+    }
+});
+
+var PuffParentCount = React.createClass({
+    handleClick: function() {
+        var puff  = this.props.puff;
+        viewAllParents(puff)
+    },
+    render: function() {
+        var puff = this.props.puff;
+        var parents = PuffForum.getParents(puff)
+        return (
+            <span onClick={this.handleClick}>{parents.length}^</span>
+        );
+    }
+});
+
+var PuffChildrenCount = React.createClass({
+    handleClick: function() {
+        var puff  = this.props.puff;
+        viewAllChildren(puff)
+    },
+    render: function() {
+        var puff = this.props.puff;
+        var children = PuffForum.getChildren(puff)
+        return (
+            <span onClick={this.handleClick}>{children.length}v</span>
+        );
+    }
 });
 
 var PuffPermaLink = React.createClass({
+    handleClick: function() {
+        var sig  = this.props.sig;
+        var puff = PuffForum.getPuffById(sig);
+        
+        showPuff(puff);                                        
+    },
     render: function() {
         return (
-            <a href={'?pid=' + this.props.sig}>
+            <a href={'#' + this.props.sig} onClick={this.handleClick}>
                 <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16"></img>
             </a>
         );
@@ -307,9 +370,23 @@ function viewLatestConversations() {
     React.renderComponent(PuffWorld({style: 'PuffRoots'}), document.getElementById('puffworld'))
 }
 
+function viewAllChildren(puff) {
+    React.renderComponent(PuffWorld({style: 'PuffAllChildren', puff: puff}), document.getElementById('puffworld'))
+}
+
+function viewAllParents(puff) {
+    React.renderComponent(PuffWorld({style: 'PuffAllParents', puff: puff}), document.getElementById('puffworld'))
+}
+
 // show a puff, its children, and some arrows
-showPuff = function(puff) {
+showPuff = function(puff, doNotSetState) {
     React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
+
+    // set window.location.hash and allow back button usage
+    if(!doNotSetState) {  // THINK: simplify this
+        var state = { 'sig': puff.sig }; 
+        history.pushState(state, '', '#' + puff.sig);
+    }
 }
 
 

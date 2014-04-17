@@ -362,31 +362,3 @@ var PuffReply = React.createClass({
 });
 
 
-
-/**
-* Functions related to rendering different configurations of puffs
-*/
-function viewLatestConversations() {
-    React.renderComponent(PuffWorld({style: 'PuffRoots'}), document.getElementById('puffworld'))
-}
-
-function viewAllChildren(puff) {
-    React.renderComponent(PuffWorld({style: 'PuffAllChildren', puff: puff}), document.getElementById('puffworld'))
-}
-
-function viewAllParents(puff) {
-    React.renderComponent(PuffWorld({style: 'PuffAllParents', puff: puff}), document.getElementById('puffworld'))
-}
-
-// show a puff, its children, and some arrows
-showPuff = function(puff, doNotSetState) {
-    React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
-
-    // set window.location.hash and allow back button usage
-    if(!doNotSetState) {  // THINK: simplify this
-        var state = { 'sig': puff.sig }; 
-        history.pushState(state, '', '#' + puff.sig);
-    }
-}
-
-

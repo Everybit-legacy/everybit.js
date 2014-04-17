@@ -14,19 +14,28 @@ var PuffWorld = React.createClass({
         // use this to control the state of the master viewport,
         // and always call it instead of calling PuffRoots and PuffTree directly.
         
-        $('#plumbing').empty() // THINK: where should this live and should it at all?
+        $('#plumbing').empty(); // THINK: where should this live and should it at all?
+        
+        var view;
         
         if( this.props.style == 'PuffTree' )
-            return <PuffTree puff={this.props.puff} />
+            view = <PuffTree puff={this.props.puff} />
         
-        if( this.props.style == 'PuffAllChildren' )
-            return <PuffAllChildren puff={this.props.puff} />
+        else if( this.props.style == 'PuffAllChildren' )
+            view = <PuffAllChildren puff={this.props.puff} />
         
-        if( this.props.style == 'PuffAllParents' )
-            return <PuffAllParents puff={this.props.puff} />
+        else if( this.props.style == 'PuffAllParents' )
+            view = <PuffAllParents puff={this.props.puff} />
         
-        // default to showing root nodes
-        return <PuffRoots />
+        else view = <PuffRoots />
+        
+        return (
+            <div>
+                <PuffHeader />
+                {view}
+                <PuffFooter />
+            </div>
+        )
     }
 });
 
@@ -356,6 +365,112 @@ var PuffReply = React.createClass({
                   <input type="submit" value="GO!" />
                   <input type="hidden" ref="parentids" id="parentids" name="parentids" value="[]" />
                 </form>
+            </div>
+        );
+    }
+});
+
+var PuffHeader = React.createClass({
+    openMenu: function() {
+        $( '#menu').toggle(); 
+        return false;
+    },
+    render: function() {
+        return (
+            <div>
+                <img src="img/logo.gif" className="logo" />
+                <a href="#" onClick={this.openMenu}><img src="img/puffballIcon.gif" className="puffballIcon" id="puffballIcon" /></a>
+            </div>
+        );
+    }
+});
+
+var PuffFooter = React.createClass({
+    render: function() {
+        return (
+            <div className="footer"> 
+              <div className="footerText">
+                Powered by <a href="http://www.puffball.io" className="footerText">puffball</a>. 
+                Responsibility for all content lies with the publishing author and not this website.
+              </div>
+            </div>
+        );
+    }
+});
+
+
+
+var PuffMenu = React.createClass({
+    handleClose: function() {
+        var sig  = this.props.sig;
+        var puff = PuffForum.getPuffById(sig);
+        
+        showPuff(puff);                                        
+    },
+    render: function() {
+        return (
+            <div className="menu" id="menu">
+    
+              <div className="closeBox" id="closeDiv">
+                <a href="#" onclick='$("#menu").toggle();return false;' className="under">
+                  <img src="img/close.png" width="24" height="24" />
+                </a>
+              </div>
+
+              <div className="publicKeyMenuItem" id="currentUser"> </div>
+
+              <div className="menuItem">
+                <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' className="under">Add new content</a>
+              </div>
+
+              <div className="menuItem">
+                <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' className="under">View latest conversations</a>
+              </div>
+
+              <div className="menuItem">
+                <a href="#" onclick="newAnon();return false;" className="under">Generate a new username</a>
+              </div>
+
+              <div className="menuItem">
+                <a href="#" onclick="viewPublic();return false;" className="under">Show</a> / <a href="#" onclick="hidePublic();return false;" className="under">Hide</a> your public key.
+              </div>
+
+              <div className="menuItem" id="publicKeyMenuItem"></div>
+
+              <div className="menuItem">
+                <a href="#" onclick="viewPrivate();return false;" className="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" className="under">Hide</a> your private key.
+              </div>
+
+              <div className="menuItem" id="privateKeyMenuItem"></div>
+
+              <div className="menuItem">
+                <a href="#" onclick="getBlockchian();return false;" className="under">Download your blockchain</a>
+              </div>
+
+              <div className="menuItem" id="blockchainLink"> </div>
+
+              <div className="menuItem">
+                <form id="setUserInfo">
+                  Set your username and private key:<br />
+                  Username: <input type="text" id="usernameSet" /><br />
+                  Private Key: <input type="text" id="privateKeySet" /><br />
+                  <input type="submit" value="set" /><br />
+                  <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
+                </form>
+              </div>
+    
+              <div className="menuItem">
+                <a href="#" onclick="qrcodeWrapper(); return false;" className="under">Show QR code for private key</a>
+              </div>
+
+              <div className="menuItem" id="qr"></div>
+
+              <div className="menuItem">
+                <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" className="under">
+                  Learn more about FreeBeer!
+                </a>
+              </div>
+
             </div>
         );
     }

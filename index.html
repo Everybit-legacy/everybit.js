@@ -18,74 +18,8 @@
 </head>
 
 <body>
-  <img src="img/logo.gif" class="logo">
-  <a href="#" onclick="$( '#menu').toggle(); return false;"><img src="img/puffballIcon.gif" class="puffballIcon" id="puffballIcon"></a>
 
   <div id="replyForm" class="mainForm"></div>
-
-  <div class="menu" id="menu">
-    
-    <div class="closeBox" id="closeDiv">
-      <a href="#" onclick='$("#menu").toggle();return false;' class="under">
-        <img src="img/close.png" width="24" height="24">
-      </a>
-    </div>
-
-    <div class="publicKeyMenuItem" id="currentUser"> </div>
-
-    <div class="menuItem">
-      <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' class="under">Add new content</a>
-    </div>
-
-    <div class="menuItem">
-      <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' class="under">View latest conversations</a>
-    </div>
-
-    <div class="menuItem">
-      <a href="#" onclick="newAnon();return false;" class="under">Generate a new username</a>
-    </div>
-
-    <div class="menuItem">
-      <a href="#" onclick="viewPublic();return false;" class="under">Show</a> / <a href="#" onclick="hidePublic();return false;" class="under">Hide</a> your public key.
-    </div>
-
-    <div class="menuItem" id="publicKeyMenuItem"></div>
-
-    <div class="menuItem">
-      <a href="#" onclick="viewPrivate();return false;" class="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" class="under">Hide</a> your private key.
-    </div>
-
-    <div class="menuItem" id="privateKeyMenuItem"></div>
-
-    <div class="menuItem">
-      <a href="#" onclick="getBlockchian();return false;" class="under">Download your blockchain</a>
-    </div>
-
-    <div class="menuItem" id="blockchainLink"> </div>
-
-    <div class="menuItem">
-      <form id="setUserInfo">
-        Set your username and private key:<br>
-        Username: <input type="text" id="usernameSet"><br />
-        Private Key: <input type="text" id="privateKeySet"><br />
-        <input type="submit" value="set"><br>
-        <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
-      </form>
-    </div>
-    
-    <div class="menuItem">
-      <a href="#" onclick="qrcodeWrapper(); return false;" class="under">Show QR code for private key</a>
-    </div>
-
-    <div class="menuItem" id="qr"></div>
-
-    <div class="menuItem">
-      <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" class="under">
-        Learn more about FreeBeer!
-      </a>
-    </div>
-
-  </div>
 
   <section id="minimap"></section>
   <div id="plumbing"></div>
@@ -125,13 +59,6 @@
 
   <script src="js/freeBeer/display.js" type="text/jsx"></script>
   <script src="js/freeBeer/main.js"></script>
-
-  <div class="footer"> 
-    <div class="footerText">
-      Powered by <a href="http://www.puffball.io" class="footerText">puffball</a>. 
-      Responsibility for all content lies with the publishing author and not this website.
-    </div>
-  </div>
 
 </body>
 </html>

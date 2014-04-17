@@ -1,6 +1,10 @@
 /** @jsx React.DOM */
 var PuffWorld = React.createClass({
-    // getInitialState: function() {
+    getInitialState: function() {
+        return { menuOn: false
+               ,  style: 'PuffTree'
+               }
+    },
     getDefaultProps: function() {
         var defaultPuff = CONFIG.defaultPuff
                         ? PuffForum.getPuffById(CONFIG.defaultPuff)
@@ -9,6 +13,9 @@ var PuffWorld = React.createClass({
         return { style: 'PuffTree'
                ,  puff: defaultPuff
                }
+    },
+    handleHeaderPuffClick: function() {
+        this.setState({menuOn: !this.state.menuOn});
     },
     render: function() {
         // use this to control the state of the master viewport,
@@ -29,9 +36,12 @@ var PuffWorld = React.createClass({
         
         else view = <PuffRoots />
         
+        var menu = this.state.menuOn ? <PuffMenu /> : ''
+        
         return (
             <div>
-                <PuffHeader />
+                <PuffHeader menuOn={this.state.menuOn} onHeaderPuffClick={this.handleHeaderPuffClick} />
+                {menu}
                 {view}
                 <PuffFooter />
             </div>
@@ -371,15 +381,17 @@ var PuffReply = React.createClass({
 });
 
 var PuffHeader = React.createClass({
-    openMenu: function() {
-        $( '#menu').toggle(); 
+    handleClick: function() {
+        this.props.onHeaderPuffClick();
         return false;
     },
     render: function() {
         return (
             <div>
-                <img src="img/logo.gif" className="logo" />
-                <a href="#" onClick={this.openMenu}><img src="img/puffballIcon.gif" className="puffballIcon" id="puffballIcon" /></a>
+                <img src="img/logo.gif" id="logo" />
+                <a href="#" onClick={this.handleClick}>
+                    <img src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menuOn ? 'menuOn' : ''} />
+                </a>
             </div>
         );
     }

@@ -77,7 +77,7 @@ a.under {
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
-    margin: 10px 12px 0px 15px; /* goes top, right, bottom, left */
+    margin: 10px 12px 10px 15px; /* goes top, right, bottom, left */
     display: inline-block;
     text-align: left;
     padding:15px;
@@ -98,11 +98,13 @@ a.under {
     left:10px;
 }
 .block .txt { /* HTML content of a given block */
-    margin:25px 5px 15px; /* Top, then left and right, then bottom */
+    margin:25px 5px 25px; /* Top, then left and right, then bottom */
     padding: 5px;
     text-align:left;
     cursor:pointer;
     overflow:scroll;
+    overflow-y:scroll; /* Always show scrollbar if relevant */
+    overflow: -moz-scrollbars-vertical; /* For Mozilla: always show scrollbars if applicable */
     max-height:150px;
     -webkit-transition: all 0.3s;
     -moz-transition: all 0.3s;
@@ -114,10 +116,12 @@ a.under {
 }
 .block .bar { /* Bar at the bottom of block that allows a user to respond or link */
     position: absolute;
-    bottom:5px;
+    bottom:0px;
     right:5px;
+    width:100%;
+    background:#FFF;
     text-align: right;
-    padding-right: 10px;
+    padding: 10px 10px; /* top & bottom, sides */
     -webkit-transition: all 0.3s;
     -moz-transition: all 0.3s;
     -o-transition: all 0.3s;
@@ -224,6 +228,7 @@ header h1 {
     display: none;
     left: 50%;
     margin-left: -250px;
+    z-index:1001;
 }
 
 #replyForm:hover, form:hover {
@@ -347,8 +352,9 @@ header h1 {
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;
-    bottom: 0;
+    padding-top:25px;
     position: fixed;
+    bottom: 0;
     left:0;
     right:0;
     margin-left:auto;

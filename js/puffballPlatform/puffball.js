@@ -132,9 +132,12 @@ Puff.Data.puffs = [];
 Puff.Data.users = [];
 
 Puff.Data.eat = function(puff) {
-    if(!!~Puff.Data.puffs.indexOf(puff)) return false // OPT: check the sig index instead
+    if(!!~Puff.Data.puffs
+                   .map(function(p) {return p.sig})  // OPT: check the sig index instead
+                   .indexOf(puff.sig)) 
+                      return false 
     Puff.Data.puffs.push(puff);  
-    Puff.Data.persist(Puff.Data.puffs);
+    Puff.Data.persist(Puff.Data.puffs);              // OPT: batch this part when we're chowing down on lots of puffs
 }
 
 Puff.Data.persist = function(puffs) {

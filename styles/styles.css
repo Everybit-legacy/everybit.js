@@ -305,7 +305,8 @@ header h1 {
 
 .footer {
     text-align: center;
-    background: #1616A8;
+/*    background: #1616A8; */
+    background: rgba(22,22,200,.5);
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;

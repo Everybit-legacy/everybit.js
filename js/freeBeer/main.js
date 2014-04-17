@@ -18,22 +18,12 @@ var eatPuffs = function(puffs) {
         stupidTempGlobalFlagDeleteMe = false;
     }
 
-    // Do they want to go to a specific puff?
-    var pid = gup('pid');
-    // console.log(pid);
-    // Why is there / at end? remove it.
-
-    pid = pid.replace('/','');
-    if(pid.length > 0) {
-        var gotoPuff = pid;
-    } else {
-        var gotoPuff = CONFIG.defaultPuff;
-    }
-
 
     // is anything showing? no? ok, show something.
     if(!stupidTempGlobalFlagDeleteMe) {
-        showPuff(PuffForum.getPuffById(gotoPuff));   // show the first root
+        var puffSig = window.location.hash.substring(1) || CONFIG.defaultPuff;
+        
+        showPuff(PuffForum.getPuffById(puffSig));
         stupidTempGlobalFlagDeleteMe = true;
         return false;
     }
@@ -54,6 +44,18 @@ PuffForum.onNewPuffs(eatPuffs);
 PuffForum.init();
 
 ////////// End PuffForum Interface ////////////
+
+
+//// grab back/forward button changes
+window.onpopstate = function(event) {
+    if(!event.state) return false
+    
+    var puff = PuffForum.getPuffById(event.state.sig)
+    if(!puff) return false
+    
+    showPuff(puff, true)
+}
+
 
 
 
@@ -90,47 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 });
-
-// find $_GET var in url
-// http://stackoverflow.com/questions/8460265/
-function gup (name) {
-    name = RegExp ('[?&]' + name.replace (/([[\]])/, '\\$1') + '=([^&#]*)');
-    return (window.location.href.match (name) || ['', ''])[1];
-}
-
-/*
-jQuery(document).ready(function(){
-
-  jQuery(document).click(function(e){
-          var obj = (e.target ? e.target : e.srcElement);
-          if (obj.tagName != 'BODY') return true;
-          alert("BODY!");
-          return false;
-      });
-
-});
-*/
-
-// set state to current puff
-function setBrowserHistoryPuffStateToSomething(puff) {
-    var state = { 'puff': puff.sig };
-    history.pushState(state, '', '#puff=' + puff.sig);
-}
-
-// onload, store the puff id we're looking for
-function storePuffIdToSomePlaceOnLoad() {
-    someSillyGlobalPuffId = window.location.hash.substring(1);
-}
-
-
-// window.location.hash returns the anchor part of the browsers URL,
-// including the #. Hence substring removes the #.
-// Use the line below to allow the data to be selected in the browser addressbar
-// i.e. /index.html#8 will select the 8th position in data_JSON_sample.
-//      var hardcoded = parseInt(window.location.hash.substring(1));
-// var hardcoded = 9;
-
-
 
 
 

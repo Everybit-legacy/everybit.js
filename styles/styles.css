@@ -1,3 +1,19 @@
+/*
+        Welcome to the stylesheet for.....
+       _______  __   __  _______  _______  _______  _______  ___      ___     
+      |       ||  | |  ||       ||       ||  _    ||   _   ||   |    |   |    
+      |    _  ||  | |  ||    ___||    ___|| |_|   ||  |_|  ||   |    |   |    
+      |   |_| ||  |_|  ||   |___ |   |___ |       ||       ||   |    |   |    
+      |    ___||       ||    ___||    ___||  _   | |       ||   |___ |   |___ 
+      |   |    |       ||   |    |   |    | |_|   ||   _   ||       ||       |
+      |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|                                                
+
+        Making the world's greatest discussion platform look awesome.
+*/
+
+
+/* --------------------------------------------------------- Mixins & Defaults */
+
 @charset "utf-8";
 
 @font-face {
@@ -20,13 +36,17 @@ html {
 
 body {
     background: #1616A8;
-    font-family: Gudea, sans-serif;
+    font-family: Gudea, Helvetica, Arial, sans-serif;
     font-size: 1em;
 }
 
 a {
     text-decoration:none;
     color: #1616A8;
+}
+
+a:hover {
+    color:#669;
 }
 
 a.under {
@@ -41,63 +61,81 @@ a.under {
     clear: both;
 }
 
-.author {
-    font-family: GudeaBold;
-    padding: 2px;
-    text-align: left;
-    /* color: #2d479a; */
-    color: #006738;
-    border-bottom: 1px solid #a1a1a1;;
-}
+/* ------------------------------------------------------ TODO: Scrollbar Styling */
 
-.txt {
-    margin: 10px 5px;
-    padding: 5px;
-    text-align:left;
-    cursor:pointer;
-}
 
-.txt:hover {
-    background:rgba(200,15,15,.5);
-}
+/* ------------------------------------------------------ Puffs (Blocks) and Their Content */
 
-.bar {
-    text-align: right;
-    padding-right: 10px;
-}
-
-.block {
+.block { /* The main content class for a puff, the block around each bit of content. */
     background: #FAFAFA;
     width: 30%;
     min-width: 300px;
-    max-height: 30%;
+    min-height:150px;
+    max-height:300px;
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 0px;
-    margin-left: 15px;
-    margin-right: 12px;
+    margin: 10px 12px 0px 15px; /* goes top, right, bottom, left */
     display: inline-block;
-    box-sizing: border-box;
     text-align: left;
-    z-index: 999;
+    padding:15px;
+    position:relative;
+    top:0;
+    z-index: 997;
     overflow: hidden;
 }
-
+.block .author { /* author declaration at the top of a block */
+    font-family: GudeaBold, Helvetica, Arial, sans-serif;
+    padding: 2px 5px;
+    text-align: left;
+    /* color: #2d479a; */
+    color: #006738;
+    border-bottom: 1px solid #a1a1a1;;
+    position:absolute;
+    top:10px;
+    left:10px;
+}
+.block .txt { /* HTML content of a given block */
+    margin:25px 5px 15px; /* Top, then left and right, then bottom */
+    padding: 5px;
+    text-align:left;
+    cursor:pointer;
+    overflow:scroll;
+    max-height:150px;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+}
+.block .txt:hover {
+    background:rgba(200,15,15,.5);
+}
+.block .bar { /* Bar at the bottom of block that allows a user to respond or link */
+    position: absolute;
+    bottom:5px;
+    right:5px;
+    text-align: right;
+    padding-right: 10px;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+}
+.block .bar .icon img {
+    opacity: 0.7;
+    cursor: pointer;
+}
+.block .bar .icon img:hover {
+    opacity:1;
+}
 #main-content>div.block {
     width: 30%;
     max-height: 60%;
-    overflow: auto;
 }
 
-.bar .icon:hover {
-    opacity: 0.8;
-    cursor: pointer;
-}
-
+/* ------------------------------------------------------ Header & Parents Sections */
 header {
     background-color: #fff;
     height: 70px;
@@ -215,7 +253,6 @@ header h1 {
 }
 
 .textarea {
-    font-family: Gudea, sans-serif;
     border: 0px solid #006738;
     padding-left: 15px;
     padding-right: 15px;
@@ -237,7 +274,6 @@ header h1 {
 }
 
 .menu {
-    font-family: Gudea;
     padding: 0;
     margin-bottom: 3px;
     text-align: left;
@@ -248,7 +284,7 @@ header h1 {
     left: 15px;
     top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
-    z-index: 10;
+    z-index: 1000;
     min-width: 300px;
     max-width: 35%;
     display: none;
@@ -302,6 +338,8 @@ header h1 {
   background-size: 100% 100%;
   margin-right: 8px;
 }
+
+/* --------------------------------------------------------- Footer */
 
 .footer {
     text-align: center;

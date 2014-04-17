@@ -222,18 +222,22 @@ header h1 {
 
 }
 
-.logo {
+#logo {
     position: absolute;
     z-index: -1;
     top: 20px;
     right: 20px;
 }
 
-.puffballIcon {
+#puffballIcon {
     position: absolute;
     z-index: 5;
     top: 20px;
     left: 20px;
+}
+
+.menuOn {
+  background-color: yellow
 }
 
 .menu {
@@ -251,7 +255,6 @@ header h1 {
     z-index: 10;
     min-width: 300px;
     max-width: 35%;
-    display: none;
     font-size: 1.1em;
     line-height: 1.35em;
     text-decoration:none;

@@ -36,7 +36,7 @@ var PuffWorld = React.createClass({
         
         else view = <PuffRoots />
         
-        var menu = this.state.menuOn ? <PuffMenu /> : ''
+        var menu = this.state.menuOn ? <PuffMenu onHeaderPuffClick={this.handleHeaderPuffClick} /> : ''
         
         return (
             <div>
@@ -277,8 +277,7 @@ var PuffPermaLink = React.createClass({
     handleClick: function() {
         var sig  = this.props.sig;
         var puff = PuffForum.getPuffById(sig);
-        
-        showPuff(puff);                                        
+        showPuff(puff);                                       
     },
     render: function() {
         return (
@@ -414,17 +413,15 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        var sig  = this.props.sig;
-        var puff = PuffForum.getPuffById(sig);
-        
-        showPuff(puff);                                        
+        this.props.onHeaderPuffClick();
+        return false;
     },
     render: function() {
         return (
             <div className="menu" id="menu">
     
               <div className="closeBox" id="closeDiv">
-                <a href="#" onclick='$("#menu").toggle();return false;' className="under">
+                <a href="#" onClick={this.handleClose} className="under">
                   <img src="img/close.png" width="24" height="24" />
                 </a>
               </div>

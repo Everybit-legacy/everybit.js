@@ -19,6 +19,7 @@ html {
 }
 
 body {
+/*    background: #8585F5;*/
     background: #1616A8;
     font-family: Gudea, sans-serif;
     font-size: 1em;
@@ -269,7 +270,7 @@ header h1 {
     color: #1616A8;
 }
 
-.closeBox {
+#closeDiv {
     padding-top: 5px;
     padding-left: 3px;
     padding-right: 5px;

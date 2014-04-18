@@ -26,3 +26,7 @@ CONFIG.text_threshold = 400;
 
 // List of supported
 CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
+
+// some debugging stuff
+CONFIG.noLocalStorage = true
+CONFIG.noNetwork = true

@@ -59,6 +59,9 @@ Puff.init = function(zone) {
     Puff.Blockchain.BLOCKS = JSON.parse(localStorage.getItem("blocks"))
     if(Puff.Blockchain.BLOCKS === null)
         Puff.Blockchain.BLOCKS = {}
+        
+    if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
+    
     Puff.actualP2P = new Puff.P2P()
     // Puff.Data.make_fake_puffs()
 }
@@ -141,6 +144,7 @@ Puff.Data.eat = function(puff) {
 }
 
 Puff.Data.persist = function(puffs) {
+    if(CONFIG.noLocalStorage) return false           // THINK: this is only for debugging and development
     localStorage.setItem('puffs', JSON.stringify(puffs));
 }
 
@@ -174,14 +178,19 @@ Puff.Network = {};
 
 Puff.Network.getAllPuffs = function(callback) {
     //// get all the puffs from this zone
+    
+    if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
+    
 
     // TODO: add zone parameter (default to CONFIG.zone)
     // THINK: use promises instead of callbacks? 
-    $.getJSON(CONFIG.puffApi + "?type=getAllPuffs", callback);
+    $.getJSON(CONFIG.puffApi + "?type=getAllPuffs", callback);  
 }
 
 Puff.Network.distributePuff = function(puff) {
     //// distribute a puff to the network
+  
+    if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
   
     // add it to the server's pufflist
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails 

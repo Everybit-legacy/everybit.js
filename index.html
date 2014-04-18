@@ -1,64 +1,67 @@
 <!doctype>
 <html>
 <head>
-  <title>
-    FreeBeer.com: A sample forum running on the puffball platform.
-  </title>
-  <meta charset="UTF-8">
+    <title>
+        FreeBeer.com: A sample forum running on the puffball platform.
+    </title>
+    <meta charset="UTF-8">
 
-  <!-- Favicon links: two forms for compliance -->
-  <link href='img/favicon.ico' id='favicon_def'  rel='shortcut icon' />
-  <link href='img/favicon.ico' id='favicon_def2' rel='icon' type='image/x-icon' />
+    <!-- Favicon links: two forms for compliance -->
+    <link href='img/favicon.ico' id='favicon_def'  rel='shortcut icon' />
+    <link href='img/favicon.ico' id='favicon_def2' rel='icon' type='image/x-icon' />
 
-  <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
-  <link rel="stylesheet" href="styles/styles.css"/>
-  <link rel="stylesheet" href="styles/normalize.css"/>
-  <link rel="stylesheet" href="styles/layout.css" />
-  <link rel="stylesheet" href="styles/xbbcode.css" />
+    <link rel="stylesheet" href="styles/jquery-ui-smoothness.css">
+    <link rel="stylesheet" href="styles/styles.css"/>
+    <link rel="stylesheet" href="styles/normalize.css"/>
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/xbbcode.css" />
 </head>
 
 <body>
 
-  <div id="replyForm" class="mainForm"></div>
+    <div id="replyForm" class="mainForm"></div>
 
-  <section id="minimap"></section>
-  <div id="plumbing"></div>
+    <section id="minimap"></section>
+    <div id="plumbing"></div>
 
-  <div id="puffworld"></div>
+    <div id="puffworld"></div>
 
-  <!-- libraries -->
-  <script src="scripts/jquery.min.js"></script>
-  <script src="scripts/jquery-ui.js"></script>
+    <!-- libraries -->
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/jquery-ui.js"></script>
 
-  <script src="scripts/xbbcode.js"></script>
-  <script src="scripts/qrcode.js"></script>
-  <script src="scripts/qrcodeSample.js"></script>
-  <script src="scripts/underscore.js"></script>
+    <script src="scripts/xbbcode.js"></script>
+    <script src="scripts/qrcode.js"></script>
+    <script src="scripts/qrcodeSample.js"></script>
+    <script src="scripts/underscore.js"></script>
 
-  <script src="scripts/bitcoinjs-min.js"></script>
-  <script src="scripts/bitcoinsig.js"></script>
+    <script src="scripts/bitcoinjs-min.js"></script>
+    <script src="scripts/bitcoinsig.js"></script>
 
-  <script src="scripts/jsPlumb.js"></script>
-  <script src="scripts/zoom.js"></script>
+    <script src="scripts/jsPlumb.js"></script>
+    <script src="scripts/zoom.js"></script>
 
-  <script src="scripts/react.js"></script>
-  <script src="scripts/JSXTransformer.js"></script>
+    <script src="scripts/react.js"></script>
+    <script src="scripts/JSXTransformer.js"></script>
 
-  <!-- platform and forum module -->
-  <script src="js/freeBeer/config.js"></script>
+    <!-- configuration file -->
+    <script src="js/freeBeer/config.js"></script>
+    <!-- personal configuration file: do not check this one into the git repo! -->
+    <script src="js/freeBeer/config_dev.js"></script>
   
-  <script src="js/puffballPlatform/puffball.js"></script>
-  <script src="js/forum/puffForum.js"></script>
+    <!-- platform and forum module -->
+    <script src="js/puffballPlatform/puffball.js"></script>
+    <script src="js/forum/puffForum.js"></script>
 
-  <script src="scripts/peer.js"></script>
-  <script src="js/puffballPlatform/p2p.js"></script>
+    <script src="scripts/peer.js"></script>
+    <script src="js/puffballPlatform/p2p.js"></script>
 
-  <!-- freebeer -->
-  <script src="js/freeBeer/validations.js"></script>
-  <script src="js/freeBeer/menu.js"></script>
+    <!-- freebeer -->
+    <script src="js/freeBeer/validations.js"></script>
+    <script src="js/freeBeer/menu.js"></script>
 
-  <script src="js/freeBeer/display.js" type="text/jsx"></script>
-  <script src="js/freeBeer/main.js"></script>
+    <script src="js/freeBeer/display.js" type="text/jsx"></script>
+    <script src="js/freeBeer/main.js"></script>
 
 </body>
 </html>

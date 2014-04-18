@@ -420,7 +420,7 @@ var PuffMenu = React.createClass({
         return (
             <div className="menu" id="menu">
     
-              <div className="closeBox" id="closeDiv">
+              <div id="closeDiv">
                 <a href="#" onClick={this.handleClose} className="under">
                   <img src="img/close.png" width="24" height="24" />
                 </a>

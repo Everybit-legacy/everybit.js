@@ -97,10 +97,11 @@ PuffForum.addPost = function(content, parents) {
     // if there's no user, add an anonymous one
     // THINK: where should the username/privatekey live? we'll put it here for now, but some other layer should take responsibility.
     // THINK: posting this as its own callback is probably not ideal
-    if(!PuffForum.userinfoLivesHereForNow.username || !PuffForum.userinfoLivesHereForNow.privateKey)
+    var user = PuffForum.getUserInfo()
+    if(!user.username || !user.privateKey)
     return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
 
-    var sig = Puff.createPuff(PuffForum.userinfoLivesHereForNow.username, PuffForum.userinfoLivesHereForNow.privateKey, 'text', content, {time: Date.now(), parents: parents})
+    var sig = Puff.createPuff(user.username, user.privateKey, 'text', content, {time: Date.now(), parents: parents})
  
     // THINK: actually we can't return this because we might go async
     // return sig;
@@ -115,7 +116,7 @@ PuffForum.addAnonUser = function(callback) {
   
     // gen pubkey
     var publicKey = Puff.Crypto.privateToPublic(privateKey);
-  
+    
     PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
     PuffForum.userinfoLivesHereForNow.publicKey  = publicKey;
   
@@ -192,3 +193,13 @@ PuffForum.addContentType('bbcode', {
         return parsedText;
     }
 })
+
+//// USER INFO
+
+PuffForum.clearUserInfo = function() {
+    PuffForum.userinfoLivesHereForNow = {}
+}
+
+PuffForum.getUserInfo = function() {
+    return PuffForum.userinfoLivesHereForNow
+}

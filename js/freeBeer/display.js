@@ -1,22 +1,27 @@
 /** @jsx React.DOM */
 var PuffWorld = React.createClass({
     getInitialState: function() {
-        return { menuOn: false
-               ,  style: 'PuffTree'
-               }
-    },
-    getDefaultProps: function() {
+        
+        //////// FIXME: hacky hack hack hack
+        globalStateSettingFun = this.setState.bind(this);
+        globalStateReadingFun = (function(key) {return this.state[key]}).bind(this)
+        
         var defaultPuff = CONFIG.defaultPuff
                         ? PuffForum.getPuffById(CONFIG.defaultPuff)
                         : Puff.Data.puffs[0]
 
-        return { style: 'PuffTree'
-               ,  puff: defaultPuff
+        return { menuOn: false
+               ,  style: 'PuffTree'
+               ,   puff: defaultPuff
+               , keysOn: false
                }
     },
-    handleHeaderPuffClick: function() {
-        this.setState({menuOn: !this.state.menuOn});
-    },
+    // handleHeaderPuffClick: function() {
+    //     this.setState({menuOn: !this.state.menuOn});
+    // },
+    // changeStyle: function(style) {
+    //     this.setState({style: style});
+    // },
     render: function() {
         // use this to control the state of the master viewport,
         // and always call it instead of calling PuffRoots and PuffTree directly.
@@ -25,22 +30,26 @@ var PuffWorld = React.createClass({
         
         var view;
         
-        if( this.props.style == 'PuffTree' )
-            view = <PuffTree puff={this.props.puff} />
+        if( this.state.style == 'PuffTree' )
+            view = <PuffTree puff={this.state.puff} />
         
-        else if( this.props.style == 'PuffAllChildren' )
-            view = <PuffAllChildren puff={this.props.puff} />
+        else if( this.state.style == 'PuffAllChildren' )
+            view = <PuffAllChildren puff={this.state.puff} />
         
-        else if( this.props.style == 'PuffAllParents' )
-            view = <PuffAllParents puff={this.props.puff} />
+        else if( this.state.style == 'PuffAllParents' )
+            view = <PuffAllParents puff={this.state.puff} />
         
         else view = <PuffRoots />
         
-        var menu = this.state.menuOn ? <PuffMenu onHeaderPuffClick={this.handleHeaderPuffClick} /> : ''
-        
-        return (
-            <div>
-                <PuffHeader menuOn={this.state.menuOn} onHeaderPuffClick={this.handleHeaderPuffClick} />
+        var menu = this.state.menuOn ? <PuffMenu keysOn={this.state.keysOn} /> : ''
+                 // ? <PuffMenu onHeaderPuffClick={this.handleHeaderPuffClick}
+                 //             changeStyle={this.changeStyle} /> 
+                 // : ''
+                 
+                                                         // onHeaderPuffClick={this.handleHeaderPuffClick} />
+        return (                                         
+            <div>                                        
+                <PuffHeader menuOn={this.state.menuOn} />
                 {menu}
                 {view}
                 <PuffFooter />
@@ -198,9 +207,9 @@ var PuffAuthor = React.createClass({
 
 var PuffContent = React.createClass({
     handleClick: function() {
-        var sig  = this.props.puff.sig
-        var puff = PuffForum.getPuffById(sig);
-        showPuff(puff)
+        var puff = this.props.puff
+        globalStateSettingFun({style: 'PuffTree', puff: puff})
+        // showPuff(puff)
     },
     render: function() {
         var puff = this.props.puff
@@ -248,7 +257,7 @@ var PuffInfoLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        viewAllParents(puff)
+        globalStateSettingFun({style: 'PuffAllParents', puff: puff})
     },
     render: function() {
         var puff = this.props.puff;
@@ -262,7 +271,8 @@ var PuffParentCount = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        viewAllChildren(puff)
+        globalStateSettingFun({style: 'PuffAllChildren', puff: puff})
+        // viewAllChildren(puff)
     },
     render: function() {
         var puff = this.props.puff;
@@ -277,7 +287,8 @@ var PuffPermaLink = React.createClass({
     handleClick: function() {
         var sig  = this.props.sig;
         var puff = PuffForum.getPuffById(sig);
-        showPuff(puff);                                       
+        globalStateSettingFun({style: 'PuffTree', puff: puff})
+        // showPuff(puff);                                       
     },
     render: function() {
         return (
@@ -362,9 +373,11 @@ var PuffReply = React.createClass({
       return false  
     },
     render: function() {
+        var user = PuffForum.getUserInfo()
+        
         return (
             <div>
-                <div id="authorDiv"></div>
+                <div id="authorDiv">{user.username}</div>
                 <form id="otherContentForm" onSubmit={this.handleSubmit}>
                   <br />
                   <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
@@ -381,8 +394,10 @@ var PuffReply = React.createClass({
 
 var PuffHeader = React.createClass({
     handleClick: function() {
-        this.props.onHeaderPuffClick();
-        return false;
+        // this.props.onHeaderPuffClick();
+        // return false;
+        globalStateSettingFun({menuOn: !globalStateReadingFun('menuOn')})
+        
     },
     render: function() {
         return (
@@ -413,10 +428,60 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        this.props.onHeaderPuffClick();
+        globalStateSettingFun({menuOn: false})
+        // globalStateSettingFun({menuOn: !globalStateReadingFun('menuOn')})
+        // this.props.onHeaderPuffClick();
         return false;
     },
+    handleRoots: function() {
+        globalStateSettingFun({style: 'PuffRoots', menuOn: false});
+        return false;
+    },
+    handleLearnMore: function() {
+        var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
+        globalStateSettingFun({style: 'PuffTree', puff: puff, menuOn: false});
+        return false;
+    },
+    handleQRCode: function() {
+        var user = PuffForum.getUserInfo()
+        
+        if(!user.privateKey) return false;
+        update_qrcode(user.privateKey);
+        return false;
+    },
+    toggleKeys: function() {
+        globalStateSettingFun({keysOn: !globalStateReadingFun('keysOn')})
+        return false;
+    },
+    newAnon: function() {
+        PuffForum.addAnonUser(function(newName) {
+            React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
+        });
+    },
+    clearPrivateKey: function() {
+        
+    },
     render: function() {
+        // THINK: convert this to the stateless QR Code style, where closing the menu makes the keys go away
+        var user = PuffForum.getUserInfo()
+
+        var myKeyStuff
+        if(this.props.keysOn) {            
+            var prikey = user.privateKey
+            var pubkey = user.publicKey
+            myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
+        }
+        
+        var currentUserBlock
+        if(user.username) {
+            currentUserBlock = <p>
+                <span className="author">{user.username}</span>
+                <a href="#" onClick={this.clearPrivateKey}>
+                    <img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory" />
+                </a>
+            </p>
+        }
+        
         return (
             <div className="menu" id="menu">
     
@@ -426,31 +491,19 @@ var PuffMenu = React.createClass({
                 </a>
               </div>
 
-              <div className="publicKeyMenuItem" id="currentUser"> </div>
+              <div className="publicKeyMenuItem" id="currentUser">{currentUserBlock}</div>
 
               <div className="menuItem">
                 <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' className="under">Add new content</a>
               </div>
 
               <div className="menuItem">
-                <a href="#" id="viewLatestConversationsLink" onclick='viewLatestConversations();' className="under">View latest conversations</a>
+                <a href="#" onClick={this.handleRoots} className="under">View latest conversations</a>
               </div>
 
               <div className="menuItem">
-                <a href="#" onclick="newAnon();return false;" className="under">Generate a new username</a>
+                <a href="#" onClick={this.newAnon} className="under">Generate a new username</a>
               </div>
-
-              <div className="menuItem">
-                <a href="#" onclick="viewPublic();return false;" className="under">Show</a> / <a href="#" onclick="hidePublic();return false;" className="under">Hide</a> your public key.
-              </div>
-
-              <div className="menuItem" id="publicKeyMenuItem"></div>
-
-              <div className="menuItem">
-                <a href="#" onclick="viewPrivate();return false;" className="under">Show</a> / <a href="#" onclick="hidePrivate();return false;" className="under">Hide</a> your private key.
-              </div>
-
-              <div className="menuItem" id="privateKeyMenuItem"></div>
 
               <div className="menuItem">
                 <a href="#" onclick="getBlockchian();return false;" className="under">Download your blockchain</a>
@@ -469,13 +522,22 @@ var PuffMenu = React.createClass({
               </div>
     
               <div className="menuItem">
-                <a href="#" onclick="qrcodeWrapper(); return false;" className="under">Show QR code for private key</a>
+                <a href="#" onClick={this.toggleKeys} className="under">
+                    {this.props.keysOn ? 'Hide ' : 'Show '}
+                    your keys
+                </a> 
+                
+                {myKeyStuff}
+              </div>
+
+              <div className="menuItem">
+                <a href="#" onClick={this.handleQRCode} className="under">Show QR code for private key</a>
               </div>
 
               <div className="menuItem" id="qr"></div>
 
               <div className="menuItem">
-                <a href="#" onclick="showPuff(PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ'));return false;" className="under">
+                <a href="#" onClick={this.handleLearnMore} className="under">
                   Learn more about FreeBeer!
                 </a>
               </div>

@@ -1,19 +1,3 @@
-/*
-        Welcome to the stylesheet for.....
-       _______  __   __  _______  _______  _______  _______  ___      ___     
-      |       ||  | |  ||       ||       ||  _    ||   _   ||   |    |   |    
-      |    _  ||  | |  ||    ___||    ___|| |_|   ||  |_|  ||   |    |   |    
-      |   |_| ||  |_|  ||   |___ |   |___ |       ||       ||   |    |   |    
-      |    ___||       ||    ___||    ___||  _   | |       ||   |___ |   |___ 
-      |   |    |       ||   |    |   |    | |_|   ||   _   ||       ||       |
-      |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|                                                
-
-        Making the world's greatest discussion platform look awesome.
-*/
-
-
-/* --------------------------------------------------------- Mixins & Defaults */
-
 @charset "utf-8";
 
 @font-face {
@@ -37,17 +21,13 @@ html {
 body {
 /*    background: #8585F5;*/
     background: #1616A8;
-    font-family: Gudea, Helvetica, Arial, sans-serif;
+    font-family: Gudea, sans-serif;
     font-size: 1em;
 }
 
 a {
     text-decoration:none;
     color: #1616A8;
-}
-
-a:hover {
-    color:#669;
 }
 
 a.under {
@@ -62,85 +42,66 @@ a.under {
     clear: both;
 }
 
-/* ------------------------------------------------------ TODO: Scrollbar Styling */
+.author {
+    font-family: GudeaBold;
+    padding: 2px;
+    text-align: left;
+    /* color: #2d479a; */
+    color: #006738;
+    border-bottom: 1px solid #a1a1a1;;
+}
 
+.txt {
+    margin: 10px 5px;
+    padding: 5px;
+    text-align:left;
+    cursor:pointer;
+}
 
-/* ------------------------------------------------------ Puffs (Blocks) and Their Content */
+.txt:hover {
+    background:rgba(200,15,15,.5);
+}
 
-.block { /* The main content class for a puff, the block around each bit of content. */
+.block {
     background: #FAFAFA;
     width: 30%;
     min-width: 300px;
-    min-height:150px;
-    max-height:300px;
+    max-height: 30%;
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
-    margin: 10px 12px 10px 15px; /* goes top, right, bottom, left */
+    margin-top: 10px;
+    margin-bottom: 0px;
+    margin-left: 15px;
+    margin-right: 12px;
     display: inline-block;
+    box-sizing: border-box;
     text-align: left;
-    padding:15px;
-    position:relative;
-    top:0;
-    z-index: 997;
+    z-index: 999;
     overflow: hidden;
 }
-.block .author { /* author declaration at the top of a block */
-    font-family: GudeaBold, Helvetica, Arial, sans-serif;
-    padding: 2px 5px;
-    text-align: left;
-    /* color: #2d479a; */
-    color: #006738;
-    border-bottom: 1px solid #a1a1a1;;
-    position:absolute;
-    top:10px;
-    left:10px;
-}
-.block .txt { /* HTML content of a given block */
-    margin:25px 5px 25px; /* Top, then left and right, then bottom */
-    padding: 5px;
-    text-align:left;
-    cursor:pointer;
-    overflow-x:hidden;
-    overflow-y:scroll; /* Always show scrollbar if relevant */
-    overflow: -moz-scrollbars-vertical; /* For Mozilla: always show scrollbars if applicable */
-    max-height:150px;
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
-}
-.block .txt:hover {
-    background:rgba(200,15,15,.5);
-}
-.block .bar { /* Bar at the bottom of block that allows a user to respond or link */
-    position: absolute;
-    bottom:0px;
-    right:5px;
-    width:100%;
-    background:#FFF;
-    text-align: right;
-    padding: 10px 10px; /* top & bottom, sides */
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
-}
-.block .bar .icon img {
-    opacity: 0.7;
-    cursor: pointer;
-}
-.block .bar .icon img:hover {
-    opacity:1;
-}
+
 #main-content>div.block {
     width: 30%;
     max-height: 60%;
+    overflow: auto;
 }
 
-/* ------------------------------------------------------ Header & Parents Sections */
+.bar {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.bar span {
+    cursor: pointer;
+}
+
+.bar .icon:hover {
+    opacity: 0.8;
+}
+
 header {
     background-color: #fff;
     height: 70px;
@@ -168,7 +129,6 @@ header h1 {
 
 #children {
     text-align: center;
-    margin-bottom:100px;
 }
 
 .btn {
@@ -230,7 +190,6 @@ header h1 {
     display: none;
     left: 50%;
     margin-left: -250px;
-    z-index:1001;
 }
 
 #replyForm:hover, form:hover {
@@ -260,6 +219,7 @@ header h1 {
 }
 
 .textarea {
+    font-family: Gudea, sans-serif;
     border: 0px solid #006738;
     padding-left: 15px;
     padding-right: 15px;
@@ -285,6 +245,7 @@ header h1 {
 }
 
 .menu {
+    font-family: Gudea;
     padding: 0;
     margin-bottom: 3px;
     text-align: left;
@@ -295,7 +256,7 @@ header h1 {
     left: 15px;
     top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
-    z-index: 1000;
+    z-index: 10;
     min-width: 300px;
     max-width: 35%;
     font-size: 1.1em;
@@ -349,8 +310,6 @@ header h1 {
   margin-right: 8px;
 }
 
-/* --------------------------------------------------------- Footer */
-
 .footer {
     text-align: center;
 /*    background: #1616A8; */
@@ -358,20 +317,16 @@ header h1 {
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;
-    margin-top:40px;
-    padding:10px 0px;
-    width:100%;
-    position: fixed;
     bottom: 0;
+    position: fixed;
     left:0;
     right:0;
     margin-left:auto;
     margin-right:auto;
-    z-index:999;
 }
 
 a.footerText {
     color: #ffffff;
-    text-decoration: underline;
+    text-decoration: none;
     font-size: .9em;
 }

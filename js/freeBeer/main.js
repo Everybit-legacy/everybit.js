@@ -63,17 +63,6 @@ window.onpopstate = function(event) {
 /**
 * Functions related to rendering different configurations of puffs
 */
-function viewLatestConversations() {
-    React.renderComponent(PuffWorld({style: 'PuffRoots'}), document.getElementById('puffworld'))
-}
-
-function viewAllChildren(puff) {
-    React.renderComponent(PuffWorld({style: 'PuffAllChildren', puff: puff}), document.getElementById('puffworld'))
-}
-
-function viewAllParents(puff) {
-    React.renderComponent(PuffWorld({style: 'PuffAllParents', puff: puff}), document.getElementById('puffworld'))
-}
 
 // show a puff, its children, and some arrows
 showPuff = function(puff, doNotSetState) {
@@ -195,5 +184,5 @@ $("#setUserInfo").submit(function( event ) {
     var buttonCode = '<a href="#" onclick="clearPrivateKey(); return false;">';
     buttonCode += '<img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory"></a>&nbsp;';
     document.getElementById('currentUser').innerHTML = buttonCode + '<span class="author">' + username + '</span>';
-    document.getElementById('authorDiv').innerHTML = username;
+    // document.getElementById('authorDiv').innerHTML = username;
 });

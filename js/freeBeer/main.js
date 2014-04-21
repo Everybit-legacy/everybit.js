@@ -5,84 +5,40 @@
 // Register our update function
 var eatPuffs = function(puffs) {
     // call the display logic
-    // console.log(puffs);
   
     if(!Array.isArray(puffs) || !puffs.length) {
         return false;
     }
 
-    // Not yet implemented
-    // updateMinimap();
-  
-    if(typeof stupidTempGlobalFlagDeleteMe == 'undefined') {
-        stupidTempGlobalFlagDeleteMe = false;
+    if(typeof globalForceUpdateFun == 'undefined') return false
+    
+    // TODO: just call some kind of 'look for puff' function instead
+    if(typeof globalStupidFirstTimeFlag == 'undefined') {
+        globalStupidFirstTimeFlag = true
+        var hash = window.location.hash
+        if(hash) {
+            var puff = PuffForum.getPuffById(hash.slice(1))
+            if(puff) {
+                showPuff(puff)
+            }
+        }
+        return false
     }
-
-
-    // is anything showing? no? ok, show something.
-    if(!stupidTempGlobalFlagDeleteMe) {
-        var puffSig = window.location.hash.substring(1) || CONFIG.defaultPuff;
-        
-        showPuff(PuffForum.getPuffById(puffSig));
-        stupidTempGlobalFlagDeleteMe = true;
-        return false;
-    }
-  
-    // ok. now that the stupid stuff is done, let's do something smart.
-    // what's my main content item? is this new puff a child of it?
-    // oh dear why would you do this use app data & react instead
-    var currentId = $('#main-content .block').attr('id');
-  
-    if(puffs.some(function(puff) {return !!~puff.payload.parents.indexOf(currentId)}));
-
-    showPuff(PuffForum.getPuffById(currentId));
+    
+    globalForceUpdateFun() // OPT: debounce this
 }
 
-PuffForum.onNewPuffs(eatPuffs);
+PuffForum.onNewPuffs(eatPuffs); // assign our callback
 
-// initialize the forum module (and by extension the puffball network)
-PuffForum.init();
+PuffForum.init(); // initialize the forum module (and by extension the puffball network)
 
 ////////// End PuffForum Interface ////////////
 
 
-//// grab back/forward button changes
-window.onpopstate = function(event) {
-    if(!event.state) return false
-    
-    var puff = PuffForum.getPuffById(event.state.sig)
-    if(!puff) return false
-    
-    showPuff(puff, true)
-}
-
-
-/////////// REACTABLES ///////////////
-
-
-/**
-* Functions related to rendering different configurations of puffs
-*/
-
-// show a puff, its children, and some arrows
-showPuff = function(puff, doNotSetState) {
-    if(typeof globalStupidPuffWorldFlag == 'undefined') {
-        globalStupidPuffWorldFlag = true
-        React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
-    } else {
-        globalStateSettingFun({puff: puff})
-    }
-
-    // set window.location.hash and allow back button usage
-    if(!doNotSetState) {  // THINK: simplify this
-        var state = { 'sig': puff.sig }; 
-        history.pushState(state, '', '#' + puff.sig);
-    }
-}
-
-
 
 /////// minimap ////////
+
+// <div id="minimap"></div>
 
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
@@ -97,24 +53,6 @@ showPuff = function(puff, doNotSetState) {
 
 
 ////// end minimap /////
-
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  
-    // When browser window is resized, refresh jsPlumb connecting lines.
-    $(window).resize(function(){
-        jsPlumb.repaintEverything();
-    });
-
-    // Pull down menu show and hide div
-    $('#puffballIcon').click(function(){
-        $('#menu').toggle();
-    });
-
-
-
-});
 
 
 

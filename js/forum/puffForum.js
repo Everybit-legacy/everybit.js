@@ -107,6 +107,16 @@ PuffForum.addPost = function(content, parents) {
     // return sig;
 }
 
+PuffForum.getDefaultPuff = function() {
+    var defaultPuff = CONFIG.defaultPuff
+                    ? PuffForum.getPuffById(CONFIG.defaultPuff)
+                    : Puff.Data.puffs[0]
+ 
+    // TODO: use 'locate puff' once it's available, and change this to 'show default puff'
+    
+    return defaultPuff
+}
+
 
 PuffForum.addAnonUser = function(callback) {
     //// statefully state a new user and register it and store it and oh dear

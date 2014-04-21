@@ -174,22 +174,17 @@ header h1 {
     z-index: 5;
 }
 
-.mainForm {
+#replyForm {
+    left: 50%;
+    margin-left: -250px;
     z-index: 300;
     position: absolute;
     top: 200px;
-    left: 200px;
     background: #FAFAFA;
     border-radius: 25px;
     text-align: center;
     padding: 8px;
     border: 4px solid #a1a1a1;
-}
-
-#replyForm {
-    display: none;
-    left: 50%;
-    margin-left: -250px;
 }
 
 #replyForm:hover, form:hover {

@@ -66,7 +66,12 @@ window.onpopstate = function(event) {
 
 // show a puff, its children, and some arrows
 showPuff = function(puff, doNotSetState) {
-    React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
+    if(typeof globalStupidPuffWorldFlag == 'undefined') {
+        globalStupidPuffWorldFlag = true
+        React.renderComponent(PuffWorld({puff: puff}), document.getElementById('puffworld'))
+    } else {
+        globalStateSettingFun({puff: puff})
+    }
 
     // set window.location.hash and allow back button usage
     if(!doNotSetState) {  // THINK: simplify this
@@ -74,8 +79,6 @@ showPuff = function(puff, doNotSetState) {
         history.pushState(state, '', '#' + puff.sig);
     }
 }
-
-
 
 
 
@@ -114,23 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-$(document).ready(function() {
-    $("#puffballIcon").click(function() {
-        $("#menu").toggle();
-    });
-
-    $("#newContentLink").click(function() {
-        $("#menu").toggle();
-    });
-
-    $("#otherNewContentLink").click(function() {
-        $("#replyForm").toggle();
-    });
-
-    $('#replyForm').eq(0).draggable();
-
-});
 
 $("#setUserInfo").submit(function( event ) {
     event.preventDefault();

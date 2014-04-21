@@ -140,7 +140,7 @@ Puff.Data.eat = function(puff) {
                    .indexOf(puff.sig)) 
                       return false 
     Puff.Data.puffs.push(puff);  
-    Puff.Data.persist(Puff.Data.puffs);              // OPT: batch this part when we're chowing down on lots of puffs
+    Puff.Data.persist(Puff.Data.puffs);              // OPT: batch this part when we're chowing down on lots of puffs (throttle)
 }
 
 Puff.Data.persist = function(puffs) {

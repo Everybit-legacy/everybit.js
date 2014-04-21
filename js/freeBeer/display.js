@@ -5,15 +5,21 @@ var PuffWorld = React.createClass({
         //////// FIXME: hacky hack hack hack
         globalStateSettingFun = this.setState.bind(this);
         globalStateReadingFun = (function(key) {return this.state[key]}).bind(this)
+        globalForceUpdateFun  = this.forceUpdate.bind(this);
         
         var defaultPuff = CONFIG.defaultPuff
                         ? PuffForum.getPuffById(CONFIG.defaultPuff)
                         : Puff.Data.puffs[0]
 
-        return { menuOn: false
-               ,  style: 'PuffTree'
-               ,   puff: defaultPuff
-               , keysOn: false
+        // THINK: add PuffForum.getDefaultPuff, which creates a new fake puff to show that we don't have any actual puffs
+        // (once a notification system is in place, we could use that instead)
+
+        return { replyTo: []
+               , replyOn: false
+               ,  menuOn: false
+               ,  keysOn: false
+               ,   style: 'PuffTree'
+               ,    puff: defaultPuff
                }
     },
     // handleHeaderPuffClick: function() {
@@ -41,6 +47,8 @@ var PuffWorld = React.createClass({
         
         else view = <PuffRoots />
         
+        var reply = this.state.replyOn ? <PuffReplyForm /> : ''
+        
         var menu = this.state.menuOn ? <PuffMenu keysOn={this.state.keysOn} /> : ''
                  // ? <PuffMenu onHeaderPuffClick={this.handleHeaderPuffClick}
                  //             changeStyle={this.changeStyle} /> 
@@ -52,6 +60,7 @@ var PuffWorld = React.createClass({
                 <PuffHeader menuOn={this.state.menuOn} />
                 {menu}
                 {view}
+                {reply}
                 <PuffFooter />
             </div>
         )
@@ -301,37 +310,18 @@ var PuffPermaLink = React.createClass({
 
 var PuffReplyLink = React.createClass({
     handleClick: function() {
-
-            $("#replyForm").show();
-
-        React.renderComponent(PuffReply(), document.getElementById('replyForm'));
+        var replyTo = globalStateReadingFun('replyTo')
+        var sig = this.props.sig
+        var index = replyTo.indexOf(sig)
         
-            $("#replyForm [name='content']").focus();
-
-        var sig = this.props.sig;
-        var parents = $('#parentids').val();
-        if(!parents) return false;
-    
-        var newParents = JSON.parse(parents);
-
-        if($.inArray(sig, newParents) !== -1) {
-            var index = newParents.indexOf(sig);
-            newParents.splice(index, 1);
-
-            // TODO: Set class of reply arrow to Black. Will need to use transparent gif or trap click in front and background css image change
-
-        } else {
-            newParents.push(sig);
-
-            $('#parentids').val(JSON.stringify(newParents));
-
-            // TODO: Set class of reply arrow to red
-        }
-
-    
-        // TODO: draw arrows
-        // TODO: undo if sig is already in parents array
+        if(index == -1)
+            replyTo.push(sig)
+        else
+            replyTo.splice(index, 1)
+            
+        globalStateSettingFun({replyOn: true, replyTo: replyTo});
         
+        // TODO: draw reply arrows
     },
     render: function() {
         return (
@@ -340,7 +330,7 @@ var PuffReplyLink = React.createClass({
     }
 });
 
-var PuffReply = React.createClass({
+var PuffReplyForm = React.createClass({
     // getInitialState: function() {
     //   return {items: [], text: ''};
     // },
@@ -355,28 +345,30 @@ var PuffReply = React.createClass({
     // },
     handleSubmit: function() {
         var content = this.refs.content.getDOMNode().value.trim();
-        var parents = JSON.parse(this.refs.parentids.getDOMNode().value.trim());
+        var parents = globalStateReadingFun('replyTo')
 
         PuffForum.addPost( content, parents );
 
-            $("#parentids").val('[]');
-            $('#replyForm').hide();
-            $('#content').val("");
+        globalStateSettingFun({replyOn: false, replyTo: []});
 
         return false
     },
     handleCancel: function() {
-            $("#parentids").val('[]');
-            $('#replyForm').hide();
-            $('#content').val("");
-      
-      return false  
+        globalStateSettingFun({replyOn: false, replyTo: []});
+        return false  
+    },
+    componentDidMount: function() {
+        $('#replyForm').eq(0).draggable();
+        $("#replyForm [name='content']").focus();
+    },
+    componentDidUpdate: function() {
+        $('#replyForm').eq(0).draggable();
     },
     render: function() {
-        var user = PuffForum.getUserInfo()
+        var user = PuffForum.getUserInfo() // make this a prop or something
         
         return (
-            <div>
+            <div id="replyForm" className="mainForm">
                 <div id="authorDiv">{user.username}</div>
                 <form id="otherContentForm" onSubmit={this.handleSubmit}>
                   <br />
@@ -433,7 +425,7 @@ var PuffMenu = React.createClass({
         // this.props.onHeaderPuffClick();
         return false;
     },
-    handleRoots: function() {
+    handleViewRoots: function() {
         globalStateSettingFun({style: 'PuffRoots', menuOn: false});
         return false;
     },
@@ -442,6 +434,43 @@ var PuffMenu = React.createClass({
         globalStateSettingFun({style: 'PuffTree', puff: puff, menuOn: false});
         return false;
     },
+    handleNewContent: function() {
+        globalStateSettingFun({menuOn: false, replyOn: true});
+        return false;
+    },
+    render: function() {
+        var learnMore = (
+            <div className="menuItem">
+                <a href="#" onClick={this.handleLearnMore} className="under">
+                    Learn more about FreeBeer!
+                </a>
+            </div>
+        );
+
+        return (
+            <div className="menu" id="menu">
+    
+                <div id="closeDiv">
+                    <a href="#" onClick={this.handleClose} className="under">
+                        <img src="img/close.png" width="24" height="24" />
+                    </a>
+                </div>
+
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleNewContent} className="under">Add new content</a>
+                </div>
+
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
+                </div>
+
+                <PuffMenuUser />
+            </div>
+        );
+    }
+});
+
+var PuffMenuUser = React.createClass({
     handleQRCode: function() {
         var user = PuffForum.getUserInfo()
         
@@ -455,11 +484,35 @@ var PuffMenu = React.createClass({
     },
     newAnon: function() {
         PuffForum.addAnonUser(function(newName) {
-            React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
+            globalForceUpdateFun()
+            // React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
         });
+        return false;
     },
     clearPrivateKey: function() {
-        
+        // THINK: do signout here, but that's different from removing the user account from this computer... ?
+        return false;
+    },
+    handleBlockChainDownload: function() {
+        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
+            return false;
+        } else {
+
+            // return
+            var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
+            var linkData = encodeURIComponent(JSON.stringify(blocks))
+
+            // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+            // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+
+            // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            // pom.setAttribute('download', filename);
+
+            var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+
+            document.getElementById('blockchainLink').innerHTML = linkHTML;
+        }
+        return false;
     },
     render: function() {
         // THINK: convert this to the stateless QR Code style, where closing the menu makes the keys go away
@@ -483,68 +536,44 @@ var PuffMenu = React.createClass({
         }
         
         return (
-            <div className="menu" id="menu">
-    
-              <div id="closeDiv">
-                <a href="#" onClick={this.handleClose} className="under">
-                  <img src="img/close.png" width="24" height="24" />
-                </a>
-              </div>
+            <div>
+                <div className="publicKeyMenuItem" id="currentUser">{currentUserBlock}</div>
 
-              <div className="publicKeyMenuItem" id="currentUser">{currentUserBlock}</div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.newAnon} className="under">Generate a new username</a>
+                </div>
 
-              <div className="menuItem">
-                <a href="#" id="otherNewContentLink" onclick='$("#menu").toggle();return false;' className="under">Add new content</a>
-              </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleBlockChainDownload} className="under">Download your blockchain</a>
+                </div>
 
-              <div className="menuItem">
-                <a href="#" onClick={this.handleRoots} className="under">View latest conversations</a>
-              </div>
+                <div className="menuItem" id="blockchainLink"> </div>
 
-              <div className="menuItem">
-                <a href="#" onClick={this.newAnon} className="under">Generate a new username</a>
-              </div>
+                <div className="menuItem">
+                    <form id="setUserInfo">
+                        Set your username and private key:<br />
+                        Username: <input type="text" id="usernameSet" /><br />
+                        Private Key: <input type="text" id="privateKeySet" /><br />
+                        <input type="submit" value="set" /><br />
+                        <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with the user record.</small>
+                    </form>
+                </div>
 
-              <div className="menuItem">
-                <a href="#" onclick="getBlockchian();return false;" className="under">Download your blockchain</a>
-              </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.toggleKeys} className="under">
+                        {this.props.keysOn ? 'Hide ' : 'Show '}
+                        your keys
+                    </a> 
+            
+                    {myKeyStuff}
+                </div>
 
-              <div className="menuItem" id="blockchainLink"> </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleQRCode} className="under">Show QR code for private key</a>
+                </div>
 
-              <div className="menuItem">
-                <form id="setUserInfo">
-                  Set your username and private key:<br />
-                  Username: <input type="text" id="usernameSet" /><br />
-                  Private Key: <input type="text" id="privateKeySet" /><br />
-                  <input type="submit" value="set" /><br />
-                  <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with that user's record.</small>
-                </form>
-              </div>
-    
-              <div className="menuItem">
-                <a href="#" onClick={this.toggleKeys} className="under">
-                    {this.props.keysOn ? 'Hide ' : 'Show '}
-                    your keys
-                </a> 
-                
-                {myKeyStuff}
-              </div>
-
-              <div className="menuItem">
-                <a href="#" onClick={this.handleQRCode} className="under">Show QR code for private key</a>
-              </div>
-
-              <div className="menuItem" id="qr"></div>
-
-              <div className="menuItem">
-                <a href="#" onClick={this.handleLearnMore} className="under">
-                  Learn more about FreeBeer!
-                </a>
-              </div>
-
+                <div className="menuItem" id="qr"></div>
             </div>
         );
     }
 });
-
-

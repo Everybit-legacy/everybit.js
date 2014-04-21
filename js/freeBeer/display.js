@@ -6,20 +6,25 @@ var PuffWorld = React.createClass({
         globalStateSettingFun = this.setState.bind(this);
         globalStateReadingFun = (function(key) {return this.state[key]}).bind(this)
         globalForceUpdateFun  = this.forceUpdate.bind(this);
+        globalReplyToggleParent = function(sig) {
+            var replyTo = globalStateReadingFun('replyTo')
+            var index = replyTo.indexOf(sig)
+    
+            if(index == -1)
+                replyTo.push(sig)
+            else
+                replyTo.splice(index, 1)
         
-        var defaultPuff = CONFIG.defaultPuff
-                        ? PuffForum.getPuffById(CONFIG.defaultPuff)
-                        : Puff.Data.puffs[0]
-
-        // THINK: add PuffForum.getDefaultPuff, which creates a new fake puff to show that we don't have any actual puffs
-        // (once a notification system is in place, we could use that instead)
+            globalStateSettingFun({replyOn: true, replyTo: replyTo});
+            // TODO: draw reply arrows
+        }
 
         return { replyTo: []
                , replyOn: false
                ,  menuOn: false
                ,  keysOn: false
-               ,   style: 'PuffTree'
-               ,    puff: defaultPuff
+               ,   style: 'PuffRoots'
+               ,    puff: false
                }
     },
     // handleHeaderPuffClick: function() {
@@ -217,8 +222,7 @@ var PuffAuthor = React.createClass({
 var PuffContent = React.createClass({
     handleClick: function() {
         var puff = this.props.puff
-        globalStateSettingFun({style: 'PuffTree', puff: puff})
-        // showPuff(puff)
+        showPuff(puff)
     },
     render: function() {
         var puff = this.props.puff
@@ -233,17 +237,11 @@ var PuffBar = React.createClass({
         var puff = this.props.puff
         return (
             <div className="bar">
-                <span className="icon">
-                    <PuffInfoLink puff={puff} />
-                    &nbsp;&nbsp;
-                    <PuffParentCount puff={puff} />
-                    &nbsp;&nbsp;
-                    <PuffChildrenCount puff={puff} />
-                    &nbsp;&nbsp;
-                    <PuffPermaLink sig={puff.sig} />
-                    &nbsp;&nbsp;
-                    <PuffReplyLink sig={puff.sig} />
-                </span>
+                <PuffInfoLink puff={puff} />
+                <PuffParentCount puff={puff} />
+                <PuffChildrenCount puff={puff} />
+                <PuffPermaLink sig={puff.sig} />
+                <PuffReplyLink sig={puff.sig} />
             </div>
         );
     }
@@ -258,7 +256,9 @@ var PuffInfoLink = React.createClass({
         var seconds = date.getSeconds();
         var formattedTime = hours + ':' + minutes + ':' + seconds;
         return (
-            <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+            <span className="icon">
+                <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+            </span>
         );
     }
 });
@@ -272,7 +272,7 @@ var PuffParentCount = React.createClass({
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
         return (
-            <span onClick={this.handleClick}>{parents.length}^</span>
+            <span className="icon" onClick={this.handleClick}>{parents.length}^</span>
         );
     }
 });
@@ -287,7 +287,7 @@ var PuffChildrenCount = React.createClass({
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
         return (
-            <span onClick={this.handleClick}>{children.length}v</span>
+            <span className="icon" onClick={this.handleClick}>{children.length}v</span>
         );
     }
 });
@@ -296,36 +296,29 @@ var PuffPermaLink = React.createClass({
     handleClick: function() {
         var sig  = this.props.sig;
         var puff = PuffForum.getPuffById(sig);
-        globalStateSettingFun({style: 'PuffTree', puff: puff})
-        // showPuff(puff);                                       
+        showPuff(puff);
     },
     render: function() {
         return (
-            <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16"></img>
-            </a>
+            <span className="icon">
+                <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                    <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16" />
+                </a>
+            </span>
         );
     }
 });
 
 var PuffReplyLink = React.createClass({
     handleClick: function() {
-        var replyTo = globalStateReadingFun('replyTo')
-        var sig = this.props.sig
-        var index = replyTo.indexOf(sig)
-        
-        if(index == -1)
-            replyTo.push(sig)
-        else
-            replyTo.splice(index, 1)
-            
-        globalStateSettingFun({replyOn: true, replyTo: replyTo});
-        
-        // TODO: draw reply arrows
+        var sig = this.props.sig;
+        globalReplyToggleParent(sig);
     },
     render: function() {
         return (
-            <img className="reply" onClick={this.handleClick} src="img/reply.png" width="16" height="16"></img>
+            <span className="icon">
+                <img className="reply" onClick={this.handleClick} src="img/reply.png" width="16" height="16" />
+            </span>
         );
     }
 });
@@ -374,10 +367,8 @@ var PuffReplyForm = React.createClass({
                   <br />
                   <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
                   <br /><br />
-                  <input id='cancel-form' type="reset" value="Cancel" onClick={this.handleCancel}/>
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input id="cancelreply" type="reset" value="Cancel" onClick={this.handleCancel}/>
                   <input type="submit" value="GO!" />
-                  <input type="hidden" ref="parentids" id="parentids" name="parentids" value="[]" />
                 </form>
             </div>
         );
@@ -431,7 +422,7 @@ var PuffMenu = React.createClass({
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
-        globalStateSettingFun({style: 'PuffTree', puff: puff, menuOn: false});
+        showPuff(puff)
         return false;
     },
     handleNewContent: function() {
@@ -576,4 +567,49 @@ var PuffMenuUser = React.createClass({
             </div>
         );
     }
+});
+
+
+// bootstrap
+React.renderComponent(PuffWorld(), document.getElementById('puffworld'))
+
+
+
+
+showPuff = function(puff) {
+    //// show a puff and do other stuff
+    showPuffDirectly(puff)
+
+    // set window.location.hash and allow back button usage
+    // TODO: convert this to a simple event system
+    if(history.state.sig == puff.sig) return false
+    
+    var state = { 'sig': puff.sig }; 
+    history.pushState(state, '', '#' + puff.sig);
+}
+
+showPuffDirectly = function(puff) {
+    // show a puff without doing pushState
+    // TODO: once this is evented this goes away
+    globalStateSettingFun({puff: puff, style: 'PuffTree', menuOn: false, replyOn: false})
+}
+
+
+window.onpopstate = function(event) {
+    //// grab back/forward button changes
+
+    if(!event.state) return false
+    
+    var puff = PuffForum.getPuffById(event.state.sig)
+    
+    if(!puff)
+        globalStateSettingFun({style: 'PuffRoots', menuOn: false, replyOn: false})
+    else 
+        showPuffDirectly(puff)
+}
+
+
+$(window).resize(function(){
+    // When browser window is resized, refresh jsPlumb connecting lines.
+    jsPlumb.repaintEverything();
 });

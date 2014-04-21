@@ -98,14 +98,23 @@ a.under {
     cursor: pointer;
 }
 
+.bar .icon {
+    margin-right: 0.5em;
+}
+
 .bar .icon:hover {
     opacity: 0.8;
+    background-color: #eff;
 }
 
 header {
     background-color: #fff;
     height: 70px;
     margin-bottom: 20px;
+}
+
+#cancelreply {
+    margin-right: 0.5em;
 }
 
 header h1 {

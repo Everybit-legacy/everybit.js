@@ -383,20 +383,16 @@ var PuffFooter = React.createClass({
 var PuffMenu = React.createClass({
     handleClose: function() {
         globalStateSettingFun({menuOn: false})
-        return false;
     },
     handleViewRoots: function() {
         globalStateSettingFun({style: 'PuffRoots', menuOn: false});
-        return false;
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
         showPuff(puff)
-        return false;
     },
     handleNewContent: function() {
         globalStateSettingFun({menuOn: false, replyOn: true});
-        return false;
     },
     render: function() {
         var learnMore = (
@@ -406,6 +402,8 @@ var PuffMenu = React.createClass({
                 </a>
             </div>
         );
+        
+        var username = PuffForum.getUserInfo().username;
 
         return (
             <div className="menu" id="menu">
@@ -424,10 +422,18 @@ var PuffMenu = React.createClass({
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
                 </div>
 
-                <PuffMenuUser />
+                {username ? <PuffMenuUser /> : <PuffMenuNoUser />}
             </div>
         );
     }
+});
+
+var PuffMenuNoUser = React.createClass({
+   render: function() {       
+       return (
+           <div>You are not logged in.</div>
+       ); 
+   }
 });
 
 var PuffMenuUser = React.createClass({
@@ -436,43 +442,44 @@ var PuffMenuUser = React.createClass({
         
         if(!user.privateKey) return false;
         update_qrcode(user.privateKey);
-        return false;
     },
     toggleKeys: function() {
         globalStateSettingFun({keysOn: !globalStateReadingFun('keysOn')})
-        return false;
     },
     newAnon: function() {
         PuffForum.addAnonUser(function(newName) {
             globalForceUpdateFun()
             // React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
         });
-        return false;
     },
     clearPrivateKey: function() {
         // THINK: do signout here, but that's different from removing the user account from this computer... ?
-        return false;
     },
     handleBlockChainDownload: function() {
-        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') || PuffForum.userinfoLivesHereForNow.username === '') {
+        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') 
+        || PuffForum.userinfoLivesHereForNow.username === '') {
             return false;
-        } else {
+        } 
 
-            // return
-            var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
-            var linkData = encodeURIComponent(JSON.stringify(blocks))
+        // return
+        var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
+        var linkData = encodeURIComponent(JSON.stringify(blocks))
 
-            // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-            // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
 
-            // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-            // pom.setAttribute('download', filename);
+        // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        // pom.setAttribute('download', filename);
 
-            var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
+        var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
 
-            document.getElementById('blockchainLink').innerHTML = linkHTML;
-        }
-        return false;
+        document.getElementById('blockchainLink').innerHTML = linkHTML;
+    },
+    handleUserAuth: function() {
+        var username = $("#usernameSet").val();
+        var privateKey = $("#privateKeySet").val();
+
+        PuffForum.addUserInfo(username, pubkey, privateKey)
     },
     render: function() {
         // THINK: convert this to the stateless QR Code style, where closing the menu makes the keys go away

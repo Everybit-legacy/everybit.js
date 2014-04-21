@@ -154,17 +154,6 @@ Puff.Data.getLocalPuffs = function(callback) {
     return setTimeout(function() {callback(JSON.parse(localStorage.getItem('puffs') || '[]'))}, 0)
 }
 
-Puff.Data.getUser = function(username, callback) {
-    // FIXME: call Puff.Network.getUserFile, add the returned users to Puff.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
-  
-    var my_callback = function(users) {
-        users.forEach(Puff.Data.addUser);
-        callback(username);
-    }
-  
-    $.getJSON("http://162.219.162.56/users/api.php?type=getUser&username=" + username, my_callback);
-}
-
 Puff.Data.addUser = function(user) {
     Puff.Data.users.push(user);
     // TODO: index by username
@@ -202,10 +191,10 @@ Puff.Network.distributePuff = function(puff) {
             puff: JSON.stringify(puff)
         },
         success:function(result){
-            console.log(JSON.stringify(result));      // TODO: make this smarter
+            Puff.onError(JSON.stringify(result));      // TODO: make this smarter
         },
         error: function() {
-            console.log('error!');                    // TODO: smartify this also
+            Puff.onError('Could not distribute puff', puff);
         }
     });
   
@@ -215,19 +204,34 @@ Puff.Network.distributePuff = function(puff) {
     Puff.actualP2P.swarm.send(puff);
 }
 
+Puff.Network.getUser = function(username, callback) {
+    // FIXME: call Puff.Network.getUserFile, add the returned users to Puff.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+
+    var my_callback = function(user) {
+        Puff.Data.addUser(user);
+        callback(user);
+    }
+
+    var errback = function() {   // TODO: make use of this
+        Puff.onError('Unable to access user information from the DHT');
+    }
+
+    $.getJSON(CONFIG.userApi, {type: 'getUser', username: username}, my_callback);
+}
+
 Puff.Network.getUserFile = function(username, callback) {
     var my_callback = function(users) {
         Puff.Data.users = Puff.Data.users.concat(users);
         callback(username);
     }
   
-    $.getJSON("http://162.219.162.56/users/api.php?type=getUserFile&username=" + username, my_callback);
+    $.getJSON(CONFIG.userApi, {type: 'getUserFile', username: username}, my_callback);
 }
 
 Puff.Network.addAnonUser = function(publicKey, callback) {
     $.ajax({
         type: 'POST',
-        url: 'http://162.219.162.56/users/api.php"',
+        url: CONFIG.userApi,
         data: {
             type: 'addUser',
             publicKey: publicKey
@@ -238,11 +242,11 @@ Puff.Network.addAnonUser = function(publicKey, callback) {
                 callback(result.username)
                 Puff.Blockchain.createGenesisBlock(result.username)
             } else {
-                console.log('Error Error Error: issue with adding anonymous user', result)
+                Puff.onError('Error Error Error: issue with adding anonymous user', result)
             }
         },
         error: function(err) {
-            console.log('Error Error Error: the anonymous user could not be added', err)
+            Puff.onError('Error Error Error: the anonymous user could not be added', err)
         },
         dataType: 'json'
     });
@@ -292,13 +296,15 @@ Puff.Crypto.generatePrivateKey = function() {
 Puff.Crypto.privateToPublic = function(privateKeyWIF) {
     //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
   
-    // privateKeyWIF is returned by Puff.Crypto.generatePrivateKey
-    var eckey = new Bitcoin.ECKey(privateKeyWIF);
-    eckey.compressed = true;
-    // var publicKeyHex = Crypto.util.bytesToHex(eckey.getPub());
-    // var publicKeyBase58 = Bitcoin.Base58.encode(publicKeyHex)
-    var publicKeyBase58 = Bitcoin.Base58.encode(eckey.getPub()); // FIXME: doing bytesToHex breaks sigs... but is skipping it ok?
-    return publicKeyBase58;
+    try {
+        // privateKeyWIF is returned by Puff.Crypto.generatePrivateKey
+        var eckey = new Bitcoin.ECKey(privateKeyWIF);
+        eckey.compressed = true;
+        var publicKeyBase58 = Bitcoin.Base58.encode(eckey.getPub()); 
+        return publicKeyBase58;
+    } catch(err) {
+        return Puff.onError('Invalid private key: could not convert to public key')
+    }
 }
 
 Puff.Crypto.verifyPuff = function(puff, publicKeyBase58) {

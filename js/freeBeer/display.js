@@ -18,6 +18,9 @@ var PuffWorld = React.createClass({
             globalStateSettingFun({replyOn: true, replyTo: replyTo});
             // TODO: draw reply arrows
         }
+        globalCreatePuffBox = function(puff) {
+            return <PuffBox puff={puff} key={puff.sig} />
+        }
 
         return { replyTo: []
                , replyOn: false
@@ -27,16 +30,8 @@ var PuffWorld = React.createClass({
                ,    puff: false
                }
     },
-    // handleHeaderPuffClick: function() {
-    //     this.setState({menuOn: !this.state.menuOn});
-    // },
-    // changeStyle: function(style) {
-    //     this.setState({style: style});
-    // },
     render: function() {
-        // use this to control the state of the master viewport,
-        // and always call it instead of calling PuffRoots and PuffTree directly.
-        
+
         $('#plumbing').empty(); // THINK: where should this live and should it at all?
         
         var view;
@@ -55,11 +50,7 @@ var PuffWorld = React.createClass({
         var reply = this.state.replyOn ? <PuffReplyForm /> : ''
         
         var menu = this.state.menuOn ? <PuffMenu keysOn={this.state.keysOn} /> : ''
-                 // ? <PuffMenu onHeaderPuffClick={this.handleHeaderPuffClick}
-                 //             changeStyle={this.changeStyle} /> 
-                 // : ''
-                 
-                                                         // onHeaderPuffClick={this.handleHeaderPuffClick} />
+
         return (                                         
             <div>                                        
                 <PuffHeader menuOn={this.state.menuOn} />
@@ -72,10 +63,6 @@ var PuffWorld = React.createClass({
     }
 });
 
-var createPuffBox = function(puff) {
-    return <PuffBox puff={puff} key={puff.sig} />
-}
-
 var PuffRoots = React.createClass({
     render: function() {
         var puffs = PuffForum.getRootPuffs();
@@ -84,7 +71,7 @@ var PuffRoots = React.createClass({
 
         puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
 
-        return <section id="children">{puffs.map(createPuffBox)}</section>
+        return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -94,7 +81,7 @@ var PuffAllChildren = React.createClass({
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        return <section id="children">{kids.map(createPuffBox)}</section>
+        return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -104,7 +91,7 @@ var PuffAllParents = React.createClass({
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        return <section id="children">{kids.map(createPuffBox)}</section>
+        return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -120,9 +107,9 @@ var PuffTree = React.createClass({
         
         return (
             <div>
-                <section id="parents">{parentPuffs.map(createPuffBox)}</section>
+                <section id="parents">{parentPuffs.map(globalCreatePuffBox)}</section>
                 <section id="main-content"><PuffBox puff={puff} /></section>
-                <section id="children">{childrenPuffs.map(createPuffBox)}</section>
+                <section id="children">{childrenPuffs.map(globalCreatePuffBox)}</section>
             </div>
         );
     },
@@ -324,18 +311,6 @@ var PuffReplyLink = React.createClass({
 });
 
 var PuffReplyForm = React.createClass({
-    // getInitialState: function() {
-    //   return {items: [], text: ''};
-    // },
-    // onChange: function(e) {
-    //   this.setState({text: e.target.value});
-    // },
-    // handleSubmit: function(e) {
-    //   e.preventDefault();
-    //   var nextItems = this.state.items.concat([this.state.text]);
-    //   var nextText = '';
-    //   this.setState({items: nextItems, text: nextText});
-    // },
     handleSubmit: function() {
         var content = this.refs.content.getDOMNode().value.trim();
         var parents = globalStateReadingFun('replyTo')
@@ -347,6 +322,7 @@ var PuffReplyForm = React.createClass({
         return false
     },
     handleCancel: function() {
+        // THINK: save the content in case they accidentally closed?
         globalStateSettingFun({replyOn: false, replyTo: []});
         return false  
     },
@@ -377,10 +353,7 @@ var PuffReplyForm = React.createClass({
 
 var PuffHeader = React.createClass({
     handleClick: function() {
-        // this.props.onHeaderPuffClick();
-        // return false;
         globalStateSettingFun({menuOn: !globalStateReadingFun('menuOn')})
-        
     },
     render: function() {
         return (
@@ -407,13 +380,9 @@ var PuffFooter = React.createClass({
     }
 });
 
-
-
 var PuffMenu = React.createClass({
     handleClose: function() {
         globalStateSettingFun({menuOn: false})
-        // globalStateSettingFun({menuOn: !globalStateReadingFun('menuOn')})
-        // this.props.onHeaderPuffClick();
         return false;
     },
     handleViewRoots: function() {
@@ -575,14 +544,13 @@ React.renderComponent(PuffWorld(), document.getElementById('puffworld'))
 
 
 
-
 showPuff = function(puff) {
     //// show a puff and do other stuff
     showPuffDirectly(puff)
 
     // set window.location.hash and allow back button usage
     // TODO: convert this to a simple event system
-    if(history.state.sig == puff.sig) return false
+    if(history.state && history.state.sig == puff.sig) return false
     
     var state = { 'sig': puff.sig }; 
     history.pushState(state, '', '#' + puff.sig);

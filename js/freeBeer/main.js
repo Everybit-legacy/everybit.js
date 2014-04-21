@@ -22,7 +22,6 @@ var eatPuffs = function(puffs) {
                 showPuff(puff)
             }
         }
-        return false
     }
     
     globalForceUpdateFun() // OPT: debounce this

@@ -96,7 +96,7 @@ PuffForum.addPost = function(content, parents) {
     // if there's no user, add an anonymous one
     // THINK: where should the username/privatekey live? we'll put it here for now, but some other layer should take responsibility.
     // THINK: posting this as its own callback is probably not ideal
-    var user = PuffForum.getUserInfo()
+    var user = PuffForum.getCurrentUser()
     if(!user.username || !user.privateKey)
     return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
 
@@ -182,19 +182,23 @@ PuffForum.addContentType('bbcode', {
 
 //// USER INFO
 
-PuffForum.userinfoLivesHereForNow = {};
+PuffForum.currentUser = {};
+PuffForum.users = {}; // all the users available on this system
 
-PuffForum.clearUserInfo = function() {
-    PuffForum.userinfoLivesHereForNow = {}
+PuffForum.removeUser = function(username) {
+    //// clear the user from our system
+    delete PuffForum.users[username]
+    
+    if(PuffForum.currentUser.username == username)
+        PuffForum.currentUser = {}
 }
 
-PuffForum.getUserInfo = function() {
-    return PuffForum.userinfoLivesHereForNow
+PuffForum.getCurrentUser = function() {
+    return PuffForum.currentUser
 }
-
 
 PuffForum.addAnonUser = function(callback) {
-    //// statefully state a new user and register it and store it and oh dear
+    //// create a new anonymous user and add it to the local user list
   
     // gen privkey
     var privateKey = Puff.Crypto.generatePrivateKey();
@@ -202,11 +206,8 @@ PuffForum.addAnonUser = function(callback) {
     // gen pubkey
     var publicKey = Puff.Crypto.privateToPublic(privateKey);
     
-    PuffForum.userinfoLivesHereForNow.privateKey = privateKey;
-    PuffForum.userinfoLivesHereForNow.publicKey  = publicKey;
-  
     var my_callback = function(username) {
-        PuffForum.userinfoLivesHereForNow.username = username;
+        PuffForum.addUserReally(username, privateKey, publicKey);
         if(typeof callback == 'function') {
             callback(username)
         }
@@ -215,13 +216,13 @@ PuffForum.addAnonUser = function(callback) {
     Puff.Network.addAnonUser(publicKey, my_callback);
 }
 
-PuffForum.addUserInfo = function(username, privkey) {
+PuffForum.addUserMaybe = function(username, privkey) {
     var callback = function(result) {
         var pubkey = Puff.Crypto.privateToPublic(privateKey);
         if(!pubkey) return false;
         
         if(result.publicKey === pubkey) {
-            PuffForum.doAddUserInfo(username, privkey, pubkey);
+            PuffForum.addUserReally(username, privkey, pubkey);
         } else {
             return Puff.onError('That private key does not match the record for that username')
         }
@@ -230,15 +231,24 @@ PuffForum.addUserInfo = function(username, privkey) {
     Puff.Network.getUser(callback)
 }
 
-PuffForum.doAddUserInfo = function(username, privkey, pubkey) {
-    PuffForum.userinfoLivesHereForNow.username = username;
-    PuffForum.userinfoLivesHereForNow.privateKey = privkey;
-    PuffForum.userinfoLivesHereForNow.publicKey = pubkey;
+PuffForum.addUserReally = function(username, privkey, pubkey) {
+    var userinfo = {   username: username
+                   ,  publicKey: pubkey
+                   , privateKey: privkey
+                   }
     
-    // add to available users
+    PuffForum.users[username] = userinfo
+    PuffForum.currentUser = userinfo
     
     // persist to localStorage?
     
     // TODO: send username-set event
+}
+
+PuffForum.setCurrentUser = function(username) {
+    if(!PuffForum.users[username] || PuffForum.users[username].username)
+        return Puff.onError('No record of that username exists locally -- try adding it first')
+    
+    PuffForum.currentUser = PuffForum.users[username]
 }
 

@@ -132,7 +132,7 @@ Puff.receiveNewPuffs = function(puffs) {
 
 Puff.Data = {};
 Puff.Data.puffs = [];
-Puff.Data.users = [];
+Puff.Data.users = [];  // these are DHT users, not our local users (those are in PuffForum.users)
 
 Puff.Data.eat = function(puff) {
     if(!!~Puff.Data.puffs

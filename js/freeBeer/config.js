@@ -1,6 +1,9 @@
 /**
  * Created by admin on 2014-04-04.
  */
+
+// TODO: change CONFIG to PuffConfig or something else less generic
+
 CONFIG = {};
 
 CONFIG.version = '0.2a';

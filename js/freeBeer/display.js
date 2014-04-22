@@ -25,7 +25,6 @@ var PuffWorld = React.createClass({
         return { replyTo: []
                , replyOn: false
                ,  menuOn: false
-               ,  keysOn: false
                ,   style: 'PuffRoots'
                ,    puff: false
                }
@@ -33,6 +32,10 @@ var PuffWorld = React.createClass({
     render: function() {
 
         $('#plumbing').empty(); // THINK: where should this live and should it at all?
+        
+        if(!this.state.menuOn) {
+            this.state.keysOn = false // yes, this is terrible. but whaddya gonna do?
+        }
         
         var view;
         
@@ -49,7 +52,7 @@ var PuffWorld = React.createClass({
         
         var reply = this.state.replyOn ? <PuffReplyForm /> : ''
         
-        var menu = this.state.menuOn ? <PuffMenu keysOn={this.state.keysOn} /> : ''
+        var menu = this.state.menuOn ? <PuffMenu /> : ''
 
         return (                                         
             <div>                                        
@@ -334,11 +337,11 @@ var PuffReplyForm = React.createClass({
         $('#replyForm').eq(0).draggable();
     },
     render: function() {
-        var user = PuffForum.getUserInfo() // make this a prop or something
+        var user = PuffForum.getCurrentUser() // make this a prop or something
         
         return (
             <div id="replyForm" className="mainForm">
-                <div id="authorDiv">{user.username}</div>
+                <div id="authorDiv">{user.username || 'anonymous'}</div>
                 <form id="otherContentForm" onSubmit={this.handleSubmit}>
                   <br />
                   <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
@@ -359,9 +362,7 @@ var PuffHeader = React.createClass({
         return (
             <div>
                 <img src="img/logo.gif" id="logo" />
-                <a href="#" onClick={this.handleClick}>
-                    <img src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menuOn ? 'menuOn' : ''} />
-                </a>
+                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menuOn ? 'menuOn' : ''} />
             </div>
         );
     }
@@ -403,8 +404,6 @@ var PuffMenu = React.createClass({
             </div>
         );
         
-        var username = PuffForum.getUserInfo().username;
-
         return (
             <div className="menu" id="menu">
     
@@ -421,30 +420,103 @@ var PuffMenu = React.createClass({
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
                 </div>
-
-                {username ? <PuffMenuUser /> : <PuffMenuNoUser />}
+                
+                <PuffCurrentUser />
+                
+                <PuffSwitchUser />
+                
+                <PuffAddUser />
             </div>
         );
     }
 });
 
-var PuffMenuNoUser = React.createClass({
-   render: function() {       
-       return (
-           <div>You are not logged in.</div>
-       ); 
-   }
-});
-
-var PuffMenuUser = React.createClass({
+var PuffCurrentUser = React.createClass({
     handleQRCode: function() {
-        var user = PuffForum.getUserInfo()
-        
+        var user = PuffForum.getCurrentUser()
         if(!user.privateKey) return false;
         update_qrcode(user.privateKey);
     },
-    toggleKeys: function() {
+    handleRemoveUser: function() {
+        PuffForum.removeUser(PuffForum.getCurrentUser().username)
+        globalForceUpdateFun()
+    },
+    handleBlockChainDownload: function() {
+        var user = PuffForum.getCurrentUser()
+        
+        if(!user.username) return false
+
+        var blocks = Puff.Blockchain.exportChain(PuffForum.currentUser.username);
+        var linkData = encodeURIComponent(JSON.stringify(blocks))
+        var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' 
+                     + linkData 
+                     + '">DOWNLOAD BLOCKCHAIN</a>';
+
+        document.getElementById('blockchainLink').innerHTML = linkHTML; // ugh puke derp
+    },
+    handleShowKeys: function() {
         globalStateSettingFun({keysOn: !globalStateReadingFun('keysOn')})
+    },
+    render: function() {    
+        var user = PuffForum.getCurrentUser();
+        
+        if(!user.username)
+            return <div className="menuItem"> No currently active identity </div>
+
+        var myKeyStuff
+        if(globalStateReadingFun('keysOn')) {            
+            var prikey = user.privateKey
+            var pubkey = user.publicKey
+            myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
+        }
+
+        // TODO: only show user options on click
+        // TODO: make all these settings revert on menu close (maybe in PuffWorld render?)
+        
+        return (
+            <div>
+                <div className="menuItem">
+                    Current user: 
+                    <strong>{' ' + user.username}</strong>
+                    
+                    <p onClick={this.handleRemoveUser}>Remove user from this machine</p>
+                    <p onClick={this.handleBlockChainDownload}>Download blockchain</p>
+                    <p onClick={this.handleQRCode}>Show QR code</p>
+                    <p onClick={this.handleShowKeys}>Show keys</p>
+                </div>
+
+                <div className="menuItem" id="keys">{myKeyStuff}</div>
+                <div className="menuItem" id="blockchainLink"></div>
+                <div className="menuItem" id="qr"></div>
+            </div>
+        ); 
+    }
+});
+
+var PuffSwitchUser = React.createClass({
+    handleUserPick: function() {
+        PuffForum.setCurrentUser(this.refs.select.value)
+    },
+    render: function() {
+        var usernames = Object.keys(PuffForum.users)
+        
+        return (
+            <div className="menuItem">
+                Change user: 
+                <select onChange={this.handleUserPick}>
+                    {usernames.map(function(username) {return <option>{username}</option>})}
+                </select>
+            </div>
+        ); 
+    }
+});
+
+var PuffAddUser = React.createClass({
+    handleUserAuth: function() {
+        var username = this.refs.username.getDOMNode().value.trim();
+        var privkey = this.refs.privkey.getDOMNode().value.trim();
+
+        PuffForum.addUserMaybe(username, privkey)
     },
     newAnon: function() {
         PuffForum.addAnonUser(function(newName) {
@@ -452,98 +524,26 @@ var PuffMenuUser = React.createClass({
             // React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
         });
     },
-    clearPrivateKey: function() {
-        // THINK: do signout here, but that's different from removing the user account from this computer... ?
-    },
-    handleBlockChainDownload: function() {
-        if((typeof PuffForum.userinfoLivesHereForNow.username === 'undefined') 
-        || PuffForum.userinfoLivesHereForNow.username === '') {
-            return false;
-        } 
-
-        // return
-        var blocks = Puff.Blockchain.exportChain(PuffForum.userinfoLivesHereForNow.username);
-        var linkData = encodeURIComponent(JSON.stringify(blocks))
-
-        // var linkHTML = '<a href="data:application/octet-stream;charset=utf-8;base64,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-        // var linkHTML = '<a href="data:text/json,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-
-        // pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-        // pom.setAttribute('download', filename);
-
-        var linkHTML = '<a download="blockchain.json" href="data:text/plain;charset=utf-8,' + linkData + '">DOWNLOAD BLOCKCHAIN</a>';
-
-        document.getElementById('blockchainLink').innerHTML = linkHTML;
-    },
-    handleUserAuth: function() {
-        var username = $("#usernameSet").val();
-        var privateKey = $("#privateKeySet").val();
-
-        PuffForum.addUserInfo(username, pubkey, privateKey)
-    },
-    render: function() {
-        // THINK: convert this to the stateless QR Code style, where closing the menu makes the keys go away
-        var user = PuffForum.getUserInfo()
-
-        var myKeyStuff
-        if(this.props.keysOn) {            
-            var prikey = user.privateKey
-            var pubkey = user.publicKey
-            myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
-        }
-        
-        var currentUserBlock
-        if(user.username) {
-            currentUserBlock = <p>
-                <span className="author">{user.username}</span>
-                <a href="#" onClick={this.clearPrivateKey}>
-                    <img src="img/logout.png" width="16" height="16" title="Remove private key from browser memory" />
-                </a>
-            </p>
-        }
-        
+    render: function() {       
         return (
-            <div>
-                <div className="publicKeyMenuItem" id="currentUser">{currentUserBlock}</div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.newAnon} className="under">Generate a new username</a>
-                </div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleBlockChainDownload} className="under">Download your blockchain</a>
-                </div>
-
-                <div className="menuItem" id="blockchainLink"> </div>
-
-                <div className="menuItem">
-                    <form id="setUserInfo">
-                        Set your username and private key:<br />
-                        Username: <input type="text" id="usernameSet" /><br />
-                        Private Key: <input type="text" id="privateKeySet" /><br />
-                        <input type="submit" value="set" /><br />
-                        <small>This is used to sign the content you post. Before being set, it will be converted into a public key and then the public key will be compared with the user record.</small>
-                    </form>
-                </div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.toggleKeys} className="under">
-                        {this.props.keysOn ? 'Hide ' : 'Show '}
-                        your keys
-                    </a> 
-            
-                    {myKeyStuff}
-                </div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleQRCode} className="under">Show QR code for private key</a>
-                </div>
-
-                <div className="menuItem" id="qr"></div>
+            <div className="menuItem">
+                <form id="setUserInfo" onSubmit={this.handleUserAuth}>
+                    Set your username and private key:<br />
+                    Username: <input type="text" ref="username" /><br />
+                    Private Key: <input type="text" ref="privkey" /><br />
+                    <input type="submit" value="set" /><br />
+                    <small>
+                        This is used to sign the content you post. 
+                        Before being set, it will be converted into a public key and then the public key 
+                        will be compared with the user record.
+                    </small>
+                </form>
             </div>
-        );
+        ); 
     }
 });
+
+
 
 
 // bootstrap

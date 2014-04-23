@@ -1,62 +1,38 @@
 /** @jsx React.DOM */
-var PuffWorld = React.createClass({
-    getInitialState: function() {
-        
-        //////// FIXME: hacky hack hack hack
-        globalStateSettingFun = this.setState.bind(this);
-        globalStateReadingFun = (function(key) {return this.state[key]}).bind(this)
-        globalForceUpdateFun  = this.forceUpdate.bind(this);
-        globalReplyToggleParent = function(sig) {
-            var replyTo = globalStateReadingFun('replyTo')
-            var index = replyTo.indexOf(sig)
-    
-            if(index == -1)
-                replyTo.push(sig)
-            else
-                replyTo.splice(index, 1)
-        
-            globalStateSettingFun({replyOn: true, replyTo: replyTo});
-            // TODO: draw reply arrows
-        }
-        globalCreatePuffBox = function(puff) {
-            return <PuffBox puff={puff} key={puff.sig} />
-        }
 
-        return { replyTo: []
-               , replyOn: false
-               ,  menuOn: false
-               ,   style: 'PuffRoots'
-               ,    puff: false
-               }
-    },
+globalCreatePuffBox = function(puff) {
+    return <PuffBox puff={puff} key={puff.sig} />
+}
+
+var PuffWorld = React.createClass({
     render: function() {
+        
+        console.log(this.props, this)
+        
+        globalProps = this.props.all || {} // FIXME: this is very silly
 
         $('#plumbing').empty(); // THINK: where should this live and should it at all?
         
-        if(!this.state.menuOn) {
-            this.state.keysOn = false // yes, this is terrible. but whaddya gonna do?
-        }
-        
         var view;
         
-        if( this.state.style == 'PuffTree' )
-            view = <PuffTree puff={this.state.puff} />
+        if( this.props.style == 'PuffTree' )
+            view = <PuffTree puff={this.props.puff} />
         
-        else if( this.state.style == 'PuffAllChildren' )
-            view = <PuffAllChildren puff={this.state.puff} />
+        else if( this.props.style == 'PuffAllChildren' )
+            view = <PuffAllChildren puff={this.props.puff} />
         
-        else if( this.state.style == 'PuffAllParents' )
-            view = <PuffAllParents puff={this.state.puff} />
+        else if( this.props.style == 'PuffAllParents' )
+            view = <PuffAllParents puff={this.props.puff} />
         
         else view = <PuffRoots />
         
-        var reply = this.state.replyOn ? <PuffReplyForm /> : ''
+        var reply = this.props.replyOn ? <PuffReplyForm /> : ''
         
-        var menu = this.state.menuOn ? <PuffMenu /> : ''
+        var menu = globalProps.menuOn ? <PuffMenu /> : ''
 
         return (                                         
             <div>                                        
-                <PuffHeader menuOn={this.state.menuOn} />
+                <PuffHeader />
                 {menu}
                 {view}
                 {reply}
@@ -256,7 +232,7 @@ var PuffInfoLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        globalStateSettingFun({style: 'PuffAllParents', puff: puff})
+        events.pub('ui/style/parents', ['style', 'PuffAllParents', 'puff', puff])
     },
     render: function() {
         var puff = this.props.puff;
@@ -270,7 +246,7 @@ var PuffParentCount = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        globalStateSettingFun({style: 'PuffAllChildren', puff: puff})
+        events.pub('ui/style/children', ['style', 'PuffAllChildren', 'puff', puff])
         // viewAllChildren(puff)
     },
     render: function() {
@@ -302,7 +278,18 @@ var PuffPermaLink = React.createClass({
 var PuffReplyLink = React.createClass({
     handleClick: function() {
         var sig = this.props.sig;
-        globalReplyToggleParent(sig);
+
+        var replyTo = globalProps.replyTo
+        var index = replyTo.indexOf(sig)
+
+        if(index == -1)
+            replyTo.push(sig)
+        else
+            replyTo.splice(index, 1)
+    
+        events.pub('ui/reply/add-parent', ['all.replyOn', true, 'all.replyTo', replyTo]);
+        
+        // TODO: draw reply arrows
     },
     render: function() {
         return (
@@ -316,17 +303,17 @@ var PuffReplyLink = React.createClass({
 var PuffReplyForm = React.createClass({
     handleSubmit: function() {
         var content = this.refs.content.getDOMNode().value.trim();
-        var parents = globalStateReadingFun('replyTo')
+        var parents = globalProps.replyTo
 
         PuffForum.addPost( content, parents );
 
-        globalStateSettingFun({replyOn: false, replyTo: []});
+        events.pub('ui/reply/submit', ['all.replyOn', false, 'all.replyTo', []]);
 
         return false
     },
     handleCancel: function() {
         // THINK: save the content in case they accidentally closed?
-        globalStateSettingFun({replyOn: false, replyTo: []});
+        events.pub('ui/reply/cancel', ['all.replyOn', false, 'all.replyTo', []]);
         return false  
     },
     componentDidMount: function() {
@@ -356,13 +343,13 @@ var PuffReplyForm = React.createClass({
 
 var PuffHeader = React.createClass({
     handleClick: function() {
-        globalStateSettingFun({menuOn: !globalStateReadingFun('menuOn')})
+        events.pub('ui/menu/toggle', ['all.menuOn', !globalProps.menuOn])
     },
     render: function() {
         return (
             <div>
                 <img src="img/logo.gif" id="logo" />
-                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menuOn ? 'menuOn' : ''} />
+                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={globalProps.menuOn ? 'menuOn' : ''} />
             </div>
         );
     }
@@ -383,17 +370,17 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        globalStateSettingFun({menuOn: false})
+        events.pub('ui/menu/close', ['all.menuOn', false])
     },
     handleViewRoots: function() {
-        globalStateSettingFun({style: 'PuffRoots', menuOn: false});
+        events.pub('ui/style/roots', ['style', 'PuffRoots', 'all.menuOn', false]);
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
         showPuff(puff)
     },
     handleNewContent: function() {
-        globalStateSettingFun({menuOn: false, replyOn: true});
+        events.pub('ui/reply/open', ['all.menuOn', false, 'all.replyOn', true]);
     },
     render: function() {
         var learnMore = (
@@ -439,7 +426,8 @@ var PuffCurrentUser = React.createClass({
     },
     handleRemoveUser: function() {
         PuffForum.removeUser(PuffForum.getCurrentUser().username)
-        globalForceUpdateFun()
+        events.pub('user/current/remove', {})
+        events.pub('ui/user/current/remove', {}) // this should be generated by previous event
     },
     handleBlockChainDownload: function() {
         var user = PuffForum.getCurrentUser()
@@ -455,7 +443,7 @@ var PuffCurrentUser = React.createClass({
         document.getElementById('blockchainLink').innerHTML = linkHTML; // ugh puke derp
     },
     handleShowKeys: function() {
-        globalStateSettingFun({keysOn: !globalStateReadingFun('keysOn')})
+        events.pub('ui/menu/keys/toggle', ['all.keysOn', !globalProps.keysOn])
     },
     render: function() {    
         var user = PuffForum.getCurrentUser();
@@ -464,7 +452,7 @@ var PuffCurrentUser = React.createClass({
             return <div className="menuItem"> No currently active identity </div>
 
         var myKeyStuff
-        if(globalStateReadingFun('keysOn')) {            
+        if(globalProps.keysOn) {            
             var prikey = user.privateKey
             var pubkey = user.publicKey
             myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
@@ -500,6 +488,8 @@ var PuffSwitchUser = React.createClass({
     render: function() {
         var usernames = Object.keys(PuffForum.users)
         
+        if(!usernames.length) return <div></div>
+        
         return (
             <div className="menuItem">
                 Change user: 
@@ -520,11 +510,27 @@ var PuffAddUser = React.createClass({
     },
     newAnon: function() {
         PuffForum.addAnonUser(function(newName) {
-            globalForceUpdateFun()
-            // React.renderComponent(PuffWorld(), document.getElementById('puffworld'));
+            events.pub('user/add/anon', {})
+            events.pub('ui/user/add/anon', {}) // this should be generated by previous event
         });
     },
-    render: function() {       
+    render: function() {
+        // Add a user: 
+            // Anonymous
+            // Existing
+                // need: username / prikey
+            // New named:
+                // New sub-user
+                    // need: existing user, sub user username / private key
+                // New top level
+                    // need: username > 33 / private key
+        
+        // Q: does this one component handle all of those states, or do we break it down? [start w/ one, use breadcrumbs]
+        
+        // Q: does each action (click, submit, etc) result in an event being broadcast? [sure, do that for now]
+        
+        // which event system? 
+        
         return (
             <div className="menuItem">
                 <form id="setUserInfo" onSubmit={this.handleUserAuth}>
@@ -551,6 +557,8 @@ React.renderComponent(PuffWorld(), document.getElementById('puffworld'))
 
 
 
+
+
 showPuff = function(puff) {
     //// show a puff and do other stuff
     showPuffDirectly(puff)
@@ -566,7 +574,7 @@ showPuff = function(puff) {
 showPuffDirectly = function(puff) {
     // show a puff without doing pushState
     // TODO: once this is evented this goes away
-    globalStateSettingFun({puff: puff, style: 'PuffTree', menuOn: false, replyOn: false})
+    events.pub('ui/style/tree', ['style', 'PuffTree', 'puff', puff, 'all.menuOn', false, 'all.replyOn', false])
 }
 
 
@@ -578,7 +586,7 @@ window.onpopstate = function(event) {
     var puff = PuffForum.getPuffById(event.state.sig)
     
     if(!puff)
-        globalStateSettingFun({style: 'PuffRoots', menuOn: false, replyOn: false})
+        events.pub('ui/style/roots', ['style', 'PuffRoots', 'all.menuOn', false, 'all.replyOn', false])
     else 
         showPuffDirectly(puff)
 }

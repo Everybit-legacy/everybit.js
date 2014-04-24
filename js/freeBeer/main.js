@@ -124,55 +124,6 @@ events.sub('*', function(data, path) {
 })
 
 
-puffworlddiv = document.getElementById('puffworld')
-puffworldprops = {all: { replyTo: []
-                       , replyOn: false
-                       ,  menuOn: false
-                       ,   style: 'PuffRoots'
-                       ,    puff: false
-                       }}
-
-
-events.sub('ui/*', function(data, path) {
-    // batch process recent log items on requestAnimationFrame
-    // ... yeah ok maybe later
-        
-    // feed each item into a state twiddling function (could use React's .update for now)
-    if(Array.isArray(data)) 
-        puffworldprops = events.handle_merge_array(puffworldprops, data)
-    else
-        puffworldprops = React.addons.update(puffworldprops, data)
-    
-    // then re-render PuffWorld w/ the new props
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
-})
-
-events.sub('ui/menu/close', function() {
-    puffworldprops = React.addons.update(puffworldprops, {all: {$merge: {keysOn: false}}})
-    
-    // then re-render PuffWorld w/ the new props
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
-})
-
-events.handle_merge_array = function(props, data) {
-    while(data.length > 1) {
-        var path = data.shift()
-        var value = data.shift()
-        var merger = events.convert_to_update_format(path, value)
-        props = React.addons.update(props, merger)
-    }
-    return props
-}
-
-events.convert_to_update_format = function(path, value) {
-    var segs = path.split('.')
-    return segs.reverse().reduce(function(acc, seg) {
-        var next = {}
-        next[seg] = acc ? acc : value
-        return acc ? next : {$merge: next}
-    }, false)
-}
-
 
 /////// minimap ////////
 

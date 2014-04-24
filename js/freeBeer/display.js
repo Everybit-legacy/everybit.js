@@ -2,7 +2,14 @@
 
 puffworlddiv = document.getElementById('puffworld')
 puffworldprops = {  menu: { show: false
-                          , user: {}
+                          , user: { pick_one: false
+                                  ,  add_one: false
+                                  ,  add_new: false
+                                  ,   manage: false
+                                  ,  show_qr: false
+                                  ,  show_bc: false
+                                  , show_key: false
+                                  }
                           }
                  ,  view: { style: 'PuffRoots'
                           ,  puff: false 
@@ -11,6 +18,8 @@ puffworldprops = {  menu: { show: false
                           ,    show: false 
                           } 
                  }
+
+puffworlddefaults = puffworldprops // it's immutable so we don't care
 
 globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
@@ -383,17 +392,17 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        events.pub('ui/menu/close', {'menu': {show: false}})
+        events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
     },
     handleViewRoots: function() {
-        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': {show: false}});
+        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
         showPuff(puff)
     },
     handleNewContent: function() {
-        events.pub('ui/reply/open', {'menu': {show: false}, 'reply': {show: true}});
+        events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
     },
     render: function() {
         var learnMore = (
@@ -422,8 +431,6 @@ var PuffMenu = React.createClass({
                 </div>
                 
                 <PuffCurrentUser user={this.props.menu.user} />
-                
-                <PuffSwitchUser />
                 
                 <PuffAddUser />
             </div>
@@ -456,28 +463,21 @@ var PuffCurrentUser = React.createClass({
         document.getElementById('blockchainLink').innerHTML = linkHTML; // ugh puke derp
     },
     handleShowKeys: function() {
-        var showing = this.props.user && this.props.user.keys_show
-        events.pub('ui/menu/keys/toggle', {'menu.user.keys_show': !showing})
-    },
-    render: function() {    
-        var user = PuffForum.getCurrentUser();
+        var showing = this.props.show_key
+        events.pub('ui/menu/keys/toggle', {'menu.user.show_key': !showing})
         
-        if(!user.username)
-            return <div className="menuItem"> No currently active identity </div>
 
         var myKeyStuff
-        var showing = this.props.user && this.props.user.keys && this.props.user.keys_show
+        var showing = this.props.show_key
         if(showing) {
             var prikey = user.privateKey
             var pubkey = user.publicKey
             myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
         }
-
-        // TODO: only show user options on click
-        // TODO: make all these settings revert on menu close (maybe in PuffWorld render?)
         
-        return (
-            <div>
+        /*
+        
+            
                 <div className="menuItem">
                     Current user: 
                     <strong>{' ' + user.username}</strong>
@@ -491,6 +491,36 @@ var PuffCurrentUser = React.createClass({
                 <div className="menuItem" id="keys">{myKeyStuff}</div>
                 <div className="menuItem" id="blockchainLink"></div>
                 <div className="menuItem" id="qr"></div>
+            
+        
+        */
+
+        // TODO: only show user options on click
+        // TODO: make all these settings revert on menu close (maybe in PuffWorld render?)
+        
+    },
+    handlePickOne: function() {
+        events.pub('ui/menu/user/pick_one/show', {'menu.user.pick_one': true})
+    },
+    render: function() {    
+        var user = PuffForum.getCurrentUser();
+        var username = !(user && user.username)
+                     ? ''
+                     : user.username.length != 32
+                     ? user.username
+                     : 'anonymous'
+
+        var usernames = Object.keys(PuffForum.users)
+
+        return (
+            <div>
+                <div className="menuItem"> 
+                    {username ? <p>Posting as {username}</p> : <p>No current identity</p>}
+                    {usernames.length ? <a onClick={this.handlePickOne}>(change)</a> : ''}
+                </div>
+                
+                {this.props.user.pick_one ? <PuffSwitchUser /> : ''}
+
             </div>
         ); 
     }
@@ -521,7 +551,11 @@ var PuffAddUser = React.createClass({
         var username = this.refs.username.getDOMNode().value.trim();
         var privkey = this.refs.privkey.getDOMNode().value.trim();
 
+        this.refs.username.getDOMNode().value = "" // what oh dear
+        this.refs.privkey.getDOMNode().value = ""
+
         PuffForum.addUserMaybe(username, privkey)
+        return false
     },
     newAnon: function() {
         PuffForum.addAnonUser(function(newName) {
@@ -568,7 +602,7 @@ var PuffAddUser = React.createClass({
 
 
 // bootstrap
-React.renderComponent(PuffWorld(puffworldprops), document.getElementById('puffworld'))
+React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 
 
 
@@ -598,10 +632,29 @@ events.sub('ui/*', function(data, path) {
 //     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 // })
 
+events.merge_props = function(props, path, value) {
+    var segs = path.split('.')
+    var last = segs.pop()
+    var final = next = events.shallow_copy(props)
+    
+    segs.forEach(function(seg) {
+        next[seg] = events.shallow_copy(next[seg])
+        next = next[seg]
+    })
+    
+    next[last] = value
+    return final
+}
+
+events.shallow_copy = function(obj) { 
+    return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
+}
+
 events.handle_merge_array = function(props, data) {
     return Object.keys(data).reduce(function(props, key) {
-        var merger = events.convert_to_update_format(key, data[key], props)
-        return React.addons.update(props, merger)
+        return events.merge_props(props, key, data[key])
+        // var merger = events.convert_to_update_format(key, data[key], props)
+        // return React.addons.update(props, merger)
     }, props)
     
     // while(data.length > 1) {
@@ -613,14 +666,14 @@ events.handle_merge_array = function(props, data) {
     // return props
 }
 
-events.convert_to_update_format = function(path, value, props) {
-    var segs = path.split('.')
-    return segs.reverse().reduce(function(acc, seg) {
-        var next = {}
-        next[seg] = acc ? acc : {$set: value}
-        return next
-    }, false)
-}
+// events.convert_to_update_format = function(path, value, props) {
+//     var segs = path.split('.')
+//     return segs.reverse().reduce(function(acc, seg) {
+//         var next = {}
+//         next[seg] = acc ? acc : {$set: value}
+//         return next
+//     }, false)
+// }
 
 
 
@@ -641,9 +694,8 @@ showPuff = function(puff) {
 }
 
 showPuffDirectly = function(puff) {
-    // show a puff without doing pushState
-    // TODO: once this is evented this goes away
-    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': {show: false}, 'reply': {show: false}})
+    //// show a puff without doing pushState
+    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 
@@ -655,7 +707,7 @@ window.onpopstate = function(event) {
     var puff = PuffForum.getPuffById(event.state.sig)
     
     if(!puff)
-        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': {show: false}, 'reply': {show: false}})
+        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
     else 
         showPuffDirectly(puff)
 }

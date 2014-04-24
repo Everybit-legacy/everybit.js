@@ -217,9 +217,11 @@ PuffForum.addAnonUser = function(callback) {
 }
 
 PuffForum.addUserMaybe = function(username, privkey) {
+    var pubkey = Puff.Crypto.privateToPublic(privkey);
+    if(!pubkey) return Puff.onError('That private key could not generate a public key');
+
     var callback = function(result) {
-        var pubkey = Puff.Crypto.privateToPublic(privateKey);
-        if(!pubkey) return false;
+        if(!result) return Puff.onError('No result returned');
         
         if(result.publicKey === pubkey) {
             PuffForum.addUserReally(username, privkey, pubkey);
@@ -228,7 +230,7 @@ PuffForum.addUserMaybe = function(username, privkey) {
         }
     }
     
-    Puff.Network.getUser(callback)
+    Puff.Network.getUser(username, callback)
 }
 
 PuffForum.addUserReally = function(username, privkey, pubkey) {
@@ -242,7 +244,7 @@ PuffForum.addUserReally = function(username, privkey, pubkey) {
     
     // persist to localStorage?
     
-    // TODO: send username-set event
+    events.pub('ui/menu/user/added', {'menu.user': puffworlddefaults.menu.user})  // THINK: does this really belong here?
 }
 
 PuffForum.setCurrentUser = function(username) {

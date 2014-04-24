@@ -1,5 +1,17 @@
 /** @jsx React.DOM */
 
+puffworlddiv = document.getElementById('puffworld')
+puffworldprops = {  menu: { show: false
+                          , user: {}
+                          }
+                 ,  view: { style: 'PuffRoots'
+                          ,  puff: false 
+                          } 
+                 , reply: { parents: []
+                          ,    show: false 
+                          } 
+                 }
+
 globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
 }
@@ -9,30 +21,29 @@ var PuffWorld = React.createClass({
         
         console.log(this.props, this)
         
-        globalProps = this.props.all || {} // FIXME: this is very silly
-
         $('#plumbing').empty(); // THINK: where should this live and should it at all?
         
         var view;
+        var viewprops = this.props.view || {};
         
-        if( this.props.style == 'PuffTree' )
-            view = <PuffTree puff={this.props.puff} />
+        if( viewprops.style == 'PuffTree' )
+            view = <PuffTree puff={viewprops.puff} />
         
-        else if( this.props.style == 'PuffAllChildren' )
-            view = <PuffAllChildren puff={this.props.puff} />
+        else if( viewprops.style == 'PuffAllChildren' )
+            view = <PuffAllChildren puff={viewprops.puff} />
         
-        else if( this.props.style == 'PuffAllParents' )
-            view = <PuffAllParents puff={this.props.puff} />
+        else if( viewprops.style == 'PuffAllParents' )
+            view = <PuffAllParents puff={viewprops.puff} />
         
         else view = <PuffRoots />
         
-        var reply = this.props.replyOn ? <PuffReplyForm /> : ''
+        var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
         
-        var menu = globalProps.menuOn ? <PuffMenu /> : ''
+        var menu = this.props.menu.show ? <PuffMenu menu={this.props.menu} /> : ''
 
         return (                                         
             <div>                                        
-                <PuffHeader />
+                <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}
                 {reply}
@@ -232,7 +243,7 @@ var PuffInfoLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        events.pub('ui/style/parents', ['style', 'PuffAllParents', 'puff', puff])
+        events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
     },
     render: function() {
         var puff = this.props.puff;
@@ -246,7 +257,7 @@ var PuffParentCount = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        events.pub('ui/style/children', ['style', 'PuffAllChildren', 'puff', puff])
+        events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
         // viewAllChildren(puff)
     },
     render: function() {
@@ -279,15 +290,17 @@ var PuffReplyLink = React.createClass({
     handleClick: function() {
         var sig = this.props.sig;
 
-        var replyTo = globalProps.replyTo
-        var index = replyTo.indexOf(sig)
+        var parents = puffworldprops.reply.parents         // THINK: how can we get rid of this dependency?
+                    ? puffworldprops.reply.parents.slice() // clone to keep pwp immutable
+                    : []
+        var index   = parents.indexOf(sig)
 
         if(index == -1)
-            replyTo.push(sig)
+            parents.push(sig)
         else
-            replyTo.splice(index, 1)
+            parents.splice(index, 1)
     
-        events.pub('ui/reply/add-parent', ['all.replyOn', true, 'all.replyTo', replyTo]);
+        events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
         
         // TODO: draw reply arrows
     },
@@ -303,17 +316,17 @@ var PuffReplyLink = React.createClass({
 var PuffReplyForm = React.createClass({
     handleSubmit: function() {
         var content = this.refs.content.getDOMNode().value.trim();
-        var parents = globalProps.replyTo
+        var parents = this.props.reply.parents
 
         PuffForum.addPost( content, parents );
 
-        events.pub('ui/reply/submit', ['all.replyOn', false, 'all.replyTo', []]);
+        events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
 
         return false
     },
     handleCancel: function() {
         // THINK: save the content in case they accidentally closed?
-        events.pub('ui/reply/cancel', ['all.replyOn', false, 'all.replyTo', []]);
+        events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
         return false  
     },
     componentDidMount: function() {
@@ -343,13 +356,13 @@ var PuffReplyForm = React.createClass({
 
 var PuffHeader = React.createClass({
     handleClick: function() {
-        events.pub('ui/menu/toggle', ['all.menuOn', !globalProps.menuOn])
+        events.pub('ui/menu/toggle', {'menu.show': !this.props.menu.show})
     },
     render: function() {
         return (
             <div>
                 <img src="img/logo.gif" id="logo" />
-                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={globalProps.menuOn ? 'menuOn' : ''} />
+                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menu.show ? 'menuOn' : ''} />
             </div>
         );
     }
@@ -370,17 +383,17 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        events.pub('ui/menu/close', ['all.menuOn', false])
+        events.pub('ui/menu/close', {'menu': {show: false}})
     },
     handleViewRoots: function() {
-        events.pub('ui/style/roots', ['style', 'PuffRoots', 'all.menuOn', false]);
+        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': {show: false}});
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
         showPuff(puff)
     },
     handleNewContent: function() {
-        events.pub('ui/reply/open', ['all.menuOn', false, 'all.replyOn', true]);
+        events.pub('ui/reply/open', {'menu': {show: false}, 'reply': {show: true}});
     },
     render: function() {
         var learnMore = (
@@ -408,7 +421,7 @@ var PuffMenu = React.createClass({
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
                 </div>
                 
-                <PuffCurrentUser />
+                <PuffCurrentUser user={this.props.menu.user} />
                 
                 <PuffSwitchUser />
                 
@@ -443,7 +456,8 @@ var PuffCurrentUser = React.createClass({
         document.getElementById('blockchainLink').innerHTML = linkHTML; // ugh puke derp
     },
     handleShowKeys: function() {
-        events.pub('ui/menu/keys/toggle', ['all.keysOn', !globalProps.keysOn])
+        var showing = this.props.user && this.props.user.keys_show
+        events.pub('ui/menu/keys/toggle', {'menu.user.keys_show': !showing})
     },
     render: function() {    
         var user = PuffForum.getCurrentUser();
@@ -452,7 +466,8 @@ var PuffCurrentUser = React.createClass({
             return <div className="menuItem"> No currently active identity </div>
 
         var myKeyStuff
-        if(globalProps.keysOn) {            
+        var showing = this.props.user && this.props.user.keys && this.props.user.keys_show
+        if(showing) {
             var prikey = user.privateKey
             var pubkey = user.publicKey
             myKeyStuff = <p>public key: <br />{pubkey}<br />private key: <br />{prikey}</p>
@@ -553,7 +568,61 @@ var PuffAddUser = React.createClass({
 
 
 // bootstrap
-React.renderComponent(PuffWorld(), document.getElementById('puffworld'))
+React.renderComponent(PuffWorld(puffworldprops), document.getElementById('puffworld'))
+
+
+
+
+
+
+
+
+events.sub('ui/*', function(data, path) {
+    // batch process recent log items on requestAnimationFrame
+    // ... yeah ok maybe later
+        
+    // feed each item into a state twiddling function (could use React's .update for now)
+    if(Array.isArray(data)) 
+        puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
+    else
+        puffworldprops = events.handle_merge_array(puffworldprops, data)
+    
+    // then re-render PuffWorld w/ the new props
+    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+})
+
+// events.sub('ui/menu/close', function() {
+//     puffworldprops = React.addons.update(puffworldprops, {all: {$merge: {keysOn: false}}})
+//     
+//     // then re-render PuffWorld w/ the new props
+//     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+// })
+
+events.handle_merge_array = function(props, data) {
+    return Object.keys(data).reduce(function(props, key) {
+        var merger = events.convert_to_update_format(key, data[key], props)
+        return React.addons.update(props, merger)
+    }, props)
+    
+    // while(data.length > 1) {
+    //     var path = data.shift()
+    //     var value = data.shift()
+    //     var merger = events.convert_to_update_format(path, value)
+    //     props = React.addons.update(props, merger)
+    // }
+    // return props
+}
+
+events.convert_to_update_format = function(path, value, props) {
+    var segs = path.split('.')
+    return segs.reverse().reduce(function(acc, seg) {
+        var next = {}
+        next[seg] = acc ? acc : {$set: value}
+        return next
+    }, false)
+}
+
+
 
 
 
@@ -574,7 +643,7 @@ showPuff = function(puff) {
 showPuffDirectly = function(puff) {
     // show a puff without doing pushState
     // TODO: once this is evented this goes away
-    events.pub('ui/style/tree', ['style', 'PuffTree', 'puff', puff, 'all.menuOn', false, 'all.replyOn', false])
+    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': {show: false}, 'reply': {show: false}})
 }
 
 
@@ -586,7 +655,7 @@ window.onpopstate = function(event) {
     var puff = PuffForum.getPuffById(event.state.sig)
     
     if(!puff)
-        events.pub('ui/style/roots', ['style', 'PuffRoots', 'all.menuOn', false, 'all.replyOn', false])
+        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': {show: false}, 'reply': {show: false}})
     else 
         showPuffDirectly(puff)
 }

@@ -10,8 +10,6 @@ var eatPuffs = function(puffs) {
         return false;
     }
 
-    if(typeof globalForceUpdateFun == 'undefined') return false
-    
     // TODO: just call some kind of 'look for puff' function instead
     if(typeof globalStupidFirstTimeFlag == 'undefined') {
         globalStupidFirstTimeFlag = true
@@ -19,12 +17,13 @@ var eatPuffs = function(puffs) {
         if(hash) {
             var puff = PuffForum.getPuffById(hash.slice(1))
             if(puff) {
-                showPuff(puff)
+                showPuffDirectly(puff)
+                return false
             }
         }
     }
     
-    globalForceUpdateFun() // OPT: debounce this
+    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
@@ -42,19 +41,7 @@ events = {}
 events.subs = {}
 
 events.pub = function(path, data) {
-    //// pub to * at each level and then to path itself
-    var pathlist = events.scrub_path(path)
-    var realpath = pathlist.join('/')
-    
-    events.tryPub('*', data, realpath)                                           // global catchall
-    
-    pathlist.reduce(function(acc, seg) {                                        // channel catchalls
-        var newacc = acc + seg + '/'
-        events.tryPub(newacc + '*', data, realpath)
-        return newacc
-    }, '')
-    
-    events.tryPub(realpath, data, realpath)                                      // actual channel
+    setImmediate(function() {events.start_pub(path, data)})
 }
 
 events.sub = function(path, handler) {
@@ -75,7 +62,23 @@ events.unsub = function(path, handler) {
     subs.splice(index, 1)
 }
 
-events.tryPub = function(path, data, realpath) {
+events.start_pub = function(path, data) {
+    //// pub to * at each level and then to path itself
+    var pathlist = events.scrub_path(path)
+    var realpath = pathlist.join('/')
+    
+    events.try_pub('*', data, realpath)                                         // global catchall
+    
+    pathlist.reduce(function(acc, seg) {                                        // channel catchalls
+        var newacc = acc + seg + '/'
+        events.try_pub(newacc + '*', data, realpath)
+        return newacc
+    }, '')
+    
+    events.try_pub(realpath, data, realpath)                                    // actual channel
+}
+
+events.try_pub = function(path, data, realpath) {
     var handlers = events.subs[path]
     if(!handlers || !handlers.length) return false
     handlers.forEach(function(handler) {handler(data, realpath)})
@@ -141,3 +144,43 @@ events.sub('*', function(data, path) {
 // }
 
 ////// end minimap /////
+
+
+
+
+
+
+~function() {
+    //// postpone until next tick
+    // inspired by http://dbaron.org/log/20100309-faster-timeouts
+    var later = []
+    var messageName = 12345
+    var gimme_a_tick = true
+
+    function setImmediate(fn) {
+        later.push(fn)
+        
+        if(gimme_a_tick) {
+            gimme_a_tick = false
+            window.postMessage(messageName, "*")
+        }
+    }
+
+    function handleMessage(event) {
+        if(event.data != messageName) return false
+
+        event.stopPropagation()
+        gimme_a_tick = true
+
+        var now = later
+        later = []
+
+        for(var i=0, l=now.length; i < l; i++)
+        now[i]()
+    }
+  
+    if(typeof window != 'undefined') {
+        window.addEventListener('message', handleMessage, true)
+        window.setImmediate = setImmediate
+    }
+}();

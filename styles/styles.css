@@ -83,6 +83,7 @@ a.under {
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
+    padding-top:20px;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left: 15px;
@@ -204,7 +205,7 @@ header h1 {
 #replyForm {
     left: 50%;
     margin-left: -250px;
-    z-index: 300;
+    z-index: 1001;
     position: absolute;
     top: 200px;
     background: #FAFAFA;
@@ -278,7 +279,7 @@ header h1 {
     left: 15px;
     top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
-    z-index: 10;
+    z-index: 1000;
     min-width: 300px;
     max-width: 35%;
     font-size: 1.1em;
@@ -335,7 +336,7 @@ header h1 {
 .footer {
     text-align: center;
 /*    background: #1616A8; */
-    background: rgba(22,22,200,.5);
+    background: rgba(22,22,200,.9);
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;
@@ -343,6 +344,7 @@ header h1 {
     position: fixed;
     left:0;
     right:0;
+    z-index:1050;
     margin-left:auto;
     margin-right:auto;
 }

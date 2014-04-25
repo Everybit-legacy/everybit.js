@@ -50,8 +50,12 @@ a.under {
     position:absolute;
     top:5px;
     left:5px;
+    padding-bottom:5px;
+    width:100%;
+    background:#EEE;
     color: #006738;
-    border-bottom: 1px solid #a1a1a1;;
+    border-bottom: 1px solid #a1a1a1;
+    z-index:15;
 }
 
 .txt {
@@ -59,8 +63,10 @@ a.under {
     padding: 5px;
     text-align:left;
     cursor:pointer;
-    overflow:scroll;
-    height:50%;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    max-height:50%;
+    z-index:10;
 }
 
 .txt:hover {
@@ -101,6 +107,9 @@ a.under {
     position:absolute;
     bottom:0px;
     right:5px;
+    background:#EEE;
+    width:100%;
+    padding-top:5px;
 }
 
 .bar span {

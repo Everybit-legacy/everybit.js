@@ -47,6 +47,9 @@ a.under {
     padding: 2px;
     text-align: left;
     /* color: #2d479a; */
+    position:absolute;
+    top:5px;
+    left:5px;
     color: #006738;
     border-bottom: 1px solid #a1a1a1;;
 }
@@ -56,6 +59,8 @@ a.under {
     padding: 5px;
     text-align:left;
     cursor:pointer;
+    overflow:scroll;
+    height:50%;
 }
 
 .txt:hover {
@@ -81,17 +86,21 @@ a.under {
     text-align: left;
     z-index: 999;
     overflow: hidden;
+    position:relative;
+    top:0;
 }
 
 #main-content>div.block {
     width: 30%;
     max-height: 60%;
-    overflow: auto;
 }
 
 .bar {
     text-align: right;
     padding-right: 10px;
+    position:absolute;
+    bottom:0px;
+    right:5px;
 }
 
 .bar span {

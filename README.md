@@ -16,7 +16,7 @@ License: [MIT](http://opensource.org/licenses/MIT)
 
 
 ### Current Development
-`Freebeer` currently reads data from a sample JSON file so GUI development can continue in parallel with Puffball's API team. Once Puffball's API is released `Freebeer` will connect to the live API. 
+`Freebeer` currently reads data from JSON formatted database that is stored on a server then passed around in a P2P way for new content. 
 
 `Freebeer` and Puffball are currently in Phase 1 of the Development roadmap. The TODO list is located on Trello: https://trello.com/puffball
 

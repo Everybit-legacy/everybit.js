@@ -216,21 +216,27 @@ PuffForum.addAnonUser = function(callback) {
     Puff.Network.addAnonUser(publicKey, my_callback);
 }
 
-PuffForum.addUserMaybe = function(username, privkey) {
+PuffForum.addUserMaybe = function(username, privkey, callback, errback) {
     var pubkey = Puff.Crypto.privateToPublic(privkey);
     if(!pubkey) return Puff.onError('That private key could not generate a public key');
 
-    var callback = function(result) {
+    var my_callback = function(result) {
         if(!result) return Puff.onError('No result returned');
         
+        // THINK: return a promise instead
         if(result.publicKey === pubkey) {
-            PuffForum.addUserReally(username, privkey, pubkey);
+            var userinfo = PuffForum.addUserReally(username, privkey, pubkey);
+            if(typeof callback === 'function')
+                callback(userinfo)
         } else {
-            return Puff.onError('That private key does not match the record for that username')
+            if(typeof errback === 'function')
+                errback(username, privkey)
+            else
+                return Puff.onError('That private key does not match the record for that username')
         }
     }
     
-    Puff.Network.getUser(username, callback)
+    Puff.Network.getUser(username, my_callback)
 }
 
 PuffForum.addUserReally = function(username, privkey, pubkey) {
@@ -240,17 +246,18 @@ PuffForum.addUserReally = function(username, privkey, pubkey) {
                    }
     
     PuffForum.users[username] = userinfo
-    PuffForum.currentUser = userinfo
     
-    // persist to localStorage?
+    // persist to localStorage?    
     
-    events.pub('ui/menu/user/added', {'menu.user': puffworlddefaults.menu.user})  // THINK: does this really belong here?
+    return userinfo
 }
 
 PuffForum.setCurrentUser = function(username) {
-    if(!PuffForum.users[username] || PuffForum.users[username].username)
+    var user = PuffForum.users[username]
+    
+    if(!user || !user.username)
         return Puff.onError('No record of that username exists locally -- try adding it first')
     
-    PuffForum.currentUser = PuffForum.users[username]
+    PuffForum.currentUser = user
 }
 

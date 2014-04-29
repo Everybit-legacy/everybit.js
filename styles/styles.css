@@ -47,8 +47,15 @@ a.under {
     padding: 2px;
     text-align: left;
     /* color: #2d479a; */
+    position:absolute;
+    top:5px;
+    left:5px;
+    padding-bottom:5px;
+    width:100%;
+    background:#EEE;
     color: #006738;
-    border-bottom: 1px solid #a1a1a1;;
+    border-bottom: 1px solid #a1a1a1;
+    z-index:15;
 }
 
 .txt {
@@ -56,6 +63,10 @@ a.under {
     padding: 5px;
     text-align:left;
     cursor:pointer;
+    overflow-y:scroll;
+    overflow-x:hidden;
+    max-height:50%;
+    z-index:10;
 }
 
 .txt:hover {
@@ -72,6 +83,7 @@ a.under {
     border-radius: 25px;
     border: 1px solid #a1a1a1;
     padding: 10px;
+    padding-top:20px;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left: 15px;
@@ -81,17 +93,24 @@ a.under {
     text-align: left;
     z-index: 999;
     overflow: hidden;
+    position:relative;
+    top:0;
 }
 
 #main-content>div.block {
     width: 30%;
     max-height: 60%;
-    overflow: auto;
 }
 
 .bar {
     text-align: right;
     padding-right: 10px;
+    position:absolute;
+    bottom:0px;
+    right:5px;
+    background:#EEE;
+    width:100%;
+    padding-top:5px;
 }
 
 .bar span {
@@ -186,7 +205,7 @@ header h1 {
 #replyForm {
     left: 50%;
     margin-left: -250px;
-    z-index: 300;
+    z-index: 1001;
     position: absolute;
     top: 200px;
     background: #FAFAFA;
@@ -261,7 +280,7 @@ header h1 {
     left: 15px;
     top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
-    z-index: 10;
+    z-index: 1000;
     min-width: 300px;
     max-width: 35%;
     font-size: 1.1em;
@@ -318,7 +337,7 @@ header h1 {
 .footer {
     text-align: center;
 /*    background: #1616A8; */
-    background: rgba(22,22,200,.5);
+    background: rgba(22,22,200,.9);
     color: #ffffff;
     font-family: GudeaBold;
     font-size: .9em;
@@ -326,6 +345,7 @@ header h1 {
     position: fixed;
     left:0;
     right:0;
+    z-index:1050;
     margin-left:auto;
     margin-right:auto;
 }

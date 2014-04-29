@@ -1604,6 +1604,8 @@ var qrcode = function() {
             base64.writeByte(bytes[i]);
         }
         base64.flush();
+        
+        return {base64: base64, width: width, height: height}
 
         var img = '';
         img += '<img';

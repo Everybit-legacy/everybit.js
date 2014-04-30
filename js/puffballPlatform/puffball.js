@@ -56,8 +56,8 @@ Puff.init = function(zone) {
 
     Puff.Network.getAllPuffs(Puff.receiveNewPuffs); // OPT: only ask for puffs we're missing
 
-    Puff.Blockchain.BLOCKS = JSON.parse(localStorage.getItem("blocks"))
-    if(Puff.Blockchain.BLOCKS === null)
+    Puff.Blockchain.BLOCKS = Puff.Persist.get('blocks') 
+    if(!Puff.Blockchain.BLOCKS)
         Puff.Blockchain.BLOCKS = {}
         
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
@@ -140,18 +140,18 @@ Puff.Data.eat = function(puff) {
                    .indexOf(puff.sig)) 
                       return false 
     Puff.Data.puffs.push(puff);  
-    Puff.Data.persist(Puff.Data.puffs);              // OPT: batch this part when we're chowing down on lots of puffs (throttle)
+    Puff.Data.persist(Puff.Data.puffs);
 }
 
 Puff.Data.persist = function(puffs) {
-    if(CONFIG.noLocalStorage) return false           // THINK: this is only for debugging and development
-    localStorage.setItem('puffs', JSON.stringify(puffs));
+    if(CONFIG.noLocalStorage) return false         // THINK: this is only for debugging and development
+    Puff.Persist.save('puffs', puffs)              // OPT: batch this part when we're chowing down on lots of puffs (throttle)
 }
 
 Puff.Data.getLocalPuffs = function(callback) {
     // we're doing this asynchronously in order to not interrupt the loading process
     // should probably wrap this a bit better (use a promise, or setImmediate)
-    return setTimeout(function() {callback(JSON.parse(localStorage.getItem('puffs') || '[]'))}, 0)
+    return setTimeout(function() {callback(Puff.Persist.get('puffs') || [])}, 0)
 }
 
 Puff.Data.addUser = function(user) {
@@ -161,7 +161,7 @@ Puff.Data.addUser = function(user) {
 }
 
 
-
+// NETWORK LAYER
 
 Puff.Network = {};
 
@@ -257,7 +257,6 @@ Puff.Network.addAnonUser = function(publicKey, callback) {
 
 
 /*
-
   Puff.Crypto
 
   Using bitcoin.js is pretty nightmarish for our purposes. 
@@ -406,7 +405,7 @@ Puff.Blockchain.createBlock = function(username, puff, privateKeyWIF) {
     newBlock.blockSig = Puff.Blockchain.paddSig(Puff.Crypto.signBlock(newBlock.blockPayload, privateKeyWIF));
 
     Puff.Blockchain.BLOCKS[username].push(newBlock);
-    localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS));
+    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
 
     return newBlock.blockSig;
 }
@@ -421,14 +420,14 @@ Puff.Blockchain.updateBlock = function(username, sig, puff, privateKeyWIF) {
     var newBlock = createBlock(userBlockchain[sig].blockPayload.prevSig, puff, privateKeyWIF);
     userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length);
     userBlockchain.push(newBlock);
-    localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS));
+    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
     return newBlock.blockSig;
 }
 
 Puff.Blockchain.deleteBlock = function(username, sig) {
     var userBlockchain = Puff.Blockchain.BLOCKS.username;
     userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length);
-    localStorage.setItem('blocks', JSON.stringify(Puff.Blockchain.BLOCKS));
+    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
 }
 
 Puff.Blockchain.getNewBlankBlock = function(){
@@ -482,6 +481,35 @@ Puff.Blockchain.exportChain = function(username){
 
 
 
+/*
+    Persistence layer
+
+    It's like a network on your hard drive. Which probably implies this should like in Puff.Network instead of on its own.
+*/
+
+Puff.Persist = {};
+
+Puff.Persist.save = function(key, value) {
+    // prepend PUFF:: so we're good neighbors
+    var realkey = 'PUFF::' + key;
+    var str = JSON.stringify(value);  // wrap this in a try/catch
+    localStorage.setItem(realkey, str);
+}
+
+Puff.Persist.get = function(key) {
+    var realkey = 'PUFF::' + key;
+    var str = localStorage.getItem(realkey);
+    if(!str) return false;
+    return JSON.parse(str); // wrap this in a try/catch
+}
+
+Puff.Persist.remove = function(key) {
+    var realkey = 'PUFF::' + key;
+    localStorage.removeItem(realkey);
+}
+
+
+/// ERROR ERROR
 
 Puff.onError = function(msg) {
     console.log(msg)

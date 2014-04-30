@@ -180,7 +180,11 @@ PuffForum.addContentType('bbcode', {
     }
 })
 
-//// USER INFO
+
+//// USER INFO ////
+
+// THINK: maybe break this out into a separate module? it makes sense to have both PuffForum and PuffUser modules, although PuffForum would probably require PuffUser in that case, so they're not really independent. but the user code could stand on its own and be used by other modules. (So pull it into the platform? I'm still leaning toward no, but haven't found a good reason yet.)
+
 
 PuffForum.currentUser = {};
 PuffForum.users = {}; // all the users available on this system
@@ -247,7 +251,8 @@ PuffForum.addUserReally = function(username, privkey, pubkey) {
     
     PuffForum.users[username] = userinfo
     
-    // persist to localStorage?    
+    if(PuffForum.getPref('storeusers'))
+        Puff.Persist.save('users', PuffForum.users)
     
     return userinfo
 }
@@ -261,3 +266,57 @@ PuffForum.setCurrentUser = function(username) {
     PuffForum.currentUser = user
 }
 
+
+////// PREFS ///////
+
+PuffForum.prefsarray = {}  // put this somewhere else
+
+PuffForum.getPref = function(key) {
+    var username = PuffForum.currentUser.username
+    return PuffForum.getUserPref(username, key)
+}
+
+PuffForum.setPref = function(key, value) {
+    var username = PuffForum.currentUser.username
+    return PuffForum.setUserPref(username, key, value)
+}
+
+PuffForum.getUserPref = function(username, key) {
+    var prefs = PuffForum.getUserPrefs(username)
+    return prefs[key]
+}
+
+PuffForum.getUserPrefs = function(username) {
+    if(!username) return {} // erm derp derp
+    
+    var parray = PuffForum.prefsarray
+    if(parray[username]) return parray[username]  // is this always right?
+    
+    var preffile = 'prefs::' + username
+    parray[username] = Puff.Persist.get(preffile) || {}
+    
+    return parray[username]
+}
+
+PuffForum.setUserPref = function(username, key, value) {
+    if(!username) return false
+    
+    var prefs = PuffForum.getUserPrefs(username)
+    var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
+
+    PuffForum.prefsarray[username] = newprefs
+
+    var preffile = 'prefs::' + username;
+    Puff.Persist.save(preffile, newprefs)
+    
+    return newprefs
+}
+
+PuffForum.removeUserPrefs = function(username) {
+    if(!username) return false
+    
+    PuffForum.prefsarray.delete(username)
+    
+    var preffile = 'prefs::' + username;
+    Puff.Persist.remove(preffile)
+}

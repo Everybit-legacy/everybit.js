@@ -23,7 +23,7 @@ var eatPuffs = function(puffs) {
         }
     }
     
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+    renderPuffWorld()
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
@@ -125,6 +125,19 @@ eventlog = []
 events.sub('*', function(data, path) {
     eventlog.push([path, data])
 })
+
+
+
+
+//// event bindings for controlling core behavior from the display
+events.sub('ui/menu/prefs/storeusers/*', function(data, path) {
+    PuffForum.setPref('storeusers', data['prefs.storeusers'])
+})
+
+
+
+
+
 
 
 

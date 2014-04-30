@@ -1,15 +1,18 @@
 /** @jsx React.DOM */
 
-puffworlddiv = document.getElementById('puffworld')
-puffworldprops = {  menu: { show: false
-                          , user: { pick_one: false
-                                  , show_add: false
-                                  ,  add_one: false
-                                  ,  add_new: false
-                                  ,   manage: false
-                                  ,  show_bc: false
-                                  , show_key: false
-                                  }
+puffworldprops = {  menu: {    show: false
+                          ,   prefs: false
+                          ,    user: { pick_one: false
+                                     , show_add: false
+                                     ,  add_one: false
+                                     ,  add_new: false
+                                     ,   manage: false
+                                     ,  show_bc: false
+                                     , show_key: false
+                                     }
+                          , profile: {   show: false
+                                     , things: []
+                                     }
                           }
                  ,  view: { style: 'PuffRoots'
                           ,  puff: false 
@@ -17,7 +20,8 @@ puffworldprops = {  menu: { show: false
                  , reply: { parents: []
                           ,    show: false 
                           } 
-                 }
+                 , prefs: { }
+             }
 
 puffworlddefaults = puffworldprops // it's immutable so we don't care
 
@@ -48,7 +52,7 @@ var PuffWorld = React.createClass({
         
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
         
-        var menu = this.props.menu.show ? <PuffMenu menu={this.props.menu} /> : ''
+        var menu = this.props.menu.show ? <PuffMenu menu={this.props.menu} prefs={this.props.prefs} /> : ''
 
         return (                                         
             <div>                                        
@@ -408,6 +412,12 @@ var PuffMenu = React.createClass({
     handleNewContent: function() {
         events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
     },
+    handleShowPrefs: function() {
+        events.pub('ui/menu/prefs/show', {'menu.prefs': true})
+    },
+    handleShowProfile: function() {
+        events.pub('ui/menu/profile/show', {'menu.profile.show': true})
+    },
     render: function() {
         var learnMore = (
             <div className="menuItem">
@@ -416,6 +426,37 @@ var PuffMenu = React.createClass({
                 </a>
             </div>
         );
+        
+        // Preferences
+        var prefs = <PuffPrefs prefs={this.props.prefs} />
+        
+        if(!this.props.menu.prefs) {
+            prefs = (
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowPrefs} id="show_prefs" className="under">Preferences</a>
+                </div>
+            );
+        }
+        
+        // Profile
+        var profile = <PuffProfile profile={this.props.menu.profile} />
+        
+        if(!this.props.menu.profile.show) {
+            profile = (
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowProfile} id="show_profile" className="under">Profile</a>
+                </div>
+            );
+        }
+        
+        // no current user
+        var user = PuffForum.getCurrentUser()
+        var username = humanizeUsernames(user.username) || ''
+        
+        if(!username) {
+            prefs = <div></div>
+            profile = <div></div>
+        }
         
         return (
             <div className="menu" id="menu">
@@ -435,8 +476,47 @@ var PuffMenu = React.createClass({
                 </div>
                 
                 <PuffUserMenu user={this.props.menu.user} />
+                
+                {prefs}
+                
+                {profile}
             </div>
         );
+    }
+});
+
+
+var PuffPrefs = React.createClass({
+    handleStoreusers: function() {
+        if(this.refs.storeusers.state.checked)
+            events.pub('ui/menu/prefs/storeusers/off', {'prefs.storeusers': false})
+        else
+            events.pub('ui/menu/prefs/storeusers/on',  {'prefs.storeusers': true})
+    },
+    render: function() {
+        return (
+            <div>
+                <div className="menuItem">
+                    <input type="checkbox" ref="storeusers" name="storeusers" onChange={this.handleStoreusers} checked={this.props.prefs.storeusers} />
+                    Store identities on this machine
+                </div>
+                <div className="menuItem">
+                    <p>More prefs</p>
+                </div>
+            </div>
+        ); 
+    }
+});
+
+var PuffProfile = React.createClass({
+    render: function() {
+        
+        return (
+            <div className="menuItem">
+                <p>Identity avatar</p>
+                <p>More profile</p>
+            </div>
+        ); 
     }
 });
 
@@ -651,7 +731,6 @@ var PuffAddUser = React.createClass({
     }
 });
 
-
 var PuffManageUser = React.createClass({
     handleRemoveUser: function() {
         PuffForum.removeUser(PuffForum.getCurrentUser().username)
@@ -721,8 +800,17 @@ var PuffManageUser = React.createClass({
 
 
 
+
+
+var renderPuffWorld = function() {
+    var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
+    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+}
+
+
+
 // bootstrap
-React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+renderPuffWorld()
 
 
 
@@ -742,7 +830,7 @@ events.sub('ui/*', function(data, path) {
         puffworldprops = events.handle_merge_array(puffworldprops, data)
     
     // then re-render PuffWorld w/ the new props
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+    renderPuffWorld()
 })
 
 // events.sub('ui/menu/close', function() {

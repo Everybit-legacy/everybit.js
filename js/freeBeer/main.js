@@ -41,7 +41,7 @@ events = {}
 events.subs = {}
 
 events.pub = function(path, data) {
-    setImmediate(function() {events.start_pub(path, data)})                     // do it next tick
+    return setImmediate(function() {events.start_pub(path, data)})              // do it next tick
 }
 
 events.sub = function(path, handler) {
@@ -130,12 +130,23 @@ events.sub('*', function(data, path) {
 
 
 //// event bindings for controlling core behavior from the display
+
 events.sub('prefs/storeusers/toggle', function(data, path) {
     var new_state = !PuffForum.getPref('storeusers')
     PuffForum.setPref('storeusers', new_state)
     
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeusers/' + dir)
+})
+
+events.sub('profile/nickname/set', function(data, path) {
+    var nickname = data.nickname
+    if(!nickname) 
+        return Puff.onError('Invalid nickname')  // THINK: do this in React? use Puff.validations?
+    
+    PuffForum.setProfileItem('nickname', nickname)
+    
+    events.pub('ui/menu/profile/nickname/set')
 })
 
 
@@ -181,6 +192,8 @@ events.sub('prefs/storeusers/toggle', function(data, path) {
             gimme_a_tick = false
             window.postMessage(messageName, "*")
         }
+        
+        return false
     }
 
     function handleMessage(event) {

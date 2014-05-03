@@ -405,7 +405,7 @@ Puff.Blockchain.createBlock = function(username, puff, privateKeyWIF) {
     newBlock.blockSig = Puff.Blockchain.paddSig(Puff.Crypto.signBlock(newBlock.blockPayload, privateKeyWIF));
 
     Puff.Blockchain.BLOCKS[username].push(newBlock);
-    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
+    Puff.Persist.save('blocks', Puff.Blockchain.BLOCKS);
 
     return newBlock.blockSig;
 }
@@ -420,14 +420,14 @@ Puff.Blockchain.updateBlock = function(username, sig, puff, privateKeyWIF) {
     var newBlock = createBlock(userBlockchain[sig].blockPayload.prevSig, puff, privateKeyWIF);
     userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length);
     userBlockchain.push(newBlock);
-    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
+    Puff.Persist.save('blocks', Puff.Blockchain.BLOCKS);
     return newBlock.blockSig;
 }
 
 Puff.Blockchain.deleteBlock = function(username, sig) {
     var userBlockchain = Puff.Blockchain.BLOCKS.username;
     userBlockchain.splice(userBlockchain.indexOf(sig), userBlockchain.length);
-    Puff.Persist.set('blocks', Puff.Blockchain.BLOCKS);
+    Puff.Persist.save('blocks', Puff.Blockchain.BLOCKS);
 }
 
 Puff.Blockchain.getNewBlankBlock = function(){

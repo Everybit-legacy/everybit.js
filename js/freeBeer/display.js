@@ -258,7 +258,7 @@ var PuffInfoLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
+        return events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
     },
     render: function() {
         var puff = this.props.puff;
@@ -272,7 +272,7 @@ var PuffParentCount = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
+        return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
         // viewAllChildren(puff)
     },
     render: function() {
@@ -315,7 +315,7 @@ var PuffReplyLink = React.createClass({
         else
             parents.splice(index, 1)
     
-        events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
+        return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
         
         // TODO: draw reply arrows
     },
@@ -335,14 +335,11 @@ var PuffReplyForm = React.createClass({
 
         PuffForum.addPost( content, parents );
 
-        events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
-
-        return false
+        return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
     },
     handleCancel: function() {
         // THINK: save the content in case they accidentally closed?
-        events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
-        return false  
+        return events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
     },
     componentDidMount: function() {
         $('#replyForm').eq(0).draggable();
@@ -373,9 +370,9 @@ var PuffReplyForm = React.createClass({
 var PuffHeader = React.createClass({
     handleClick: function() {
         if(this.props.menu.show)
-            events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
+            return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
         else
-            events.pub('ui/menu/open', {'menu.show': true})
+            return events.pub('ui/menu/open', {'menu.show': true})
     },
     render: function() {
         return (
@@ -402,23 +399,24 @@ var PuffFooter = React.createClass({
 
 var PuffMenu = React.createClass({
     handleClose: function() {
-        events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
+        return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
     },
     handleViewRoots: function() {
-        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+    },
+    handleNewContent: function() {
+        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+    },
+    handleShowPrefs: function() {
+        return events.pub('ui/menu/prefs/show', {'menu.prefs': true})
+    },
+    handleShowProfile: function() {
+        return events.pub('ui/menu/profile/show', {'menu.profile': true})
     },
     handleLearnMore: function() {
         var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
         showPuff(puff)
-    },
-    handleNewContent: function() {
-        events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
-    },
-    handleShowPrefs: function() {
-        events.pub('ui/menu/prefs/show', {'menu.prefs': true})
-    },
-    handleShowProfile: function() {
-        events.pub('ui/menu/profile/show', {'menu.profile': true})
+        return false
     },
     render: function() {
         var learnMore = (
@@ -594,7 +592,7 @@ var PuffUserMenu = React.createClass({
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
         PuffForum.setCurrentUser(this.refs.switcher.getDOMNode().value)
-        events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+        return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
         var all_usernames = Object.keys(PuffForum.getAllUsers())
@@ -664,10 +662,10 @@ var PuffAddUser = React.createClass({
         return false
     },
     handleShowAddOne: function() {
-        events.pub('ui/menu/user/add-one', {'menu.user.add_one': true})
+        return events.pub('ui/menu/user/add-one', {'menu.user.add_one': true})
     },
     handleShowAddNew: function() {
-        events.pub('ui/menu/user/add-new', {'menu.user.add_new': true})
+        return events.pub('ui/menu/user/add-new', {'menu.user.add_new': true})
     },
     render: function() {
         // THINK: put some breadcrumbs in?
@@ -745,12 +743,13 @@ var PuffManageUser = React.createClass({
         events.pub('user/current/remove', {})
         events.pub('ui/user/current/remove', {}) // this should be generated by previous event
         events.pub('ui/menu/user/show-manage/hide', {'menu.user.manage': false})
+        return false
     },
     handleShowKeys: function() {
-        events.pub('ui/menu/keys/show', {'menu.user.show_key': true})
+        return events.pub('ui/menu/keys/show', {'menu.user.show_key': true})
     },
     handleShowBlockchainLink: function() {
-        events.pub('ui/menu/blockchain/show', {'menu.user.show_bc': true})
+        return events.pub('ui/menu/blockchain/show', {'menu.user.show_bc': true})
     },
     render: function() {
         // OPT: once current user is in props, only rerender on change (blockchain and QR are expensive)

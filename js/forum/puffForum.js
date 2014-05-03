@@ -86,19 +86,19 @@ PuffForum.addPost = function(content, parents) {
   
     // scrub parents -- if they're puffs extract ids, then ensure parents is an array
     if(!parents)
-    parents = []
+        parents = []
     if(!Array.isArray(parents))
-    parents = [parents]
+        parents = [parents]
     
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
-    return "Error Error Error: those are not good parents"
+        return "Error Error Error: those are not good parents"
  
     // if there's no user, add an anonymous one
     // THINK: where should the username/privatekey live? we'll put it here for now, but some other layer should take responsibility.
     // THINK: posting this as its own callback is probably not ideal
     var user = PuffForum.getCurrentUser()
     if(!user.username || !user.privateKey)
-    return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
+        return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
 
     var sig = Puff.createPuff(user.username, user.privateKey, 'text', content, {time: Date.now(), parents: parents})
  
@@ -281,12 +281,17 @@ PuffForum.setPref = function(key, value) {
     return PuffForum.setUserPref(username, key, value)
 }
 
+PuffForum.getAllPrefs = function() {
+    var username = PuffForum.currentUser.username
+    return PuffForum.getAllUserPrefs(username)
+}
+
 PuffForum.getUserPref = function(username, key) {
-    var prefs = PuffForum.getUserPrefs(username)
+    var prefs = PuffForum.getAllUserPrefs(username)
     return prefs[key]
 }
 
-PuffForum.getUserPrefs = function(username) {
+PuffForum.getAllUserPrefs = function(username) {
     if(!username) return {} // erm derp derp
     
     var parray = PuffForum.prefsarray
@@ -301,7 +306,7 @@ PuffForum.getUserPrefs = function(username) {
 PuffForum.setUserPref = function(username, key, value) {
     if(!username) return false
     
-    var prefs = PuffForum.getUserPrefs(username)
+    var prefs = PuffForum.getAllUserPrefs(username)
     var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
 
     PuffForum.prefsarray[username] = newprefs

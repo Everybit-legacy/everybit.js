@@ -488,10 +488,7 @@ var PuffMenu = React.createClass({
 
 var PuffPrefs = React.createClass({
     handleStoreusers: function() {
-        if(this.refs.storeusers.state.checked)
-            events.pub('ui/menu/prefs/storeusers/off', {'prefs.storeusers': false})
-        else
-            events.pub('ui/menu/prefs/storeusers/on',  {'prefs.storeusers': true})
+        events.pub('prefs/storeusers/toggle')
     },
     render: function() {
         return (
@@ -804,6 +801,11 @@ var PuffManageUser = React.createClass({
 
 var renderPuffWorld = function() {
     var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
+    
+    // puffworldprops has to contain some important things like prefs
+    // THINK: this is probably not the right place for this...
+    puffworldprops.prefs = PuffForum.getAllPrefs()
+    
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
@@ -817,28 +819,21 @@ renderPuffWorld()
 
 
 
-
-
 events.sub('ui/*', function(data, path) {
-    // batch process recent log items on requestAnimationFrame
-    // ... yeah ok maybe later
+    //// rerender on all ui events
+    
+    // OPT: batch process recent log items on requestAnimationFrame
         
-    // feed each item into a state twiddling function (could use React's .update for now)
-    if(Array.isArray(data)) 
-        puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
-    else
-        puffworldprops = events.handle_merge_array(puffworldprops, data)
+    // change props in a persistent fashion
+    if(data)
+        if(Array.isArray(data)) 
+            puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
+        else
+            puffworldprops = events.handle_merge_array(puffworldprops, data)
     
     // then re-render PuffWorld w/ the new props
     renderPuffWorld()
 })
-
-// events.sub('ui/menu/close', function() {
-//     puffworldprops = React.addons.update(puffworldprops, {all: {$merge: {keysOn: false}}})
-//     
-//     // then re-render PuffWorld w/ the new props
-//     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
-// })
 
 events.merge_props = function(props, path, value) {
     var segs = path.split('.')
@@ -861,33 +856,13 @@ events.shallow_copy = function(obj) {
 events.handle_merge_array = function(props, data) {
     return Object.keys(data).reduce(function(props, key) {
         return events.merge_props(props, key, data[key])
-        // var merger = events.convert_to_update_format(key, data[key], props)
-        // return React.addons.update(props, merger)
     }, props)
-    
-    // while(data.length > 1) {
-    //     var path = data.shift()
-    //     var value = data.shift()
-    //     var merger = events.convert_to_update_format(path, value)
-    //     props = React.addons.update(props, merger)
-    // }
-    // return props
 }
-
-// events.convert_to_update_format = function(path, value, props) {
-//     var segs = path.split('.')
-//     return segs.reverse().reduce(function(acc, seg) {
-//         var next = {}
-//         next[seg] = acc ? acc : {$set: value}
-//         return next
-//     }, false)
-// }
 
 
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
         return 'anonymous-' + username.slice(0, 3)
-
     return username
 }
 

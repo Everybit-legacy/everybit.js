@@ -187,18 +187,17 @@ PuffForum.addContentType('bbcode', {
 
 
 PuffForum.currentUser = {};
-PuffForum.users = {}; // all the users available on this system
-
-PuffForum.removeUser = function(username) {
-    //// clear the user from our system
-    delete PuffForum.users[username]
-    
-    if(PuffForum.currentUser.username == username)
-        PuffForum.currentUser = {}
-}
+PuffForum.users = false; // all the users available on this system
 
 PuffForum.getCurrentUser = function() {
     return PuffForum.currentUser
+}
+
+PuffForum.getAllUsers = function() {
+    if(!PuffForum.users)
+        PuffForum.users = Puff.Persist.get('users') || {}
+    
+    return PuffForum.users
 }
 
 PuffForum.addAnonUser = function(callback) {
@@ -249,16 +248,18 @@ PuffForum.addUserReally = function(username, privkey, pubkey) {
                    , privateKey: privkey
                    }
     
-    PuffForum.users[username] = userinfo
+    users = PuffForum.getAllUsers()
+    users[username] = userinfo
     
     if(PuffForum.getPref('storeusers'))
-        Puff.Persist.save('users', PuffForum.users)
+        Puff.Persist.save('users', users)
     
     return userinfo
 }
 
 PuffForum.setCurrentUser = function(username) {
-    var user = PuffForum.users[username]
+    var users = PuffForum.getAllUsers()
+    var user = users[username]
     
     if(!user || !user.username)
         return Puff.onError('No record of that username exists locally -- try adding it first')
@@ -266,62 +267,121 @@ PuffForum.setCurrentUser = function(username) {
     PuffForum.currentUser = user
 }
 
+PuffForum.removeUser = function(username) {
+    //// clear the user from our system
+    delete PuffForum.users[username]
+    
+    if(PuffForum.currentUser.username == username)
+        PuffForum.currentUser = {}
+    
+    if(PuffForum.getPref('storeusers'))
+        Puff.Persist.save('users', users)
+}
+
+
 
 ////// PREFS ///////
 
-PuffForum.prefsarray = {}  // put this somewhere else
+/*
+    These are related to this individual machine, as opposed to the identities stored therein.
+    Identity-related preferences are... encrypted in the profile? That seems ugly, but maybe. 
+    How are these machine-based prefs shared between machines? A special prefs puff?
+*/
+
+
+PuffForum.prefsarray = false  // put this somewhere else
 
 PuffForum.getPref = function(key) {
-    var username = PuffForum.currentUser.username
-    return PuffForum.getUserPref(username, key)
-}
-
-PuffForum.setPref = function(key, value) {
-    var username = PuffForum.currentUser.username
-    return PuffForum.setUserPref(username, key, value)
-}
-
-PuffForum.getAllPrefs = function() {
-    var username = PuffForum.currentUser.username
-    return PuffForum.getAllUserPrefs(username)
-}
-
-PuffForum.getUserPref = function(username, key) {
-    var prefs = PuffForum.getAllUserPrefs(username)
+    var prefs = PuffForum.getAllPrefs()
     return prefs[key]
 }
 
-PuffForum.getAllUserPrefs = function(username) {
-    if(!username) return {} // erm derp derp
+PuffForum.getAllPrefs = function() {
+    if(!PuffForum.prefsarray)
+        PuffForum.prefsarray = Puff.Persist.get('prefs') || {}
     
-    var parray = PuffForum.prefsarray
-    if(parray[username]) return parray[username]  // is this always right?
-    
-    var preffile = 'prefs::' + username
-    parray[username] = Puff.Persist.get(preffile) || {}
-    
-    return parray[username]
+    return PuffForum.prefsarray
 }
 
-PuffForum.setUserPref = function(username, key, value) {
-    if(!username) return false
-    
-    var prefs = PuffForum.getAllUserPrefs(username)
+PuffForum.setPref = function(key, value) {
+    var prefs = PuffForum.getAllPrefs()
     var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
 
-    PuffForum.prefsarray[username] = newprefs
+    PuffForum.prefsarray = newprefs
 
-    var preffile = 'prefs::' + username;
-    Puff.Persist.save(preffile, newprefs)
+    var filename = 'prefs'
+    Puff.Persist.save(filename, newprefs)
     
     return newprefs
 }
 
-PuffForum.removeUserPrefs = function(username) {
+PuffForum.removePrefs = function() {
+    var filename = 'prefs'
+    Puff.Persist.remove(filename)
+}
+
+
+
+////// PROFILE ///////
+
+/*
+    These exist on a per-identity basis, and are stored on the machine 
+    as part of the identity's presence in the user's identity wardrobe.
+*/
+
+PuffForum.profilearray = {}  // THINK: put this somewhere else
+
+PuffForum.getProfileItem = function(key) {
+    var username = PuffForum.currentUser.username
+    return PuffForum.getUserProfileItem(username, key)
+}
+
+PuffForum.setProfileItem = function(key, value) {
+    var username = PuffForum.currentUser.username
+    return PuffForum.setUserProfileItems(username, key, value)
+}
+
+PuffForum.getAllProfileItems = function() {
+    var username = PuffForum.currentUser.username
+    return PuffForum.getAllUserProfileItems(username)
+}
+
+PuffForum.getUserProfileItem = function(username, key) {
+    var profile = PuffForum.getAllUserProfileItems(username)
+    return profile[key]
+}
+
+PuffForum.getAllUserProfileItems = function(username) {
+    if(!username) return {} // erm derp derp
+    
+    var parray = PuffForum.profilearray
+    if(parray[username]) return parray[username]  // is this always right?
+    
+    var profilefile = 'profile::' + username
+    parray[username] = Puff.Persist.get(profilefile) || {}
+    
+    return parray[username]
+}
+
+PuffForum.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
-    PuffForum.prefsarray.delete(username)
+    var profile = PuffForum.getAllUserProfileItems(username)
+    var newprofile = events.merge_props(profile, key, value); // allows dot-paths
+
+    PuffForum.profilearray[username] = newprofile
+
+    var profilefile = 'profile::' + username;
+    Puff.Persist.save(profilefile, newprofile)
     
-    var preffile = 'prefs::' + username;
-    Puff.Persist.remove(preffile)
+    return newprofile
+}
+
+PuffForum.removeUserProfile = function(username) {
+    if(!username) return false
+    
+    PuffForum.profilearray.delete(username)
+    
+    var profilefile = 'profile::' + username;
+    Puff.Persist.remove(profilefile)
 }

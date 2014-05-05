@@ -193,7 +193,7 @@ var PuffBox = React.createClass({
         
         return (
             <div className="block" id={puff.sig} key={puff.sig}>
-                <PuffAuthor username={puff.payload.username} />
+                <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
             </div>

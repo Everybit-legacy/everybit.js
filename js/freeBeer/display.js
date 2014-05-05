@@ -31,7 +31,7 @@ globalCreatePuffBox = function(puff) {
 var PuffWorld = React.createClass({
     render: function() {
         
-        console.log(this.props, this)
+        // console.log(this.props, this)
         
         $('#plumbing').empty(); // THINK: where should this live and should it at all?
         

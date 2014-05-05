@@ -44,7 +44,7 @@ The main unit of content in the puffball platform is called a **puff**.  It is s
   
 The identity of the person who created this puff is stored in **username**. The **zones** field serves to identify the intended recipients (if any) or to indicate that a puff is related to another user. It works like the @ sign in twitter.
 
-Every piece of content has a unique id stored in the **sig** field. To generate this id, a user combines all of the fields of a puff (except the **sig** itself!) into a string and signs it using their private key. This signature serves as proof that the content really was created by the **username** listed.  Because the chance of a collision (two different puffs containing the same signature) is essentially zero[^collisions], there's no way for a user to flood the system with multiple copies of the same content with different ids, unless they create a new username for each copy. 
+Every piece of content has a unique id stored in the **sig** field. To generate this id, a user combines all of the fields of a puff (except the **sig** itself!) into a string and signs it using their private key. This signature serves as proof that the content really was created by the **username** listed.  Because the chance of a collision (two different puffs containing the same signature) is essentially zero, there's no way for a user to flood the system with multiple copies of the same content with different ids, unless they create a new username for each copy. 
 
 **previous** stores the signature of the most recently published content by this user, prior to this puff. To obtain **previous**, the system checks the **latest** filed of the username table. After reading **latest**, it updates this field to contain the **sig** of the newly generated puff. The **previous** field, along with **latest** in the username table, creates a chain of content with that user's complete, official history of shared content. By default, the puffball client stores every puff created by every username managed by that computer, and makes it easy to export complete chains of content.
 
@@ -52,11 +52,11 @@ Note that uniting the id and signature means that *a puff cannot be edited*, onl
 
 The **version** field corresponds to the version of the specification used by the puff. Right now the current version is 0.1. Until version 1.0 is reached, there may be changes to the structure of a puff. However, by specifying a version with each puff, it should be easier to deal with backward and forward compatibility issues.
 
-The **payload** section of a puff contains the actual content, and meta-data about that content. The only two required fields are **type** and **content**. The others fields may or may not exist, and are subject to *conventions* about what they contain, instead of being specified directly. **type** is the same as the MIME type sent HTTP headers. A single puff *can only have one content type*. This is vital part of the puffball platform -- it allows developers to treat each piece of content in the system as an atomic unit, and build a newer, much more powerful generation of RSS-like readers and search engines, ones which facilitate fine-grained aggregation (eg. Show me the MP3's posted by *.bach*, any image from *.ansel*, and just the PGN's[^pgn] created by *.fischer* (but none of his annoying text posts!). For information on how to include multimedia elements in a puff, see the section on Multi-content.
+The **payload** section of a puff contains the actual content, and meta-data about that content. The only two required fields are **type** and **content**. The others fields may or may not exist, and are subject to *conventions* about what they contain, instead of being specified directly. **type** is the same as the MIME type sent HTTP headers. A single puff *can only have one content type*. This is vital part of the puffball platform -- it allows developers to treat each piece of content in the system as an atomic unit, and build a newer, much more powerful generation of RSS-like readers and search engines, ones which facilitate fine-grained aggregation (eg. Show me the MP3's posted by *.bach*, any image from *.ansel*, and just the [PGN](http://en.wikipedia.org/wiki/Portable_Game_Notation)'s created by *.fischer* (but none of his annoying text posts!). For information on how to include multimedia elements in a puff, see the section on Multi-content.
 
 The **content** field, unsurprisingly, contains the main content of the puff. On the back end, this is stored in JSON format as a string. 
 
-There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format). One optional field of note is **parents**, which used by the [FreeBeer][1]! forum to store an array of the posts being replying to.
+There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format). One optional field of note is **parents**, which used by the [FreeBeer!](http://www.freebeer.com) forum to store an array of the posts being replying to.
 
 In order to re-publish someone else's content, the entire puff is bundled up and put into into the **content** field of the new puff, with **type** specified as "puff".
 
@@ -74,8 +74,6 @@ The design of the puffball platform is driven by the following core beliefs:
 - Separate content from interpretation.
 - Make it seem inevitable (because it is).
 
-
-
 ### Multicontent
 By convention, external dependencies should *not* be introduced into a puff. So if the **type** is HTML, then all JavaScript and CSS should be included directly in the content. Images can be included inline using the data:image/png specification.
 
@@ -90,7 +88,9 @@ We wish to extend the cultural norms established by bloggers who pioneered the u
 
 In order to reduce the need to go back and edit previous puffs, the default puffball client presents users with a "countdown to live", during which time they can rethink, revise or abort publication. The countdown length can be set using their preferences block, and can be overridden at any time to publish immediately. 
 
-Another way to mitigate the need to break your full content history to correct a "bad" puff is to use different sub-usernames for different purposes. For example, if you create a puffball-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could setup *.username.toaster*, or even *.username.toaster.leavins* to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
+Another way to mitigate the need to break your full content history just to correct a "bad" puff, is to use different sub-usernames for different purposes. For example, if you create a puffball-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could setup *.username.toaster*, or even *.username.toaster.leavins*, to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
+
+Once the puffball platform is fully implemented, we imagine that some developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understaning of puffball's core strengths. See the section "What isn't puffball?" below.
 
 ### Username rollout
 Creating a stable, reliable, secure, decentralized, authoritative database of usernames is a major challenge. There are a few of other projects that have attempt this. They usually rely on huge libraries of C code, compiled to run as stand alone, persistent nodes on the interet. Some are stored in cryptographic ledgers and require mining to maintain the system. 
@@ -103,41 +103,34 @@ At present, any user can instanly create a new anonymous username consisting of 
 
 Regardless of the final rollout scheme, once a username is registered it belongs irrevocably to that user (subject only to the requirement that the record is updated once per year). Usernames within the puffball system are not company names, trademarks, or domain names, and no there are mechanisms to forcibly transfer from one part to another, which can only happen by signing the record over to a new public key with a message signed by the current private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
 
-## FreeBeer!
+### What isn't puffball?
+puffball is a platform for publishing and distributing static documents of a single content type, along with unrestricted meta-data about that content. Although it has capabilities which overlap other technologies, and while it might be a good foundation for building these other tools, it is not a wiki, blogging software, or a social network. And while it makes sharing content easy, bandwidth and memory limitations inherent in any client-side peer-to-peer application mean that at present puffball is a bad choice for publishing videos or similarly large files. 
+
+### FreeBeer!
 What good is a platform without any applications? Not much, which is why we are building a sample application on top of the puffball platform to show off some of its capabilities. FreeBeer! is a multi-threaded forum where every post can have multiple parents, and multiple children. Have you ever been frustrated by the ratio of noise to signal in an online forum, discussion board, or comments section? Have you ever wanted to follow just one sub-discussion instead of wading through dozens of posts that don't interest you? FreeBeer! provides a unique interface to read and reply to posts that allows you to quickly identify threads and sub-threads that interest you, and ignore the rest. 
 
-## Mycelium 
+### Mycelium 
 As a second sample application, and to show off the platform's power for creating innovative structures, we are implementing an embedded crypto-currency, the very first one to rely on **proof of presence**. This currency exists as a special kind of puff. The smallest unit of Mycelium is called a **spore**. As opposed to other digital currencies like Bitcoin, there is no ledger of transactions. Each spore is an atomic unit of the currency. It maintains it's own record of state, as well as capturing information about its fellow spores. In this way, every spore's record gives a partial-snapshot of other valid spores, and enforces the system's rules. 
 
-### How to get involved?
+### How to get involved
 Still interested? puffball is an open source project. We welcome your involvement. You can:
 
-- Help code (as a volunteer or ask us about paid positions)
-- Help us dog-food the platform by using the test site at freebeer.com
-- Make suggestions
-- Port over your username
-- Build an application on top of the puffball platform (have a good idea but need funding? We can help.)
+- Help code (as a volunteer, or [ask about paid positions](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=jobs))
+- Help us dog-food the platform by using the [test site at FreeBeer!](http://www.freebeer.com)
+- [Make suggestions](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=feedback)
+- Port over your username from another system
+- Build an application on top of the puffball platform. Have a good idea but need funding? [We can help](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=developers).
 
 
-### Contributor Guide
-Before making any changes or Pull requests please check the issues and/or post a question here to coordinate tasks. This will help avoid duplicate efforts. Happy coding :-)
-https://github.com/puffball/freebeer/issues?state=open
+### Contributors' guide
+If you want to contribute to the codebase here at gihub, please [check the issues](https://github.com/puffball/freebeer/issues?state=open) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)
 
-Please don't edit files on the Master repository. Create a branch or a Fork. This will help avoid collisions and prevent defects from being introduced from merges & pull requests.
+Please don't edit files on the Master repository. Create a Branch or a Fork. This will help avoid collisions and prevent defects from being introduced from merges and pull requests.
 
-Submit feature requests, questions, bugs, etc here:
+Feature requests, questions, bugs:
 https://github.com/puffball/freebeer/issues
 
-Coding Guidlines - please review them here:
+Coding standards and guidelines:
 https://github.com/puffball/freebeer/tree/master/non-production
 
 License: [MIT](http://opensource.org/licenses/MIT)
-
-### Notes
-[^collisions]: Assuming the signing scheme is secure and generates uniformly distributed signatures, the chance of collision between any two different puffs is approximately one in  10<sup>160</sup>. 
-
-[^pgn]: Portable Game Notation (PGN) is used to record chess games.
-  
-
-
-  [1]: http://www.freebeer.com

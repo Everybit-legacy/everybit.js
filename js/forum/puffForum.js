@@ -81,7 +81,7 @@ PuffForum.getRootPuffs = function(limit) {
 } 
 
 
-PuffForum.addPost = function(content, parents) {
+PuffForum.addPost = function(content, parents, type) {
     //// Given a string of content, create a puff and push it into the system
   
     // ensure parents is an array
@@ -99,7 +99,7 @@ PuffForum.addPost = function(content, parents) {
         return PuffForum.addAnonUser(
             function(username) {
                 PuffForum.setCurrentUser(username)
-                PuffForum.addPost(content, parents) // THINK: using this function as its own callback is maybe not ideal
+                PuffForum.addPost(content, parents, type) // THINK: using this function as its own callback is maybe not ideal
             }
         )
     }
@@ -110,7 +110,7 @@ PuffForum.addPost = function(content, parents) {
                   , tags: []                          // an array of tags // TODO: make these work
                   }
 
-    var type = 'bbcode'                                 // TODO: make this a param
+    var type = type || 'text'                         // TODO: make this a param
     
     var zones = CONFIG.zone ? [CONFIG.zone] : []
     
@@ -195,6 +195,12 @@ PuffForum.addContentType('bbcode', {
         var bbcodeParse = XBBCODE.process({ text: content });
         var parsedText  = bbcodeParse.html.replace(/\n/g, '<br />'); 
         return parsedText;
+    }
+})
+
+PuffForum.addContentType('image', {
+    toHtml: function(content) {
+        return '<img src=' + content + ' />'
     }
 })
 

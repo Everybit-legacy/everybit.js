@@ -67,30 +67,32 @@ Puff.init = function(zone) {
 }
 
 
-Puff.createPuff = function(username, privatekey, type, content, meta) {
+Puff.createPuff = function(username, privatekey, zones, type, content, payload) {
     //// M-A-G-I-C !!!
   
-    // THINK: by the time we arrive here u/pk should already be in our cache, so this never requires a network hit... right?
-    if(!Puff.checkUserKey(username, privatekey)) 
-        return false
-  
-    var payload = { username: username                    // these first four are universal
-                  ,  content: content                
-                  ,    zones: meta.zones
-                  ,     type: type
-                  ,     time: meta.time                   // these are for forum puffs
-                  ,     tags: meta.tags                   // so they don't belong here
-                  ,  parents: meta.parents                // they should go elsewhere
-                  };
+    if(!Puff.checkUserKey(username, privatekey))        // THINK: by the time we arrive here u/pk should already be cached,
+        return false                                    //        so this never requires a network hit... right? 
+
+    payload = payload || {}                             // TODO: check all of these values more carefully
+    payload.content = content
+    payload.type = type
+    
+    zones = zones || []
+    
+    var previous = 123123123                            // TODO: check the DHT for this user's previous puff's sig
 
     var puff = { payload: payload
-               , sig: Puff.Crypto.signPayload(payload, privatekey)
-               , version: '0.0.1'                         // version accounts for crypto type and puff shape
-               };                                         // early versions will be aggressively deprecated and unsupported
+               , zones: zones
+               , previous: previous
+               , username: username
+               , version: '0.0.2'                       // version accounts for crypto type and puff shape
+               };                                       // early versions will be aggressively deprecated and unsupported
 
-    Puff.addPuff(puff, privatekey) // THINK: move this somewhere else...
+    puff.sig = Puff.Crypto.signPayload(puff, privatekey)
 
-    return puff;
+    Puff.addPuff(puff, privatekey)                      // THINK: move this somewhere else...
+
+    return puff
 }
 
 
@@ -106,14 +108,7 @@ Puff.addPuff = function(puff, privatekey) {
 
     Puff.Network.distributePuff(puff);
     
-    Puff.Blockchain.createBlock(puff.payload.username, puff, privatekey);
-}
-
-
-Puff.onNewPuffs = function(callback) {
-    //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
-  
-    Puff.newPuffCallbacks.push(callback);
+    Puff.Blockchain.createBlock(puff.username, puff, privatekey);
 }
 
 
@@ -128,15 +123,23 @@ Puff.receiveNewPuffs = function(puffs) {
 }
 
 
+Puff.onNewPuffs = function(callback) {
+    //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+  
+    Puff.newPuffCallbacks.push(callback);
+}
+
+
+
 // DATA LAYER
 
 Puff.Data = {};
 Puff.Data.puffs = [];
-Puff.Data.users = [];  // these are DHT users, not our local users (those are in PuffForum.users)
+Puff.Data.users = [];                                   // these are DHT user entries, not our local identity wardrobe
 
 Puff.Data.eat = function(puff) {
     if(!!~Puff.Data.puffs
-                   .map(function(p) {return p.sig})  // OPT: check the sig index instead
+                   .map(function(p) {return p.sig})     // OPT: check the sig index instead
                    .indexOf(puff.sig)) 
                       return false 
     Puff.Data.puffs.push(puff);  
@@ -144,8 +147,8 @@ Puff.Data.eat = function(puff) {
 }
 
 Puff.Data.persist = function(puffs) {
-    if(CONFIG.noLocalStorage) return false         // THINK: this is only for debugging and development
-    Puff.Persist.save('puffs', puffs)              // OPT: batch this part when we're chowing down on lots of puffs (throttle)
+    if(CONFIG.noLocalStorage) return false              // THINK: this is only for debugging and development
+    Puff.Persist.save('puffs', puffs)                   // OPT: throttle this when we're chowing down on lots of puffs
 }
 
 Puff.Data.getLocalPuffs = function(callback) {

@@ -84,26 +84,39 @@ PuffForum.getRootPuffs = function(limit) {
 PuffForum.addPost = function(content, parents) {
     //// Given a string of content, create a puff and push it into the system
   
-    // scrub parents -- if they're puffs extract ids, then ensure parents is an array
-    if(!parents)
-        parents = []
-    if(!Array.isArray(parents))
-        parents = [parents]
+    // ensure parents is an array
+    if(!parents) parents = []
+    if(!Array.isArray(parents)) parents = [parents]
     
+    // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
         return "Error Error Error: those are not good parents"
  
-    // if there's no user, add an anonymous one
-    // THINK: where should the username/privatekey live? we'll put it here for now, but some other layer should take responsibility.
-    // THINK: posting this as its own callback is probably not ideal
+    // if there's no current user, add an anonymous one
     var user = PuffForum.getCurrentUser()
+    
     if(!user.username || !user.privateKey)
-        return PuffForum.addAnonUser(function(username) {PuffForum.addPost(content, parents)})
+        return PuffForum.addAnonUser(
+            function(username) {
+                PuffForum.addPost(content, parents)}) // THINK: using this function as its own callback is maybe not ideal
 
-    var sig = Puff.createPuff(user.username, user.privateKey, 'text', content, {time: Date.now(), parents: parents})
+    // set up the forum puff style payload
+    var payload = { parents: parents                  // ids of the parent puffs
+                  , time: Date.now()                  // time is always a unix timestamp
+                  , tags: []                          // an array of tags // TODO: make these work
+                  }
+
+    var type = 'text'                                 // TODO: make this a param
+    
+    var zones = CONFIG.zone ? [CONFIG.zone] : []
+    
+    var sig = Puff.createPuff(user.username, user.privateKey, zones, type, content, payload)
  
-    // THINK: actually we can't return this because we might go async
+    // THINK: actually we can't return this because we might go async to check the u/pk against the dht
     // return sig;
+    
+    // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
+    // TODO: make an official interface fulfillment thing
 }
 
 PuffForum.getDefaultPuff = function() {
@@ -168,7 +181,8 @@ PuffForum.getProcessedPuffContent = function(puff) {
 
 PuffForum.addContentType('text', {
     toHtml: function(content) {
-        return '<p>' + content + '</p>'
+        var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
+        return '<p>' + safe_content.html + '</p>'               // THINK: is this really safe?
     }
 })
 
@@ -183,11 +197,16 @@ PuffForum.addContentType('bbcode', {
 
 //// USER INFO ////
 
-// THINK: maybe break this out into a separate module? it makes sense to have both PuffForum and PuffUser modules, although PuffForum would probably require PuffUser in that case, so they're not really independent. but the user code could stand on its own and be used by other modules. (So pull it into the platform? I'm still leaning toward no, but haven't found a good reason yet.)
+/*
+    
+    Move this into a separate PuffIdentity module that handles identity wardrobe, profiles, and machine-based preferences.
+    PuffForum uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
+    PuffIdentity is responsible for managing persistence of identities, keeping the core clean of such messy concerns.
 
+*/
 
 PuffForum.currentUser = {};
-PuffForum.users = false; // all the users available on this system
+PuffForum.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
 
 PuffForum.getCurrentUser = function() {
     return PuffForum.currentUser

@@ -106,7 +106,7 @@ PuffForum.addPost = function(content, parents) {
                   , tags: []                          // an array of tags // TODO: make these work
                   }
 
-    var type = 'text'                                 // TODO: make this a param
+    var type = 'bbcode'                                 // TODO: make this a param
     
     var zones = CONFIG.zone ? [CONFIG.zone] : []
     

@@ -95,10 +95,14 @@ PuffForum.addPost = function(content, parents) {
     // if there's no current user, add an anonymous one
     var user = PuffForum.getCurrentUser()
     
-    if(!user.username || !user.privateKey)
+    if(!user.username || !user.privateKey) {
         return PuffForum.addAnonUser(
             function(username) {
-                PuffForum.addPost(content, parents)}) // THINK: using this function as its own callback is maybe not ideal
+                PuffForum.setCurrentUser(username)
+                PuffForum.addPost(content, parents) // THINK: using this function as its own callback is maybe not ideal
+            }
+        )
+    }
 
     // set up the forum puff style payload
     var payload = { parents: parents                  // ids of the parent puffs

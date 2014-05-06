@@ -246,8 +246,9 @@ var PuffInfoLink = React.createClass({
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
         var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license;
-        var altText = formattedTime + ' ' + lisc;
+        var lisc = puff.payload.license || '';
+        var version = puff.version || '';
+        var altText = formattedTime + ' ' + lisc + ' ' + version;
 
         return (
             <span className="icon">

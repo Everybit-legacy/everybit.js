@@ -246,9 +246,12 @@ var PuffInfoLink = React.createClass({
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
         var formattedTime = 'Created ' + timeSince(date) + ' ago';
+        var lisc = puff.payload.license;
+        var altText = formattedTime + ' ' + lisc;
+
         return (
             <span className="icon">
-                <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+                <img width="16" height="16" src="img/info.gif" alt={altText}  title={altText} />
             </span>
         );
     }
@@ -429,14 +432,14 @@ var PuffReplyForm = React.createClass({
                     
                     {typeFields}
                     
-                    <select ref="type" onChange={this.handlePickType}>
+                    <select ref="type" className="btn" onChange={this.handlePickType}>
                         {contentTypeNames.map(function(type) {
                             return <option value={type}>{type}</option>
                         })}
                     </select>
                     
-                    <input id="cancelreply" type="reset" value="Cancel" onClick={this.handleCancel}/>
-                    <input type="submit" value="GO!" />
+                    <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
+                    <input type="submit" className="btn" value="GO!" />
                 </form>
             </div>
         );

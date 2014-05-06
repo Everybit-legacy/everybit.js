@@ -240,14 +240,12 @@ var PuffBar = React.createClass({
     }
 });
 
+
 var PuffInfoLink = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
-        var formattedTime = hours + ':' + minutes + ':' + seconds;
+        var formattedTime = 'Created ' + timeSince(date) + ' ago';
         return (
             <span className="icon">
                 <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
@@ -532,15 +530,17 @@ var PuffMenu = React.createClass({
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
-
+                CONTENT: <br />
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent} className="under">Add new content</a>
+                    <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
                 </div>
 
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
+                    <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
                 </div>
-                
+
+                <br />
+                IDENTITY: <br />
                 <PuffUserMenu user={this.props.menu.user} />
                 
                 {prefs}
@@ -939,7 +939,7 @@ events.handle_merge_array = function(props, data) {
 
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
-        return 'anonymous-' + username.slice(0, 3)
+        return username.slice(0, 7) + '...'
     return username
 }
 

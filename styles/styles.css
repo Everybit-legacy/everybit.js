@@ -277,13 +277,20 @@ header h1 {
     left: 20px;
 }
 
+#puffballIcon:hover {
+    cursor: pointer;
+}
+
 .menuOn {
   /* background-color: yellow */
 }
 
 .menu {
     font-family: Gudea;
-    padding: 0;
+    padding-left: 5px;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 0;
     margin-bottom: 3px;
     text-align: left;
     font-weight: bold;
@@ -304,8 +311,8 @@ header h1 {
 .menuItem {
     list-style-type: none;
     padding-top: 12px;
-    padding-left: 5px;
-    padding-bottom: 7px;
+    padding-left: 12px;
+    padding-bottom: 2px;
     margin-bottom: 3px;
     color: #1616A8;
 }
@@ -350,8 +357,9 @@ header h1 {
 .footer {
     text-align: center;
 /*    background: #1616A8; */
-    background: rgba(22,22,200,.9);
-    color: #ffffff;
+    /* background: rgba(22,22,200,.9); */
+    background: rgba(255,255,255,.1);
+    color: #303030;
     font-family: GudeaBold;
     font-size: .9em;
     bottom: 0;
@@ -364,7 +372,6 @@ header h1 {
 }
 
 a.footerText {
-    color: #ffffff;
     text-decoration: none;
     font-size: .9em;
 }

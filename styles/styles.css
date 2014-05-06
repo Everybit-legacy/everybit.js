@@ -77,6 +77,8 @@ a.under {
     overflow-x:hidden;
     max-height:30%;
     z-index:10;
+    font-size: 1.1em;
+    line-height: 1.5em;
 }
 
 .txt:hover {
@@ -353,7 +355,7 @@ header h1 {
     font-family: GudeaBold;
     font-size: .9em;
     bottom: 0;
-    position: relative;
+    position: fixed;
     left:0;
     right:0;
     z-index:1050;

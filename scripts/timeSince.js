@@ -1,4 +1,5 @@
 // http://stackoverflow.com/a/3177838/3243018
+// Or use http://momentjs.com/
 
 function timeSince(date) {
 

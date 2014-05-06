@@ -26,6 +26,11 @@ body {
     font-size: 1em;
 }
 
+img {
+    max-width:100%;
+    max-height:100%;
+}
+
 a {
     text-decoration:none;
     color: #1616A8;
@@ -33,6 +38,14 @@ a {
 
 a.under {
     text-decoration:underline;
+}
+
+textarea {
+    font-family: Gudea, sans-serif;
+    border: 0px solid #006738;
+    padding: 10px;
+    margin-bottom: 10px;
+    vertical-align: top;
 }
 
 .float-right {
@@ -255,13 +268,7 @@ header h1 {
     cursor: pointer;
 }
 
-.textarea {
-    font-family: Gudea, sans-serif;
-    border: 0px solid #006738;
-    padding-left: 15px;
-    padding-right: 15px;
 
-}
 
 #logo {
     position: absolute;

@@ -310,7 +310,8 @@ Puff.Crypto.privateToPublic = function(privateKeyWIF) {
 }
 
 Puff.Crypto.verifyPuff = function(puff, publicKeyBase58) {
-    return Puff.Crypto.verifyMessage(puff.sig, puff.payload, publicKeyBase58);
+    var siglesspuff = JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
+    return Puff.Crypto.verifyMessage(puff.sig, siglesspuff, publicKeyBase58);
 }
 
 Puff.Crypto.verifyBlock = function(block, publicKeyBase58) {

@@ -355,7 +355,7 @@ var PuffReplyForm = React.createClass({
           
         reader.onload = function(event){
             self.state.imageSrc = event.target.result;
-            return events.pub('ui/reply/image-upload')
+            return events.pub('ui/reply/image-upload');
         }
           
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
@@ -397,11 +397,11 @@ var PuffReplyForm = React.createClass({
             typeFields = (
                 <div>
                     <p>
-                        <label for="imageLoader">Image File:</label>
+                        <label htmlFor="imageLoader">Image File:</label>
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
                     </p>
                     <p>
-                        <label for="imageLicense">Image License:</label>
+                        <label htmlFor="imageLicense">Image License:</label>
                         <select id="imageLicense" name="imageLicense" ref="imageLicense">
                             <option value="Creative Commons Attribution">Creative Commons Attribution</option>
                             <option value="GNU Public License">GNU Public License</option>
@@ -433,7 +433,7 @@ var PuffReplyForm = React.createClass({
                     
                     <select ref="type" onChange={this.handlePickType}>
                         {contentTypeNames.map(function(type) {
-                            return <option value={type}>{type}</option>
+                            return <option key={type} value={type}>{type}</option>
                         })}
                     </select>
                     
@@ -686,7 +686,7 @@ var PuffSwitchUser = React.createClass({
                 Change user: 
                 <select ref="switcher" onChange={this.handleUserPick} value={user.username}>
                     {all_usernames.map(function(username) {
-                        return <option value={username}>{username}</option>
+                        return <option key={username} value={username}>{username}</option>
                     })}
                 </select>
             </div>

@@ -20,7 +20,8 @@ html {
 
 body {
 /*    background: #8585F5;*/
-    background: #1616A8;
+/*    background: #1616A8;*/
+    background: #DDD6C0;
     font-family: Gudea, sans-serif;
     font-size: 1em;
 }
@@ -43,34 +44,43 @@ a.under {
 }
 
 .author {
-    font-family: GudeaBold;
-    padding: 2px;
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.1em;
     text-align: left;
-    /* color: #2d479a; */
+    /* color: #2d479a; 006738 */
     position:absolute;
     top:5px;
-    left:5px;
+    left:10px;
     padding-bottom:5px;
+    padding-left: 2px;
+    padding-top: 2px;
     width:100%;
-    background:#EEE;
-    color: #006738;
+    color: #1616A8;
     border-bottom: 1px solid #a1a1a1;
     z-index:15;
 }
 
+#authorDiv {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.1em;
+    padding: 2px;
+    text-align: left;
+    color: #006738;
+}
+
 .txt {
-    margin: 10px 5px;
-    padding: 5px;
+    margin: 15px 0 25px 0;
+    padding: 0px 10px 0 10px;
     text-align:left;
     cursor:pointer;
     overflow-y:scroll;
     overflow-x:hidden;
-    max-height:50%;
+    max-height:30%;
     z-index:10;
 }
 
 .txt:hover {
-    background:rgba(200,15,15,.5);
+    background:rgba(200,200,200,.5);
 }
 
 .block {
@@ -81,18 +91,19 @@ a.under {
     -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
-    border: 1px solid #a1a1a1;
-    padding: 10px;
+    border: 4px solid #6c6175;
+    padding: 10px 0 0 0;
     padding-top:20px;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left: 15px;
-    margin-right: 12px;
+    margin-right: 0px;
     display: inline-block;
     box-sizing: border-box;
     text-align: left;
     z-index: 999;
-    overflow: hidden;
+    overflow-y: hidden;
+    overflow-x: hidden;
     position:relative;
     top:0;
 }
@@ -108,7 +119,7 @@ a.under {
     position:absolute;
     bottom:0px;
     right:5px;
-    background:#EEE;
+    /* background:#EEE; */
     width:100%;
     padding-top:5px;
 }
@@ -265,7 +276,7 @@ header h1 {
 }
 
 .menuOn {
-  background-color: yellow
+  /* background-color: yellow */
 }
 
 .menu {
@@ -342,7 +353,7 @@ header h1 {
     font-family: GudeaBold;
     font-size: .9em;
     bottom: 0;
-    position: fixed;
+    position: relative;
     left:0;
     right:0;
     z-index:1050;

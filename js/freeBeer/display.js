@@ -151,7 +151,7 @@ var PuffTree = React.createClass({
                 target: e,
                 paintStyle: {
                     lineWidth: 2,
-                    strokeStyle: "#d1d1d1"
+                    strokeStyle: "#6c6175"
                 },
                 connector: "Straight",
                 endpoint: "Blank",
@@ -178,7 +178,7 @@ var PuffTree = React.createClass({
                 target: e0,
                 paintStyle: {
                     lineWidth: 2,
-                    strokeStyle: "#d1d1d1"
+                    strokeStyle: "#6c6175"
                 },
                 connector: "Straight",
                 endpoint: "Blank",
@@ -443,8 +443,8 @@ var PuffHeader = React.createClass({
     render: function() {
         return (
             <div>
-                <img src="img/logo.gif" id="logo" />
-                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" className={this.props.menu.show ? 'menuOn' : ''} />
+                <img src="img/logo.gif" id="logo" height="53" />
+                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" width="32" className={this.props.menu.show ? 'menuOn' : ''} />
             </div>
         );
     }
@@ -877,12 +877,12 @@ var PuffManageUser = React.createClass({
 
 var renderPuffWorld = function() {
     var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
-    
+
     // puffworldprops has to contain some important things like prefs
     // THINK: this is probably not the right place for this...
     puffworldprops.prefs = PuffForum.getAllPrefs()
     puffworldprops.profile = PuffForum.getAllProfileItems()
-    
+
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 

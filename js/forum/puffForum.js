@@ -81,7 +81,7 @@ PuffForum.getRootPuffs = function(limit) {
 } 
 
 
-PuffForum.addPost = function(content, parents, type) {
+PuffForum.addPost = function(content, parents, type, metadata) {
     //// Given a string of content, create a puff and push it into the system
   
     // ensure parents is an array
@@ -105,12 +105,12 @@ PuffForum.addPost = function(content, parents, type) {
     }
 
     // set up the forum puff style payload
-    var payload = { parents: parents                  // ids of the parent puffs
-                  , time: Date.now()                  // time is always a unix timestamp
-                  , tags: []                          // an array of tags // TODO: make these work
-                  }
+    var payload = metadata || {}
+    payload.parents = parents                             // ids of the parent puffs
+    payload.time = Date.now()                             // time is always a unix timestamp
+    payload.tags = payload.tags || []                     // an array of tags // TODO: make these work
 
-    var type = type || 'text'                         // TODO: make this a param
+    var type = type || 'text'                             // TODO: make this a param
     
     var zones = CONFIG.zone ? [CONFIG.zone] : []
     

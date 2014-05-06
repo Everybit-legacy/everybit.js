@@ -240,17 +240,18 @@ var PuffBar = React.createClass({
     }
 });
 
+
 var PuffInfoLink = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
-        var hours = date.getHours();
-        var minutes = date.getMinutes();
-        var seconds = date.getSeconds();
-        var formattedTime = hours + ':' + minutes + ':' + seconds;
+        var formattedTime = 'Created ' + timeSince(date) + ' ago';
+        var lisc = puff.payload.license;
+        var altText = formattedTime + ' ' + lisc;
+
         return (
             <span className="icon">
-                <img width="16" height="16" src="img/info.gif" alt={formattedTime}  title={formattedTime} />
+                <img width="16" height="16" src="img/info.gif" alt={altText}  title={altText} />
             </span>
         );
     }
@@ -431,14 +432,14 @@ var PuffReplyForm = React.createClass({
                     
                     {typeFields}
                     
-                    <select ref="type" onChange={this.handlePickType}>
+                    <select ref="type" className="btn" onChange={this.handlePickType}>
                         {contentTypeNames.map(function(type) {
                             return <option key={type} value={type}>{type}</option>
                         })}
                     </select>
                     
-                    <input id="cancelreply" type="reset" value="Cancel" onClick={this.handleCancel}/>
-                    <input type="submit" value="GO!" />
+                    <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
+                    <input type="submit" className="btn" value="GO!" />
                 </form>
             </div>
         );
@@ -544,15 +545,17 @@ var PuffMenu = React.createClass({
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
-
+                CONTENT: <br />
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent} className="under">Add new content</a>
+                    <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
                 </div>
 
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleViewRoots} className="under">View latest conversations</a>
+                    <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
                 </div>
-                
+
+                <br />
+                IDENTITY: <br />
                 <PuffUserMenu user={this.props.menu.user} />
                 
                 {prefs}
@@ -951,7 +954,7 @@ events.handle_merge_array = function(props, data) {
 
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
-        return 'anonymous-' + username.slice(0, 3)
+        return username.slice(0, 7) + '...'
     return username
 }
 

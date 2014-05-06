@@ -331,17 +331,19 @@ var PuffReplyForm = React.createClass({
     handleSubmit: function() {
         var type = this.props.reply.type;
         var content = '';
+        var metadata = {};
 
         // THINK: allow the content type itself to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
+            metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
             content = this.refs.content.getDOMNode().value.trim();
         }
         
         var parents = this.props.reply.parents;
 
-        PuffForum.addPost( content, parents, type );
+        PuffForum.addPost( content, parents, type, metadata );
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
     },
@@ -393,8 +395,18 @@ var PuffReplyForm = React.createClass({
             typeFields = (
                 <div>
                     <p>
-                        <label>Image File:</label>
-                        <input type="file" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
+                        <label for="imageLoader">Image File:</label>
+                        <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
+                    </p>
+                    <p>
+                        <label for="imageLicense">Image License:</label>
+                        <select id="imageLicense" name="imageLicense" ref="imageLicense">
+                            <option value="Creative Commons Attribution">Creative Commons Attribution</option>
+                            <option value="GNU Public License">GNU Public License</option>
+                            <option value="Public domain">Public domain</option>
+                            <option value="Rights-managed">Rights-managed</option>
+                            <option value="Royalty-free">Royalty-free</option>
+                        </select>
                     </p>
                     <img src={this.state.imageSrc} id="preview_image" />
                 </div>

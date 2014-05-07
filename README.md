@@ -20,11 +20,11 @@ Every username has an entry in a Distribured Hash Table (DHT). Entries contains 
 - **latest**
 - **updated**
 
-Usernames are formed with a string of alphanumeric characters. The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record: New content are signed using the private key related to the **contentKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
+Usernames are formed with a string of alphanumeric characters. Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
+
+The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record: New content are signed using the private key related to the **contentKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
 
 **IMPORTANT**: All signing of content and update messages happens on the client-side. Private keys should *never* be sent to a server. 
-
-Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
 
 For more about usernames, see the [Username rollout](#usernameRollout) section below.
 
@@ -66,12 +66,12 @@ There are no rules about the other fields which can be included in payload, othe
 In order to re-publish someone else's content, the entire puff is bundled up and put into into the **content** field of the new puff, with **type** specified as "puff".
 
 #### **Profile and preferences**
-Every username has two special blocks of content associated with it. Both of them contain arbitrary key/value pairs related to that user. The **profile** block is for (generally public) information the user wishes to share about themselves. It could contain a field for their avatar or photo, information about where they work or how to contact them. The **preferences** block contains key/value pairs that could be useful for websites in determining how to display content for this user. These may be public or they could be encrypted using the public key of the user (zone) they wish to share the information with. For example, you may want to let the .freecats forum know that you wish to block user *.ocelot*, without anyone else (including user *.ocelot*) seeing this.
+Every username has two special blocks of content associated with it. Both of them contain arbitrary key/value pairs related to that user. The **profile** block is for (generally public) information the user wishes to share about themselves. It could contain a field for their avatar or photo, information about where they work or how to contact them. The **preferences** block contains key/value pairs that could be useful for websites in determining how to display content for this user. These may be public or they could be encrypted using the public key of the user (zone) they wish to share the information with. For example, you may want to let the *.freecats* forum know that you wish to block user *.ocelot*, without anyone else (including user *.ocelot*) seeing this.
 
 ### Design principles
 The design of the puffball platform is driven by the following core beliefs:
 
-- Whenever possible, makes decisions a convention and not a rule.
+- Whenever possible, make decisions a convention and not a rule.
 - Provide good default values, then allow for customizability.
 - If it's not easy to use, it sucks. 
 - If it's not beautiful, no one will want to spend time with it.
@@ -107,7 +107,7 @@ For the puffball platform, we face the additional challenge of implementing the 
 
 At present, any user can instanly create a new username consisting of 32 randomly generated alphanumeric characters. Our next step is to allow users to register their existing usernames from other websites, systems, and domain names. We intend to support twitter, openID, diaspora, facebook, linkedIn, com/net/org domains, and dot bit. The order and length of these "sunrise" periods is yet to be determined. 
 
-Regardless of the final rollout scheme, once a username is registered it belongs irrevocably to that user (subject only to the requirement that the username record is updated once per year). Usernames within the puffball system are not company names, trademarks, or domain names, and no there are mechanisms to forcibly transfer from one party to another, which can only happen by signing the record over to a new public key, using a message signed by the current private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
+Regardless of the final rollout scheme, once a username is registered it belongs irrevocably to that user (subject only to the requirement that the username record is updated once per year). Usernames within the puffball system are not company names, trademarks, or domain names, and there are no mechanisms to forcibly transfer from one party to another, which can only happen by signing the record over to a new public key, using a message signed by the current private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
 
 <a name='whatIsntPuffball'></a>
 ### What isn't puffball?

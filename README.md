@@ -13,13 +13,17 @@ The core of the puffball platform consists of a **username table** managed using
 Every username has an entry in a Distribured Hash Table (DHT). Entries contains the following fields:
 
 - **username**
-- **publicKey**
+- **rootKey**
+- **adminKey**
+- **contentKey**
 - **latest**
 - **updated**
 
-Usernames are formed with a string of alphanumeric characters. The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. In order to change a username record or add a new sub-user, the owner creates an update request and signs it with their private key. Before the update is approved, this signature is checked against the **publicKey** to make sure it's correct.
+Usernames are formed with a string of alphanumeric characters. The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record: New content are signed using the private key related to the **contentKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
 
-Once a username is created, it is permanently owned by whoever controls the private key, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
+**IMPORTANT**: All signing of content and update messages happens on the client-side. Private keys should *never* be sent to a server. 
+
+Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
 
 For more about usernames, see the "Username rollout" section below.
 
@@ -93,15 +97,13 @@ Another way to mitigate the need to break your full content history just to corr
 Once the puffball platform is fully implemented, we imagine that some developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understaning of puffball's core strengths. See the section "What isn't puffball?" below.
 
 ### Username rollout
-Creating a stable, reliable, secure, decentralized, authoritative database of usernames is a major challenge. There are a few of other projects that have attempt this. They usually rely on huge libraries of C code, compiled to run as stand alone, persistent nodes on the interet. Some are stored in cryptographic ledgers and require mining to maintain the system. 
+Creating a stable, reliable, secure, decentralized, authoritative database of usernames is a major challenge. There are several other projects which have attempted to do this. These tend to rely on extensive libraries of C code, compiled to run as stand alone, persistent nodes on the interet. Some schemes require that every node maintain a large (GB size) cryptographic ledger or require mining to maintain the system. 
 
-For the puffball platform, we face the additional challenge of implementing the system is a peer-to-peer way right over the browser. Given the scope of the problem, and the need for a high-level of availability and integrity from the very beginning, we've decided on a controlled rollout with the goal of full decentralization within 12 months. 
+For the puffball platform, we face the additional challenge of implementing the system in a peer-to-peer way right over the browser. Given the scope of the problem, and the need for a high-level of availability and integrity from the very beginning, we've decided on a controlled rollout with the goal of full decentralization in 12 months. The final details of the rollout have not yet been finalized, and usernames may be tied in to the revenue model and/or embedded currency (see the section on "Mycelium" below). 
 
-The final details of the rollout have not yet been finalized, and an the usernames may be tied in to the revenue model and/or embedded currency (see the section on "Mycelium" below). 
+At present, any user can instanly create a new username consisting of 32 randomly generated alphanumeric characters. Our next step is to allow users to register their existing usernames from other websites, systems, and domain names. We intend to support twitter, openID, diaspora, facebook, linkedIn, com/net/org domains, and dot bit. The order and length of these "sunrise" periods is yet to be determined. 
 
-At present, any user can instanly create a new anonymous username consisting of 32 randomly generated alphanumeric characters. Our next step is to allow users to begin registering their existing usernames from other websites, systems, and domain names. We intend to support twitter, openID, diaspora, facebook, linkedIn, com/net/org domains, and dot bit. The order and length of these "sunrise" periods is yet to be determined. 
-
-Regardless of the final rollout scheme, once a username is registered it belongs irrevocably to that user (subject only to the requirement that the record is updated once per year). Usernames within the puffball system are not company names, trademarks, or domain names, and no there are mechanisms to forcibly transfer from one part to another, which can only happen by signing the record over to a new public key with a message signed by the current private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
+Regardless of the final rollout scheme, once a username is registered it belongs irrevocably to that user (subject only to the requirement that the username record is updated once per year). Usernames within the puffball system are not company names, trademarks, or domain names, and no there are mechanisms to forcibly transfer from one party to another, which can only happen by signing the record over to a new public key, using a message signed by the current private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
 
 ### What isn't puffball?
 puffball is a platform for publishing and distributing static documents of a single content type, along with unrestricted meta-data about that content. Although it has capabilities which overlap other technologies, and while it might be a good foundation for building these other tools, it is not a wiki, blogging software, or a social network. And while it makes sharing content easy, bandwidth and memory limitations inherent in any client-side peer-to-peer application mean that at present puffball is a bad choice for publishing videos or similarly large files. 

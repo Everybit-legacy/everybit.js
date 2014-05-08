@@ -47,10 +47,10 @@ Puff.init = function(zone) {
     // ~- linked parents/children in puffforum
     // -- persist puffs
     // - fancy forum's db
-    // - get display working
-    // - use real keys 
+    // -- get display working
+    // -- use real keys 
     // - network access for initial load
-    // - network access for updates
+    // -- network access for updates
   
     Puff.Data.getLocalPuffs(Puff.receiveNewPuffs)
 
@@ -88,7 +88,7 @@ Puff.createPuff = function(username, privatekey, zones, type, content, payload) 
                , version: '0.0.2'                       // version accounts for crypto type and puff shape
                };                                       // early versions will be aggressively deprecated and unsupported
 
-    puff.sig = Puff.Crypto.signPayload(puff, privatekey)
+    puff.sig = Puff.Crypto.signData(puff, privatekey)
 
     Puff.addPuff(puff, privatekey)                      // THINK: move this somewhere else...
 
@@ -108,7 +108,7 @@ Puff.addPuff = function(puff, privatekey) {
 
     Puff.Network.distributePuff(puff);
     
-    Puff.Blockchain.createBlock(puff.username, puff, privatekey);
+    // Puff.Blockchain.createBlock(puff.username, puff, privatekey);
 }
 
 
@@ -276,69 +276,80 @@ Puff.Network.addAnonUser = function(publicKey, callback) {
 Puff.Crypto = {};
 
 Puff.Crypto.generatePrivateKey = function() {
-    //// generates a new private key and returns the base58 WIF string version
-    //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
-    
-    var randArr = new Uint8Array(32); //create a typed array of 32 bytes (256 bits)
-    window.crypto.getRandomValues(randArr); //populate array with cryptographically secure random numbers
-  
-    var privateKeyBytes = [];  //some Bitcoin and Crypto methods don't like Uint8Array for input. They expect regular JS arrays.
-    for (var i = 0; i < randArr.length; ++i)
-        privateKeyBytes[i] = randArr[i];
-
-    // return privateKeyBytes
-
-    // NOTE: the 'Address' below isn't a bitcoin address -- it's still the private key, but in Wallet Import Format
-    privateKeyBytes.push(0x01); // for compressed format
-    var privateKeyWIF = new Bitcoin.Address(privateKeyBytes);
-    privateKeyWIF.version = 0x80; //0x80 = 128, https://en.bitcoin.it/wiki/List_of_address_prefixes
-    return privateKeyWIF.toString(); // base58 string version of privatekey
+    return new Bitcoin.ECKey().toWif()
 }
 
 Puff.Crypto.privateToPublic = function(privateKeyWIF) {
-    //// from http://procbits.com/2013/08/27/generating-a-bitcoin-address-with-javascript
-  
     try {
-        // privateKeyWIF is returned by Puff.Crypto.generatePrivateKey
-        var eckey = new Bitcoin.ECKey(privateKeyWIF);
-        eckey.compressed = true;
-        var publicKeyBase58 = Bitcoin.Base58.encode(eckey.getPub()); 
-        return publicKeyBase58;
+        return Puff.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {
         return Puff.onError('Invalid private key: could not convert to public key')
     }
 }
 
-Puff.Crypto.verifyPuff = function(puff, publicKeyBase58) {
-    var siglesspuff = JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
-    return Puff.Crypto.verifyMessage(puff.sig, siglesspuff, publicKeyBase58);
+Puff.Crypto.signData = function(unsignedPuff, privateKeyWIF) {
+    //// sign the hash of some data with a private key and return the sig in base 58
+
+    var prikey = Puff.Crypto.wifToPriKey(privateKeyWIF)
+    var message = Puff.Crypto.puffToSiglessString(unsignedPuff)
+
+    try {
+        return Bitcoin.base58.encode(prikey.sign(message))
+    } catch(err) {
+        return Puff.onError('Could not properly encode signature')
+    }
 }
 
-Puff.Crypto.verifyBlock = function(block, publicKeyBase58) {
-    return Puff.Crypto.verifyMessage(block.blockSig.replace(/\*/g, ""), block.blockPayload, publicKeyBase58);
+Puff.Crypto.verifyPuff = function(puff) {
+    // TODO: make this a promise instead
+    Puff.Network.getUser(puff.username, function(user) {
+        var puffString = Puff.Crypto.puffToSiglessString(puff)
+        return Puff.Crypto.verifyMessage(puffString, puff.sig, user.contentKey);
+    })
 }
 
-Puff.Crypto.verifyMessage = function(sig, message, publicKeyBase58) {
+Puff.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     //// accept a base 58 sig, a message (can be an object) and a base 58 public key. returns true if they match, false otherwise
   
-    var address = new Bitcoin.Address(Bitcoin.Util.sha256ripe160(Bitcoin.Base58.decode(publicKeyBase58))).toString();
-    var sigBase64 = Crypto.util.bytesToBase64(Bitcoin.Base58.decode(sig));
-    return verify_message(sigBase64, message) === address  // TODO: this is complete lunacy
+    try {
+        var pubkey = Puff.Crypto.wifToPubKey(publicKeyWIF)
+        var sigBytes = Bitcoin.base58.decode(sig).toJSON().data
+        return pubkey.verify(message, sigBytes)
+    } catch(err) {
+        return Puff.onError('Invalid key or sig: could not verify message')
+    }
 }
 
-Puff.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
-    return Puff.Crypto.signPayload(blockPayload, privateKeyWIF);
+Puff.Crypto.wifToPriKey = function(privateKeyWIF) {
+    try {
+        return new Bitcoin.ECKey(privateKeyWIF, true)
+    } catch(err) {
+        return Puff.onError('Invalid private key: are you sure it is properly WIFfed?')
+    }
 }
 
-Puff.Crypto.signPayload = function(payload, privateKeyWIF) {
-    //// sign the hash of a payload with a private key and return the sig in base 58
-
-    var eckey = new Bitcoin.ECKey(privateKeyWIF);
-    eckey.compressed = true;
-    var sig = sign_message(eckey, payload, true); // 'true' is for compressed keys
-    var sigBase58 = Bitcoin.Base58.encode(Crypto.util.base64ToBytes(sig));
-    return sigBase58; // base64 sigs don't work as DOM ids
+Puff.Crypto.wifToPubKey = function(publicKeyWIF) {
+    try {
+        return new Bitcoin.ECPubKey(Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON().data, true)
+    } catch(err) {
+        return Puff.onError('Invalid public key: are you sure it is properly WIFfed?')
+    }
 }
+
+Puff.Crypto.puffToSiglessString = function(puff) {
+    return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
+}
+
+
+
+
+// Puff.Crypto.verifyBlock = function(block, publicKeyBase58) {
+//     return Puff.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
+// }
+
+// Puff.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+//     return Puff.Crypto.signPayload(blockPayload, privateKeyWIF);
+// }
 
 
 /*
@@ -488,7 +499,7 @@ Puff.Blockchain.exportChain = function(username){
 /*
     Persistence layer
 
-    It's like a network on your hard drive. Which probably implies this should like in Puff.Network instead of on its own.
+    It's like a network on your hard drive... which probably implies this should live in Puff.Network.
 */
 
 Puff.Persist = {};

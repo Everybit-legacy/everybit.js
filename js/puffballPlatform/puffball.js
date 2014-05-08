@@ -313,7 +313,8 @@ Puff.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
   
     try {
         var pubkey = Puff.Crypto.wifToPubKey(publicKeyWIF)
-        var sigBytes = Bitcoin.base58.decode(sig).toJSON().data
+        var sigBytes = Bitcoin.base58.decode(sig).toJSON()
+        sigBytes = sigBytes.data || sigBytes
         return pubkey.verify(message, sigBytes)
     } catch(err) {
         return Puff.onError('Invalid key or sig: could not verify message')
@@ -330,7 +331,9 @@ Puff.Crypto.wifToPriKey = function(privateKeyWIF) {
 
 Puff.Crypto.wifToPubKey = function(publicKeyWIF) {
     try {
-        return new Bitcoin.ECPubKey(Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON().data, true)
+        var pubkeyBytes = Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON()
+        pubkeyBytes = pubkeyBytes.data || pubkeyBytes
+        return new Bitcoin.ECPubKey(pubkeyBytes, true)
     } catch(err) {
         return Puff.onError('Invalid public key: are you sure it is properly WIFfed?')
     }
@@ -339,7 +342,6 @@ Puff.Crypto.wifToPubKey = function(publicKeyWIF) {
 Puff.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
-
 
 
 

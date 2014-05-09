@@ -48,6 +48,9 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffAllParents' )
             view = <PuffAllParents puff={viewprops.puff} />
         
+        else if( viewprops.style == 'PuffPacker' )
+            view = <PuffPacker />
+        
         else view = <PuffRoots />
         
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
@@ -61,6 +64,27 @@ var PuffWorld = React.createClass({
                 {view}
                 {reply}
                 <PuffFooter />
+            </div>
+        )
+    }
+});
+
+var PuffPacker = React.createClass({
+    handleSubmit: function() {
+        var username = this.refs.username.getDOMNode().value;
+
+        // var puff = PuffForum.createPuff(username, privatekey, zones, type, content, metadata);
+
+        // return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
+    },
+    render: function() {
+        return (
+            <div>
+                <form id="PuffPacker" onSubmit={this.handleSubmit}>
+                    <label htmlFor="username">Username:</label>
+                    <input type="text" name="username" ref="username" />
+                    <input type="submit" name="submit" value="go" />
+                </form>
             </div>
         )
     }
@@ -480,6 +504,9 @@ var PuffMenu = React.createClass({
     handleClose: function() {
         return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
     },
+    handlePackPuffs: function() {
+        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
+    },
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
@@ -552,6 +579,10 @@ var PuffMenu = React.createClass({
 
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
+                </div>
+
+                <div className="menuItem">
+                    <a href="#" onClick={this.handlePackPuffs} className="under">Pack puffs</a>
                 </div>
 
                 <br />

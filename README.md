@@ -16,13 +16,13 @@ Every username has an entry in a Distriburated Hash Table (DHT). Entries contain
 - **username**
 - **rootKey**
 - **adminKey**
-- **contentKey**
+- **defaultKey**
 - **latest**
 - **updated**
 
 Usernames are formed with a string of alphanumeric characters. Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
 
-The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **contentKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
+The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **defaultKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
 
 **IMPORTANT**: All signing of content and update messages happens on the client-side. Private keys should *never* be sent to a server. 
 
@@ -66,7 +66,7 @@ There are no rules about the other fields which can be included in payload, othe
 In order to re-publish someone else's content, the entire puff is bundled up and put into into the **content** field of the new puff, with **type** specified as "puff".
 
 #### **Profile and preferences**
-Every username has two special blocks of content associated with it. Both of them contain arbitrary key/value pairs related to that user. The **profile** block is for (generally public) information the user wishes to share about themselves. It could contain a field for their avatar or photo, information about where they work or how to contact them. The **preferences** block contains key/value pairs that could be useful for websites in determining how to display content for this user. These may be public or they could be encrypted using the public key of the user (zone) they wish to share the information with. For example, you may want to let the *.freecats* forum know that you wish to block user *.ocelot*, without anyone else (including user *.ocelot*) seeing this.
+Every username has two special blocks of content associated with it. Both of them contain arbitrary key/value pairs related to that user. The **profile** block is for (generally public) information the user wishes to share about themselves. It could contain a field for their avatar or photo, information about where they work or how to contact them. The **preferences** block contains key/value pairs that could be useful for websites in determining how to display content for this user. These may be public or they could be encrypted using the public key of the user (**zone**) they wish to share the information with. For example, you may want to let the *.freecats* forum know that you wish to block user *.ocelot*, without anyone else (including user *.ocelot*) seeing this.
 
 ### Design principles
 The design of the puffball platform is driven by the following core beliefs:
@@ -91,13 +91,13 @@ When user replies to content, and embeds this parent puff's id in their **parent
 
 This is an extreme thing to do, but we believe that the integrity of the system depends on it. We wish to encourage a culture where changing the content of a puff (especially on that has been around for a while and has generated a significant number of replies), is considered an extreme thing to do. 
 
-We wish to extend the cultural norms established by bloggers who pioneered the use of <strike>strikethrough</strike> to show that they edited a document for accuracy, usually based on feedback from others, and to fostering a culture of honesty and integrity in communication. Everyone makes mistakes, and we've found that there is a generally high level of tolerance these. To encourage users to amend previous puffs instead of deleting and re-creating them, the default client shows all replies by the original author first. This way, the "OP" can post a reply amending their previous puff and know that this will reply won't get burried by a torrent of angry replies that pick up on a mistake or omission. 
+We wish to extend the cultural norms established by bloggers who pioneered the use of <strike>strikethrough</strike> to show that they edited a document for accuracy, usually based on feedback from others, and to fostering a culture of honesty and integrity in communication. Everyone makes mistakes, and we've found that there is a generally high level of tolerance to these. To encourage users to amend previous puffs instead of deleting and re-creating them, the default client shows all replies by the original author first. This way, the "OP" can post a reply amending their previous puff and know that this reply won't get burried by a torrent of angry replies that pick up on a mistake or omission. 
 
 In order to reduce the need to go back and edit previous puffs, the default puffball client presents users with a "countdown to live", during which time they can rethink, revise or abort publication. The countdown length can be set using their preferences block, and can be overridden at any time to publish immediately. 
 
 Another way to mitigate the need to break your full content history just to correct a "bad" puff, is to use different sub-usernames for different purposes. For example, if you create a puffball-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could setup *.username.toaster*, or even *.username.toaster.leavins*, to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
 
-Once the puffball platform is fully implemented, we imagine that some developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understaning of puffball's core strengths. See the section [What isn't puffball?](#whatIsntPuffball) below.
+Once the puffball platform is fully implemented, we imagine that developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understaning of puffball's core strengths. See the section [What isn't puffball?](#whatIsntPuffball) below.
 
 <a name='usernameRollout'></a>
 ### Username rollout

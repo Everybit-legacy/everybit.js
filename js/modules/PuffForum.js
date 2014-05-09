@@ -93,12 +93,12 @@ PuffForum.addPost = function(content, parents, type, metadata) {
         return "Error Error Error: those are not good parents"
  
     // if there's no current user, add an anonymous one
-    var user = PuffForum.getCurrentUser()
+    var user = PuffUsers.getCurrentUser()
     
     if(!user.username || !user.privateKey) {
-        return PuffForum.addAnonUser(
+        return PuffUsers.addAnonUser(
             function(username) {
-                PuffForum.setCurrentUser(username)
+                PuffUsers.setCurrentUser(username)
                 PuffForum.addPost(content, parents, type) // THINK: using this function as its own callback is maybe not ideal
             }
         )

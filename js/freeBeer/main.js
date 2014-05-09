@@ -132,8 +132,8 @@ events.sub('*', function(data, path) {
 //// event bindings for controlling core behavior from the display
 
 events.sub('prefs/storeusers/toggle', function(data, path) {
-    var new_state = !PuffForum.getPref('storeusers')
-    PuffForum.setPref('storeusers', new_state)
+    var new_state = !PuffUsers.getPref('storeusers')
+    PuffUsers.setPref('storeusers', new_state)
     
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeusers/' + dir)
@@ -144,7 +144,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname) 
         return Puff.onError('Invalid nickname')  // THINK: do this in React? use Puff.validations?
     
-    PuffForum.setProfileItem('nickname', nickname)
+    PuffUsers.setProfileItem('nickname', nickname)
     
     events.pub('ui/menu/profile/nickname/set')
 })

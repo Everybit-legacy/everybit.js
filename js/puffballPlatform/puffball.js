@@ -163,6 +163,19 @@ Puff.Data.addUser = function(user) {
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
+Puff.Data.verifyPuff = function(puff, callback) {
+    // TODO: check previous sig, maybe
+    // TODO: check for well-formed-ness
+    
+    // TODO: make this a promise instead
+    Puff.Network.getUser(puff.username, function(user) {
+        var defaultKey = user.defaultKey
+        var result = Puff.Crypto.verifyPuffSig(puff, defaultKey)
+        callback(result)
+    })
+}
+
+
 
 // NETWORK LAYER
 
@@ -208,7 +221,7 @@ Puff.Network.distributePuff = function(puff) {
 }
 
 Puff.Network.getUser = function(username, callback) {
-    // FIXME: call Puff.Network.getUserFile, add the returned users to Puff.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+    // TODO: call Puff.Network.getUserFile, add the returned users to Puff.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var my_callback = function(user) {
         Puff.Data.addUser(user);
@@ -231,14 +244,15 @@ Puff.Network.getUserFile = function(username, callback) {
     $.getJSON(CONFIG.userApi, {type: 'getUserFile', username: username}, my_callback);
 }
 
-Puff.Network.addAnonUser = function(publicKey, callback) {
+Puff.Network.addAnonUser = function(keys, callback) {
     $.ajax({
         type: 'POST',
         url: CONFIG.userApi,
-        data: {
-            type: 'addUser',
-            publicKey: publicKey
-        },
+        data: { type: 'addUser'
+              , defaultKey: keys.default.public
+              , adminKey: keys.admin.public
+              , rootKey: keys.root.public
+              },
         success:function(result) {
             if(result.username) {
                 if(typeof callback == 'function')
@@ -300,12 +314,9 @@ Puff.Crypto.signData = function(unsignedPuff, privateKeyWIF) {
     }
 }
 
-Puff.Crypto.verifyPuff = function(puff) {
-    // TODO: make this a promise instead
-    Puff.Network.getUser(puff.username, function(user) {
-        var puffString = Puff.Crypto.puffToSiglessString(puff)
-        return Puff.Crypto.verifyMessage(puffString, puff.sig, user.contentKey);
-    })
+Puff.Crypto.verifyPuffSig = function(puff, defaultKey) {
+    var puffString = Puff.Crypto.puffToSiglessString(puff);
+    return Puff.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
 }
 
 Puff.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {

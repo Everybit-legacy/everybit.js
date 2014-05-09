@@ -95,7 +95,7 @@ PuffForum.addPost = function(content, parents, type, metadata) {
     // if there's no current user, add an anonymous one
     var user = PuffUsers.getCurrentUser()
     
-    if(!user.username || !user.privateKey) {
+    if(!user.username) {
         return PuffUsers.addAnonUser(
             function(username) {
                 PuffUsers.setCurrentUser(username)

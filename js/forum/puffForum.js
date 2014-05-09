@@ -200,7 +200,7 @@ PuffForum.addContentType('bbcode', {
 
 PuffForum.addContentType('image', {
     toHtml: function(content) {
-        return '<img src=' + content + ' />'
+        return '<a href=' + content + ' target=new><img src=' + content + ' /></a>'
     }
 })
 

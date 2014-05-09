@@ -44,25 +44,12 @@ PuffUsers.getAllUsers = function() {
 PuffUsers.addAnonUser = function(callback) {
     //// create a new anonymous user and add it to the local user list
   
-    // generate defaultKey
+    // generate private keys
     var privateDefaultKey = Puff.Crypto.generatePrivateKey();
-    var publicDefaultKey  = Puff.Crypto.privateToPublic(privateDefaultKey);
-    
-    // generate adminKey
     var privateAdminKey = Puff.Crypto.generatePrivateKey();
-    var publicAdminKey  = Puff.Crypto.privateToPublic(privateAdminKey);
-    
-    // generate rootKey
     var privateRootKey = Puff.Crypto.generatePrivateKey();
-    var publicRootKey  = Puff.Crypto.privateToPublic(privateRootKey);
     
-    var keys = { default: { 'private': privateDefaultKey
-                          ,  'public': publicDefaultKey }
-               ,   admin: { 'private': privateAdminKey
-                          ,  'public': publicAdminKey }
-               ,    root: { 'private': privateRootKey
-                          ,  'public': publicRootKey }
-               }
+    var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
     
     var my_callback = function(username) {
         PuffUsers.addUserReally(username, keys);

@@ -94,6 +94,22 @@ Puff.createPuff = function(username, privatekey, zones, type, content, payload) 
     return puff
 }
 
+Puff.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRootKey) {
+    var publicDefaultKey = Puff.Crypto.privateToPublic(privateDefaultKey);
+    var publicAdminKey   = Puff.Crypto.privateToPublic(privateAdminKey);
+    var publicRootKey    = Puff.Crypto.privateToPublic(privateRootKey);
+    
+    var keys = { default: { 'private': privateDefaultKey
+                          ,  'public': publicDefaultKey }
+               ,   admin: { 'private': privateAdminKey
+                          ,  'public': publicAdminKey }
+               ,    root: { 'private': privateRootKey
+                          ,  'public': publicRootKey }
+               };
+    
+   return keys;
+}
+
 
 Puff.checkUserKey = function(username, privatekey) {
     return true; // oh dear. This is checked elsewhere, but should be here too!

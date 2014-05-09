@@ -70,24 +70,92 @@ var PuffWorld = React.createClass({
 });
 
 var PuffPacker = React.createClass({
-    handleSubmit: function() {
-        var username = this.refs.username.getDOMNode().value;
+   handleRequest: function() {
+       // var username = this.refs.username.getDOMNode().value;
+       var requestType = this.refs.requestType.getDOMNode().value
+       
+       switch (requestType) {
+           case 'requestUsername':
+               // this.refs.type.getDOMNode().value='updateUsingPuff';
 
-        // var puff = PuffForum.createPuff(username, privatekey, zones, type, content, metadata);
+               // Do regular submit
+               break;
 
-        // return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
-    },
-    render: function() {
-        return (
-            <div>
-                <form id="PuffPacker" onSubmit={this.handleSubmit}>
-                    <label htmlFor="username">Username:</label>
-                    <input type="text" name="username" ref="username" />
-                    <input type="submit" name="submit" value="go" />
-                </form>
-            </div>
-        )
-    }
+           case 'setLatest':
+               // this.refs.type.getDOMNode().value='updateUsingPuff';
+
+               // Do ajax put in result
+
+               break;
+
+           case 'generateUsername':
+               console.log("Gen anon username");
+               break;
+               /*
+               // this.refs.type.getDOMNode().value='generateUsername';
+               $.ajax({
+                   type: "POST",
+                   url: CONFIG.userApi,
+                   data: {
+                       type: 'generateUsername',
+                       rootKey: $("#rootKey").val(),
+                       adminKey: $("#adminKey").val(),
+                       defaultKey: $("#defaultKey").val()
+                   },
+                   success:function(result){
+                       jsonResult = result;
+this.refs.result.getDOMNode().value=(JSON.stringify(result));
+                   },
+                   error: function() {
+                       alert('error!');
+                   },
+                   dataType: "json"
+               });
+               */
+
+
+       }
+
+
+
+
+       // var puff = PuffForum.createPuff(username, privatekey, zones, type, content, metadata);
+
+       // return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
+       alert("HI!");
+       return false;
+   },
+   handleBuild: function() {
+       console.log("hi!");
+   },
+
+   render: function() {
+
+       return (
+           <div className="adminForm">
+               <div>
+                   <form id="PuffPacker">
+                       Action:<br />
+                       <select name="requestType" ref="requestType" className="btn">
+                           <option value="generateUsername">Create anon user</option>
+                           <option value="requestUsername">Register a username</option>
+                           <option value="setLatest">Set the latest sig</option>
+                       </select><br /><br />
+
+                       Root key: <input type="text" name="rootKey" ref="rootKey" /><br />
+                       Admin key: <input type="text" name="adminKey" ref="adminKey" /><br />
+                       Default key: <input type="text" name="defaultKey" ref="defaultKey" /><br />
+                       <textarea name="puff" ref="puff" rows="10" cols="50"></textarea><br />
+                       <input className="btn-link" type="button" value="buildPuff" onClick={this.handleBuild} /><br />
+                       <input className="btn-link" type="button" value="go" onClick={this.handleRequest} /><br />
+                       
+                       Results: <br />
+                       <textarea ref="result" name="result" rows="10" cols="50"></textarea><br />
+                   </form>
+               </div>
+           </div>
+       )
+   }
 });
 
 var PuffRoots = React.createClass({

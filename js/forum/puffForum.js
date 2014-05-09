@@ -232,37 +232,55 @@ PuffForum.getAllUsers = function() {
 PuffForum.addAnonUser = function(callback) {
     //// create a new anonymous user and add it to the local user list
   
-    // gen privkey
-    var privateKey = Puff.Crypto.generatePrivateKey();
-  
-    // gen pubkey
-    var publicKey = Puff.Crypto.privateToPublic(privateKey);
+    // generate defaultKey
+    var privateDefaultKey = Puff.Crypto.generatePrivateKey();
+    var publicDefaultKey  = Puff.Crypto.privateToPublic(privateDefaultKey);
+    
+    // generate adminKey
+    var privateAdminKey = Puff.Crypto.generatePrivateKey();
+    var publicAdminKey  = Puff.Crypto.privateToPublic(privateAdminKey);
+    
+    // generate rootKey
+    var privateRootKey = Puff.Crypto.generatePrivateKey();
+    var publicRootKey  = Puff.Crypto.privateToPublic(privateRootKey);
+    
+    var keys = { default: { 'private': privateDefaultKey
+                          ,  'public': publicDefaultKey }
+               ,   admin: { 'private': privateAdminKey
+                          ,  'public': publicAdminKey }
+               ,    root: { 'private': privateRootKey
+                          ,  'public': publicRootKey }
+               }
     
     var my_callback = function(username) {
-        PuffForum.addUserReally(username, privateKey, publicKey);
+        PuffForum.addUserReally(username, keys);
         if(typeof callback == 'function') {
             callback(username)
         }
     }
   
-    Puff.Network.addAnonUser(publicKey, my_callback);
+    Puff.Network.addAnonUser(keys, my_callback);
 }
 
-PuffForum.addUserMaybe = function(username, privkey, callback, errback) {
-    var pubkey = Puff.Crypto.privateToPublic(privkey);
-    if(!pubkey) return Puff.onError('That private key could not generate a public key');
+PuffForum.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
+    var publicDefaultKey = Puff.Crypto.privateToPublic(privateDefaultKey);
+    if(!publicDefaultKey) 
+        return Puff.onError('That private key could not generate a public key');
 
-    var my_callback = function(result) {
-        if(!result) return Puff.onError('No result returned');
+    var my_callback = function(user) {
+        if(!user) 
+            return Puff.onError('No result returned');
         
         // THINK: return a promise instead
-        if(result.publicKey === pubkey) {
-            var userinfo = PuffForum.addUserReally(username, privkey, pubkey);
+        if(user.publicDefaultKey === publicDefaultKey) {
+            var keys = { default: { 'private': privateDefaultKey
+                                  ,  'public': publicDefaultKey } }
+            var userinfo = PuffForum.addUserReally(username, keys);
             if(typeof callback === 'function')
                 callback(userinfo)
         } else {
             if(typeof errback === 'function')
-                errback(username, privkey)
+                errback(username, privateDefaultKey)
             else
                 return Puff.onError('That private key does not match the record for that username')
         }
@@ -271,10 +289,9 @@ PuffForum.addUserMaybe = function(username, privkey, callback, errback) {
     Puff.Network.getUser(username, my_callback)
 }
 
-PuffForum.addUserReally = function(username, privkey, pubkey) {
-    var userinfo = {   username: username
-                   ,  publicKey: pubkey
-                   , privateKey: privkey
+PuffForum.addUserReally = function(username, keys) {
+    var userinfo = { username: username
+                   ,     keys: keys
                    }
     
     users = PuffForum.getAllUsers()

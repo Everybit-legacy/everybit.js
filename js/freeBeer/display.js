@@ -849,8 +849,13 @@ var PuffManageUser = React.createClass({
             myKeyStuff = <div><p>public key: <br />{user.publicKey}</p><p>private key: <br />{user.privateKey}</p></div>
             
             var msg = user.privateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
-            var stuff = create_qrcode(msg)
-            var data = 'data:image/gif;base64,' + stuff.base64
+            
+            var qr = qrcode(4, 'M');
+                qr.addData(msg);
+                qr.make();
+            
+            var image_data = qr.createImgTag() || {}
+            var data = 'data:image/gif;base64,' + image_data.base64
             qrCode = <img src={data} width={stuff.width} height={stuff.height} />            
         }
         

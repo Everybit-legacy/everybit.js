@@ -61,9 +61,8 @@ Puff.init = function(zone) {
         Puff.Blockchain.BLOCKS = {}
         
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
-    
-    Puff.actualP2P = new Puff.P2P()
-    // Puff.Data.make_fake_puffs()
+
+    Puff.Network.init()
 }
 
 
@@ -180,6 +179,56 @@ Puff.Data.verifyPuff = function(puff, callback) {
 // NETWORK LAYER
 
 Puff.Network = {};
+Puff.Network.peers = {}
+
+Puff.Network.init = function() {
+    Puff.Network.Peer = new Peer({
+        host: '162.219.162.56',
+        port: 9000,
+        path: '/',
+        debug: 1
+    });
+    
+    Puff.Network.Peer.on('open', Puff.Network.openPeerConnection);
+    Puff.Network.Peer.on('connection', this.connection);
+}
+
+
+Puff.Network.reloadPeers = function() {
+    console.log("Reloading peers");
+    return Puff.Network.Peer.listAllPeers(Puff.Network.handlePeers);
+};
+
+Puff.Network.openPeerConnection = function(id) {
+    console.log("Opened peer connection");
+    return Puff.Network.Peer.listAllPeers(Puff.Network.handlePeers);
+};
+
+Puff.Network.connection = function(connection) {
+    console.log("Connection", connection);
+    Puff.Network.reloadPeers();
+
+    return connection.on('data', function(data) {
+        Puff.receiveNewPuffs(data);
+        return console.log("Got data", data);
+    });
+};
+
+Puff.Network.handlePeers = function(peers) {
+    console.log("Got peers", peers);
+    peers.forEach(function(peer) {
+        if(Puff.Network.peers[peer]) 
+            return false;
+        Puff.Network.peers[peer] = Puff.Network.Peer.connect(peer);
+    });
+};
+
+Puff.Network.sendPuffToPeers = function(puff) {
+    for(var peer in Puff.Network.peers) {
+        Puff.Network.peers[peer].send(puff)
+    }
+}
+
 
 Puff.Network.getAllPuffs = function(callback) {
     //// get all the puffs from this zone
@@ -215,9 +264,7 @@ Puff.Network.distributePuff = function(puff) {
     });
   
     // broadcast it to peers
-    // TODO: send it out via WS and RTC
-  
-    Puff.actualP2P.swarm.send(puff);
+    Puff.Network.sendPuffToPeers(puff)
 }
 
 Puff.Network.getUser = function(username, callback) {

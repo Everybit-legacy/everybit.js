@@ -16,13 +16,13 @@ Every username has an entry in a Distriburated Hash Table (DHT). Entries contain
 - **username**
 - **rootKey**
 - **adminKey**
-- **contentKey**
+- **defaultKey**
 - **latest**
 - **updated**
 
 Usernames are formed with a string of alphanumeric characters. Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
 
-The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **contentKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
+The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **defaultKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
 
 **IMPORTANT**: All signing of content and update messages happens on the client-side. Private keys should *never* be sent to a server. 
 

@@ -25,6 +25,8 @@
 
 */
 
+PuffUsers = {}
+
 PuffUsers.currentUser = {};
 PuffUsers.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
 

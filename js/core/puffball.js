@@ -295,10 +295,10 @@ Puff.Network.addAnonUser = function(keys, callback) {
     $.ajax({
         type: 'POST',
         url: CONFIG.userApi,
-        data: { type: 'addUser'
-              , defaultKey: keys.default.public
-              , adminKey: keys.admin.public
+        data: { type: 'generateUsername'
               , rootKey: keys.root.public
+              , adminKey: keys.admin.public
+              , defaultKey: keys.default.public
               },
         success:function(result) {
             if(result.username) {

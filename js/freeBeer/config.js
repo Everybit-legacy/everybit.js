@@ -12,8 +12,8 @@ CONFIG.version = '0.2a';
 // Not yet implemented
 CONFIG.puffVersions = [];
 
-CONFIG.userApi = 'http://162.219.162.56/users/api.php';
-CONFIG.puffApi = 'http://162.219.162.56/users/api.php';
+CONFIG.userApi = 'http://localhost:8888/puffballApi/users/api.php';
+CONFIG.puffApi = 'http://localhost:8888/puffballApi/puffs/api.php';
 
 CONFIG.maxChildrenToShow = 3;
 CONFIG.maxLatestRootsToShow = 26;

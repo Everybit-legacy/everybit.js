@@ -1,29 +1,45 @@
+/* 
+                   _____  _____                                 
+    ______  __ ___/ ____\/ ____\_ __  ______ ___________  ______
+    \____ \|  |  \   __\\   __\  |  \/  ___// __ \_  __ \/  ___/
+    |  |_> >  |  /|  |   |  | |  |  /\___ \\  ___/|  | \/\___ \ 
+    |   __/|____/ |__|   |__| |____//____  >\___  >__|  /____  >
+    |__|                                 \/     \/           \/ 
+  
+  A Puffball module for managing identities locally.
+
+  Usage example:
+  PuffUsers.onNewPuffs( function(puffs) { console.log(puffs) } )
+  PuffUsers.init()
+
+*/
+
 
 //// USER INFO ////
 
 /*
     
     Move this into a separate PuffIdentity module that handles identity wardrobe, profiles, and machine-based preferences.
-    PuffForum uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
+    PuffUsers uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
     PuffIdentity is responsible for managing persistence of identities, keeping the core clean of such messy concerns.
 
 */
 
-PuffForum.currentUser = {};
-PuffForum.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
+PuffUsers.currentUser = {};
+PuffUsers.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
 
-PuffForum.getCurrentUser = function() {
-    return PuffForum.currentUser
+PuffUsers.getCurrentUser = function() {
+    return PuffUsers.currentUser
 }
 
-PuffForum.getAllUsers = function() {
-    if(!PuffForum.users)
-        PuffForum.users = Puff.Persist.get('users') || {}
+PuffUsers.getAllUsers = function() {
+    if(!PuffUsers.users)
+        PuffUsers.users = Puff.Persist.get('users') || {}
     
-    return PuffForum.users
+    return PuffUsers.users
 }
 
-PuffForum.addAnonUser = function(callback) {
+PuffUsers.addAnonUser = function(callback) {
     //// create a new anonymous user and add it to the local user list
   
     // generate defaultKey
@@ -47,7 +63,7 @@ PuffForum.addAnonUser = function(callback) {
                }
     
     var my_callback = function(username) {
-        PuffForum.addUserReally(username, keys);
+        PuffUsers.addUserReally(username, keys);
         if(typeof callback == 'function') {
             callback(username)
         }
@@ -56,7 +72,7 @@ PuffForum.addAnonUser = function(callback) {
     Puff.Network.addAnonUser(keys, my_callback);
 }
 
-PuffForum.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
+PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
     var publicDefaultKey = Puff.Crypto.privateToPublic(privateDefaultKey);
     if(!publicDefaultKey) 
         return Puff.onError('That private key could not generate a public key');
@@ -69,7 +85,7 @@ PuffForum.addUserMaybe = function(username, privateDefaultKey, callback, errback
         if(user.defaultKey === publicDefaultKey) {
             var keys = { default: { 'private': privateDefaultKey
                                   ,  'public': publicDefaultKey } }
-            var userinfo = PuffForum.addUserReally(username, keys);
+            var userinfo = PuffUsers.addUserReally(username, keys);
             if(typeof callback === 'function')
                 callback(userinfo)
         } else {
@@ -83,38 +99,38 @@ PuffForum.addUserMaybe = function(username, privateDefaultKey, callback, errback
     Puff.Network.getUser(username, my_callback)
 }
 
-PuffForum.addUserReally = function(username, keys) {
+PuffUsers.addUserReally = function(username, keys) {
     var userinfo = { username: username
                    ,     keys: keys
                    }
     
-    users = PuffForum.getAllUsers()
+    users = PuffUsers.getAllUsers()
     users[username] = userinfo
     
-    if(PuffForum.getPref('storeusers'))
+    if(PuffUsers.getPref('storeusers'))
         Puff.Persist.save('users', users)
     
     return userinfo
 }
 
-PuffForum.setCurrentUser = function(username) {
-    var users = PuffForum.getAllUsers()
+PuffUsers.setCurrentUser = function(username) {
+    var users = PuffUsers.getAllUsers()
     var user = users[username]
     
     if(!user || !user.username)
         return Puff.onError('No record of that username exists locally -- try adding it first')
     
-    PuffForum.currentUser = user
+    PuffUsers.currentUser = user
 }
 
-PuffForum.removeUser = function(username) {
+PuffUsers.removeUser = function(username) {
     //// clear the user from our system
-    delete PuffForum.users[username]
+    delete PuffUsers.users[username]
     
-    if(PuffForum.currentUser.username == username)
-        PuffForum.currentUser = {}
+    if(PuffUsers.currentUser.username == username)
+        PuffUsers.currentUser = {}
     
-    if(PuffForum.getPref('storeusers'))
+    if(PuffUsers.getPref('storeusers'))
         Puff.Persist.save('users', users)
 }
 
@@ -129,25 +145,25 @@ PuffForum.removeUser = function(username) {
 */
 
 
-PuffForum.prefsarray = false  // put this somewhere else
+PuffUsers.prefsarray = false  // put this somewhere else
 
-PuffForum.getPref = function(key) {
-    var prefs = PuffForum.getAllPrefs()
+PuffUsers.getPref = function(key) {
+    var prefs = PuffUsers.getAllPrefs()
     return prefs[key]
 }
 
-PuffForum.getAllPrefs = function() {
-    if(!PuffForum.prefsarray)
-        PuffForum.prefsarray = Puff.Persist.get('prefs') || {}
+PuffUsers.getAllPrefs = function() {
+    if(!PuffUsers.prefsarray)
+        PuffUsers.prefsarray = Puff.Persist.get('prefs') || {}
     
-    return PuffForum.prefsarray
+    return PuffUsers.prefsarray
 }
 
-PuffForum.setPref = function(key, value) {
-    var prefs = PuffForum.getAllPrefs()
+PuffUsers.setPref = function(key, value) {
+    var prefs = PuffUsers.getAllPrefs()
     var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
 
-    PuffForum.prefsarray = newprefs
+    PuffUsers.prefsarray = newprefs
 
     var filename = 'prefs'
     Puff.Persist.save(filename, newprefs)
@@ -155,7 +171,7 @@ PuffForum.setPref = function(key, value) {
     return newprefs
 }
 
-PuffForum.removePrefs = function() {
+PuffUsers.removePrefs = function() {
     var filename = 'prefs'
     Puff.Persist.remove(filename)
 }
@@ -169,32 +185,32 @@ PuffForum.removePrefs = function() {
     as part of the identity's presence in the user's identity wardrobe.
 */
 
-PuffForum.profilearray = {}  // THINK: put this somewhere else
+PuffUsers.profilearray = {}  // THINK: put this somewhere else
 
-PuffForum.getProfileItem = function(key) {
-    var username = PuffForum.currentUser.username
-    return PuffForum.getUserProfileItem(username, key)
+PuffUsers.getProfileItem = function(key) {
+    var username = PuffUsers.currentUser.username
+    return PuffUsers.getUserProfileItem(username, key)
 }
 
-PuffForum.setProfileItem = function(key, value) {
-    var username = PuffForum.currentUser.username
-    return PuffForum.setUserProfileItems(username, key, value)
+PuffUsers.setProfileItem = function(key, value) {
+    var username = PuffUsers.currentUser.username
+    return PuffUsers.setUserProfileItems(username, key, value)
 }
 
-PuffForum.getAllProfileItems = function() {
-    var username = PuffForum.currentUser.username
-    return PuffForum.getAllUserProfileItems(username)
+PuffUsers.getAllProfileItems = function() {
+    var username = PuffUsers.currentUser.username
+    return PuffUsers.getAllUserProfileItems(username)
 }
 
-PuffForum.getUserProfileItem = function(username, key) {
-    var profile = PuffForum.getAllUserProfileItems(username)
+PuffUsers.getUserProfileItem = function(username, key) {
+    var profile = PuffUsers.getAllUserProfileItems(username)
     return profile[key]
 }
 
-PuffForum.getAllUserProfileItems = function(username) {
+PuffUsers.getAllUserProfileItems = function(username) {
     if(!username) return {} // erm derp derp
     
-    var parray = PuffForum.profilearray
+    var parray = PuffUsers.profilearray
     if(parray[username]) return parray[username]  // is this always right?
     
     var profilefile = 'profile::' + username
@@ -203,13 +219,13 @@ PuffForum.getAllUserProfileItems = function(username) {
     return parray[username]
 }
 
-PuffForum.setUserProfileItems = function(username, key, value) {
+PuffUsers.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
-    var profile = PuffForum.getAllUserProfileItems(username)
+    var profile = PuffUsers.getAllUserProfileItems(username)
     var newprofile = events.merge_props(profile, key, value); // allows dot-paths
 
-    PuffForum.profilearray[username] = newprofile
+    PuffUsers.profilearray[username] = newprofile
 
     var profilefile = 'profile::' + username;
     Puff.Persist.save(profilefile, newprofile)
@@ -217,10 +233,10 @@ PuffForum.setUserProfileItems = function(username, key, value) {
     return newprofile
 }
 
-PuffForum.removeUserProfile = function(username) {
+PuffUsers.removeUserProfile = function(username) {
     if(!username) return false
     
-    PuffForum.profilearray.delete(username)
+    PuffUsers.profilearray.delete(username)
     
     var profilefile = 'profile::' + username;
     Puff.Persist.remove(profilefile)

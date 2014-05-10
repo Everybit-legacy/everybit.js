@@ -71,7 +71,7 @@ var PuffWorld = React.createClass({
 
 var PuffPacker = React.createClass({
     
-    handleRequest: function() {
+    handleBuild: function() {
         var type = this.refs.requestType.getDOMNode().value
         
         if(type == 'setLatest') {
@@ -129,33 +129,62 @@ var PuffPacker = React.createClass({
         
         return false;
     },
-    handleBuild: function() {
-        console.log("hi!");
+    handleRequest: function() {
+        var puffString = this.refs.result.getDOMNode().value;
+        
+        try {
+            var puff = JSON.parse(puffString)
+        } catch(e) {
+            console.log(e)
+            return Puff.onError('JSON parsers are the worst.')
+        }
+        
+        var callback = function(result) {
+            console.log(result)
+        }
+        
+        Puff.Network.sendUserRecordPuffToServer(puff, callback);
     },
  
     render: function() {
+        var user = PuffUsers.getCurrentUser();
+        var rootKey, adminKey, defaultKey;
+        if(user.keys) {
+            rootKey = user.keys.root.private;
+            adminKey = user.keys.admin.private;
+            defaultKey = user.keys.default.private;
+        }
  
         return (
-            <div className="adminForm">
+            <div id="adminForm">
                 <div>
                     <form id="PuffPacker">
-                        Action:<br />
-                        <select name="requestType" ref="requestType" className="btn">
-                            <option value="generateUsername">Create anon user</option>
-                            <option value="requestUsername">Register a username</option>
-                            <option value="setLatest">Set the latest sig</option>
-                        </select><br /><br />
- 
-                        Username: <input type="text" name="username" ref="username" /><br />
-                        Root key: <input type="text" name="rootKey" ref="rootKey" /><br />
-                        Admin key: <input type="text" name="adminKey" ref="adminKey" /><br />
-                        Default key: <input type="text" name="defaultKey" ref="defaultKey" /><br />
-                        <textarea name="puff" ref="puff" rows="10" cols="50"></textarea><br />
-                        <input className="btn-link" type="button" value="buildPuff" onClick={this.handleBuild} /><br />
-                        <input className="btn-link" type="button" value="go" onClick={this.handleRequest} /><br />
+                        <p>Username: <input type="text" name="username" ref="username" defaultValue={user.username} /></p>
+                        <p>Root key: <input type="text" name="rootKey" ref="rootKey" defaultValue={rootKey} /></p>
+                        <p>Admin key: <input type="text" name="adminKey" ref="adminKey" defaultValue={adminKey} /></p>
+                        <p>Default key: <input type="text" name="defaultKey" ref="defaultKey" defaultValue={defaultKey} /></p>
                         
-                        Results: <br />
-                        <textarea ref="result" name="result" rows="10" cols="50"></textarea><br />
+                        <p>
+                            <label htmlFor="requestType">Action:</label>
+                            <select name="requestType" ref="requestType" className="btn">
+                                <option value="generateUsername">Create anon user</option>
+                                <option value="requestUsername">Register a username</option>
+                                <option value="setLatest">Set the latest sig</option>
+                            </select>
+                        </p>
+                        
+                        <p>
+                            <input className="btn-link" type="button" value="Build Puff" onClick={this.handleBuild} />
+                        </p>
+                        
+                        <p>
+                            <label htmlFor="result">Results:</label>
+                            <textarea ref="result" name="result" rows="10" cols="50"></textarea>
+                        </p>
+                        
+                        <p>
+                            <input className="btn-link" type="button" value="Send to Server" onClick={this.handleRequest} />
+                        </p>
                     </form>
                 </div>
             </div>

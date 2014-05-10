@@ -332,7 +332,23 @@ Puff.Network.addAnonUser = function(keys, callback) {
     });
 }
 
-
+Puff.Network.sendUserRecordPuffToServer = function(puff, callback) {
+    $.ajax({
+        type: 'POST',
+        url: CONFIG.userApi,
+        data: { type: 'updateUsingPuff'
+              , puff: puff
+              },
+        success:function(result) {
+            if(typeof callback == 'function')
+                callback(result)
+        },
+        error: function(err) {
+            Puff.onError('Error Error Error: sending user record modification puff failed miserably', err)
+        },
+        dataType: 'json'
+    });
+}
 
 
 

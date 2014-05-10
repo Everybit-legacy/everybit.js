@@ -75,6 +75,11 @@ textarea {
     z-index:15;
 }
 
+.authorSpan {
+    font-family: GudeaBold, sans-serif;
+    color: #1616A8;
+}
+
 #authorDiv {
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;

@@ -66,7 +66,9 @@ Puff.init = function(zone) {
 }
 
 
-Puff.createPuff = function(username, privatekey, zones, type, content, payload) {
+Puff.createPuff = function(username, privatekey, zones, type, content, payload, publish) {
+    publish = typeof publish !== 'undefined' ? publish : true;
+
     //// M-A-G-I-C !!!
   
     if(!Puff.checkUserKey(username, privatekey))        // THINK: by the time we arrive here u/pk should already be cached,
@@ -89,7 +91,9 @@ Puff.createPuff = function(username, privatekey, zones, type, content, payload) 
 
     puff.sig = Puff.Crypto.signData(puff, privatekey)
 
-    Puff.addPuff(puff, privatekey)                      // THINK: move this somewhere else...
+    if(publish) {
+        Puff.addPuff(puff, privatekey)                      // THINK: move this somewhere else...
+    }
 
     return puff
 }

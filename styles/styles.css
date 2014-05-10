@@ -382,3 +382,11 @@ a.footerText {
     text-decoration: none;
     font-size: .9em;
 }
+
+.adminForm {
+    position: absolute;
+    left: 100px;
+    top: 50px;
+    padding: 20px;
+    border: 2px solid #1616A8;
+}

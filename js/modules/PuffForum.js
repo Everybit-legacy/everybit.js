@@ -76,8 +76,17 @@ PuffForum.getRootPuffs = function(limit) {
     // we should probably index these rather than doing a full graph traversal
   
     // TODO: add limit
-  
-    return Puff.Data.puffs.filter(function(puff) { return !puff.payload.parents.length })
+
+
+
+    return Puff.Data.puffs.filter(function(puff) {
+        if(puff === 'undefined') {
+            return !puff.payload.parents.length ;
+        } else {
+            return 0;
+        }
+
+    })
 } 
 
 

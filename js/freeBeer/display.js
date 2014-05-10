@@ -195,20 +195,44 @@ var PuffPacker = React.createClass({
         this.refs.defaultKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(defaultKey);
     },
 
-    handleRegisterUser: function() {
-        var username = this.refs.username.getDOMNode().value;
+    handleBuildRegisterUserPuff: function() {
 
-        // Use this to sign puff requesting new user
-        var adminKeyPrivate = this.refs.currentUserPrivateKeys[1].getDOMNode().value;
+        // Stuff to register. These are public keys
+        var payload = {};
+        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
+        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
+        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
+        var zones = [];
+        var type = 'updateUserRecord';
+        var content = 'requestUsername';
+
+        payload.time = Date.now();
+        // payload.latest = 123123123123; // FIXME: new latest id goes here
 
 
+        var user = PuffUsers.getCurrentUser();
+        var puff = Puff.createPuff(user.username, user.keys.admin.private, zones, type, content, payload, false);
 
-        var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
+        this.refs.puffObject.getDOMNode().value = puff;
 
-        // PuffUsers.requestUsername(username, keys)
+        var puffStringNode = this.refs.puffString.getDOMNode();
 
-        return events.pub('ui/puff-packer/request-username', {});
+        puffStringNode.value = JSON.stringify(puff);
+    },
 
+    handleSendPuffToServer: function() {
+        // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
+        console.log("ENTER");
+        var puffToSend = this.refs.puffObject.getDOMNode().value;
+
+        console.log(puffToSend);
+
+        $.post(CONFIG.userApi, {type: 'updateUsingPuff', puff: JSON.stringify(puffToSend)}, function(response) {
+            console.log(JSON.stringify(response));
+        }, "json");
+
+
+        console.log("exit");
     },
  
     render: function() {
@@ -225,18 +249,21 @@ var PuffPacker = React.createClass({
             <div id="adminForm">
                 <div>
                     <p>Tools:</p>
-                    You are doing this as {user.username}. In order to register new sub-users please set your current identity first.<br />
+                    You are doing this as <span className="authorSpan">{user.username}</span>. In order to register new sub-users please set your current identity first.<br />
 
 
                     <form id="PuffPacker">
                         <p>username:
-                        <input type="text" name="username" ref="username" defaultValue={user.username} /><br />
+                        <input type="text" name="username" ref="username" defaultValue={user.username} />
                         <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
-                        <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} />
-                        <input className="btn-link" type="button" value="Register" onClick={this.handleRegisterUser} />
+                        <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} /><br />
+                        Registration request:
+                        <input className="btn-link" type="button" value="build" onClick={this.handleBuildRegisterUserPuff} />
+                        <input className="btn-link" type="button" value="submit" onClick={this.handleSendPuffToServer} />
                         </p>
 
-                        <p>Public keys</p>
+                        <p><input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /></p>
+                        <p>New public keys</p>
                         <p>root:
                         <input type="text" name="rootKeyPublic" ref="rootKeyPublic" /></p>
 
@@ -246,7 +273,7 @@ var PuffPacker = React.createClass({
                         <p>default:
                         <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /></p>
 
-                        <p>Private keys <input className="btn-link" type="button" value="Generate" onClick={this.handleGeneratePrivateKeys} /></p>
+                        New private keys<br />
                         <p>root:
                             <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /></p>
 
@@ -255,7 +282,6 @@ var PuffPacker = React.createClass({
 
                         <p>default:
                             <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /></p>
-
 
                         <p><label htmlFor="requestType">Action:</label>
                             <select name="requestType" ref="requestType" className="btn">
@@ -270,15 +296,13 @@ var PuffPacker = React.createClass({
 
 
                         <p><label htmlFor="puffString">Puff:</label><br />
-                        <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea></p>
-
-
-                        <p>
-                            <input className="btn-link" type="button" value="Build Puff" onClick={this.handleBuild} />
+                        <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
+                        <input type="hidden" name="puffObject" ref="puffObject" />
                         </p>
 
+
                         <p>
-                            <input className="btn-link" type="button" value="Send to Server" onClick={this.handleRequest} />
+                            <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
                         </p>
                     </form>
                 </div>

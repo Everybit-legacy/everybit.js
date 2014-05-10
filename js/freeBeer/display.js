@@ -72,7 +72,7 @@ var PuffWorld = React.createClass({
 var PuffPacker = React.createClass({
     
     handleBuild: function() {
-        var type = this.refs.requestType.getDOMNode().value
+        var type = this.refs.requestType.getDOMNode().value;
         
         if(type == 'setLatest') {
             var username = this.refs.username.getDOMNode().value;
@@ -80,19 +80,16 @@ var PuffPacker = React.createClass({
             var zones = [];
             var type = 'updateUserRecord';
             var content = 'setLatest';
-            var payload = {}
-            payload.time = Date.now()
-            payload.latest = 123123123123 // FIXME: new latest id goes here
+            var payload = {};
+            payload.time = Date.now();
+            payload.latest = 123123123123; // FIXME: new latest id goes here
             
             var puff = Puff.createPuff(username, privateDefaultKey, zones, type, content, payload);
 
             var resultNode = this.refs.result.getDOMNode();
             resultNode.value = JSON.stringify(puff);
-            
-            
-            // the request to sent to api.php should have "updateUsingPuff" set as $_POST['type']
-            // puff.payload.type would be 'puff' but I'm not using that.
-            
+
+            // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
             return events.pub('ui/puff-packer/set-latest', {});
         }
         
@@ -111,9 +108,14 @@ var PuffPacker = React.createClass({
         }
         
         if(type == 'generateUsername') {
+            var resultNode = this.refs.result.getDOMNode();
+            resultNode.value = Math.random();
+
+            /*
             var callback = function() {};
             
             PuffUsers.addAnonUser(callback);
+            */
             
             /* 
                 If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
@@ -135,53 +137,146 @@ var PuffPacker = React.createClass({
         try {
             var puff = JSON.parse(puffString)
         } catch(e) {
-            console.log(e)
+            console.log(e);
             return Puff.onError('JSON parsers are the worst.')
         }
         
         var callback = function(result) {
             console.log(result)
         }
-        
+
         Puff.Network.sendUserRecordPuffToServer(puff, callback);
+    },
+
+    handleUsernameLookup: function() {
+
+        var username = this.refs.username.getDOMNode().value;
+        var resultNode = this.refs.result.getDOMNode();
+
+        console.log(username);
+
+        $.getJSON(CONFIG.userApi, {type: 'getUser', username: username}, function(result) {
+            resultNode.value = JSON.stringify(result);
+        });
+    },
+
+
+    handleGenerateUsername: function() {
+
+        var rkp = this.refs.rootKeyPublic.getDOMNode().value;
+        var akp = this.refs.adminKeyPublic.getDOMNode().value;
+        var dkp = this.refs.defaultKeyPublic.getDOMNode().value;
+        var resultNode = this.refs.result.getDOMNode();
+        var usernameNode = this.refs.username.getDOMNode();
+
+        console.log(rkp, akp, dkp);
+
+        $.post(CONFIG.userApi, {type: 'generateUsername', rootKey: rkp, adminKey: akp, defaultKey: dkp}, function(result) {
+            // this.refs.username.getDOMNode().value = result.username;
+            console.log(result.username);
+            resultNode.value = JSON.stringify(result);
+            usernameNode.value = result.username;
+        }, "json");
+
+    },
+
+    handleGeneratePrivateKeys: function() {
+        // Get private keys
+        var rootKey = Puff.Crypto.generatePrivateKey();
+        var adminKey = Puff.Crypto.generatePrivateKey();
+        var defaultKey = Puff.Crypto.generatePrivateKey();
+
+        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
+        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
+        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
+
+        this.refs.rootKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(defaultKey);
+    },
+
+    handleRegisterUser: function() {
+        var username = this.refs.username.getDOMNode().value;
+
+        // Use this to sign puff requesting new user
+        var adminKeyPrivate = this.refs.currentUserPrivateKeys[1].getDOMNode().value;
+
+
+
+        var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
+
+        // PuffUsers.requestUsername(username, keys)
+
+        return events.pub('ui/puff-packer/request-username', {});
+
     },
  
     render: function() {
+        // Pre-fill with current user information if exists in memory
         var user = PuffUsers.getCurrentUser();
-        var rootKey, adminKey, defaultKey;
+
         if(user.keys) {
-            rootKey = user.keys.root.private;
-            adminKey = user.keys.admin.private;
-            defaultKey = user.keys.default.private;
+            var currentUserPrivateKeys = [user.keys.root.private, user.keys.admin.private, user.keys.default.private];
         }
- 
+
+        var puffString = '';
+
         return (
             <div id="adminForm">
                 <div>
+                    <p>Tools:</p>
+                    You are doing this as {user.username}. In order to register new sub-users please set your current identity first.<br />
+
+
                     <form id="PuffPacker">
-                        <p>Username: <input type="text" name="username" ref="username" defaultValue={user.username} /></p>
-                        <p>Root key: <input type="text" name="rootKey" ref="rootKey" defaultValue={rootKey} /></p>
-                        <p>Admin key: <input type="text" name="adminKey" ref="adminKey" defaultValue={adminKey} /></p>
-                        <p>Default key: <input type="text" name="defaultKey" ref="defaultKey" defaultValue={defaultKey} /></p>
-                        
-                        <p>
-                            <label htmlFor="requestType">Action:</label>
+                        <p>username:
+                        <input type="text" name="username" ref="username" defaultValue={user.username} /><br />
+                        <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
+                        <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} />
+                        <input className="btn-link" type="button" value="Register" onClick={this.handleRegisterUser} />
+                        </p>
+
+                        <p>Public keys</p>
+                        <p>root:
+                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" /></p>
+
+                        <p>admin:
+                        <input type="text" name="adminKeyPublic" ref="adminKeyPublic" /></p>
+
+                        <p>default:
+                        <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /></p>
+
+                        <p>Private keys <input className="btn-link" type="button" value="Generate" onClick={this.handleGeneratePrivateKeys} /></p>
+                        <p>root:
+                            <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /></p>
+
+                        <p>admin:
+                            <input type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /></p>
+
+                        <p>default:
+                            <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /></p>
+
+
+                        <p><label htmlFor="requestType">Action:</label>
                             <select name="requestType" ref="requestType" className="btn">
                                 <option value="generateUsername">Create anon user</option>
                                 <option value="requestUsername">Register a username</option>
                                 <option value="setLatest">Set the latest sig</option>
                             </select>
                         </p>
-                        
+
+                        <p><label htmlFor="result">Results:</label><br />
+                        <textarea ref="result" name="result" rows="5" cols="50"></textarea></p>
+
+
+                        <p><label htmlFor="puffString">Puff:</label><br />
+                        <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea></p>
+
+
                         <p>
                             <input className="btn-link" type="button" value="Build Puff" onClick={this.handleBuild} />
                         </p>
-                        
-                        <p>
-                            <label htmlFor="result">Results:</label>
-                            <textarea ref="result" name="result" rows="10" cols="50"></textarea>
-                        </p>
-                        
+
                         <p>
                             <input className="btn-link" type="button" value="Send to Server" onClick={this.handleRequest} />
                         </p>

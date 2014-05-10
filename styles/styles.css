@@ -26,17 +26,7 @@ body {
     font-size: 1em;
 }
 
-#adminForm {
-    margin-left: 100px;
-    margin-top: 50px;
-    background-color: aliceblue;
-    padding: 20px;
-    width: 600px;
-}
 
-#adminForm .btn-link {
-    background-color: antiquewhite;
-}
 
 img {
     max-width:100%;
@@ -395,10 +385,28 @@ a.footerText {
     font-size: .9em;
 }
 
-.adminForm {
+#adminForm {
     position: absolute;
-    left: 100px;
-    top: 50px;
+    margin-left: 100px;
+    margin-top: 50px;
+    background-color: #F0F0F0;
     padding: 20px;
-    border: 2px solid #1616A8;
+    border: 2px solid #868686;
+    width: 600px;
+    font-family: GudeaBold, sans-serif;
 }
+
+
+/*
+#adminForm {
+    margin-left: 100px;
+    margin-top: 50px;
+    background-color: aliceblue;
+    padding: 20px;
+    width: 600px;
+}
+
+#adminForm .btn-link {
+    background-color: antiquewhite;
+}
+*/

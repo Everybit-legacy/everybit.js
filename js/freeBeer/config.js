@@ -13,7 +13,7 @@ CONFIG.version = '0.2a';
 CONFIG.puffVersions = [];
 
 CONFIG.userApi = 'http://162.219.162.56/c/users/api.php';
-CONFIG.puffApi = 'http://162.219.162.56/c/users/api.php';
+CONFIG.puffApi = 'http://162.219.162.56/c/puff/api.php';
 
 CONFIG.maxChildrenToShow = 3;
 CONFIG.maxLatestRootsToShow = 26;

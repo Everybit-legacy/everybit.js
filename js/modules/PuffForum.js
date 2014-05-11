@@ -77,16 +77,7 @@ PuffForum.getRootPuffs = function(limit) {
   
     // TODO: add limit
 
-
-
-    return Puff.Data.puffs.filter(function(puff) {
-        if(puff === 'undefined') {
-            return !puff.payload.parents.length ;
-        } else {
-            return 0;
-        }
-
-    })
+    return Puff.Data.puffs.filter(function(puff) { return puff ? !puff.payload.parents.length : 0 })
 } 
 
 
@@ -119,12 +110,14 @@ PuffForum.addPost = function(content, parents, type, metadata) {
     payload.time = Date.now()                             // time is always a unix timestamp
     payload.tags = payload.tags || []                     // an array of tags // TODO: make these work
 
-    var type = type || 'text'                             // TODO: make this a param
-    
+    var type  = type || 'text'
     var zones = CONFIG.zone ? [CONFIG.zone] : []
+    var privateKey = user.keys.default.private
     
-    var sig = Puff.createPuff(user.username, user.privateKey, zones, type, content, payload)
+    var puff = Puff.createPuff(user.username, privateKey, zones, type, content, payload)
  
+    Puff.addPuff(puff, privateKey)
+    
     // THINK: actually we can't return this because we might go async to check the u/pk against the dht
     // return sig;
     

@@ -66,11 +66,8 @@ Puff.init = function(zone) {
 }
 
 
-Puff.createPuff = function(username, privatekey, zones, type, content, payload, publish) {
-    publish = typeof publish !== 'undefined' ? publish : true;
+Puff.createPuff = function(username, privatekey, zones, type, content, payload) {
 
-    //// M-A-G-I-C !!!
-  
     if(!Puff.checkUserKey(username, privatekey))        // THINK: by the time we arrive here u/pk should already be cached,
         return false                                    //        so this never requires a network hit... right? 
 
@@ -90,10 +87,6 @@ Puff.createPuff = function(username, privatekey, zones, type, content, payload, 
                };                                       // early versions will be aggressively deprecated and unsupported
 
     puff.sig = Puff.Crypto.signData(puff, privatekey)
-
-    if(publish) {
-        Puff.addPuff(puff, privatekey)                      // THINK: move this somewhere else...
-    }
 
     return puff
 }

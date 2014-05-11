@@ -90,6 +90,11 @@ var PuffPacker = React.createClass({
             resultNode.value = JSON.stringify(puff);
 
             // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
+            
+            // this function does exactly that:
+            // Puff.Network.sendUserRecordPuffToServer(puff, callback);
+            // if you want to send that 
+            
             return events.pub('ui/puff-packer/set-latest', {});
         }
         
@@ -211,7 +216,7 @@ var PuffPacker = React.createClass({
 
 
         var user = PuffUsers.getCurrentUser();
-        var puff = Puff.createPuff(user.username, user.keys.admin.private, zones, type, content, payload, false);
+        var puff = Puff.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
 
         this.refs.puffObject.getDOMNode().value = puff;
 
@@ -230,6 +235,8 @@ var PuffPacker = React.createClass({
         $.post(CONFIG.userApi, {type: 'updateUsingPuff', puff: JSON.stringify(puffToSend)}, function(response) {
             console.log(JSON.stringify(response));
         }, "json");
+
+        //         Puff.Network.sendUserRecordPuffToServer(puff, callback);
 
 
         console.log("exit");

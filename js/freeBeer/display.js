@@ -240,6 +240,11 @@ var PuffPacker = React.createClass({
 
         console.log("exit");
     },
+
+    handleSelect: function() {
+        // Explicitly focus the text input using the raw DOM API.
+        // this.refs.myTextInput.getDOMNode().select();
+    },
  
     render: function() {
         // Pre-fill with current user information if exists in memory
@@ -253,65 +258,65 @@ var PuffPacker = React.createClass({
 
         return (
             <div id="adminForm">
-                <div>
-                    <p>Tools:</p>
-                    You are doing this as <span className="authorSpan">{user.username}</span>. In order to register new sub-users please set your current identity first.<br />
+                Tools:<br />
+                You are doing this as <span className="authorSpan">{user.username}</span>. In order to register new sub-users please set your current identity first.<br />
+
+                <form id="PuffPacker">
+                    username:
+                    <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
 
 
-                    <form id="PuffPacker">
-                        <p>username:
-                        <input type="text" name="username" ref="username" defaultValue={user.username} />
-                        <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
-                        <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} /><br />
-                        Registration request:
-                        <input className="btn-link" type="button" value="build" onClick={this.handleBuildRegisterUserPuff} />
-                        <input className="btn-link" type="button" value="submit" onClick={this.handleSendPuffToServer} />
-                        </p>
+                    <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
+                    <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} /><br />
+                    Registration request:
+                    <input className="btn-link" type="button" value="build" onClick={this.handleBuildRegisterUserPuff} />
+                    <input className="btn-link" type="button" value="submit" onClick={this.handleSendPuffToServer} />
+                    <br />
 
-                        <p><input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /></p>
-                        <p>New public keys</p>
-                        <p>root:
-                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" /></p>
+                    <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
 
-                        <p>admin:
-                        <input type="text" name="adminKeyPublic" ref="adminKeyPublic" /></p>
+                    New public keys<br />
+                    root:
+                    <input className="fixedLeft" type="text" name="rootKeyPublic" ref="rootKeyPublic" /><br />
 
-                        <p>default:
-                        <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /></p>
+                    admin:
+                    <input className="fixedLeft" type="text" name="adminKeyPublic" ref="adminKeyPublic" /><br />
 
-                        New private keys<br />
-                        <p>root:
-                            <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /></p>
+                    default:
+                    <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br />
 
-                        <p>admin:
-                            <input type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /></p>
+                    <br />
+                    New private keys<br />
+                    root:
+                        <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
 
-                        <p>default:
-                            <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /></p>
+                    admin:
+                        <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
 
-                        <p><label htmlFor="requestType">Action:</label>
-                            <select name="requestType" ref="requestType" className="btn">
-                                <option value="generateUsername">Create anon user</option>
-                                <option value="requestUsername">Register a username</option>
-                                <option value="setLatest">Set the latest sig</option>
-                            </select>
-                        </p>
+                    default:
+                        <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br />
 
-                        <p><label htmlFor="result">Results:</label><br />
-                        <textarea ref="result" name="result" rows="5" cols="50"></textarea></p>
+                    <label htmlFor="requestType">Action:</label>
+                        <select name="requestType" ref="requestType" className="btn">
+                            <option value="generateUsername">Create anon user</option>
+                            <option value="requestUsername">Register a username</option>
+                            <option value="setLatest">Set the latest sig</option>
+                        </select>
+                    <br />
 
-
-                        <p><label htmlFor="puffString">Puff:</label><br />
-                        <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
-                        <input type="hidden" name="puffObject" ref="puffObject" />
-                        </p>
+                    <label htmlFor="result">Results:</label><br />
+                    <textarea ref="result" name="result" rows="5" cols="50"></textarea><br />
 
 
-                        <p>
-                            <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
-                        </p>
+                    <label htmlFor="puffString">Puff:</label><br />
+                    <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
+                    <input type="hidden" name="puffObject" ref="puffObject" />
+                    <br />
+
+
+                        <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
+                    <br />
                     </form>
-                </div>
             </div>
         )
     }

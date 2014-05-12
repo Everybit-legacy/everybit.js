@@ -77,7 +77,9 @@ var PuffPacker = React.createClass({
 
     getInitialState: function() {
         return { result: {}
-               , puff:   {} };
+               , latest: ''
+               ,   puff: {}
+               };
     },
 
     handleClose: function() {
@@ -260,6 +262,20 @@ var PuffPacker = React.createClass({
     },
 
     handleGetLatest: function() {
+        var username = PuffUsers.getCurrentUser().username;
+        var self = this;
+
+        console.log(username);
+
+        $.getJSON(CONFIG.userApi, {type: 'getUser', username: username}, function(result) {
+            if(typeof result.latest != 'undefined') {
+                self.state.latest = result.latest;
+                return events.pub('ui/puff-packer/getUserLatest', {});
+            } else {
+                Puff.onError('Could not find latest user record in DHT')
+            }
+        });
+
         return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
     },
 
@@ -346,7 +362,7 @@ var PuffPacker = React.createClass({
 
                         <p>get latest puff sig from DHT</p>
 
-                        Latest: <input className="fixedLeft" type="text" name="latestSig" ref="latestSig" /><br />
+                        Latest: <input className="fixedLeft" type="text" name="latestSig" ref="latestSig" value={this.state.latest} readOnly="true" /><br />
                         <p><a href="#" onClick={this.handleGetLatest}>Get latest sig from DHT</a></p>
 
                         <p>create a DHT-puff for setting latest</p>

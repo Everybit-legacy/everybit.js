@@ -81,7 +81,7 @@ PuffForum.getRootPuffs = function(limit) {
 } 
 
 
-PuffForum.addPost = function(content, parents, type, metadata) {
+PuffForum.addPost = function(content, parents, type, metadata, recursive) {
     //// Given a string of content, create a puff and push it into the system
   
     // ensure parents is an array
@@ -96,13 +96,26 @@ PuffForum.addPost = function(content, parents, type, metadata) {
     var user = PuffUsers.getCurrentUser()
     
     if(!user.username) {
+        if(recursive)
+            return Puff.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
+        
+        // THINK: instead of giving up we could just save it locally until the network is reestablished...
         return PuffUsers.addAnonUser(
             function(username) {
                 PuffUsers.setCurrentUser(username)
-                PuffForum.addPost(content, parents, type) // THINK: using this function as its own callback is maybe not ideal
+                PuffForum.addPost(content, parents, type, metadata, true)
             }
         )
     }
+    
+    var privateKey = user.keys.default.private
+    
+    // THINK: we definitely want to ensure this is a valid u/p combo... so we'll need to hit the network here.
+    if(!Puff.checkUserKey(user.username, privateKey))  // THINK: by the time we arrive here u/pk should already be cached,
+       return false                                    //        so this never requires a network hit... right? 
+
+    // TODO: check the DHT for this user's previous puff's sig
+    var previous = 123123123
 
     // set up the forum puff style payload
     var payload = metadata || {}
@@ -112,10 +125,9 @@ PuffForum.addPost = function(content, parents, type, metadata) {
 
     var type  = type || 'text'
     var zones = CONFIG.zone ? [CONFIG.zone] : []
-    var privateKey = user.keys.default.private
-    
-    var puff = Puff.createPuff(user.username, privateKey, zones, type, content, payload)
- 
+
+    var puff = Puff.createPuff(user.username, privateKey, zones, type, content, payload, previous)
+
     Puff.addPuff(puff, privateKey)
     
     // THINK: actually we can't return this because we might go async to check the u/pk against the dht

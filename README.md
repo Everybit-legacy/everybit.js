@@ -46,7 +46,8 @@ The main unit of content in the puffball platform is called a **puff**.  It is s
   - **title**
   - **geo**
   - **copyright**
-  
+
+
 The identity of the person who created this puff is stored in **username**. The **zones** field serves to identify the intended recipients (if any) or to indicate that a puff is related to another user. It works like the @ sign in twitter.
 
 Every piece of content has a unique id stored in the **sig** field. To generate this id, a user combines all of the fields of a puff (except the **sig** itself!) into a string and signs it using their private key. This signature serves as proof that the content really was created by the **username** listed.  Because the chance of a collision (two different puffs containing the same signature) is essentially zero, there's no way for a user to flood the system with multiple copies of the same content with different ids, unless they create a new username for each copy. 
@@ -73,10 +74,12 @@ The design of the puffball platform is driven by the following core beliefs:
 
 - Whenever possible, make decisions a convention and not a rule.
 - Provide good default values, then allow for customizability.
-- If it's not easy to use, it sucks. 
-- If it's not beautiful, no one will want to spend time with it.
 - The client is king. Everything that can be done client-side, should be done client-side.
 - Separate content from interpretation.
+- Make it easy. 
+- Make it beautiful.
+- Make it intuitive
+- Make it fun.
 - Make it seem inevitable (because it is).
 
 <a name='multicontent'></a>

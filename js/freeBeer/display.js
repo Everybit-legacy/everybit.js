@@ -212,7 +212,6 @@ var PuffPacker = React.createClass({
         var content = 'requestUsername';
 
         payload.time = Date.now();
-        // payload.latest = 123123123123; // FIXME: new latest id goes here
 
 
         var user = PuffUsers.getCurrentUser();

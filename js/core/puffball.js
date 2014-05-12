@@ -53,9 +53,8 @@ Puff.init = function(zone) {
     // -- network access for updates
   
     Puff.Data.getLocalPuffs(Puff.receiveNewPuffs)
-
-    Puff.Network.getAllPuffs(Puff.receiveNewPuffs); // OPT: only ask for puffs we're missing
-
+    Puff.Data.getNewPuffs() // THINK: this should take a zone
+    
     Puff.Blockchain.BLOCKS = Puff.Persist.get('blocks') 
     if(!Puff.Blockchain.BLOCKS)
         Puff.Blockchain.BLOCKS = {}
@@ -66,18 +65,15 @@ Puff.init = function(zone) {
 }
 
 
-Puff.createPuff = function(username, privatekey, zones, type, content, payload) {
-
-    if(!Puff.checkUserKey(username, privatekey))        // THINK: by the time we arrive here u/pk should already be cached,
-        return false                                    //        so this never requires a network hit... right? 
+Puff.createPuff = function(username, privatekey, zones, type, content, payload, previous) {
+    //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
-    
+
     zones = zones || []
-    
-    var previous = 123123123                            // TODO: check the DHT for this user's previous puff's sig
+    previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
     var puff = { payload: payload
                , zones: zones
@@ -169,6 +165,11 @@ Puff.Data.getLocalPuffs = function(callback) {
     return setTimeout(function() {callback(Puff.Persist.get('puffs') || [])}, 0)
 }
 
+Puff.Data.getNewPuffs = function() {
+    var puffPromise = Puff.Network.getAllPuffs(); // OPT: only ask for puffs we're missing
+    puffPromise.then(Puff.receiveNewPuffs)
+}
+
 Puff.Data.addUser = function(user) {
     Puff.Data.users.push(user);
     // TODO: index by username
@@ -195,40 +196,36 @@ Puff.Network = {};
 Puff.Network.peers = {}
 
 Puff.Network.init = function() {
-    Puff.Network.Peer = new Peer({
-        host: '162.219.162.56',
-        port: 9000,
-        path: '/',
-        debug: 1
-    });
+    //// fire up the networks (currently just the peer connections)
+    
+    Puff.Network.Peer = new Peer({  host: '162.219.162.56'
+                                 ,  port: 9000
+                                 ,  path: '/'
+                                 , debug: 1
+                                 });
     
     Puff.Network.Peer.on('open', Puff.Network.openPeerConnection);
-    Puff.Network.Peer.on('connection', this.connection);
+    Puff.Network.Peer.on('connection', Puff.Network.connection);
 }
 
 
 Puff.Network.reloadPeers = function() {
-    console.log("Reloading peers");
     return Puff.Network.Peer.listAllPeers(Puff.Network.handlePeers);
 };
 
 Puff.Network.openPeerConnection = function(id) {
-    console.log("Opened peer connection");
     return Puff.Network.Peer.listAllPeers(Puff.Network.handlePeers);
 };
 
 Puff.Network.connection = function(connection) {
-    console.log("Connection", connection);
-    Puff.Network.reloadPeers();
+    Puff.Network.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
         Puff.receiveNewPuffs(data);
-        return console.log("Got data", data);
     });
 };
 
 Puff.Network.handlePeers = function(peers) {
-    console.log("Got peers", peers);
     peers.forEach(function(peer) {
         if(Puff.Network.peers[peer]) 
             return false;
@@ -242,16 +239,71 @@ Puff.Network.sendPuffToPeers = function(puff) {
     }
 }
 
+Puff.Network.xhr = function(url, options, data) {
+    //// very simple promise-based XHR implementation
+    
+    return new Promise(function(resolve, reject) {
+        var req = new XMLHttpRequest();
+        req.open(options.method || 'GET', url);
+        
+        Object.keys(options.headers || {}).forEach(function (key) {
+          req.setRequestHeader(key, options.headers[key]);
+        });
+        
+        if(data) {
+            var formdata = new FormData()
+            Object.keys(options.headers || {}).forEach(function (key) {
+              formdata.append(key, data[key]);
+            });
+        }
+        
+        if(options && options.type)
+            req.responseType = options.type
+                
+        req.onload = function() {
+          if (req.status == 200)
+            resolve(req.response);
+          else 
+            reject(Error(req.statusText));
+        };
 
-Puff.Network.getAllPuffs = function(callback) {
+        req.onerror = function() {
+          reject(Error("Network Error"));
+        };
+
+        req.send(formdata);
+    });
+}
+
+Puff.Network.getJSON = function(url) {
+    var options = { headers: { 'Accept': 'application/json' }
+                  ,  method: 'GET'
+                  ,    type: 'json'
+                  }
+
+    return Puff.Network.xhr(url, options)
+}
+
+Puff.Network.post = function(url, data) {
+    var options = { headers: { 'Content-type': 'application/x-www-form-urlencoded' 
+//                             , 'Content-length': params.length
+//                             ,   'Connection': 'close'  
+                             }
+                  ,  method: 'POST'
+                  }
+
+    return Puff.Network.xhr(url, options, data)
+}
+
+
+Puff.Network.getAllPuffs = function() {
     //// get all the puffs from this zone
-    
-    if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
-    
-
     // TODO: add zone parameter (default to CONFIG.zone)
-    // THINK: use promises instead of callbacks? 
-    $.getJSON(CONFIG.puffApi + "?type=getAllPuffs", callback);  
+    
+    if(CONFIG.noNetwork) return false // NOTE: this is only for debugging and development
+
+    var url = CONFIG.puffApi + '?type=getAllPuffs';
+    return Puff.Network.getJSON(url);
 }
 
 Puff.Network.distributePuff = function(puff) {

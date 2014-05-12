@@ -142,7 +142,7 @@ events.sub('prefs/storeusers/toggle', function(data, path) {
 events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname) 
-        return Puff.onError('Invalid nickname')  // THINK: do this in React? use Puff.validations?
+        return Puffball.onError('Invalid nickname')  // THINK: do this in React? use Puffball.validations?
     
     PuffUsers.setProfileItem('nickname', nickname)
     
@@ -163,7 +163,7 @@ events.sub('profile/nickname/set', function(data, path) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // Puff.Data.puffs.forEach(function(puff) {
+//   // Puffball.Data.puffs.forEach(function(puff) {
 //   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'

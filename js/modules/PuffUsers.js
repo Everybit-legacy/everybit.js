@@ -36,7 +36,7 @@ PuffUsers.getCurrentUser = function() {
 
 PuffUsers.getAllUsers = function() {
     if(!PuffUsers.users)
-        PuffUsers.users = Puff.Persist.get('users') || {}
+        PuffUsers.users = Puffball.Persist.get('users') || {}
     
     return PuffUsers.users
 }
@@ -45,11 +45,11 @@ PuffUsers.addAnonUser = function(callback) {
     //// create a new anonymous user and add it to the local user list
   
     // generate private keys
-    var privateDefaultKey = Puff.Crypto.generatePrivateKey();
-    var privateAdminKey = Puff.Crypto.generatePrivateKey();
-    var privateRootKey = Puff.Crypto.generatePrivateKey();
+    var privateDefaultKey = Puffball.Crypto.generatePrivateKey();
+    var privateAdminKey = Puffball.Crypto.generatePrivateKey();
+    var privateRootKey = Puffball.Crypto.generatePrivateKey();
     
-    var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
+    var keys = Puffball.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
     
     var my_callback = function(username) {
         PuffUsers.addUserReally(username, keys);
@@ -58,17 +58,17 @@ PuffUsers.addAnonUser = function(callback) {
         }
     }
   
-    Puff.Network.addAnonUser(keys, my_callback);
+    Puffnet.addAnonUser(keys, my_callback);
 }
 
 PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
-    var publicDefaultKey = Puff.Crypto.privateToPublic(privateDefaultKey);
+    var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
     if(!publicDefaultKey) 
-        return Puff.onError('That private key could not generate a public key');
+        return Puffball.onError('That private key could not generate a public key');
 
     var my_callback = function(user) {
         if(!user) 
-            return Puff.onError('No result returned');
+            return Puffball.onError('No result returned');
         
         // THINK: return a promise instead
         if(user.defaultKey === publicDefaultKey) {
@@ -81,11 +81,11 @@ PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback
             if(typeof errback === 'function')
                 errback(username, privateDefaultKey)
             else
-                return Puff.onError('That private key does not match the record for that username')
+                return Puffball.onError('That private key does not match the record for that username')
         }
     }
     
-    Puff.Network.getUser(username, my_callback)
+    Puffnet.getUser(username, my_callback)
 }
 
 PuffUsers.addUserReally = function(username, keys) {
@@ -97,7 +97,7 @@ PuffUsers.addUserReally = function(username, keys) {
     users[username] = userinfo
     
     if(PuffUsers.getPref('storeusers'))
-        Puff.Persist.save('users', users)
+        Puffball.Persist.save('users', users)
     
     return userinfo
 }
@@ -107,7 +107,7 @@ PuffUsers.setCurrentUser = function(username) {
     var user = users[username]
     
     if(!user || !user.username)
-        return Puff.onError('No record of that username exists locally -- try adding it first')
+        return Puffball.onError('No record of that username exists locally -- try adding it first')
     
     PuffUsers.currentUser = user
 }
@@ -120,7 +120,7 @@ PuffUsers.removeUser = function(username) {
         PuffUsers.currentUser = {}
     
     if(PuffUsers.getPref('storeusers'))
-        Puff.Persist.save('users', users)
+        Puffball.Persist.save('users', users)
 }
 
 
@@ -143,7 +143,7 @@ PuffUsers.getPref = function(key) {
 
 PuffUsers.getAllPrefs = function() {
     if(!PuffUsers.prefsarray)
-        PuffUsers.prefsarray = Puff.Persist.get('prefs') || {}
+        PuffUsers.prefsarray = Puffball.Persist.get('prefs') || {}
     
     return PuffUsers.prefsarray
 }
@@ -155,14 +155,14 @@ PuffUsers.setPref = function(key, value) {
     PuffUsers.prefsarray = newprefs
 
     var filename = 'prefs'
-    Puff.Persist.save(filename, newprefs)
+    Puffball.Persist.save(filename, newprefs)
     
     return newprefs
 }
 
 PuffUsers.removePrefs = function() {
     var filename = 'prefs'
-    Puff.Persist.remove(filename)
+    Puffball.Persist.remove(filename)
 }
 
 
@@ -203,7 +203,7 @@ PuffUsers.getAllUserProfileItems = function(username) {
     if(parray[username]) return parray[username]  // is this always right?
     
     var profilefile = 'profile::' + username
-    parray[username] = Puff.Persist.get(profilefile) || {}
+    parray[username] = Puffball.Persist.get(profilefile) || {}
     
     return parray[username]
 }
@@ -217,7 +217,7 @@ PuffUsers.setUserProfileItems = function(username, key, value) {
     PuffUsers.profilearray[username] = newprofile
 
     var profilefile = 'profile::' + username;
-    Puff.Persist.save(profilefile, newprofile)
+    Puffball.Persist.save(profilefile, newprofile)
     
     return newprofile
 }
@@ -228,5 +228,5 @@ PuffUsers.removeUserProfile = function(username) {
     PuffUsers.profilearray.delete(username)
     
     var profilefile = 'profile::' + username;
-    Puff.Persist.remove(profilefile)
+    Puffball.Persist.remove(profilefile)
 }

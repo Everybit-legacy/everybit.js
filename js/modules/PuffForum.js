@@ -26,9 +26,9 @@ PuffForum.init = function() {
     // THINK: maybe you can only call this once?
     // THINK: maybe take a zone arg, but default to config
   
-    Puff.onNewPuffs(PuffForum.receiveNewPuffs);
+    Puffball.onNewPuffs(PuffForum.receiveNewPuffs);
   
-    Puff.init(CONFIG.zone);
+    Puffball.init(CONFIG.zone);
     // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 
@@ -37,7 +37,7 @@ PuffForum.getPuffById = function(id) {
   
     // TODO: check the graph instead of this
   
-    return Puff.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
+    return Puffball.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
 }
 
 
@@ -64,7 +64,7 @@ PuffForum.getChildren = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return Puff.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
 }
 
 
@@ -77,7 +77,7 @@ PuffForum.getRootPuffs = function(limit) {
   
     // TODO: add limit
 
-    return Puff.Data.puffs.filter(function(puff) { return puff ? !puff.payload.parents.length : 0 })
+    return Puffball.Data.puffs.filter(function(puff) { return puff ? !puff.payload.parents.length : 0 })
 } 
 
 
@@ -97,7 +97,7 @@ PuffForum.addPost = function(content, parents, type, metadata, recursive) {
     
     if(!user.username) {
         if(recursive)
-            return Puff.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
+            return Puffball.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
         
         // THINK: instead of giving up we could just save it locally until the network is reestablished...
         return PuffUsers.addAnonUser(
@@ -111,7 +111,7 @@ PuffForum.addPost = function(content, parents, type, metadata, recursive) {
     var privateKey = user.keys.default.private
     
     // THINK: we definitely want to ensure this is a valid u/p combo... so we'll need to hit the network here.
-    if(!Puff.checkUserKey(user.username, privateKey))  // THINK: by the time we arrive here u/pk should already be cached,
+    if(!Puffball.checkUserKey(user.username, privateKey))  // THINK: by the time we arrive here u/pk should already be cached,
        return false                                    //        so this never requires a network hit... right? 
 
     // TODO: check the DHT for this user's previous puff's sig
@@ -126,9 +126,9 @@ PuffForum.addPost = function(content, parents, type, metadata, recursive) {
     var type  = type || 'text'
     var zones = CONFIG.zone ? [CONFIG.zone] : []
 
-    var puff = Puff.createPuff(user.username, privateKey, zones, type, content, payload, previous)
+    var puff = Puffball.createPuff(user.username, privateKey, zones, type, content, payload, previous)
 
-    Puff.addPuff(puff, privateKey)
+    Puffball.addPuff(puff, privateKey)
     
     // THINK: actually we can't return this because we might go async to check the u/pk against the dht
     // return sig;
@@ -140,7 +140,7 @@ PuffForum.addPost = function(content, parents, type, metadata, recursive) {
 PuffForum.getDefaultPuff = function() {
     var defaultPuff = CONFIG.defaultPuff
                     ? PuffForum.getPuffById(CONFIG.defaultPuff)
-                    : Puff.Data.puffs[0]
+                    : Puffball.Data.puffs[0]
  
     // TODO: use 'locate puff' once it's available, and change this to 'show default puff'
     
@@ -175,8 +175,8 @@ PuffForum.addToGraph = function(puffs) {
 
 
 PuffForum.addContentType = function(name, type) {
-    if(!name) return Puff.onError('Invalid content type name')
-    if(!type.toHtml) return Puff.onError('Invalid content type: object is missing toHtml method')
+    if(!name) return Puffball.onError('Invalid content type name')
+    if(!type.toHtml) return Puffball.onError('Invalid content type: object is missing toHtml method')
     
     // TODO: add more thorough name/type checks
     PuffForum.contentTypes[name] = type

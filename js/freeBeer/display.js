@@ -84,7 +84,7 @@ var PuffPacker = React.createClass({
             payload.time = Date.now();
             payload.latest = 123123123123; // FIXME: new latest id goes here
             
-            var puff = Puff.createPuff(username, privateDefaultKey, zones, type, content, payload);
+            var puff = Puffball.createPuff(username, privateDefaultKey, zones, type, content, payload);
 
             var resultNode = this.refs.result.getDOMNode();
             resultNode.value = JSON.stringify(puff);
@@ -92,7 +92,7 @@ var PuffPacker = React.createClass({
             // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
             
             // this function does exactly that:
-            // Puff.Network.sendUserRecordPuffToServer(puff, callback);
+            // Puffnet.sendUserRecordPuffToServer(puff, callback);
             // if you want to send that 
             
             return events.pub('ui/puff-packer/set-latest', {});
@@ -105,7 +105,7 @@ var PuffPacker = React.createClass({
             var privateAdminKey   = this.refs.adminKey.getDOMNode().value;
             var privateRootKey    = this.refs.rootKey.getDOMNode().value;
             
-            var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
+            var keys = Puffball.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
             
             // PuffUsers.requestUsername(username, keys)
             
@@ -126,8 +126,8 @@ var PuffPacker = React.createClass({
                 If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
                 to PuffUsers.addAnonUser -- that has all the key generation and checking functionality in it already.
             
-                In general all the network calls should be done through Puff.Network -- if you find yourself
-                reaching for $.ajax somewhere else we should probably move that use case into Puff.Network,
+                In general all the network calls should be done through Puffnet -- if you find yourself
+                reaching for $.ajax somewhere else we should probably move that use case into Puffnet,
                 at least eventually.
             */
             
@@ -143,14 +143,14 @@ var PuffPacker = React.createClass({
             var puff = JSON.parse(puffString)
         } catch(e) {
             console.log(e);
-            return Puff.onError('JSON parsers are the worst.')
+            return Puffball.onError('JSON parsers are the worst.')
         }
         
         var callback = function(result) {
             console.log(result)
         }
 
-        Puff.Network.sendUserRecordPuffToServer(puff, callback);
+        Puffnet.sendUserRecordPuffToServer(puff, callback);
     },
 
     handleUsernameLookup: function() {
@@ -187,17 +187,17 @@ var PuffPacker = React.createClass({
 
     handleGeneratePrivateKeys: function() {
         // Get private keys
-        var rootKey = Puff.Crypto.generatePrivateKey();
-        var adminKey = Puff.Crypto.generatePrivateKey();
-        var defaultKey = Puff.Crypto.generatePrivateKey();
+        var rootKey = Puffball.Crypto.generatePrivateKey();
+        var adminKey = Puffball.Crypto.generatePrivateKey();
+        var defaultKey = Puffball.Crypto.generatePrivateKey();
 
         this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
         this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
         this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
 
-        this.refs.rootKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puff.Crypto.privateToPublic(defaultKey);
+        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
     },
 
     handleBuildRegisterUserPuff: function() {
@@ -215,7 +215,7 @@ var PuffPacker = React.createClass({
 
 
         var user = PuffUsers.getCurrentUser();
-        var puff = Puff.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
+        var puff = Puffball.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
 
         this.refs.puffObject.getDOMNode().value = puff;
 
@@ -235,7 +235,7 @@ var PuffPacker = React.createClass({
             console.log(JSON.stringify(response));
         }, "json");
 
-        //         Puff.Network.sendUserRecordPuffToServer(puff, callback);
+        //         Puffnet.sendUserRecordPuffToServer(puff, callback);
 
 
         console.log("exit");
@@ -967,7 +967,7 @@ var PuffAddUser = React.createClass({
         var privkey = this.refs.privkey.state.value
 
         if(!username || !privkey)
-            return Puff.onError('Invalid username or private key')
+            return Puffball.onError('Invalid username or private key')
 
         this.refs.username.getDOMNode().value = "" // what oh dear
         this.refs.privkey.getDOMNode().value = ""
@@ -984,7 +984,7 @@ var PuffAddUser = React.createClass({
         var privkey = this.refs.privkey.state.value
 
         if(!username || !privkey)
-            return Puff.onError('Invalid username or private key')
+            return Puffball.onError('Invalid username or private key')
 
         this.refs.username.getDOMNode().value = "" // what oh dear
         this.refs.privkey.getDOMNode().value = ""
@@ -1127,7 +1127,7 @@ var PuffManageUser = React.createClass({
             var user = PuffUsers.getCurrentUser()
             if(!user.username) return false
             
-            var blocks = Puff.Blockchain.exportChain(user.username);
+            var blocks = Puffball.Blockchain.exportChain(user.username);
             var linkData = encodeURIComponent(JSON.stringify(blocks))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = <a download="blockchain.json" href={data} className="under">DOWNLOAD BLOCKCHAIN</a>

@@ -8,26 +8,26 @@
       |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|                                                
  
   
-  The core library for the puffball platform. 
-
-  Currently a single flat file containing a mixture of parts; one day this will be the composite of modules at many levels.
-  
-
-  Future file system idea:
-
-  puff.js
-
-  /data
-    data.js
-    blockchain.js
-    puffValidator.js
-
-  /network
-    network.js
-    socket.js
-    rtc.js
-    localStorage.js
- */
+    The core library for the puffball platform. 
+    
+    Currently a single flat file containing a mixture of parts; one day this will be the composite of modules at many levels.
+    
+    
+    Future file system idea:
+    
+    puff.js
+    
+    /data
+      data.js
+      blockchain.js
+      puffValidator.js
+    
+    /network
+      network.js
+      socket.js
+      rtc.js
+      localStorage.js
+*/
 
 Puffball = {};
 
@@ -156,7 +156,7 @@ Puffball.Data.eat = function(puff) {
 
 Puffball.Data.persist = function(puffs) {
     if(CONFIG.noLocalStorage) return false              // THINK: this is only for debugging and development
-    Puffball.Persist.save('puffs', puffs)                   // OPT: throttle this when we're chowing down on lots of puffs
+    Puffball.Persist.save('puffs', puffs)               // OPT: throttle this when we're chowing down on lots of puffs
 }
 
 Puffball.Data.getLocalPuffs = function(callback) {
@@ -166,8 +166,8 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
-    var puffPromise = PuffNet.getAllPuffs(); // OPT: only ask for puffs we're missing
-    puffPromise.then(Puffball.receiveNewPuffs)
+    var pprom = PuffNet.getAllPuffs(); // OPT: only ask for puffs we're missing
+    pprom.then(Puffball.receiveNewPuffs)
 }
 
 Puffball.Data.addUser = function(user) {
@@ -180,12 +180,13 @@ Puffball.Data.verifyPuff = function(puff, callback) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
     
-    // TODO: make this a promise instead
-    PuffNet.getUser(puff.username, function(user) {
-        var defaultKey = user.defaultKey
-        var result = Puffball.Crypto.verifyPuffSig(puff, defaultKey)
-        callback(result)
-    })
+    var pprom = PuffNet.getUser(puff.username);
+    
+    pprom.then(function(user) {
+        return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey)
+    });
+    
+    return pprom;
 }
 
 
@@ -456,7 +457,15 @@ Puffball.Persist.remove = function(key) {
 
 /// ERROR ERROR
 
-Puffball.onError = function(msg) {
-    console.log(msg)
+Puffball.onError = function(msg, obj) {
+    console.log(msg, obj)
     return false
+}
+
+
+Puffball.promiseError = function(msg) {
+    return function(err) {
+        Puffball.onError(msg, err)
+        throw err
+    }
 }

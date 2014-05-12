@@ -972,27 +972,18 @@ var PuffAddUser = React.createClass({
         this.refs.username.getDOMNode().value = "" // what oh dear
         this.refs.privkey.getDOMNode().value = ""
 
-        PuffUsers.addUserMaybe(username.trim(), privkey.trim(), function(userinfo) {
+        var pprom = PuffUsers.addUserMaybe(username.trim(), privkey.trim())
+        
+        pprom.then(function(userinfo) {
             PuffUsers.setCurrentUser(userinfo.username)
             events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_one': false})
         })
         
+        pprom.catch(Puffball.promiseError('Failed to add user'))
+        
         return false
     },
     handleUserCreate: function() {
-        var username = this.refs.username.state.value
-        var privkey = this.refs.privkey.state.value
-
-        if(!username || !privkey)
-            return Puffball.onError('Invalid username or private key')
-
-        this.refs.username.getDOMNode().value = "" // what oh dear
-        this.refs.privkey.getDOMNode().value = ""
-
-        PuffUsers.addUserMaybe(username.trim(), privkey.trim(), function(userinfo) {
-            PuffUsers.setCurrentUser(userinfo.username)
-            events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_new': false})
-        })
         
         return false
     },

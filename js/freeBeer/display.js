@@ -198,7 +198,7 @@ var PuffPacker = React.createClass({
         var resultNode = this.refs.result.getDOMNode();
         var puffToSend = this.refs.puffObject.getDOMNode().value;
 
-        console.log(puffToSend);
+        console.log(JSON.stringify(puffToSend));
 
         $.post(CONFIG.userApi, {type: 'updateUsingPuff', puff: JSON.stringify(puffToSend)}, function(response) {
 
@@ -241,7 +241,7 @@ var PuffPacker = React.createClass({
                         <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
                         <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} />
                         <input className="btn-link" type="button" value="Build registration request" onClick={this.handleBuildRegisterUserPuff} />
-                        
+
                         <br />
                         <b>Current identity:</b> <span className="authorSpan">{user.username}</span><br />
                         To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />

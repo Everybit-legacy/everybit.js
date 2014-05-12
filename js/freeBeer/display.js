@@ -92,7 +92,7 @@ var PuffPacker = React.createClass({
             // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
             
             // this function does exactly that:
-            // Puffnet.sendUserRecordPuffToServer(puff, callback);
+            // PuffNet.sendUserRecordPuffToServer(puff, callback);
             // if you want to send that 
             
             return events.pub('ui/puff-packer/set-latest', {});
@@ -126,8 +126,8 @@ var PuffPacker = React.createClass({
                 If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
                 to PuffUsers.addAnonUser -- that has all the key generation and checking functionality in it already.
             
-                In general all the network calls should be done through Puffnet -- if you find yourself
-                reaching for $.ajax somewhere else we should probably move that use case into Puffnet,
+                In general all the network calls should be done through PuffNet -- if you find yourself
+                reaching for $.ajax somewhere else we should probably move that use case into PuffNet,
                 at least eventually.
             */
             
@@ -150,7 +150,7 @@ var PuffPacker = React.createClass({
             console.log(result)
         }
 
-        Puffnet.sendUserRecordPuffToServer(puff, callback);
+        PuffNet.sendUserRecordPuffToServer(puff, callback);
     },
 
     handleUsernameLookup: function() {
@@ -235,7 +235,7 @@ var PuffPacker = React.createClass({
             console.log(JSON.stringify(response));
         }, "json");
 
-        //         Puffnet.sendUserRecordPuffToServer(puff, callback);
+        //         PuffNet.sendUserRecordPuffToServer(puff, callback);
 
 
         console.log("exit");

@@ -61,7 +61,7 @@ Puffball.init = function(zone) {
         
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
 
-    Puffnet.init()
+    PuffNet.init()
 }
 
 
@@ -114,7 +114,7 @@ Puffball.addPuff = function(puff, privatekey) {
   
     Puffball.receiveNewPuffs([puff]);
 
-    Puffnet.distributePuff(puff);
+    PuffNet.distributePuff(puff);
     
     // Puffball.Blockchain.createBlock(puff.username, puff, privatekey);
 }
@@ -166,7 +166,7 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
-    var puffPromise = Puffnet.getAllPuffs(); // OPT: only ask for puffs we're missing
+    var puffPromise = PuffNet.getAllPuffs(); // OPT: only ask for puffs we're missing
     puffPromise.then(Puffball.receiveNewPuffs)
 }
 
@@ -181,7 +181,7 @@ Puffball.Data.verifyPuff = function(puff, callback) {
     // TODO: check for well-formed-ness
     
     // TODO: make this a promise instead
-    Puffnet.getUser(puff.username, function(user) {
+    PuffNet.getUser(puff.username, function(user) {
         var defaultKey = user.defaultKey
         var result = Puffball.Crypto.verifyPuffSig(puff, defaultKey)
         callback(result)
@@ -429,7 +429,7 @@ Puffball.Blockchain.exportChain = function(username){
 /*
     Persistence layer
 
-    It's like a network on your hard drive... which probably implies this should live in Puffnet.
+    It's like a network on your hard drive... which probably implies this should live in PuffNet.
 */
 
 Puffball.Persist = {};

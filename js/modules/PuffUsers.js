@@ -58,7 +58,7 @@ PuffUsers.addAnonUser = function(callback) {
         }
     }
   
-    Puffnet.addAnonUser(keys, my_callback);
+    PuffNet.addAnonUser(keys, my_callback);
 }
 
 PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
@@ -85,7 +85,7 @@ PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback
         }
     }
     
-    Puffnet.getUser(username, my_callback)
+    PuffNet.getUser(username, my_callback)
 }
 
 PuffUsers.addUserReally = function(username, keys) {

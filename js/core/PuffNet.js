@@ -1,54 +1,54 @@
 
 // NETWORK LAYER
 
-Puffnet = {};
-Puffnet.peers = {}
+PuffNet = {};
+PuffNet.peers = {}
 
-Puffnet.init = function() {
+PuffNet.init = function() {
     //// fire up the networks (currently just the peer connections)
     
-    Puffnet.Peer = new Peer({  host: '162.219.162.56'
+    PuffNet.Peer = new Peer({  host: '162.219.162.56'
                                  ,  port: 9000
                                  ,  path: '/'
                                  , debug: 1
                                  });
     
-    Puffnet.Peer.on('open', Puffnet.openPeerConnection);
-    Puffnet.Peer.on('connection', Puffnet.connection);
+    PuffNet.Peer.on('open', PuffNet.openPeerConnection);
+    PuffNet.Peer.on('connection', PuffNet.connection);
 }
 
 
-Puffnet.reloadPeers = function() {
-    return Puffnet.Peer.listAllPeers(Puffnet.handlePeers);
+PuffNet.reloadPeers = function() {
+    return PuffNet.Peer.listAllPeers(PuffNet.handlePeers);
 };
 
-Puffnet.openPeerConnection = function(id) {
-    return Puffnet.Peer.listAllPeers(Puffnet.handlePeers);
+PuffNet.openPeerConnection = function(id) {
+    return PuffNet.Peer.listAllPeers(PuffNet.handlePeers);
 };
 
-Puffnet.connection = function(connection) {
-    Puffnet.reloadPeers(); // OPT: do we really need this? 
+PuffNet.connection = function(connection) {
+    PuffNet.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
         Puffball.receiveNewPuffs(data);
     });
 };
 
-Puffnet.handlePeers = function(peers) {
+PuffNet.handlePeers = function(peers) {
     peers.forEach(function(peer) {
-        if(Puffnet.peers[peer]) 
+        if(PuffNet.peers[peer]) 
             return false;
-        Puffnet.peers[peer] = Puffnet.Peer.connect(peer);
+        PuffNet.peers[peer] = PuffNet.Peer.connect(peer);
     });
 };
 
-Puffnet.sendPuffToPeers = function(puff) {
-    for(var peer in Puffnet.peers) {
-        Puffnet.peers[peer].send(puff)
+PuffNet.sendPuffToPeers = function(puff) {
+    for(var peer in PuffNet.peers) {
+        PuffNet.peers[peer].send(puff)
     }
 }
 
-Puffnet.xhr = function(url, options, data) {
+PuffNet.xhr = function(url, options, data) {
     //// very simple promise-based XHR implementation
     
     return new Promise(function(resolve, reject) {
@@ -84,16 +84,16 @@ Puffnet.xhr = function(url, options, data) {
     });
 }
 
-Puffnet.getJSON = function(url) {
+PuffNet.getJSON = function(url) {
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'
                   ,    type: 'json'
                   }
 
-    return Puffnet.xhr(url, options)
+    return PuffNet.xhr(url, options)
 }
 
-Puffnet.post = function(url, data) {
+PuffNet.post = function(url, data) {
     var options = { headers: { 'Content-type': 'application/x-www-form-urlencoded' 
 //                             , 'Content-length': params.length
 //                             ,   'Connection': 'close'  
@@ -101,21 +101,21 @@ Puffnet.post = function(url, data) {
                   ,  method: 'POST'
                   }
 
-    return Puffnet.xhr(url, options, data)
+    return PuffNet.xhr(url, options, data)
 }
 
 
-Puffnet.getAllPuffs = function() {
+PuffNet.getAllPuffs = function() {
     //// get all the puffs from this zone
     // TODO: add zone parameter (default to CONFIG.zone)
     
     if(CONFIG.noNetwork) return false // NOTE: this is only for debugging and development
 
     var url = CONFIG.puffApi + '?type=getAllPuffs';
-    return Puffnet.getJSON(url);
+    return PuffNet.getJSON(url);
 }
 
-Puffnet.distributePuff = function(puff) {
+PuffNet.distributePuff = function(puff) {
     //// distribute a puff to the network
   
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
@@ -138,11 +138,11 @@ Puffnet.distributePuff = function(puff) {
     });
   
     // broadcast it to peers
-    Puffnet.sendPuffToPeers(puff)
+    PuffNet.sendPuffToPeers(puff)
 }
 
-Puffnet.getUser = function(username, callback) {
-    // TODO: call Puffnet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+PuffNet.getUser = function(username, callback) {
+    // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var my_callback = function(user) {
         Puffball.Data.addUser(user);
@@ -156,7 +156,7 @@ Puffnet.getUser = function(username, callback) {
     $.getJSON(CONFIG.userApi, {type: 'getUser', username: username}, my_callback);
 }
 
-Puffnet.getUserFile = function(username, callback) {
+PuffNet.getUserFile = function(username, callback) {
     var my_callback = function(users) {
         Puffball.Data.users = Puffball.Data.users.concat(users);
         callback(username);
@@ -165,7 +165,7 @@ Puffnet.getUserFile = function(username, callback) {
     $.getJSON(CONFIG.userApi, {type: 'getUserFile', username: username}, my_callback);
 }
 
-Puffnet.addAnonUser = function(keys, callback) {
+PuffNet.addAnonUser = function(keys, callback) {
     $.ajax({
         type: 'POST',
         url: CONFIG.userApi,
@@ -190,7 +190,7 @@ Puffnet.addAnonUser = function(keys, callback) {
     });
 }
 
-Puffnet.sendUserRecordPuffToServer = function(puff, callback) {
+PuffNet.sendUserRecordPuffToServer = function(puff, callback) {
     $.ajax({
         type: 'POST',
         url: CONFIG.userApi,

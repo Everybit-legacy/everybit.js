@@ -41,7 +41,7 @@ PuffUsers.getAllUsers = function() {
     return PuffUsers.users
 }
 
-PuffUsers.addAnonUser = function(callback) {
+PuffUsers.addAnonUser = function() {
     //// create a new anonymous user and add it to the local user list
   
     // generate private keys
@@ -51,14 +51,13 @@ PuffUsers.addAnonUser = function(callback) {
     
     var keys = Puffball.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
     
-    var my_callback = function(username) {
+    var pprom = PuffNet.addAnonUser(keys);
+
+    pprom.then(function(username) {
         PuffUsers.addUserReally(username, keys);
-        if(typeof callback == 'function') {
-            callback(username)
-        }
-    }
-  
-    PuffNet.addAnonUser(keys, my_callback);
+    });
+    
+    return pprom;
 }
 
 PuffUsers.addUserMaybe = function(username, privateDefaultKey) {

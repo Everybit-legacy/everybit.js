@@ -93,29 +93,24 @@ PuffNet.getUserFile = function(username) {
     return pprom;
 }
 
-PuffNet.addAnonUser = function(keys, callback) {
-    $.ajax({
-        type: 'POST',
-        url: CONFIG.userApi,
-        data: { type: 'generateUsername'
-              , rootKey: keys.root.public
-              , adminKey: keys.admin.public
-              , defaultKey: keys.default.public
-              },
-        success:function(result) {
-            if(result.username) {
-                if(typeof callback == 'function')
-                callback(result.username)
-                Puffball.Blockchain.createGenesisBlock(result.username)
-            } else {
-                Puffball.onError('Error Error Error: issue with adding anonymous user', result)
-            }
-        },
-        error: function(err) {
-            Puffball.onError('Error Error Error: the anonymous user could not be added', err)
-        },
-        dataType: 'json'
-    });
+PuffNet.addAnonUser = function(keys) {
+    var data = { type: 'generateUsername'
+               , rootKey: keys.root.public
+               , adminKey: keys.admin.public
+               , defaultKey: keys.default.public
+               };
+               
+    var pprom = PuffNet.post(CONFIG.puffApi, data)
+    
+    pprom.catch(Puffball.promiseError('Issue contact the server'))
+         .then(JSON.parse)
+         .then(function(result) {
+             if(!result.username) throw Error('Issue with adding anonymous user');
+             Puffball.Blockchain.createGenesisBlock(result.username);
+         })
+         .catch(Puffball.promiseError('Anonymous user could not be added'))
+    
+    return pprom;
 }
 
 PuffNet.sendUserRecordPuffToServer = function(puff, callback) {

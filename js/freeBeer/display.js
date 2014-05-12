@@ -70,7 +70,11 @@ var PuffWorld = React.createClass({
 });
 
 var PuffPacker = React.createClass({
-    
+
+    handleClose: function() {
+        // return events.pub('ui/puff-packer/close', {'menu': puffworlddefaults.menu})
+    },
+
     handleBuild: function() {
         var type = this.refs.requestType.getDOMNode().value;
         
@@ -96,42 +100,6 @@ var PuffPacker = React.createClass({
             // if you want to send that 
             
             return events.pub('ui/puff-packer/set-latest', {});
-        }
-        
-        if(type == 'requestUsername') {
-            var username = this.refs.username.getDOMNode().value;
-            
-            var privateDefaultKey = this.refs.defaultKey.getDOMNode().value;
-            var privateAdminKey   = this.refs.adminKey.getDOMNode().value;
-            var privateRootKey    = this.refs.rootKey.getDOMNode().value;
-            
-            var keys = Puff.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
-            
-            // PuffUsers.requestUsername(username, keys)
-            
-            return events.pub('ui/puff-packer/request-username', {});
-        }
-        
-        if(type == 'generateUsername') {
-            var resultNode = this.refs.result.getDOMNode();
-            resultNode.value = Math.random();
-
-            /*
-            var callback = function() {};
-            
-            PuffUsers.addAnonUser(callback);
-            */
-            
-            /* 
-                If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
-                to PuffUsers.addAnonUser -- that has all the key generation and checking functionality in it already.
-            
-                In general all the network calls should be done through Puff.Network -- if you find yourself
-                reaching for $.ajax somewhere else we should probably move that use case into Puff.Network,
-                at least eventually.
-            */
-            
-            return events.pub('ui/puff-packer/generate-username', {});
         }
         
         return false;
@@ -227,19 +195,20 @@ var PuffPacker = React.createClass({
 
     handleSendPuffToServer: function() {
         // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
-        console.log("ENTER");
+        var resultNode = this.refs.result.getDOMNode();
         var puffToSend = this.refs.puffObject.getDOMNode().value;
 
         console.log(puffToSend);
 
         $.post(CONFIG.userApi, {type: 'updateUsingPuff', puff: JSON.stringify(puffToSend)}, function(response) {
+
             console.log(JSON.stringify(response));
+            resultNode.value = JSON.stringify(response);
         }, "json");
 
         //         Puff.Network.sendUserRecordPuffToServer(puff, callback);
 
 
-        console.log("exit");
     },
 
     handleSelect: function() {
@@ -259,65 +228,66 @@ var PuffPacker = React.createClass({
 
         return (
             <div id="adminForm">
-                Tools:<br />
-                You are doing this as <span className="authorSpan">{user.username}</span>. In order to register new sub-users please set your current identity first.<br />
-
                 <form id="PuffPacker">
-                    username:
-                    <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
+                    <div id="closeDiv">
+                        <a href="#" onClick={this.handleClose} className="under">
+                            <img src="img/close.png" width="24" height="24" />
+                        </a>
+                    </div>
+                    <div className="col1">
+                        <h3>Tools</h3>
+                        username:
+                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
+                        <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
+                        <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} />
+                        <input className="btn-link" type="button" value="Build registration request" onClick={this.handleBuildRegisterUserPuff} />
+                        
+                        <br />
+                        <b>Current identity:</b> <span className="authorSpan">{user.username}</span><br />
+                        To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
+
+                        <br />
 
 
-                    <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
-                    <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} /><br />
-                    Registration request:
-                    <input className="btn-link" type="button" value="build" onClick={this.handleBuildRegisterUserPuff} />
-                    <input className="btn-link" type="button" value="submit" onClick={this.handleSendPuffToServer} />
-                    <br />
+                        <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
 
-                    <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
+                        New private keys<br />
+                        root:
+                            <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
 
-                    New public keys<br />
-                    root:
-                    <input className="fixedLeft" type="text" name="rootKeyPublic" ref="rootKeyPublic" /><br />
+                        admin:
+                            <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
 
-                    admin:
-                    <input className="fixedLeft" type="text" name="adminKeyPublic" ref="adminKeyPublic" /><br />
+                        default:
+                            <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br />
+                        <br />
+                        Corresponding public keys<br />
+                        root:
+                        <input className="fixedLeft" type="text" name="rootKeyPublic" ref="rootKeyPublic" /><br />
 
-                    default:
-                    <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br />
+                        admin:
+                        <input className="fixedLeft" type="text" name="adminKeyPublic" ref="adminKeyPublic" /><br />
 
-                    <br />
-                    New private keys<br />
-                    root:
-                        <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
+                        default:
+                        <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br />
+                    </div>
 
-                    admin:
-                        <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
+                    <div className="col2">
 
-                    default:
-                        <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br />
-
-                    <label htmlFor="requestType">Action:</label>
-                        <select name="requestType" ref="requestType" className="btn">
-                            <option value="generateUsername">Create anon user</option>
-                            <option value="requestUsername">Register a username</option>
-                            <option value="setLatest">Set the latest sig</option>
-                        </select>
-                    <br />
-
-                    <label htmlFor="result">Results:</label><br />
-                    <textarea ref="result" name="result" rows="5" cols="50"></textarea><br />
+                        <label htmlFor="result">Results:</label><br />
+                        <textarea ref="result" name="result" rows="5" cols="50"></textarea><br />
 
 
-                    <label htmlFor="puffString">Puff:</label><br />
-                    <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
-                    <input type="hidden" name="puffObject" ref="puffObject" />
-                    <br />
+                        <label htmlFor="puffString">Puff:</label><br />
+                        <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
+                        <input type="hidden" name="puffObject" ref="puffObject" />
+                        <br />
 
 
-                        <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
-                    <br />
+                            <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
+                    </div>
                     </form>
+
             </div>
         )
     }
@@ -806,17 +776,19 @@ var PuffMenu = React.createClass({
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
+                DISPLAY: <br />
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
+                </div>
+
                 CONTENT: <br />
                 <div className="menuItem">
                     <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
                 </div>
 
+                TOOLS<br />
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
-                </div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.handlePackPuffs} className="under">Pack puffs</a>
+                    <a href="#" onClick={this.handlePackPuffs} className="under">Puff builder</a>
                 </div>
 
                 <br />
@@ -951,7 +923,7 @@ var PuffSwitchUser = React.createClass({
         
         return (
             <div className="menuItem">
-                Change user: 
+                Change user:
                 <select ref="switcher" onChange={this.handleUserPick} value={user.username}>
                     {all_usernames.map(function(username) {
                         return <option key={username} value={username}>{username}</option>

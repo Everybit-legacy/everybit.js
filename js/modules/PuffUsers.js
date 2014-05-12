@@ -61,31 +61,29 @@ PuffUsers.addAnonUser = function(callback) {
     PuffNet.addAnonUser(keys, my_callback);
 }
 
-PuffUsers.addUserMaybe = function(username, privateDefaultKey, callback, errback) {
-    var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
-    if(!publicDefaultKey) 
-        return Puffball.onError('That private key could not generate a public key');
-
-    var my_callback = function(user) {
-        if(!user) 
-            return Puffball.onError('No result returned');
-        
-        // THINK: return a promise instead
-        if(user.defaultKey === publicDefaultKey) {
-            var keys = { default: { 'private': privateDefaultKey
-                                  ,  'public': publicDefaultKey } }
-            var userinfo = PuffUsers.addUserReally(username, keys);
-            if(typeof callback === 'function')
-                callback(userinfo)
-        } else {
-            if(typeof errback === 'function')
-                errback(username, privateDefaultKey)
-            else
-                return Puffball.onError('That private key does not match the record for that username')
-        }
-    }
+PuffUsers.addUserMaybe = function(username, privateDefaultKey) {
+    var pprom = PuffNet.getUser(username);
     
-    PuffNet.getUser(username, my_callback)
+    pprom.then(function(user) {
+        if(!user)
+            throw Error('No result returned');
+    
+        var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);  // OPT: do this prior to getUser
+        
+        if(!publicDefaultKey) 
+            throw Error('That private key could not generate a public key');
+    
+        if(user.defaultKey !== publicDefaultKey)
+            throw Error('That private key does not match the record for that username')
+        
+        var keys = { default: { 'private': privateDefaultKey
+                              ,  'public': publicDefaultKey } }
+        var userinfo = PuffUsers.addUserReally(username, keys);
+
+        return username
+    })
+    
+    return pprom;
 }
 
 PuffUsers.addUserReally = function(username, keys) {

@@ -95,17 +95,19 @@ PuffForum.addPost = function(content, parents, type, metadata, recursive) {
     // if there's no current user, add an anonymous one
     var user = PuffUsers.getCurrentUser()
     
+    
+    
     if(!user.username) {
         if(recursive)
             return Puffball.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
         
         // THINK: instead of giving up we could just save it locally until the network is reestablished...
-        return PuffUsers.addAnonUser(
-            function(username) {
-                PuffUsers.setCurrentUser(username)
-                PuffForum.addPost(content, parents, type, metadata, true)
-            }
-        )
+        var pprom = PuffUsers.addAnonUser();
+        
+        pprom.then(function(username) {
+            PuffUsers.setCurrentUser(username)
+            PuffForum.addPost(content, parents, type, metadata, true)
+        })
     }
     
     var privateKey = user.keys.default.private

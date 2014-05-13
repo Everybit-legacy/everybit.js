@@ -22,7 +22,7 @@ Every username has an entry in a Distriburated Hash Table (DHT). Entries contain
 
 Usernames are formed with a string of alphanumeric characters. Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. The **updated** field stores the date of the most recent update to the username record. Anytime new content is created, the user updates the **latest** field to point to their most recent content. 
 
-The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **defaultKey**. Before considering a puff to be valid, this signature is checked against the **contentKey** to make sure it's correct. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys. 
+The owner of a username controls their sub-user space as well. For example, user *.foo* can create sub-users *.foo.bar* and *.foo.fighters*. There are several layers of keys in the record. New content is signed using the private key related to the **defaultKey**. The signature of a puff is checked against this same key to make sure it's a valid signature for that user. In order to add or modify a sub-user, the owner creates an update request and signs it with the private key related to their **adminKey**. The only way to change the **adminKey** or **rootKey** is to sign a message with the private key related to the **rootKey**. This is like a master key, and should be stored with the highest level of security. Cold storage is recommended. The default puffball client makes it easy to view QR codes for each of the private keys.
 
 **IMPORTANT**: All signing of content and update messages happens on the client-side. Private keys should *never* be sent to a server. 
 
@@ -46,7 +46,8 @@ The main unit of content in the puffball platform is called a **puff**.  It is s
   - **title**
   - **geo**
   - **copyright**
-  
+
+
 The identity of the person who created this puff is stored in **username**. The **zones** field serves to identify the intended recipients (if any) or to indicate that a puff is related to another user. It works like the @ sign in twitter.
 
 Every piece of content has a unique id stored in the **sig** field. To generate this id, a user combines all of the fields of a puff (except the **sig** itself!) into a string and signs it using their private key. This signature serves as proof that the content really was created by the **username** listed.  Because the chance of a collision (two different puffs containing the same signature) is essentially zero, there's no way for a user to flood the system with multiple copies of the same content with different ids, unless they create a new username for each copy. 
@@ -73,10 +74,10 @@ The design of the puffball platform is driven by the following core beliefs:
 
 - Whenever possible, make decisions a convention and not a rule.
 - Provide good default values, then allow for customizability.
-- If it's not easy to use, it sucks. 
-- If it's not beautiful, no one will want to spend time with it.
 - The client is king. Everything that can be done client-side, should be done client-side.
 - Separate content from interpretation.
+- Make it easy, beautiful, intuitive and fun.
+- Make it as secure and private as users want it to be.
 - Make it seem inevitable (because it is).
 
 <a name='multicontent'></a>

@@ -241,7 +241,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {}
 
-        var puff = Puff.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
+        var puff = Puffball.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
 
         var self = this;
         self.state.puff = puff;
@@ -305,7 +305,7 @@ var PuffPacker = React.createClass({
                 self.state.latest = result.latest;
                 return events.pub('ui/puff-packer/getUserLatest', {});
             } else {
-                Puff.onError('Could not find latest user record in DHT')
+                Puffball.onError('Could not find latest user record in DHT')
             }
         });
 

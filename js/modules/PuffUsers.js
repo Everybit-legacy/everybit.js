@@ -122,6 +122,35 @@ PuffUsers.removeUser = function(username) {
 
 
 
+
+
+PuffUsers.getUpToDateUserAtAnyCost = function() {
+    //// Either get the current user's DHT record, or create a new anon user, or die trying
+
+    var user = PuffUsers.getCurrentUser()
+
+    if(user.username)
+        return PuffUsers.getUserRecord(user)
+    
+    return PuffUsers.addAnonUser().then(PuffUsers.setCurrentUser)
+}
+
+PuffUsers.getUserRecord = function(user) {
+    var user = JSON.parse(JSON.stringify(user))
+    return PuffNet.getUser(user.username)
+                  .then(function(userDHT) {
+                      for(var key in userDHT)
+                          user[key] = userDHT[key]
+                  })
+}
+
+
+
+
+
+
+
+
 ////// PREFS ///////
 
 /*

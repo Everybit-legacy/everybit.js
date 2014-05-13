@@ -109,7 +109,7 @@ Puffball.checkUserKey = function(username, privatekey) {
 }
 
  
-Puffball.addPuff = function(puff, privatekey) {
+Puffball.addPuffToSystem = function(puff, privatekey) {
     //// add a puff to our local cache and fire the callback for new content
   
     Puffball.receiveNewPuffs([puff]);
@@ -139,11 +139,12 @@ Puffball.onNewPuffs = function(callback) {
 
 
 
+
 // DATA LAYER
 
 Puffball.Data = {};
 Puffball.Data.puffs = [];
-Puffball.Data.users = [];                                   // these are DHT user entries, not our local identity wardrobe
+Puffball.Data.users = [];                               // these are DHT user entries, not our local identity wardrobe
 
 Puffball.Data.eat = function(puff) {
     if(!!~Puffball.Data.puffs
@@ -166,8 +167,9 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
-    var pprom = PuffNet.getAllPuffs(); // OPT: only ask for puffs we're missing
-    pprom.then(Puffball.receiveNewPuffs)
+    var pprom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
+    return pprom.then(Puffball.receiveNewPuffs)
+                .catch(Puffball.promiseError('Could not load the puffs'))
 }
 
 Puffball.Data.addUser = function(user) {
@@ -438,7 +440,7 @@ Puffball.Persist = {};
 Puffball.Persist.save = function(key, value) {
     // prepend PUFF:: so we're good neighbors
     var realkey = 'PUFF::' + key;
-    var str = JSON.stringify(value);  // wrap this in a try/catch
+    var str = JSON.stringify(value);                    // wrap this in a try/catch
     localStorage.setItem(realkey, str);
 }
 
@@ -446,7 +448,7 @@ Puffball.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
     if(!str) return false;
-    return JSON.parse(str); // wrap this in a try/catch
+    return JSON.parse(str);                             // wrap this in a try/catch
 }
 
 Puffball.Persist.remove = function(key) {

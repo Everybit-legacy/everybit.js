@@ -60,23 +60,20 @@ PuffNet.sendPuffToServer = function(puff) {
                , puff: JSON.stringify(puff) }
                
     return PuffNet.post(CONFIG.puffApi, data)
-                  .catch(Puffball.promiseError('Could not send puff to server'))
+                  .catch(Puffball.promiseError('Could not send puff to server'));
 }
 
-PuffNet.getUser = function(username, callback) {
+PuffNet.getUser = function(username) {
     // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.puffApi;
     var data  = {type: 'getUser', username: username};
     var pprom = PuffNet.getJSON(url, data);
 
-    pprom.then(function(user) {
-        Puffball.Data.addUser(user);
-    });
-    
-    pprom.catch(Puffball.promiseError('Unable to access user information from the DHT'));
-    
-    return pprom;
+    return pprom.then(function(user) {
+                    Puffball.Data.addUser(user);
+                })
+                .catch(Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
 PuffNet.getUserFile = function(username) {
@@ -84,13 +81,10 @@ PuffNet.getUserFile = function(username) {
     var data  = {type: 'getUserFile', username: username};
     var pprom = PuffNet.getJSON(url, data);
     
-    pprom.then(function(users) {
-        Puffball.Data.users = Puffball.Data.users.concat(users);
-    });
-    
-    pprom.catch(Puffball.promiseError('Unable to access user file from the DHT'));
-    
-    return pprom;
+    return pprom.then(function(users) {
+                    Puffball.Data.users = Puffball.Data.users.concat(users);
+                })
+                .catch(Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
 PuffNet.addAnonUser = function(keys) {
@@ -100,35 +94,25 @@ PuffNet.addAnonUser = function(keys) {
                , defaultKey: keys.default.public
                };
                
-    var pprom = PuffNet.post(CONFIG.puffApi, data)
+    var pprom = PuffNet.post(CONFIG.puffApi, data);
     
-    pprom.catch(Puffball.promiseError('Issue contact the server'))
-         .then(JSON.parse)
-         .then(function(result) {
-             if(!result.username) throw Error('Issue with adding anonymous user');
-             Puffball.Blockchain.createGenesisBlock(result.username);
-         })
-         .catch(Puffball.promiseError('Anonymous user could not be added'))
-    
-    return pprom;
+    return pprom.catch(Puffball.promiseError('Issue contact the server'))
+                .then(JSON.parse)
+                .then(function(result) {
+                    if(!result.username) Puffball.promiseError('Issue with adding anonymous user')(Error(result.FAIL));
+                    Puffball.Blockchain.createGenesisBlock(result.username);
+                })
+                .catch(Puffball.promiseError('Anonymous user could not be added'));
 }
 
-PuffNet.sendUserRecordPuffToServer = function(puff, callback) {
-    $.ajax({
-        type: 'POST',
-        url: CONFIG.userApi,
-        data: { type: 'updateUsingPuff'
-              , puff: puff
-              },
-        success:function(result) {
-            if(typeof callback == 'function')
-                callback(result)
-        },
-        error: function(err) {
-            Puffball.onError('Error Error Error: sending user record modification puff failed miserably', err)
-        },
-        dataType: 'json'
-    });
+PuffNet.sendUserRecordPuffToServer = function(puff) {
+    var data = { type: 'updateUsingPuff'
+               , puff: puff
+               };
+               
+    var pprom = PuffNet.post(CONFIG.puffApi, data);
+    
+    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'));
 }
 
 
@@ -153,12 +137,10 @@ PuffNet.xhr = function(url, options, data) {
           req.setRequestHeader(key, options.headers[key]);
         });
         
-        if(data) {
-            var formdata = new FormData()
-            Object.keys(options.headers || {}).forEach(function (key) {
-              formdata.append(key, data[key]);
-            });
-        }
+        var formdata = new FormData()
+        Object.keys(data || {}).forEach(function (key) {
+          formdata.append(key, data[key]);
+        });
         
         if(options && options.type)
             req.responseType = options.type
@@ -192,7 +174,8 @@ PuffNet.getJSON = function(url, params) {
 }
 
 PuffNet.post = function(url, data) {
-    var options = { headers: {   'Content-type': 'application/x-www-form-urlencoded' 
+    var options = { headers: {   
+        // 'Content-type': 'application/x-www-form-urlencoded' 
 //                           , 'Content-length': params.length
 //                           ,     'Connection': 'close'  
                              }

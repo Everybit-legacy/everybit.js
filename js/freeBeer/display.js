@@ -158,12 +158,10 @@ var PuffPacker = React.createClass({
             console.log(e);
             return Puffball.onError('JSON parsers are the worst.')
         }
-        
-        var callback = function(result) {
-            console.log(result)
-        }
 
-        PuffNet.sendUserRecordPuffToServer(puff, callback);
+        var pprom = PuffNet.sendUserRecordPuffToServer(puff);
+        
+        pprom.then(console.log.bind(console))
     },
 
     handleUsernameLookup: function() {
@@ -736,7 +734,7 @@ var PuffReplyForm = React.createClass({
         
         var parents = this.props.reply.parents;
 
-        PuffForum.addPost( content, parents, type, metadata );
+        PuffForum.addPost( type, content, parents, metadata );
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
     },

@@ -81,61 +81,59 @@ PuffForum.getRootPuffs = function(limit) {
 } 
 
 
-PuffForum.addPost = function(content, parents, type, metadata, recursive) {
+PuffForum.addPost = function(type, content, parents, metadata) {
     //// Given a string of content, create a puff and push it into the system
-  
+    
     // ensure parents is an array
     if(!parents) parents = []
     if(!Array.isArray(parents)) parents = [parents]
     
     // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
-        return "Error Error Error: those are not good parents"
- 
-    // if there's no current user, add an anonymous one
-    var user = PuffUsers.getCurrentUser()
+        return Puffball.onError('Those are not good parents')
+
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
+
+    // get a user promise
+    var userprom = PuffUsers.getUpToDateUserAtAnyCost();
     
-    if(!user.username) {
-        if(recursive)
-            return Puffball.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
-        
-        // THINK: instead of giving up we could just save it locally until the network is reestablished...
-        var pprom = PuffUsers.addAnonUser();
-        
-        pprom.then(function(username) {
-            PuffUsers.setCurrentUser(username)
-            PuffForum.addPost(content, parents, type, metadata, true)
-        })
-    }
+    // THINK: instead of giving up we could just save it locally until the network is reestablished...
     
-    var privateKey = user.keys.default.private
-    
-    // THINK: we definitely want to ensure this is a valid u/p combo... so we'll need to hit the network here.
-    if(!Puffball.checkUserKey(user.username, privateKey))  // THINK: by the time we arrive here u/pk should already be cached,
-       return false                                    //        so this never requires a network hit... right? 
+    var pprom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'))
+                        .then(takeUserMakePuff)
 
-    // TODO: check the DHT for this user's previous puff's sig
-    var previous = 123123123
-
-    // set up the forum puff style payload
-    var payload = metadata || {}
-    payload.parents = parents                             // ids of the parent puffs
-    payload.time = Date.now()                             // time is always a unix timestamp
-    payload.tags = payload.tags || []                     // an array of tags // TODO: make these work
-
-    var type  = type || 'text'
-    var zones = CONFIG.zone ? [CONFIG.zone] : []
-
-    var puff = Puffball.createPuff(user.username, privateKey, zones, type, content, payload, previous)
-
-    Puffball.addPuff(puff, privateKey)
-    
-    // THINK: actually we can't return this because we might go async to check the u/pk against the dht
-    // return sig;
+    return pprom;
     
     // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
     // TODO: make an official interface fulfillment thing
 }
+
+
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
+    //// Make a puff... except the parts that require a user
+    
+    var payload = metadata || {}                            // metadata becomes the basis of payload
+    payload.parents = parents                               // ids of the parent puffs
+    payload.time = metadata.time || Date.now()              // time is always a unix timestamp
+    payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
+
+    var type  = type || 'text'
+    var zones = CONFIG.zone ? [CONFIG.zone] : []
+    
+    return function(userRecord) {
+        // userRecord is an up-to-date record from the DHT, so we can use its 'latest' value here 
+        var previous   = userRecord.latest
+        var username   = userRecord.username
+        var privateKey = userRecord.keys.default.private
+        var puff = Puffball.createPuff(userRecord.username, privateKey, zones, type, content, payload, previous)
+
+        Puffball.addPuffToSystem(puff, privateKey)
+
+        return puff        
+    }
+}
+
+
 
 PuffForum.getDefaultPuff = function() {
     var defaultPuff = CONFIG.defaultPuff

@@ -23,7 +23,7 @@ puffworldprops = {    menu: {    show: false
                  , profile: { }
              }
 
-puffworlddefaults = puffworldprops // it's immutable so we don't care
+puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
 globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
@@ -32,9 +32,7 @@ globalCreatePuffBox = function(puff) {
 var PuffWorld = React.createClass({
     render: function() {
         
-        // console.log(this.props, this)
-        
-        $('#plumbing').empty(); // THINK: where should this live and should it at all?
+        $('#plumbing').empty();                     // THINK: where should this live and should it at all?
         
         var view;
         var viewprops = this.props.view || {};
@@ -82,7 +80,7 @@ var PuffPacker = React.createClass({
             var content = 'setLatest';
             var payload = {};
             payload.time = Date.now();
-            payload.latest = 123123123123; // FIXME: new latest id goes here
+            payload.latest = 123123123123;              // FIXME: new latest id goes here
             
             var puff = Puffball.createPuff(username, privateDefaultKey, zones, type, content, payload);
 

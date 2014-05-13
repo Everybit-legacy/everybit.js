@@ -66,7 +66,7 @@ PuffNet.sendPuffToServer = function(puff) {
 PuffNet.getUser = function(username) {
     // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
-    var url   = CONFIG.puffApi;
+    var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
     var pprom = PuffNet.getJSON(url, data);
 
@@ -77,7 +77,7 @@ PuffNet.getUser = function(username) {
 }
 
 PuffNet.getUserFile = function(username) {
-    var url   = CONFIG.puffApi;
+    var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
     var pprom = PuffNet.getJSON(url, data);
     
@@ -94,7 +94,7 @@ PuffNet.addAnonUser = function(keys) {
                , defaultKey: keys.default.public
                };
                
-    var pprom = PuffNet.post(CONFIG.puffApi, data);
+    var pprom = PuffNet.post(CONFIG.userApi, data);
     
     return pprom.catch(Puffball.promiseError('Issue contact the server'))
                 .then(JSON.parse)
@@ -110,7 +110,7 @@ PuffNet.sendUserRecordPuffToServer = function(puff) {
                , puff: puff
                };
                
-    var pprom = PuffNet.post(CONFIG.puffApi, data);
+    var pprom = PuffNet.post(CONFIG.userApi, data);
     
     return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'));
 }

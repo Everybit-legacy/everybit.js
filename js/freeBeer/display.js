@@ -316,6 +316,12 @@ var PuffPacker = React.createClass({
         return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
     },
 
+    handleSetIdentityToAnon: function() {
+        var keys = Puffball.buildKeyObject(0, CONFIG.anonAdminKey, 0);
+        PuffUsers.addUserReally('anon', keys);
+        PuffUsers.setCurrentUser('anon');
+    },
+
     render: function() {
         // Pre-fill with current user information if exists in memory
         var user = PuffUsers.getCurrentUser();
@@ -363,6 +369,8 @@ var PuffPacker = React.createClass({
                         <br />
                         <b>Current identity:</b> <span className="authorSpan">{user.username}</span><br />
                     To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
+
+                        <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br />
 
                         <br />
 
@@ -438,7 +446,7 @@ var PuffPacker = React.createClass({
                         {' | '}
                         <a href="#" onClick={this.handleShowPuffFormatted}>Formatted</a>
                         <br />
-                        <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString} readOnly="true"></textarea>
+                        <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString}></textarea>
                         <br />
 
 

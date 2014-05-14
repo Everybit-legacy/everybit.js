@@ -80,13 +80,52 @@ Puffball.createPuff = function(username, privatekey, routes, type, content, payl
                , previous: previous
                , version: '0.0.3'                       // version accounts for crypto type and puff shape
                , payload: payload                       // early versions will be aggressively deprecated and unsupported
-               };
+               }
 
     puff.sig = Puffball.Crypto.signData(puff, privatekey)
 
     return puff
 }
 
+Puffball.createUser = function(username, defaultKey, adminKey, rootKey, latest, updated) {
+    //// Returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc).
+    
+    latest = latest || ""
+    updated = updated || ""
+    
+    // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
+
+    if(!Puffball.validateUsername(username))
+        return false; // already logged the error
+    
+    // these keys are PUBLIC. only public keys here. no other types of keys. 
+    
+    return {   username: username
+           ,    rootKey: rootKey
+           ,   adminKey: adminKey
+           , defaultKey: defaultKey
+           ,     latest: latest
+           ,    updated: updated
+           }
+}
+
+Puffball.validateUsername = function(username) {
+    if(!username) 
+        return Puff.onError('Username is required')
+
+    if(username.length > 256) 
+        return Puff.onError('Usernames must be shorter than N characters')
+
+    if(username != username.toLowerCase()) 
+        return Puff.onError('Usernames must be lowercase')
+    
+    if(!/^[0-9a-z]+$/.text(username))
+        return Puff.onError('Usernames must be alphanumeric')
+    
+    return true;
+}
+
+///// DELETE THIS:
 Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRootKey) {
     var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
     var publicAdminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
@@ -103,10 +142,6 @@ Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRo
    return keys;
 }
 
-
-Puffball.checkUserKey = function(username, privatekey) {
-    return true; // oh dear. This is checked elsewhere, but should be here too!
-}
 
  
 Puffball.addPuffToSystem = function(puff, privatekey) {

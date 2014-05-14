@@ -68,7 +68,7 @@ PuffUsers.addAnon = function() {
         publicKeys.root = Puffball.Crypto.privateToPublic(privateRootKey);
 
     // generate username
-    var anonUsername = Bitcoin.ECKey().toWif().slice(-10); // OPT: this is a slow way to get a random string
+    var anonUsername = Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
     var newUsername = 'anon.' + anonUsername;
 
     // send it off
@@ -106,6 +106,15 @@ PuffUsers.addUserMaybe = function(username, privateDefaultKey) {
 }
 
 PuffUsers.addUserReally = function(username, keys) {
+// PuffUsers.addUserReally = function(username, defaultKey, adminKey, rootKey) {
+    
+    /*
+    
+        HEY! 
+    
+    */
+    
+    
     var userinfo = { username: username
                    ,     keys: keys
                    }

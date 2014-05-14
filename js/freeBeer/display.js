@@ -198,6 +198,7 @@ var PuffPacker = React.createClass({
     },
 
     handleSetIdentityToAnon: function() {
+        
         var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
         PuffUsers.addUserReally('anon', keys);
         PuffUsers.setCurrentUser('anon');

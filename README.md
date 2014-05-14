@@ -32,8 +32,7 @@ For more about usernames, see the [Username rollout](#usernameRollout) section b
 The main unit of content in the puffball platform is called a **puff**.  It is structured as follows (required fields are indicated with an asterisk):
 
 - **username**<sup>*</sup> 
-- **zones**
-- **sig**<sup>*</sup>
+- **routes**
 - **previous**<sup>*</sup>
 - **version**<sup>*</sup>
 - **payload**
@@ -46,7 +45,8 @@ The main unit of content in the puffball platform is called a **puff**.  It is s
   - **title**
   - **geo**
   - **copyright**
-
+  - **zones**
+- **sig**<sup>*</sup>
 
 The identity of the person who created this puff is stored in **username**. The **zones** field serves to identify the intended recipients (if any) or to indicate that a puff is related to another user. It works like the @ sign in twitter.
 
@@ -65,6 +65,10 @@ The **content** field, unsurprisingly, contains the main content of the puff. On
 There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format). One optional field of note is **parents**, which used by the [FreeBeer!](http://www.freebeer.com) forum to store an array of the posts being replyed to.
 
 In order to re-publish someone else's content, the entire puff is bundled up and put into into the **content** field of the new puff, with **type** specified as "puff".
+
+Note: The order of the top-level fields is important. For a puff to be verifiable the top-level fields (username, routes, previous, version, payload and sig) must conform to the order listed above. Field names within payload should conform to the order listed above, but that ordering is not currently required.
+
+
 
 #### **Profile and preferences**
 Every username has two special blocks of content associated with it. Both of them contain arbitrary key/value pairs related to that user. The **profile** block is for (generally public) information the user wishes to share about themselves. It could contain a field for their avatar or photo, information about where they work or how to contact them. The **preferences** block contains key/value pairs that could be useful for websites in determining how to display content for this user. These may be public or they could be encrypted using the public key of the user (**zone**) they wish to share the information with. For example, you may want to let the *.freecats* forum know that you wish to block user *.ocelot*, without anyone else (including user *.ocelot*) seeing this.

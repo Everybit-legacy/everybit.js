@@ -65,22 +65,22 @@ Puffball.init = function(zone) {
 }
 
 
-Puffball.createPuff = function(username, privatekey, zones, type, content, payload, previous) {
+Puffball.createPuff = function(username, privatekey, routes, type, content, payload, previous) {
     //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
 
-    zones = zones || []
+    routes = routes || []
     previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
-    var puff = { payload: payload
-               , zones: zones
+    var puff = { username: username
+               , routes: routes
                , previous: previous
-               , username: username
-               , version: '0.0.2'                       // version accounts for crypto type and puff shape
-               };                                       // early versions will be aggressively deprecated and unsupported
+               , version: '0.0.3'                       // version accounts for crypto type and puff shape
+               , payload: payload                       // early versions will be aggressively deprecated and unsupported
+               };
 
     puff.sig = Puffball.Crypto.signData(puff, privatekey)
 

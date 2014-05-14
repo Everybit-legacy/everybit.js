@@ -55,21 +55,29 @@ PuffUsers.getAll = function() {
 
 PuffUsers.addAnon = function() {
     //// create a new anonymous identity and add it to the local identity list
-  
+    
     // generate private keys
     var privateDefaultKey = Puffball.Crypto.generatePrivateKey();
     var privateAdminKey = Puffball.Crypto.generatePrivateKey();
     var privateRootKey = Puffball.Crypto.generatePrivateKey();
     
-    var keys = Puffball.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
-    
-    var pprom = PuffNet.addAnonUser(keys);
+    // generate public keys
+    var publicKeys = {}
+        publicKeys.default = Puffball.Crypto.privateToPublic(privateDefaultKey);
+        publicKeys.admin = Puffball.Crypto.privateToPublic(privateAdminKey);
+        publicKeys.root = Puffball.Crypto.privateToPublic(privateRootKey);
 
-    pprom.then(function(username) {
-        PuffUsers.addUserReally(username, keys);
-    });
-    
-    return pprom;
+    // generate username
+    var anonUsername = Bitcoin.ECKey().toWif().slice(-10); // OPT: this is a slow way to get a random string
+    var newUsername = 'anon.' + anonUsername;
+
+    // send it off
+    var pprom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, publicKeys)
+
+    return pprom.then(function(username) {
+                    return PuffUsers.addUserReally(username, keys);
+                })
+                .catch(Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
 PuffUsers.addUserMaybe = function(username, privateDefaultKey) {
@@ -118,7 +126,7 @@ PuffUsers.setCurrentUser = function(username) {
     if(!user || !user.username)
         return Puffball.onError('No record of that username exists locally -- try adding it first')
     
-    PuffUsers.currentUser = user
+    return PuffUsers.currentUser = user
 }
 
 PuffUsers.removeUser = function(username) {
@@ -148,11 +156,13 @@ PuffUsers.getUpToDateUserAtAnyCost = function() {
 }
 
 PuffUsers.getUserRecord = function(user) {
+    //// make this better
     var user = JSON.parse(JSON.stringify(user))
     return PuffNet.getUser(user.username)
                   .then(function(userDHT) {
                       for(var key in userDHT)
                           user[key] = userDHT[key]
+                      return user
                   })
 }
 

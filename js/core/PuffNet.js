@@ -18,16 +18,8 @@
 PuffNet = {};
 
 PuffNet.init = function() {
-    //// fire up the networks (currently just the peer connections)
-    
-    PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
-                                 ,  port: 9000
-                                 ,  path: '/'
-                                 , debug: 1
-                                 });
-    
-    PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
-    PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
+    //// fire up the networks (currently just the peer connections)    
+    PuffNet.P2P.init();
 }
 
 
@@ -55,6 +47,7 @@ PuffNet.distributePuff = function(puff) {
 PuffNet.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
+    //        or manage it entirely with routing, even for server-sent puffs?
     
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
@@ -105,7 +98,7 @@ PuffNet.addAnonUser = function(keys) {
                 .catch(Puffball.promiseError('Anonymous user could not be added'));
 }
 
-PuffNet.sendUserRecordPuffToServer = function(puff) {
+PuffNet.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
                };
@@ -199,6 +192,17 @@ PuffNet.post = function(url, data) {
 
 PuffNet.P2P = {};
 PuffNet.P2P.peers = {};
+
+PuffNet.P2P.init = function() {
+    PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
+                                 ,  port: 9000
+                                 ,  path: '/'
+                                 , debug: 1
+                                 });
+    
+    PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
+    PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
+}
 
 PuffNet.P2P.reloadPeers = function() {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);

@@ -9,8 +9,9 @@
   A Puffball module for managing identities locally.
 
   Usage example:
-  PuffUsers.onNewPuffs( function(puffs) { console.log(puffs) } )
-  PuffUsers.init()
+  var user = PuffUsers.addAnon()
+  PuffUsers.setCurrentUser(user.username)
+  PuffUsers.getCurrent()
 
 */
 
@@ -20,8 +21,19 @@
 /*
     
     Move this into a separate PuffIdentity module that handles identity wardrobe, profiles, and machine-based preferences.
-    PuffUsers uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
+    PuffForum uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
     PuffIdentity is responsible for managing persistence of identities, keeping the core clean of such messy concerns.
+
+    -- Maybe call it PuffWardrobe? Is this just a place for local identity management, or also a place for managing user records?
+    -- We need to separate out these concerns...
+
+
+  ---> register callback handlers for user record creation and modification
+  ---> PuffWardrobe.init registers those with Puffball.onUserCreation and Puffball.onUserModification
+  ---> canonical identity object: username, keys.public.default, keys.private.admin, latest, etc. [or just use the spec... yeah. w/ .private for private key versions...]
+  ---> always use CIO for everything; distinguish identities from users for all time. (...?)
+  ---> 
+
 
 */
 
@@ -30,19 +42,19 @@ PuffUsers = {}
 PuffUsers.currentUser = {};
 PuffUsers.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
 
-PuffUsers.getCurrentUser = function() {
+PuffUsers.getCurrent = function() {
     return PuffUsers.currentUser
 }
 
-PuffUsers.getAllUsers = function() {
+PuffUsers.getAll = function() {
     if(!PuffUsers.users)
         PuffUsers.users = Puffball.Persist.get('users') || {}
     
     return PuffUsers.users
 }
 
-PuffUsers.addAnonUser = function() {
-    //// create a new anonymous user and add it to the local user list
+PuffUsers.addAnon = function() {
+    //// create a new anonymous identity and add it to the local identity list
   
     // generate private keys
     var privateDefaultKey = Puffball.Crypto.generatePrivateKey();
@@ -90,7 +102,7 @@ PuffUsers.addUserReally = function(username, keys) {
                    ,     keys: keys
                    }
     
-    users = PuffUsers.getAllUsers()
+    users = PuffUsers.getAll()
     users[username] = userinfo
     
     if(PuffUsers.getPref('storeusers'))
@@ -100,7 +112,7 @@ PuffUsers.addUserReally = function(username, keys) {
 }
 
 PuffUsers.setCurrentUser = function(username) {
-    var users = PuffUsers.getAllUsers()
+    var users = PuffUsers.getAll()
     var user = users[username]
     
     if(!user || !user.username)
@@ -127,12 +139,12 @@ PuffUsers.removeUser = function(username) {
 PuffUsers.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var user = PuffUsers.getCurrentUser()
+    var user = PuffUsers.getCurrent()
 
     if(user.username)
         return PuffUsers.getUserRecord(user)
     
-    return PuffUsers.addAnonUser().then(PuffUsers.setCurrentUser)
+    return PuffUsers.addAnon().then(PuffUsers.setCurrentUser)
 }
 
 PuffUsers.getUserRecord = function(user) {

@@ -105,7 +105,7 @@ var PuffPacker = React.createClass({
             // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
             
             // this function does exactly that:
-            // PuffNet.sendUserRecordPuffToServer(puff, callback);
+            // PuffNet.updateUserRecord(puff, callback);
             // if you want to send that 
             
             return events.pub('ui/puff-packer/set-latest', {});
@@ -132,12 +132,12 @@ var PuffPacker = React.createClass({
             /*
             var callback = function() {};
             
-            PuffUsers.addAnonUser(callback);
+            PuffUsers.addAnon(callback);
             */
             
             /* 
                 If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
-                to PuffUsers.addAnonUser -- that has all the key generation and checking functionality in it already.
+                to PuffUsers.addAnon -- that has all the key generation and checking functionality in it already.
             
                 In general all the network calls should be done through PuffNet -- if you find yourself
                 reaching for $.ajax somewhere else we should probably move that use case into PuffNet,
@@ -159,7 +159,7 @@ var PuffPacker = React.createClass({
             return Puffball.onError('JSON parsers are the worst.')
         }
 
-        var pprom = PuffNet.sendUserRecordPuffToServer(puff);
+        var pprom = PuffNet.updateUserRecord(puff);
         
         pprom.then(console.log.bind(console))
     },
@@ -230,7 +230,7 @@ var PuffPacker = React.createClass({
 
         payload.requestedUsername = this.refs.username.getDOMNode().value;
 
-        var user = PuffUsers.getCurrentUser();
+        var user = PuffUsers.getCurrent();
 
         var puff = Puffball.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
 
@@ -264,7 +264,7 @@ var PuffPacker = React.createClass({
 
         }, "json");
 
-        //         PuffNet.sendUserRecordPuffToServer(puff, callback);
+        //         PuffNet.updateUserRecord(puff, callback);
 
 
     },
@@ -295,7 +295,7 @@ var PuffPacker = React.createClass({
     },
 
     handleGetLatest: function() {
-        var username = PuffUsers.getCurrentUser().username;
+        var username = PuffUsers.getCurrent().username;
         var self = this;
 
         console.log(username);
@@ -318,7 +318,7 @@ var PuffPacker = React.createClass({
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var user = PuffUsers.getCurrentUser();
+        var user = PuffUsers.getCurrent();
 
         if(user.keys) {
             var currentUserPrivateKeys = [user.keys.root.private, user.keys.admin.private, user.keys.default.private];
@@ -770,7 +770,7 @@ var PuffReplyForm = React.createClass({
         return {imageSrc: ''};
     },
     render: function() {
-        var user = PuffUsers.getCurrentUser() // make this a prop or something
+        var user = PuffUsers.getCurrent() // make this a prop or something
         var username = humanizeUsernames(user.username) || 'anonymous'
         
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
@@ -920,7 +920,7 @@ var PuffMenu = React.createClass({
         }
         
         // no current user
-        var user = PuffUsers.getCurrentUser()
+        var user = PuffUsers.getCurrent()
         var username = humanizeUsernames(user.username) || ''
         
         if(!username) {
@@ -1020,9 +1020,9 @@ var PuffUserMenu = React.createClass({
     render: function() {
 
         // Current User
-        var user = PuffUsers.getCurrentUser();
+        var user = PuffUsers.getCurrent();
         var username = humanizeUsernames(user.username) || ''
-        var all_usernames = Object.keys(PuffUsers.getAllUsers())
+        var all_usernames = Object.keys(PuffUsers.getAll())
         
         // Add User
         var add_user = <PuffAddUser user={this.props.user} />
@@ -1073,11 +1073,11 @@ var PuffSwitchUser = React.createClass({
         return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
-        var all_usernames = Object.keys(PuffUsers.getAllUsers())
+        var all_usernames = Object.keys(PuffUsers.getAll())
         
         if(!all_usernames.length) return <div></div>
         
-        var user = PuffUsers.getCurrentUser()
+        var user = PuffUsers.getCurrent()
         
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         
@@ -1121,7 +1121,7 @@ var PuffAddUser = React.createClass({
         return false
     },
     handleNewAnon: function() {
-        var pprom = PuffUsers.addAnonUser()
+        var pprom = PuffUsers.addAnon()
         
         pprom.then(function(newName) {
             events.pub('user/add/anon', {})
@@ -1210,7 +1210,7 @@ var PuffAddUser = React.createClass({
 
 var PuffManageUser = React.createClass({
     handleRemoveUser: function() {
-        PuffUsers.removeUser(PuffUsers.getCurrentUser().username)
+        PuffUsers.removeUser(PuffUsers.getCurrent().username)
         events.pub('user/current/remove', {})
         events.pub('ui/user/current/remove', {}) // this should be generated by previous event
         events.pub('ui/menu/user/show-manage/hide', {'menu.user.manage': false})
@@ -1227,7 +1227,7 @@ var PuffManageUser = React.createClass({
 
         var props = this.props.user
         
-        var user = PuffUsers.getCurrentUser()
+        var user = PuffUsers.getCurrent()
         var username = humanizeUsernames(user.username) || ''
         if(!username) return <div></div>
 
@@ -1250,7 +1250,7 @@ var PuffManageUser = React.createClass({
         }
         
         if(props.show_bc) {
-            var user = PuffUsers.getCurrentUser()
+            var user = PuffUsers.getCurrent()
             if(!user.username) return false
             
             var blocks = Puffball.Blockchain.exportChain(user.username);

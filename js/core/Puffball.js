@@ -123,11 +123,13 @@ Puffball.addPuffToSystem = function(puff, privatekey) {
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
-    puffs = Array.isArray(puffs) ? puffs : [puffs];                            // make puffs an array
+    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
   
-    puffs.forEach(function(puff) { Puffball.Data.eat(puff) });                     // cache all the puffs
+    puffs.forEach(function(puff) { Puffball.Data.eat(puff) });                      // cache all the puffs
   
-    Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });     // call all callbacks back
+    Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    
+    return puffs
 }
 
 
@@ -174,6 +176,7 @@ Puffball.Data.getNewPuffs = function() {
 
 Puffball.Data.addUser = function(user) {
     Puffball.Data.users.push(user);
+    return user;
     // TODO: index by username
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
@@ -440,7 +443,7 @@ Puffball.Persist = {};
 Puffball.Persist.save = function(key, value) {
     // prepend PUFF:: so we're good neighbors
     var realkey = 'PUFF::' + key;
-    var str = JSON.stringify(value);                    // wrap this in a try/catch
+    var str = JSON.stringify(value);
     localStorage.setItem(realkey, str);
 }
 
@@ -448,7 +451,7 @@ Puffball.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
     if(!str) return false;
-    return JSON.parse(str);                             // wrap this in a try/catch
+    return Puffball.parseJSON(str);
 }
 
 Puffball.Persist.remove = function(key) {
@@ -469,5 +472,14 @@ Puffball.promiseError = function(msg) {
     return function(err) {
         Puffball.onError(msg, err)
         throw err
+    }
+}
+
+
+Puffball.parseJSON = function(str) {
+    try {
+        return JSON.parse(str)
+    } catch(err) {
+        return Puffball.onError('Invalid JSON string', err)
     }
 }

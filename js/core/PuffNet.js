@@ -64,7 +64,7 @@ PuffNet.getUser = function(username) {
     var pprom = PuffNet.getJSON(url, data);
 
     return pprom.then(function(user) {
-                    Puffball.Data.addUser(user);
+                    return Puffball.Data.addUser(user);
                 })
                 .catch(Puffball.promiseError('Unable to access user information from the DHT'));
 }
@@ -76,36 +76,45 @@ PuffNet.getUserFile = function(username) {
     
     return pprom.then(function(users) {
                     Puffball.Data.users = Puffball.Data.users.concat(users);
+                    return users;
                 })
                 .catch(Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
-PuffNet.addAnonUser = function(keys) {
-    var data = { type: 'generateUsername'
-               , rootKey: keys.root.public
-               , adminKey: keys.admin.public
-               , defaultKey: keys.default.public
-               };
-               
-    var pprom = PuffNet.post(CONFIG.userApi, data);
+PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, publicKeys) {
+    var payload = {};
     
-    return pprom.catch(Puffball.promiseError('Issue contact the server'))
-                .then(JSON.parse)
-                .then(function(result) {
-                    if(!result.username) Puffball.promiseError('Issue with adding anonymous user')(Error(result.FAIL));
-                    Puffball.Blockchain.createGenesisBlock(result.username);
-                })
-                .catch(Puffball.promiseError('Anonymous user could not be added'));
+    payload.rootKey = publicKeys.root;
+    payload.adminKey = publicKeys.admin;
+    payload.defaultKey = publicKeys.default;
+
+    payload.time = Date.now();
+    payload.requestedUsername = newUsername;
+
+    var routing = []; // THINK: DHT?
+    var type = 'updateUserRecord';
+    var content = 'requestUsername';
+
+    var puff = Puffball.createPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+    return PuffNet.updateUserRecord(puff);
 }
 
 PuffNet.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
                };
-               
+
     var pprom = PuffNet.post(CONFIG.userApi, data);
     
-    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'));
+    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+                .then(JSON.parse)
+                .then(function(result) {
+                    if(!result.username) 
+                        Puffball.promiseError('The DHT did not approve of your request')(Error(result.FAIL)); // throws
+                    return result;
+                })
 }
 
 
@@ -127,16 +136,17 @@ PuffNet.xhr = function(url, options, data) {
         req.open(options.method || 'GET', url);
         
         Object.keys(options.headers || {}).forEach(function (key) {
-          req.setRequestHeader(key, options.headers[key]);
+            req.setRequestHeader(key, options.headers[key]);
         });
         
         var formdata = new FormData()
         Object.keys(data || {}).forEach(function (key) {
-          formdata.append(key, data[key]);
+            var datum = typeof data[key] == 'object' ? JSON.stringify(data[key]) : data[key];
+            formdata.append(key, datum);
         });
         
         if(options && options.type)
-            req.responseType = options.type
+            req.responseType = options.type;
                 
         req.onload = function() {
           if (req.status == 200)

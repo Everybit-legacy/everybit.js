@@ -118,14 +118,14 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
     payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
 
     var type  = type || 'text'
-    var zones = CONFIG.zone ? [CONFIG.zone] : []
+    var routes = CONFIG.zone ? [CONFIG.zone] : []
     
     return function(userRecord) {
         // userRecord is an up-to-date record from the DHT, so we can use its 'latest' value here 
         var previous   = userRecord.latest
         var username   = userRecord.username
         var privateKey = userRecord.keys.default.private
-        var puff = Puffball.createPuff(userRecord.username, privateKey, zones, type, content, payload, previous)
+        var puff = Puffball.createPuff(userRecord.username, privateKey, routes, type, content, payload, previous)
 
         Puffball.addPuffToSystem(puff, privateKey)
 

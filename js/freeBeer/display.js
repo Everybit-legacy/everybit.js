@@ -118,7 +118,7 @@ var PuffPacker = React.createClass({
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
         payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
-        var zones = [];
+        var routes = [];
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
@@ -135,7 +135,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {}
 
-        var puff = Puffball.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
+        var puff = Puffball.createPuff(user.username, user.keys.admin.private, routes, type, content, payload);
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this;

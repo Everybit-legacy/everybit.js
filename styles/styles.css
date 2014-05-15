@@ -50,6 +50,21 @@ textarea {
     vertical-align: top;
 }
 
+h3 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+h4 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .float-right {
     float: right;
 }
@@ -392,18 +407,29 @@ a.footerText {
 
 #adminForm {
     position: absolute;
-    margin-left: 100px;
     margin-top: 50px;
+    margin-left: 100px;
     background-color: #F0F0F0;
     padding: 10px 20px 10px 15px;
     border: 2px solid #868686;
-    width: 600px;
-    font-family: GudeaBold, sans-serif;
+    font-family: Gudea, sans-serif;
     font-size: 1.1em;
     line-height: 1.8em;
+    width: 1000px;
 }
 
 .fixedLeft {
     position: absolute;
     left: 100px;
+}
+
+.col1 {
+    width: 500px;
+}
+
+.col2 {
+    position: absolute;
+    left: 500px;
+    top: 50px;
+    width: 400px;
 }

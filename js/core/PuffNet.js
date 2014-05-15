@@ -56,37 +56,38 @@ PuffNet.sendPuffToServer = function(puff) {
                   .catch(Puffball.promiseError('Could not send puff to server'));
 }
 
-PuffNet.getUser = function(username) {
-    // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+PuffNet.getUserRecord = function(username) {
+    // TODO: call PuffNet.getUserRecordFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
     var pprom = PuffNet.getJSON(url, data);
 
-    return pprom.then(function(user) {
-                    return Puffball.Data.addUser(user);
+    return pprom.then(function(userRecord) {
+                    return Puffball.Data.cacheUserRecord(userRecord);
                 })
                 .catch(Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
-PuffNet.getUserFile = function(username) {
+PuffNet.getUserRecordFile = function(username) {
     var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
     var pprom = PuffNet.getJSON(url, data);
     
     return pprom.then(function(users) {
-                    Puffball.Data.users = Puffball.Data.users.concat(users);
+                    users = users.map(Puffball.Data.cacheUserRecord)
+                                 .filter(Boolean)
                     return users;
                 })
                 .catch(Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
-PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, publicKeys) {
+PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
     var payload = {};
     
-    payload.rootKey = publicKeys.root;
-    payload.adminKey = publicKeys.admin;
-    payload.defaultKey = publicKeys.default;
+    payload.rootKey = rootKey;
+    payload.adminKey = adminKey;
+    payload.defaultKey = defaultKey;
 
     payload.time = Date.now();
     payload.requestedUsername = newUsername;
@@ -98,7 +99,10 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     var puff = Puffball.createPuff(signingUsername, privateAdminKey, routing, type, content, payload);
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
-    return PuffNet.updateUserRecord(puff);
+    return PuffNet.updateUserRecord(puff)
+                  .then(function(userRecord) {
+                      return Puffball.Data.cacheUserRecord(userRecord)
+                  })
 }
 
 PuffNet.updateUserRecord = function(puff) {

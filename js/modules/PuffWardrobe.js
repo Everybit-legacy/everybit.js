@@ -108,13 +108,6 @@ PuffUsers.addUserMaybe = function(username, privateDefaultKey) {
 PuffUsers.addUserReally = function(username, keys) {
 // PuffUsers.addUserReally = function(username, defaultKey, adminKey, rootKey) {
     
-    /*
-    
-        HEY! 
-    
-    */
-    
-    
     var userinfo = { username: username
                    ,     keys: keys
                    }

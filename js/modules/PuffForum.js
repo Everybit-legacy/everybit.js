@@ -102,10 +102,10 @@ PuffForum.addPost = function(type, content, parents, metadata) {
             return Puffball.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
         
         // THINK: instead of giving up we could just save it locally until the network is reestablished...
-        var pprom = PuffUsers.addAnonUser();
+        var pprom = PuffBall.addNewAnonUser();
         
-        pprom.then(function(username) {
-            PuffUsers.setCurrentUser(username)
+        pprom.then(function(user) {
+            PuffUsers.setCurrentUser(user.username)
             PuffForum.addPost(content, parents, type, metadata, true)
         })
     }

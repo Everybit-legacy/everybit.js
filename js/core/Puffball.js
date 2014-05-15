@@ -38,32 +38,18 @@ Puffball.init = function(zone) {
     // initialize the network layer 
     // slurp in available data
     // do other amazing things
-  
-  
-    // next steps:
-    // -- fix puff fields
-    // -- get Puffball.addPuff actually working w/ random sig
-    // -- working parents/children in puffforum
-    // ~- linked parents/children in puffforum
-    // -- persist puffs
-    // - fancy forum's db
-    // -- get display working
-    // -- use real keys 
-    // - network access for initial load
-    // -- network access for updates
-  
+    
     Puffball.Data.getLocalPuffs(Puffball.receiveNewPuffs)
     Puffball.Data.getNewPuffs() // THINK: this should take a zone
     
     Puffball.Blockchain.BLOCKS = Puffball.Persist.get('blocks') 
     if(!Puffball.Blockchain.BLOCKS)
         Puffball.Blockchain.BLOCKS = {}
-        
+    
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
-
+    
     PuffNet.init()
 }
-
 
 Puffball.createPuff = function(username, privatekey, routes, type, content, payload, previous) {
     //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
@@ -87,7 +73,7 @@ Puffball.createPuff = function(username, privatekey, routes, type, content, payl
     return puff
 }
 
-Puffball.createUser = function(username, defaultKey, adminKey, rootKey, latest, updated) {
+Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated) {
     //// Returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc).
     
     latest = latest || ""
@@ -141,6 +127,8 @@ Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRo
     
    return keys;
 }
+
+
 
 
  
@@ -209,24 +197,36 @@ Puffball.Data.getNewPuffs = function() {
                 .catch(Puffball.promiseError('Could not load the puffs'))
 }
 
-Puffball.Data.addUser = function(user) {
-    Puffball.Data.users.push(user);
-    return user;
-    // TODO: index by username
-    // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
-}
-
-Puffball.Data.verifyPuff = function(puff, callback) {
+Puffball.Data.verifyPuff = function(puff) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
     
-    var pprom = PuffNet.getUser(puff.username);
+    var pprom = PuffNet.getUserRecord(puff.username);
     
     pprom.then(function(user) {
         return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey)
     });
     
     return pprom;
+}
+
+Puffball.Data.cacheUserRecord = function(userRecord) {
+    var newUserRecord = Puffball.buildUserRecord(userRecord)
+    if(!newUserRecord)
+        return Puffball.onError('That is not an acceptable user record', userRecord)
+    
+    Puffball.Data.userRecords.push(newUserRecord);
+    return newUserRecord;
+    
+    // TODO: index by username
+    // TODO: if duplicate check update times for latest
+    // TODO: figure out how to handle malicious DHT records (sign new record? oh................... oh. oh. oh dear.)
+    // .............. ok but you could show the chain of commits starting with the root puffball creation key.........
+    // .......so to verify a DHT entry you need to check the key change chain going back to the initial entry signed  
+    // ....with puffball's public admin key, and then work your way through each signed key change commit,
+    // ..but to be verifiable you have to send that on every DHT request which is awful.......
+    // oh boy. 
+    // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
 

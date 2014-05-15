@@ -65,28 +65,67 @@ Puffball.init = function(zone) {
 }
 
 
-Puffball.createPuff = function(username, privatekey, zones, type, content, payload, previous) {
+Puffball.createPuff = function(username, privatekey, routes, type, content, payload, previous) {
     //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
 
-    zones = zones || []
+    routes = routes || []
     previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
-    var puff = { payload: payload
-               , zones: zones
+    var puff = { username: username
+               , routes: routes
                , previous: previous
-               , username: username
-               , version: '0.0.2'                       // version accounts for crypto type and puff shape
-               };                                       // early versions will be aggressively deprecated and unsupported
+               , version: '0.0.3'                       // version accounts for crypto type and puff shape
+               , payload: payload                       // early versions will be aggressively deprecated and unsupported
+               }
 
     puff.sig = Puffball.Crypto.signData(puff, privatekey)
 
     return puff
 }
 
+Puffball.createUser = function(username, defaultKey, adminKey, rootKey, latest, updated) {
+    //// Returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc).
+    
+    latest = latest || ""
+    updated = updated || ""
+    
+    // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
+
+    if(!Puffball.validateUsername(username))
+        return false; // already logged the error
+    
+    // these keys are PUBLIC. only public keys here. no other types of keys. 
+    
+    return {   username: username
+           ,    rootKey: rootKey
+           ,   adminKey: adminKey
+           , defaultKey: defaultKey
+           ,     latest: latest
+           ,    updated: updated
+           }
+}
+
+Puffball.validateUsername = function(username) {
+    if(!username) 
+        return Puff.onError('Username is required')
+
+    if(username.length > 256) 
+        return Puff.onError('Usernames must be shorter than N characters')
+
+    if(username != username.toLowerCase()) 
+        return Puff.onError('Usernames must be lowercase')
+    
+    if(!/^[0-9a-z]+$/.text(username))
+        return Puff.onError('Usernames must be alphanumeric')
+    
+    return true;
+}
+
+///// DELETE THIS:
 Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRootKey) {
     var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
     var publicAdminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
@@ -104,12 +143,8 @@ Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRo
 }
 
 
-Puffball.checkUserKey = function(username, privatekey) {
-    return true; // oh dear. This is checked elsewhere, but should be here too!
-}
-
  
-Puffball.addPuff = function(puff, privatekey) {
+Puffball.addPuffToSystem = function(puff, privatekey) {
     //// add a puff to our local cache and fire the callback for new content
   
     Puffball.receiveNewPuffs([puff]);
@@ -123,11 +158,13 @@ Puffball.addPuff = function(puff, privatekey) {
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
-    puffs = Array.isArray(puffs) ? puffs : [puffs];                            // make puffs an array
+    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
   
-    puffs.forEach(function(puff) { Puffball.Data.eat(puff) });                     // cache all the puffs
+    puffs.forEach(function(puff) { Puffball.Data.eat(puff) });                      // cache all the puffs
   
-    Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });     // call all callbacks back
+    Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    
+    return puffs
 }
 
 
@@ -139,11 +176,12 @@ Puffball.onNewPuffs = function(callback) {
 
 
 
+
 // DATA LAYER
 
 Puffball.Data = {};
 Puffball.Data.puffs = [];
-Puffball.Data.users = [];                                   // these are DHT user entries, not our local identity wardrobe
+Puffball.Data.users = [];                               // these are DHT user entries, not our local identity wardrobe
 
 Puffball.Data.eat = function(puff) {
     if(!!~Puffball.Data.puffs
@@ -166,12 +204,14 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
-    var pprom = PuffNet.getAllPuffs(); // OPT: only ask for puffs we're missing
-    pprom.then(Puffball.receiveNewPuffs)
+    var pprom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
+    return pprom.then(Puffball.receiveNewPuffs)
+                .catch(Puffball.promiseError('Could not load the puffs'))
 }
 
 Puffball.Data.addUser = function(user) {
     Puffball.Data.users.push(user);
+    return user;
     // TODO: index by username
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
@@ -438,7 +478,7 @@ Puffball.Persist = {};
 Puffball.Persist.save = function(key, value) {
     // prepend PUFF:: so we're good neighbors
     var realkey = 'PUFF::' + key;
-    var str = JSON.stringify(value);  // wrap this in a try/catch
+    var str = JSON.stringify(value);
     localStorage.setItem(realkey, str);
 }
 
@@ -446,7 +486,7 @@ Puffball.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
     if(!str) return false;
-    return JSON.parse(str); // wrap this in a try/catch
+    return Puffball.parseJSON(str);
 }
 
 Puffball.Persist.remove = function(key) {
@@ -467,5 +507,14 @@ Puffball.promiseError = function(msg) {
     return function(err) {
         Puffball.onError(msg, err)
         throw err
+    }
+}
+
+
+Puffball.parseJSON = function(str) {
+    try {
+        return JSON.parse(str)
+    } catch(err) {
+        return Puffball.onError('Invalid JSON string', err)
     }
 }

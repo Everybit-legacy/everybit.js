@@ -30,3 +30,7 @@ CONFIG.text_threshold = 400;
 
 // List of supported
 CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
+
+CONFIG.anon = {};
+CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'; // public: 161s1zgTMSVLCp72SBphusQHzBzhjqtK5SSrCqKn17VfdvJPugz
+

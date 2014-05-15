@@ -18,16 +18,8 @@
 PuffNet = {};
 
 PuffNet.init = function() {
-    //// fire up the networks (currently just the peer connections)
-    
-    PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
-                                 ,  port: 9000
-                                 ,  path: '/'
-                                 , debug: 1
-                                 });
-    
-    PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
-    PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
+    //// fire up the networks (currently just the peer connections)    
+    PuffNet.P2P.init();
 }
 
 
@@ -55,80 +47,74 @@ PuffNet.distributePuff = function(puff) {
 PuffNet.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
+    //        or manage it entirely with routing, even for server-sent puffs?
     
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
                
     return PuffNet.post(CONFIG.puffApi, data)
-                  .catch(Puffball.promiseError('Could not send puff to server'))
+                  .catch(Puffball.promiseError('Could not send puff to server'));
 }
 
-PuffNet.getUser = function(username, callback) {
+PuffNet.getUser = function(username) {
     // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
-    var url   = CONFIG.puffApi;
+    var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
     var pprom = PuffNet.getJSON(url, data);
 
-    pprom.then(function(user) {
-        Puffball.Data.addUser(user);
-    });
-    
-    pprom.catch(Puffball.promiseError('Unable to access user information from the DHT'));
-    
-    return pprom;
+    return pprom.then(function(user) {
+                    return Puffball.Data.addUser(user);
+                })
+                .catch(Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
 PuffNet.getUserFile = function(username) {
-    var url   = CONFIG.puffApi;
+    var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
     var pprom = PuffNet.getJSON(url, data);
     
-    pprom.then(function(users) {
-        Puffball.Data.users = Puffball.Data.users.concat(users);
-    });
-    
-    pprom.catch(Puffball.promiseError('Unable to access user file from the DHT'));
-    
-    return pprom;
+    return pprom.then(function(users) {
+                    Puffball.Data.users = Puffball.Data.users.concat(users);
+                    return users;
+                })
+                .catch(Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
-PuffNet.addAnonUser = function(keys) {
-    var data = { type: 'generateUsername'
-               , rootKey: keys.root.public
-               , adminKey: keys.admin.public
-               , defaultKey: keys.default.public
+PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, publicKeys) {
+    var payload = {};
+    
+    payload.rootKey = publicKeys.root;
+    payload.adminKey = publicKeys.admin;
+    payload.defaultKey = publicKeys.default;
+
+    payload.time = Date.now();
+    payload.requestedUsername = newUsername;
+
+    var routing = []; // THINK: DHT?
+    var type = 'updateUserRecord';
+    var content = 'requestUsername';
+
+    var puff = Puffball.createPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+    return PuffNet.updateUserRecord(puff);
+}
+
+PuffNet.updateUserRecord = function(puff) {
+    var data = { type: 'updateUsingPuff'
+               , puff: puff
                };
-               
-    var pprom = PuffNet.post(CONFIG.puffApi, data)
-    
-    pprom.catch(Puffball.promiseError('Issue contact the server'))
-         .then(JSON.parse)
-         .then(function(result) {
-             if(!result.username) throw Error('Issue with adding anonymous user');
-             Puffball.Blockchain.createGenesisBlock(result.username);
-         })
-         .catch(Puffball.promiseError('Anonymous user could not be added'))
-    
-    return pprom;
-}
 
-PuffNet.sendUserRecordPuffToServer = function(puff, callback) {
-    $.ajax({
-        type: 'POST',
-        url: CONFIG.userApi,
-        data: { type: 'updateUsingPuff'
-              , puff: puff
-              },
-        success:function(result) {
-            if(typeof callback == 'function')
-                callback(result)
-        },
-        error: function(err) {
-            Puffball.onError('Error Error Error: sending user record modification puff failed miserably', err)
-        },
-        dataType: 'json'
-    });
+    var pprom = PuffNet.post(CONFIG.userApi, data);
+    
+    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+                .then(JSON.parse)
+                .then(function(result) {
+                    if(!result.username) 
+                        Puffball.promiseError('The DHT did not approve of your request')(Error(result.FAIL)); // throws
+                    return result;
+                })
 }
 
 
@@ -150,18 +136,17 @@ PuffNet.xhr = function(url, options, data) {
         req.open(options.method || 'GET', url);
         
         Object.keys(options.headers || {}).forEach(function (key) {
-          req.setRequestHeader(key, options.headers[key]);
+            req.setRequestHeader(key, options.headers[key]);
         });
         
-        if(data) {
-            var formdata = new FormData()
-            Object.keys(options.headers || {}).forEach(function (key) {
-              formdata.append(key, data[key]);
-            });
-        }
+        var formdata = new FormData()
+        Object.keys(data || {}).forEach(function (key) {
+            var datum = typeof data[key] == 'object' ? JSON.stringify(data[key]) : data[key];
+            formdata.append(key, datum);
+        });
         
         if(options && options.type)
-            req.responseType = options.type
+            req.responseType = options.type;
                 
         req.onload = function() {
           if (req.status == 200)
@@ -192,7 +177,8 @@ PuffNet.getJSON = function(url, params) {
 }
 
 PuffNet.post = function(url, data) {
-    var options = { headers: {   'Content-type': 'application/x-www-form-urlencoded' 
+    var options = { headers: {   
+        // 'Content-type': 'application/x-www-form-urlencoded' 
 //                           , 'Content-length': params.length
 //                           ,     'Connection': 'close'  
                              }
@@ -216,6 +202,17 @@ PuffNet.post = function(url, data) {
 
 PuffNet.P2P = {};
 PuffNet.P2P.peers = {};
+
+PuffNet.P2P.init = function() {
+    PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
+                                 ,  port: 9000
+                                 ,  path: '/'
+                                 , debug: 1
+                                 });
+    
+    PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
+    PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
+}
 
 PuffNet.P2P.reloadPeers = function() {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);

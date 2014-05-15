@@ -1,29 +1,33 @@
 /** @jsx React.DOM */
 
 puffworldprops = {    menu: {    show: false
-                            ,   prefs: false
-                            , profile: false
-                            ,    user: { pick_one: false
-                                       , show_add: false
-                                       ,  add_one: false
-                                       ,  add_new: false
-                                       ,   manage: false
-                                       ,  show_bc: false
-                                       , show_key: false
-                                       }
-                            }
-                 ,    view: { style: 'PuffRoots'
-                            ,  puff: false 
-                            } 
-                 ,   reply: { parents: []
-                            ,    show: false 
-                            ,    type: 'text'
-                            } 
-                 ,   prefs: { }
-                 , profile: { }
-             }
+    ,   prefs: false
+    , profile: false
+    ,    user: { pick_one: false
+        , show_add: false
+        ,  add_one: false
+        ,  add_new: false
+        ,   manage: false
+        ,  show_bc: false
+        , show_key: false
+    }
+}
+    ,    view: { style: 'PuffRoots'
+        ,  puff: false
+    }
+    ,   reply: { parents: []
+        ,    show: false
+        ,    type: 'text'
+    }
+    ,   prefs: { }
+    , profile: { }
+    ,   tools: { users: { resultstyle: 'raw'
+        , puffstyle: 'raw'
+    }
+    }
+}
 
-puffworlddefaults = puffworldprops // it's immutable so we don't care
+puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
 globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
@@ -31,158 +35,65 @@ globalCreatePuffBox = function(puff) {
 
 var PuffWorld = React.createClass({
     render: function() {
-        
-        // console.log(this.props, this)
-        
-        $('#plumbing').empty(); // THINK: where should this live and should it at all?
-        
+
+        $('#plumbing').empty();                     // THINK: where should this live and should it at all?
+
         var view;
         var viewprops = this.props.view || {};
-        
+
         if( viewprops.style == 'PuffTree' )
             view = <PuffTree puff={viewprops.puff} />
-        
+
         else if( viewprops.style == 'PuffAllChildren' )
             view = <PuffAllChildren puff={viewprops.puff} />
-        
+
         else if( viewprops.style == 'PuffAllParents' )
             view = <PuffAllParents puff={viewprops.puff} />
-        
+
         else if( viewprops.style == 'PuffPacker' )
-            view = <PuffPacker />
-        
+            view = <PuffPacker tools={this.props.tools} />
+
         else view = <PuffRoots />
-        
+
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
-        
+
         var menu = this.props.menu.show ? <PuffMenu menu={this.props.menu} prefs={this.props.prefs} profile={this.props.profile} /> : ''
 
-        return (                                         
-            <div>                                        
+        return (
+            <div>
                 <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}
                 {reply}
                 <PuffFooter />
             </div>
-        )
+            )
     }
 });
 
 var PuffPacker = React.createClass({
+
+    getInitialState: function() {
+        return { result: {}
+               , latest: ''
+               ,   puff: {}
+               };
+    },
+
+    handleClose: function() {
+        return events.pub('ui/puff-packer/close', {'view.style': 'PuffRoots'})
+    },
     
-    handleBuild: function() {
-        var type = this.refs.requestType.getDOMNode().value;
-        
-        if(type == 'setLatest') {
-            var username = this.refs.username.getDOMNode().value;
-            var privateDefaultKey = this.refs.defaultKey.getDOMNode().value;
-            var zones = [];
-            var type = 'updateUserRecord';
-            var content = 'setLatest';
-            var payload = {};
-            payload.time = Date.now();
-            payload.latest = 123123123123; // FIXME: new latest id goes here
-            
-            var puff = Puffball.createPuff(username, privateDefaultKey, zones, type, content, payload);
-
-            var resultNode = this.refs.result.getDOMNode();
-            resultNode.value = JSON.stringify(puff);
-
-            // the request to send to api.php should have "updateUsingPuff" set as $_POST['type']
-            
-            // this function does exactly that:
-            // PuffNet.sendUserRecordPuffToServer(puff, callback);
-            // if you want to send that 
-            
-            return events.pub('ui/puff-packer/set-latest', {});
-        }
-        
-        if(type == 'requestUsername') {
-            var username = this.refs.username.getDOMNode().value;
-            
-            var privateDefaultKey = this.refs.defaultKey.getDOMNode().value;
-            var privateAdminKey   = this.refs.adminKey.getDOMNode().value;
-            var privateRootKey    = this.refs.rootKey.getDOMNode().value;
-            
-            var keys = Puffball.buildKeyObject(privateDefaultKey, privateAdminKey, privateRootKey);
-            
-            // PuffUsers.requestUsername(username, keys)
-            
-            return events.pub('ui/puff-packer/request-username', {});
-        }
-        
-        if(type == 'generateUsername') {
-            var resultNode = this.refs.result.getDOMNode();
-            resultNode.value = Math.random();
-
-            /*
-            var callback = function() {};
-            
-            PuffUsers.addAnonUser(callback);
-            */
-            
-            /* 
-                If we want to be able to generate anonymous users with pre-defined keys I can add a keys param 
-                to PuffUsers.addAnonUser -- that has all the key generation and checking functionality in it already.
-            
-                In general all the network calls should be done through PuffNet -- if you find yourself
-                reaching for $.ajax somewhere else we should probably move that use case into PuffNet,
-                at least eventually.
-            */
-            
-            return events.pub('ui/puff-packer/generate-username', {});
-        }
-        
-        return false;
-    },
-    handleRequest: function() {
-        var puffString = this.refs.result.getDOMNode().value;
-        
-        try {
-            var puff = JSON.parse(puffString)
-        } catch(e) {
-            console.log(e);
-            return Puffball.onError('JSON parsers are the worst.')
-        }
-        
-        var callback = function(result) {
-            console.log(result)
-        }
-
-        PuffNet.sendUserRecordPuffToServer(puff, callback);
-    },
-
     handleUsernameLookup: function() {
-
         var username = this.refs.username.getDOMNode().value;
-        var resultNode = this.refs.result.getDOMNode();
+        var self = this;
 
-        console.log(username);
-
-        $.getJSON(CONFIG.userApi, {type: 'getUser', username: username}, function(result) {
-            resultNode.value = JSON.stringify(result);
+        var pprom = PuffNet.getUser(username);
+        
+        pprom.then(function(result) {
+            self.state.result = result || "";
+            events.pub('ui/puff-packer/userlookup', {});
         });
-    },
-
-
-    handleGenerateUsername: function() {
-
-        var rkp = this.refs.rootKeyPublic.getDOMNode().value;
-        var akp = this.refs.adminKeyPublic.getDOMNode().value;
-        var dkp = this.refs.defaultKeyPublic.getDOMNode().value;
-        var resultNode = this.refs.result.getDOMNode();
-        var usernameNode = this.refs.username.getDOMNode();
-
-        console.log(rkp, akp, dkp);
-
-        $.post(CONFIG.userApi, {type: 'generateUsername', rootKey: rkp, adminKey: akp, defaultKey: dkp}, function(result) {
-            // this.refs.username.getDOMNode().value = result.username;
-            console.log(result.username);
-            resultNode.value = JSON.stringify(result);
-            usernameNode.value = result.username;
-        }, "json");
-
     },
 
     handleGeneratePrivateKeys: function() {
@@ -207,118 +118,205 @@ var PuffPacker = React.createClass({
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
         payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
-        var zones = [];
+        var routes = [];
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
         payload.time = Date.now();
 
+        payload.requestedUsername = this.refs.username.getDOMNode().value;
 
-        var user = PuffUsers.getCurrentUser();
-        var puff = Puffball.createPuff(user.username, user.keys.admin.private, zones, type, content, payload);
+        var user = PuffUsers.getCurrent();
 
-        this.refs.puffObject.getDOMNode().value = puff;
+        if(!user.username) {
+            this.state.result = {"FAIL": "You must set your identity before building registration requests."}
+            return events.pub('ui/puff-packer/user-registration/error', {});
+        }
 
-        var puffStringNode = this.refs.puffString.getDOMNode();
+        this.state.result = {}
 
-        puffStringNode.value = JSON.stringify(puff);
+        var puff = Puffball.createPuff(user.username, user.keys.admin.private, routes, type, content, payload);
+        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
     },
 
     handleSendPuffToServer: function() {
         // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
-        console.log("ENTER");
-        var puffToSend = this.refs.puffObject.getDOMNode().value;
-
-        console.log(puffToSend);
-
-        $.post(CONFIG.userApi, {type: 'updateUsingPuff', puff: JSON.stringify(puffToSend)}, function(response) {
-            console.log(JSON.stringify(response));
-        }, "json");
-
-        //         PuffNet.sendUserRecordPuffToServer(puff, callback);
-
-
-        console.log("exit");
+        var puff = this.state.puff;
+        var self = this;
+        
+        var pprom = PuffNet.updateUserRecord(puff)
+        
+        pprom.then(function(result) {
+                self.state.result = result;
+                events.pub('ui/puff-packer/userlookup', {});
+             })
+             .catch(function(err) {
+                 self.state.result = {'FAIL': err.message};
+                 events.pub('ui/puff-packer/userlookup/failed', {});
+             })
     },
 
-    handleSelect: function() {
-        // Explicitly focus the text input using the raw DOM API.
-        // this.refs.myTextInput.getDOMNode().select();
+    handleShowResultsFormatted: function() {
+        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
     },
- 
-    render: function() {
-        // Pre-fill with current user information if exists in memory
-        var user = PuffUsers.getCurrentUser();
 
-        if(user.keys) {
-            var currentUserPrivateKeys = [user.keys.root.private, user.keys.admin.private, user.keys.default.private];
+    handleShowResultsRaw: function() {
+        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
+    },
+
+    handleShowPuffFormatted: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
+    },
+
+    handleShowPuffRaw: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+    },
+
+    handlePublishPuff: function() {
+        return events.pub('ui/puff-packer/publish-puff', {});
+    },
+
+    handleGetLatest: function() {
+        var username = PuffUsers.getCurrent().username;
+        var self = this;
+
+        console.log(username);
+
+        var userpromise = PuffNet.getUser(username);
+        userpromise.then(function() {
+            self.state.latest = result.latest;
+            events.pub('ui/puff-packer/getUserLatest', {});
+        })
+    },
+
+    handleBuildSetLatest: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+    },
+
+    handleSetIdentityToAnon: function() {
+        
+        var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
+        PuffUsers.addUserReally('anon', keys);
+        PuffUsers.setCurrentUser('anon');
+    },
+    
+    formatForDisplay: function(obj, style) {
+        if(style == 'formatted') {
+            return JSON.stringify(obj, null, 2)
+                       .replace(/[{}",\[\]]/g, '')
+                       .replace(/^\n/, '')
+                       .replace(/\n$/, '');
         }
 
-        var puffString = '';
+        // style is raw
+        return JSON.stringify(obj).replace(/^\{\}$/, '');
+    },
+
+    render: function() {
+        // Pre-fill with current user information if exists in memory
+        var user = PuffUsers.getCurrent();
+
+        var result     = this.formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+        var puffString = this.formatForDisplay(this.state.puff,   this.props.tools.users.puffstyle);
 
         return (
             <div id="adminForm">
-                Tools:<br />
-                You are doing this as <span className="authorSpan">{user.username}</span>. In order to register new sub-users please set your current identity first.<br />
-
                 <form id="PuffPacker">
-                    username:
-                    <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
+                    <div id="closeDiv">
+                        <a href="#" onClick={this.handleClose} className="under">
+                            <img src="img/close.png" width="24" height="24" />
+                        </a>
+                    </div>
+                    <div className="col1">
+                        <h3>Tools</h3>
+                        
+                        username:
+                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
+                        <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
+
+                        <input className="btn-link" type="button" value="Build registration request" onClick={this.handleBuildRegisterUserPuff} /><br />
+                        
+                        <b>Current identity:</b> <span className="authorSpan">{user.username}</span><br />
+                        
+                        To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
+
+                        <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br /><br />
+
+                        <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
+
+                        New private keys<br />
+                        root:
+                            <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
+
+                        admin:
+                            <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
+
+                        default:
+                            <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br /><br />
+                            
+                        Corresponding public keys<br />
+                        
+                        root:
+                            <input className="fixedLeft" type="text" name="rootKeyPublic" ref="rootKeyPublic" /><br />
+
+                        admin:
+                            <input className="fixedLeft" type="text" name="adminKeyPublic" ref="adminKeyPublic" /><br />
+
+                        default:
+                            <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br /><br />
+
+                        <h4> Content Manipulation </h4>
+
+                        <p>get latest puff sig from DHT</p>
+
+                        Latest: <input className="fixedLeft" type="text" name="latestSig" ref="latestSig" value={this.state.latest} readOnly="true" /><br />
+                        
+                        <p><a href="#" onClick={this.handleGetLatest}>Get latest sig from DHT</a></p>
+
+                        <p>create a DHT-puff for setting latest</p>
+                        <a href="#" onClick={this.handleBuildSetLatest}>Build setLatest DHT-style puff</a>
 
 
-                    <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
-                    <input className="btn-link" type="button" value="Generate" onClick={this.handleGenerateUsername} /><br />
-                    Registration request:
-                    <input className="btn-link" type="button" value="build" onClick={this.handleBuildRegisterUserPuff} />
-                    <input className="btn-link" type="button" value="submit" onClick={this.handleSendPuffToServer} />
-                    <br />
+                        <p>
+                        --> create a new content puff
+                        --> send DHT puff
 
-                    <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
+                        --> send content puff to server
+                        </p>
 
-                    New public keys<br />
-                    root:
-                    <input className="fixedLeft" type="text" name="rootKeyPublic" ref="rootKeyPublic" /><br />
+                    </div>
 
-                    admin:
-                    <input className="fixedLeft" type="text" name="adminKeyPublic" ref="adminKeyPublic" /><br />
+                    <div className="col2">
 
-                    default:
-                    <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br />
-
-                    <br />
-                    New private keys<br />
-                    root:
-                        <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
-
-                    admin:
-                        <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
-
-                    default:
-                        <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br />
-
-                    <label htmlFor="requestType">Action:</label>
-                        <select name="requestType" ref="requestType" className="btn">
-                            <option value="generateUsername">Create anon user</option>
-                            <option value="requestUsername">Register a username</option>
-                            <option value="setLatest">Set the latest sig</option>
-                        </select>
-                    <br />
-
-                    <label htmlFor="result">Results:</label><br />
-                    <textarea ref="result" name="result" rows="5" cols="50"></textarea><br />
+                        <label htmlFor="result">Results:</label>
+                        <a href="#" onClick={this.handleShowResultsRaw}>Raw</a>
+                        {' | '}
+                        <a href="#" onClick={this.handleShowResultsFormatted}>Formatted</a>
+                        <br />
+                        <textarea ref="result" name="result" rows="5" cols="50" value={result} readOnly="true"></textarea><br />
 
 
-                    <label htmlFor="puffString">Puff:</label><br />
-                    <textarea ref="puffString" name="puffString" rows="5" cols="50">{puffString}</textarea>
-                    <input type="hidden" name="puffObject" ref="puffObject" />
-                    <br />
+                        <label htmlFor="puffString">Puff:</label>
+                        <a href="#" onClick={this.handleShowPuffRaw}>Raw</a>
+                        {' | '}
+                        <a href="#" onClick={this.handleShowPuffFormatted}>Formatted</a>
+                        <br />
+                        <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString}></textarea>
+                        <br />
 
 
-                        <input className="btn-link" type="button" value="Send to Server" onClick={this.handleSendPuffToServer} />
-                    <br />
-                    </form>
+                        <input className="btn-link" type="button" value="Publish puff" onClick={this.handlePublishPuff} />
+
+                        <input className="btn-link" type="button" value="Send user request" onClick={this.handleSendPuffToServer} />
+                    </div>
+                </form>
+
             </div>
-        )
+            )
     }
 });
 
@@ -356,36 +354,36 @@ var PuffAllParents = React.createClass({
 
 var PuffTree = React.createClass({
     render: function() {
-        
+
         var puff = this.props.puff;
         var parentPuffs = PuffForum.getParents(puff);
         var childrenPuffs = PuffForum.getChildren(puff);
-        
+
         childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
         childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
-        
+
         return (
             <div>
                 <section id="parents">{parentPuffs.map(globalCreatePuffBox)}</section>
                 <section id="main-content"><PuffBox puff={puff} /></section>
                 <section id="children">{childrenPuffs.map(globalCreatePuffBox)}</section>
             </div>
-        );
+            );
     },
-    
+
     componentDidMount: function() {
         this.doSillyJsPlumbStuff()
     },
-    
+
     componentDidUpdate: function() {
         this.doSillyJsPlumbStuff()
     },
-    
+
     doSillyJsPlumbStuff: function() {
         jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
-        
+
         var puff = this.props.puff
-        
+
         // Draw lines between Puff's using jsPlumb library.
         // Does this for each child Puff and the block of HTML that makes up the Puff.
         $("#children .block").each(function () {
@@ -447,24 +445,24 @@ var PuffTree = React.createClass({
 var PuffBox = React.createClass({
     render: function() {
         var puff = this.props.puff
-        
+
         return (
             <div className="block" id={puff.sig} key={puff.sig}>
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
             </div>
-        );
+            );
     }
 });
 
 var PuffAuthor = React.createClass({
     render: function() {
         var username = humanizeUsernames(this.props.username)
-        
+
         return (
             <div className="author">{username}</div>
-        );
+            );
     }
 });
 
@@ -492,7 +490,7 @@ var PuffBar = React.createClass({
                 <PuffPermaLink sig={puff.sig} />
                 <PuffReplyLink sig={puff.sig} />
             </div>
-        );
+            );
     }
 });
 
@@ -510,7 +508,7 @@ var PuffInfoLink = React.createClass({
             <span className="icon">
                 <img width="16" height="16" src="img/info.gif" alt={altText}  title={altText} />
             </span>
-        );
+            );
     }
 });
 
@@ -524,7 +522,7 @@ var PuffParentCount = React.createClass({
         var parents = PuffForum.getParents(puff)
         return (
             <span className="icon" onClick={this.handleClick}>{parents.length}&uarr;</span>
-        );
+            );
     }
 });
 
@@ -539,7 +537,7 @@ var PuffChildrenCount = React.createClass({
         var children = PuffForum.getChildren(puff)
         return (
             <span className="icon" onClick={this.handleClick}>{children.length}&darr;</span>
-        );
+            );
     }
 });
 
@@ -556,7 +554,7 @@ var PuffPermaLink = React.createClass({
                     <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16" />
                 </a>
             </span>
-        );
+            );
     }
 });
 
@@ -565,17 +563,17 @@ var PuffReplyLink = React.createClass({
         var sig = this.props.sig;
 
         var parents = puffworldprops.reply.parents         // THINK: how can we get rid of this dependency?
-                    ? puffworldprops.reply.parents.slice() // clone to keep pwp immutable
-                    : []
+            ? puffworldprops.reply.parents.slice() // clone to keep pwp immutable
+            : []
         var index   = parents.indexOf(sig)
 
         if(index == -1)
             parents.push(sig)
         else
             parents.splice(index, 1)
-    
+
         return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
-        
+
         // TODO: draw reply arrows
     },
     render: function() {
@@ -583,7 +581,7 @@ var PuffReplyLink = React.createClass({
             <span className="icon">
                 <img className="reply" onClick={this.handleClick} src="img/reply.png" width="16" height="16" />
             </span>
-        );
+            );
     }
 });
 
@@ -600,22 +598,22 @@ var PuffReplyForm = React.createClass({
         } else {
             content = this.refs.content.getDOMNode().value.trim();
         }
-        
+
         var parents = this.props.reply.parents;
 
-        PuffForum.addPost( content, parents, type, metadata );
+        PuffForum.addPost( type, content, parents, metadata );
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
     },
     handleImageLoad: function() {
         var self   = this;
         var reader = new FileReader();
-          
+
         reader.onload = function(event){
             self.state.imageSrc = event.target.result;
             return events.pub('ui/reply/image-upload');
         }
-          
+
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
 
         return false;
@@ -639,18 +637,18 @@ var PuffReplyForm = React.createClass({
         return {imageSrc: ''};
     },
     render: function() {
-        var user = PuffUsers.getCurrentUser() // make this a prop or something
+        var user = PuffUsers.getCurrent() // make this a prop or something
         var username = humanizeUsernames(user.username) || 'anonymous'
-        
+
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
-        
+
         var type = this.props.reply.type
         var typeFields = (
             <div>
                 <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
             </div>
-        )
-        
+            )
+
         if(type == 'image') {
             typeFields = (
                 <div>
@@ -670,7 +668,7 @@ var PuffReplyForm = React.createClass({
                     </p>
                     <img src={this.state.imageSrc} id="preview_image" />
                 </div>
-            )
+                )
         }
         else if(type == 'bbcode') {
             typeFields = (
@@ -678,28 +676,28 @@ var PuffReplyForm = React.createClass({
                     {typeFields}
                     <p>You can use BBCode-style tags</p>
                 </div>
-            )
+                )
         }
-        
+
         return (
             <div id="replyForm" className="mainForm">
-            
+
                 <div id="authorDiv">{username}</div>
                 <form id="otherContentForm" onSubmit={this.handleSubmit}>
                     
                     {typeFields}
-                    
+
                     <select ref="type" className="btn" onChange={this.handlePickType}>
                         {contentTypeNames.map(function(type) {
                             return <option key={type} value={type}>{type}</option>
                         })}
                     </select>
-                    
+
                     <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
                     <input type="submit" className="btn" value="GO!" />
                 </form>
             </div>
-        );
+            );
     }
 });
 
@@ -716,20 +714,20 @@ var PuffHeader = React.createClass({
                 <img src="img/logo.gif" id="logo" height="53" />
                 <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" width="32" className={this.props.menu.show ? 'menuOn' : ''} />
             </div>
-        );
+            );
     }
 });
 
 var PuffFooter = React.createClass({
     render: function() {
         return (
-            <div className="footer"> 
-              <div className="footerText">
-                Powered by <a href="http://www.puffball.io" className="footerText">puffball</a>. 
+            <div className="footer">
+                <div className="footerText">
+                Powered by <a href="http://www.puffball.io" className="footerText">puffball</a>.
                 Responsibility for all content lies with the publishing author and not this website.
-              </div>
+                </div>
             </div>
-        );
+            );
     }
 });
 
@@ -761,72 +759,74 @@ var PuffMenu = React.createClass({
         var learnMore = (
             <div className="menuItem">
                 <a href="#" onClick={this.handleLearnMore} className="under">
-                    Learn more about FreeBeer!
+                Learn more about FreeBeer!
                 </a>
             </div>
-        );
-        
+            );
+
         // Machine preferences
         var prefs = <PuffPrefs prefs={this.props.prefs} />
-        
+
         if(!this.props.menu.prefs) {
             prefs = (
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowPrefs} id="show_prefs" className="under">Preferences</a>
                 </div>
-            );
+                );
         }
-        
+
         // Identity profile
         var profile = <PuffProfile profile={this.props.profile} />
-        
+
         if(!this.props.menu.profile) {
             profile = (
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowProfile} id="show_profile" className="under">Profile</a>
                 </div>
-            );
+                );
         }
-        
+
         // no current user
-        var user = PuffUsers.getCurrentUser()
+        var user = PuffUsers.getCurrent()
         var username = humanizeUsernames(user.username) || ''
-        
+
         if(!username) {
             // prefs = <div></div>
             profile = <div></div>
         }
-        
+
         return (
             <div className="menu" id="menu">
-    
+
                 <div id="closeDiv">
                     <a href="#" onClick={this.handleClose} className="under">
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
-                CONTENT: <br />
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
-                </div>
-
+            DISPLAY: <br />
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
                 </div>
 
+            CONTENT: <br />
                 <div className="menuItem">
-                    <a href="#" onClick={this.handlePackPuffs} className="under">Pack puffs</a>
+                    <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
+                </div>
+
+            TOOLS<br />
+                <div className="menuItem">
+                    <a href="#" onClick={this.handlePackPuffs} className="under">Puff builder</a>
                 </div>
 
                 <br />
-                IDENTITY: <br />
+            IDENTITY: <br />
                 <PuffUserMenu user={this.props.menu.user} />
                 
                 {prefs}
                 
                 {profile}
             </div>
-        );
+            );
     }
 });
 
@@ -840,14 +840,14 @@ var PuffPrefs = React.createClass({
             <div>
                 <div className="menuItem">
                     <input type="checkbox" ref="storeusers" name="storeusers" onChange={this.handleStoreusers} checked={this.props.prefs.storeusers} />
-                    Store identities on this machine
+                Store identities on this machine
                 </div>
                 <div className="menuItem">
                     <p>Number of puffs to show in root view</p>
                     <p>Default view</p>
                 </div>
             </div>
-        ); 
+            );
     }
 });
 
@@ -860,21 +860,21 @@ var PuffProfile = React.createClass({
             <div>
                 <div className="menuItem">
                     <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
-                    Set nickname
+                Set nickname
                 </div>
                 <div className="menuItem">
                     <p>Identity avatar</p>
                     <p>More profile</p>
                 </div>
             </div>
-        ); 
+            );
     }
 });
 
 
 var PuffUserMenu = React.createClass({
     // responsible for showing either components or the link / static text
-    
+
     handleShowAdd: function() {
         return events.pub('ui/menu/user/show-add/show', {'menu.user.show_add': true})
     },
@@ -887,41 +887,41 @@ var PuffUserMenu = React.createClass({
     render: function() {
 
         // Current User
-        var user = PuffUsers.getCurrentUser();
+        var user = PuffUsers.getCurrent();
         var username = humanizeUsernames(user.username) || ''
-        var all_usernames = Object.keys(PuffUsers.getAllUsers())
-        
+        var all_usernames = Object.keys(PuffUsers.getAll())
+
         // Add User
         var add_user = <PuffAddUser user={this.props.user} />
-        
+
         if(!this.props.user.show_add) {
             add_user = (
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowAdd} id="show_add" className="under">Add an identity</a>
                 </div>
-            );
+                );
         }
-        
+
         // User Management
         var manage_user = <PuffManageUser user={this.props.user} />
-        
+
         if(!this.props.user.manage && username) {
             manage_user = (
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowManage} id="show_manage" className="under">Identity management</a>
                 </div>
-            );
+                );
         }
-        
+
         return (
             <div>
                 <div className="menuItem"> 
-                    {username ? <span>Posting as {username} </span> 
-                              : <span>No current identity</span>}
+                    {username ? <span>Posting as {username} </span>
+                        : <span>No current identity</span>}
                               
                     { (all_usernames.length && !this.props.user.pick_one)
-                    ? <a onClick={this.handlePickOne} className="under">(change)</a>
-                    : '' }
+                        ? <a onClick={this.handlePickOne} className="under">(change)</a>
+                        : '' }
                 </div>
 
                 {this.props.user.pick_one ? <PuffSwitchUser /> : ''}
@@ -930,7 +930,7 @@ var PuffUserMenu = React.createClass({
                 
                 {manage_user}
             </div>
-        );
+            );
     }
 });
 
@@ -940,24 +940,24 @@ var PuffSwitchUser = React.createClass({
         return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
-        var all_usernames = Object.keys(PuffUsers.getAllUsers())
+        var all_usernames = Object.keys(PuffUsers.getAll())
         
         if(!all_usernames.length) return <div></div>
         
-        var user = PuffUsers.getCurrentUser()
-        
+        var user = PuffUsers.getCurrent()
+
         // TODO: find a way to select from just one username (for remove user with exactly two users)
-        
+
         return (
             <div className="menuItem">
-                Change user: 
+            Change user:
                 <select ref="switcher" onChange={this.handleUserPick} value={user.username}>
                     {all_usernames.map(function(username) {
                         return <option key={username} value={username}>{username}</option>
                     })}
                 </select>
             </div>
-        ); 
+            );
     }
 });
 
@@ -973,22 +973,22 @@ var PuffAddUser = React.createClass({
         this.refs.privkey.getDOMNode().value = ""
 
         var pprom = PuffUsers.addUserMaybe(username.trim(), privkey.trim())
-        
+
         pprom.then(function(userinfo) {
             PuffUsers.setCurrentUser(userinfo.username)
             events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_one': false})
         })
-        
+
         pprom.catch(Puffball.promiseError('Failed to add user'))
-        
+
         return false
     },
     handleUserCreate: function() {
-        
+
         return false
     },
     handleNewAnon: function() {
-        var pprom = PuffUsers.addAnonUser()
+        var pprom = PuffUsers.addAnon()
         
         pprom.then(function(newName) {
             events.pub('user/add/anon', {})
@@ -996,7 +996,7 @@ var PuffAddUser = React.createClass({
             PuffUsers.setCurrentUser(newName)
             events.pub('ui/menu/user/show-add/hide', {'menu.user.show_add': false})
         });
-        
+
         return false
     },
     handleShowAddOne: function() {
@@ -1007,18 +1007,18 @@ var PuffAddUser = React.createClass({
     },
     render: function() {
         // THINK: put some breadcrumbs in?
-        
-        // Add a user: 
-            // Anonymous
-            // Existing
-                // need: username / prikey
-            // New named:
-                // New sub-user
-                    // need: existing user, sub user username / private key
-                // New top level
-                    // need: username > 33 / private key
 
-        
+        // Add a user: 
+        // Anonymous
+        // Existing
+        // need: username / prikey
+        // New named:
+        // New sub-user
+        // need: existing user, sub user username / private key
+        // New top level
+        // need: username > 33 / private key
+
+
         // Add existing identity
         if(this.props.user.add_one) {
             return (
@@ -1029,55 +1029,55 @@ var PuffAddUser = React.createClass({
                         <p>Private Key: <input type="text" ref="privkey" /></p>
                         <p><input type="submit" value="set" /></p>
                         <small>
-                            Your private key is never sent over the network. Keep it secret. Keep it safe.
+                        Your private key is never sent over the network. Keep it secret. Keep it safe.
                         </small>
                     </form>
                 </div>
-            ); 
+                );
         }
-        
+
         // Create new identity
         if(this.props.user.add_new) {
             return (
                 <div className="menuItem">
                     <form id="setUserInfo" onSubmit={this.handleUserCreate}>
-                    <p>Create a new identity</p>
-                    <p>Identity: <input type="text" ref="username" /></p>
-                    <p>Private Key: <input type="text" ref="privkey" /></p>
-                    <p><input type="submit" value="set" /></p>
+                        <p>Create a new identity</p>
+                        <p>Identity: <input type="text" ref="username" /></p>
+                        <p>Private Key: <input type="text" ref="privkey" /></p>
+                        <p><input type="submit" value="set" /></p>
                         <small>
-                            Your identity must consist of 33 or more alphanumeric characters.
-                            Your identity signs each piece of content that you create.
-                            If the content is modified your identity will no longer match its signature.
-                            Your private key is never sent over the network. Keep it secret. Keep it safe.
+                        Your identity must consist of 33 or more alphanumeric characters.
+                        Your identity signs each piece of content that you create.
+                        If the content is modified your identity will no longer match its signature.
+                        Your private key is never sent over the network. Keep it secret. Keep it safe.
                         </small>
                     </form>
                 </div>
-            ); 
+                );
         }
-        
+
         // Regular menu
         return (
             <div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowAddOne} id="add_local" className="under">Add existing identity</a>
                 </div>
-            
+
                 <div className="menuItem">
                     <a href="#" onClick={this.handleNewAnon} id="add_anon" className="under">Create anonymous identity</a>
                 </div>
-            
+
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowAddNew} id="add_new" className="under">Create new identity</a>
                 </div>
             </div>
-        ); 
+            );
     }
 });
 
 var PuffManageUser = React.createClass({
     handleRemoveUser: function() {
-        PuffUsers.removeUser(PuffUsers.getCurrentUser().username)
+        PuffUsers.removeUser(PuffUsers.getCurrent().username)
         events.pub('user/current/remove', {})
         events.pub('ui/user/current/remove', {}) // this should be generated by previous event
         events.pub('ui/menu/user/show-manage/hide', {'menu.user.manage': false})
@@ -1094,57 +1094,58 @@ var PuffManageUser = React.createClass({
 
         var props = this.props.user
         
-        var user = PuffUsers.getCurrentUser()
+        var user = PuffUsers.getCurrent()
+
         var username = humanizeUsernames(user.username) || ''
         if(!username) return <div></div>
 
         var qrCode = ''
         var myKeyStuff = ''
         var blockchainLink = ''
-        
+
         if(props.show_key) {
             myKeyStuff = <div><p>public key: <br />{user.publicKey}</p><p>private key: <br />{user.privateKey}</p></div>
-            
+
             var msg = user.privateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
-            
+
             var qr = qrcode(4, 'M');
-                qr.addData(msg);
-                qr.make();
-            
+            qr.addData(msg);
+            qr.make();
+
             var image_data = qr.createImgTag() || {}
             var data = 'data:image/gif;base64,' + image_data.base64
-            qrCode = <img src={data} width={stuff.width} height={stuff.height} />            
+            qrCode = <img src={data} width={stuff.width} height={stuff.height} />
         }
-        
+
         if(props.show_bc) {
-            var user = PuffUsers.getCurrentUser()
+            var user = PuffUsers.getCurrent()
             if(!user.username) return false
-            
+
             var blocks = Puffball.Blockchain.exportChain(user.username);
             var linkData = encodeURIComponent(JSON.stringify(blocks))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = <a download="blockchain.json" href={data} className="under">DOWNLOAD BLOCKCHAIN</a>
         }
-        
+
         return (
             <div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleRemoveUser} className="under">Remove identity from this machine</a>
                 </div>
-                
+
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowKeys} className="under">View this identity's keys</a>
                 </div>
-                
+
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowBlockchainLink} className="under">Download this identity's blockchain</a>
                 </div>
                 
                 { qrCode         ? <div className="menuItem">{qrCode}</div> : '' }
                 { myKeyStuff     ? <div className="menuItem">{myKeyStuff}</div> : '' }
-                { blockchainLink ? <div className="menuItem">{blockchainLink}</div> : '' }                
+                { blockchainLink ? <div className="menuItem">{blockchainLink}</div> : '' }
             </div>
-        ); 
+            );
     }
 });
 
@@ -1175,16 +1176,16 @@ renderPuffWorld()
 
 events.sub('ui/*', function(data, path) {
     //// rerender on all ui events
-    
+
     // OPT: batch process recent log items on requestAnimationFrame
-        
+
     // change props in a persistent fashion
     if(data)
-        if(Array.isArray(data)) 
+        if(Array.isArray(data))
             puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
         else
             puffworldprops = events.handle_merge_array(puffworldprops, data)
-    
+
     // then re-render PuffWorld w/ the new props
     renderPuffWorld()
 })
@@ -1193,17 +1194,17 @@ events.merge_props = function(props, path, value) {
     var segs = path.split('.')
     var last = segs.pop()
     var final = next = events.shallow_copy(props)
-    
+
     segs.forEach(function(seg) {
         next[seg] = events.shallow_copy(next[seg])
         next = next[seg]
     })
-    
+
     next[last] = value
     return final
 }
 
-events.shallow_copy = function(obj) { 
+events.shallow_copy = function(obj) {
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
 }
 
@@ -1230,8 +1231,8 @@ showPuff = function(puff) {
     // set window.location.hash and allow back button usage
     // TODO: convert this to a simple event system
     if(history.state && history.state.sig == puff.sig) return false
-    
-    var state = { 'sig': puff.sig }; 
+
+    var state = { 'sig': puff.sig };
     history.pushState(state, '', '#' + puff.sig);
 }
 
@@ -1245,12 +1246,12 @@ window.onpopstate = function(event) {
     //// grab back/forward button changes
 
     if(!event.state) return false
-    
+
     var puff = PuffForum.getPuffById(event.state.sig)
-    
+
     if(!puff)
         events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-    else 
+    else
         showPuffDirectly(puff)
 }
 

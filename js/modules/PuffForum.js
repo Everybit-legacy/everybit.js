@@ -95,7 +95,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
 
     // get a user promise
-    var userprom = PuffUsers.getUpToDateUserAtAnyCost();
+    var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
     
     if(!user.username) {
         if(recursive)
@@ -105,7 +105,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
         var pprom = PuffBall.addNewAnonUser();
         
         pprom.then(function(user) {
-            PuffUsers.setCurrentUser(user.username)
+            PuffWardrobe.setCurrentUser(user.username)
             PuffForum.addPost(content, parents, type, metadata, true)
         })
     }

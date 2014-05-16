@@ -49,7 +49,7 @@ PuffWardrobe.getCurrentUsername = function() {
 }
 
 PuffWardrobe.getCurrentUserRecord = function() {
-    var username = PuffWardrobe.getCurrentUsername
+    var username = PuffWardrobe.getCurrentUsername()
     if(!username) 
         return Puffball.onError('No current user in wardrobe')
     
@@ -88,6 +88,8 @@ PuffWardrobe.switchCurrent = function(username) {
 
 PuffWardrobe.storePrivateKeysDirectly = function(username, rootKey, adminKey, defaultKey) {
     //// Add keys to the wardrobe with no validation
+    if(!PuffWardrobe.keychain)
+        PuffWardrobe.keychain = {}
     
     PuffWardrobe.keychain[username] = {     root: rootKey
                                       ,    admin: adminKey
@@ -95,7 +97,7 @@ PuffWardrobe.storePrivateKeysDirectly = function(username, rootKey, adminKey, de
                                       , username: username
                                       }
 
-    if(PuffWardrobe.getPref('store-keychain'))
+    if(PuffWardrobe.getPref('storeKeychain'))
         Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
@@ -127,7 +129,7 @@ PuffWardrobe.removeKeys = function(username) {
     if(PuffWardrobe.currentKeys.username == username)
         PuffWardrobe.currentKeys = false
     
-    if(PuffWardrobe.getPref('store-keychain'))
+    if(PuffWardrobe.getPref('storeKeychain'))
         Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
@@ -155,7 +157,9 @@ PuffWardrobe.addNewAnonUser = function() {
     var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
 
     return prom.then(function(userRecord) {
-                   return PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+                   // store directly because we know they're valid, and so we don't get tangled up in more promises
+                   PuffWardrobe.storePrivateKeysDirectly(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+                   return userRecord;
                },
                Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
@@ -170,6 +174,7 @@ PuffWardrobe.getUpToDateUserAtAnyCost = function() {
         return Puffball.getUserRecordNoCache(username)
     
     var prom = PuffWardrobe.addNewAnonUser()
+    
     return prom.then(function(userRecord) {
         PuffWardrobe.switchCurrent(userRecord.username)
         return userRecord

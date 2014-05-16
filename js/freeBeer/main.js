@@ -131,12 +131,12 @@ events.sub('*', function(data, path) {
 
 //// event bindings for controlling core behavior from the display
 
-events.sub('prefs/store-keychain/toggle', function(data, path) {
-    var new_state = !PuffWardrobe.getPref('store-keychain')
-    PuffWardrobe.setPref('store-keychain', new_state)
+events.sub('prefs/storeKeychain/toggle', function(data, path) {
+    var new_state = !PuffWardrobe.getPref('storeKeychain')
+    PuffWardrobe.setPref('storeKeychain', new_state)
     
     var dir = new_state ? 'on' : 'off'
-    events.pub('ui/menu/prefs/store-keychain/' + dir)
+    events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
 events.sub('profile/nickname/set', function(data, path) {

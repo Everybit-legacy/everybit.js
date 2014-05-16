@@ -1101,26 +1101,25 @@ var PuffManageUser = React.createClass({
     render: function() {
         // OPT: once current user is in props, only rerender on change (blockchain and QR are expensive)
 
-        var props = this.props.user
-        
-        var privateKeys = PuffWardrobe.getCurrentKeys() || {}
-
-        var username = humanizeUsernames(privateKeys.username) || ''
-        if(!username) return <div></div>
-
         var qrCode = ''
         var myKeyStuff = ''
         var blockchainLink = ''
-        var privateDefaultKey = privateKeys.default
+
+        var props = this.props.user
+        
+        var username = PuffWardrobe.getCurrentUsername()
+        if(!username) return <div></div>
+
+        var privateKeys = PuffWardrobe.getCurrentKeys() || {}
         
         var userRecord = PuffWardrobe.getCurrentUserRecord() 
         if(!userRecord)
             return <div></div>
 
         if(props.show_key) {
-            myKeyStuff = <div><p>public key: <br />{userRecord.defaultKey}</p><p>private key: <br />{privateDefaultKey}</p></div>
+            myKeyStuff = <div><p>public key: <br />{userRecord.defaultKey}</p><p>private key: <br />{privateKeys.default}</p></div>
 
-            var msg = privateDefaultKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+            var msg = privateKeys.default.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
 
             var qr = qrcode(4, 'M');
             qr.addData(msg);
@@ -1132,10 +1131,10 @@ var PuffManageUser = React.createClass({
         }
 
         if(props.show_bc) {
-            if(!privateKeys.username) return false
+            if(!username) return false
 
-            var blocks = Puffball.Blockchain.exportChain(privateKeys.username);
-            var linkData = encodeURIComponent(JSON.stringify(blocks))
+            var allPuffs = Puffball.Data.getMyPuffs(username)
+            var linkData = encodeURIComponent(JSON.stringify(allPuffs))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = <a download="blockchain.json" href={data} className="under">DOWNLOAD BLOCKCHAIN</a>
         }

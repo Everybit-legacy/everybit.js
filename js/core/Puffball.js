@@ -39,6 +39,8 @@ Puffball.init = function(zone) {
     // slurp in available data
     // do other amazing things
     
+    Puffball.Data.depersistUserRecords()
+    
     Puffball.Data.getLocalPuffs(Puffball.receiveNewPuffs)
     Puffball.Data.getNewPuffs() // THINK: this should take a zone
     
@@ -97,16 +99,16 @@ Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, lat
 
 Puffball.validateUsername = function(username) {
     if(!username) 
-        return Puffball.onError('Username is required')
+        return Puffball.onError('Username is required', username)
 
     if(username.length > 256) 
-        return Puffball.onError('Usernames must be shorter than N characters')
+        return Puffball.onError('Usernames must be shorter than N characters', username)
 
     if(username != username.toLowerCase()) 
-        return Puffball.onError('Usernames must be lowercase')
+        return Puffball.onError('Usernames must be lowercase', username)
     
     if(!/^[0-9a-z.]+$/.test(username)) // FIXME: this isn't quite right...
-        return Puffball.onError('Usernames must be alphanumeric')
+        return Puffball.onError('Usernames must be alphanumeric', username)
     
     return true;
 }
@@ -144,7 +146,7 @@ Puffball.getUserRecordNoCache = function(username) {
 
 
  
-Puffball.addPuffToSystem = function(puff, privatekey) {
+Puffball.addPuffToSystem = function(puff) {
     //// add a puff to our local cache and fire the callback for new content
   
     Puffball.receiveNewPuffs([puff]);
@@ -152,6 +154,8 @@ Puffball.addPuffToSystem = function(puff, privatekey) {
     PuffNet.distributePuff(puff);
     
     // Puffball.Blockchain.createBlock(puff.username, puff, privatekey);
+    
+    return puff;
 }
 
 
@@ -246,6 +250,11 @@ Puffball.Data.cacheUserRecord = function(userRecord) {
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
+Puffball.Data.depersistUserRecords = function() {
+    //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
+    Puffball.Data.userRecords = Puffball.Persist.get('userRecords') || {};
+}
+
 
 
 /*
@@ -272,7 +281,7 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
     try {
         return Puffball.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {
-        return Puffball.onError('Invalid private key: could not convert to public key')
+        return Puffball.onError('Invalid private key: could not convert to public key', privateKeyWIF)
     }
 }
 
@@ -285,7 +294,7 @@ Puffball.Crypto.signData = function(unsignedPuff, privateKeyWIF) {
     try {
         return Bitcoin.base58.encode(prikey.sign(message))
     } catch(err) {
-        return Puffball.onError('Could not properly encode signature')
+        return Puffball.onError('Could not properly encode signature', [prikey, message])
     }
 }
 
@@ -303,7 +312,7 @@ Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
         sigBytes = sigBytes.data || sigBytes
         return pubkey.verify(message, sigBytes)
     } catch(err) {
-        return Puffball.onError('Invalid key or sig: could not verify message')
+        return Puffball.onError('Invalid key or sig: could not verify message', [message, sig, publicKeyWIF])
     }
 }
 
@@ -311,7 +320,7 @@ Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
     try {
         return new Bitcoin.ECKey(privateKeyWIF, true)
     } catch(err) {
-        return Puffball.onError('Invalid private key: are you sure it is properly WIFfed?')
+        return Puffball.onError('Invalid private key: are you sure it is properly WIFfed?', privateKeyWIF)
     }
 }
 
@@ -321,7 +330,7 @@ Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
         pubkeyBytes = pubkeyBytes.data || pubkeyBytes
         return new Bitcoin.ECPubKey(pubkeyBytes, true)
     } catch(err) {
-        return Puffball.onError('Invalid public key: are you sure it is properly WIFfed?')
+        return Puffball.onError('Invalid public key: are you sure it is properly WIFfed?', publicKeyWIF)
     }
 }
 

@@ -129,9 +129,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
 
         var puff = Puffball.buildPuff(userRecord.username, privateKeys.default, routes, type, content, payload, previous)
 
-        Puffball.addPuffToSystem(puff, privateKeys.default)
-
-        return puff        
+        return Puffball.addPuffToSystem(puff)
     }
 }
 

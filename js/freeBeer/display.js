@@ -833,13 +833,13 @@ var PuffMenu = React.createClass({
 
 var PuffPrefs = React.createClass({
     handleStoreusers: function() {
-        return events.pub('prefs/store-keychain/toggle')
+        return events.pub('prefs/storeKeychain/toggle')
     },
     render: function() {
         return (
             <div>
                 <div className="menuItem">
-                    <input type="checkbox" ref="store-keychain" name="store-keychain" onChange={this.handleStoreusers} checked={this.props.prefs.store-keychain} />
+                    <input type="checkbox" ref="storeKeychain" name="storeKeychain" onChange={this.handleStoreusers} checked={this.props.prefs.storeKeychain} />
                 Store identities on this machine
                 </div>
                 <div className="menuItem">
@@ -1128,7 +1128,7 @@ var PuffManageUser = React.createClass({
 
             var image_data = qr.createImgTag() || {}
             var data = 'data:image/gif;base64,' + image_data.base64
-            qrCode = <img src={data} width={stuff.width} height={stuff.height} />
+            qrCode = <img src={data} width={image_data.width} height={image_data.height} />
         }
 
         if(props.show_bc) {

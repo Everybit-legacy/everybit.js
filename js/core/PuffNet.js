@@ -61,25 +61,28 @@ PuffNet.getUserRecord = function(username) {
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
-    var pprom = PuffNet.getJSON(url, data);
+    var prom = PuffNet.getJSON(url, data);
 
-    return pprom.then(function(userRecord) {
-                    return Puffball.Data.cacheUserRecord(userRecord);
-                })
-                .catch(Puffball.promiseError('Unable to access user information from the DHT'));
+    return prom.then(
+                function(userRecord) {
+                    var userRecord = Puffball.processUserRecord(userRecord);
+                    if(!userRecord)  Puffball.throwError('Invalid user record returned', JSON.stringify(userRecord));
+                    return userRecord;
+                }
+                , Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
 PuffNet.getUserRecordFile = function(username) {
     var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
-    var pprom = PuffNet.getJSON(url, data);
+    var prom = PuffNet.getJSON(url, data);
     
-    return pprom.then(function(users) {
-                    users = users.map(Puffball.Data.cacheUserRecord)
-                                 .filter(Boolean)
-                    return users;
-                })
-                .catch(Puffball.promiseError('Unable to access user file from the DHT'));
+    return prom.then(
+                function(userRecords) {
+                    return userRecords.map(Puffball.processUserRecord)
+                                      .filter(Boolean);
+                }
+                , Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
 PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
@@ -96,13 +99,10 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     var type = 'updateUserRecord';
     var content = 'requestUsername';
 
-    var puff = Puffball.createPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    var puff = Puffball.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
     return PuffNet.updateUserRecord(puff)
-                  .then(function(userRecord) {
-                      return Puffball.Data.cacheUserRecord(userRecord)
-                  })
 }
 
 PuffNet.updateUserRecord = function(puff) {
@@ -110,14 +110,16 @@ PuffNet.updateUserRecord = function(puff) {
                , puff: puff
                };
 
-    var pprom = PuffNet.post(CONFIG.userApi, data);
+    var prom = PuffNet.post(CONFIG.userApi, data);
     
-    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
                 .then(JSON.parse)
-                .then(function(result) {
-                    if(!result.username) 
-                        Puffball.promiseError('The DHT did not approve of your request')(Error(result.FAIL)); // throws
-                    return result;
+                .then(function(userRecord) {
+                    if(!userRecord.username) 
+                        Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                        
+                    return Puffball.processUserRecord(userRecord)
+                        || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
                 })
 }
 

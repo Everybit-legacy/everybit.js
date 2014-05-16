@@ -51,7 +51,7 @@ Puffball.init = function(zone) {
     PuffNet.init()
 }
 
-Puffball.createPuff = function(username, privatekey, routes, type, content, payload, previous) {
+Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous) {
     //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
     payload = payload || {}                             // TODO: check all of these values more carefully
@@ -97,37 +97,49 @@ Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, lat
 
 Puffball.validateUsername = function(username) {
     if(!username) 
-        return Puff.onError('Username is required')
+        return Puffball.onError('Username is required')
 
     if(username.length > 256) 
-        return Puff.onError('Usernames must be shorter than N characters')
+        return Puffball.onError('Usernames must be shorter than N characters')
 
     if(username != username.toLowerCase()) 
-        return Puff.onError('Usernames must be lowercase')
+        return Puffball.onError('Usernames must be lowercase')
     
-    if(!/^[0-9a-z]+$/.text(username))
-        return Puff.onError('Usernames must be alphanumeric')
+    if(!/^[0-9a-z.]+$/.test(username)) // FIXME: this isn't quite right...
+        return Puffball.onError('Usernames must be alphanumeric')
     
     return true;
 }
 
-///// DELETE THIS:
-Puffball.buildKeyObject = function(privateDefaultKey, privateAdminKey, privateRootKey) {
-    var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
-    var publicAdminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
-    var publicRootKey    = Puffball.Crypto.privateToPublic(privateRootKey);
+Puffball.processUserRecord = function(userRecord) {
+    //// Use this on all incoming user records
     
-    var keys = { default: { 'private': privateDefaultKey
-                          ,  'public': publicDefaultKey }
-               ,   admin: { 'private': privateAdminKey
-                          ,  'public': publicAdminKey }
-               ,    root: { 'private': privateRootKey
-                          ,  'public': publicRootKey }
-               };
+    userRecord = Puffball.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated);
     
-   return keys;
+    if(!userRecord)
+        return Puffball.onError('That is not an acceptable user record', userRecord);
+    
+    Puffball.Data.cacheUserRecord(userRecord);
+    
+    return userRecord;
 }
 
+Puffball.getUserRecord = function(username) {
+    //// This always checks the cache
+    
+    var userRecord = Puffball.Data.getCachedUserRecord[username];
+    
+    if(userRecord)
+        return Promise.resolve(userRecord);
+    
+    return Puffball.getUserRecordNoCache(username);
+}
+
+Puffball.getUserRecordNoCache = function(username) {
+    //// This never checks the cache
+    
+    return PuffNet.getUserRecord(username);
+}
 
 
 
@@ -169,7 +181,7 @@ Puffball.onNewPuffs = function(callback) {
 
 Puffball.Data = {};
 Puffball.Data.puffs = [];
-Puffball.Data.users = [];                               // these are DHT user entries, not our local identity wardrobe
+Puffball.Data.userRecords = {}                          // these are DHT user entries, not our local identity wardrobe
 
 Puffball.Data.eat = function(puff) {
     if(!!~Puffball.Data.puffs
@@ -192,31 +204,36 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
-    var pprom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
-    return pprom.then(Puffball.receiveNewPuffs)
+    var prom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
+    return prom.then(Puffball.receiveNewPuffs)
                 .catch(Puffball.promiseError('Could not load the puffs'))
 }
 
 Puffball.Data.verifyPuff = function(puff) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
+    // TODO: use this to verify incoming puffs
+    // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    var pprom = PuffNet.getUserRecord(puff.username);
+    var prom = Puffball.getUserRecord(puff.username);
     
-    pprom.then(function(user) {
-        return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey)
+    return prom.then(function(user) {
+        return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey);
     });
-    
-    return pprom;
+}
+
+Puffball.Data.getCachedUserRecord = function(username) {
+    return Puffball.Data.userRecords[username];
 }
 
 Puffball.Data.cacheUserRecord = function(userRecord) {
-    var newUserRecord = Puffball.buildUserRecord(userRecord)
-    if(!newUserRecord)
-        return Puffball.onError('That is not an acceptable user record', userRecord)
+    //// This caches with no validation -- don't use it directly, use Puffball.processUserRecord instead
     
-    Puffball.Data.userRecords.push(newUserRecord);
-    return newUserRecord;
+    Puffball.Data.userRecords[userRecord.username] = userRecord;
+    
+    Puffball.Persist.save('userRecords', Puffball.Data.userRecords); // OPT: this could get expensive
+    
+    return userRecord;
     
     // TODO: index by username
     // TODO: if duplicate check update times for latest
@@ -508,6 +525,12 @@ Puffball.promiseError = function(msg) {
         Puffball.onError(msg, err)
         throw err
     }
+}
+
+Puffball.throwError = function(msg, errmsg) {
+    var err = Error(errmsg || msg)
+    Puffball.onError(msg, err)
+    throw err
 }
 
 

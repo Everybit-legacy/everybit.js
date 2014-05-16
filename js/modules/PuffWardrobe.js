@@ -9,8 +9,8 @@
   A Puffball module for managing identities locally.
 
   Usage example:
-  PuffWardrobe.setCurrentUser(user.username)
-  PuffWardrobe.getCurrent()
+  PuffWardrobe.switchCurrent(user.username)
+  PuffWardrobe.getCurrentKeys()
 
 */
 
@@ -37,67 +37,100 @@
 */
 
 PuffWardrobe = {}
-PuffWardrobe.keysafe = {}
+PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
+PuffWardrobe.currentKeys = false    // false if not set, so watch out
 
-PuffWardrobe.currentUser = {};
-PuffWardrobe.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
+PuffWardrobe.getCurrentKeys = function() {
+    return PuffWardrobe.currentKeys
+}
 
-PuffWardrobe.getCurrent = function() {
-    return PuffWardrobe.currentUser
+PuffWardrobe.getCurrentUsername = function() {
+    return (PuffWardrobe.currentKeys || {}).username || ''
+}
+
+PuffWardrobe.getCurrentUserRecord = function() {
+    var username = PuffWardrobe.getCurrentUsername
+    if(!username) 
+        return Puffball.onError('No current user in wardrobe')
+    
+    // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
+    //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
+    //        since after all we have stored the userRecord in our wardrobe, haven't we?
+    
+    var userRecord = Puffball.Data.userRecords[username]
+    if(!userRecord)
+        return Puffball.onError('That user does not exist in our records')
+    
+    return userRecord
 }
 
 PuffWardrobe.getAll = function() {
-    if(!PuffWardrobe.users)
-        PuffWardrobe.users = Puffball.Persist.get('users') || {}
+    if(!PuffWardrobe.keychain)
+        PuffWardrobe.keychain = Puffball.Persist.get('keychain') || {}
     
-    return PuffWardrobe.users
+    return PuffWardrobe.keychain
 }
 
-PuffWardrobe.addUserMaybe = function(username, privateDefaultKey) {
-    var pprom = PuffNet.getUserRecord(username);
+PuffWardrobe.switchCurrent = function(username) {
+    //// Change current keyset. also used for clearing the current keyset (call with '')
+
+    if(!username)
+        return PuffWardrobe.currentKeys = false
     
-    pprom.then(function(user) {
-        if(!user)
-            throw Error('No result returned');
+    var keychain = PuffWardrobe.getAll()
+    var keys     = keychain[username]
+
+    if(!keys)
+        return Puffball.onError('There are no keys in the wardrobe for that identity -- try adding it first')
     
-        var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);  // OPT: do this prior to getUser
+    return PuffWardrobe.currentKeys = keys
+}
+
+PuffWardrobe.storePrivateKeysDirectly = function(username, rootKey, adminKey, defaultKey) {
+    //// Add keys to the wardrobe with no validation
+    
+    PuffWardrobe.keychain[username] = {     root: rootKey
+                                      ,    admin: adminKey
+                                      ,  default: defaultKey
+                                      , username: username
+                                      }
+
+    if(PuffWardrobe.getPref('store-keychain'))
+        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
+}
+
+PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
+    //// Store private keys, but first ensure they match the userRecord
+    
+    var prom = Puffball.getUserRecord(username)
+    
+    return prom.then(function(userRecord) {
+        // validate any provided private keys against the userRecord's public keys
+        if(rootKey    && Puffball.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
+            Puffball.throwError('That private root key does not match the public root key on record')
+        if(adminKey   && Puffball.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
+            Puffball.throwError('That private admin key does not match the public admin key on record')
+        if(defaultKey && Puffball.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
+            Puffball.throwError('That private default key does not match the public default key on record')
         
-        if(!publicDefaultKey) 
-            throw Error('That private key could not generate a public key');
+        PuffWardrobe.storePrivateKeysDirectly(username, rootKey, adminKey, defaultKey)
+        return userRecord
+    }, Puffball.promiseError('Could not store private keys due to faulty user record'))
     
-        if(user.defaultKey !== publicDefaultKey)
-            throw Error('That private key does not match the record for that username')
-        
-        var keys = { default: { 'private': privateDefaultKey
-                              ,  'public': publicDefaultKey } }
-        var userinfo = PuffWardrobe.addUserReally(username, keys);
-
-        return username
-    })
-    
-    return pprom;
 }
 
-PuffWardrobe.setCurrentUser = function(username) {
-    var users = PuffWardrobe.getAll()
-    var user = users[username]
+PuffWardrobe.removeKeys = function(username) {
+    //// clear the identity's private keys from the wardrobe
+
+    delete PuffWardrobe.keychain[username]
     
-    if(!user || !user.username)
-        return Puffball.onError('No record of that username exists locally -- try adding it first')
+    if(PuffWardrobe.currentKeys.username == username)
+        PuffWardrobe.currentKeys = false
     
-    return PuffWardrobe.currentUser = user
+    if(PuffWardrobe.getPref('store-keychain'))
+        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
-PuffWardrobe.removeUser = function(username) {
-    //// clear the user from our system
-    delete PuffWardrobe.users[username]
-    
-    if(PuffWardrobe.currentUser.username == username)
-        PuffWardrobe.currentUser = {}
-    
-    if(PuffWardrobe.getPref('storeusers'))
-        Puffball.Persist.save('users', users)
-}
 
 
 PuffWardrobe.addNewAnonUser = function() {
@@ -119,79 +152,29 @@ PuffWardrobe.addNewAnonUser = function() {
     var newUsername = 'anon.' + anonUsername;
 
     // send it off
-    var pprom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
+    var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
 
-    return pprom.then(function(userRecord) {
-                    return PuffUser.storeUserRecord(userRecord, privateRootKey, privateAdminKey, privateDefaultKey);
-                })
-                .catch(Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
+    return prom.then(function(userRecord) {
+                   return PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+               },
+               Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
 
 PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var user = PuffWardrobe.getCurrent()
+    var username = PuffWardrobe.getCurrentUsername()
 
-    if(user.username)
-        return PuffWardrobe.getUserRecord(user)
+    if(username)
+        return Puffball.getUserRecordNoCache(username)
     
-    var pprom = PuffWardrobe.addAnon()
-    return pprom.then(function(user) {
-        PuffWardrobe.setCurrentUser(user.username)
+    var prom = PuffWardrobe.addNewAnonUser()
+    return prom.then(function(userRecord) {
+        PuffWardrobe.switchCurrent(userRecord.username)
+        return userRecord
     })
 }
-
-PuffWardrobe.getUserRecord = function(user) {
-    //// make this better
-    var user = JSON.parse(JSON.stringify(user))
-    return PuffNet.getUserRecord(user.username)
-                  .then(function(userDHT) {
-                      for(var key in userDHT)
-                          user[key] = userDHT[key]
-                      return user
-                  })
-}
-
-
-PuffWardrobe.storeUserRecord = function(userRecord, privateRootKey, privateAdminKey, privateDefaultKey) {
-// PuffWardrobe.addUserReally = function(username, defaultKey, adminKey, rootKey) {
-    
-    var newUserRecord = Puffball.Data.cacheUserRecord(userRecord)
-    
-    if(!newUserRecord)
-        return false
-    
-    
-    // plop this into local storage
-    // also handle private keys
-    // also take it back out on load
-    // so one unified API for persisting a userRecord and accepting private keys? 
-    // yeah... don't see why not. 
-    
-    PuffWardrobe.storeKeys(newUserRecord.username, privateRootKey, privateAdminKey, privateDefaultKey);
-    
-    // TODO: store both newUserRecord and keysafe
-    
-    // var users = PuffWardrobe.getAll()
-    // users[username] = userinfo
-    // 
-    // if(PuffWardrobe.getPref('storeusers'))
-    //     Puffball.Persist.save('users', users)
-
-    return newUserRecord
-}
-
-PuffWardrobe.storeKeys = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
-    PuffWardrobe.keysafe[username] = { root: privateRootKey
-                                  , admin: privateAdminKey
-                                  , default: privateDefaultKey
-                                  }
-}
-
-
-
-
 
 
 
@@ -248,17 +231,17 @@ PuffWardrobe.removePrefs = function() {
 PuffWardrobe.profilearray = {}  // THINK: put this somewhere else
 
 PuffWardrobe.getProfileItem = function(key) {
-    var username = PuffWardrobe.currentUser.username
+    var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.getUserProfileItem(username, key)
 }
 
 PuffWardrobe.setProfileItem = function(key, value) {
-    var username = PuffWardrobe.currentUser.username
+    var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.setUserProfileItems(username, key, value)
 }
 
 PuffWardrobe.getAllProfileItems = function() {
-    var username = PuffWardrobe.currentUser.username
+    var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.getAllUserProfileItems(username)
 }
 

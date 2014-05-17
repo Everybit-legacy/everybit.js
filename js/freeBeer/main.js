@@ -131,12 +131,12 @@ events.sub('*', function(data, path) {
 
 //// event bindings for controlling core behavior from the display
 
-events.sub('prefs/storeusers/toggle', function(data, path) {
-    var new_state = !PuffUsers.getPref('storeusers')
-    PuffUsers.setPref('storeusers', new_state)
+events.sub('prefs/storeKeychain/toggle', function(data, path) {
+    var new_state = !PuffWardrobe.getPref('storeKeychain')
+    PuffWardrobe.setPref('storeKeychain', new_state)
     
     var dir = new_state ? 'on' : 'off'
-    events.pub('ui/menu/prefs/storeusers/' + dir)
+    events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
 events.sub('profile/nickname/set', function(data, path) {
@@ -144,7 +144,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname) 
         return Puffball.onError('Invalid nickname')  // THINK: do this in React? use Puffball.validations?
     
-    PuffUsers.setProfileItem('nickname', nickname)
+    PuffWardrobe.setProfileItem('nickname', nickname)
     
     events.pub('ui/menu/profile/nickname/set')
 })

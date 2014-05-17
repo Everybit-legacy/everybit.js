@@ -56,37 +56,41 @@ PuffNet.sendPuffToServer = function(puff) {
                   .catch(Puffball.promiseError('Could not send puff to server'));
 }
 
-PuffNet.getUser = function(username) {
-    // TODO: call PuffNet.getUserFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+PuffNet.getUserRecord = function(username) {
+    // TODO: call PuffNet.getUserRecordFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
-    var pprom = PuffNet.getJSON(url, data);
+    var prom = PuffNet.getJSON(url, data);
 
-    return pprom.then(function(user) {
-                    return Puffball.Data.addUser(user);
-                })
-                .catch(Puffball.promiseError('Unable to access user information from the DHT'));
+    return prom.then(
+                function(userRecord) {
+                    var userRecord = Puffball.processUserRecord(userRecord);
+                    if(!userRecord)  Puffball.throwError('Invalid user record returned');
+                    return userRecord;
+                }
+                , Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
-PuffNet.getUserFile = function(username) {
+PuffNet.getUserRecordFile = function(username) {
     var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
-    var pprom = PuffNet.getJSON(url, data);
+    var prom = PuffNet.getJSON(url, data);
     
-    return pprom.then(function(users) {
-                    Puffball.Data.users = Puffball.Data.users.concat(users);
-                    return users;
-                })
-                .catch(Puffball.promiseError('Unable to access user file from the DHT'));
+    return prom.then(
+                function(userRecords) {
+                    return userRecords.map(Puffball.processUserRecord)
+                                      .filter(Boolean);
+                }
+                , Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
-PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, publicKeys) {
+PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
     var payload = {};
     
-    payload.rootKey = publicKeys.root;
-    payload.adminKey = publicKeys.admin;
-    payload.defaultKey = publicKeys.default;
+    payload.rootKey = rootKey;
+    payload.adminKey = adminKey;
+    payload.defaultKey = defaultKey;
 
     payload.time = Date.now();
     payload.requestedUsername = newUsername;
@@ -95,10 +99,10 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     var type = 'updateUserRecord';
     var content = 'requestUsername';
 
-    var puff = Puffball.createPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    var puff = Puffball.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
-    return PuffNet.updateUserRecord(puff);
+    return PuffNet.updateUserRecord(puff)
 }
 
 PuffNet.updateUserRecord = function(puff) {
@@ -106,14 +110,16 @@ PuffNet.updateUserRecord = function(puff) {
                , puff: puff
                };
 
-    var pprom = PuffNet.post(CONFIG.userApi, data);
+    var prom = PuffNet.post(CONFIG.userApi, data);
     
-    return pprom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
                 .then(JSON.parse)
-                .then(function(result) {
-                    if(!result.username) 
-                        Puffball.promiseError('The DHT did not approve of your request')(Error(result.FAIL)); // throws
-                    return result;
+                .then(function(userRecord) {
+                    if(!userRecord.username) 
+                        Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                        
+                    return Puffball.processUserRecord(userRecord)
+                        || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
                 })
 }
 
@@ -219,6 +225,8 @@ PuffNet.P2P.reloadPeers = function() {
 };
 
 PuffNet.P2P.openPeerConnection = function(id) {
+    // OPT: do we really need this? 
+    // THINK: why not just call PuffNet.P2P.reloadPeers?
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
 };
 

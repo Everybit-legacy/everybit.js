@@ -24,7 +24,7 @@ CONFIG.sortOrder = 'recent';
 CONFIG.zone = 'freebeer';
 
 // Signature of default puff to display on homepage load
-CONFIG.defaultPuff = '3sqa3JEfAHLRwKczv3GZ33kWa5PnaccZC978mSx7kP1f5GNN2d2evno4tDKmKrmy23y6tDVDpT9wgmMiZucKYZBQ5';
+// CONFIG.defaultPuff = '3sqa3JEfAHLRwKczv3GZ33kWa5PnaccZC978mSx7kP1f5GNN2d2evno4tDKmKrmy23y6tDVDpT9wgmMiZucKYZBQ5';
 
 CONFIG.text_threshold = 400;
 

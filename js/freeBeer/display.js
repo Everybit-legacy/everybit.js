@@ -91,9 +91,13 @@ var PuffPacker = React.createClass({
         var prom = Puffball.getUserRecord(username);
         
         prom.then(function(result) {
-            self.state.result = result || "";
-            events.pub('ui/puff-packer/userlookup', {});
-        });
+                self.state.result = result || "";
+                events.pub('ui/puff-packer/userlookup', {});
+            })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
     },
 
     handleGeneratePrivateKeys: function() {
@@ -197,10 +201,13 @@ var PuffPacker = React.createClass({
     },
 
     handleSetIdentityToAnon: function() {
-        
+        var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+        prom.then(function() {
+            PuffWardrobe.switchCurrent('anon');
+            events.pub('ui/puff-packer/set-to-anon', {});
+        })
         // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
         // PuffWardrobe.addUserReally('anon', keys);
-        PuffWardrobe.switchCurrent('anon');
     },
     
     formatForDisplay: function(obj, style) {
@@ -1111,15 +1118,16 @@ var PuffManageUser = React.createClass({
         if(!username) return <div></div>
 
         var privateKeys = PuffWardrobe.getCurrentKeys() || {}
+        var myPrivateKey = privateKeys.default || privateKeys.admin || privateKeys.root || '' // derp
         
         var userRecord = PuffWardrobe.getCurrentUserRecord() 
         if(!userRecord)
             return <div></div>
 
         if(props.show_key) {
-            myKeyStuff = <div><p>public key: <br />{userRecord.defaultKey}</p><p>private key: <br />{privateKeys.default}</p></div>
+            myKeyStuff = <div><p>public key: <br />{userRecord.defaultKey}</p><p>private key: <br />{myPrivateKey}</p></div>
 
-            var msg = privateKeys.default.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+            var msg = myPrivateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
 
             var qr = qrcode(4, 'M');
             qr.addData(msg);
@@ -1133,7 +1141,7 @@ var PuffManageUser = React.createClass({
         if(props.show_bc) {
             if(!username) return false
 
-            var allPuffs = Puffball.Data.getMyPuffs(username)
+            var allPuffs = Puffball.Data.getMyPuffChain(username)
             var linkData = encodeURIComponent(JSON.stringify(allPuffs))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = <a download="blockchain.json" href={data} className="under">DOWNLOAD BLOCKCHAIN</a>

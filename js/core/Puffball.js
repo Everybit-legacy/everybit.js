@@ -124,7 +124,7 @@ Puffball.processUserRecord = function(userRecord) {
 Puffball.getUserRecord = function(username) {
     //// This always checks the cache
     
-    var userRecord = Puffball.Data.getCachedUserRecord[username];
+    var userRecord = Puffball.Data.getCachedUserRecord(username);
     
     if(userRecord)
         return Promise.resolve(userRecord);
@@ -248,9 +248,10 @@ Puffball.Data.depersistUserRecords = function() {
     Puffball.Data.userRecords = Puffball.Persist.get('userRecords') || {};
 }
 
-Puffball.Data.getMyPuffs = function(username) {
+Puffball.Data.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
+    // TODO: the puffchain should also be sorted in chain order, not general collection order
     return Puffball.Data.puffs.filter(function(puff) { return puff && puff.username == username })    
 }
 
@@ -281,7 +282,7 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
     try {
         return Puffball.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {
-        return Puffball.onError('Invalid private key: could not convert to public key', privateKeyWIF)
+        return Puffball.onError('Invalid private key: could not convert to public key', [privateKeyWIF, err])
     }
 }
 
@@ -294,7 +295,7 @@ Puffball.Crypto.signData = function(unsignedPuff, privateKeyWIF) {
     try {
         return Bitcoin.base58.encode(prikey.sign(message))
     } catch(err) {
-        return Puffball.onError('Could not properly encode signature', [prikey, message])
+        return Puffball.onError('Could not properly encode signature', [prikey, message, err])
     }
 }
 
@@ -312,7 +313,7 @@ Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
         sigBytes = sigBytes.data || sigBytes
         return pubkey.verify(message, sigBytes)
     } catch(err) {
-        return Puffball.onError('Invalid key or sig: could not verify message', [message, sig, publicKeyWIF])
+        return Puffball.onError('Invalid key or sig: could not verify message', [message, sig, publicKeyWIF, err])
     }
 }
 
@@ -320,7 +321,7 @@ Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
     try {
         return new Bitcoin.ECKey(privateKeyWIF, true)
     } catch(err) {
-        return Puffball.onError('Invalid private key: are you sure it is properly WIFfed?', privateKeyWIF)
+        return Puffball.onError('Invalid private key: are you sure it is properly WIFfed?', [privateKeyWIF, err])
     }
 }
 
@@ -330,7 +331,7 @@ Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
         pubkeyBytes = pubkeyBytes.data || pubkeyBytes
         return new Bitcoin.ECPubKey(pubkeyBytes, true)
     } catch(err) {
-        return Puffball.onError('Invalid public key: are you sure it is properly WIFfed?', publicKeyWIF)
+        return Puffball.onError('Invalid public key: are you sure it is properly WIFfed?', [publicKeyWIF, err])
     }
 }
 

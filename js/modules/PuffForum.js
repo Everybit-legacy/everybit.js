@@ -127,23 +127,12 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
         if(!privateKeys || !privateKeys.default)
             return Puffball.onError('No valid private key found for signing the content')
 
-        var puff = Puffball.buildPuff(userRecord.username, privateKeys.default, routes, type, content, payload, previous)
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous)
 
         return Puffball.addPuffToSystem(puff)
     }
 }
 
-
-
-PuffForum.getDefaultPuff = function() {
-    var defaultPuff = CONFIG.defaultPuff
-                    ? PuffForum.getPuffById(CONFIG.defaultPuff)
-                    : Puffball.Data.puffs[0]
- 
-    // TODO: use 'locate puff' once it's available, and change this to 'show default puff'
-    
-    return defaultPuff
-}
 
 PuffForum.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system

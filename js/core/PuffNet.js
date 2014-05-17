@@ -66,7 +66,7 @@ PuffNet.getUserRecord = function(username) {
     return prom.then(
                 function(userRecord) {
                     var userRecord = Puffball.processUserRecord(userRecord);
-                    if(!userRecord)  Puffball.throwError('Invalid user record returned', JSON.stringify(userRecord));
+                    if(!userRecord)  Puffball.throwError('Invalid user record returned');
                     return userRecord;
                 }
                 , Puffball.promiseError('Unable to access user information from the DHT'));
@@ -225,6 +225,8 @@ PuffNet.P2P.reloadPeers = function() {
 };
 
 PuffNet.P2P.openPeerConnection = function(id) {
+    // OPT: do we really need this? 
+    // THINK: why not just call PuffNet.P2P.reloadPeers?
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
 };
 

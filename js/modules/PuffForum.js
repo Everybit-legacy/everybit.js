@@ -95,25 +95,12 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
 
     // get a user promise
-    var userprom = PuffUsers.getUpToDateUserAtAnyCost();
+    var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
     
-    if(!user.username) {
-        if(recursive)
-            return Puffball.onError("Could not create anonymous user. Try sending your puff again with a valid user, or establish a network connection to create a new one.")
-        
-        // THINK: instead of giving up we could just save it locally until the network is reestablished...
-        var pprom = PuffUsers.addAnonUser();
-        
-        pprom.then(function(username) {
-            PuffUsers.setCurrentUser(username)
-            PuffForum.addPost(content, parents, type, metadata, true)
-        })
-    }
-    
-    var pprom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'))
-                        .then(takeUserMakePuff)
-
-    return pprom;
+    var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'))
+                       .then(takeUserMakePuff)
+                       .catch(Puffball.promiseError('Posting failed'))
+    return prom;
     
     // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
     // TODO: make an official interface fulfillment thing
@@ -132,29 +119,20 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
     var routes = CONFIG.zone ? [CONFIG.zone] : []
     
     return function(userRecord) {
-        // userRecord is an up-to-date record from the DHT, so we can use its 'latest' value here 
+        // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
         var previous   = userRecord.latest
         var username   = userRecord.username
-        var privateKey = userRecord.keys.default.private
-        var puff = Puffball.createPuff(userRecord.username, privateKey, routes, type, content, payload, previous)
 
-        Puffball.addPuffToSystem(puff, privateKey)
+        var privateKeys = PuffWardrobe.getCurrentKeys()
+        if(!privateKeys || !privateKeys.default)
+            return Puffball.onError('No valid private key found for signing the content')
 
-        return puff        
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous)
+
+        return Puffball.addPuffToSystem(puff)
     }
 }
 
-
-
-PuffForum.getDefaultPuff = function() {
-    var defaultPuff = CONFIG.defaultPuff
-                    ? PuffForum.getPuffById(CONFIG.defaultPuff)
-                    : Puffball.Data.puffs[0]
- 
-    // TODO: use 'locate puff' once it's available, and change this to 'show default puff'
-    
-    return defaultPuff
-}
 
 PuffForum.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system

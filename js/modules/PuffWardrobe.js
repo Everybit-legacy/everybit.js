@@ -1,17 +1,16 @@
 /* 
-                   _____  _____                                 
-    ______  __ ___/ ____\/ ____\_ __  ______ ___________  ______
-    \____ \|  |  \   __\\   __\  |  \/  ___// __ \_  __ \/  ___/
-    |  |_> >  |  /|  |   |  | |  |  /\___ \\  ___/|  | \/\___ \ 
-    |   __/|____/ |__|   |__| |____//____  >\___  >__|  /____  >
-    |__|                                 \/     \/           \/ 
+                   _____  _____                          .___            ___.           
+    ______  __ ___/ ____\/ ____\_  _  _______ _______  __| _/______  ____\_ |__   ____  
+    \____ \|  |  \   __\\   __\\ \/ \/ /\__  \\_  __ \/ __ |\_  __ \/  _ \| __ \_/ __ \ 
+    |  |_> >  |  /|  |   |  |   \     /  / __ \|  | \/ /_/ | |  | \(  <_> ) \_\ \  ___/ 
+    |   __/|____/ |__|   |__|    \/\_/  (____  /__|  \____ | |__|   \____/|___  /\___  >
+    |__|                                     \/           \/                  \/     \/ 
   
   A Puffball module for managing identities locally.
 
   Usage example:
-  var user = PuffUsers.addAnon()
-  PuffUsers.setCurrentUser(user.username)
-  PuffUsers.getCurrent()
+  PuffWardrobe.switchCurrent(user.username)
+  PuffWardrobe.getCurrentKeys()
 
 */
 
@@ -37,140 +36,150 @@
 
 */
 
-PuffUsers = {}
+PuffWardrobe = {}
+PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
+PuffWardrobe.currentKeys = false    // false if not set, so watch out
 
-PuffUsers.currentUser = {};
-PuffUsers.users = false; // NOTE: don't access this directly -- go through the API instead. (THINK: wrap it in a closure?)
-
-PuffUsers.getCurrent = function() {
-    return PuffUsers.currentUser
+PuffWardrobe.getCurrentKeys = function() {
+    return PuffWardrobe.currentKeys
 }
 
-PuffUsers.getAll = function() {
-    if(!PuffUsers.users)
-        PuffUsers.users = Puffball.Persist.get('users') || {}
+PuffWardrobe.getCurrentUsername = function() {
+    return (PuffWardrobe.currentKeys || {}).username || ''
+}
+
+PuffWardrobe.getCurrentUserRecord = function() {
+    var username = PuffWardrobe.getCurrentUsername()
+    if(!username) 
+        return Puffball.onError('No current user in wardrobe')
     
-    return PuffUsers.users
+    // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
+    //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
+    //        since after all we have stored the userRecord in our wardrobe, haven't we?
+    
+    var userRecord = Puffball.Data.userRecords[username]
+    if(!userRecord)
+        return Puffball.onError('That user does not exist in our records')
+    
+    return userRecord
 }
 
-PuffUsers.addAnonUser = function() {
+PuffWardrobe.getAll = function() {
+    if(!PuffWardrobe.keychain)
+        PuffWardrobe.keychain = Puffball.Persist.get('keychain') || {}
+    
+    return PuffWardrobe.keychain
+}
+
+PuffWardrobe.switchCurrent = function(username) {
+    //// Change current keyset. also used for clearing the current keyset (call with '')
+
+    if(!username)
+        return PuffWardrobe.currentKeys = false
+    
+    var keychain = PuffWardrobe.getAll()
+    var keys     = keychain[username]
+
+    if(!keys)
+        return Puffball.onError('There are no keys in the wardrobe for that identity -- try adding it first')
+    
+    return PuffWardrobe.currentKeys = keys
+}
+
+PuffWardrobe.storePrivateKeysDirectly = function(username, rootKey, adminKey, defaultKey) {
+    //// Add keys to the wardrobe with no validation
+    if(!PuffWardrobe.keychain)
+        PuffWardrobe.keychain = {}
+    
+    PuffWardrobe.keychain[username] = {     root: rootKey
+                                      ,    admin: adminKey
+                                      ,  default: defaultKey
+                                      , username: username
+                                      }
+
+    if(PuffWardrobe.getPref('storeKeychain'))
+        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
+}
+
+PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
+    //// Store private keys, but first ensure they match the userRecord
+    
+    var prom = Puffball.getUserRecord(username)
+    
+    return prom.then(function(userRecord) {
+        // validate any provided private keys against the userRecord's public keys
+        if(rootKey    && Puffball.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
+            Puffball.throwError('That private root key does not match the public root key on record')
+        if(adminKey   && Puffball.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
+            Puffball.throwError('That private admin key does not match the public admin key on record')
+        if(defaultKey && Puffball.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
+            Puffball.throwError('That private default key does not match the public default key on record')
+        
+        PuffWardrobe.storePrivateKeysDirectly(username, rootKey, adminKey, defaultKey)
+        return userRecord
+    }, Puffball.promiseError('Could not store private keys due to faulty user record'))
+    
+}
+
+PuffWardrobe.removeKeys = function(username) {
+    //// clear the identity's private keys from the wardrobe
+
+    delete PuffWardrobe.keychain[username]
+    
+    if(PuffWardrobe.currentKeys.username == username)
+        PuffWardrobe.currentKeys = false
+    
+    if(PuffWardrobe.getPref('storeKeychain'))
+        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
+}
+
+
+
+PuffWardrobe.addNewAnonUser = function() {
     //// create a new anonymous identity and add it to the local identity list
+    //// it seems strange to have this in PuffWardrobe, but we have to keep the generated private keys here.
 
     // generate private keys
+    var privateRootKey    = Puffball.Crypto.generatePrivateKey();
+    var privateAdminKey   = Puffball.Crypto.generatePrivateKey();
     var privateDefaultKey = Puffball.Crypto.generatePrivateKey();
-    var privateAdminKey = Puffball.Crypto.generatePrivateKey();
-    var privateRootKey = Puffball.Crypto.generatePrivateKey();
     
     // generate public keys
-    var publicKeys = {}
-        publicKeys.default = Puffball.Crypto.privateToPublic(privateDefaultKey);
-        publicKeys.admin = Puffball.Crypto.privateToPublic(privateAdminKey);
-        publicKeys.root = Puffball.Crypto.privateToPublic(privateRootKey);
+    var rootKey    = Puffball.Crypto.privateToPublic(privateRootKey);
+    var adminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
+    var defaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
 
     // generate username
     var anonUsername = Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
     var newUsername = 'anon.' + anonUsername;
 
     // send it off
-    var pprom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, publicKeys)
+    var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
 
-    return pprom.then(function(username) {
-                    return PuffUsers.addUserReally(username, keys);
-                })
-                .catch(Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
-}
-
-PuffUsers.addUserMaybe = function(username, privateDefaultKey) {
-    var pprom = PuffNet.getUser(username);
-    
-    pprom.then(function(user) {
-        if(!user)
-            throw Error('No result returned');
-    
-        var publicDefaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);  // OPT: do this prior to getUser
-        
-        if(!publicDefaultKey) 
-            throw Error('That private key could not generate a public key');
-    
-        if(user.defaultKey !== publicDefaultKey)
-            throw Error('That private key does not match the record for that username')
-        
-        var keys = { default: { 'private': privateDefaultKey
-                              ,  'public': publicDefaultKey } }
-        var userinfo = PuffUsers.addUserReally(username, keys);
-
-        return username
-    })
-    
-    return pprom;
-}
-
-PuffUsers.addUserReally = function(username, keys) {
-// PuffUsers.addUserReally = function(username, defaultKey, adminKey, rootKey) {
-    
-    var userinfo = { username: username
-                   ,     keys: keys
-                   }
-    
-    users = PuffUsers.getAll()
-    users[username] = userinfo
-    
-    if(PuffUsers.getPref('storeusers'))
-        Puffball.Persist.save('users', users)
-    
-    return userinfo
-}
-
-PuffUsers.setCurrentUser = function(username) {
-    var users = PuffUsers.getAll()
-    var user = users[username]
-    
-    if(!user || !user.username)
-        return Puffball.onError('No record of that username exists locally -- try adding it first')
-    
-    return PuffUsers.currentUser = user
-}
-
-PuffUsers.removeUser = function(username) {
-    //// clear the user from our system
-    delete PuffUsers.users[username]
-    
-    if(PuffUsers.currentUser.username == username)
-        PuffUsers.currentUser = {}
-    
-    if(PuffUsers.getPref('storeusers'))
-        Puffball.Persist.save('users', users)
+    return prom.then(function(userRecord) {
+                   // store directly because we know they're valid, and so we don't get tangled up in more promises
+                   PuffWardrobe.storePrivateKeysDirectly(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+                   return userRecord;
+               },
+               Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
 
-
-
-
-PuffUsers.getUpToDateUserAtAnyCost = function() {
+PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var user = PuffUsers.getCurrent()
+    var username = PuffWardrobe.getCurrentUsername()
 
-    if(user.username)
-        return PuffUsers.getUserRecord(user)
+    if(username)
+        return Puffball.getUserRecordNoCache(username)
     
-    return PuffUsers.addAnon().then(PuffUsers.setCurrentUser)
+    var prom = PuffWardrobe.addNewAnonUser()
+    
+    return prom.then(function(userRecord) {
+        PuffWardrobe.switchCurrent(userRecord.username)
+        return userRecord
+    })
 }
-
-PuffUsers.getUserRecord = function(user) {
-    //// make this better
-    var user = JSON.parse(JSON.stringify(user))
-    return PuffNet.getUser(user.username)
-                  .then(function(userDHT) {
-                      for(var key in userDHT)
-                          user[key] = userDHT[key]
-                      return user
-                  })
-}
-
-
-
-
 
 
 
@@ -184,25 +193,25 @@ PuffUsers.getUserRecord = function(user) {
 */
 
 
-PuffUsers.prefsarray = false  // put this somewhere else
+PuffWardrobe.prefsarray = false  // put this somewhere else
 
-PuffUsers.getPref = function(key) {
-    var prefs = PuffUsers.getAllPrefs()
+PuffWardrobe.getPref = function(key) {
+    var prefs = PuffWardrobe.getAllPrefs()
     return prefs[key]
 }
 
-PuffUsers.getAllPrefs = function() {
-    if(!PuffUsers.prefsarray)
-        PuffUsers.prefsarray = Puffball.Persist.get('prefs') || {}
+PuffWardrobe.getAllPrefs = function() {
+    if(!PuffWardrobe.prefsarray)
+        PuffWardrobe.prefsarray = Puffball.Persist.get('prefs') || {}
     
-    return PuffUsers.prefsarray
+    return PuffWardrobe.prefsarray
 }
 
-PuffUsers.setPref = function(key, value) {
-    var prefs = PuffUsers.getAllPrefs()
+PuffWardrobe.setPref = function(key, value) {
+    var prefs = PuffWardrobe.getAllPrefs()
     var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
 
-    PuffUsers.prefsarray = newprefs
+    PuffWardrobe.prefsarray = newprefs
 
     var filename = 'prefs'
     Puffball.Persist.save(filename, newprefs)
@@ -210,7 +219,7 @@ PuffUsers.setPref = function(key, value) {
     return newprefs
 }
 
-PuffUsers.removePrefs = function() {
+PuffWardrobe.removePrefs = function() {
     var filename = 'prefs'
     Puffball.Persist.remove(filename)
 }
@@ -224,32 +233,32 @@ PuffUsers.removePrefs = function() {
     as part of the identity's presence in the user's identity wardrobe.
 */
 
-PuffUsers.profilearray = {}  // THINK: put this somewhere else
+PuffWardrobe.profilearray = {}  // THINK: put this somewhere else
 
-PuffUsers.getProfileItem = function(key) {
-    var username = PuffUsers.currentUser.username
-    return PuffUsers.getUserProfileItem(username, key)
+PuffWardrobe.getProfileItem = function(key) {
+    var username = PuffWardrobe.currentKeys.username
+    return PuffWardrobe.getUserProfileItem(username, key)
 }
 
-PuffUsers.setProfileItem = function(key, value) {
-    var username = PuffUsers.currentUser.username
-    return PuffUsers.setUserProfileItems(username, key, value)
+PuffWardrobe.setProfileItem = function(key, value) {
+    var username = PuffWardrobe.currentKeys.username
+    return PuffWardrobe.setUserProfileItems(username, key, value)
 }
 
-PuffUsers.getAllProfileItems = function() {
-    var username = PuffUsers.currentUser.username
-    return PuffUsers.getAllUserProfileItems(username)
+PuffWardrobe.getAllProfileItems = function() {
+    var username = PuffWardrobe.currentKeys.username
+    return PuffWardrobe.getAllUserProfileItems(username)
 }
 
-PuffUsers.getUserProfileItem = function(username, key) {
-    var profile = PuffUsers.getAllUserProfileItems(username)
+PuffWardrobe.getUserProfileItem = function(username, key) {
+    var profile = PuffWardrobe.getAllUserProfileItems(username)
     return profile[key]
 }
 
-PuffUsers.getAllUserProfileItems = function(username) {
+PuffWardrobe.getAllUserProfileItems = function(username) {
     if(!username) return {} // erm derp derp
     
-    var parray = PuffUsers.profilearray
+    var parray = PuffWardrobe.profilearray
     if(parray[username]) return parray[username]  // is this always right?
     
     var profilefile = 'profile::' + username
@@ -258,13 +267,13 @@ PuffUsers.getAllUserProfileItems = function(username) {
     return parray[username]
 }
 
-PuffUsers.setUserProfileItems = function(username, key, value) {
+PuffWardrobe.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
-    var profile = PuffUsers.getAllUserProfileItems(username)
+    var profile = PuffWardrobe.getAllUserProfileItems(username)
     var newprofile = events.merge_props(profile, key, value); // allows dot-paths
 
-    PuffUsers.profilearray[username] = newprofile
+    PuffWardrobe.profilearray[username] = newprofile
 
     var profilefile = 'profile::' + username;
     Puffball.Persist.save(profilefile, newprofile)
@@ -272,10 +281,10 @@ PuffUsers.setUserProfileItems = function(username, key, value) {
     return newprofile
 }
 
-PuffUsers.removeUserProfile = function(username) {
+PuffWardrobe.removeUserProfile = function(username) {
     if(!username) return false
     
-    PuffUsers.profilearray.delete(username)
+    PuffWardrobe.profilearray.delete(username)
     
     var profilefile = 'profile::' + username;
     Puffball.Persist.remove(profilefile)

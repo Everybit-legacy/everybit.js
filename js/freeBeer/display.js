@@ -1,31 +1,31 @@
 /** @jsx React.DOM */
 
 puffworldprops = {    menu: {    show: false
-    ,   prefs: false
-    , profile: false
-    ,    user: { pick_one: false
-        , show_add: false
-        ,  add_one: false
-        ,  add_new: false
-        ,   manage: false
-        ,  show_bc: false
-        , show_key: false
-    }
-}
-    ,    view: { style: 'PuffRoots'
-        ,  puff: false
-    }
-    ,   reply: { parents: []
-        ,    show: false
-        ,    type: 'text'
-    }
-    ,   prefs: { }
-    , profile: { }
-    ,   tools: { users: { resultstyle: 'raw'
-        , puffstyle: 'raw'
-    }
-    }
-}
+                            ,   prefs: false
+                            , profile: false
+                            ,    user: { pick_one: false
+                                       , show_add: false
+                                       ,  add_one: false
+                                       ,  add_new: false
+                                       ,   manage: false
+                                       ,  show_bc: false
+                                       , show_key: false
+                                       }
+                            }
+                 ,    view: { style: 'PuffRoots'
+                            ,  puff: false
+                 }
+                 ,   reply: { parents: []
+                            ,    show: false
+                            ,    type: 'text'
+                 }
+                 ,   prefs: { }
+                 , profile: { }
+                 ,   tools: { users: { resultstyle: 'raw'
+                                     , puffstyle: 'raw'
+                                     }
+                            }
+                 }
 
 puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
@@ -88,12 +88,16 @@ var PuffPacker = React.createClass({
         var username = this.refs.username.getDOMNode().value;
         var self = this;
 
-        var pprom = PuffNet.getUser(username);
+        var prom = Puffball.getUserRecord(username);
         
-        pprom.then(function(result) {
-            self.state.result = result || "";
-            events.pub('ui/puff-packer/userlookup', {});
-        });
+        prom.then(function(result) {
+                self.state.result = result || "";
+                events.pub('ui/puff-packer/userlookup', {});
+            })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
     },
 
     handleGeneratePrivateKeys: function() {
@@ -126,16 +130,16 @@ var PuffPacker = React.createClass({
 
         payload.requestedUsername = this.refs.username.getDOMNode().value;
 
-        var user = PuffUsers.getCurrent();
+        var privateKeys = PuffWardrobe.getCurrentKeys();
 
-        if(!user.username) {
+        if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building registration requests."}
             return events.pub('ui/puff-packer/user-registration/error', {});
         }
 
         this.state.result = {}
 
-        var puff = Puffball.createPuff(user.username, user.keys.admin.private, routes, type, content, payload);
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this;
@@ -148,9 +152,9 @@ var PuffPacker = React.createClass({
         var puff = this.state.puff;
         var self = this;
         
-        var pprom = PuffNet.updateUserRecord(puff)
+        var prom = PuffNet.updateUserRecord(puff)
         
-        pprom.then(function(result) {
+        prom.then(function(result) {
                 self.state.result = result;
                 events.pub('ui/puff-packer/userlookup', {});
              })
@@ -203,14 +207,13 @@ handleShowResultsFormatted: function() {
     },
 
     handleGetLatest: function() {
-        var username = PuffUsers.getCurrent().username;
+        var username = PuffWardrobe.getCurrentUsername();
         var self = this;
 
-        console.log(username);
-
-        var userpromise = PuffNet.getUser(username);
-        userpromise.then(function() {
-            self.state.latest = result.latest;
+        var prom = Puffball.getUserRecord(username);
+        
+        prom.then(function(userRecord) {
+            self.state.latest = userRecord.latest;
             events.pub('ui/puff-packer/getUserLatest', {});
         })
     },
@@ -220,16 +223,28 @@ handleShowResultsFormatted: function() {
     },
 
     handleSetIdentityToAnon: function() {
-        var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
-        PuffUsers.addUserReally('anon', keys);
-        PuffUsers.setCurrentUser('anon');
-        return events.pub('ui/puff-packer/set-identity-to-anon', {});
-
+        var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+        prom.then(function() {
+            PuffWardrobe.switchCurrent('anon');
+            events.pub('ui/puff-packer/set-identity-to-anon', {});
+        })
+        // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
+        // PuffWardrobe.addUserReally('anon', keys);
+    },
+    
+    formatForDisplay: function(obj, style) {
+        if(style == 'formatted') {
+            return JSON.stringify(obj, null, 2)
+                       .replace(/[{}",\[\]]/g, '')
+                       .replace(/^\n/, '')
+                       .replace(/\n$/, '');
+        }
     },
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var user = PuffUsers.getCurrent();
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+        var username    = privateKeys.username;
 
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
 
@@ -247,12 +262,12 @@ handleShowResultsFormatted: function() {
                         <h3>Tools</h3>
                         
                         username:
-                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={user.username} /> <br />
+                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={username} /> <br />
                         <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
 
                         <input className="btn-link" type="button" value="Build registration request" onClick={this.handleBuildRegisterUserPuff} /><br />
                         
-                        <b>Current identity:</b> <span className="authorSpan">{user.username}</span><br />
+                        <b>Current identity:</b> <span className="authorSpan">{username}</span><br />
                         
                         To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
@@ -698,8 +713,8 @@ var PuffReplyForm = React.createClass({
         return {imageSrc: ''};
     },
     render: function() {
-        var user = PuffUsers.getCurrent() // make this a prop or something
-        var username = humanizeUsernames(user.username) || 'anonymous'
+        var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
+        var username = humanizeUsernames(username) || 'anonymous'
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
@@ -848,8 +863,8 @@ var PuffMenu = React.createClass({
         }
 
         // no current user
-        var user = PuffUsers.getCurrent()
-        var username = humanizeUsernames(user.username) || ''
+        var username = PuffWardrobe.getCurrentUsername()
+        var username = humanizeUsernames(username) || ''
 
         if(!username) {
             // prefs = <div></div>
@@ -894,13 +909,13 @@ var PuffMenu = React.createClass({
 
 var PuffPrefs = React.createClass({
     handleStoreusers: function() {
-        return events.pub('prefs/storeusers/toggle')
+        return events.pub('prefs/storeKeychain/toggle')
     },
     render: function() {
         return (
             <div>
                 <div className="menuItem">
-                    <input type="checkbox" ref="storeusers" name="storeusers" onChange={this.handleStoreusers} checked={this.props.prefs.storeusers} />
+                    <input type="checkbox" ref="storeKeychain" name="storeKeychain" onChange={this.handleStoreusers} checked={this.props.prefs.storeKeychain} />
                 Store identities on this machine
                 </div>
                 <div className="menuItem">
@@ -948,9 +963,9 @@ var PuffUserMenu = React.createClass({
     render: function() {
 
         // Current User
-        var user = PuffUsers.getCurrent();
-        var username = humanizeUsernames(user.username) || ''
-        var all_usernames = Object.keys(PuffUsers.getAll())
+        var username = PuffWardrobe.getCurrentUsername()
+        var username = humanizeUsernames(username) || ''
+        var all_usernames = Object.keys(PuffWardrobe.getAll())
 
         // Add User
         var add_user = <PuffAddUser user={this.props.user} />
@@ -997,22 +1012,22 @@ var PuffUserMenu = React.createClass({
 
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
-        PuffUsers.setCurrentUser(this.refs.switcher.getDOMNode().value)
+        PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
-        var all_usernames = Object.keys(PuffUsers.getAll())
+        var all_usernames = Object.keys(PuffWardrobe.getAll())
         
         if(!all_usernames.length) return <div></div>
         
-        var user = PuffUsers.getCurrent()
+        var username = PuffWardrobe.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
 
         return (
             <div className="menuItem">
             Change user:
-                <select ref="switcher" onChange={this.handleUserPick} value={user.username}>
+                <select ref="switcher" onChange={this.handleUserPick} value={username}>
                     {all_usernames.map(function(username) {
                         return <option key={username} value={username}>{username}</option>
                     })}
@@ -1024,23 +1039,32 @@ var PuffSwitchUser = React.createClass({
 
 var PuffAddUser = React.createClass({
     handleUserAuth: function() {
-        var username = this.refs.username.state.value
-        var privkey = this.refs.privkey.state.value
+        var username   = (this.refs  .username.state.value || '').trim()
+        var rootKey    = (this.refs   .rootKey.state.value || '').trim()
+        var adminKey   = (this.refs  .adminKey.state.value || '').trim()
+        var defaultKey = (this.refs.defaultKey.state.value || '').trim()
 
-        if(!username || !privkey)
-            return Puffball.onError('Invalid username or private key')
+        if(!username)
+            return Puffball.onError('Invalid username')
 
-        this.refs.username.getDOMNode().value = "" // what oh dear
-        this.refs.privkey.getDOMNode().value = ""
+        this.refs  .username.getDOMNode().value = "" // what oh dear
+        this.refs   .rootKey.getDOMNode().value = ""
+        this.refs  .adminKey.getDOMNode().value = ""
+        this.refs.defaultKey.getDOMNode().value = ""
 
-        var pprom = PuffUsers.addUserMaybe(username.trim(), privkey.trim())
+        // what we'd like to do here is take a username and up to three private keys, 
+        // and then add both the DHT userRecord to Puffball.Data and those keys to our PuffWardrobe.
+        // the wardrobe should manage that, but only by passing most of it through to Puffball / PuffNet.
+        // does the wardrobe always check private keys before adding them locally? 
+        // would you ever want it not to?
 
-        pprom.then(function(userinfo) {
-            PuffUsers.setCurrentUser(userinfo.username)
-            events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_one': false})
-        })
+        var prom = PuffWardrobe.storePrivateKeys(username, rootKey, adminKey, defaultKey)
 
-        pprom.catch(Puffball.promiseError('Failed to add user'))
+        prom.then(function(userRecord) {
+                PuffWardrobe.switchCurrent(username)
+                events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_one': false})
+            },
+            Puffball.promiseError('Failed to add user'))
 
         return false
     },
@@ -1049,12 +1073,12 @@ var PuffAddUser = React.createClass({
         return false
     },
     handleNewAnon: function() {
-        var pprom = PuffUsers.addAnon()
+        var prom = PuffWardrobe.addNewAnonUser()
         
-        pprom.then(function(newName) {
+        prom.then(function(userRecord) {
             events.pub('user/add/anon', {})
             events.pub('ui/user/add/anon', {}) // THINK: should this be generated by previous event?
-            PuffUsers.setCurrentUser(newName)
+            PuffWardrobe.switchCurrent(userRecord.username)
             events.pub('ui/menu/user/show-add/hide', {'menu.user.show_add': false})
         });
 
@@ -1138,7 +1162,7 @@ var PuffAddUser = React.createClass({
 
 var PuffManageUser = React.createClass({
     handleRemoveUser: function() {
-        PuffUsers.removeUser(PuffUsers.getCurrent().username)
+        PuffWardrobe.removeKeys(PuffWardrobe.getCurrentUsername())
         events.pub('user/current/remove', {})
         events.pub('ui/user/current/remove', {}) // this should be generated by previous event
         events.pub('ui/menu/user/show-manage/hide', {'menu.user.manage': false})
@@ -1153,21 +1177,26 @@ var PuffManageUser = React.createClass({
     render: function() {
         // OPT: once current user is in props, only rerender on change (blockchain and QR are expensive)
 
-        var props = this.props.user
-        
-        var user = PuffUsers.getCurrent()
-
-        var username = humanizeUsernames(user.username) || ''
-        if(!username) return <div></div>
-
         var qrCode = ''
         var myKeyStuff = ''
         var blockchainLink = ''
 
-        if(props.show_key) {
-            myKeyStuff = <div><p>public key: <br />{user.publicKey}</p><p>private key: <br />{user.privateKey}</p></div>
+        var props = this.props.user
+        
+        var username = PuffWardrobe.getCurrentUsername()
+        if(!username) return <div></div>
 
-            var msg = user.privateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+        var privateKeys = PuffWardrobe.getCurrentKeys() || {}
+        var myPrivateKey = privateKeys.default || privateKeys.admin || privateKeys.root || '' // derp
+        
+        var userRecord = PuffWardrobe.getCurrentUserRecord() 
+        if(!userRecord)
+            return <div></div>
+
+        if(props.show_key) {
+            myKeyStuff = <div><p>public key: <br />{userRecord.defaultKey}</p><p>private key: <br />{myPrivateKey}</p></div>
+
+            var msg = myPrivateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
 
             var qr = qrcode(4, 'M');
             qr.addData(msg);
@@ -1175,15 +1204,14 @@ var PuffManageUser = React.createClass({
 
             var image_data = qr.createImgTag() || {}
             var data = 'data:image/gif;base64,' + image_data.base64
-            qrCode = <img src={data} width={stuff.width} height={stuff.height} />
+            qrCode = <img src={data} width={image_data.width} height={image_data.height} />
         }
 
         if(props.show_bc) {
-            var user = PuffUsers.getCurrent()
-            if(!user.username) return false
+            if(!username) return false
 
-            var blocks = Puffball.Blockchain.exportChain(user.username);
-            var linkData = encodeURIComponent(JSON.stringify(blocks))
+            var allPuffs = Puffball.Data.getMyPuffChain(username)
+            var linkData = encodeURIComponent(JSON.stringify(allPuffs))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = <a download="blockchain.json" href={data} className="under">DOWNLOAD BLOCKCHAIN</a>
         }
@@ -1219,8 +1247,8 @@ var renderPuffWorld = function() {
 
     // puffworldprops has to contain some important things like prefs
     // THINK: this is probably not the right place for this...
-    puffworldprops.prefs = PuffUsers.getAllPrefs()
-    puffworldprops.profile = PuffUsers.getAllProfileItems()
+    puffworldprops.prefs = PuffWardrobe.getAllPrefs()
+    puffworldprops.profile = PuffWardrobe.getAllProfileItems()
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }

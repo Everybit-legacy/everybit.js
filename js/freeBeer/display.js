@@ -160,7 +160,25 @@ var PuffPacker = React.createClass({
              })
     },
 
-    handleShowResultsFormatted: function() {
+    handleSendRawEditedPuff: function() {
+        // Send the raw contents of the edited puff as a string to the server
+        var puffEl = document.getElementById('puffString');
+        var puffString = puffEl.value;
+        var self = this;
+
+        var pprom = PuffNet.updateUserRecord(puffString);
+
+        pprom.then(function(result) {
+            self.state.result = result;
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+    },
+
+handleShowResultsFormatted: function() {
         return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
     },
 
@@ -174,6 +192,10 @@ var PuffPacker = React.createClass({
 
     handleShowPuffRaw: function() {
         return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+    },
+
+    handleShowPuffEdit: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
     },
 
     handlePublishPuff: function() {
@@ -198,30 +220,20 @@ var PuffPacker = React.createClass({
     },
 
     handleSetIdentityToAnon: function() {
-        
         var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
         PuffUsers.addUserReally('anon', keys);
         PuffUsers.setCurrentUser('anon');
-    },
-    
-    formatForDisplay: function(obj, style) {
-        if(style == 'formatted') {
-            return JSON.stringify(obj, null, 2)
-                       .replace(/[{}",\[\]]/g, '')
-                       .replace(/^\n/, '')
-                       .replace(/\n$/, '');
-        }
+        return events.pub('ui/puff-packer/set-identity-to-anon', {});
 
-        // style is raw
-        return JSON.stringify(obj).replace(/^\{\}$/, '');
     },
 
     render: function() {
         // Pre-fill with current user information if exists in memory
         var user = PuffUsers.getCurrent();
 
-        var result     = this.formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
-        var puffString = this.formatForDisplay(this.state.puff,   this.props.tools.users.puffstyle);
+        var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+
+
 
         return (
             <div id="adminForm">
@@ -304,18 +316,67 @@ var PuffPacker = React.createClass({
                         <a href="#" onClick={this.handleShowPuffRaw}>Raw</a>
                         {' | '}
                         <a href="#" onClick={this.handleShowPuffFormatted}>Formatted</a>
+                           {' | '}
+                        <a href="#" onClick={this.handleShowPuffEdit}>Edit</a>
                         <br />
-                        <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString}></textarea>
+                        <PuffToolsPuffDisplay style={this.props.tools.users.puffstyle} puff={this.state.puff} />
                         <br />
-
-
-                        <input className="btn-link" type="button" value="Publish puff" onClick={this.handlePublishPuff} />
 
                         <input className="btn-link" type="button" value="Send user request" onClick={this.handleSendPuffToServer} />
+
+                        <input className="btn-link" type="button" value="Send EDITED puff user request" onClick={this.handleSendRawEditedPuff} />
+
+
+                        <br />
+                        <input className="btn-link" type="button" value="Publish puff" onClick={this.handlePublishPuff} />
+
+                        <br />
+                        username: <input className="fixedLeft" type="text" name="contentPuffUsername" ref="contentPuffUsername" value={user.username} /><br />
+                        routes: <input className="fixedLeft" type="text" name="contentPuffRoutes" ref="contentPuffRoutes" /><br />
+                        previous: <input className="fixedLeft" type="text" name="contentPuffPrevious" ref="contentPuffPrevious" /><br />
+                        version: <input className="fixedLeft" type="text" name="contentPuffVersion" ref="contentPuffVersion" /><br />
+                        payload: <br />
+                            type: <input className="fixedLeft" type="text" name="contentPuffType" ref="contentPuffType" /><br />
+                            content: <br />
+                            <textarea ref="contentPuffContent" name="contentPuffContent" rows="5" cols="50"></textarea><br />
+
+
+
                     </div>
                 </form>
 
             </div>
+            )
+    }
+});
+
+var PuffToolsPuffDisplay = React.createClass({
+    getInitialState: function() {
+        return {value: '', oldpuff: ''};
+    },
+    handleChange: function(event) {
+        this.setState({value: event.target.value});
+    },
+    render: function() {
+        if(this.state.oldpuff != this.props.puff) {
+            this.state.value = formatForDisplay(this.props.puff, 'edit');
+            this.state.oldpuff = this.props.puff;
+        }
+
+
+        if(this.props.style == 'edit') {
+            var puffString = this.state.value;
+
+            return (
+                <textarea ref="puffString" name="puffString" id="puffString" cols="50" value={puffString} onChange={this.handleChange} />
+            )
+        }
+
+        // for raw or formatted styles:
+        var puffString = formatForDisplay(this.props.puff, this.props.style);
+
+        return (
+            <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString}></textarea>
             )
     }
 });
@@ -1171,6 +1232,20 @@ renderPuffWorld()
 
 
 
+
+
+// TODO: move this somewhere nicer
+formatForDisplay = function(obj, style) {
+    if(style == 'formatted') {
+        return JSON.stringify(obj, null, 2)
+            .replace(/[{}",\[\]]/g, '')
+            .replace(/^\n/, '')
+            .replace(/\n$/, '');
+    }
+
+    // style is raw
+    return JSON.stringify(obj).replace(/^\{\}$/, '');
+},
 
 
 

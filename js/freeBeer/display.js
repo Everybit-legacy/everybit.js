@@ -346,7 +346,7 @@ handleShowResultsFormatted: function() {
                         <input className="btn-link" type="button" value="Publish puff" onClick={this.handlePublishPuff} />
 
                         <br />
-                        username: <input className="fixedLeft" type="text" name="contentPuffUsername" ref="contentPuffUsername" value={user.username} /><br />
+                        username: <input className="fixedLeft" type="text" name="contentPuffUsername" ref="contentPuffUsername" value={username} /><br />
                         routes: <input className="fixedLeft" type="text" name="contentPuffRoutes" ref="contentPuffRoutes" /><br />
                         previous: <input className="fixedLeft" type="text" name="contentPuffPrevious" ref="contentPuffPrevious" /><br />
                         version: <input className="fixedLeft" type="text" name="contentPuffVersion" ref="contentPuffVersion" /><br />

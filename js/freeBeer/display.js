@@ -182,7 +182,7 @@ var PuffPacker = React.createClass({
             })
     },
 
-handleShowResultsFormatted: function() {
+    handleShowResultsFormatted: function() {
         return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
     },
 
@@ -243,12 +243,8 @@ handleShowResultsFormatted: function() {
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-        var username    = privateKeys.username;
-
+        var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
-
-
 
         return (
             <div id="adminForm">
@@ -346,7 +342,7 @@ handleShowResultsFormatted: function() {
                         <input className="btn-link" type="button" value="Publish puff" onClick={this.handlePublishPuff} />
 
                         <br />
-                        username: <input className="fixedLeft" type="text" name="contentPuffUsername" ref="contentPuffUsername" value={user.username} /><br />
+                        username: <input className="fixedLeft" type="text" name="contentPuffUsername" ref="contentPuffUsername" value={username} /><br />
                         routes: <input className="fixedLeft" type="text" name="contentPuffRoutes" ref="contentPuffRoutes" /><br />
                         previous: <input className="fixedLeft" type="text" name="contentPuffPrevious" ref="contentPuffPrevious" /><br />
                         version: <input className="fixedLeft" type="text" name="contentPuffVersion" ref="contentPuffVersion" /><br />

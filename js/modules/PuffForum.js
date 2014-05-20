@@ -90,7 +90,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     
     // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
-        return Promise.reject(Puffball.onError('Those are not good parents'))
+        return Puffball.falsePromise('Those are not good parents')
     
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
     
@@ -109,6 +109,8 @@ PuffForum.addPost = function(type, content, parents, metadata) {
 
 PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
     //// Make a puff... except the parts that require a user
+    
+    // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
     
     var payload = metadata || {}                            // metadata becomes the basis of payload
     payload.parents = parents                               // ids of the parent puffs

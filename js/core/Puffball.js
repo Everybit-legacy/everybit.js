@@ -407,3 +407,8 @@ Puffball.parseJSON = function(str) {
         return Puffball.onError('Invalid JSON string', err)
     }
 }
+
+Puffball.falsePromise = function(msg) {
+    if(msg) Puffball.onError(msg)
+    return Promise.reject(msg)
+}

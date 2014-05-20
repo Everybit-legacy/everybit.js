@@ -182,7 +182,7 @@ var PuffPacker = React.createClass({
             })
     },
 
-handleShowResultsFormatted: function() {
+    handleShowResultsFormatted: function() {
         return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
     },
 
@@ -243,12 +243,8 @@ handleShowResultsFormatted: function() {
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-        var username    = privateKeys.username;
-
+        var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
-
-
 
         return (
             <div id="adminForm">
@@ -402,7 +398,7 @@ var PuffRoots = React.createClass({
 
         puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
+        puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
         return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
     }

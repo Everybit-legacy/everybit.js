@@ -149,9 +149,9 @@ PuffWardrobe.addNewAnonUser = function() {
     var adminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
     var defaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
 
-    // generate username
-    var anonUsername = Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
-    var newUsername = 'anon.' + anonUsername;
+    // build new username
+    var anonUsername = PuffWardrobe.generateRandomUsername();
+    var newUsername  = 'anon.' + anonUsername;
 
     // send it off
     var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
@@ -164,6 +164,9 @@ PuffWardrobe.addNewAnonUser = function() {
                Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
+PuffWardrobe.generateRandomUsername = function() {
+    return Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
+}
 
 PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying

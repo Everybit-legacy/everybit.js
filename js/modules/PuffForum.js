@@ -90,10 +90,10 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     
     // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
-        return Puffball.onError('Those are not good parents')
-
+        return Promise.reject(Puffball.onError('Those are not good parents'))
+    
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
-
+    
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
     

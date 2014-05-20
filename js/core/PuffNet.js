@@ -27,7 +27,8 @@ PuffNet.getAllPuffs = function() {
     //// get all the puffs from this zone
     // TODO: add zone parameter (default to CONFIG.zone)
     
-    if(CONFIG.noNetwork) return false;              // NOTE: this is only for debugging and development
+    if(CONFIG.noNetwork) 
+        return Puffball.falsePromise();             // NOTE: this is only for debugging and development
 
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffs'};
@@ -113,14 +114,14 @@ PuffNet.updateUserRecord = function(puff) {
     var prom = PuffNet.post(CONFIG.userApi, data);
     
     return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
-                .then(JSON.parse)
-                .then(function(userRecord) {
-                    if(!userRecord.username) 
-                        Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
-                        
-                    return Puffball.processUserRecord(userRecord)
-                        || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
-                })
+               .then(JSON.parse)
+               .then(function(userRecord) {
+                   if(!userRecord.username) 
+                       Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                       
+                   return Puffball.processUserRecord(userRecord)
+                       || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
+               })
 }
 
 

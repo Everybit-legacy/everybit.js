@@ -398,7 +398,7 @@ var PuffRoots = React.createClass({
 
         puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        puffs = puffs.slice(0, CONFIG.maxLatestRootsToShow);                      // don't show them all
+        puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
         return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
     }

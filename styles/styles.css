@@ -26,6 +26,86 @@ body {
     font-size: 1em;
 }
 
+section {
+    text-align: center;
+}
+
+/* BEGIN New Tall Tree Styles */
+
+#talltree {
+    
+}
+
+#talltree .block {
+    background: #FAFAFA;
+    width: 20%;
+    min-width: 20%;
+    min-height: 25%;
+    max-height: 25%;
+    border: 1px solid #6c6175;
+    padding: 20px 0 0 0;
+    margin: 0 0 0 0;
+    display: inline-block;
+    text-align: left;
+    z-index: 999;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    position:relative;
+    
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    font-size: 0.5em;
+    
+    transition:min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s;
+    
+    float: left;
+}
+
+.block .txt {
+    max-height:16%;
+}
+
+/*#talltree #center .focused .block {*/
+#talltree .block.focused  {
+    min-width: 40%;
+    max-width: 40%;
+    min-height: 49.9%;
+    max-height: 49.9%;
+    font-size: 1em;
+}
+
+.block.focused .txt {
+    max-height:40%;
+}
+
+.siblings .txt {
+    background-color: antiquewhite;
+}
+
+.children .txt {
+    background-color: azure;
+}
+
+
+.example-enter {
+  opacity: 0.01;
+  transition: opacity .5s ease-in;
+}
+
+.example-enter-active {
+  opacity: 1;
+}
+.example-leave {
+  opacity: 1;
+  transition: opacity 0s ease-in;
+}
+
+.example-leave-active {
+  opacity: 0.01;
+}
+
+/* END New Tall Tree Styles */
 
 
 img {
@@ -195,16 +275,13 @@ header h1 {
 }
 
 #parents {
-    text-align: center;
 }
 
 #main-content {
-    text-align: center;
     margin-bottom: 80px;
 }
 
 #children {
-    text-align: center;
 }
 
 .btn {

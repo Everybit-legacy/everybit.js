@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+
 puffworldprops = {    menu: {    show: false
                             ,   prefs: false
                             , profile: false
@@ -43,6 +45,9 @@ var PuffWorld = React.createClass({
 
         if( viewprops.style == 'PuffTree' )
             view = <PuffTree puff={viewprops.puff} />
+
+        if( viewprops.style == 'PuffTallTree' )
+            view = <PuffTallTree puff={viewprops.puff} />
 
         else if( viewprops.style == 'PuffAllChildren' )
             view = <PuffAllChildren puff={viewprops.puff} />
@@ -514,12 +519,84 @@ var PuffTree = React.createClass({
     }
 });
 
+
+var PuffTallTree = React.createClass({
+    render: function() {
+
+        var puff = this.props.puff;
+        var puffSig = puff.sig
+        var parentPuffs   = PuffForum.getParents(puff);
+        var childrenPuffs = PuffForum.getChildren(puff);
+        var siblingPuffs  = PuffForum.getSiblings(puff);
+
+        childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        childrenPuffs = childrenPuffs.slice(0, 5);
+
+        parentPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        // parentPuffs = parentPuffs.slice(0, 5);
+        
+        siblingPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        var siblingPuffs1 = siblingPuffs.slice(0, 4);
+        var siblingPuffs2 = siblingPuffs.slice(4, 8);
+
+        // <section id="above">{parentPuffs.map(globalCreatePuffBox)}</section>
+        // <section id="center">
+        //     <div> {siblingPuffs1.map(globalCreatePuffBox)} </div>
+        //     <div className="focused"><PuffBox puff={puff} /></div>
+        //     <div> {siblingPuffs2.map(globalCreatePuffBox)} </div>
+        // </section>
+        // <section id="below">{childrenPuffs.map(globalCreatePuffBox)}</section>
+        //
+        //             <ReactCSSTransitionGroup transitionName="example" transitionLeave={false} transitionEnter={false}>
+        //                </ReactCSSTransitionGroup>
+
+        // oh goodness this is terrible make it stop
+        var emptyPuff = { "payload": { "parents": [], "time": 1399329921197, "tags": [], "content": "", "type": "text" },
+                          "zones": [], "previous": "", "username": "", "version": "0.0.2"}
+        var emptyPuffs = [1,2,3,4,5].map(function() {var foo = JSON.parse(JSON.stringify(emptyPuff)); foo.sig = Math.random(); return foo;})
+        
+        var grandPuffs = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+        var greatGrandPuffs = grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+
+        parentPuffs = parentPuffs.concat(grandPuffs, greatGrandPuffs, emptyPuffs)
+                                 .filter(function(item, index, array) {return array.indexOf(item) == index}) 
+                                 .slice(0, 5)
+
+        // var allPuffs = [].concat(parentPuffs, [puff], childrenPuffs, siblingPuffs)
+        // allPuffs = allPuffs.filter(function(item, index, array) {return array.indexOf(item) == index}) 
+        // {siblingPuffs.map(function(puff) {
+        //     return <PuffBox puff={puff} key={puff.sig} extraClassy="siblings" />
+        // })}
+        
+
+
+        return (
+            <div id="talltree">
+                
+                {parentPuffs.map(globalCreatePuffBox)}
+                
+                <PuffBox puff={puff} key={puff.sig} extraClassy="focused" />
+                
+                {siblingPuffs.map(function(puff) {
+                    return <PuffBox puff={puff} key={puff.sig} extraClassy="siblings" />
+                })}
+                
+                {childrenPuffs.map(function(puff) {
+                    return <PuffBox puff={puff} key={puff.sig} extraClassy="children" />
+                })}
+            </div>
+            );
+    },
+})
+
+
 var PuffBox = React.createClass({
     render: function() {
         var puff = this.props.puff
-
+        var className = 'block ' + (this.props.extraClassy || '')
+        
         return (
-            <div className="block" id={puff.sig} key={puff.sig}>
+            <div className={className} id={puff.sig} key={puff.sig}>
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
@@ -1337,7 +1414,7 @@ showPuff = function(puff) {
 
 showPuffDirectly = function(puff) {
     //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 

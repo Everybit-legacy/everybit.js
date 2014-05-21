@@ -1414,7 +1414,7 @@ showPuff = function(puff) {
 
 showPuffDirectly = function(puff) {
     //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
+    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 

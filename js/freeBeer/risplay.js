@@ -69,6 +69,20 @@ var Identity = React.createClass({displayName: 'Identity',
         }
     },
 
+    componentWillMount: function() {
+        if (!this.state.username) {
+            var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+            prom.then(function() {
+                PuffWardrobe.switchCurrent('anon');
+                events.pub('ui/puff-packer/set-identity-to-anon', {});
+            })
+
+            this.setState({username: 'anon'});
+
+        }
+    },
+
+
     render: function() {
         var cx1 = React.addons.classSet;
         var newClass = cx1({
@@ -89,11 +103,13 @@ var Identity = React.createClass({displayName: 'Identity',
         // TODO: Help icon takes you to tutorial related to this.
         // TODO: Change EDIT to SELECT or AUTHENTICATE
 
+
+
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user"}), " Identity"),
                 React.DOM.p(null, React.DOM.div( {className:"menuLabel"}, "Current identity: " ),
-                    React.DOM.div( {className:"authorDiv"}, this.username ? this.username : 'None'),React.DOM.br(null ),
+                    React.DOM.div( {className:"authorDiv"}, this.state.username ? this.state.username : 'None'),React.DOM.br(null ),
                     React.DOM.div( {className:editClass, onClick:this.toggleShowSetIdentity}, React.DOM.i( {className:"fa fa-pencil fa-fw", onClick:this.toggleShowSetIdentity}),"Set " ),
                     React.DOM.div( {className:newClass, onClick:this.toggleShowNewIdentity}, React.DOM.i( {className:"fa fa-plus fa-fw"}),"New " )
                 ),
@@ -125,13 +141,17 @@ var Identity = React.createClass({displayName: 'Identity',
 var NewIdentity = React.createClass({displayName: 'NewIdentity',
     getInitialState: function() {
         return {
-            usernameAvailable: 'unknown'
+            usernameAvailable: 'unknown',
+            rootKeyMessage: '',
+            adminKeyMessage: '',
+            defaultKeyMessage: '',
+            usernameMessage: '',
+            newUsername: ''
         }
     },
 
     // TODO: Add save keys abilities
-    // TODO: Fix but that causes reactjs to output extra p after PublicKeys. Note p tag is demon spawn
-    // TODO: use fa-unlock-alt and fa-lock
+    // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
         if (!this.props.show) {
             return React.DOM.div(null)
@@ -139,53 +159,135 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
             return (
                 React.DOM.div( {className:"menuSection"}, 
+
                     React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Desired username:")),React.DOM.br(null ),
+
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername", size:"18"} ),
-                        React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, UsernameCheckbox( {show:this.state.usernameAvailable} ))
+                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername", readOnly:true,  value:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-refresh fa-fw", rel:"tooltip", title:"Generate a new username"})), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                     ),
-                    React.DOM.br(null ),React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, "Public Keys"),
+
+                    React.DOM.br(null ),
+                    React.DOM.br(null ),
+                    React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-unlock-alt"}), " Public Keys"),
+
+
                     React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"root: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"rootKeyPublic", ref:"rootKeyPublic", size:"18"} )
-                        ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"rootKeyPublic", ref:"rootKeyPublic", size:"18"} )
+                    ),
                     React.DOM.br(null ),
                     
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"admin: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"adminKeyPublic", ref:"adminKeyPublic", size:"18"} )
-                        ),
+                    React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"admin: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"adminKeyPublic", ref:"adminKeyPublic", size:"18"} )
+                    ),
+
                     React.DOM.br(null ),
                     
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"default: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic", size:"18"} )
-                        ),
+                    React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"default: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic", size:"18"} )
+                    ),
+
                     React.DOM.br(null ),
-                React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , "Generate"), " or ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , "Convert ", React.DOM.span( {className:"fa fa-arrow-up fa-fw"})),React.DOM.br(null ),
 
 
-                    React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, "Private Keys"),
-                        React.DOM.div( {className:"menuLabel"}, "root: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate", size:"18"} )
-                        ),
+                    React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , "Generate"), " or ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , "Private",React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),"Public"),React.DOM.br(null ),
+
+
+
+                    React.DOM.em(null, this.state.rootKeyMessage, " ", this.state.adminKeyMessage, " ", this.state.defaultKeyMessage),
                     React.DOM.br(null ),
-                    
-                        React.DOM.div( {className:"menuLabel"}, "admin: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate", size:"18"} )
-                        ),
+                    React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-lock"}), " Private Keys"),
+                    React.DOM.div( {className:"menuLabel"}, "root: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate", size:"18"} )
+                    ),
                     React.DOM.br(null ),
-                    
-                        React.DOM.div( {className:"menuLabel"}, "default: " ),
-                        React.DOM.div( {className:"menuInput"}, 
-                            React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"18"} )
-                        ),
-                    React.DOM.br(null )
+
+                    React.DOM.div( {className:"menuLabel"}, "admin: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate", size:"18"} )
+                    ),
+                    React.DOM.br(null ),
+
+                    React.DOM.div( {className:"menuLabel"}, "default: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"18"} )
+                    ),
+
+                    React.DOM.br(null ),
+
+                    React.DOM.input( {className:"btn-link", type:"button", value:"Submit username request", onClick:this.handleUsernameRequest} ),React.DOM.br(null ),
+                    React.DOM.em(null, this.state.usernameMessage)
                 )
                 )
         }
+    },
+
+    handleGenerateUsername: function() {
+
+        var generatedName = 'anon.' + PuffWardrobe.generateRandomUsername();
+        this.setState({newUsername: generatedName});
+    },
+
+    componentWillMount: function() {
+        this.handleGenerateUsername();
+    },
+
+    handleUsernameRequest: function() {
+
+        // BUILD REQUEST
+        console.log("BEGIN username request for ", this.refs.newUsername.getDOMNode().value);
+
+        // Stuff to register. These are public keys
+        var payload = {};
+        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
+        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
+        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'requestUsername';
+
+        payload.time = Date.now();
+        payload.requestedUsername = this.refs.newUsername.getDOMNode().value;
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+        if(!privateKeys.username) {
+            this.setState({usernameMessage: "You must set your identity before building registration requests."});
+            // this.state.result = {"FAIL": "You must set your identity before building registration requests."}
+            return events.pub('ui/puff-packer/user-registration/error', {});
+        }
+
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+        var self = this;
+        self.state.puff = puff;
+        events.pub('ui/puff-packer/build-register-puff', {});
+
+        // SUBMIT REQUEST
+        this.handleSendPuffToServer(puff);
+
+        // this.setState({usernameMessage: result});
+    },
+
+    handleSendPuffToServer: function(puff) {
+        // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
+        var self = this;
+
+        var prom = PuffNet.updateUserRecord(puff)
+
+        prom.then(function(result) {
+            self.state.result = result;
+            this.setState({usernameMessage: "Success!"});
+            events.pub('ui/puff-packer/userlookup', {});
+        }).catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                this.setState({usernameMessage: 'FAIL: ' + err.message});
+                events.pub('ui/puff-packer/userlookup/failed', {});
+        })
     },
 
     handleGeneratePrivateKeys: function() {
@@ -201,16 +303,53 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
         this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
         this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
+
+        // Clear out any error messages
+        this.setState({rootKeyMessage: ''});
+        this.setState({adminKeyMessage: ''});
+        this.setState({defaultKeyMessage: ''});
     },
 
     handleConvertPrivatePublic: function() {
+        // NOTE: When blank, Puffball.Crypto.privateToPublic generates a new public key
         var rP = this.refs.rootKeyPrivate.getDOMNode().value;
         var aP = this.refs.adminKeyPrivate.getDOMNode().value;
         var dP = this.refs.defaultKeyPrivate.getDOMNode().value;
 
+        var missingValues = false;
+        if(!rP.length) {
+            this.setState({rootKeyMessage: 'Missing root key. '});
+            missingValues = true;
+        }
+
+        if(!aP.length) {
+            this.setState({adminKeyMessage: 'Missing admin key. '});
+            missingValues = true;
+        }
+
+        if(!dP.length) {
+            this.setState({defaultKeyMessage: 'Missing default key. '});
+            missingValues = true;
+        }
+
+        // TODO: Combine into a single keyMessage. Add note: "Generate or enter your private keys before converting
+        if(missingValues) {
+            return false;
+        }
+
+        var rPublic = Puffball.Crypto.privateToPublic(rP);
+        var aPublic = Puffball.Crypto.privateToPublic(aP);
+        var dPublic = Puffball.Crypto.privateToPublic(dP);
+
+        rPublic ? this.refs.rootKeyPublic.getDOMNode().value = rPublic : this.setState({rootKeyMessage: 'Invalid root key. '});
+        aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({adminKeyMessage: 'Invalid admin key. '});
+        dPublic ? this.refs.defaultKeyPublic.getDOMNode().value = dPublic : this.setState({defaultKeyMessage: 'Invalid default key. '});
+
+        /*
         this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rP);
         this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(aP);
         this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(dP);
+        */
 
     },
 

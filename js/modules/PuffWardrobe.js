@@ -165,7 +165,14 @@ PuffWardrobe.addNewAnonUser = function() {
 }
 
 PuffWardrobe.generateRandomUsername = function() {
-    return Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
+    var generatedName = '';
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for(var i=0; i<10; i++) {
+        generatedName = generatedName + alphabet[Math.floor(Math.random() * (alphabet.length))];
+    }
+    return generatedName;
+
+    // return Bitcoin.ECKey().toWif().slice(-10).toLowerCase(); // OPT: this is a slow way to get a random string
 }
 
 PuffWardrobe.getUpToDateUserAtAnyCost = function() {

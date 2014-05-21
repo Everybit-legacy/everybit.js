@@ -94,7 +94,7 @@ var Identity = React.createClass({displayName: 'Identity',
                 React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user"}), " Identity"),
                 React.DOM.p(null, React.DOM.div( {className:"menuLabel"}, "Current identity: " ),
                     React.DOM.div( {className:"authorDiv"}, this.username ? this.username : 'None'),React.DOM.br(null ),
-                    React.DOM.div( {className:editClass, onClick:this.toggleShowSetIdentity}, React.DOM.i( {className:"fa fa-pencil fa-fw", onClick:this.toggleShowSetIdentity}),"Edit " ),
+                    React.DOM.div( {className:editClass, onClick:this.toggleShowSetIdentity}, React.DOM.i( {className:"fa fa-pencil fa-fw", onClick:this.toggleShowSetIdentity}),"Set " ),
                     React.DOM.div( {className:newClass, onClick:this.toggleShowNewIdentity}, React.DOM.i( {className:"fa fa-plus fa-fw"}),"New " )
                 ),
                 NewIdentity( {show:this.state.showNewIdentity} ),
@@ -166,28 +166,23 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
 
                     React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, "Private Keys"),
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"root: " ),
+                        React.DOM.div( {className:"menuLabel"}, "root: " ),
                         React.DOM.div( {className:"menuInput"}, 
                             React.DOM.input( {type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate", size:"18"} )
                         ),
                     React.DOM.br(null ),
                     
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"admin: " ),
+                        React.DOM.div( {className:"menuLabel"}, "admin: " ),
                         React.DOM.div( {className:"menuInput"}, 
                             React.DOM.input( {type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate", size:"18"} )
                         ),
                     React.DOM.br(null ),
                     
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),"default: " ),
+                        React.DOM.div( {className:"menuLabel"}, "default: " ),
                         React.DOM.div( {className:"menuInput"}, 
                             React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"18"} )
                         ),
                     React.DOM.br(null )
-
-
-
-                
-
                 )
                 )
         }
@@ -289,8 +284,8 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         } else {
 
             return (
-                React.DOM.p(null, 
-                    React.DOM.div(null, "Set an existing identity"),
+                React.DOM.div( {className:"menuSection"}, 
+                    React.DOM.div(null, React.DOM.em(null, "Username to set:")),
                     React.DOM.div( {className:"menuLabel"}, "Username:"),
                     React.DOM.div( {className:"menuInput"}, 
                         React.DOM.input( {type:"text", name:"username"} )
@@ -300,6 +295,20 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         }
     }
 });
+
+var defaultPrivateKeyField = React.createClass({displayName: 'defaultPrivateKeyField',
+    render: function() {
+        return (
+            React.DOM.span(null, 
+                React.DOM.div( {className:"menuLabel"}, "default: " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"18"} )
+                )
+            )
+        )
+    }
+
+})
 
 var Publish = React.createClass({displayName: 'Publish',
     render: function() {

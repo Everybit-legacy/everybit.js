@@ -5,6 +5,16 @@
  var script=document.createElement('script'); script.src= 'js/tests/puffs_n_stuff.js'; document.head.appendChild(script);
 */
 
+/*
+
+    - privateToPublic false condition
+    - promise throw/catch errors 
+    - Puffball.checkUsername (pass through network response)
+
+*/
+
+
+
 // -- High level flows using user-facing API functions
 
 // create an anonymous user

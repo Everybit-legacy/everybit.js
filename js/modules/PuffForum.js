@@ -67,6 +67,24 @@ PuffForum.getChildren = function(puff) {
     return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
 }
 
+PuffForum.getSiblings = function(puff) {
+    //// get siblings from a puff
+  
+    if(typeof puff === 'string')
+        puff = PuffForum.getPuffById(puff);
+
+    var originalSig = puff.sig;
+
+    var parent_sigs = PuffForum.getParents(puff).map(function(puff) { return puff.sig });
+
+    return Puffball.Data.puffs.filter(
+        function(puff) { 
+            return puff.sig != originalSig 
+               && puff.payload.parents.reduce(
+                   function(acc, parent_sig) {
+                        return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
+}
+
 
 PuffForum.getRootPuffs = function(limit) {
     //// returns the most recent parentless puffs, sorted by time
@@ -131,7 +149,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
 
         var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous)
 
-        return Puffball.addPuffToSystem(puff)
+        return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }
 }
 
@@ -203,7 +221,7 @@ PuffForum.addContentType('bbcode', {
 
 PuffForum.addContentType('image', {
     toHtml: function(content) {
-        return '<a href=' + content + ' target=new><img src=' + content + ' /></a>'
+        return '<img src=' + content + ' /><br /><a href=' + content + ' target=new>download</a>'
     }
 })
 

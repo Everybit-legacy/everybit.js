@@ -72,7 +72,7 @@ userPromise.then(function(userRecord) {
 
 // generate new random username
 var randomUsername = PuffWardrobe.generateRandomUsername()
-if(!/[0-9A-Za-z]/.test(randomUsername))
+if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 
 // generate random private key

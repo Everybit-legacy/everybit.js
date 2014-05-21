@@ -61,11 +61,11 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
     var puff = { username: username
                , routes: routes
                , previous: previous
-               , version: '0.0.3'                       // version accounts for crypto type and puff shape
+               , version: '0.0.4'                       // version accounts for crypto type and puff shape
                , payload: payload                       // early versions will be aggressively deprecated and unsupported
                }
 
-    puff.sig = Puffball.Crypto.signData(puff, privatekey)
+    puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
 
     return puff
 }
@@ -286,16 +286,17 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
     }
 }
 
-Puffball.Crypto.signData = function(unsignedPuff, privateKeyWIF) {
+Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     //// sign the hash of some data with a private key and return the sig in base 58
 
     var prikey = Puffball.Crypto.wifToPriKey(privateKeyWIF)
     var message = Puffball.Crypto.puffToSiglessString(unsignedPuff)
-
+    var messageHash = Puffball.Crypto.createMessageHash(message)
+    
     try {
-        return Bitcoin.base58.encode(prikey.sign(message))
+        return Bitcoin.base58.encode(prikey.sign(messageHash))
     } catch(err) {
-        return Puffball.onError('Could not properly encode signature', [prikey, message, err])
+        return Puffball.onError('Could not properly encode signature', [prikey, messageHash, err])
     }
 }
 
@@ -305,16 +306,24 @@ Puffball.Crypto.verifyPuffSig = function(puff, defaultKey) {
 }
 
 Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
-    //// accept a base 58 sig, a message (can be an object) and a base 58 public key. returns true if they match, false otherwise
+    //// accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
   
     try {
         var pubkey = Puffball.Crypto.wifToPubKey(publicKeyWIF)
+        
         var sigBytes = Bitcoin.base58.decode(sig).toJSON()
         sigBytes = sigBytes.data || sigBytes
-        return pubkey.verify(message, sigBytes)
+        
+        var messageHash = Puffball.Crypto.createMessageHash(message)
+        
+        return pubkey.verify(messageHash, sigBytes)
     } catch(err) {
-        return Puffball.onError('Invalid key or sig: could not verify message', [message, sig, publicKeyWIF, err])
+        return Puffball.onError('Invalid key or sig: could not verify message', [messageHash, sig, publicKeyWIF, err])
     }
+}
+
+Puffball.Crypto.createMessageHash = function(message) {
+    return Bitcoin.Crypto.SHA256(message).toString()
 }
 
 Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {

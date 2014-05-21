@@ -70,19 +70,32 @@ var Identity = React.createClass({
     },
 
     render: function() {
+        var cx1 = React.addons.classSet;
+        var newClass = cx1({
+            'linkTabHighlighted': this.state.showNewIdentity,
+            'linkTab': !this.state.showNewIdentity
+        });
+
+        var cx2 = React.addons.classSet;
+        var editClass = cx2({
+            'linkTabHighlighted': this.state.showSetIdentity,
+            'linkTab': !this.state.showSetIdentity
+        });
+
 
         // TODO: Pulldown to select users if logged in
         // TODO: Logout button if logged in
         // TODO: Logout button sets alert, clears username
         // TODO: Help icon takes you to tutorial related to this.
+        // TODO: Change EDIT to SELECT or AUTHENTICATE
 
         return (
             <div>
-                <p><div className="menuHeader"><div className="fa fa-user"></div> Identity</div></p>
+                <div className="menuHeader"><div className="fa fa-user"></div> Identity</div>
                 <p><div className="menuLabel">Current identity: </div>
-                    <div className="menuInput"><span className="authorSpan">{this.username ? this.username : 'None'}</span></div>
-                    <div className="menuInput"><i className="fa fa-pencil fa-fw" onClick={this.toggleShowSetIdentity}></i></div>
-                    <div className="menuInput"><i className="fa fa-plus fa-fw" onClick={this.toggleShowNewIdentity}></i></div>
+                    <div className="authorDiv">{this.username ? this.username : 'None'}</div><br />
+                    <div className={editClass} onClick={this.toggleShowSetIdentity}><i className="fa fa-pencil fa-fw" onClick={this.toggleShowSetIdentity}></i>Set </div>
+                    <div className={newClass} onClick={this.toggleShowNewIdentity}><i className="fa fa-plus fa-fw"></i>New </div>
                 </p>
                 <NewIdentity show={this.state.showNewIdentity} />
                 <SetIdentity show={this.state.showSetIdentity} />
@@ -91,11 +104,21 @@ var Identity = React.createClass({
     },
 
     toggleShowSetIdentity: function() {
-        this.state.showSetIdentity ? this.setState({showSetIdentity: false}) : this.setState({showSetIdentity: true})
+        if(this.state.showSetIdentity) {
+            this.setState({showSetIdentity: false});
+        } else {
+            this.setState({showSetIdentity: true});
+            this.setState({showNewIdentity: false});
+        }
     },
 
     toggleShowNewIdentity: function() {
-        this.state.showNewIdentity ? this.setState({showNewIdentity: false}) : this.setState({showNewIdentity: true})
+        if(this.state.showNewIdentity) {
+            this.setState({showNewIdentity: false});
+        } else {
+            this.setState({showNewIdentity: true});
+            this.setState({showSetIdentity: false});
+        }
     }
 });
 
@@ -107,71 +130,60 @@ var NewIdentity = React.createClass({
     },
 
     // TODO: Add save keys abilities
+    // TODO: Fix but that causes reactjs to output extra p after PublicKeys. Note p tag is demon spawn
+    // TODO: use fa-unlock-alt and fa-lock
     render: function() {
         if (!this.props.show) {
-            return <p></p>
+            return <div></div>
         } else {
 
             return (
-                <form name="newUserForm" id="newUserForm">
-
-                <p>
-                    <div className="menuHeader">Public Keys</div>
-                </p>
-                <p>
-                    <div className="menuLabel"><sup>*</sup>root: </div>
+                <div className="menuSection">
+                    <div className="menuLabel"><em>Desired username:</em></div><br />
                     <div className="menuInput">
-                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="15" />
-                    </div>
-                </p>
-                <p>
-                    <div className="menuLabel"><sup>*</sup>admin: </div>
-                    <div className="menuInput">
-                        <input type="text" name="adminKeyPublic" ref="adminKeyPublic" size="15" />
-                    </div>
-                </p>
-                <p>
-                    <div className="menuLabel"><sup>*</sup>default: </div>
-                    <div className="menuInput">
-                        <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="15" />
-                    </div>
-                </p>
-                <p><a href="#" onClick={this.handleConvertPrivatePublic} >Private <span className="fa fa-long-arrow-right fa-fw"></span> Public</a></p>
-                <p><a href="#" onClick={this.handleGeneratePrivateKeys} >Generate</a></p>
-
-                    <p>
-                        <div className="menuHeader">Private Keys</div>
-                    </p>
-                    <p>
-                        <div className="menuLabel"><sup>*</sup>root: </div>
-                        <div className="menuInput">
-                            <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" size="15" />
-                        </div>
-                    </p>
-                    <p>
-                        <div className="menuLabel"><sup>*</sup>admin: </div>
-                        <div className="menuInput">
-                            <input type="text" name="adminKeyPrivate" ref="adminKeyPrivate" size="15" />
-                        </div>
-                    </p>
-                    <p>
-                        <div className="menuLabel"><sup>*</sup>default: </div>
-                        <div className="menuInput">
-                            <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="15" />
-                        </div>
-                    </p>
-
-
-
-                <p>
-                    <div className="menuLabel">New username:</div>
-                    <div className="menuInput">
-                        <input type="text" name="newUsername" ref="newUsername" size="10" />
+                        <input type="text" name="newUsername" ref="newUsername" size="18" />
                         <a href="#" onClick={this.handleUsernameLookup}><UsernameCheckbox show={this.state.usernameAvailable} /></a>
                     </div>
-                </p>
+                    <br /><br /><div className="menuHeader">Public Keys</div>
+                    <div className="menuLabel"><sup>*</sup>root: </div>
+                        <div className="menuInput">
+                            <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" />
+                        </div>
+                    <br />
+                    
+                        <div className="menuLabel"><sup>*</sup>admin: </div>
+                        <div className="menuInput">
+                            <input type="text" name="adminKeyPublic" ref="adminKeyPublic" size="18" />
+                        </div>
+                    <br />
+                    
+                        <div className="menuLabel"><sup>*</sup>default: </div>
+                        <div className="menuInput">
+                            <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="18" />
+                        </div>
+                    <br />
+                <a href="#" onClick={this.handleGeneratePrivateKeys} >Generate</a> or <a href="#" onClick={this.handleConvertPrivatePublic} >Convert <span className="fa fa-arrow-up fa-fw"></span></a><br />
 
-                </form>
+
+                    <br /><div className="menuHeader">Private Keys</div>
+                        <div className="menuLabel">root: </div>
+                        <div className="menuInput">
+                            <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" size="18" />
+                        </div>
+                    <br />
+                    
+                        <div className="menuLabel">admin: </div>
+                        <div className="menuInput">
+                            <input type="text" name="adminKeyPrivate" ref="adminKeyPrivate" size="18" />
+                        </div>
+                    <br />
+                    
+                        <div className="menuLabel">default: </div>
+                        <div className="menuInput">
+                            <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" />
+                        </div>
+                    <br />
+                </div>
                 )
         }
     },
@@ -182,13 +194,24 @@ var NewIdentity = React.createClass({
         var adminKey = Puffball.Crypto.generatePrivateKey();
         var defaultKey = Puffball.Crypto.generatePrivateKey();
 
-        // this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
-        // this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
-        // this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
+        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
+        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
+        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
 
         this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
         this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
         this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
+    },
+
+    handleConvertPrivatePublic: function() {
+        var rP = this.refs.rootKeyPrivate.getDOMNode().value;
+        var aP = this.refs.adminKeyPrivate.getDOMNode().value;
+        var dP = this.refs.defaultKeyPrivate.getDOMNode().value;
+
+        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rP);
+        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(aP);
+        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(dP);
+
     },
 
     handleUsernameLookup: function() {
@@ -216,17 +239,39 @@ var NewIdentity = React.createClass({
 
 var UsernameCheckbox = React.createClass({
     render: function () {
-        var checkboxClass = 'fa fa-check gray';
+        /*
+         var cx = React.addons.classSet;
+         var classes = cx({
+
+         'fa': true,
+         'fa-check red': (this.props.usernameAvailable === 'registered'),
+         'fa-check blue': (this.props.usernameAvailable === 'available'),
+         'fa-spinner': (this.props.usernameAvailable === 'checking')
+         });
+
+         return (
+         <div className={classes} rel="tooltip" title="Check availability"></div>
+         )
+        */
+
+
+        var checkboxClass = 'menuIcon fa fa-check gray';
         if (this.props.usernameAvailable === 'registered') {
-            checkboxClass = 'fa fa-check red';
+            checkboxClass = 'menuIcon fa fa-check red';
+            var usernameNotice = 'Sorry! Not available.';
         } else if(this.props.usernameAvailable === 'available') {
-            checkboxClass = 'fa fa-check blue';
+            checkboxClass = 'menuIcon fa fa-check blue';
+            var usernameNotice = 'Yes! Username unavailable.';
         } else if(this.props.usernameAvailable === 'checking') {
-            checkboxClass = 'fa fa-spinner';
+            checkboxClass = 'menuIcon fa fa-spinner';
+            var usernameNotice = '';
         }
 
         return (
+            <span>
             <div className={checkboxClass} rel="tooltip" title="Check availability"></div>
+            {usernameNotice}
+            </span>
             )
 
     }
@@ -239,24 +284,38 @@ var SetIdentity = React.createClass({
         } else {
 
             return (
-                <p>
-                    <div>Set an existing identity</div>
+                <div className="menuSection">
+                    <div><em>Username to set:</em></div>
                     <div className="menuLabel">Username:</div>
                     <div className="menuInput">
                         <input type="text" name="username" />
                     </div>
-                </p>
+                </div>
                 )
         }
     }
 });
+
+var defaultPrivateKeyField = React.createClass({
+    render: function() {
+        return (
+            <span>
+                <div className="menuLabel">default: </div>
+                <div className="menuInput">
+                    <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" />
+                </div>
+            </span>
+        )
+    }
+
+})
 
 var Publish = React.createClass({
     render: function() {
         // TODO: Add puff icon to font
         return (
             <div>
-                <div className="menuHeader">
+                <br /><div className="menuHeader">
                     <div className="fa fa-paper-plane"></div> Publish
                 </div>
                 <div>Create puff</div>
@@ -270,7 +329,7 @@ var View = React.createClass({
     render: function() {
         return (
         <div>
-            <div className="menuHeader">
+            <br /><div className="menuHeader">
                 <div className="fa fa-sitemap"></div> View
             </div>
             <div>Newest conversations</div>

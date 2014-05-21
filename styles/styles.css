@@ -391,7 +391,7 @@ header h1 {
 }
 
 .menuIcon {
-    padding-left: 5px;
+    padding-left: 10px;
     cursor: pointer;
     cursor: hand;
 }
@@ -404,6 +404,8 @@ header h1 {
     cursor: pointer;
     cursor: hand;
     padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 10px;
 }
 
 .linkTabHighlighted {
@@ -414,6 +416,8 @@ header h1 {
     cursor: pointer;
     cursor: hand;
     padding-left: 5px;
+    padding-right: 5px;
+    margin-left: 10px;
     background-color: #d6d6ff;
 }
 

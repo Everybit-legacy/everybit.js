@@ -97,12 +97,12 @@ Puffball.validateUsername = function(username) {
         return Puffball.onError('Username is required', username)
 
     if(username.length > 256) 
-        return Puffball.onError('Usernames must be shorter than N characters', username)
+        return Puffball.onError('Usernames must be shorter than 256 characters', username)
 
     if(username != username.toLowerCase()) 
         return Puffball.onError('Usernames must be lowercase', username)
     
-    if(!/^[0-9a-z.]+$/.test(username)) // FIXME: this isn't quite right...
+    if(!/^[0-9a-z.]+$/.test(username))
         return Puffball.onError('Usernames must be alphanumeric', username)
     
     return true;
@@ -290,6 +290,7 @@ Puffball.Crypto.generatePrivateKey = function() {
     return new Bitcoin.ECKey().toWif()
 }
 
+// TODO: This should return false if string is empty
 Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
     try {
         return Puffball.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()

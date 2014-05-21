@@ -22,8 +22,10 @@ var eatPuffs = function(puffs) {
             }
         }
     }
-    
-    renderPuffWorld()
+    // Check because reorganizing and calling elsewhere
+    if ( typeof renderPuffWorld == 'function' ) {
+        renderPuffWorld();
+    }
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback

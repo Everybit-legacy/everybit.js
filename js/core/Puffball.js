@@ -121,6 +121,12 @@ Puffball.processUserRecord = function(userRecord) {
     return userRecord;
 }
 
+/**
+ *
+ * @param username
+ * @returns Promise for a user record
+ * Looks first in the cache, then grabs from the network
+ */
 Puffball.getUserRecord = function(username) {
     //// This always checks the cache
     
@@ -132,6 +138,12 @@ Puffball.getUserRecord = function(username) {
     return Puffball.getUserRecordNoCache(username);
 }
 
+/**
+ *
+ * @param username
+ * @returns Promise for a user record
+ * Forces a request to the network, ignores cached
+ */
 Puffball.getUserRecordNoCache = function(username) {
     //// This never checks the cache
     

@@ -169,6 +169,64 @@ var PuffPacker = React.createClass({
         return events.pub('ui/puff-packer/build-register-puff', {});
     },
 
+
+    handleBuildModifyUserKeysPuff: function() {
+        // Stuff to register. These are public keys
+
+        var currentUser = PuffWardrobe.getCurrentUsername();
+        if(!currentUser) {
+            this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
+            return events.pub('ui/puff-packer/user-modify-keys/error', {});
+        }
+
+        var payload = {};
+        var rootKey = PuffWardrobe.getCurrentKeys().root;
+        var adminKey = PuffWardrobe.getCurrentKeys().admin;
+        var defaultKey = PuffWardrobe.getCurrentKeys().default;
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'modifyUserKey';
+
+        // What key do they want to modify?
+        var keyToModify = this.refs.keyToModify.getDOMNode().value;
+        payload.keyToModify = keyToModify;
+
+        var newKey = this.refs.newKey.getDOMNode().value;
+        payload.newKey = newKey;
+
+        payload.time = Date.now();
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+
+        if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
+            if(!rootKey) {
+                this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
+                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+            } else {
+                var signingUserKey = rootKey;
+                console.log("request will be signed with root key")
+            }
+        } else if(keyToModify == 'defaultKey') {
+            if(!adminKey) {
+                this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
+                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+            } else {
+                var signingUserKey = adminKey;
+                console.log("request will be signed with admin key")
+            }
+        }
+
+        this.state.result = {}
+
+        var puff = Puffball.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
+        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
+    },
+
     handleSendPuffToServer: function() {
         // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
         var puff = this.state.puff;
@@ -241,6 +299,31 @@ var PuffPacker = React.createClass({
     },
 
     handleBuildSetLatest: function() {
+        // Stuff to register. These are public keys
+        var payload = {};
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'setLatest';
+
+        payload.time = Date.now();
+
+        payload.latest = this.refs.setLatestSigTo.getDOMNode().value;
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+        if(!privateKeys.username) {
+            this.state.result = {"FAIL": "You must set your identity before building set latest request."}
+            return events.pub('ui/puff-packer/user-set-latest/error', {});
+        }
+
+        this.state.result = {}
+
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
+
         return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
     },
 
@@ -289,6 +372,8 @@ var PuffPacker = React.createClass({
                         
                         To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
+                        <PuffSwitchUser />
+
                         <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br /><br />
 
                         <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
@@ -323,15 +408,18 @@ var PuffPacker = React.createClass({
                         <p><a href="#" onClick={this.handleGetLatest}>Get latest sig from DHT</a></p>
 
                         <p>create a DHT-puff for setting latest</p>
+
+                        Set latest to: <input className="fixedLeft" type="text" name="setLatestSigTo" ref="setLatestSigTo" /><br />
                         <a href="#" onClick={this.handleBuildSetLatest}>Build setLatest DHT-style puff</a>
 
-
-                        <p>
-                        --> create a new content puff
-                        --> send DHT puff
-
-                        --> send content puff to server
-                        </p>
+                        <br />
+                        Key to modify: <br /><select id="keyToModify" ref="keyToModify">
+                                            <option value="defaultKey">default</option>
+                                            <option value="adminKey"  >admin</option>
+                                            <option value="rootKey"   >root</option>
+                                        </select><br />
+                        New PUBLIC key: <br /><input className="fixedLeft" type="text" name="newKey" ref="newKey" /><br />
+                        <a href="#" onClick={this.handleBuildModifyUserKeysPuff}>Build modify user keys DHT puff</a>
 
                     </div>
 

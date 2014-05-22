@@ -755,3 +755,43 @@ renderPuffWorld()
 
 
 
+
+events.sub('ui/*', function(data, path) {
+    //// rerender on all ui events
+
+    // OPT: batch process recent log items on requestAnimationFrame
+
+    // change props in a persistent fashion
+    if(data)
+        if(Array.isArray(data))
+            puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
+        else
+            puffworldprops = events.handle_merge_array(puffworldprops, data)
+
+    // then re-render PuffWorld w/ the new props
+    renderPuffWorld()
+})
+
+events.handle_merge_array = function(props, data) {
+    return Object.keys(data).reduce(function(props, key) {
+        return events.merge_props(props, key, data[key])
+    }, props)
+}
+
+events.merge_props = function(props, path, value) {
+    var segs = path.split('.')
+    var last = segs.pop()
+    var final = next = events.shallow_copy(props)
+
+    segs.forEach(function(seg) {
+        next[seg] = events.shallow_copy(next[seg])
+        next = next[seg]
+    })
+
+    next[last] = value
+    return final
+}
+
+events.shallow_copy = function(obj) {
+    return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
+}

@@ -6,69 +6,111 @@
 // TODO: Add hide option for menu
 // Can also make transition on color, etc.
 
+puffworldprops = {
+    menu: {
+        show: true,
+        prefs: false,
+        profile: false,
 
+        user: {
+            pick_one: false,
+            show_add: false,
+            add_one: false,
+            add_new: false,
+            manage: false,
+            show_bc: false,
+            show_key: false
+        }
+    },
 
+    view: {
+        style: 'Blank',
+        puff: false
+    },
 
+    reply: {
+        parents: [],
+        show: false,
+        type: 'text'
+    },
 
-puffworldprops = Object;
-puffworldprops.menu = Object;
-puffworldprops.user = Object;
-puffworldprops.view = Object;
-
-puffworldprops.menu.    show = false;
-puffworldprops.menu.   prefs = false;
-puffworldprops.menu. profile = false;
-
-puffworldprops.user.   pick_one = false;
-puffworldprops.user.   show_add = false;
-puffworldprops.user. add_one=false;
-puffworldprops.user. add_new=false;
-puffworldprops.user.  manage=false;
-puffworldprops.user. show_bc=false;
-puffworldprops.user.show_key=false;
-
-puffworldprops.view.
-
-puffworldprops = {    menu: {    show: false
-    ,   prefs: false
-    , profile: false
-    ,    user: { pick_one: false
-        , show_add: false
-        ,  add_one: false
-        ,  add_new: false
-        ,   manage: false
-        ,  show_bc: false
-        , show_key: false
+    prefs: { },
+    profile: { },
+    tools: {
+        users: {
+            resultstyle: 'raw',
+            puffstyle: 'raw'
+        }
     }
 }
-    ,    view: { style: 'PuffRoots'
-        ,  puff: false
-    }
-    ,   reply: { parents: []
-        ,    show: false
-        ,    type: 'text'
-    }
-    ,   prefs: { }
-    , profile: { }
-    ,   tools: { users: { resultstyle: 'raw'
-        , puffstyle: 'raw'
-    }
-    }
-}
+
+
 
 
 var PuffWorld = React.createClass({
+    /*
     getInitialState: function() {
         return {
             showMenu: false
         }
     },
+    */
 
     render: function() {
+        var view;
+        var viewprops = this.props.view || {};
+
+        if( viewprops.style == 'PuffTree' )
+            view = <PuffTree puff={viewprops.puff} />
+
+        if( viewprops.style == 'PuffTallTree' )
+            view = <PuffTallTree puff={viewprops.puff} />
+
+        else if( viewprops.style == 'PuffAllChildren' )
+            view = <PuffAllChildren puff={viewprops.puff} />
+
+        else if( viewprops.style == 'PuffAllParents' )
+            view = <PuffAllParents puff={viewprops.puff} />
+
+        else if( viewprops.style == 'PuffPacker' )
+            view = <PuffPacker tools={this.props.tools} />
+
+        else view = <Blank />
+
+        var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
+
+        var menu = this.props.menu.show ? <Menu prefs={this.props.prefs} profile={this.props.profile} /> : ''
+
+        // var menu = <Menu />
+
+        /*
+         <PuffHeader menu={this.props.menu} />
+         {menu}
+         {view}
+         {reply}
+         <PuffFooter />
+         */
         return (
             <div>
-                <Menu />
-             </div>
+            {menu}
+            <Basics />
+            </div>
+            )
+    }
+});
+
+var Basics = React.createClass({
+    render: function() {
+        return (
+            <PuffIcon />
+            )
+    }
+});
+
+var Blank = React.createClass({
+    render: function() {
+        return (
+            <div></div>
             )
     }
 });
@@ -77,7 +119,6 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div>
-                <PuffIcon />
                 <MenuList />
             </div>
         )
@@ -94,6 +135,11 @@ var MenuList = React.createClass({
     render: function() {
         return (
             <div className="menu">
+                <div id="closeDiv">
+                    <a href="#" onClick={this.handleClose} className="under">
+                        <img src="img/close.png" width="24" height="24" />
+                    </a>
+                </div>
                 <Identity />
                 <Publish />
                 <View />
@@ -101,6 +147,10 @@ var MenuList = React.createClass({
                 <Tools />
             </div>
             )
+    },
+
+    handleClose: function() {
+        return events.pub('ui/menu/close', {'menu.show': false})
     }
 })
 
@@ -161,10 +211,10 @@ var Identity = React.createClass({
 
 
         return (
-            <div>
-                <div className="menuHeader"><div className="fa fa-user"></div> Identity</div>
-                <p><div className="menuLabel">Current identity: </div>
-                    <div className="authorDiv"><AuthorPicker />
+            <div><p>
+                <div className="menuLabel"><div className="fa fa-user"></div> <em>Current identity:</em> </div><br />
+
+                    <div className="menuInput"> <AuthorPicker />
                     </div><br />
                     <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')} ><i className="fa fa-sign-in fa-fw"></i>Set </div>
                     <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-pencil fa-fw"></i>Edit </div>
@@ -684,8 +734,24 @@ var Main = React.createClass({
     }
 });
 
+var renderPuffWorld = function() {
+    var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
+
+    // puffworldprops has to contain some important things like prefs
+    // THINK: this is probably not the right place for this...
+    puffworldprops.prefs = PuffWardrobe.getAllPrefs()
+    puffworldprops.profile = PuffWardrobe.getAllProfileItems()
+
+    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+}
+
+
+
+// bootstrap
+renderPuffWorld()
+
 // Called in main.js to bootstrap website
-React.renderComponent(<PuffWorld />, document.getElementById('puffworld'))
+// React.renderComponent(<PuffWorld />, document.getElementById('puffworld'))
 
 
 

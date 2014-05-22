@@ -121,7 +121,6 @@ var PuffPacker = React.createClass({
     },
 
     handleBuildRegisterUserPuff: function() {
-
         // Stuff to register. These are public keys
         var payload = {};
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
@@ -586,7 +585,7 @@ var PuffTallTree = React.createClass({
                 })}
             </div>
             );
-    },
+    }
 })
 
 

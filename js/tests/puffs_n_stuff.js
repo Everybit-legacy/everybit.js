@@ -10,6 +10,7 @@
     - privateToPublic false condition
     - promise throw/catch errors 
     - Puffball.checkUsername (pass through network response)
+    - firefox
 
 */
 

@@ -35,6 +35,13 @@ globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
 }
 
+globalCreateFancyPuffBox = function(puffplus) {
+    var puff = puffplus[0]
+    var className = puffplus[1]
+    var stats = puffplus.slice(2)
+    return <PuffBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} />
+}
+
 var PuffWorld = React.createClass({
     render: function() {
 
@@ -535,8 +542,8 @@ var PuffTallTree = React.createClass({
         // parentPuffs = parentPuffs.slice(0, 5);
         
         siblingPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-        var siblingPuffs1 = siblingPuffs.slice(0, 4);
-        var siblingPuffs2 = siblingPuffs.slice(4, 8);
+        var siblingPuffs1 = siblingPuffs.slice(0, 3);
+        var siblingPuffs2 = siblingPuffs.slice(3, 6);
 
         // <section id="above">{parentPuffs.map(globalCreatePuffBox)}</section>
         // <section id="center">
@@ -552,7 +559,7 @@ var PuffTallTree = React.createClass({
         // oh goodness this is terrible make it stop
         var emptyPuff = { "payload": { "parents": [], "time": 1399329921197, "tags": [], "content": "", "type": "text" },
                           "zones": [], "previous": "", "username": "", "version": "0.0.2"}
-        var emptyPuffs = [1,2,3,4,5].map(function() {var foo = JSON.parse(JSON.stringify(emptyPuff)); foo.sig = Math.random(); return foo;})
+        var emptyPuffs = [1,2,3,4,5].map(function(id) {var foo = JSON.parse(JSON.stringify(emptyPuff)); foo.sig = id; return foo;})
         
         var grandPuffs = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         var greatGrandPuffs = grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
@@ -561,17 +568,15 @@ var PuffTallTree = React.createClass({
                                  .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                  .slice(0, 5)
 
+
         // var allPuffs = [].concat(parentPuffs, [puff], childrenPuffs, siblingPuffs)
         // allPuffs = allPuffs.filter(function(item, index, array) {return array.indexOf(item) == index}) 
         // {siblingPuffs.map(function(puff) {
         //     return <PuffBox puff={puff} key={puff.sig} extraClassy="siblings" />
         // })}
         
-
-
-        return (
-            <div id="talltree">
-                
+        /*
+        
                 {parentPuffs.map(globalCreatePuffBox)}
                 
                 <PuffBox puff={puff} key={puff.sig} extraClassy="focused" />
@@ -583,6 +588,53 @@ var PuffTallTree = React.createClass({
                 {childrenPuffs.map(function(puff) {
                     return <PuffBox puff={puff} key={puff.sig} extraClassy="children" />
                 })}
+            
+        
+        */
+        
+        // for later mutation /sigh
+        var sigs = {}
+        var width  = window.innerWidth
+        var height = window.innerHeight
+        var boxwidth  =  width / 5
+        var boxheight = height / 4
+        var x = -boxwidth
+        var y = -boxheight
+        
+        // oh dear oh dear
+        var allPuffs = [].concat( parentPuffs.map(function(puff) {return [puff, 'parent', boxwidth, boxheight, x+=boxwidth, 0]})
+                                , [[puff, 'focused', boxwidth, boxheight, (x+=2*boxwidth, 0), boxheight]]
+                                , siblingPuffs1.map(function(puff) {return [puff, 'sibling', boxwidth, boxheight, (x+=boxwidth)%width, boxheight]})
+                                , siblingPuffs2.map(function(puff) {return [puff, 'sibling', boxwidth, 2*boxheight, (x+=boxwidth)%width, boxheight]})
+                                , childrenPuffs.map(function(puff) {return [puff, 'child', boxwidth, boxheight, (x+=boxwidth)%width, 3 * boxheight]})
+                                )
+                         .filter(
+                             function(item) {
+                                 return sigs[item[0].sig] ? false 
+                                                       : (sigs[item[0].sig] = true) }) 
+        
+        
+        
+        /*
+            - hardcode positions
+                - later: based on screen size
+            - get transition animations working
+            - resize in place
+            - draw arrows
+        
+        
+        
+        */
+        
+        
+        var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                <ReactCSSTransitionGroup transitionName="example">
+                    {puffBoxList}
+                </ReactCSSTransitionGroup>
+
             </div>
             );
     }
@@ -593,9 +645,13 @@ var PuffBox = React.createClass({
     render: function() {
         var puff = this.props.puff
         var className = 'block ' + (this.props.extraClassy || '')
+        var style = {}
+        var stats = this.props.stats
+        if(stats)
+            style = {position: 'absolute', width: stats[0], height: stats[1], left: stats[2], top: stats[3] }
         
         return (
-            <div className={className} id={puff.sig} key={puff.sig}>
+            <div className={className} id={puff.sig} key={puff.sig} style={style}>
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
@@ -1413,7 +1469,7 @@ showPuff = function(puff) {
 
 showPuffDirectly = function(puff) {
     //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 

@@ -68,7 +68,7 @@ section {
     border-radius: 0px;
     font-size: 0.5em;
     
-    transition:min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s;
+    transition:min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;
     
     float: left;
 }
@@ -90,11 +90,15 @@ section {
     max-height:40%;
 }
 
-.siblings .txt {
+.parent .txt {
+    background-color: honeydew;
+}
+
+.sibling .txt {
     background-color: antiquewhite;
 }
 
-.children .txt {
+.child .txt {
     background-color: azure;
 }
 
@@ -107,6 +111,7 @@ section {
 .example-enter-active {
   opacity: 1;
 }
+
 .example-leave {
   opacity: 1;
   transition: opacity 0s ease-in;

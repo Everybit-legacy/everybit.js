@@ -1,22 +1,68 @@
 /** @jsx React.DOM */
 
 // TODO: Add transitions when parts of the menu show or hide
+// TODO: Add store identity on this computer option.
+// TODO: Show menu on click of puffball,
+// TODO: Add hide option for menu
 // Can also make transition on color, etc.
 
-puffworldprops = {
-    menu: {
-        show: false,
-        identity: {
-            showAdd: false
-        }
+
+
+
+
+puffworldprops = Object;
+puffworldprops.menu = Object;
+puffworldprops.user = Object;
+puffworldprops.view = Object;
+
+puffworldprops.menu.    show = false;
+puffworldprops.menu.   prefs = false;
+puffworldprops.menu. profile = false;
+
+puffworldprops.user.   pick_one = false;
+puffworldprops.user.   show_add = false;
+puffworldprops.user. add_one=false;
+puffworldprops.user. add_new=false;
+puffworldprops.user.  manage=false;
+puffworldprops.user. show_bc=false;
+puffworldprops.user.show_key=false;
+
+puffworldprops.view.
+
+puffworldprops = {    menu: {    show: false
+    ,   prefs: false
+    , profile: false
+    ,    user: { pick_one: false
+        , show_add: false
+        ,  add_one: false
+        ,  add_new: false
+        ,   manage: false
+        ,  show_bc: false
+        , show_key: false
+    }
+}
+    ,    view: { style: 'PuffRoots'
+        ,  puff: false
+    }
+    ,   reply: { parents: []
+        ,    show: false
+        ,    type: 'text'
+    }
+    ,   prefs: { }
+    , profile: { }
+    ,   tools: { users: { resultstyle: 'raw'
+        , puffstyle: 'raw'
+    }
     }
 }
 
-// it's immutable so we don't care
-puffworlddefaults = puffworldprops;
-
 
 var PuffWorld = React.createClass({displayName: 'PuffWorld',
+    getInitialState: function() {
+        return {
+            showMenu: false
+        }
+    },
 
     render: function() {
         return (
@@ -40,7 +86,7 @@ var Menu = React.createClass({displayName: 'Menu',
 
 var PuffIcon = React.createClass({displayName: 'PuffIcon',
     render: function() {
-        return React.DOM.img( {src:"img/puffballIcon.png", height:"32"} )
+        return React.DOM.img( {src:"img/puffballIcon.png", className:"puffballIcon", id:"puffballIcon", height:"32", width:"27"} )
     }
 })
 
@@ -88,6 +134,8 @@ var Identity = React.createClass({displayName: 'Identity',
 
 
     render: function() {
+
+        // CSS for tabs
         var cx1 = React.addons.classSet;
         var newClass = cx1({
             'linkTabHighlighted': this.state.tabs.showNewIdentity,
@@ -133,60 +181,22 @@ var Identity = React.createClass({displayName: 'Identity',
     toggleShowTab: function(tabName) {
         var self = this;
 
-        if(self.state.tabs[tabName]) {
-            this.setState({tabs: {
-                showSetIdentity: false,
-                showEditIdentity: false,
-                showNewIdentity: false
-                }
-            });
-        } else {
-            if(tabName == 'showSetIdentity') {
-                this.setState({tabs: {
-                    showSetIdentity: true,
-                    showEditIdentity: false,
-                    showNewIdentity: false
-                    }
-                });
-            }
+        var truthArray = [false, false, false];
+        var tabArray = ['showSetIdentity', 'showEditIdentity', 'showNewIdentity'];
 
-            if(tabName == 'showEditIdentity') {
-                this.setState({tabs: {
-                    showSetIdentity: false,
-                    showEditIdentity: true,
-                    showNewIdentity: false
-                    }
-                });
-            }
-
-            if(tabName == 'showNewIdentity') {
-                this.setState({tabs: {
-                    showSetIdentity: false,
-                    showEditIdentity: false,
-                    showNewIdentity: true
-                    }
-                });
-            }
-
+        if(!self.state.tabs[tabName]) {
+            var toggleThis = tabArray.indexOf(tabName);
+            truthArray[toggleThis] = true;
         }
-    },
 
-    toggleShowSetIdentity: function() {
-        if(this.state.showSetIdentity) {
-            this.setState({showSetIdentity: false});
-        } else {
-            this.setState({showSetIdentity: true});
-            this.setState({showNewIdentity: false});
+        // Do the update of tab value
+        this.setState({tabs: {
+            showSetIdentity: truthArray[0],
+            showEditIdentity: truthArray[1],
+            showNewIdentity: truthArray[2]
         }
-    },
+        });
 
-    toggleShowNewIdentity: function() {
-        if(this.state.showNewIdentity) {
-            this.setState({showNewIdentity: false});
-        } else {
-            this.setState({showNewIdentity: true});
-            this.setState({showSetIdentity: false});
-        }
     }
 });
 
@@ -233,7 +243,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
         if (!this.props.show) {
-            return React.DOM.div(null)
+            return React.DOM.span(null)
         } else {
 
             return (
@@ -527,7 +537,7 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
     render: function() {
         if (!this.props.show) {
-            return React.DOM.p(null)
+            return React.DOM.span(null)
         } else {
 
             var currUser = PuffWardrobe.getCurrentUsername();
@@ -555,7 +565,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 var EditIdentity = React.createClass({displayName: 'EditIdentity',
     render: function() {
         if (!this.props.show) {
-            return React.DOM.p(null)
+            return React.DOM.span(null)
         } else {
 
             var currUser = PuffWardrobe.getCurrentUsername();
@@ -606,11 +616,9 @@ var Publish = React.createClass({displayName: 'Publish',
             )
 
             )
-    },
-
-    handleNewContent: function() {
-        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
     }
+
+
 })
 
 
@@ -646,6 +654,13 @@ var About = React.createClass({displayName: 'About',
     }
 })
 
+/*
+TODO: Add puff for
+Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
+
+TODO: Contact us link brings up a stub for a private puff with .puffball in the routing.
+
+ */
 
 var Tools = React.createClass({displayName: 'Tools',
     render: function() {

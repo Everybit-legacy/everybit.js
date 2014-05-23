@@ -49,11 +49,11 @@ section {
 
 #talltree .block {
     background: #FAFAFA;
-    width: 20%;
+/*    width: 20%;
     min-width: 20%;
     min-height: 25%;
     max-height: 25%;
-    border: 1px solid #6c6175;
+*/    border: 1px solid #6c6175;
     padding: 20px 0 0 0;
     margin: 0 0 0 0;
     display: inline-block;
@@ -68,26 +68,23 @@ section {
     border-radius: 0px;
     font-size: 0.5em;
     
-    transition:min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;
+    transition: all 1s;
+/*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
 }
 
-.block .txt {
-    max-height:16%;
-}
-
 /*#talltree #center .focused .block {*/
 #talltree .block.focused  {
-    min-width: 40%;
+/*    min-width: 40%;
     max-width: 40%;
     min-height: 49.9%;
     max-height: 49.9%;
-    font-size: 1em;
+*/    font-size: 1em;
 }
 
 .block.focused .txt {
-    max-height:40%;
+/*    max-height:40%;*/
 }
 
 .parent .txt {
@@ -105,7 +102,7 @@ section {
 
 .example-enter {
   opacity: 0.01;
-  transition: opacity .5s ease-in;
+  transition: opacity 5s;
 }
 
 .example-enter-active {
@@ -114,7 +111,7 @@ section {
 
 .example-leave {
   opacity: 1;
-  transition: opacity 0s ease-in;
+  transition: opacity 5s;
 }
 
 .example-leave-active {
@@ -224,7 +221,7 @@ h4 {
     cursor:pointer;
     overflow-y:scroll;
     overflow-x:hidden;
-    max-height:30%;
+/*    max-height:30%;*/
     z-index:10;
     font-size: 1.1em;
     line-height: 1.5em;
@@ -236,10 +233,10 @@ h4 {
 
 .block {
     background: #FAFAFA;
-    width: 30%;
+/*    width: 30%;
     min-width: 300px;
     max-height: 30%;
-    -webkit-border-radius: 25px;
+*/    -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 4px solid #6c6175;
@@ -260,9 +257,9 @@ h4 {
 }
 
 #main-content>div.block {
-    width: 30%;
+/*    width: 30%;
     max-height: 60%;
-}
+*/}
 
 .bar {
     text-align: right;

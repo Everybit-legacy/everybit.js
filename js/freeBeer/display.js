@@ -46,13 +46,6 @@ globalCreatePuffBox = function(puff) {
     return <PuffBox puff={puff} key={puff.sig} />
 }
 
-globalCreateFancyPuffBox = function(puffplus) {
-    var puff = puffplus[0]
-    var className = puffplus[1]
-    var stats = puffplus.slice(2)
-    return <PuffBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} />
-}
-
 var PuffWorld = React.createClass({
     render: function() {
 
@@ -628,129 +621,144 @@ var PuffTree = React.createClass({
 var PuffTallTree = React.createClass({
     render: function() {
 
-        var puff = this.props.puff;
-        var puffSig = puff.sig
-        var parentPuffs   = PuffForum.getParents(puff);
-        var childrenPuffs = PuffForum.getChildren(puff);
-        var siblingPuffs  = PuffForum.getSiblings(puff);
-
-        childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-        childrenPuffs = childrenPuffs.slice(0, 5);
-
-        parentPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-        // parentPuffs = parentPuffs.slice(0, 5);
+        var puff   = this.props.puff
+        var sigfun = function(item) {return item.sig}
         
-        siblingPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
-        var siblingPuffs1 = siblingPuffs.slice(0, 3);
-        var siblingPuffs2 = siblingPuffs.slice(3, 6);
-
-        // <section id="above">{parentPuffs.map(globalCreatePuffBox)}</section>
-        // <section id="center">
-        //     <div> {siblingPuffs1.map(globalCreatePuffBox)} </div>
-        //     <div className="focused"><PuffBox puff={puff} /></div>
-        //     <div> {siblingPuffs2.map(globalCreatePuffBox)} </div>
-        // </section>
-        // <section id="below">{childrenPuffs.map(globalCreatePuffBox)}</section>
-        //
-        //             <ReactCSSTransitionGroup transitionName="example" transitionLeave={false} transitionEnter={false}>
-        //                </ReactCSSTransitionGroup>
-
+        
         // oh goodness this is terrible make it stop
         var emptyPuff = { "payload": { "parents": [], "time": 1399329921197, "tags": [], "content": "", "type": "text" },
                           "zones": [], "previous": "", "username": "", "version": "0.0.2"}
         var emptyPuffs = [1,2,3,4,5].map(function(id) {var foo = JSON.parse(JSON.stringify(emptyPuff)); foo.sig = id; return foo;})
         
-        var grandPuffs = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
-        var greatGrandPuffs = grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+        
+        // gather puffs
 
-        parentPuffs = parentPuffs.concat(grandPuffs, greatGrandPuffs, emptyPuffs)
-                                 .filter(function(item, index, array) {return array.indexOf(item) == index}) 
-                                 .slice(0, 5)
+        var parentPuffs   = PuffForum.getParents(puff)
+                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
 
+        var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+        var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+  
+            parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs, emptyPuffs)
+                                       .filter(function(item, index, array) {return array.indexOf(item) == index}) 
+                                       .slice(0, 5)
+  
+        var siblingPuffs  = PuffForum.getSiblings(puff)
+                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+                                     .filter(function(item) {
+                                         return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
+                                     .slice(0, 6)
+        var childrenPuffs = PuffForum.getChildren(puff)
+                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+                                     .filter(function(item) {
+                                         return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
+                                                           .indexOf(item.sig)})
+                                     .slice(0, 5)
+        
+        // gridCoord params
+        var screenwidth  = window.innerWidth
+        var screenheight = window.innerHeight
+        var rows = 5
+        var cols = 4
 
-        // var allPuffs = [].concat(parentPuffs, [puff], childrenPuffs, siblingPuffs)
-        // allPuffs = allPuffs.filter(function(item, index, array) {return array.indexOf(item) == index}) 
-        // {siblingPuffs.map(function(puff) {
-        //     return <PuffBox puff={puff} key={puff.sig} extraClassy="siblings" />
-        // })}
+        var getGridCoords = (function(rows, cols, outerwidth, outerheight) {
+            var grid = Array.apply(0, Array(cols)).map(function() {return Array.apply(0, Array(rows))}) // build 2D array
+            var gridwidth = outerwidth/rows, gridheight = outerheight/cols
+            return function(width, height) {
+                top: for (var y = 0; y < cols; y++) {
+                    for (var x = 0; x < rows; x++) { var good = true
+                        for (var dy = 0; dy < width; dy++) {
+                            for (var dx = 0; dx < height; dx++) {
+                                if(grid[y+dy][x+dx]) good=false }} 
+                                if(good) break top }}
+                if(y == cols && x == rows) return Puffball.onError('No room in the grid')
+                for (var dy = 0; dy < width; dy++) {
+                    for (var dx = 0; dx < height; dx++) {
+                        grid[y+dy][x+dx] = true } }
+                return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
+            } 
+        })(rows, cols, screenwidth, screenheight)
         
-        /*
+        var applySizes = function(width, height, gridCoords) {
+            return function(className) {
+                return function(puff) {
+                    var wrapper = gridCoords(width, height); wrapper.puff = puff; wrapper.className = className;
+                    return wrapper } } }
         
-                {parentPuffs.map(globalCreatePuffBox)}
-                
-                <PuffBox puff={puff} key={puff.sig} extraClassy="focused" />
-                
-                {siblingPuffs.map(function(puff) {
-                    return <PuffBox puff={puff} key={puff.sig} extraClassy="siblings" />
-                })}
-                
-                {childrenPuffs.map(function(puff) {
-                    return <PuffBox puff={puff} key={puff.sig} extraClassy="children" />
-                })}
-            
-        
-        */
-        
-        // for later mutation /sigh
-        var sigs = {}
-        var width  = window.innerWidth
-        var height = window.innerHeight
-        var boxwidth  =  width / 5
-        var boxheight = height / 4
-        var x = -boxwidth
-        var y = -boxheight
+        var standardBox = applySizes(1, 1, getGridCoords)
+        var bigBox      = applySizes(2, 2, getGridCoords)
         
         // oh dear oh dear
-        var allPuffs = [].concat( parentPuffs.map(function(puff) {return [puff, 'parent', boxwidth, boxheight, x+=boxwidth, 0]})
-                                , [[puff, 'focused', boxwidth, boxheight, (x+=2*boxwidth, 0), boxheight]]
-                                , siblingPuffs1.map(function(puff) {return [puff, 'sibling', boxwidth, boxheight, (x+=boxwidth)%width, boxheight]})
-                                , siblingPuffs2.map(function(puff) {return [puff, 'sibling', boxwidth, 2*boxheight, (x+=boxwidth)%width, boxheight]})
-                                , childrenPuffs.map(function(puff) {return [puff, 'child', boxwidth, boxheight, (x+=boxwidth)%width, 3 * boxheight]})
+        var allPuffs = [].concat( parentPuffs.map(standardBox('parent'))
+                                , [puff].map(bigBox('focused'))
+                                , siblingPuffs.map(standardBox('sibling'))
+                                , childrenPuffs.map(standardBox('child'))
                                 )
-                         .filter(
-                             function(item) {
-                                 return sigs[item[0].sig] ? false 
-                                                       : (sigs[item[0].sig] = true) }) 
-        
-        
+                         .filter(Boolean)                                       // remove nodes that don't fit in the grid 
+                         .sort(function(a, b) {                                 // sort required so React doesn't have to 
+                             if(a.puff.sig+'' < b.puff.sig+'') return -1;       // remove and re-add DOM nodes in order to
+                             if(a.puff.sig+'' > b.puff.sig+'') return 1;        // order them properly
+                             return 0; })
+                             // return a.puff.sig+'' < b.puff.sig+'' ? 1 : a.puff.sig+'' == b.puff.sig+'' ? 0 : -1})
         
         /*
-            - hardcode positions
-                - later: based on screen size
-            - get transition animations working
             - resize in place
             - draw arrows
         
         
+                <ReactCSSTransitionGroup transitionName="example">
+                    {puffBoxList}
+                </ReactCSSTransitionGroup>
         
         */
+        
+        // debugger;
         
         
         var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
 
         return (
             <div id="talltree">
-                <ReactCSSTransitionGroup transitionName="example">
-                    {puffBoxList}
-                </ReactCSSTransitionGroup>
-
+                {puffBoxList}
             </div>
             );
     }
 })
 
+globalCreateFancyPuffBox = function(puffplus) {
+    var puff = puffplus.puff
+    var className = puffplus.className
+    var stats = puffplus
+    return <PuffFancyBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} />
+}
 
-var PuffBox = React.createClass({
+var PuffFancyBox = React.createClass({
     render: function() {
         var puff = this.props.puff
         var className = 'block ' + (this.props.extraClassy || '')
         var style = {}
         var stats = this.props.stats
         if(stats)
-            style = {position: 'absolute', width: stats[0], height: stats[1], left: stats[2], top: stats[3] }
+            style = {position: 'absolute', width: stats.width, height: stats.height, left: stats.x, top: stats.y }
         
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
+                <PuffAuthor username={puff.username} />
+                <PuffContent puff={puff} />
+                <PuffBar puff={puff} />
+            </div>
+            );
+    }
+});
+
+
+
+var PuffBox = React.createClass({
+    render: function() {
+        var puff = this.props.puff
+
+        return (
+            <div id={puff.sig} key={puff.sig} className="block">
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
@@ -1520,6 +1528,12 @@ events.sub('ui/*', function(data, path) {
     renderPuffWorld()
 })
 
+events.handle_merge_array = function(props, data) {
+    return Object.keys(data).reduce(function(props, key) {
+        return events.merge_props(props, key, data[key])
+    }, props)
+}
+
 events.merge_props = function(props, path, value) {
     var segs = path.split('.')
     var last = segs.pop()
@@ -1536,12 +1550,6 @@ events.merge_props = function(props, path, value) {
 
 events.shallow_copy = function(obj) {
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
-}
-
-events.handle_merge_array = function(props, data) {
-    return Object.keys(data).reduce(function(props, key) {
-        return events.merge_props(props, key, data[key])
-    }, props)
 }
 
 

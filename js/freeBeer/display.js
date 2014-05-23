@@ -21,7 +21,9 @@ puffworldprops = {
 
     view: {
         style: 'PuffRoots',
-        puff: false
+        puff: false,
+        mode: 'browse',
+        rows: 5,
     },
 
     reply: {
@@ -58,7 +60,7 @@ var PuffWorld = React.createClass({
             view = <PuffTree puff={viewprops.puff} />
 
         if( viewprops.style == 'PuffTallTree' )
-            view = <PuffTallTree puff={viewprops.puff} />
+            view = <PuffTallTree view={viewprops} />
 
         else if( viewprops.style == 'PuffAllChildren' )
             view = <PuffAllChildren puff={viewprops.puff} />
@@ -619,9 +621,24 @@ var PuffTree = React.createClass({
 
 
 var PuffTallTree = React.createClass({
+    componentDidMount: function() {
+        this.keyfun = function(e) {
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-rows/change', {'view.rows': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
     render: function() {
 
-        var puff   = this.props.puff
+        var puff   = this.props.view.puff
+        var mode   = this.props.view.mode
+        var rows   = this.props.view.rows
         var sigfun = function(item) {return item.sig}
         
         
@@ -658,7 +675,7 @@ var PuffTallTree = React.createClass({
         // gridCoord params
         var screenwidth  = window.innerWidth
         var screenheight = window.innerHeight
-        var rows = 5
+        // var rows = mode == 'browse' ? 5 : 8
         var cols = 4
 
         var getGridCoords = (function(rows, cols, outerwidth, outerheight) {
@@ -679,13 +696,20 @@ var PuffTallTree = React.createClass({
             } 
         })(rows, cols, screenwidth, screenheight)
         
-        var applySizes = function(width, height, gridCoords) {
+        var extend = function() {
+            var newobj = {}
+            Array.prototype.slice.call(arguments).forEach(function(arg) {
+                for (var prop in arg) {
+                    newobj[prop] = arg[prop] } }) 
+            return newobj 
+        }
+        
+        var applySizes = function(width, height, gridCoords, bonus) {
             return function(className) {
                 return function(puff) {
-                    var wrapper = gridCoords(width, height); wrapper.puff = puff; wrapper.className = className;
-                    return wrapper } } }
+                    return extend((bonus || {}), gridCoords(width, height), {puff: puff, className: className}) } } }
         
-        var standardBox = applySizes(1, 1, getGridCoords)
+        var standardBox = applySizes(1, 1, getGridCoords, {mode: mode})
         var bigBox      = applySizes(2, 2, getGridCoords)
         
         // oh dear oh dear
@@ -738,8 +762,22 @@ var PuffFancyBox = React.createClass({
         var className = 'block ' + (this.props.extraClassy || '')
         var style = {}
         var stats = this.props.stats
+        var mode = stats.mode
+        var width = stats.width
+        var height = stats.height
+        var top = stats.y
+        var left = stats.x
+        
+        var offset = 30
+        if(mode == 'arrows') {
+            width -= offset
+            height -= offset
+            top += offset/2
+            left += offset/2
+        }
+        
         if(stats)
-            style = {position: 'absolute', width: stats.width, height: stats.height, left: stats.x, top: stats.y }
+            style = {position: 'absolute', width: width, height: height, left: left, top: top }
         
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>

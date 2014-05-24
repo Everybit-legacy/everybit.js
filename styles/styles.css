@@ -88,15 +88,15 @@ section {
 }
 
 .parent .txt {
-    background-color: honeydew;
+    background-color: #f6faff;
 }
 
 .sibling .txt {
-    background-color: antiquewhite;
+    background-color: #fafaec;
 }
 
 .child .txt {
-    background-color: azure;
+    background-color: #fffafc;
 }
 
 

@@ -23,7 +23,7 @@ puffworldprops = {
         style: 'PuffRoots',
         puff: false,
         mode: 'browse',
-        rows: 5,
+        cols: 5,
     },
 
     reply: {
@@ -60,7 +60,7 @@ var PuffWorld = React.createClass({
             view = <PuffTree puff={viewprops.puff} />
 
         if( viewprops.style == 'PuffTallTree' )
-            view = <PuffTallTree view={viewprops} />
+            view = <PuffTallTree view={viewprops} reply={this.props.reply} />
 
         else if( viewprops.style == 'PuffAllChildren' )
             view = <PuffAllChildren puff={viewprops.puff} />
@@ -505,7 +505,22 @@ var PuffRoots = React.createClass({
 
         puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
-        return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
+        var screenwidth  = window.innerWidth
+        var screenheight = window.innerHeight
+        var cols = 4
+        var rows = 16
+        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
+        var standardBox  = applySizes(1, 1, gridbox)
+
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+
+        // return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -515,7 +530,22 @@ var PuffAllChildren = React.createClass({
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        return <section id="children">{kids.map(globalCreatePuffBox)}</section>
+        var screenwidth  = window.innerWidth
+        var screenheight = window.innerHeight
+        var cols = 4
+        var rows = 16
+        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
+        var standardBox  = applySizes(1, 1, gridbox)
+
+        var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+
+        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -525,7 +555,22 @@ var PuffAllParents = React.createClass({
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        return <section id="children">{kids.map(globalCreatePuffBox)}</section>
+        var screenwidth  = window.innerWidth
+        var screenheight = window.innerHeight
+        var cols = 4
+        var rows = 16
+        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
+        var standardBox  = applySizes(1, 1, gridbox)
+
+        var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+
+        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -623,9 +668,11 @@ var PuffTree = React.createClass({
 var PuffTallTree = React.createClass({
     componentDidMount: function() {
         this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-rows/change', {'view.rows': 1*char})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
             if(e.keyCode == 32)
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
         }.bind(this)
@@ -638,25 +685,17 @@ var PuffTallTree = React.createClass({
 
         var puff   = this.props.view.puff
         var mode   = this.props.view.mode
-        var rows   = this.props.view.rows
+        var cols   = this.props.view.cols
         var sigfun = function(item) {return item.sig}
         
-        
-        // oh goodness this is terrible make it stop
-        var emptyPuff = { "payload": { "parents": [], "time": 1399329921197, "tags": [], "content": "", "type": "text" },
-                          "zones": [], "previous": "", "username": "", "version": "0.0.2"}
-        var emptyPuffs = [1,2,3,4,5].map(function(id) {var foo = JSON.parse(JSON.stringify(emptyPuff)); foo.sig = id; return foo;})
-        
-        
         // gather puffs
-
         var parentPuffs   = PuffForum.getParents(puff)
                                      .sort(function(a, b) {return b.payload.time - a.payload.time})
 
         var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
   
-            parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs, emptyPuffs)
+            parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .slice(0, 5)
   
@@ -669,56 +708,27 @@ var PuffTallTree = React.createClass({
                                      .sort(function(a, b) {return b.payload.time - a.payload.time})
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
-                                                           .indexOf(item.sig)})
+                                                            .indexOf(item.sig)})
                                      .slice(0, 5)
         
         // gridCoord params
         var screenwidth  = window.innerWidth
         var screenheight = window.innerHeight
-        // var rows = mode == 'browse' ? 5 : 8
-        var cols = 4
+        // var cols = mode == 'browse' ? 5 : 8
+        var rows = 4
 
-        var getGridCoords = (function(rows, cols, outerwidth, outerheight) {
-            var grid = Array.apply(0, Array(cols)).map(function() {return Array.apply(0, Array(rows))}) // build 2D array
-            var gridwidth = outerwidth/rows, gridheight = outerheight/cols
-            return function(width, height) {
-                top: for (var y = 0; y < cols; y++) {
-                    for (var x = 0; x < rows; x++) { var good = true
-                        for (var dy = 0; dy < width; dy++) {
-                            for (var dx = 0; dx < height; dx++) {
-                                if(grid[y+dy][x+dx]) good=false }} 
-                                if(good) break top }}
-                if(y == cols && x == rows) return Puffball.onError('No room in the grid')
-                for (var dy = 0; dy < width; dy++) {
-                    for (var dx = 0; dx < height; dx++) {
-                        grid[y+dy][x+dx] = true } }
-                return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
-            } 
-        })(rows, cols, screenwidth, screenheight)
+        var gridbox = getGridCoordBox(rows, cols, screenwidth, screenheight)
+        var standardBox  = applySizes(1, 1, gridbox, {mode: mode})
+        var secondRowBox = applySizes(1, 1, gridbox, {mode: mode}, 1)
+        var fourthRowBox = applySizes(1, 1, gridbox, {mode: mode}, 4)
+        var stuckbigBox  = applySizes(2, 2, gridbox, {mode: mode}, 1, 0, 1, 0)
         
-        var extend = function() {
-            var newobj = {}
-            Array.prototype.slice.call(arguments).forEach(function(arg) {
-                for (var prop in arg) {
-                    newobj[prop] = arg[prop] } }) 
-            return newobj 
-        }
-        
-        var applySizes = function(width, height, gridCoords, bonus) {
-            return function(className) {
-                return function(puff) {
-                    return extend((bonus || {}), gridCoords(width, height), {puff: puff, className: className}) } } }
-        
-        var standardBox = applySizes(1, 1, getGridCoords, {mode: mode})
-        var bigBox      = applySizes(2, 2, getGridCoords)
-        
-        // oh dear oh dear
-        var allPuffs = [].concat( parentPuffs.map(standardBox('parent'))
-                                , [puff].map(bigBox('focused'))
-                                , siblingPuffs.map(standardBox('sibling'))
-                                , childrenPuffs.map(standardBox('child'))
+        var allPuffs = [].concat( [puff].map(stuckbigBox('focused'))
+                                , parentPuffs.map(standardBox('parent'))
+                                , siblingPuffs.map(secondRowBox('sibling'))
+                                , childrenPuffs.map(fourthRowBox('child'))
                                 )
-                         .filter(Boolean)                                       // remove nodes that don't fit in the grid 
+                         .filter(function(x) {return x.width})                  // remove nodes that don't fit in the grid 
                          .sort(function(a, b) {                                 // sort required so React doesn't have to 
                              if(a.puff.sig+'' < b.puff.sig+'') return -1;       // remove and re-add DOM nodes in order to
                              if(a.puff.sig+'' > b.puff.sig+'') return 1;        // order them properly
@@ -745,7 +755,7 @@ var PuffTallTree = React.createClass({
             <div id="talltree">
                 {puffBoxList}
             </div>
-            );
+        );
     }
 })
 
@@ -1591,15 +1601,6 @@ events.shallow_copy = function(obj) {
 }
 
 
-humanizeUsernames = function(username) {
-    if(/^[A-Za-z0-9]{32}$/.test(username))
-        return username.slice(0, 7) + '...'
-    return username
-}
-
-
-
-
 showPuff = function(puff) {
     //// show a puff and do other stuff
     showPuffDirectly(puff)
@@ -1636,3 +1637,8 @@ $(window).resize(function(){
     // When browser window is resized, refresh jsPlumb connecting lines.
     jsPlumb.repaintEverything();
 });
+
+
+
+
+

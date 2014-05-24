@@ -22,10 +22,8 @@ var eatPuffs = function(puffs) {
             }
         }
     }
-    // Check because reorganizing and calling elsewhere
-    if ( typeof renderPuffWorld == 'function' ) {
-        renderPuffWorld();
-    }
+    
+    renderPuffWorld()
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
@@ -216,3 +214,63 @@ events.sub('profile/nickname/set', function(data, path) {
         window.setImmediate = setImmediate
     }
 }();
+
+
+
+
+
+
+
+///////////// display-related helper functions or something like that ///////////////////
+
+
+getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
+    var min = function(a, b) {return Math.min(a, b)}
+    var max = function(a, b) {return Math.max(a, b)}
+    var gridwidth  = outerwidth  / cols
+    var gridheight = outerheight / rows
+    var grid = Array.apply(0, Array(rows))
+                    .map(function() {return Array.apply(0, Array(cols))
+                                                 .map(function() {return 0})}) // build 2D array
+    
+    return function(width, height, miny, minx, maxy, maxx) {
+        maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
+        miny = min(miny||0, maxy), minx = min(minx||0, maxx)
+        top: for (var y = miny; y <= maxy; y++) {
+        bot: for (var x = minx; x <= maxx;  x++) {
+                for (var dy = 0; dy < height; dy++) {
+                    for (var dx = 0; dx < width; dx++) {
+                        if(grid[y+dy][x+dx]) continue bot }} 
+                            break top }}
+        if(maxx<0 || maxy<0) return Puffball.onError('Block too big for the grid')
+        if(x == maxx+1 && y == maxy+1) return Puffball.onError('No room in the grid')
+        if(x == null || y == null) return Puffball.onError('Block too big for the grid')
+        for (var dy = 0; dy < height; dy++) {
+            for (var dx = 0; dx < width; dx++) {
+                grid[y+dy][x+dx] = 1 } }
+        return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
+    } 
+}
+
+applySizes = function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
+    return function(className) {
+        return function(puff) {
+            return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
+                                         {puff: puff, className: className}) } } }
+
+
+extend = function() {
+    var newobj = {}
+    Array.prototype.slice.call(arguments).forEach(function(arg) {
+        for (var prop in arg) {
+            newobj[prop] = arg[prop] } }) 
+    return newobj 
+}
+
+
+humanizeUsernames = function(username) {
+    if(/^[A-Za-z0-9]{32}$/.test(username))
+        return username.slice(0, 7) + '...'
+    return username
+}
+

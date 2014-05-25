@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+
+
 var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 puffworldprops = {
@@ -23,7 +25,7 @@ puffworldprops = {
         style: 'PuffRoots',
         puff: false,
         mode: 'browse',
-        cols: 5,
+        cols: 5
     },
 
     reply: {
@@ -1637,8 +1639,3 @@ $(window).resize(function(){
     // When browser window is resized, refresh jsPlumb connecting lines.
     jsPlumb.repaintEverything();
 });
-
-
-
-
-

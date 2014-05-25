@@ -379,12 +379,24 @@ Puffball.Crypto.puffToSiglessString = function(puff) {
 */
 
 Puffball.Persist = {};
+Puffball.Persist.todo = {}
+Puffball.Persist.todoflag = false
 
 Puffball.Persist.save = function(key, value) {
-    // prepend PUFF:: so we're good neighbors
-    var realkey = 'PUFF::' + key;
-    var str = JSON.stringify(value);
-    localStorage.setItem(realkey, str);
+    Puffball.Persist.todo[key] = value
+    if(!Puffball.Persist.todoflag) {
+        setImmediate(function() {
+            for(var key in Puffball.Persist.todo) {
+                // prepend PUFF:: so we're good neighbors
+                var realkey = 'PUFF::' + key;
+                var str = JSON.stringify(Puffball.Persist.todo[key]);                
+                localStorage.setItem(realkey, str);
+            }
+            Puffball.Persist.todo = {};
+            Puffball.Persist.todoflag = false;
+        });
+    }
+    Puffball.Persist.todoflag = true
 }
 
 Puffball.Persist.get = function(key) {

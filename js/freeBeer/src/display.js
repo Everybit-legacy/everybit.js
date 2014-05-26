@@ -59,21 +59,21 @@ var PuffWorld = React.createClass({
         var viewprops = this.props.view || {};
 
         if( viewprops.style == 'PuffTree' )
-            view = <PuffTree puff={viewprops.puff} />
+            view  = <PuffTree puff={viewprops.puff} />
 
         if( viewprops.style == 'PuffTallTree' )
-            view = <PuffTallTree view={viewprops} reply={this.props.reply} />
+            view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
 
         else if( viewprops.style == 'PuffAllChildren' )
-            view = <PuffAllChildren puff={viewprops.puff} />
+            view  = <PuffAllChildren view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
 
         else if( viewprops.style == 'PuffAllParents' )
-            view = <PuffAllParents puff={viewprops.puff} />
+            view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
 
         else if( viewprops.style == 'PuffPacker' )
-            view = <PuffPacker tools={this.props.tools} />
+            view  = <PuffPacker tools={this.props.tools} />
 
-        else view = <PuffRoots />
+        else view = <PuffRoots       view={viewprops} reply={this.props.reply} />
 
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
 
@@ -500,6 +500,22 @@ var PuffToolsPuffDisplay = React.createClass({
 });
 
 var PuffRoots = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
     render: function() {
         var puffs = PuffForum.getRootPuffs();
 
@@ -507,13 +523,8 @@ var PuffRoots = React.createClass({
 
         puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
-        var screenwidth  = window.innerWidth
-        var screenheight = window.innerHeight
-        var cols = 4
-        var rows = 16
-        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
-        var standardBox  = applySizes(1, 1, gridbox)
-
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
         var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
 
         return (
@@ -527,18 +538,29 @@ var PuffRoots = React.createClass({
 });
 
 var PuffAllChildren = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
     render: function() {
         var kids = PuffForum.getChildren(this.props.puff);
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        var screenwidth  = window.innerWidth
-        var screenheight = window.innerHeight
-        var cols = 4
-        var rows = 16
-        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
-        var standardBox  = applySizes(1, 1, gridbox)
-
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
         var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
 
         return (
@@ -552,18 +574,29 @@ var PuffAllChildren = React.createClass({
 });
 
 var PuffAllParents = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
     render: function() {
         var kids = PuffForum.getParents(this.props.puff);
 
         kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        var screenwidth  = window.innerWidth
-        var screenheight = window.innerHeight
-        var cols = 4
-        var rows = 16
-        var gridbox = getGridCoordBox(rows, cols, screenwidth, 4*screenheight)
-        var standardBox  = applySizes(1, 1, gridbox)
-
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
         var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
 
         return (
@@ -746,6 +779,19 @@ var PuffTallTree = React.createClass({
                     {puffBoxList}
                 </ReactCSSTransitionGroup>
         
+        
+        
+        
+        
+        
+                <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
+                    {puffBoxList.map(function(puffbox) {
+                        return <Arrow key={'arrow-'+puffbox.props.key+puffbox.props.stats.x+puffbox.props.stats.y} x1={screenwidth} y1={screenheight} x2={puffbox.props.stats.x} y2={puffbox.props.stats.y} />
+                    })}
+                    
+                </svg>
+        
         */
         
         // debugger;
@@ -754,12 +800,32 @@ var PuffTallTree = React.createClass({
         var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
 
         return (
-            <div id="talltree">
-                {puffBoxList}
+            <div>
+                <div id="talltree">
+                    {puffBoxList}
+                </div>
             </div>
         );
     }
 })
+
+var Arrow =  React.createClass({
+    componentDidMount: function() {
+        this.getDOMNode().setAttribute('marker-end', 'url(#triangle)')
+    },
+    render: function() {
+        
+        
+        var result = (
+            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke="black" strokeWidth="10" dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}} >
+                
+            </line>
+        )
+        
+        return result
+    }
+})
+ 
 
 globalCreateFancyPuffBox = function(puffplus) {
     var puff = puffplus.puff
@@ -1527,7 +1593,7 @@ var PuffManageUser = React.createClass({
 
 
 
-var renderPuffWorld = function() {
+function renderPuffWorld() {
     var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
 
     // puffworldprops has to contain some important things like prefs
@@ -1548,7 +1614,7 @@ renderPuffWorld()
 
 
 // TODO: move this somewhere nicer
-formatForDisplay = function(obj, style) {
+function formatForDisplay(obj, style) {
     if(style == 'formatted') {
         return JSON.stringify(obj, null, 2)
             .replace(/[{}",\[\]]/g, '')
@@ -1558,7 +1624,7 @@ formatForDisplay = function(obj, style) {
 
     // style is raw
     return JSON.stringify(obj).replace(/^\{\}$/, '');
-},
+}
 
 
 
@@ -1603,7 +1669,7 @@ events.shallow_copy = function(obj) {
 }
 
 
-showPuff = function(puff) {
+function showPuff(puff) {
     //// show a puff and do other stuff
     showPuffDirectly(puff)
 
@@ -1615,7 +1681,7 @@ showPuff = function(puff) {
     history.pushState(state, '', '#' + puff.sig);
 }
 
-showPuffDirectly = function(puff) {
+function showPuffDirectly(puff) {
     //// show a puff without doing pushState
     events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
@@ -1635,7 +1701,20 @@ window.onpopstate = function(event) {
 }
 
 
-$(window).resize(function(){
-    // When browser window is resized, refresh jsPlumb connecting lines.
-    jsPlumb.repaintEverything();
-});
+// $(window).resize(function(){
+//     // When browser window is resized, refresh jsPlumb connecting lines.
+//     jsPlumb.repaintEverything();
+// });
+
+function getStandardBox(cols) {
+    // TODO: make this a mixin
+    var screenwidth  = window.innerWidth
+    var screenheight = window.innerHeight
+    var cols = cols || 4
+    var rows = 200
+    var gridbox = getGridCoordBox(rows, cols, screenwidth, (rows/4)*screenheight)
+    var standardBox  = applySizes(1, 1, gridbox)
+
+    return standardBox
+}
+

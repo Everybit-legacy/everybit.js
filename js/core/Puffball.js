@@ -203,7 +203,8 @@ Puffball.Data.eat = function(puff) {
 
 Puffball.Data.persist = function(puffs) {
     if(CONFIG.noLocalStorage) return false              // THINK: this is only for debugging and development
-    Puffball.Persist.save('puffs', puffs)               // OPT: throttle this when we're chowing down on lots of puffs
+    // TODO: come up with a better algo for persisting puffs!!!
+    // Puffball.Persist.save('puffs', puffs)
 }
 
 Puffball.Data.getLocalPuffs = function(callback) {

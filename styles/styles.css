@@ -87,15 +87,15 @@ section {
 /*    max-height:40%;*/
 }
 
-.parent .txt {
+#talltree .parent .txt {
     background-color: #f6faff;
 }
 
-.sibling .txt {
+#talltree .sibling .txt {
     background-color: #fafaec;
 }
 
-.child .txt {
+#talltree .child .txt {
     background-color: #fffafc;
 }
 
@@ -117,6 +117,11 @@ section {
 .example-leave-active {
   opacity: 0.01;
 }
+
+#talltree line {
+    transition: all 1s;
+}
+
 
 /* END New Tall Tree Styles */
 

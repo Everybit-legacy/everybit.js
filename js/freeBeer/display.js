@@ -948,7 +948,7 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
         return (
-            React.DOM.span( {className:"icon", onClick:this.handleClick}, parents.length,"↑")
+            React.DOM.span( {className:"icon", onClick:this.handleClick}, parents.length,React.DOM.i( {className:"fa fa-male fa-fw"}))
             );
     }
 });
@@ -963,7 +963,7 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
         return (
-            React.DOM.span( {className:"icon", onClick:this.handleClick}, children.length,"↓")
+            React.DOM.span( {className:"icon", onClick:this.handleClick}, children.length,React.DOM.i( {className:"fa fa-child fa-fw"}))
             );
     }
 });

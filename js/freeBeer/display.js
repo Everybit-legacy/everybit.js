@@ -521,7 +521,7 @@ var PuffRoots = React.createClass({displayName: 'PuffRoots',
 
         puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
-        puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
+        // puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
         var cols   = this.props.view.cols
         var standardBox = getStandardBox(cols)
@@ -1591,130 +1591,8 @@ var PuffManageUser = React.createClass({displayName: 'PuffManageUser',
 
 
 
-
-
-function renderPuffWorld() {
-    var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
-
-    // puffworldprops has to contain some important things like prefs
-    // THINK: this is probably not the right place for this...
-    puffworldprops.prefs = PuffWardrobe.getAllPrefs()
-    puffworldprops.profile = PuffWardrobe.getAllProfileItems()
-
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
-}
-
-
-
 // bootstrap
 renderPuffWorld()
 
 
-
-
-
-// TODO: move this somewhere nicer
-function formatForDisplay(obj, style) {
-    if(style == 'formatted') {
-        return JSON.stringify(obj, null, 2)
-            .replace(/[{}",\[\]]/g, '')
-            .replace(/^\n/, '')
-            .replace(/\n$/, '');
-    }
-
-    // style is raw
-    return JSON.stringify(obj).replace(/^\{\}$/, '');
-}
-
-
-
-events.sub('ui/*', function(data, path) {
-    //// rerender on all ui events
-
-    // OPT: batch process recent log items on requestAnimationFrame
-
-    // change props in a persistent fashion
-    if(data)
-        if(Array.isArray(data))
-            puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
-        else
-            puffworldprops = events.handle_merge_array(puffworldprops, data)
-
-    // then re-render PuffWorld w/ the new props
-    renderPuffWorld()
-})
-
-events.handle_merge_array = function(props, data) {
-    return Object.keys(data).reduce(function(props, key) {
-        return events.merge_props(props, key, data[key])
-    }, props)
-}
-
-events.merge_props = function(props, path, value) {
-    var segs = path.split('.')
-    var last = segs.pop()
-    var final = next = events.shallow_copy(props)
-
-    segs.forEach(function(seg) {
-        next[seg] = events.shallow_copy(next[seg])
-        next = next[seg]
-    })
-
-    next[last] = value
-    return final
-}
-
-events.shallow_copy = function(obj) {
-    return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
-}
-
-
-function showPuff(puff) {
-    //// show a puff and do other stuff
-    showPuffDirectly(puff)
-
-    // set window.location.hash and allow back button usage
-    // TODO: convert this to a simple event system
-    if(history.state && history.state.sig == puff.sig) return false
-
-    var state = { 'sig': puff.sig };
-    history.pushState(state, '', '#' + puff.sig);
-}
-
-function showPuffDirectly(puff) {
-    //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
-
-window.onpopstate = function(event) {
-    //// grab back/forward button changes
-
-    if(!event.state) return false
-
-    var puff = PuffForum.getPuffById(event.state.sig)
-
-    if(!puff)
-        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-    else
-        showPuffDirectly(puff)
-}
-
-
-// $(window).resize(function(){
-//     // When browser window is resized, refresh jsPlumb connecting lines.
-//     jsPlumb.repaintEverything();
-// });
-
-function getStandardBox(cols) {
-    // TODO: make this a mixin
-    var screenwidth  = window.innerWidth
-    var screenheight = window.innerHeight
-    var cols = cols || 4
-    var rows = 200
-    var gridbox = getGridCoordBox(rows, cols, screenwidth, (rows/4)*screenheight)
-    var standardBox  = applySizes(1, 1, gridbox)
-
-    return standardBox
-}
 

@@ -210,7 +210,7 @@ Puffball.Data.persist = function(puffs) {
 Puffball.Data.getLocalPuffs = function(callback) {
     // we're doing this asynchronously in order to not interrupt the loading process
     // should probably wrap this a bit better (use a promise, or setImmediate)
-    return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 0)
+    return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
 }
 
 Puffball.Data.getNewPuffs = function() {

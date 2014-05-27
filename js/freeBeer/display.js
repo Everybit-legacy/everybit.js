@@ -927,9 +927,10 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
         var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license || '';
-        var version = puff.version || '';
-        var altText = formattedTime + ' ' + lisc + ' ' + version;
+        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
+        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
+        var version = '\n' + 'Version: ' + puff.version;
+        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
         return (
             React.DOM.span( {className:"icon"}, 

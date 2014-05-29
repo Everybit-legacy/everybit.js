@@ -59,14 +59,14 @@ section {
     display: inline-block;
     text-align: left;
     z-index: 999;
-    overflow-y: hidden;
+    overflow-y: auto;
     overflow-x: hidden;
     position:relative;
     
     -webkit-border-radius: 0px;
     -moz-border-radius: 0px;
     border-radius: 0px;
-    font-size: 0.5em;
+    font-size: 0.9em;
     
     transition: all 1s;
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
@@ -80,7 +80,7 @@ section {
     max-width: 40%;
     min-height: 49.9%;
     max-height: 49.9%;
-*/    font-size: 1em;
+*/    font-size: 1.1em;
 }
 
 .block.focused .txt {
@@ -270,11 +270,12 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
-    bottom:0px;
+    top:5px;
     right:5px;
     /* background:#EEE; */
     width:100%;
     padding-top:5px;
+    z-index: 99;
 }
 
 .bar span {
@@ -282,7 +283,7 @@ h4 {
 }
 
 .bar .icon {
-    margin-right: 0.5em;
+    margin-right: 0.1em;
 }
 
 .bar .icon:hover {

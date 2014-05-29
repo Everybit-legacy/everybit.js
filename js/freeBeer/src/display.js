@@ -912,8 +912,8 @@ var PuffBar = React.createClass({
         return (
             <div className="bar">
                 <PuffInfoLink puff={puff} />
-                <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
+                <PuffParentCount puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
                 <PuffReplyLink sig={puff.sig} />
             </div>
@@ -923,7 +923,7 @@ var PuffBar = React.createClass({
 
 
 var PuffInfoLink = React.createClass({
-    render: function() {
+    handleClick: function() {
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
         var formattedTime = 'Created ' + timeSince(date) + ' ago';
@@ -932,9 +932,18 @@ var PuffInfoLink = React.createClass({
         var version = '\n' + 'Version: ' + puff.version;
         var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
+        alert(altText);
+        return false;
+    },
+
+    render: function() {
+
+
         return (
             <span className="icon">
-                <img width="16" height="16" src="img/info.gif" alt={altText}  title={altText} />
+                <a href='#' onClick={this.handleClick}>
+                    <i className="fa fa-info fa-fw"></i>
+                </a>
             </span>
             );
     }
@@ -949,7 +958,11 @@ var PuffParentCount = React.createClass({
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
         return (
-            <span className="icon" onClick={this.handleClick}>{parents.length}&uarr;</span>
+            <span className="icon">
+                <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                    {parents.length}<i className="fa fa-male fa-fw"></i>
+                </a>
+            </span>
             );
     }
 });
@@ -964,7 +977,11 @@ var PuffChildrenCount = React.createClass({
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
         return (
-            <span className="icon" onClick={this.handleClick}>{children.length}&darr;</span>
+            <span className="icon">
+                <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                    {children.length}<i className="fa fa-child fa-fw"></i>
+                </a>
+            </span>
             );
     }
 });
@@ -979,7 +996,7 @@ var PuffPermaLink = React.createClass({
         return (
             <span className="icon">
                 <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                    <img className="permalink" src="img/permalink.png" alt="permalink" width="16" height="16" />
+                    <i className="fa fa-link fa-fw"></i>
                 </a>
             </span>
             );
@@ -1007,7 +1024,9 @@ var PuffReplyLink = React.createClass({
     render: function() {
         return (
             <span className="icon">
-                <img className="reply" onClick={this.handleClick} src="img/reply.png" width="16" height="16" />
+                <a href="#" onClick={this.handleClick}>
+                    <i className="fa fa-reply fa-fw"></i>
+                </a>
             </span>
             );
     }

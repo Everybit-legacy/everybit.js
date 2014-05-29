@@ -50,7 +50,7 @@ PuffForum.getParents = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
   
-    return puff.payload.parents.map(PuffForum.getPuffById)
+    return puff.payload.parents.map(PuffForum.getPuffById).filter(Boolean)
 }
 
 PuffForum.getChildren = function(puff) {
@@ -64,7 +64,7 @@ PuffForum.getChildren = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) }).filter(Boolean)
 }
 
 PuffForum.getSiblings = function(puff) {

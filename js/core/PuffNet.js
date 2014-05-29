@@ -31,8 +31,29 @@ PuffNet.getAllPuffs = function() {
         return Puffball.falsePromise();             // NOTE: this is only for debugging and development
 
     var url  = CONFIG.puffApi;
-    var data = {type: 'getAllPuffs'};
-    return PuffNet.getJSON(url, data);
+    // var data = {type: 'getPuffGeneration', gen: 0};
+    var puffs = [];
+
+    var rec = function(gen, resolve, reject) {
+        PuffNet.getJSON(url, {type: 'getPuffGeneration', gen: gen})
+               .then(function(data) {
+                   if(!Array.isArray(data))         // server error of some kind -- probably beginning of puffs
+                       return resolve(puffs);
+                   puffs = puffs.concat(data);
+                   rec(gen+1, resolve, reject);
+               })
+               .catch(function(err) {
+                   rec(gen, resolve, reject);
+                   // setTimeout(function() {rec(gen, resolve, reject)}, 100);
+                   // reject(Puffball.promiseError('Network error while accumulating puffs')(err))
+               });
+    }
+    
+    var prom = new Promise(function (resolve, reject) {
+        rec(0, resolve, reject);
+    })
+    
+    return prom;
 }
 
 PuffNet.distributePuff = function(puff) {

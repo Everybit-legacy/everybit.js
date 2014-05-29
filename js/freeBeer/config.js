@@ -14,7 +14,6 @@ CONFIG.puffVersions = [];
 
 CONFIG.userApi = 'http://162.219.162.56/c/users/api.php';
 CONFIG.puffApi = 'http://162.219.162.56/c/puffs/api.php';
-// CONFIG.puffApi = 'http://162.219.162.56/users/api.php';
 
 CONFIG.maxChildrenToShow = 3;
 CONFIG.maxLatestRootsToShow = 26;

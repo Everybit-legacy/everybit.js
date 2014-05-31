@@ -747,7 +747,7 @@ var PuffTallTree = React.createClass({
                                      .slice(0, 5)
         
         // gridCoord params
-        var screenwidth  = window.innerWidth
+        var screenwidth  = window.innerWidth - CONFIG.leftMargin;
         var screenheight = window.innerHeight
         // var cols = mode == 'browse' ? 5 : 8
         var rows = 4
@@ -844,7 +844,7 @@ var PuffFancyBox = React.createClass({
         var width = stats.width
         var height = stats.height
         var top = stats.y
-        var left = stats.x
+        var left = stats.x + CONFIG.leftMargin
         
         var offset = 30
         if(mode == 'arrows') {
@@ -1158,8 +1158,7 @@ var PuffHeader = React.createClass({
     render: function() {
         return (
             <div>
-                <img src="img/logo.gif" id="logo" height="53" />
-                <img onClick={this.handleClick} src="img/puffballIcon.gif" id="puffballIcon" width="32" className={this.props.menu.show ? 'menuOn' : ''} />
+                <img onClick={this.handleClick} src="img/puffballIconBigger.png" id="puffballIcon" height="48" width="41" className={this.props.menu.show ? 'menuOn' : ''} />
             </div>
             );
     }
@@ -1250,6 +1249,7 @@ var PuffMenu = React.createClass({
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
+                <img src="img/logo.gif" alt="FreeBeer! logo" height="63" className="logo" /><br />
             DISPLAY: <br />
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>

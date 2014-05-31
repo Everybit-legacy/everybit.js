@@ -221,7 +221,7 @@ PuffForum.addContentType('bbcode', {
 
 PuffForum.addContentType('image', {
     toHtml: function(content) {
-        return '<img src=' + content + ' /><br /><a href=' + content + ' target=new>download</a>'
+        return '<img src=' + content + ' /><br /><a href=' + content + ' target=new><i class="fa fa-download fa-fw downloadIcon"></i></a>';
     }
 })
 

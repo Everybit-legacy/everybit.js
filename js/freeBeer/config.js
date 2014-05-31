@@ -33,3 +33,5 @@ CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
 CONFIG.anon = {};
 CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'; // public: 161s1zgTMSVLCp72SBphusQHzBzhjqtK5SSrCqKn17VfdvJPugz
 
+// How much space to leave on left side of screen, in pixels
+CONFIG.leftMargin = 60;

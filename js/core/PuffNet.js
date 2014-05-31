@@ -22,18 +22,40 @@ PuffNet.init = function() {
     PuffNet.P2P.init();
 }
 
+PuffNet.getPuffBySig = function(sig) {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getPuffBySig', sig: sig};
+    
+    return PuffNet.getJSON(url, data);
+}
+
+PuffNet.getAllPuffShells = function() {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getAllPuffShells'};
+    
+    return PuffNet.getJSON(url, data);
+}
 
 PuffNet.getAllPuffs = function() {
     //// get all the puffs from this zone
     // TODO: add zone parameter (default to CONFIG.zone)
     
+    // TODO: instead of getting all puffs, this should only get all puff shells
+    //       and then we'll get missing puff content on demand.
+    
+    
+    
+    
+    /// old style:
+    
+    
     if(CONFIG.noNetwork) 
         return Puffball.falsePromise();             // NOTE: this is only for debugging and development
-
+    
     var url  = CONFIG.puffApi;
     // var data = {type: 'getPuffGeneration', gen: 0};
     var puffs = [];
-
+    
     var rec = function(gen, resolve, reject) {
         PuffNet.getJSON(url, {type: 'getPuffGeneration', gen: gen})
                .then(function(data) {

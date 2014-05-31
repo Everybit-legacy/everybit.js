@@ -214,6 +214,35 @@ Puffball.Data.getLocalPuffs = function(callback) {
 }
 
 Puffball.Data.getNewPuffs = function() {
+    /// TODO: this should call PuffNet.getNewShells and then integrate that with our shells from local storage
+    ///       and then we'll get the missing content on demand
+    
+    var prom = PuffNet.getAllPuffShells();
+    var baseDelay = 500;
+    
+    function rec(shells, delay) {
+        if(!shells.length) return false
+        var shell = shells.pop();
+        
+        if(shell.payload && shell.payload.content) {
+            Puffball.receiveNewPuffs(shell);
+        } 
+        else {
+            setTimeout(function() {
+                PuffNet.getPuffBySig(shell.sig).then(function(puff) { Puffball.receiveNewPuffs(puff) })
+            }, delay += baseDelay);
+        }
+
+        setImmediate(function() { rec(shells, delay) });
+    }
+    
+    prom.then(function(shells) { 
+        rec(shells, 0) });
+    
+    return false;
+    
+    
+    /// old style:
     var prom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
     return prom.then(Puffball.receiveNewPuffs)
                 .catch(Puffball.promiseError('Could not load the puffs'))

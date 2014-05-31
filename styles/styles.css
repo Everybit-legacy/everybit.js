@@ -26,15 +26,20 @@ html {
     height: 100%;
     width: 100%;
     padding: 0;
-    margin: 0;
 }
 
 body {
 /*    background: #8585F5;*/
 /*    background: #1616A8;*/
-    background: #DDD6C0;
+    background: #eee7d0;
     font-family: Gudea, sans-serif;
     font-size: 1em;
+    margin-left: 20px;
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 10px;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 section {
@@ -53,7 +58,8 @@ section {
     min-width: 20%;
     min-height: 25%;
     max-height: 25%;
-*/    border: 1px solid #6c6175;
+*/
+    border: 3px solid #eee7d0;
     padding: 20px 0 0 0;
     margin: 0 0 0 0;
     display: inline-block;
@@ -63,9 +69,9 @@ section {
     overflow-x: hidden;
     position:relative;
     
-    -webkit-border-radius: 0px;
-    -moz-border-radius: 0px;
-    border-radius: 0px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
     font-size: 0.9em;
     
     transition: all 1s;
@@ -131,8 +137,10 @@ img {
     max-height:100%;
 }
 
+
 p {
     padding: 0;
+    margin: 0;
     display: block;
     width: 100%;
     clear:both;
@@ -186,18 +194,19 @@ h4 {
 .author {
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
-    text-align: left;
+    text-align: center;
     /* color: #2d479a; 006738 */
     position:absolute;
-    top:5px;
-    left:10px;
+    top:0;
     padding-bottom:5px;
-    padding-left: 2px;
+    padding-left: 0;
     padding-top: 2px;
     width:100%;
     color: #1616A8;
-    border-bottom: 1px solid #a1a1a1;
+    /* border-bottom: 1px solid #a1a1a1; */
     z-index:15;
+    display: none;
+    background-color: rgba(232, 232, 232, 0.75);
 }
 
 .authorDiv {
@@ -220,11 +229,11 @@ h4 {
 }
 
 .txt {
-    margin: 15px 0 25px 0;
-    padding: 0px 10px 0 10px;
+    margin: 0;
+    padding: 0px 8px 0 6px;
     text-align:left;
     cursor:pointer;
-    overflow-y:scroll;
+    overflow-y:auto;
     overflow-x:hidden;
 /*    max-height:30%;*/
     z-index:10;
@@ -233,7 +242,7 @@ h4 {
 }
 
 .txt:hover {
-    background:rgba(200,200,200,.5);
+    /* background:rgba(200,200,200,.5);*/
 }
 
 .block {
@@ -245,8 +254,7 @@ h4 {
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 4px solid #6c6175;
-    padding: 10px 0 0 0;
-    padding-top:20px;
+    padding: 20px 0 0 0;
     margin-top: 10px;
     margin-bottom: 0px;
     margin-left: 15px;
@@ -261,21 +269,48 @@ h4 {
     top:0;
 }
 
-#main-content>div.block {
-/*    width: 30%;
-    max-height: 60%;
-*/}
+.block:hover .bar{
+    display : block;
+    text-decoration:none;
+    -webkit-animation: fadein .5s; /* Safari and Chrome */
+    -moz-animation: fadein .5s; /* Firefox */
+    -ms-animation: fadein .5s; /* Internet Explorer */
+    -o-animation: fadein .5s; /* Opera */
+    animation: fadein .5s;
+}
+
+.block:hover .author{
+    display : block;
+    text-decoration:none;
+    -webkit-animation: fadein .5s; /* Safari and Chrome */
+    -moz-animation: fadein .5s; /* Firefox */
+    -ms-animation: fadein .5s; /* Internet Explorer */
+    -o-animation: fadein .5s; /* Opera */
+    animation: fadein .5s;
+}
+
+.downloadIcon {
+    text-align: right;
+    padding-top: 5px;
+}
 
 .bar {
     text-align: right;
     padding-right: 10px;
     position:absolute;
-    top:5px;
-    right:5px;
+    bottom:0;
+    right:0;
     /* background:#EEE; */
     width:100%;
-    padding-top:5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     z-index: 99;
+    display: none;
+    background-color: rgba(222, 222, 222, 0.75);
+}
+
+.bar:hover {
+    display : block;
 }
 
 .bar span {
@@ -288,7 +323,7 @@ h4 {
 
 .bar .icon:hover {
     opacity: 0.8;
-    background-color: #eff;
+    background-color: #f1e4ea;
 }
 
 header {
@@ -406,18 +441,16 @@ header h1 {
 
 
 
-#logo {
+.logo {
     position: absolute;
-    z-index: -1;
-    top: 20px;
-    right: 20px;
+    top: 10px;
 }
 
 #puffballIcon {
     position: absolute;
     z-index: 1000;
-    top: 20px;
-    left: 20px;
+    top: 12px;
+    left: 12px;
 }
 
 #puffballIcon:hover {
@@ -437,7 +470,7 @@ header h1 {
     border: 2px solid #a1a1a1;
     position: absolute;
     left: 20px;
-    top: 60px;
+    top: 70px;
     background-color: rgba(255, 255, 255, 0.95);
     z-index: 1000;
     width: 400px;

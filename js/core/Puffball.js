@@ -222,7 +222,7 @@ Puffball.Data.getNewPuffs = function() {
     
     function rec(shells, delay) {
         if(!shells.length) return false
-        var shell = shells.pop();
+        var shell = shells.shift();
         
         if(shell.payload && shell.payload.content) {
             Puffball.receiveNewPuffs(shell);

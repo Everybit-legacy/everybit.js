@@ -25,7 +25,8 @@ puffworldprops = {
         style: 'PuffRoots',
         puff: false,
         mode: 'browse',
-        cols: 5
+        cols: 5,
+        cursor: false // puff where the cursor is
     },
 
     reply: {
@@ -707,8 +708,20 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
                 return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
+            if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            /*if (e.keycode == 13) // enter
+                if (this.props.view.cursor)
+                    return events.pub('ui/redirect', {'style': 'PuffTallTree',
+                                                      'puff': this.props.view.cursor,
+                                                      'cursor': this.props.view.cursor
+                                                     })
+            if (e.keycode == 39) { // right arrow
+                var current = this.props.view.cursor || this.props.view.puff
+                if (typeof current != 'string') {
+                    current = current.payload.
+                }
+            }*/
         }.bind(this)
         document.addEventListener('keypress', this.keyfun)
     },
@@ -730,17 +743,16 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
   
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
-                                       .slice(0, 5)
-  
+                                       .slice(0, cols)
         var siblingPuffs  = PuffForum.getSiblings(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
-                                     .slice(0, 6)
+                                     .slice(0, cols > 1 ? (cols-2)*2 : 0)
         var childrenPuffs = PuffForum.getChildren(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
-                                     .slice(0, 5)
+                                     .slice(0, cols)
         
         // gridCoord params
         var screenwidth  = window.innerWidth - CONFIG.leftMargin;
@@ -752,7 +764,8 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var standardBox  = applySizes(1, 1, gridbox, {mode: mode})
         var secondRowBox = applySizes(1, 1, gridbox, {mode: mode}, 1)
         var fourthRowBox = applySizes(1, 1, gridbox, {mode: mode}, 4)
-        var stuckbigBox  = applySizes(2, 2, gridbox, {mode: mode}, 1, 0, 1, 0)
+        var stuckbigBox  = applySizes(cols>1?2:1,
+                                         2, gridbox, {mode: mode}, 1, 0, 1, 0)
         
         var allPuffs = [].concat( [puff].map(stuckbigBox('focused'))
                                 , parentPuffs.map(standardBox('parent'))

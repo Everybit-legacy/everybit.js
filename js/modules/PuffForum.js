@@ -40,13 +40,14 @@ PuffForum.getPuffById = function(id) {
     return Puffball.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
 }
 
+// helper for sorting by payload.time
 PuffForum.sortByPayload = function(a,b) {
     return b.payload.time - a.payload.time;
 }
 
 
 PuffForum.getParents = function(puff) {
-    //// get children from a puff
+    //// get parents from a puff
   
     // THINK: do we really need this? the puff will have links to its parents...
   
@@ -91,6 +92,7 @@ PuffForum.getSiblings = function(puff) {
                && puff.payload.parents.reduce(
                    function(acc, parent_sig) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
+                              .sort(PuffForum.sortByPayload)
 }
 
 
@@ -104,6 +106,7 @@ PuffForum.getRootPuffs = function(limit) {
     // TODO: add limit
 
     return Puffball.Data.puffs.filter(function(puff) { return puff ? !puff.payload.parents.length : 0 })
+                              .sort(PuffForum.sortByPayload)
 } 
 
 

@@ -89,6 +89,11 @@ section {
 */    font-size: 1.1em;
 }
 
+/* cursor */
+#talltree .block.cursor {
+    border: 10px solid #ccc;
+}
+
 .block.focused .txt {
 /*    max-height:40%;*/
 }

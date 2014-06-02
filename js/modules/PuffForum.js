@@ -40,6 +40,10 @@ PuffForum.getPuffById = function(id) {
     return Puffball.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
 }
 
+PuffForum.sortByPayload = function(a,b) {
+    return b.payload.time - a.payload.time;
+}
+
 
 PuffForum.getParents = function(puff) {
     //// get children from a puff
@@ -50,7 +54,10 @@ PuffForum.getParents = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
   
-    return puff.payload.parents.map(PuffForum.getPuffById).filter(Boolean)
+    return puff.payload.parents.map(PuffForum.getPuffById)
+                               .filter(Boolean)
+                               .sort(PuffForum.sortByPayload)
+                                                          
 }
 
 PuffForum.getChildren = function(puff) {
@@ -64,7 +71,8 @@ PuffForum.getChildren = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) }).filter(Boolean)
+    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+                              .sort(PuffForum.sortByPayload)
 }
 
 PuffForum.getSiblings = function(puff) {

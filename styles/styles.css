@@ -629,7 +629,18 @@ header h1 {
 }
 
 .footer {
-    text-align: center;
+    left: 42px;
+    top: 66px;
+    position: absolute;
+    -webkit-transform-origin: 0px 0px;
+    -moz-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    float:left;
 /*    background: #1616A8; */
     /* background: rgba(22,22,200,.9); */
     background: rgba(255,255,255,.1);
@@ -637,8 +648,8 @@ header h1 {
     font-family: GudeaBold;
     font-size: .9em;
     bottom: 0;
-    position: fixed;
-    left:0;
+  /*  position: fixed;
+    left:0;*/
     right:0;
     z-index:1050;
     margin-left:auto;

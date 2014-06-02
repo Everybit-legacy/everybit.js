@@ -74,7 +74,7 @@ section {
     border-radius: 2px;
     font-size: 0.9em;
     
-    transition: all 1s;
+    transition: all 2s;
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
@@ -125,7 +125,7 @@ section {
 }
 
 #talltree line {
-    transition: all 1s;
+    transition: all 2s;
 }
 
 

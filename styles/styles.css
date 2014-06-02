@@ -629,8 +629,12 @@ header h1 {
 }
 
 .footer {
-    left: -1102px;
-    top: 1210px;
+    left: 42px;
+    top: 66px;
+    -webkit-transform-origin: 0px 0px;
+    -moz-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    -o-transform-origin: 0 0;
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);

@@ -629,13 +629,8 @@ header h1 {
 }
 
 .footer {
-    left: 42px;
-    top: 66px;
-    position: absolute;
-    -webkit-transform-origin: 0px 0px;
-    -moz-transform-origin: 0 0;
-    -ms-transform-origin: 0 0;
-    -o-transform-origin: 0 0;
+    left: -1100px;
+    top: 1210px;
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
@@ -648,8 +643,7 @@ header h1 {
     font-family: GudeaBold;
     font-size: .9em;
     bottom: 0;
-  /*  position: fixed;
-    left:0;*/
+    position: fixed;
     right:0;
     z-index:1050;
     margin-left:auto;

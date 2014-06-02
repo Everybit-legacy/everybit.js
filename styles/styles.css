@@ -74,7 +74,7 @@ section {
     border-radius: 2px;
     font-size: 0.9em;
     
-    transition: all 1s;
+    transition: all 2s;
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
@@ -130,7 +130,7 @@ section {
 }
 
 #talltree line {
-    transition: all 1s;
+    transition: all 2s;
 }
 
 
@@ -562,7 +562,7 @@ header h1 {
 .smallCaps {
     font-family: GudeaBold;
     text-transform: uppercase;
-    font-size: .9em;
+    font-size: .91em;
 }
 
 .linkTab {
@@ -634,7 +634,13 @@ header h1 {
 }
 
 .footer {
-    text-align: center;
+    left: -1102px;
+    top: 1210px;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    float:left;
 /*    background: #1616A8; */
     /* background: rgba(22,22,200,.9); */
     background: rgba(255,255,255,.1);
@@ -643,7 +649,6 @@ header h1 {
     font-size: .9em;
     bottom: 0;
     position: fixed;
-    left:0;
     right:0;
     z-index:1050;
     margin-left:auto;

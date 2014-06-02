@@ -517,9 +517,9 @@ var PuffRoots = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var puffs = PuffForum.getRootPuffs();
+        var puffs = PuffForum.getRootPuffs(); // sorted
 
-        puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+        // puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
         // puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
@@ -555,7 +555,7 @@ var PuffAllChildren = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var kids = PuffForum.getChildren(this.props.puff);
+        var kids = PuffForum.getChildren(this.props.puff); // sorted
 
         //kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
@@ -591,7 +591,7 @@ var PuffAllParents = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var kids = PuffForum.getParents(this.props.puff);
+        var kids = PuffForum.getParents(this.props.puff); // sorted
 
         // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
@@ -614,9 +614,8 @@ var PuffTree = React.createClass({
 
         var puff = this.props.puff;
         var parentPuffs = PuffForum.getParents(puff);
-        var childrenPuffs = PuffForum.getChildren(puff);
-
-        childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        var childrenPuffs = PuffForum.getChildren(puff); // sorted
+        
         childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
 
         return (
@@ -724,8 +723,7 @@ var PuffTallTree = React.createClass({
         var sigfun = function(item) {return item.sig}
         
         // gather puffs
-        var parentPuffs   = PuffForum.getParents(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+        var parentPuffs   = PuffForum.getParents(puff) // sorted
 
         var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
@@ -734,13 +732,11 @@ var PuffTallTree = React.createClass({
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .slice(0, 5)
   
-        var siblingPuffs  = PuffForum.getSiblings(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+        var siblingPuffs  = PuffForum.getSiblings(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
                                      .slice(0, 6)
-        var childrenPuffs = PuffForum.getChildren(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+        var childrenPuffs = PuffForum.getChildren(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})

@@ -25,7 +25,8 @@ puffworldprops = {
         style: 'PuffRoots',
         puff: false,
         mode: 'browse',
-        cols: 5
+        cols: 5,
+        cursor: false // puff where the cursor is
     },
 
     reply: {
@@ -517,9 +518,9 @@ var PuffRoots = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var puffs = PuffForum.getRootPuffs();
+        var puffs = PuffForum.getRootPuffs(); // sorted
 
-        puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+        // puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
         // puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
 
@@ -555,7 +556,7 @@ var PuffAllChildren = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var kids = PuffForum.getChildren(this.props.puff);
+        var kids = PuffForum.getChildren(this.props.puff); // sorted
 
         //kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
@@ -591,7 +592,7 @@ var PuffAllParents = React.createClass({
         document.removeEventListener('keypress', this.keyfun)
     },
     render: function() {
-        var kids = PuffForum.getParents(this.props.puff);
+        var kids = PuffForum.getParents(this.props.puff); // sorted
 
         // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
@@ -614,9 +615,8 @@ var PuffTree = React.createClass({
 
         var puff = this.props.puff;
         var parentPuffs = PuffForum.getParents(puff);
-        var childrenPuffs = PuffForum.getChildren(puff);
-
-        childrenPuffs.sort(function(a, b) {return b.payload.time - a.payload.time});
+        var childrenPuffs = PuffForum.getChildren(puff); // sorted
+        
         childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
 
         return (
@@ -708,8 +708,20 @@ var PuffTallTree = React.createClass({
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
                 return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
+            if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            /*if (e.keycode == 13) // enter
+                if (this.props.view.cursor)
+                    return events.pub('ui/redirect', {'style': 'PuffTallTree',
+                                                      'puff': this.props.view.cursor,
+                                                      'cursor': this.props.view.cursor
+                                                     })
+            if (e.keycode == 39) { // right arrow
+                var current = this.props.view.cursor || this.props.view.puff
+                if (typeof current != 'string') {
+                    current = current.payload.
+                }
+            }*/
         }.bind(this)
         document.addEventListener('keypress', this.keyfun)
     },
@@ -724,27 +736,23 @@ var PuffTallTree = React.createClass({
         var sigfun = function(item) {return item.sig}
         
         // gather puffs
-        var parentPuffs   = PuffForum.getParents(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+        var parentPuffs   = PuffForum.getParents(puff) // sorted
 
         var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
   
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
-                                       .slice(0, 5)
-  
-        var siblingPuffs  = PuffForum.getSiblings(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+                                       .slice(0, cols)
+        var siblingPuffs  = PuffForum.getSiblings(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
-                                     .slice(0, 6)
-        var childrenPuffs = PuffForum.getChildren(puff)
-                                     .sort(function(a, b) {return b.payload.time - a.payload.time})
+                                     .slice(0, cols > 1 ? (cols-2)*2 : 0)
+        var childrenPuffs = PuffForum.getChildren(puff) // sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
-                                     .slice(0, 5)
+                                     .slice(0, cols)
         
         // gridCoord params
         var screenwidth  = window.innerWidth - CONFIG.leftMargin;
@@ -756,7 +764,8 @@ var PuffTallTree = React.createClass({
         var standardBox  = applySizes(1, 1, gridbox, {mode: mode})
         var secondRowBox = applySizes(1, 1, gridbox, {mode: mode}, 1)
         var fourthRowBox = applySizes(1, 1, gridbox, {mode: mode}, 4)
-        var stuckbigBox  = applySizes(2, 2, gridbox, {mode: mode}, 1, 0, 1, 0)
+        var stuckbigBox  = applySizes(cols>1?2:1,
+                                         2, gridbox, {mode: mode}, 1, 0, 1, 0)
         
         var allPuffs = [].concat( [puff].map(stuckbigBox('focused'))
                                 , parentPuffs.map(standardBox('parent'))

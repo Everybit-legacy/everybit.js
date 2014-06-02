@@ -557,7 +557,7 @@ var PuffAllChildren = React.createClass({
     render: function() {
         var kids = PuffForum.getChildren(this.props.puff);
 
-        kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+        //kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
         var cols   = this.props.view.cols
         var standardBox = getStandardBox(cols)
@@ -593,7 +593,7 @@ var PuffAllParents = React.createClass({
     render: function() {
         var kids = PuffForum.getParents(this.props.puff);
 
-        kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+        // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
 
         var cols   = this.props.view.cols
         var standardBox = getStandardBox(cols)

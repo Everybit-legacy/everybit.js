@@ -1049,13 +1049,21 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
-        return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                    parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
+        if (parents.length==0) {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    0,React.DOM.i( {className:"fa fa-male fa-fw"})
                 )
-            )
-            );
+           );
+        } else {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
+                    )
+                )
+                );
+        }
     }
 });
 
@@ -1068,13 +1076,21 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
-        return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                    children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
+        if (children.length==0) {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    0,React.DOM.i( {className:"fa fa-child fa-fw"})
                 )
-            )
-            );
+                );
+        } else {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
+                    )
+                )
+                );
+        }
     }
 });
 

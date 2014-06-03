@@ -1049,13 +1049,21 @@ var PuffParentCount = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
-        return (
-            <span className="icon">
-                <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                    {parents.length}<i className="fa fa-male fa-fw"></i>
-                </a>
-            </span>
-            );
+        if (parents.length==0) {
+            return (
+                <span className="icon">
+                    {0}<i className="fa fa-male fa-fw"></i>
+                </span>
+           );
+        } else {
+            return (
+                <span className="icon">
+                    <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                        {parents.length}<i className="fa fa-male fa-fw"></i>
+                    </a>
+                </span>
+                );
+        }
     }
 });
 
@@ -1068,13 +1076,21 @@ var PuffChildrenCount = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
-        return (
-            <span className="icon">
-                <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                    {children.length}<i className="fa fa-child fa-fw"></i>
-                </a>
-            </span>
-            );
+        if (children.length==0) {
+            return (
+                <span className="icon">
+                    {0}<i className="fa fa-child fa-fw"></i>
+                </span>
+                );
+        } else {
+            return (
+                <span className="icon">
+                    <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                        {children.length}<i className="fa fa-child fa-fw"></i>
+                    </a>
+                </span>
+                );
+        }
     }
 });
 

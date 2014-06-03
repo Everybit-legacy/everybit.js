@@ -24,6 +24,7 @@ puffworldprops = {
     view: {
         style: 'PuffRoots',
         puff: false,
+        user: false,
         mode: 'browse',
         cols: 5,
         cursor: false // puff where the cursor is
@@ -69,7 +70,10 @@ var PuffWorld = React.createClass({
             view  = <PuffAllChildren view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
 
         else if( viewprops.style == 'PuffAllParents' )
-            view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
+            view  = <PuffAllParents view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
+
+        else if( viewprops.style == 'PuffByUser' )
+            view  = <PuffByUser view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker tools={this.props.tools} />
@@ -610,6 +614,42 @@ var PuffAllParents = React.createClass({
     }
 });
 
+var PuffByUser = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
+    render: function() {
+        var puffs = PuffForum.getByUser(this.props.user); // sorted
+
+        // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+
+        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
+    }
+});
+
 var PuffTree = React.createClass({
     render: function() {
 
@@ -911,11 +951,15 @@ var PuffBox = React.createClass({
 });
 
 var PuffAuthor = React.createClass({
+    handleClick: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
     render: function() {
         var username = humanizeUsernames(this.props.username)
 
         return (
-            <div className="author">{username}</div>
+            <div className="author"><a href="" onClick={this.handleClick}>{username}</a></div>
             );
     }
 });

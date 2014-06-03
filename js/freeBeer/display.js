@@ -729,16 +729,14 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 
                 next = moveToNeighbour(current.id, e.keyCode);
                 
-                // remove style for current
-                current.className = current.className.replace(' cursor', '');
-                
                 if (next) {
                     this.props.view.cursor = next.id;
+                
+                    // remove style for current
+                    current.className = current.className.replace(' cursor', '');
                     // add style for next
                     next.className = next.className.replace(' cursor', '');
                     next.className = next.className + ' cursor';
-                } else {
-                    this.props.view.cursor = false;
                 }
                 e.preventDefault();
             }

@@ -1190,9 +1190,7 @@ var PuffMenu = React.createClass({
     handleClose: function() {
         return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
     },
-    handlePackPuffs: function() {
-        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
-    },
+
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
@@ -1251,30 +1249,10 @@ var PuffMenu = React.createClass({
         }
 
         return (
-            <div className="menu" id="menu">
+            <div className="menuDos" id="menuDos">
 
-                <div id="closeDiv">
-                    <a href="#" onClick={this.handleClose} className="under">
-                        <img src="img/close.png" width="24" height="24" />
-                    </a>
-                </div>
-                <img src="img/logo.gif" alt="FreeBeer! logo" height="63" className="logo" /><br />
-            DISPLAY: <br />
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleViewRoots} className="under">View latest</a>
-                </div>
 
-            CONTENT: <br />
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent} className="under">Add new</a>
-                </div>
 
-            TOOLS<br />
-                <div className="menuItem">
-                    <a href="#" onClick={this.handlePackPuffs} className="under">Puff builder</a>
-                </div>
-
-                <br />
             IDENTITY: <br />
                 <PuffUserMenu user={this.props.menu.user} />
                 
@@ -1308,6 +1286,7 @@ var PuffPrefs = React.createClass({
     }
 });
 
+
 var PuffProfile = React.createClass({
     handleStoreusers: function() {
         return events.pub('profile/nickname/set', this.refs.nickname.state.value)
@@ -1315,18 +1294,22 @@ var PuffProfile = React.createClass({
     render: function() {
         return (
             <div>
-                <div className="menuItem">
-                    <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
-                Set nickname
-                </div>
-                <div className="menuItem">
-                    <p>Identity avatar</p>
-                    <p>More profile</p>
-                </div>
             </div>
             );
     }
 });
+
+/*
+ <div className="menuItem">
+ <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
+ Set nickname
+ </div>
+ <div className="menuItem">
+ <p>Identity avatar</p>
+ <p>More profile</p>
+ </div>
+ */
+
 
 
 var PuffUserMenu = React.createClass({
@@ -1661,9 +1644,10 @@ var Menu = React.createClass({
                         <img src="img/close.png" width="24" height="24" />
                     </a>
                 </div>
-                <Identity />
-                <Publish />
+                <Logo />
                 <View />
+                <Publish />
+                <Identity />
                 <About />
                 <Tools />
             </div>
@@ -1674,6 +1658,14 @@ var Menu = React.createClass({
         return events.pub('ui/menu/close', {'menu.show': false})
     }
 })
+
+var Logo = React.createClass({
+    render: function() {
+        return (
+            <img src="img/logo.gif" alt="FreeBeer! logo" className="logo" />
+            )
+    }
+});
 
 var Identity = React.createClass({
     getInitialState: function() {
@@ -1734,15 +1726,15 @@ var Identity = React.createClass({
 
 
         return (
-            <div><p>
-                <div className="menuLabel"><div className="fa fa-user"></div> <em>Current identity:</em> </div><br />
-
+            <div><br />
+                <div className="menuHeader"><div className="fa fa-user"></div> Identity</div>
+                <div className="menuLabel"> <em>Current identity:</em> </div><br />
                 <div className="menuInput"> <AuthorPicker />
                 </div><br />
                 <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')} ><i className="fa fa-sign-in fa-fw"></i>Set </div>
                 <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-pencil fa-fw"></i>Edit </div>
                 <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i>New </div>
-            </p>
+                <br />
                 <SetIdentity  show={this.state.tabs.showSetIdentity}  username={currUser}/>
                 <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
                 <NewIdentity  show={this.state.tabs.showNewIdentity}  />
@@ -2217,14 +2209,21 @@ var defaultPrivateKeyField = React.createClass({
 })
 
 var Publish = React.createClass({
+    handleNewContent: function() {
+        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+    },
+
     render: function() {
         // TODO: Add puff icon to font
         return (
             <div>
-                <br /><div className="menuHeader">
-                <div className="fa fa-paper-plane"></div> Publish
-            </div>
-                <a href="#" onClick={this.handleNewContent}>Create new puff</a>
+                <br />
+                <div className="menuHeader">
+                    <div className="fa fa-paper-plane"></div> Publish
+                </div>
+                <div className="menuItem">
+                <a href="#" onClick={this.handleNewContent}>New puff</a>
+                </div>
             </div>
 
             )
@@ -2232,7 +2231,6 @@ var Publish = React.createClass({
 
 
 })
-
 
 
 var View = React.createClass({
@@ -2246,12 +2244,13 @@ var View = React.createClass({
                 <br /><div className="menuHeader">
                 <div className="fa fa-sitemap"></div> View
             </div>
-                <div><a href="#" onClick={this.handleViewRoots} className="under">Newest conversations</a></div>
-                <div>Latest puffs</div>
-                <div>Search</div>
+            <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
+
             </div>
             )
     }
+
+    // TODO: <div>Latest puffs</div><div>Search</div>
 })
 
 var About = React.createClass({
@@ -2261,16 +2260,18 @@ var About = React.createClass({
                 <br /><div className="menuHeader">
                 <div className="fa fa-info-circle"></div> About
             </div>
-                <div>User guide</div>
-                <div>Contact us</div>
-                <div>Privacy policy</div>
-                <div><a href="https://github.com/puffball/freebeer/" target="_new">Source code</a></div>
+
+                <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">Source code</a></div>
             </div>
             )
     }
 })
 
 /*
+// TODO: Put in stuff for
+ <div>User guide</div>
+ <div>Contact us</div>
+ <div>Privacy policy</div>
  TODO: Add puff for
  Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
 
@@ -2279,14 +2280,19 @@ var About = React.createClass({
  */
 
 var Tools = React.createClass({
+    handlePackPuffs: function() {
+        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
+    },
+
     render: function() {
         return (
             <div>
                 <br /><div className="menuHeader">
                 <div className="fa fa-wrench"></div> Advanced tools
             </div>
-                <div>Raw puff builder</div>
-                <div>Username requests</div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handlePackPuffs} className="menuItem">Puff builder</a>
+                </div>
             </div>
             )
     }

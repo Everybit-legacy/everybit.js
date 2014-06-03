@@ -163,7 +163,7 @@ events.sub('profile/nickname/set', function(data, path) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // Puffball.Data.puffs.forEach(function(puff) {
+//   // PuffData.puffs.forEach(function(puff) {
 //   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'

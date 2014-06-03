@@ -1455,7 +1455,7 @@ var PuffAddUser = React.createClass({displayName: 'PuffAddUser',
         this.refs.defaultKey.getDOMNode().value = ""
 
         // what we'd like to do here is take a username and up to three private keys, 
-        // and then add both the DHT userRecord to Puffball.Data and those keys to our PuffWardrobe.
+        // and then add both the DHT userRecord to PuffData and those keys to our PuffWardrobe.
         // the wardrobe should manage that, but only by passing most of it through to Puffball / PuffNet.
         // does the wardrobe always check private keys before adding them locally? 
         // would you ever want it not to?
@@ -1612,7 +1612,7 @@ var PuffManageUser = React.createClass({displayName: 'PuffManageUser',
         if(props.show_bc) {
             if(!username) return false
 
-            var allPuffs = Puffball.Data.getMyPuffChain(username)
+            var allPuffs = PuffData.getMyPuffChain(username)
             var linkData = encodeURIComponent(JSON.stringify(allPuffs))
             var data = 'data:text/plain;charset=utf-8,' + linkData
             blockchainLink = React.DOM.a( {download:"blockchain.json", href:data, className:"under"}, "DOWNLOAD BLOCKCHAIN")

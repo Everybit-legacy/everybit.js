@@ -101,7 +101,7 @@ PuffNet.sendPuffToServer = function(puff) {
 }
 
 PuffNet.getUserRecord = function(username) {
-    // TODO: call PuffNet.getUserRecordFile, add the returned users to Puffball.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+    // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};

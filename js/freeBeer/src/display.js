@@ -1749,7 +1749,7 @@ var Identity = React.createClass({
 
         return (
             <div><br />
-                <div className="menuHeader"><div className="fa fa-user"></div> Identity</div>
+                <div className="menuHeader"><div className="fa fa-user fa-fw"></div> Identity</div>
                 <div className="menuLabel"> <em>Current identity:</em> </div><br />
                 <div className="menuInput"> <AuthorPicker />
                 </div><br />
@@ -2241,7 +2241,7 @@ var Publish = React.createClass({
             <div>
                 <br />
                 <div className="menuHeader">
-                    <div className="fa fa-paper-plane"></div> Publish
+                    <div className="fa fa-paper-plane fa-fw"></div> Publish
                 </div>
                 <div className="menuItem">
                 <a href="#" onClick={this.handleNewContent}>New puff</a>
@@ -2264,7 +2264,7 @@ var View = React.createClass({
         return (
             <div>
                 <br /><div className="menuHeader">
-                <div className="fa fa-sitemap"></div> View
+                <div className="fa fa-sitemap fa-fw"></div> View
             </div>
             <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
 
@@ -2280,7 +2280,7 @@ var About = React.createClass({
         return (
             <div>
                 <br /><div className="menuHeader">
-                <div className="fa fa-info-circle"></div> About
+                <div className="fa fa-info-circle fa-fw"></div> About
             </div>
 
                 <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">Source code</a></div>
@@ -2310,7 +2310,7 @@ var Tools = React.createClass({
         return (
             <div>
                 <br /><div className="menuHeader">
-                <div className="fa fa-wrench"></div> Advanced tools
+                <div className="fa fa-wrench fa-fw"></div> Advanced tools
             </div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handlePackPuffs} className="menuItem">Puff builder</a>

@@ -1,5 +1,48 @@
 // Bridge between visualization framework and js/forum files
 
+puffworldprops = {
+    menu: {
+        show: false,
+        prefs: false,
+        profile: false,
+
+        user: {
+            pick_one: false,
+            show_add: false,
+            add_one: false,
+            add_new: false,
+            manage: false,
+            show_bc: false,
+            show_key: false
+        }
+    },
+
+    view: {
+        style: 'PuffRoots',
+        puff: false,
+        user: false,
+        mode: 'browse',
+        cols: 5,
+        cursor: false // puff where the cursor is
+    },
+
+    reply: {
+        parents: [],
+        show: false,
+        type: 'text'
+    },
+
+    prefs: { },
+    profile: { },
+    tools: {
+        users: {
+            resultstyle: 'raw',
+            puffstyle: 'raw'
+        }
+    }
+}
+
+puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
 
 

@@ -747,7 +747,7 @@ var PuffTallTree = React.createClass({
                 return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char, 'view.cursor':false})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter

@@ -37,7 +37,7 @@ PuffForum.getPuffById = function(id) {
   
     // TODO: check the graph instead of this
     
-    var shell = Puffball.Data.shells.filter(function(shell) { return id === shell.sig })[0]
+    var shell = PuffData.shells.filter(function(shell) { return id === shell.sig })[0]
     
     return Puffball.getPuffFromShell(shell)
 }
@@ -74,7 +74,7 @@ PuffForum.getChildren = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return Puffball.Data.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+    return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
                                .sort(PuffForum.sortByPayload)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean)
@@ -90,7 +90,7 @@ PuffForum.getSiblings = function(puff) {
 
     var parent_sigs = PuffForum.getParents(puff).map(function(puff) { return puff.sig });
 
-    return Puffball.Data.shells.filter(
+    return PuffData.shells.filter(
         function(puff) { 
             return puff.sig != originalSig 
                 && puff.payload.parents.reduce(
@@ -111,7 +111,7 @@ PuffForum.getRootPuffs = function(limit) {
   
     // TODO: add limit
 
-    return Puffball.Data.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
+    return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
                                .sort(PuffForum.sortByPayload)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean)

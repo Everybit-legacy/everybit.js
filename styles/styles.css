@@ -408,7 +408,7 @@ header h1 {
 
 #replyForm {
     left: 50%;
-    margin-left: -250px;
+/*    margin-left: -250px;*/
     z-index: 1001;
     position: absolute;
     top: 200px;

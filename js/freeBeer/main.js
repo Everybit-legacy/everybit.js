@@ -358,3 +358,42 @@ function getStandardBox(cols) {
 
     return standardBox
 }
+
+function moveToNeighbour(currentId, dir, mode) {
+    var current = document.getElementById(currentId);
+    var x = parseFloat(current.style.left);
+    var y = parseFloat(current.style.top);
+    var offset = mode == "browse" ? 1 : 31;
+    
+    switch (dir) {
+        case 37: // left
+            x -= offset;
+            y += 1;
+        break;
+        
+        case 38: // up
+            y -= offset;
+            x += 1;
+        break;
+        
+        case 39: // right
+            x += parseFloat(current.style.width) + offset + 1;
+            y += 1;
+        break;
+        
+        case 40: // down
+            y += parseFloat(current.style.height) + offset;
+            x += 1;
+        break;
+        
+        default:
+        break;
+    }
+    
+    var neighbour = document.elementFromPoint(x, y);
+    while (neighbour && 
+           (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
+        neighbour = neighbour.parentNode;
+    }
+    return neighbour;
+}

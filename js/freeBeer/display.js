@@ -24,6 +24,7 @@ puffworldprops = {
     view: {
         style: 'PuffRoots',
         puff: false,
+        user: false,
         mode: 'browse',
         cols: 5,
         cursor: false // puff where the cursor is
@@ -69,7 +70,10 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             view  = PuffAllChildren( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
 
         else if( viewprops.style == 'PuffAllParents' )
-            view  = PuffAllParents(  {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
+            view  = PuffAllParents( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
+
+        else if( viewprops.style == 'PuffByUser' )
+            view  = PuffByUser( {view:viewprops, reply:this.props.reply, user:viewprops.user} )
 
         else if( viewprops.style == 'PuffPacker' )
             view  = PuffPacker( {tools:this.props.tools} )
@@ -610,6 +614,42 @@ var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
     }
 });
 
+var PuffByUser = React.createClass({displayName: 'PuffByUser',
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
+    render: function() {
+        var puffs = PuffForum.getByUser(this.props.user); // sorted
+
+        // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
+
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            React.DOM.div( {id:"talltree"}, 
+                puffBoxList
+            )
+        )
+
+        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
+    }
+});
+
 var PuffTree = React.createClass({displayName: 'PuffTree',
     render: function() {
 
@@ -707,11 +747,17 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char, 'view.cursor':false})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter
                 if (this.props.view.cursor)
+                    if (this.props.view.cursor == this.props.view.puff.sig) {
+                        // remove cursor style
+                        var cursor = document.getElementById(this.props.view.cursor);
+                        cursor.className = cursor.className.replace(' cursor', '');
+                        return;
+                    }
                     return events.pub('ui/view-puff/change', 
                                       {'view.style': 'PuffTallTree',
                                        'view.puff': PuffForum.getPuffById(this.props.view.cursor),
@@ -721,29 +767,25 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 e.keyCode == 38 || // up arrow
                 e.keyCode == 39 || // right arrow
                 e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor || this.props.view.puff
+                var current = this.props.view.cursor || this.props.view.puff;
                 if (typeof current != 'string') {
                     current = current.sig;
                 }
-                current = document.getElementById(current)
+                current = document.getElementById(current);
                 
-                // TODO - select the correct next one 
-                // for now: random one 
-                var blockList = document.getElementsByClassName('block');
-                var next = blockList[Math.floor(Math.random()*blockList.length)];
-                // make sure next one does not have same id as current
-                while (current.id == next.id)
-                    next = blockList[Math.floor(Math.random()*blockList.length)];
+                next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
                 
-                this.props.view.cursor = next.id;
-               
-                // remove style for current
-                current.className = current.className.replace(' cursor', '');
-                // add style for next
-                next.className = next.className.replace(' cursor', '');
-                next.className = next.className + ' cursor';
+                if (next) {
+                    this.props.view.cursor = next.id;
+                
+                    // remove style for current
+                    current.className = current.className.replace(' cursor', '');
+                    // add style for next
+                    next.className = next.className.replace(' cursor', '');
+                    next.className = next.className + ' cursor';
+                }
+                e.preventDefault();
             }
-            e.preventDefault();
         }.bind(this)
         document.addEventListener('keydown', this.keyfun)
     },
@@ -915,11 +957,15 @@ var PuffBox = React.createClass({displayName: 'PuffBox',
 });
 
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
+    handleClick: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
     render: function() {
         var username = humanizeUsernames(this.props.username)
 
         return (
-            React.DOM.div( {className:"author"}, username)
+            React.DOM.div( {className:"author"}, React.DOM.a( {href:"", onClick:this.handleClick}, username))
             );
     }
 });
@@ -1764,7 +1810,7 @@ var Identity = React.createClass({displayName: 'Identity',
 
         return (
             React.DOM.div(null, React.DOM.br(null ),
-                React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user"}), " Identity"),
+                React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user fa-fw"}), " Identity"),
                 React.DOM.div( {className:"menuLabel"},  " ", React.DOM.em(null, "Current identity:"), " " ),React.DOM.br(null ),
                 React.DOM.div( {className:"menuInput"},  " ", AuthorPicker(null )
                 ),React.DOM.br(null ),
@@ -2256,7 +2302,7 @@ var Publish = React.createClass({displayName: 'Publish',
             React.DOM.div(null, 
                 React.DOM.br(null ),
                 React.DOM.div( {className:"menuHeader"}, 
-                    React.DOM.div( {className:"fa fa-paper-plane"}), " Publish"
+                    React.DOM.div( {className:"fa fa-paper-plane fa-fw"}), " Publish"
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                 React.DOM.a( {href:"#", onClick:this.handleNewContent}, "New puff")
@@ -2279,7 +2325,7 @@ var View = React.createClass({displayName: 'View',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-sitemap"}), " View"
+                React.DOM.div( {className:"fa fa-sitemap fa-fw"}), " View"
             ),
             React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations"))
 
@@ -2295,7 +2341,7 @@ var About = React.createClass({displayName: 'About',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-info-circle"}), " About"
+                React.DOM.div( {className:"fa fa-info-circle fa-fw"}), " About"
             ),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, "Source code"))
@@ -2325,7 +2371,7 @@ var Tools = React.createClass({displayName: 'Tools',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-wrench"}), " Advanced tools"
+                React.DOM.div( {className:"fa fa-wrench fa-fw"}), " Advanced tools"
             ),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handlePackPuffs, className:"menuItem"}, "Puff builder")

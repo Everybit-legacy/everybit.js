@@ -75,9 +75,9 @@ PuffForum.getChildren = function(puff) {
     }
 
     return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
-                               .sort(PuffForum.sortByPayload)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean)
+                               .sort(PuffForum.sortByPayload)
 }
 
 PuffForum.getSiblings = function(puff) {
@@ -96,9 +96,9 @@ PuffForum.getSiblings = function(puff) {
                 && puff.payload.parents.reduce(
                     function(acc, parent_sig) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
-                            .sort(PuffForum.sortByPayload)
-                                .map(Puffball.getPuffFromShell)
-                                    .filter(Boolean)
+                            .map(Puffball.getPuffFromShell)
+                                .filter(Boolean)
+                                    .sort(PuffForum.sortByPayload)
 }
 
 
@@ -112,9 +112,18 @@ PuffForum.getRootPuffs = function(limit) {
     // TODO: add limit
 
     return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
-                               .sort(PuffForum.sortByPayload)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean)
+                               .sort(PuffForum.sortByPayload)
+} 
+
+PuffForum.getByUser = function(username) {
+    //// returns all known puffs from given user, sorted by time
+
+    return PuffData.shells.filter(function(shell) { return shell ? shell.username == username : 0 })
+                               .map(Puffball.getPuffFromShell)
+                               .filter(Boolean)
+                               .sort(PuffForum.sortByPayload)
 } 
 
 

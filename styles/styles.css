@@ -449,6 +449,8 @@ header h1 {
 .logo {
     position: absolute;
     top: 10px;
+    margin-bottom: 0.5em;
+    height: 50px;
 }
 
 #puffballIcon {
@@ -468,15 +470,46 @@ header h1 {
 
 .menu {
     font-family: Gudea;
-    padding: 8px;
+    padding: 12px;
     margin-bottom: 3px;
     text-align: left;
     color: #000000;
     border: 2px solid #a1a1a1;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     position: absolute;
-    left: 20px;
-    top: 70px;
+    left: 50px;
+    top: 60px;
     background-color: rgba(255, 255, 255, 0.95);
+    z-index: 1000;
+    width: 400px;
+    font-size: 1.1em;
+    line-height: 1.7em;
+    text-decoration:none;
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -moz-animation: fadein 1s; /* Firefox */
+    -ms-animation: fadein 1s; /* Internet Explorer */
+    -o-animation: fadein 1s; /* Opera */
+    animation: fadein 1s;
+    max-height: 80%;
+    overflow: auto;
+}
+
+.menuDos {
+    font-family: Gudea;
+    padding: 12px;
+    margin-bottom: 3px;
+    text-align: left;
+    color: #000000;
+    border: 2px solid #a1a1a1;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    position: absolute;
+    left: 500px;
+    top: 60px;
+    background-color: rgba(255, 255, 255, 0.85);
     z-index: 1000;
     width: 400px;
     font-size: 1.1em;
@@ -490,52 +523,21 @@ header h1 {
 }
 
 
-@keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Firefox */
-@-moz-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Safari and Chrome */
-@-webkit-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-/* Internet Explorer */
-@-ms-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}​
-
-/* Opera */
-@-o-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}​
 
 
 .menuItem {
-    list-style-type: none;
-    padding-top: 12px;
-    padding-left: 12px;
-    padding-bottom: 2px;
-    margin-bottom: 3px;
-    color: #1616A8;
+    text-indent: 32px;
 }
 
 .menuHeader {
-    font-family: GudeaBold;
+    font-family: Gudea;
     text-transform: uppercase;
     display: block;
     padding-top: 0;
     padding-bottom: 0;
     margin: 0;
+    color: #333333;
+    font-size: 1.2em;
 }
 
 .menuLabel {
@@ -634,8 +636,8 @@ header h1 {
 }
 
 .footer {
-    left: 42px;
-    top: 66px;
+    left: 20px;
+    top: 70px;
     -webkit-transform-origin: 0px 0px;
     -moz-transform-origin: 0 0;
     -ms-transform-origin: 0 0;
@@ -675,6 +677,8 @@ a.footerText {
     font-size: 1.1em;
     line-height: 1.8em;
     width: 1000px;
+    max-height: 80%;
+    overflow-y: auto;
 }
 
 .fixedLeft {
@@ -704,3 +708,32 @@ a.footerText {
 .gray {
     color: #888888;
 }
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Firefox */
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Safari and Chrome */
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Opera */
+@-o-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}​
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}​

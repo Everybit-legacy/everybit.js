@@ -303,7 +303,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char, 'view.cursor':false})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter
@@ -323,13 +323,12 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 e.keyCode == 38 || // up arrow
                 e.keyCode == 39 || // right arrow
                 e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor || this.props.view.puff;
-                if (typeof current != 'string') {
-                    current = current.sig;
-                }
+                var current = this.props.view.cursor;
+                if (!current || !document.getElementById(current))
+                    current = this.props.view.puff.sig;
+                    
                 current = document.getElementById(current);
-                
-                next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
+                var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
                 
                 if (next) {
                     this.props.view.cursor = next.id;

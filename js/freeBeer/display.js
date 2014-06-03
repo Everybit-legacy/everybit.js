@@ -1749,7 +1749,7 @@ var Identity = React.createClass({displayName: 'Identity',
 
         return (
             React.DOM.div(null, React.DOM.br(null ),
-                React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user"}), " Identity"),
+                React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user fa-fw"}), " Identity"),
                 React.DOM.div( {className:"menuLabel"},  " ", React.DOM.em(null, "Current identity:"), " " ),React.DOM.br(null ),
                 React.DOM.div( {className:"menuInput"},  " ", AuthorPicker(null )
                 ),React.DOM.br(null ),
@@ -2241,7 +2241,7 @@ var Publish = React.createClass({displayName: 'Publish',
             React.DOM.div(null, 
                 React.DOM.br(null ),
                 React.DOM.div( {className:"menuHeader"}, 
-                    React.DOM.div( {className:"fa fa-paper-plane"}), " Publish"
+                    React.DOM.div( {className:"fa fa-paper-plane fa-fw"}), " Publish"
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                 React.DOM.a( {href:"#", onClick:this.handleNewContent}, "New puff")
@@ -2264,7 +2264,7 @@ var View = React.createClass({displayName: 'View',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-sitemap"}), " View"
+                React.DOM.div( {className:"fa fa-sitemap fa-fw"}), " View"
             ),
             React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations"))
 
@@ -2280,7 +2280,7 @@ var About = React.createClass({displayName: 'About',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-info-circle"}), " About"
+                React.DOM.div( {className:"fa fa-info-circle fa-fw"}), " About"
             ),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, "Source code"))
@@ -2310,7 +2310,7 @@ var Tools = React.createClass({displayName: 'Tools',
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-wrench"}), " Advanced tools"
+                React.DOM.div( {className:"fa fa-wrench fa-fw"}), " Advanced tools"
             ),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handlePackPuffs, className:"menuItem"}, "Puff builder")

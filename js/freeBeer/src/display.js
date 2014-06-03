@@ -710,23 +710,45 @@ var PuffTallTree = React.createClass({
                 return events.pub('ui/view-cols/change', {'view.cols': 1*char})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-            /*if (e.keycode == 13) // enter
+            if (e.keyCode == 13) {// enter
                 if (this.props.view.cursor)
-                    return events.pub('ui/redirect', {'style': 'PuffTallTree',
-                                                      'puff': this.props.view.cursor,
-                                                      'cursor': this.props.view.cursor
-                                                     })
-            if (e.keycode == 39) { // right arrow
+                    return events.pub('ui/view-puff/change', 
+                                      {'view.style': 'PuffTallTree',
+                                       'view.puff': PuffForum.getPuffById(this.props.view.cursor),
+                                       'view.cursor': false})
+            }
+            if (e.keyCode == 37 || // left arrow
+                e.keyCode == 38 || // up arrow
+                e.keyCode == 39 || // right arrow
+                e.keyCode == 40) { // down arrow
                 var current = this.props.view.cursor || this.props.view.puff
                 if (typeof current != 'string') {
-                    current = current.payload.
+                    current = current.sig;
                 }
-            }*/
+                current = document.getElementById(current)
+                
+                // TODO - select the correct next one 
+                // for now: random one 
+                var blockList = document.getElementsByClassName('block');
+                var next = blockList[Math.floor(Math.random()*blockList.length)];
+                // make sure next one does not have same id as current
+                while (current.id == next.id)
+                    next = blockList[Math.floor(Math.random()*blockList.length)];
+                
+                this.props.view.cursor = next.id;
+               
+                // remove style for current
+                current.className = current.className.replace(' cursor', '');
+                // add style for next
+                next.className = next.className.replace(' cursor', '');
+                next.className = next.className + ' cursor';
+            }
+            e.preventDefault();
         }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
+        document.addEventListener('keydown', this.keyfun)
     },
     componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
+        document.removeEventListener('keydown', this.keyfun)
     },
     render: function() {
 

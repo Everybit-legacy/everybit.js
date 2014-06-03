@@ -178,45 +178,6 @@ events.sub('profile/nickname/set', function(data, path) {
 
 
 
-~function() {
-    //// postpone until next tick
-    // inspired by http://dbaron.org/log/20100309-faster-timeouts
-    var later = []
-    var messageName = 12345
-    var gimme_a_tick = true
-
-    function setImmediate(fn) {
-        later.push(fn)
-        
-        if(gimme_a_tick) {
-            gimme_a_tick = false
-            window.postMessage(messageName, "*")
-        }
-        
-        return false
-    }
-
-    function handleMessage(event) {
-        if(event.data != messageName) return false
-
-        event.stopPropagation()
-        gimme_a_tick = true
-
-        var now = later
-        later = []
-
-        for(var i=0, l=now.length; i < l; i++)
-        now[i]()
-    }
-  
-    if(typeof window != 'undefined') {
-        window.addEventListener('message', handleMessage, true)
-        window.setImmediate = setImmediate
-    }
-}();
-
-
-
 
 
 

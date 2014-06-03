@@ -1,7 +1,5 @@
 /** @jsx React.DOM */
 
-
-
 var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 
@@ -9,6 +7,8 @@ globalCreatePuffBox = function(puff) {
     return PuffBox( {puff:puff, key:puff.sig} )
 }
 
+
+// MAIN VIEWS
 var PuffWorld = React.createClass({displayName: 'PuffWorld',
     render: function() {
 
@@ -51,382 +51,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
     }
 });
 
-var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
-    getInitialState: function() {
-        return { result: {}
-               , latest: ''
-               ,   puff: {}
-               };
-    },
-
-    handleClose: function() {
-        return events.pub('ui/puff-packer/close', {'view.style': 'PuffRoots'})
-    },
-    
-    handleUsernameLookup: function() {
-        var username = this.refs.username.getDOMNode().value;
-        var self = this;
-
-        var prom = Puffball.getUserRecord(username);
-        
-        prom.then(function(result) {
-                self.state.result = result || "";
-                events.pub('ui/puff-packer/userlookup', {});
-            })
-            .catch(function(err) {
-                self.state.result = {'FAIL': err.message};
-                events.pub('ui/puff-packer/userlookup/failed', {});
-            })
-    },
-
-    handleGeneratePrivateKeys: function() {
-        // Get private keys
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
-
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
-
-        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
-    },
-
-    handleBuildRegisterUserPuff: function() {
-        // Stuff to register. These are public keys
-        var payload = {};
-        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
-        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
-        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'requestUsername';
-
-        payload.time = Date.now();
-
-        payload.requestedUsername = this.refs.username.getDOMNode().value;
-
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-
-        if(!privateKeys.username) {
-            this.state.result = {"FAIL": "You must set your identity before building registration requests."}
-            return events.pub('ui/puff-packer/user-registration/error', {});
-        }
-
-        this.state.result = {}
-
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
-        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-        var self = this;
-        self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
-    },
-
-
-    handleBuildModifyUserKeysPuff: function() {
-        // Stuff to register. These are public keys
-
-        var currentUser = PuffWardrobe.getCurrentUsername();
-        if(!currentUser) {
-            this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
-            return events.pub('ui/puff-packer/user-modify-keys/error', {});
-        }
-
-        var payload = {};
-        var rootKey = PuffWardrobe.getCurrentKeys().root;
-        var adminKey = PuffWardrobe.getCurrentKeys().admin;
-        var defaultKey = PuffWardrobe.getCurrentKeys().default;
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'modifyUserKey';
-
-        // What key do they want to modify?
-        var keyToModify = this.refs.keyToModify.getDOMNode().value;
-        payload.keyToModify = keyToModify;
-
-        var newKey = this.refs.newKey.getDOMNode().value;
-        payload.newKey = newKey;
-
-        payload.time = Date.now();
-
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-
-
-        if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-            if(!rootKey) {
-                this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
-                return events.pub('ui/puff-packer/user-modify-keys/error', {});
-            } else {
-                var signingUserKey = rootKey;
-                console.log("request will be signed with root key")
-            }
-        } else if(keyToModify == 'defaultKey') {
-            if(!adminKey) {
-                this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
-                return events.pub('ui/puff-packer/user-modify-keys/error', {});
-            } else {
-                var signingUserKey = adminKey;
-                console.log("request will be signed with admin key")
-            }
-        }
-
-        this.state.result = {}
-
-        var puff = Puffball.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
-        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-        var self = this;
-        self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
-    },
-
-    handleSendPuffToServer: function() {
-        // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
-        var puff = this.state.puff;
-        var self = this;
-        
-        var prom = PuffNet.updateUserRecord(puff)
-        
-        prom.then(function(result) {
-                self.state.result = result;
-                events.pub('ui/puff-packer/userlookup', {});
-             })
-             .catch(function(err) {
-                 self.state.result = {'FAIL': err.message};
-                 events.pub('ui/puff-packer/userlookup/failed', {});
-             })
-    },
-
-    handleSendRawEditedPuff: function() {
-        // Send the raw contents of the edited puff as a string to the server
-        var puffEl = document.getElementById('puffString');
-        var puffString = puffEl.value;
-        var self = this;
-
-        var pprom = PuffNet.updateUserRecord(puffString);
-
-        pprom.then(function(result) {
-            self.state.result = result;
-            events.pub('ui/puff-packer/userlookup', {});
-        })
-            .catch(function(err) {
-                self.state.result = {'FAIL': err.message};
-                events.pub('ui/puff-packer/userlookup/failed', {});
-            })
-    },
-
-    handleShowResultsFormatted: function() {
-        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
-    },
-
-    handleShowResultsRaw: function() {
-        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
-    },
-
-    handleShowPuffFormatted: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
-    },
-
-    handleShowPuffRaw: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
-    },
-
-    handleShowPuffEdit: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
-    },
-
-    handlePublishPuff: function() {
-        return events.pub('ui/puff-packer/publish-puff', {});
-    },
-
-    handleGetLatest: function() {
-        var username = PuffWardrobe.getCurrentUsername();
-        var self = this;
-
-        var prom = Puffball.getUserRecord(username);
-        
-        prom.then(function(userRecord) {
-            self.state.latest = userRecord.latest;
-            events.pub('ui/puff-packer/getUserLatest', {});
-        })
-    },
-
-    handleBuildSetLatest: function() {
-        // Stuff to register. These are public keys
-        var payload = {};
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'setLatest';
-
-        payload.time = Date.now();
-
-        payload.latest = this.refs.setLatestSigTo.getDOMNode().value;
-
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-
-        if(!privateKeys.username) {
-            this.state.result = {"FAIL": "You must set your identity before building set latest request."}
-            return events.pub('ui/puff-packer/user-set-latest/error', {});
-        }
-
-        this.state.result = {}
-
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
-
-        var self = this;
-        self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
-
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
-    },
-
-    handleSetIdentityToAnon: function() {
-        var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-        prom.then(function() {
-            PuffWardrobe.switchCurrent('anon');
-            events.pub('ui/puff-packer/set-identity-to-anon', {});
-        })
-        // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
-        // PuffWardrobe.addUserReally('anon', keys);
-    },
-    
-    formatForDisplay: function(obj, style) {
-        if(style == 'formatted') {
-            return JSON.stringify(obj, null, 2)
-                       .replace(/[{}",\[\]]/g, '')
-                       .replace(/^\n/, '')
-                       .replace(/\n$/, '');
-        }
-    },
-
-    render: function() {
-        // Pre-fill with current user information if exists in memory
-        var username    = PuffWardrobe.getCurrentUsername();
-        var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
-
-        return (
-            React.DOM.div( {id:"adminForm"}, 
-                React.DOM.form( {id:"PuffPacker"}, 
-                    React.DOM.div( {id:"closeDiv"}, 
-                        React.DOM.a( {href:"#", onClick:this.handleClose, className:"under"}, 
-                            React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
-                        )
-                    ),
-                    React.DOM.div( {className:"col1"}, 
-                        React.DOM.h3(null, "Tools"),
-                        
-                        "username:",
-                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:username} ), " ", React.DOM.br(null ),
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Build registration request", onClick:this.handleBuildRegisterUserPuff} ),React.DOM.br(null ),
-                        
-                        React.DOM.b(null, "Current identity:"), " ", React.DOM.span( {className:"authorSpan"}, username),React.DOM.br(null ),
-                        
-                        "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
-
-                        PuffSwitchUser(null ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Generate keys", onClick:this.handleGeneratePrivateKeys} ),React.DOM.br(null ),
-
-                        "New private keys",React.DOM.br(null ),
-                        "root:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate"} ),React.DOM.br(null ),
-
-                        "admin:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate"} ),React.DOM.br(null ),
-
-                        "default:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate"} ),React.DOM.br(null ),React.DOM.br(null ),
-                            
-                        "Corresponding public keys",React.DOM.br(null ),
-                        
-                        "root:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPublic", ref:"rootKeyPublic"} ),React.DOM.br(null ),
-
-                        "admin:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPublic", ref:"adminKeyPublic"} ),React.DOM.br(null ),
-
-                        "default:",
-                            React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic"} ),React.DOM.br(null ),React.DOM.br(null ),
-
-                        React.DOM.h4(null,  " Content Manipulation " ),
-
-                        React.DOM.p(null, "get latest puff sig from DHT"),
-
-                        "Latest: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"latestSig", ref:"latestSig", value:this.state.latest, readOnly:"true"} ),React.DOM.br(null ),
-                        
-                        React.DOM.p(null, React.DOM.a( {href:"#", onClick:this.handleGetLatest}, "Get latest sig from DHT")),
-
-                        React.DOM.p(null, "create a DHT-puff for setting latest"),
-
-                        "Set latest to: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"setLatestSigTo", ref:"setLatestSigTo"} ),React.DOM.br(null ),
-                        React.DOM.a( {href:"#", onClick:this.handleBuildSetLatest}, "Build setLatest DHT-style puff"),
-
-                        React.DOM.br(null ),
-                        "Key to modify: ", React.DOM.br(null ),React.DOM.select( {id:"keyToModify", ref:"keyToModify"}, 
-                                            React.DOM.option( {value:"defaultKey"}, "default"),
-                                            React.DOM.option( {value:"adminKey"}  , "admin"),
-                                            React.DOM.option( {value:"rootKey"}   , "root")
-                                        ),React.DOM.br(null ),
-                        "New PUBLIC key: ", React.DOM.br(null ),React.DOM.input( {className:"fixedLeft", type:"text", name:"newKey", ref:"newKey"} ),React.DOM.br(null ),
-                        React.DOM.a( {href:"#", onClick:this.handleBuildModifyUserKeysPuff}, "Build modify user keys DHT puff")
-
-                    ),
-
-                    React.DOM.div( {className:"col2"}, 
-
-                        React.DOM.label( {htmlFor:"result"}, "Results:"),
-                        React.DOM.a( {href:"#", onClick:this.handleShowResultsRaw}, "Raw"),
-                        ' | ',
-                        React.DOM.a( {href:"#", onClick:this.handleShowResultsFormatted}, "Formatted"),
-                        React.DOM.br(null ),
-                        React.DOM.textarea( {ref:"result", name:"result", rows:"5", cols:"50", value:result, readOnly:"true"}),React.DOM.br(null ),
-
-
-                        React.DOM.label( {htmlFor:"puffString"}, "Puff:"),
-                        React.DOM.a( {href:"#", onClick:this.handleShowPuffRaw}, "Raw"),
-                        ' | ',
-                        React.DOM.a( {href:"#", onClick:this.handleShowPuffFormatted}, "Formatted"),
-                           ' | ',
-                        React.DOM.a( {href:"#", onClick:this.handleShowPuffEdit}, "Edit"),
-                        React.DOM.br(null ),
-                        PuffToolsPuffDisplay( {style:this.props.tools.users.puffstyle, puff:this.state.puff} ),
-                        React.DOM.br(null ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Send user request", onClick:this.handleSendPuffToServer} ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Send EDITED puff user request", onClick:this.handleSendRawEditedPuff} ),
-
-
-                        React.DOM.br(null ),
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Publish puff", onClick:this.handlePublishPuff} ),
-
-                        React.DOM.br(null ),
-                        "username: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffUsername", ref:"contentPuffUsername", value:username} ),React.DOM.br(null ),
-                        "routes: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffRoutes", ref:"contentPuffRoutes"} ),React.DOM.br(null ),
-                        "previous: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffPrevious", ref:"contentPuffPrevious"} ),React.DOM.br(null ),
-                        "version: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffVersion", ref:"contentPuffVersion"} ),React.DOM.br(null ),
-                        "payload: ", React.DOM.br(null ),
-                            "type: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffType", ref:"contentPuffType"} ),React.DOM.br(null ),
-                            "content: ", React.DOM.br(null ),
-                            React.DOM.textarea( {ref:"contentPuffContent", name:"contentPuffContent", rows:"5", cols:"50"}),React.DOM.br(null )
-
-
-
-                    )
-                )
-
-            )
-            )
-    }
-});
 
 var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay',
     getInitialState: function() {
@@ -621,77 +246,8 @@ var PuffTree = React.createClass({displayName: 'PuffTree',
                 React.DOM.section( {id:"children"}, childrenPuffs.map(globalCreatePuffBox))
             )
             );
-    },
+    }
 
-    // componentDidMount: function() {
-    //     this.doSillyJsPlumbStuff()
-    // },
-    // 
-    // componentDidUpdate: function() {
-    //     this.doSillyJsPlumbStuff()
-    // },
-    // 
-    // doSillyJsPlumbStuff: function() {
-    //     jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
-    // 
-    //     var puff = this.props.puff
-    // 
-    //     // Draw lines between Puff's using jsPlumb library.
-    //     // Does this for each child Puff and the block of HTML that makes up the Puff.
-    //     $("#children .block").each(function () {
-    // 
-    //         // Define jsPlumb end points.
-    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
-    //             anchor: "BottomCenter",
-    //             endpoint: "Blank"
-    //         });
-    // 
-    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
-    //             anchor: "TopCenter",
-    //             endpoint: "Blank"
-    //         });
-    // 
-    //         // Draw lines between end points.
-    //         jsPlumb.connect({
-    //             source: e0,
-    //             target: e,
-    //             paintStyle: {
-    //                 lineWidth: 2,
-    //                 strokeStyle: "#6c6175"
-    //             },
-    //             connector: "Straight",
-    //             endpoint: "Blank",
-    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-    //         });
-    //     });
-    // 
-    //     $("#parents .block").each(function () {
-    // 
-    //         // Define jsPlumb end points.
-    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
-    //             anchor: "TopCenter",
-    //             endpoint: "Blank"
-    //         });
-    // 
-    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
-    //             anchor: "BottomCenter",
-    //             endpoint: "Blank"
-    //         });
-    // 
-    //         // Draw lines between end points.
-    //         jsPlumb.connect({
-    //             source: e,
-    //             target: e0,
-    //             paintStyle: {
-    //                 lineWidth: 2,
-    //                 strokeStyle: "#6c6175"
-    //             },
-    //             connector: "Straight",
-    //             endpoint: "Blank",
-    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-    //         });
-    //     });
-    // }
 });
 
 
@@ -702,7 +258,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char, 'view.cursor':false})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter
@@ -722,13 +278,12 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 e.keyCode == 38 || // up arrow
                 e.keyCode == 39 || // right arrow
                 e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor || this.props.view.puff;
-                if (typeof current != 'string') {
-                    current = current.sig;
-                }
+                var current = this.props.view.cursor;
+                if (!current || !document.getElementById(current))
+                    current = this.props.view.puff.sig;
+                    
                 current = document.getElementById(current);
-                
-                next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
+                var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
                 
                 if (next) {
                     this.props.view.cursor = next.id;
@@ -1004,13 +559,21 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
-        return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                    parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
+        if (parents.length==0) {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    0,React.DOM.i( {className:"fa fa-male fa-fw"})
                 )
-            )
-            );
+           );
+        } else {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
+                    )
+                )
+                );
+        }
     }
 });
 
@@ -1023,13 +586,21 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
-        return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                    children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
+        if (children.length==0) {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    0,React.DOM.i( {className:"fa fa-child fa-fw"})
                 )
-            )
-            );
+                );
+        } else {
+            return (
+                React.DOM.span( {className:"icon"}, 
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
+                    )
+                )
+                );
+        }
     }
 });
 
@@ -1640,8 +1211,21 @@ var PuffManageUser = React.createClass({displayName: 'PuffManageUser',
     }
 });
 
-// BEGIN RISPLAY
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+// BEGIN RISPLAY
 var Basics = React.createClass({displayName: 'Basics',
     render: function() {
         return (
@@ -1678,9 +1262,8 @@ var Menu = React.createClass({displayName: 'Menu',
         return (
             React.DOM.div( {className:"menu"}, 
                 React.DOM.div( {id:"closeDiv"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleClose, className:"under"}, 
-                        React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
-                    )
+                    React.DOM.a( {href:"#", onClick:this.handleClose}, 
+                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw"}))
                 ),
                 Logo(null ),
                 View(null ),
@@ -1700,7 +1283,7 @@ var Menu = React.createClass({displayName: 'Menu',
 var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
-            React.DOM.img( {src:"img/logo.gif", alt:"FreeBeer! logo", className:"logo"} )
+            React.DOM.a( {href:CONFIG.url}, React.DOM.img( {src:"img/logo.gif", alt:"Logo", className:"logo"} ))
             )
     }
 });
@@ -1732,7 +1315,6 @@ var Identity = React.createClass({displayName: 'Identity',
 
         }
     },
-
 
     render: function() {
 
@@ -2172,8 +1754,9 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                     React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-lock"}), " Private Keys"),
                     React.DOM.div( {className:"menuLabel"}, "default: " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"15"} )
+                        React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"12"} )
                     ),
+
                     React.DOM.br(null ),
                 "- Username",React.DOM.br(null ),
                 "- Existing Keys",React.DOM.br(null ),
@@ -2346,3 +1929,383 @@ var Main = React.createClass({displayName: 'Main',
 // END RISPLAY
 
 
+
+// BEGIN ADVANCED TOOLS
+var PuffPacker = React.createClass({displayName: 'PuffPacker',
+
+    getInitialState: function() {
+        return { result: {}
+            , latest: ''
+            ,   puff: {}
+        };
+    },
+
+    handleClose: function() {
+        return events.pub('ui/puff-packer/close', {'view.style': 'PuffRoots'})
+    },
+
+    handleUsernameLookup: function() {
+        var username = this.refs.username.getDOMNode().value;
+        var self = this;
+
+        var prom = Puffball.getUserRecord(username);
+
+        prom.then(function(result) {
+            self.state.result = result || "";
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+    },
+
+    handleGeneratePrivateKeys: function() {
+        // Get private keys
+        var rootKey = Puffball.Crypto.generatePrivateKey();
+        var adminKey = Puffball.Crypto.generatePrivateKey();
+        var defaultKey = Puffball.Crypto.generatePrivateKey();
+
+        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
+        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
+        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
+
+        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
+    },
+
+    handleBuildRegisterUserPuff: function() {
+        // Stuff to register. These are public keys
+        var payload = {};
+        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
+        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
+        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'requestUsername';
+
+        payload.time = Date.now();
+
+        payload.requestedUsername = this.refs.username.getDOMNode().value;
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+        if(!privateKeys.username) {
+            this.state.result = {"FAIL": "You must set your identity before building registration requests."}
+            return events.pub('ui/puff-packer/user-registration/error', {});
+        }
+
+        this.state.result = {}
+
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
+    },
+
+
+    handleBuildModifyUserKeysPuff: function() {
+        // Stuff to register. These are public keys
+
+        var currentUser = PuffWardrobe.getCurrentUsername();
+        if(!currentUser) {
+            this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
+            return events.pub('ui/puff-packer/user-modify-keys/error', {});
+        }
+
+        var payload = {};
+        var rootKey = PuffWardrobe.getCurrentKeys().root;
+        var adminKey = PuffWardrobe.getCurrentKeys().admin;
+        var defaultKey = PuffWardrobe.getCurrentKeys().default;
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'modifyUserKey';
+
+        // What key do they want to modify?
+        var keyToModify = this.refs.keyToModify.getDOMNode().value;
+        payload.keyToModify = keyToModify;
+
+        var newKey = this.refs.newKey.getDOMNode().value;
+        payload.newKey = newKey;
+
+        payload.time = Date.now();
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+
+        if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
+            if(!rootKey) {
+                this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
+                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+            } else {
+                var signingUserKey = rootKey;
+                console.log("request will be signed with root key")
+            }
+        } else if(keyToModify == 'defaultKey') {
+            if(!adminKey) {
+                this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
+                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+            } else {
+                var signingUserKey = adminKey;
+                console.log("request will be signed with admin key")
+            }
+        }
+
+        this.state.result = {}
+
+        var puff = Puffball.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
+        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
+    },
+
+    handleSendPuffToServer: function() {
+        // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
+        var puff = this.state.puff;
+        var self = this;
+
+        var prom = PuffNet.updateUserRecord(puff)
+
+        prom.then(function(result) {
+            self.state.result = result;
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+    },
+
+    handleSendRawEditedPuff: function() {
+        // Send the raw contents of the edited puff as a string to the server
+        var puffEl = document.getElementById('puffString');
+        var puffString = puffEl.value;
+        var self = this;
+
+        var pprom = PuffNet.updateUserRecord(puffString);
+
+        pprom.then(function(result) {
+            self.state.result = result;
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                self.state.result = {'FAIL': err.message};
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+    },
+
+    handleShowResultsFormatted: function() {
+        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
+    },
+
+    handleShowResultsRaw: function() {
+        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
+    },
+
+    handleShowPuffFormatted: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
+    },
+
+    handleShowPuffRaw: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+    },
+
+    handleShowPuffEdit: function() {
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
+    },
+
+    handlePublishPuff: function() {
+        return events.pub('ui/puff-packer/publish-puff', {});
+    },
+
+    handleGetLatest: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        var self = this;
+
+        var prom = Puffball.getUserRecord(username);
+
+        prom.then(function(userRecord) {
+            self.state.latest = userRecord.latest;
+            events.pub('ui/puff-packer/getUserLatest', {});
+        })
+    },
+
+    handleBuildSetLatest: function() {
+        // Stuff to register. These are public keys
+        var payload = {};
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'setLatest';
+
+        payload.time = Date.now();
+
+        payload.latest = this.refs.setLatestSigTo.getDOMNode().value;
+
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+        if(!privateKeys.username) {
+            this.state.result = {"FAIL": "You must set your identity before building set latest request."}
+            return events.pub('ui/puff-packer/user-set-latest/error', {});
+        }
+
+        this.state.result = {}
+
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
+
+        var self = this;
+        self.state.puff = puff;
+        return events.pub('ui/puff-packer/build-register-puff', {});
+
+        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+    },
+
+    handleSetIdentityToAnon: function() {
+        var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+        prom.then(function() {
+            PuffWardrobe.switchCurrent('anon');
+            events.pub('ui/puff-packer/set-identity-to-anon', {});
+        })
+        // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
+        // PuffWardrobe.addUserReally('anon', keys);
+    },
+
+    formatForDisplay: function(obj, style) {
+        if(style == 'formatted') {
+            return JSON.stringify(obj, null, 2)
+                .replace(/[{}",\[\]]/g, '')
+                .replace(/^\n/, '')
+                .replace(/\n$/, '');
+        }
+    },
+
+    render: function() {
+        // Pre-fill with current user information if exists in memory
+        var username    = PuffWardrobe.getCurrentUsername();
+        var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+
+        return (
+            React.DOM.div( {id:"adminForm"}, 
+                React.DOM.form( {id:"PuffPacker"}, 
+                    React.DOM.div( {id:"closeDiv"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleClose, className:"under"}, 
+                            React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
+                        )
+                    ),
+                    React.DOM.div( {className:"col1"}, 
+                        React.DOM.h3(null, "Tools"),
+
+                    "username:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:username} ), " ", React.DOM.br(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Build registration request", onClick:this.handleBuildRegisterUserPuff} ),React.DOM.br(null ),
+
+                        React.DOM.b(null, "Current identity:"), " ", React.DOM.span( {className:"authorSpan"}, username),React.DOM.br(null ),
+
+                    "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
+
+                        PuffSwitchUser(null ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Generate keys", onClick:this.handleGeneratePrivateKeys} ),React.DOM.br(null ),
+
+                    "New private keys",React.DOM.br(null ),
+                    "root:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate"} ),React.DOM.br(null ),
+
+                    "admin:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate"} ),React.DOM.br(null ),
+
+                    "default:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate"} ),React.DOM.br(null ),React.DOM.br(null ),
+
+                    "Corresponding public keys",React.DOM.br(null ),
+
+                    "root:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPublic", ref:"rootKeyPublic"} ),React.DOM.br(null ),
+
+                    "admin:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPublic", ref:"adminKeyPublic"} ),React.DOM.br(null ),
+
+                    "default:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic"} ),React.DOM.br(null ),React.DOM.br(null ),
+
+                        React.DOM.h4(null,  " Content Manipulation " ),
+
+                        React.DOM.p(null, "get latest puff sig from DHT"),
+
+                    "Latest: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"latestSig", ref:"latestSig", value:this.state.latest, readOnly:"true"} ),React.DOM.br(null ),
+
+                        React.DOM.p(null, React.DOM.a( {href:"#", onClick:this.handleGetLatest}, "Get latest sig from DHT")),
+
+                        React.DOM.p(null, "create a DHT-puff for setting latest"),
+
+                    "Set latest to: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"setLatestSigTo", ref:"setLatestSigTo"} ),React.DOM.br(null ),
+                        React.DOM.a( {href:"#", onClick:this.handleBuildSetLatest}, "Build setLatest DHT-style puff"),
+
+                        React.DOM.br(null ),
+                    "Key to modify: ", React.DOM.br(null ),React.DOM.select( {id:"keyToModify", ref:"keyToModify"}, 
+                        React.DOM.option( {value:"defaultKey"}, "default"),
+                        React.DOM.option( {value:"adminKey"}  , "admin"),
+                        React.DOM.option( {value:"rootKey"}   , "root")
+                    ),React.DOM.br(null ),
+                    "New PUBLIC key: ", React.DOM.br(null ),React.DOM.input( {className:"fixedLeft", type:"text", name:"newKey", ref:"newKey"} ),React.DOM.br(null ),
+                        React.DOM.a( {href:"#", onClick:this.handleBuildModifyUserKeysPuff}, "Build modify user keys DHT puff")
+
+                    ),
+
+                    React.DOM.div( {className:"col2"}, 
+
+                        React.DOM.label( {htmlFor:"result"}, "Results:"),
+                        React.DOM.a( {href:"#", onClick:this.handleShowResultsRaw}, "Raw"),
+                        ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowResultsFormatted}, "Formatted"),
+                        React.DOM.br(null ),
+                        React.DOM.textarea( {ref:"result", name:"result", rows:"5", cols:"50", value:result, readOnly:"true"}),React.DOM.br(null ),
+
+
+                        React.DOM.label( {htmlFor:"puffString"}, "Puff:"),
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffRaw}, "Raw"),
+                        ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffFormatted}, "Formatted"),
+                           ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffEdit}, "Edit"),
+                        React.DOM.br(null ),
+                        PuffToolsPuffDisplay( {style:this.props.tools.users.puffstyle, puff:this.state.puff} ),
+                        React.DOM.br(null ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Send user request", onClick:this.handleSendPuffToServer} ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Send EDITED puff user request", onClick:this.handleSendRawEditedPuff} ),
+
+
+                        React.DOM.br(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Publish puff", onClick:this.handlePublishPuff} ),
+
+                        React.DOM.br(null ),
+                    "username: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffUsername", ref:"contentPuffUsername", value:username} ),React.DOM.br(null ),
+                    "routes: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffRoutes", ref:"contentPuffRoutes"} ),React.DOM.br(null ),
+                    "previous: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffPrevious", ref:"contentPuffPrevious"} ),React.DOM.br(null ),
+                    "version: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffVersion", ref:"contentPuffVersion"} ),React.DOM.br(null ),
+                    "payload: ", React.DOM.br(null ),
+                    "type: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffType", ref:"contentPuffType"} ),React.DOM.br(null ),
+                    "content: ", React.DOM.br(null ),
+                        React.DOM.textarea( {ref:"contentPuffContent", name:"contentPuffContent", rows:"5", cols:"50"}),React.DOM.br(null )
+
+
+
+                    )
+                )
+
+            )
+            )
+    }
+});
+
+// END ADVANCED TOOLS

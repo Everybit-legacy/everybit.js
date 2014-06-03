@@ -36,8 +36,10 @@ PuffForum.getPuffById = function(id) {
     //// get a particular puff
   
     // TODO: check the graph instead of this
-  
-    return Puffball.Data.puffs.filter(function(puff) { return id === puff.sig })[0]
+    
+    var shell = PuffData.shells.filter(function(shell) { return id === shell.sig })[0]
+    
+    return Puffball.getPuffFromShell(shell)
 }
 
 // helper for sorting by payload.time
@@ -72,8 +74,10 @@ PuffForum.getChildren = function(puff) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return Puffball.Data.puffs.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
-                              .sort(PuffForum.sortByPayload)
+    return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+                               .sort(PuffForum.sortByPayload)
+                               .map(Puffball.getPuffFromShell)
+                               .filter(Boolean)
 }
 
 PuffForum.getSiblings = function(puff) {
@@ -86,13 +90,15 @@ PuffForum.getSiblings = function(puff) {
 
     var parent_sigs = PuffForum.getParents(puff).map(function(puff) { return puff.sig });
 
-    return Puffball.Data.puffs.filter(
+    return PuffData.shells.filter(
         function(puff) { 
             return puff.sig != originalSig 
-               && puff.payload.parents.reduce(
-                   function(acc, parent_sig) {
+                && puff.payload.parents.reduce(
+                    function(acc, parent_sig) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
-                              .sort(PuffForum.sortByPayload)
+                            .sort(PuffForum.sortByPayload)
+                                .map(Puffball.getPuffFromShell)
+                                    .filter(Boolean)
 }
 
 
@@ -105,8 +111,10 @@ PuffForum.getRootPuffs = function(limit) {
   
     // TODO: add limit
 
-    return Puffball.Data.puffs.filter(function(puff) { return puff ? !puff.payload.parents.length : 0 })
-                              .sort(PuffForum.sortByPayload)
+    return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
+                               .sort(PuffForum.sortByPayload)
+                               .map(Puffball.getPuffFromShell)
+                               .filter(Boolean)
 } 
 
 

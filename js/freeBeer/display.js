@@ -4,49 +4,6 @@
 
 var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
-puffworldprops = {
-    menu: {
-        show: false,
-        prefs: false,
-        profile: false,
-
-        user: {
-            pick_one: false,
-            show_add: false,
-            add_one: false,
-            add_new: false,
-            manage: false,
-            show_bc: false,
-            show_key: false
-        }
-    },
-
-    view: {
-        style: 'PuffRoots',
-        puff: false,
-        user: false,
-        mode: 'browse',
-        cols: 5,
-        cursor: false // puff where the cursor is
-    },
-
-    reply: {
-        parents: [],
-        show: false,
-        type: 'text'
-    },
-
-    prefs: { },
-    profile: { },
-    tools: {
-        users: {
-            resultstyle: 'raw',
-            puffstyle: 'raw'
-        }
-    }
-}
-
-puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
 globalCreatePuffBox = function(puff) {
     return PuffBox( {puff:puff, key:puff.sig} )
@@ -54,8 +11,6 @@ globalCreatePuffBox = function(puff) {
 
 var PuffWorld = React.createClass({displayName: 'PuffWorld',
     render: function() {
-
-        $('#plumbing').empty();                     // THINK: where should this live and should it at all?
 
         var view;
         var viewprops = this.props.view || {};
@@ -1166,11 +1121,11 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         return events.pub('ui/reply/set-type', {'reply.type': type})
     },
     componentDidMount: function() {
-        $('#replyForm').eq(0).draggable();
-        $("#replyForm [name='content']").focus();
+        // $('#replyForm').eq(0).draggable();
+        // $("#replyForm [name='content']").focus();
     },
     componentDidUpdate: function() {
-        $('#replyForm').eq(0).draggable();
+        // $('#replyForm').eq(0).draggable();
     },
     getInitialState: function() {
         return {imageSrc: ''};

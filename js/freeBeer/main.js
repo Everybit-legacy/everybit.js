@@ -1,36 +1,4 @@
-// Bridge between visualization framework (plumb? angular? d3?) and js/forum files
-
-///////// PuffForum Interface ////////////
-
-// Register our update function
-var eatPuffs = function(puffs) {
-    // call the display logic
-  
-    if(!Array.isArray(puffs) || !puffs.length) {
-        return false;
-    }
-
-    // TODO: just call some kind of 'look for puff' function instead
-    if(typeof globalStupidFirstTimeFlag == 'undefined') {
-        globalStupidFirstTimeFlag = true
-        var hash = window.location.hash
-        if(hash) {
-            var puff = PuffForum.getPuffById(hash.slice(1))
-            if(puff) {
-                showPuffDirectly(puff)
-                return false
-            }
-        }
-    }
-    
-    renderPuffWorld()
-}
-
-PuffForum.onNewPuffs(eatPuffs); // assign our callback
-
-PuffForum.init(); // initialize the forum module (and by extension the puffball network)
-
-////////// End PuffForum Interface ////////////
+// Bridge between visualization framework and js/forum files
 
 
 
@@ -397,3 +365,45 @@ function moveToNeighbour(currentId, dir, mode) {
     }
     return neighbour;
 }
+
+
+
+
+
+
+
+///////// PuffForum Interface ////////////
+
+// keep this down at the bottom -- it has to load after everything else
+
+// Register our update function
+var eatPuffs = function(puffs) {
+    // call the display logic
+  
+    if(!Array.isArray(puffs) || !puffs.length) {
+        return false;
+    }
+
+    // TODO: just call some kind of 'look for puff' function instead
+    if(typeof globalStupidFirstTimeFlag == 'undefined') {
+        globalStupidFirstTimeFlag = true
+        var hash = window.location.hash
+        if(hash) {
+            var puff = PuffForum.getPuffById(hash.slice(1))
+            if(puff) {
+                showPuffDirectly(puff)
+                return false
+            }
+        }
+    }
+    
+    renderPuffWorld()
+}
+
+PuffForum.onNewPuffs(eatPuffs); // assign our callback
+
+PuffForum.init(); // initialize the forum module (and by extension the puffball network)
+
+renderPuffWorld(); // bootstrap the GUI
+
+////////// End PuffForum Interface ////////////

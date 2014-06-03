@@ -363,8 +363,8 @@ function moveToNeighbour(currentId, dir, mode) {
     var current = document.getElementById(currentId);
     var x = parseFloat(current.style.left);
     var y = parseFloat(current.style.top);
-    console.log('current', x, y);
     var offset = mode == "browse" ? 1 : 31;
+    
     switch (dir) {
         case 37: // left
             x -= offset;
@@ -389,7 +389,6 @@ function moveToNeighbour(currentId, dir, mode) {
         default:
         break;
     }
-    console.log('next', x, y);
     
     var neighbour = document.elementFromPoint(x, y);
     while (neighbour && 

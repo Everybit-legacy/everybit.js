@@ -712,6 +712,12 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter
                 if (this.props.view.cursor)
+                    if (this.props.view.cursor == this.props.view.puff.sig) {
+                        // remove cursor style
+                        var cursor = document.getElementById(this.props.view.cursor);
+                        cursor.className = cursor.className.replace(' cursor', '');
+                        return;
+                    }
                     return events.pub('ui/view-puff/change', 
                                       {'view.style': 'PuffTallTree',
                                        'view.puff': PuffForum.getPuffById(this.props.view.cursor),

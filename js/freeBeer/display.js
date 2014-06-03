@@ -940,15 +940,30 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 var PuffBar = React.createClass({displayName: 'PuffBar',
     render: function() {
         var puff = this.props.puff
-        return (
-            React.DOM.div( {className:"bar"}, 
-                PuffInfoLink( {puff:puff} ),
-                PuffChildrenCount( {puff:puff} ),
-                PuffParentCount( {puff:puff} ),
-                PuffPermaLink( {sig:puff.sig} ),
-                PuffReplyLink( {sig:puff.sig} )
-            )
-            );
+		var link = React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-download fa-fw downloadIcon"}));
+        if(puff.payload.type=='image'){
+			return (
+				React.DOM.div( {className:"bar"}, 
+					link,
+					PuffInfoLink( {puff:puff} ),
+					PuffChildrenCount( {puff:puff} ),
+					PuffParentCount( {puff:puff} ),
+					PuffPermaLink( {sig:puff.sig} ),
+					PuffReplyLink( {sig:puff.sig} )
+				)
+				);
+			}
+		else{
+			return (
+				React.DOM.div( {className:"bar"}, 
+					PuffInfoLink( {puff:puff} ),
+					PuffChildrenCount( {puff:puff} ),
+					PuffParentCount( {puff:puff} ),
+					PuffPermaLink( {sig:puff.sig} ),
+					PuffReplyLink( {sig:puff.sig} )
+				)
+				);
+			}
     }
 });
 

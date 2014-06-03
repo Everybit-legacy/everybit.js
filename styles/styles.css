@@ -74,7 +74,7 @@ section {
     border-radius: 2px;
     font-size: 0.9em;
     
-    transition: all 2s;
+    transition: all 1s;
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
@@ -91,7 +91,9 @@ section {
 
 /* cursor */
 #talltree .block.cursor {
-    border: 10px solid #1616A8;
+    outline: 4px solid #a81a0d;
+    transition: all .5s;
+    z-index: 9999;
 }
 
 .block.focused .txt {
@@ -600,13 +602,14 @@ header h1 {
 }
 
 #closeDiv {
-    padding-top: 5px;
+    padding-top: 0px;
     padding-left: 3px;
-    padding-right: 5px;
+    padding-right: 0px;
     padding-bottom: 0;
     margin-bottom: 3px;
     text-align: right;
     color: #1616A8;
+    font-size: 1.4em;
 }
 
 .replyBlack {

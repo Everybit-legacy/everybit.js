@@ -770,7 +770,7 @@ var PuffTallTree = React.createClass({
                 var current = this.props.view.cursor;
                 if (!current || !document.getElementById(current))
                     current = this.props.view.puff.sig;
-                
+                    
                 current = document.getElementById(current);
                 var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
                 

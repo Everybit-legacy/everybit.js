@@ -91,7 +91,8 @@ section {
 
 /* cursor */
 #talltree .block.cursor {
-    border: 10px solid #1616A8;
+    outline: 3px solid #1616A8;
+    z-index: 9999;
 }
 
 .block.focused .txt {

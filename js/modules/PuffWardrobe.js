@@ -57,7 +57,7 @@ PuffWardrobe.getCurrentUserRecord = function() {
     //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
     //        since after all we have stored the userRecord in our wardrobe, haven't we?
     
-    var userRecord = Puffball.Data.userRecords[username]
+    var userRecord = PuffData.userRecords[username]
     if(!userRecord)
         return Puffball.onError('That user does not exist in our records')
     

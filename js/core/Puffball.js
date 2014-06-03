@@ -38,10 +38,10 @@ Puffball.init = function(zone) {
     // slurp in available data
     // do other amazing things
     
-    Puffball.Data.depersistUserRecords()
+    PuffData.depersistUserRecords()
     
-    Puffball.Data.getLocalPuffs(Puffball.receiveNewPuffs)
-    Puffball.Data.getNewPuffs() // THINK: this should take a zone
+    PuffData.getLocalShells(Puffball.receiveNewPuffs)
+    PuffData.getNewShells() // THINK: this should take a set of zones
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
@@ -59,10 +59,10 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
     previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
     var puff = { username: username
-               , routes: routes
+               ,   routes: routes
                , previous: previous
-               , version: '0.0.4'                       // version accounts for crypto type and puff shape
-               , payload: payload                       // early versions will be aggressively deprecated and unsupported
+               ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
+               ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
                }
 
     puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
@@ -116,7 +116,7 @@ Puffball.processUserRecord = function(userRecord) {
     if(!userRecord)
         return Puffball.onError('That is not an acceptable user record', userRecord);
     
-    Puffball.Data.cacheUserRecord(userRecord);
+    PuffData.cacheUserRecord(userRecord);
     
     return userRecord;
 }
@@ -130,7 +130,7 @@ Puffball.processUserRecord = function(userRecord) {
 Puffball.getUserRecord = function(username) {
     //// This always checks the cache
     
-    var userRecord = Puffball.Data.getCachedUserRecord(username);
+    var userRecord = PuffData.getCachedUserRecord(username);
     
     if(userRecord)
         return Promise.resolve(userRecord);
@@ -151,6 +151,27 @@ Puffball.getUserRecordNoCache = function(username) {
 }
 
 
+Puffball.getPuffFromShell = function(shell) {
+    if(!shell || !shell.payload)
+        return false
+    
+    if(shell.payload.content !== undefined)
+        return shell
+    
+    var puff = PuffData.puffs.filter(function(puff) { return puff.sig === shell.sig })[0]
+    if(puff)
+        return puff
+    
+    if(PuffData.pending[shell.sig])
+        return false
+    
+    PuffData.pending[shell.sig] = true
+    
+    PuffNet.getPuffBySig(shell.sig)
+           .then(Puffball.receiveNewPuffs)
+           
+    return false // so we can filter empty shells out easily, while still loading them on demand
+}
 
  
 Puffball.addPuffToSystem = function(puff) {
@@ -168,12 +189,15 @@ Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
+    
+    puffs = puffs.filter(function(puff) {
+        return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
   
-    puffs.forEach(function(puff) { Puffball.Data.eat(puff) });                      // cache all the puffs
+    puffs.forEach(function(puff) { PuffData.eat(puff) });                      // cache all the puffs
   
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
-    return puffs
+    return puffs;
 }
 
 
@@ -188,67 +212,53 @@ Puffball.onNewPuffs = function(callback) {
 
 // DATA LAYER
 
-Puffball.Data = {};
-Puffball.Data.puffs = [];
-Puffball.Data.userRecords = {}                          // these are DHT user entries, not our local identity wardrobe
+PuffData = {};
+PuffData.puffs = [];
+PuffData.shells = [];
+PuffData.pending = {};
+PuffData.userRecords = {};                         // these are DHT user entries, not our local identity wardrobe
 
-Puffball.Data.eat = function(puff) {
-    if(!!~Puffball.Data.puffs
-                   .map(function(p) {return p.sig})     // OPT: check the sig index instead
-                   .indexOf(puff.sig)) 
-                      return false 
-    Puffball.Data.puffs.push(puff);  
-    Puffball.Data.persist(Puffball.Data.puffs);
+PuffData.eat = function(puff) {
+    if(!!~PuffData.puffs
+                       .map(function(p) {return p.sig})     // OPT: check the sig index instead
+                       .indexOf(puff.sig)) 
+      return false;
+    PuffData.puffs.push(puff);  
 }
 
-Puffball.Data.persist = function(puffs) {
+PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false              // THINK: this is only for debugging and development
-    // TODO: come up with a better algo for persisting puffs!!!
-    // Puffball.Persist.save('puffs', puffs)
+    Puffball.Persist.save('shells', shells)
 }
 
-Puffball.Data.getLocalPuffs = function(callback) {
+PuffData.getLocalShells = function(callback) {
+    PuffData.shells = Puffball.Persist.get('shells') || [];
+    
+    setImmediate(function() {callback(PuffData.shells)});
     // we're doing this asynchronously in order to not interrupt the loading process
     // should probably wrap this a bit better (use a promise, or setImmediate)
-    return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
+    // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
 }
 
-Puffball.Data.getNewPuffs = function() {
+PuffData.getNewShells = function() {
     /// TODO: this should call PuffNet.getNewShells and then integrate that with our shells from local storage
     ///       and then we'll get the missing content on demand
     
     var prom = PuffNet.getAllPuffShells();
-    var baseDelay = 500;
     
-    function rec(shells, delay) {
-        if(!shells.length) return false
-        var shell = shells.shift();
-        
-        if(shell.payload && shell.payload.content) {
-            Puffball.receiveNewPuffs(shell);
-        } 
-        else {
-            setTimeout(function() {
-                PuffNet.getPuffBySig(shell.sig).then(function(puff) { Puffball.receiveNewPuffs(puff) })
-            }, delay += baseDelay);
-        }
-
-        setImmediate(function() { rec(shells, delay) });
-    }
-    
-    prom.then(function(shells) { 
-        rec(shells, 0) });
-    
-    return false;
-    
-    
-    /// old style:
-    var prom = PuffNet.getAllPuffs();                  // OPT: only ask for puffs we're missing
-    return prom.then(Puffball.receiveNewPuffs)
-                .catch(Puffball.promiseError('Could not load the puffs'))
+    prom.then(function(shells) {
+        if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 
+            return false;
+        Puffball.Persist.save('shells', shells);
+        shells.forEach(function(shell) {
+            if(shell.payload && shell.payload.content) {
+                Puffball.receiveNewPuffs(shell); 
+            }
+        }) 
+    })
 }
 
-Puffball.Data.verifyPuff = function(puff) {
+PuffData.verifyPuff = function(puff) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
     // TODO: use this to verify incoming puffs
@@ -261,16 +271,16 @@ Puffball.Data.verifyPuff = function(puff) {
     });
 }
 
-Puffball.Data.getCachedUserRecord = function(username) {
-    return Puffball.Data.userRecords[username];
+PuffData.getCachedUserRecord = function(username) {
+    return PuffData.userRecords[username];
 }
 
-Puffball.Data.cacheUserRecord = function(userRecord) {
+PuffData.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use Puffball.processUserRecord instead
     
-    Puffball.Data.userRecords[userRecord.username] = userRecord;
+    PuffData.userRecords[userRecord.username] = userRecord;
     
-    Puffball.Persist.save('userRecords', Puffball.Data.userRecords); // OPT: this could get expensive
+    Puffball.Persist.save('userRecords', PuffData.userRecords); // OPT: this could get expensive
     
     return userRecord;
     
@@ -285,16 +295,16 @@ Puffball.Data.cacheUserRecord = function(userRecord) {
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
-Puffball.Data.depersistUserRecords = function() {
+PuffData.depersistUserRecords = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    Puffball.Data.userRecords = Puffball.Persist.get('userRecords') || {};
+    PuffData.userRecords = Puffball.Persist.get('userRecords') || {};
 }
 
-Puffball.Data.getMyPuffChain = function(username) {
+PuffData.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
     // TODO: the puffchain should also be sorted in chain order, not general collection order
-    return Puffball.Data.puffs.filter(function(puff) { return puff && puff.username == username })    
+    return PuffData.puffs.filter(function(puff) { return puff && puff.username == username })    
 }
 
 
@@ -476,3 +486,44 @@ Puffball.falsePromise = function(msg) {
     if(msg) Puffball.onError(msg)
     return Promise.reject(msg)
 }
+
+
+
+// HELPERS
+
+~function() {
+    //// postpone until next tick
+    // inspired by http://dbaron.org/log/20100309-faster-timeouts
+    var later = []
+    var messageName = 12345
+    var gimme_a_tick = true
+
+    function setImmediate(fn) {
+        later.push(fn)
+        
+        if(gimme_a_tick) {
+            gimme_a_tick = false
+            window.postMessage(messageName, "*")
+        }
+        
+        return false
+    }
+
+    function handleMessage(event) {
+        if(event.data != messageName) return false
+
+        event.stopPropagation()
+        gimme_a_tick = true
+
+        var now = later
+        later = []
+
+        for(var i=0, l=now.length; i < l; i++)
+        now[i]()
+    }
+  
+    if(typeof window != 'undefined') {
+        window.addEventListener('message', handleMessage, true)
+        window.setImmediate = setImmediate
+    }
+}();

@@ -1190,9 +1190,7 @@ var PuffMenu = React.createClass({displayName: 'PuffMenu',
     handleClose: function() {
         return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
     },
-    handlePackPuffs: function() {
-        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
-    },
+
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
@@ -1251,30 +1249,10 @@ var PuffMenu = React.createClass({displayName: 'PuffMenu',
         }
 
         return (
-            React.DOM.div( {className:"menu", id:"menu"}, 
+            React.DOM.div( {className:"menuDos", id:"menuDos"}, 
 
-                React.DOM.div( {id:"closeDiv"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleClose, className:"under"}, 
-                        React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
-                    )
-                ),
-                React.DOM.img( {src:"img/logo.gif", alt:"FreeBeer! logo", height:"63", className:"logo"} ),React.DOM.br(null ),
-            "DISPLAY: ", React.DOM.br(null ),
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleViewRoots, className:"under"}, "View latest")
-                ),
 
-            "CONTENT: ", React.DOM.br(null ),
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleNewContent, className:"under"}, "Add new")
-                ),
 
-            "TOOLS",React.DOM.br(null ),
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs, className:"under"}, "Puff builder")
-                ),
-
-                React.DOM.br(null ),
             "IDENTITY: ", React.DOM.br(null ),
                 PuffUserMenu( {user:this.props.menu.user} ),
                 
@@ -1308,25 +1286,30 @@ var PuffPrefs = React.createClass({displayName: 'PuffPrefs',
     }
 });
 
+
 var PuffProfile = React.createClass({displayName: 'PuffProfile',
     handleStoreusers: function() {
         return events.pub('profile/nickname/set', this.refs.nickname.state.value)
     },
     render: function() {
         return (
-            React.DOM.div(null, 
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.input( {type:"checkbox", ref:"nickname", name:"nickname", onChange:this.handleSetNickname, checked:this.props.profile.nickname} ),
-                "Set nickname"
-                ),
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.p(null, "Identity avatar"),
-                    React.DOM.p(null, "More profile")
-                )
+            React.DOM.div(null
             )
             );
     }
 });
+
+/*
+ <div className="menuItem">
+ <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
+ Set nickname
+ </div>
+ <div className="menuItem">
+ <p>Identity avatar</p>
+ <p>More profile</p>
+ </div>
+ */
+
 
 
 var PuffUserMenu = React.createClass({displayName: 'PuffUserMenu',
@@ -1661,9 +1644,10 @@ var Menu = React.createClass({displayName: 'Menu',
                         React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
                     )
                 ),
-                Identity(null ),
-                Publish(null ),
+                Logo(null ),
                 View(null ),
+                Publish(null ),
+                Identity(null ),
                 About(null ),
                 Tools(null )
             )
@@ -1674,6 +1658,14 @@ var Menu = React.createClass({displayName: 'Menu',
         return events.pub('ui/menu/close', {'menu.show': false})
     }
 })
+
+var Logo = React.createClass({displayName: 'Logo',
+    render: function() {
+        return (
+            React.DOM.img( {src:"img/logo.gif", alt:"FreeBeer! logo", className:"logo"} )
+            )
+    }
+});
 
 var Identity = React.createClass({displayName: 'Identity',
     getInitialState: function() {
@@ -1734,15 +1726,15 @@ var Identity = React.createClass({displayName: 'Identity',
 
 
         return (
-            React.DOM.div(null, React.DOM.p(null, 
-                React.DOM.div( {className:"menuLabel"}, React.DOM.div( {className:"fa fa-user"}), " ", React.DOM.em(null, "Current identity:"), " " ),React.DOM.br(null ),
-
+            React.DOM.div(null, React.DOM.br(null ),
+                React.DOM.div( {className:"menuHeader"}, React.DOM.div( {className:"fa fa-user"}), " Identity"),
+                React.DOM.div( {className:"menuLabel"},  " ", React.DOM.em(null, "Current identity:"), " " ),React.DOM.br(null ),
                 React.DOM.div( {className:"menuInput"},  " ", AuthorPicker(null )
                 ),React.DOM.br(null ),
                 React.DOM.div( {className:setClass,  onClick:this.toggleShowTab.bind(this,'showSetIdentity')} , React.DOM.i( {className:"fa fa-sign-in fa-fw"}),"Set " ),
                 React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-pencil fa-fw"}),"Edit " ),
-                React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"}),"New " )
-            ),
+                React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"}),"New " ),
+                React.DOM.br(null ),
                 SetIdentity(  {show:this.state.tabs.showSetIdentity,  username:currUser}),
                 EditIdentity( {show:this.state.tabs.showEditIdentity, username:currUser}),
                 NewIdentity(  {show:this.state.tabs.showNewIdentity}  )
@@ -2217,14 +2209,21 @@ var defaultPrivateKeyField = React.createClass({displayName: 'defaultPrivateKeyF
 })
 
 var Publish = React.createClass({displayName: 'Publish',
+    handleNewContent: function() {
+        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+    },
+
     render: function() {
         // TODO: Add puff icon to font
         return (
             React.DOM.div(null, 
-                React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
-                React.DOM.div( {className:"fa fa-paper-plane"}), " Publish"
-            ),
-                React.DOM.a( {href:"#", onClick:this.handleNewContent}, "Create new puff")
+                React.DOM.br(null ),
+                React.DOM.div( {className:"menuHeader"}, 
+                    React.DOM.div( {className:"fa fa-paper-plane"}), " Publish"
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                React.DOM.a( {href:"#", onClick:this.handleNewContent}, "New puff")
+                )
             )
 
             )
@@ -2232,7 +2231,6 @@ var Publish = React.createClass({displayName: 'Publish',
 
 
 })
-
 
 
 var View = React.createClass({displayName: 'View',
@@ -2246,12 +2244,13 @@ var View = React.createClass({displayName: 'View',
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
                 React.DOM.div( {className:"fa fa-sitemap"}), " View"
             ),
-                React.DOM.div(null, React.DOM.a( {href:"#", onClick:this.handleViewRoots, className:"under"}, "Newest conversations")),
-                React.DOM.div(null, "Latest puffs"),
-                React.DOM.div(null, "Search")
+            React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations"))
+
             )
             )
     }
+
+    // TODO: <div>Latest puffs</div><div>Search</div>
 })
 
 var About = React.createClass({displayName: 'About',
@@ -2261,16 +2260,18 @@ var About = React.createClass({displayName: 'About',
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
                 React.DOM.div( {className:"fa fa-info-circle"}), " About"
             ),
-                React.DOM.div(null, "User guide"),
-                React.DOM.div(null, "Contact us"),
-                React.DOM.div(null, "Privacy policy"),
-                React.DOM.div(null, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, "Source code"))
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, "Source code"))
             )
             )
     }
 })
 
 /*
+// TODO: Put in stuff for
+ <div>User guide</div>
+ <div>Contact us</div>
+ <div>Privacy policy</div>
  TODO: Add puff for
  Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
 
@@ -2279,14 +2280,19 @@ var About = React.createClass({displayName: 'About',
  */
 
 var Tools = React.createClass({displayName: 'Tools',
+    handlePackPuffs: function() {
+        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
+    },
+
     render: function() {
         return (
             React.DOM.div(null, 
                 React.DOM.br(null ),React.DOM.div( {className:"menuHeader"}, 
                 React.DOM.div( {className:"fa fa-wrench"}), " Advanced tools"
             ),
-                React.DOM.div(null, "Raw puff builder"),
-                React.DOM.div(null, "Username requests")
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs, className:"menuItem"}, "Puff builder")
+                )
             )
             )
     }

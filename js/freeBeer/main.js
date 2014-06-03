@@ -409,7 +409,36 @@ function moveToNeighbour(currentId, dir, mode) {
     return neighbour;
 }
 
+function draggableize(el) {
+    // modified from http://jsfiddle.net/tovic/Xcb8d/light/
+    var x_pos = 0,  y_pos = 0,  // Stores x & y coordinates of the mouse pointer
+        x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
 
+    // Will be called when user starts dragging an element
+    function drag_init(e) {
+        // Store the object of the element which needs to be moved
+        x_pos = e.pageX;
+        y_pos = e.pageY;
+        x_elem = x_pos - el.offsetLeft;
+        y_elem = y_pos - el.offsetTop;
+        el.addEventListener('mousemove', move_el);
+        return false
+    }
+
+    // Will be called when user dragging an element
+    function move_el(e) {
+        x_pos = e.pageX;
+        y_pos = e.pageY;
+        el.style.left = (x_pos - x_elem) + 'px';
+        el.style.top  = (y_pos - y_elem) + 'px';
+    }
+
+    // Bind the functions...
+    el.addEventListener('mousedown', drag_init);
+    el.addEventListener('mouseup', function() {
+        el.removeEventListener('mousemove', move_el);
+    });
+}
 
 
 

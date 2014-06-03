@@ -707,7 +707,7 @@ var PuffTallTree = React.createClass({
                 return false
             var char = String.fromCharCode(e.keyCode)
             if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char, 'view.cursor':false})
             if(e.keyCode == 32) // spacebar
                 return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             if (e.keyCode == 13) {// enter
@@ -727,23 +727,19 @@ var PuffTallTree = React.createClass({
                 }
                 current = document.getElementById(current)
                 
-                // TODO - select the correct next one 
-                // for now: random one 
-                var blockList = document.getElementsByClassName('block');
-                var next = blockList[Math.floor(Math.random()*blockList.length)];
-                // make sure next one does not have same id as current
-                while (current.id == next.id)
-                    next = blockList[Math.floor(Math.random()*blockList.length)];
+                next = moveToNeighbour(current.id, e.keyCode);
                 
-                this.props.view.cursor = next.id;
-               
-                // remove style for current
-                current.className = current.className.replace(' cursor', '');
-                // add style for next
-                next.className = next.className.replace(' cursor', '');
-                next.className = next.className + ' cursor';
+                if (next) {
+                    this.props.view.cursor = next.id;
+                
+                    // remove style for current
+                    current.className = current.className.replace(' cursor', '');
+                    // add style for next
+                    next.className = next.className.replace(' cursor', '');
+                    next.className = next.className + ' cursor';
+                }
+                e.preventDefault();
             }
-            e.preventDefault();
         }.bind(this)
         document.addEventListener('keydown', this.keyfun)
     },

@@ -50,10 +50,12 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
+
                 PuffAuthor( {username:puff.username} ),
                 PuffContent( {puff:puff} ),
                 PuffBar( {puff:puff} )
             )
+
             );
     }
 });
@@ -116,8 +118,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 					PuffReplyLink( {sig:puff.sig} )
 				)
 				);
-			}
-		else{
+		}else{
 			return (
 				React.DOM.div( {className:"bar"}, 
 					PuffInfoLink( {puff:puff} ),

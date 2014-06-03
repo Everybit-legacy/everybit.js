@@ -50,10 +50,12 @@ var PuffFancyBox = React.createClass({
         
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
+
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
             </div>
+
             );
     }
 });
@@ -116,8 +118,7 @@ var PuffBar = React.createClass({
 					<PuffReplyLink sig={puff.sig} />
 				</div>
 				);
-			}
-		else{
+		}else{
 			return (
 				<div className="bar">
 					<PuffInfoLink puff={puff} />

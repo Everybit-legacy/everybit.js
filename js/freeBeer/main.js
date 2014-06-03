@@ -366,29 +366,21 @@ function moveToNeighbour(currentId, dir) {
     switch (dir) {
         case 37: // left
             x = x - 5;
-            if (x < CONFIG.leftMargin)
-                x = window.innerWidth - 5;
             y += 3;
         break;
         
         case 38: // up
             y = y - 5;
-            if (y < 0)
-                y = window.innerHeight - 5;
             x += 3;
         break;
         
         case 39: // right
             x = x + parseFloat(current.style.width) + 5;
-            if (x > window.innerWidth)
-                x = CONFIG.leftMargin + 5;
             y += 3;
         break;
         
         case 40: // down
             y = y + parseFloat(current.style.height) + 5;
-            if (y > window.innerHeight)
-                y = 5;
             x += 3;
         break;
         

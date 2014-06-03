@@ -249,6 +249,7 @@ PuffData.getNewShells = function() {
     prom.then(function(shells) {
         if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 
             return false;
+        PuffData.shells = shells;
         Puffball.Persist.save('shells', shells);
         shells.forEach(function(shell) {
             if(shell.payload && shell.payload.content) {

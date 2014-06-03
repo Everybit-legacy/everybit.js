@@ -668,75 +668,75 @@ var PuffTree = React.createClass({
             );
     },
 
-    componentDidMount: function() {
-        this.doSillyJsPlumbStuff()
-    },
-
-    componentDidUpdate: function() {
-        this.doSillyJsPlumbStuff()
-    },
-
-    doSillyJsPlumbStuff: function() {
-        jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
-
-        var puff = this.props.puff
-
-        // Draw lines between Puff's using jsPlumb library.
-        // Does this for each child Puff and the block of HTML that makes up the Puff.
-        $("#children .block").each(function () {
-
-            // Define jsPlumb end points.
-            var e0 = jsPlumb.addEndpoint(puff.sig, {
-                anchor: "BottomCenter",
-                endpoint: "Blank"
-            });
-
-            var e = jsPlumb.addEndpoint($(this).attr("id"), {
-                anchor: "TopCenter",
-                endpoint: "Blank"
-            });
-
-            // Draw lines between end points.
-            jsPlumb.connect({
-                source: e0,
-                target: e,
-                paintStyle: {
-                    lineWidth: 2,
-                    strokeStyle: "#6c6175"
-                },
-                connector: "Straight",
-                endpoint: "Blank",
-                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-            });
-        });
-
-        $("#parents .block").each(function () {
-
-            // Define jsPlumb end points.
-            var e0 = jsPlumb.addEndpoint(puff.sig, {
-                anchor: "TopCenter",
-                endpoint: "Blank"
-            });
-
-            var e = jsPlumb.addEndpoint($(this).attr("id"), {
-                anchor: "BottomCenter",
-                endpoint: "Blank"
-            });
-
-            // Draw lines between end points.
-            jsPlumb.connect({
-                source: e,
-                target: e0,
-                paintStyle: {
-                    lineWidth: 2,
-                    strokeStyle: "#6c6175"
-                },
-                connector: "Straight",
-                endpoint: "Blank",
-                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-            });
-        });
-    }
+    // componentDidMount: function() {
+    //     this.doSillyJsPlumbStuff()
+    // },
+    // 
+    // componentDidUpdate: function() {
+    //     this.doSillyJsPlumbStuff()
+    // },
+    // 
+    // doSillyJsPlumbStuff: function() {
+    //     jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
+    // 
+    //     var puff = this.props.puff
+    // 
+    //     // Draw lines between Puff's using jsPlumb library.
+    //     // Does this for each child Puff and the block of HTML that makes up the Puff.
+    //     $("#children .block").each(function () {
+    // 
+    //         // Define jsPlumb end points.
+    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
+    //             anchor: "BottomCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
+    //             anchor: "TopCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         // Draw lines between end points.
+    //         jsPlumb.connect({
+    //             source: e0,
+    //             target: e,
+    //             paintStyle: {
+    //                 lineWidth: 2,
+    //                 strokeStyle: "#6c6175"
+    //             },
+    //             connector: "Straight",
+    //             endpoint: "Blank",
+    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+    //         });
+    //     });
+    // 
+    //     $("#parents .block").each(function () {
+    // 
+    //         // Define jsPlumb end points.
+    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
+    //             anchor: "TopCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
+    //             anchor: "BottomCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         // Draw lines between end points.
+    //         jsPlumb.connect({
+    //             source: e,
+    //             target: e0,
+    //             paintStyle: {
+    //                 lineWidth: 2,
+    //                 strokeStyle: "#6c6175"
+    //             },
+    //             connector: "Straight",
+    //             endpoint: "Blank",
+    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+    //         });
+    //     });
+    // }
 });
 
 
@@ -1049,13 +1049,21 @@ var PuffParentCount = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
-        return (
-            <span className="icon">
-                <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                    {parents.length}<i className="fa fa-male fa-fw"></i>
-                </a>
-            </span>
-            );
+        if (parents.length==0) {
+            return (
+                <span className="icon">
+                    {0}<i className="fa fa-male fa-fw"></i>
+                </span>
+           );
+        } else {
+            return (
+                <span className="icon">
+                    <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                        {parents.length}<i className="fa fa-male fa-fw"></i>
+                    </a>
+                </span>
+                );
+        }
     }
 });
 
@@ -1068,13 +1076,21 @@ var PuffChildrenCount = React.createClass({
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
-        return (
-            <span className="icon">
-                <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                    {children.length}<i className="fa fa-child fa-fw"></i>
-                </a>
-            </span>
-            );
+        if (children.length==0) {
+            return (
+                <span className="icon">
+                    {0}<i className="fa fa-child fa-fw"></i>
+                </span>
+                );
+        } else {
+            return (
+                <span className="icon">
+                    <a href={'#' + this.props.sig} onClick={this.handleClick}>
+                        {children.length}<i className="fa fa-child fa-fw"></i>
+                    </a>
+                </span>
+                );
+        }
     }
 });
 
@@ -2389,9 +2405,5 @@ var Main = React.createClass({
     }
 });
 // END RISPLAY
-
-// bootstrap
-renderPuffWorld()
-
 
 

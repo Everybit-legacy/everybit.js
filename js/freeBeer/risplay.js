@@ -1,4 +1,6 @@
 /** @jsx React.DOM */
+// REMOVE THIS FILE! NOW MERGED WITH DISPLAY!
+
 
 // TODO: Add transitions when parts of the menu show or hide
 // TODO: Add store identity on this computer option.

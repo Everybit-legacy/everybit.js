@@ -767,10 +767,10 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                 e.keyCode == 38 || // up arrow
                 e.keyCode == 39 || // right arrow
                 e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor || this.props.view.puff;
-                if (typeof current != 'string') {
-                    current = current.sig;
-                }
+                var current = this.props.view.cursor;
+                if (!current || !document.getElementById(current))
+                    current = this.props.view.puff.sig;
+                
                 current = document.getElementById(current);
                 
                 next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);

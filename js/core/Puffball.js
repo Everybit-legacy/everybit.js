@@ -176,7 +176,9 @@ Puffball.getPuffFromShell = function(shell) {
  
 Puffball.addPuffToSystem = function(puff) {
     //// add a puff to our local cache and fire the callback for new content
-  
+    
+    PuffData.addNewShell(puff);
+    
     Puffball.receiveNewPuffs([puff]);
 
     PuffNet.distributePuff(puff);
@@ -187,13 +189,13 @@ Puffball.addPuffToSystem = function(puff) {
 
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
-  
+    
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
     
     puffs = puffs.filter(function(puff) {
         return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
   
-    puffs.forEach(function(puff) { PuffData.eat(puff) });                      // cache all the puffs
+    puffs.forEach(function(puff) { PuffData.eat(puff) });                           // cache all the puffs
   
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
@@ -216,7 +218,7 @@ PuffData = {};
 PuffData.puffs = [];
 PuffData.shells = [];
 PuffData.pending = {};
-PuffData.userRecords = {};                         // these are DHT user entries, not our local identity wardrobe
+PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
 
 PuffData.eat = function(puff) {
     if(!!~PuffData.puffs
@@ -227,8 +229,16 @@ PuffData.eat = function(puff) {
 }
 
 PuffData.persistShells = function(shells) {
-    if(CONFIG.noLocalStorage) return false              // THINK: this is only for debugging and development
-    Puffball.Persist.save('shells', shells)
+    if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
+    Puffball.Persist.save('shells', shells);
+}
+
+PuffData.addNewShell = function(puff) {
+    
+    // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
+    
+    PuffData.shells.push(puff);
+    PuffData.persistShells(PuffData.shells);
 }
 
 PuffData.getLocalShells = function(callback) {

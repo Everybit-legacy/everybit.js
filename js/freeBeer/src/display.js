@@ -2390,8 +2390,4 @@ var Main = React.createClass({
 });
 // END RISPLAY
 
-// bootstrap
-renderPuffWorld()
-
-
 

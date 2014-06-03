@@ -668,75 +668,75 @@ var PuffTree = React.createClass({
             );
     },
 
-    componentDidMount: function() {
-        this.doSillyJsPlumbStuff()
-    },
-
-    componentDidUpdate: function() {
-        this.doSillyJsPlumbStuff()
-    },
-
-    doSillyJsPlumbStuff: function() {
-        jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
-
-        var puff = this.props.puff
-
-        // Draw lines between Puff's using jsPlumb library.
-        // Does this for each child Puff and the block of HTML that makes up the Puff.
-        $("#children .block").each(function () {
-
-            // Define jsPlumb end points.
-            var e0 = jsPlumb.addEndpoint(puff.sig, {
-                anchor: "BottomCenter",
-                endpoint: "Blank"
-            });
-
-            var e = jsPlumb.addEndpoint($(this).attr("id"), {
-                anchor: "TopCenter",
-                endpoint: "Blank"
-            });
-
-            // Draw lines between end points.
-            jsPlumb.connect({
-                source: e0,
-                target: e,
-                paintStyle: {
-                    lineWidth: 2,
-                    strokeStyle: "#6c6175"
-                },
-                connector: "Straight",
-                endpoint: "Blank",
-                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-            });
-        });
-
-        $("#parents .block").each(function () {
-
-            // Define jsPlumb end points.
-            var e0 = jsPlumb.addEndpoint(puff.sig, {
-                anchor: "TopCenter",
-                endpoint: "Blank"
-            });
-
-            var e = jsPlumb.addEndpoint($(this).attr("id"), {
-                anchor: "BottomCenter",
-                endpoint: "Blank"
-            });
-
-            // Draw lines between end points.
-            jsPlumb.connect({
-                source: e,
-                target: e0,
-                paintStyle: {
-                    lineWidth: 2,
-                    strokeStyle: "#6c6175"
-                },
-                connector: "Straight",
-                endpoint: "Blank",
-                overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
-            });
-        });
-    }
+    // componentDidMount: function() {
+    //     this.doSillyJsPlumbStuff()
+    // },
+    // 
+    // componentDidUpdate: function() {
+    //     this.doSillyJsPlumbStuff()
+    // },
+    // 
+    // doSillyJsPlumbStuff: function() {
+    //     jsPlumb.Defaults.Container = $('#plumbing') // THINK: this is the wrong place for this
+    // 
+    //     var puff = this.props.puff
+    // 
+    //     // Draw lines between Puff's using jsPlumb library.
+    //     // Does this for each child Puff and the block of HTML that makes up the Puff.
+    //     $("#children .block").each(function () {
+    // 
+    //         // Define jsPlumb end points.
+    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
+    //             anchor: "BottomCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
+    //             anchor: "TopCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         // Draw lines between end points.
+    //         jsPlumb.connect({
+    //             source: e0,
+    //             target: e,
+    //             paintStyle: {
+    //                 lineWidth: 2,
+    //                 strokeStyle: "#6c6175"
+    //             },
+    //             connector: "Straight",
+    //             endpoint: "Blank",
+    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+    //         });
+    //     });
+    // 
+    //     $("#parents .block").each(function () {
+    // 
+    //         // Define jsPlumb end points.
+    //         var e0 = jsPlumb.addEndpoint(puff.sig, {
+    //             anchor: "TopCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         var e = jsPlumb.addEndpoint($(this).attr("id"), {
+    //             anchor: "BottomCenter",
+    //             endpoint: "Blank"
+    //         });
+    // 
+    //         // Draw lines between end points.
+    //         jsPlumb.connect({
+    //             source: e,
+    //             target: e0,
+    //             paintStyle: {
+    //                 lineWidth: 2,
+    //                 strokeStyle: "#6c6175"
+    //             },
+    //             connector: "Straight",
+    //             endpoint: "Blank",
+    //             overlays:[ ["Arrow", {location:-20, width:20, length:20} ]]
+    //         });
+    //     });
+    // }
 });
 
 

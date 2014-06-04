@@ -74,7 +74,7 @@ section {
     border-radius: 2px;
     font-size: 0.9em;
     
-    transition: all 1s;
+ /*   transition: all 1s; */
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
@@ -92,7 +92,7 @@ section {
 /* cursor */
 #talltree .block.cursor {
     outline: 4px solid #a81a0d;
-    transition: all .5s;
+ /*   transition: all .5s;*/
     z-index: 9999;
 }
 
@@ -116,7 +116,7 @@ section {
 
 .example-enter {
   opacity: 0.01;
-  transition: opacity 5s;
+ /* transition: opacity 5s;*/
 }
 
 /* not in use
@@ -312,7 +312,7 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
- //   position: fixed;;
+ //   position: relative;;
     bottom:0;
     right:0;
     /* background:#EEE; */
@@ -421,13 +421,17 @@ header h1 {
     z-index: 5;
 }
 
-/* not in use
+/*
 .wrapper{
     position: relative;
 }
 
 .fixed-wrapper {
     position: absolute;
+}
+
+.fixed {
+    position: fixed;
 }
 */
 
@@ -470,8 +474,6 @@ header h1 {
 #addContentDiv form input {
     cursor: pointer;
 }
-
-
 
 .logo {
     position: absolute;
@@ -548,9 +550,6 @@ header h1 {
     -o-animation: fadein 1s; /* Opera */
     animation: fadein 1s;
 }
-
-
-
 
 .menuItem {
     text-indent: 32px;
@@ -707,6 +706,11 @@ header h1 {
 a.footerText {
     text-decoration: none;
     font-size: .9em;
+}
+
+.animate{
+    transition: all 1s;
+
 }
 
 #adminForm {

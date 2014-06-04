@@ -86,7 +86,6 @@ var PuffBar = React.createClass({
     }
 });
 
-
 var PuffInfoLink = React.createClass({
     handleClick: function() {
         var puff = this.props.puff;

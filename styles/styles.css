@@ -155,6 +155,7 @@ p {
 }
 
 a {
+
     text-decoration:none;
     color: #1616A8;
 }
@@ -199,6 +200,7 @@ h4 {
 }
 
 .author {
+ //   position: fixed;
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
     text-align: center;
@@ -324,8 +326,8 @@ h4 {
     cursor: pointer;
 }
 
-.bar span.noCursor{
-    cursor: auto;
+.bar span.click{
+    cursor: default;
 }
 
 .bar .icon {

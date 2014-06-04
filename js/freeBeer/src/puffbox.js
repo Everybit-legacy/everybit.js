@@ -122,8 +122,8 @@ var PuffParentCount = React.createClass({
         var parents = PuffForum.getParents(puff)
         if (parents.length==0) {
             return (
-                <span className="icon">
-                    {0}<i className="fa fa-male fa-fw"></i>
+                <span className="click">
+                    <span className="click">0</span><i className="fa fa-male fa-fw"></i>
                 </span>
            );
         } 
@@ -150,11 +150,11 @@ var PuffChildrenCount = React.createClass({
         var children = PuffForum.getChildren(puff)
         if (children.length==0) {
             return (
-                <span className="icon">
-                    {0}<i className="fa fa-child fa-fw"></i>
+                <span className="click">
+                    <span className="click">0</span><i className="fa fa-child fa-fw"></i>
                 </span>
             );
-        } 
+        }
         else {
             return (
                 <span className="icon">

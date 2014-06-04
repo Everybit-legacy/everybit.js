@@ -3,20 +3,12 @@
 var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 
 
-globalCreatePuffBox = function(puff) {
-    return <PuffBox puff={puff} key={puff.sig} />
-}
-
-
 // MAIN VIEWS
 var PuffWorld = React.createClass({
     render: function() {
 
         var view;
         var viewprops = this.props.view || {};
-
-        if( viewprops.style == 'PuffTree' )
-            view  = <PuffTree puff={viewprops.puff} />
 
         if( viewprops.style == 'PuffTallTree' )
             view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
@@ -117,8 +109,6 @@ var PuffRoots = React.createClass({
                 {puffBoxList}
             </div>
         )
-
-        // return <section id="children">{puffs.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -153,8 +143,6 @@ var PuffAllChildren = React.createClass({
                 {puffBoxList}
             </div>
         )
-
-        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -189,8 +177,6 @@ var PuffAllParents = React.createClass({
                 {puffBoxList}
             </div>
         )
-
-        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
 });
 
@@ -225,29 +211,7 @@ var PuffByUser = React.createClass({
                 {puffBoxList}
             </div>
         )
-
-        // return <section id="children">{kids.map(globalCreatePuffBox)}</section>
     }
-});
-
-var PuffTree = React.createClass({
-    render: function() {
-
-        var puff = this.props.puff;
-        var parentPuffs = PuffForum.getParents(puff);
-        var childrenPuffs = PuffForum.getChildren(puff); // sorted
-        
-        childrenPuffs = childrenPuffs.slice(0, CONFIG.maxChildrenToShow);
-
-        return (
-            <div>
-                <section id="parents">{parentPuffs.map(globalCreatePuffBox)}</section>
-                <section id="main-content"><PuffBox puff={puff} /></section>
-                <section id="children">{childrenPuffs.map(globalCreatePuffBox)}</section>
-            </div>
-            );
-    }
-
 });
 
 
@@ -257,11 +221,18 @@ var PuffTallTree = React.createClass({
             if(this.props.reply.show)
                 return false
             var char = String.fromCharCode(e.keyCode)
-            if(1*char)
+            
+            if(1*char) {
                 return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32) // spacebar
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            }
+            
+            if(e.keyCode == 32) { // spacebar
+                return events.pub('ui/view-mode/change', 
+                                 {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            }
+            
             if (e.keyCode == 13) {// enter
+                // FIXME: don't pub event if !view.cursor
                 if (this.props.view.cursor)
                     if (this.props.view.cursor == this.props.view.puff.sig) {
                         // remove cursor style
@@ -274,6 +245,7 @@ var PuffTallTree = React.createClass({
                                        'view.puff': PuffForum.getPuffById(this.props.view.cursor),
                                        'view.cursor': false})
             }
+            
             if (e.keyCode == 37 || // left arrow
                 e.keyCode == 38 || // up arrow
                 e.keyCode == 39 || // right arrow
@@ -362,35 +334,82 @@ var PuffTallTree = React.createClass({
                     {puffBoxList}
                 </ReactCSSTransitionGroup>
         
-        
-        
-        
-        
-        
-                <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
-                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
-                    {puffBoxList.map(function(puffbox) {
-                        return <Arrow key={'arrow-'+puffbox.props.key+puffbox.props.stats.x+puffbox.props.stats.y} x1={screenwidth} y1={screenheight} x2={puffbox.props.stats.x} y2={puffbox.props.stats.y} />
-                    })}
-                    
-                </svg>
-        
         */
         
         // debugger;
         
         
         var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
+        
+        if(mode == 'arrows') {
+            var arrows = allPuffs.reduce(function(acc, puffbox) {
+                            return acc.concat(
+                                puffbox.puff.payload.parents.map(
+                                    function(parent) {
+                                        return [puffbox, allPuffs.filter(
+                                            function(pb) {
+                                                return pb.puff.sig == parent})[0]]}))}, [])
+                                                    .filter(function(pair) {return pair[1]})
 
+            var arrowList = (
+                <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
+                    {arrows.map(function(arrow) {
+                        return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
+                    })}
+                </svg>
+            )
+        }
+        
         return (
             <div>
                 <div id="talltree">
                     {puffBoxList}
                 </div>
+                
+                {arrowList}
             </div>
         );
     }
 })
+
+
+var PuffArrow =  React.createClass({
+    render: function() {
+        var arrow = this.props.arrow
+        var offset = 30
+        var xoffset = 75
+        var yoffset = 5
+        var x1 = arrow[0].x + xoffset + arrow[0].width/2 + offset/2
+        var y1 = arrow[0].y + yoffset + offset/2
+        var x2 = arrow[1].x + xoffset + arrow[1].width/2 - offset/2
+        var y2 = arrow[1].y + yoffset + arrow[1].height - offset/2
+        
+        var stroke = '#' + ~~(Math.random()*10) + ~~(Math.random()*10) + ~~(Math.random()*10)
+        
+        return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} />
+    }
+})
+
+var Arrow = React.createClass({
+    componentDidMount: function() {
+        this.getDOMNode().setAttribute('marker-end', 'url(#triangle)')
+    },
+    render: function() {
+        
+        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}}
+        
+        var result = (
+            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="5">
+                
+            </line>
+        )
+        
+        return result
+    }
+})
+ 
+
 
 var PuffHeader = React.createClass({
     handleClick: function() {

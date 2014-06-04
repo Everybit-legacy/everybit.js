@@ -42,6 +42,10 @@ body {
     overflow-x: hidden;
 }
 
+path {
+    /* fill-opacity: 0; */
+}
+
 section {
     text-align: center;
 }
@@ -59,7 +63,7 @@ section {
     min-height: 25%;
     max-height: 25%;
 */
-    border: 3px solid #eee7d0;
+    border: 0px solid #eee7d0;
     padding: 20px 0 0 0;
     margin: 0 0 0 0;
     display: inline-block;
@@ -78,6 +82,8 @@ section {
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
+
+    opacity: 0.5;
 }
 
 /*#talltree #center .focused .block {*/

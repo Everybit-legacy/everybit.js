@@ -476,6 +476,9 @@ PuffForum.onNewPuffs(eatPuffs); // assign our callback
 
 PuffForum.init(); // initialize the forum module (and by extension the puffball network)
 
+// TODO: make this based on config, and changeable
+PuffWardrobe.setPref('storeKeychain', true);
+
 renderPuffWorld(); // bootstrap the GUI
 
 ////////// End PuffForum Interface ////////////

@@ -1,22 +1,5 @@
 /** @jsx React.DOM */
 
-var Arrow =  React.createClass({
-    componentDidMount: function() {
-        this.getDOMNode().setAttribute('marker-end', 'url(#triangle)')
-    },
-    render: function() {
-        
-        
-        var result = (
-            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke="black" strokeWidth="10" dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}} >
-                
-            </line>
-        )
-        
-        return result
-    }
-})
- 
 
 globalCreateFancyPuffBox = function(puffplus) {
     var puff = puffplus.puff
@@ -39,9 +22,9 @@ var PuffFancyBox = React.createClass({
         
         var offset = 30
         if(mode == 'arrows') {
-            width -= offset
+            width  -= offset
             height -= offset
-            top += offset/2
+            top  += offset/2
             left += offset/2
         }
         
@@ -50,31 +33,14 @@ var PuffFancyBox = React.createClass({
         
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
-
                 <PuffAuthor username={puff.username} />
                 <PuffContent puff={puff} />
                 <PuffBar puff={puff} />
             </div>
-
-            );
+        );
     }
 });
 
-
-
-var PuffBox = React.createClass({
-    render: function() {
-        var puff = this.props.puff
-
-        return (
-            <div id={puff.sig} key={puff.sig} className="block">
-                <PuffAuthor username={puff.username} />
-                <PuffContent puff={puff} />
-                <PuffBar puff={puff} />
-            </div>
-            );
-    }
-});
 
 var PuffAuthor = React.createClass({
     handleClick: function() {
@@ -86,7 +52,7 @@ var PuffAuthor = React.createClass({
 
         return (
             <div className="author"><a href="" onClick={this.handleClick}>{username}</a></div>
-            );
+        );
     }
 });
 
@@ -107,28 +73,16 @@ var PuffBar = React.createClass({
     render: function() {
         var puff = this.props.puff
 		var link = <a href={puff.payload.content} target="new"><i className="fa fa-download fa-fw downloadIcon"></i></a>;
-        if(puff.payload.type=='image'){
-			return (
-				<div className="bar">
-					{link}
-					<PuffInfoLink puff={puff} />
-					<PuffChildrenCount puff={puff} />
-					<PuffParentCount puff={puff} />
-					<PuffPermaLink sig={puff.sig} />
-					<PuffReplyLink sig={puff.sig} />
-				</div>
-				);
-		}else{
-			return (
-				<div className="bar">
-					<PuffInfoLink puff={puff} />
-					<PuffChildrenCount puff={puff} />
-					<PuffParentCount puff={puff} />
-					<PuffPermaLink sig={puff.sig} />
-					<PuffReplyLink sig={puff.sig} />
-				</div>
-				);
-			}
+		return (
+			<div className="bar">
+				{puff.payload.type=='image' ? link : ''}
+				<PuffInfoLink puff={puff} />
+				<PuffChildrenCount puff={puff} />
+				<PuffParentCount puff={puff} />
+				<PuffPermaLink sig={puff.sig} />
+				<PuffReplyLink sig={puff.sig} />
+			</div>
+		);
     }
 });
 
@@ -148,15 +102,13 @@ var PuffInfoLink = React.createClass({
     },
 
     render: function() {
-
-
         return (
             <span className="icon">
                 <a href='#' onClick={this.handleClick}>
                     <i className="fa fa-info fa-fw"></i>
                 </a>
             </span>
-            );
+        );
     }
 });
 
@@ -174,14 +126,15 @@ var PuffParentCount = React.createClass({
                     {0}<i className="fa fa-male fa-fw"></i>
                 </span>
            );
-        } else {
+        } 
+        else {
             return (
                 <span className="icon">
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
                         {parents.length}<i className="fa fa-male fa-fw"></i>
                     </a>
                 </span>
-                );
+            );
         }
     }
 });
@@ -200,15 +153,16 @@ var PuffChildrenCount = React.createClass({
                 <span className="icon">
                     {0}<i className="fa fa-child fa-fw"></i>
                 </span>
-                );
-        } else {
+            );
+        } 
+        else {
             return (
                 <span className="icon">
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
                         {children.length}<i className="fa fa-child fa-fw"></i>
                     </a>
                 </span>
-                );
+            );
         }
     }
 });
@@ -226,7 +180,7 @@ var PuffPermaLink = React.createClass({
                     <i className="fa fa-link fa-fw"></i>
                 </a>
             </span>
-            );
+        );
     }
 });
 
@@ -255,6 +209,6 @@ var PuffReplyLink = React.createClass({
                     <i className="fa fa-reply fa-fw"></i>
                 </a>
             </span>
-            );
+        );
     }
 });

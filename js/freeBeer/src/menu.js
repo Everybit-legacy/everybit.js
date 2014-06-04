@@ -487,6 +487,15 @@ var View = React.createClass({
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
 
+    handleShowRelationships: function() {
+        return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+    },
+
+    handleHideRelationships: function() {
+        return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+    },
+
+
     render: function() {
         return (
             <div><br />
@@ -494,6 +503,8 @@ var View = React.createClass({
                     <i className="fa fa-sitemap fa-fw gray"></i> View
                 </div>
                 <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleShowRelationships}>Show relationships</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleHideRelationships}>Hide relationships</a></div>
 
             </div>
             )

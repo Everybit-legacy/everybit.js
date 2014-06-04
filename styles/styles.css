@@ -451,7 +451,7 @@ header h1 {
 .logo {
     position: absolute;
     top: 10px;
-    margin-bottom: 0.5em;
+    margin-bottom: 0.8em;
     height: 50px;
 }
 
@@ -483,7 +483,7 @@ header h1 {
     position: absolute;
     left: 50px;
     top: 60px;
-    background-color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.98);
     z-index: 1000;
     width: 400px;
     font-size: 1.1em;
@@ -535,10 +535,10 @@ header h1 {
     font-family: Gudea;
     text-transform: uppercase;
     display: block;
-    padding-top: 0;
+    padding-top: .7em;
     padding-bottom: 0;
     margin: 0;
-    color: #333333;
+    color: #000000;
     font-size: 1.2em;
 }
 
@@ -576,6 +576,7 @@ header h1 {
     float: left;
     cursor: pointer;
     cursor: hand;
+    margin-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
     margin-left: 10px;
@@ -589,6 +590,7 @@ header h1 {
     float: left;
     cursor: pointer;
     cursor: hand;
+    margin-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
     margin-left: 10px;

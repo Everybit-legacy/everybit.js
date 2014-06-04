@@ -43,7 +43,7 @@ body {
 }
 
 path {
-    fill-opacity: 0;
+    /* fill-opacity: 0; */
 }
 
 section {
@@ -63,7 +63,7 @@ section {
     min-height: 25%;
     max-height: 25%;
 */
-    border: 3px solid #eee7d0;
+    border: 0px solid #eee7d0;
     padding: 20px 0 0 0;
     margin: 0 0 0 0;
     display: inline-block;
@@ -83,7 +83,7 @@ section {
     
     float: left;
 
-    /*opacity: 0.5;*/
+    opacity: 0.5;
 }
 
 /*#talltree #center .focused .block {*/

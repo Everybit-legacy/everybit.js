@@ -110,6 +110,7 @@ section {
     background-color: #f6faff;
 }
 
+
 #talltree .sibling .txt {
     background-color: #fafaec;
 }
@@ -124,9 +125,12 @@ section {
   transition: opacity 5s;
 }
 
+/* not in use
 .example-enter-active {
   opacity: 1;
 }
+
+
 
 .example-leave {
   opacity: 1;
@@ -137,10 +141,11 @@ section {
   opacity: 0.01;
 }
 
+
 #talltree line {
     transition: all 2s;
 }
-
+*/
 
 /* END New Tall Tree Styles */
 
@@ -161,6 +166,7 @@ p {
 }
 
 a {
+
     text-decoration:none;
     color: #1616A8;
 }
@@ -205,6 +211,7 @@ h4 {
 }
 
 .author {
+//    position: fixed;
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
     text-align: center;
@@ -311,6 +318,7 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
+ //   position: fixed;;
     bottom:0;
     right:0;
     /* background:#EEE; */
@@ -330,8 +338,8 @@ h4 {
     cursor: pointer;
 }
 
-.bar span.noCursor{
-    cursor: auto;
+.bar span.click{
+    cursor: default;
 }
 
 .bar .icon {
@@ -389,10 +397,11 @@ header h1 {
     /* line-height: 60px; */
 }
 
+/* not in use
 .zoom-controls {
     width: 100%;
 }
-
+*/
 
 #text-zoom {
     width: 50px;
@@ -401,12 +410,14 @@ header h1 {
     font-weight: bold;
 }
 
+/* not in use
 #puff-filter {
     width: 80px;
     border: 2px;
     color: black;
     font-weight: bold;
 }
+*/
 
 ._jsPlumb_connector {
     z-index: -1;
@@ -415,6 +426,16 @@ header h1 {
 ._jsPlumb_endpoint {
     z-index: 5;
 }
+
+/* not in use
+.wrapper{
+    position: relative;
+}
+
+.fixed-wrapper {
+    position: absolute;
+}
+*/
 
 #replyForm {
     left: 50%;
@@ -618,12 +639,13 @@ header h1 {
     padding-bottom: 10px;
     margin: 0px;
 }
-
+/* not in use
 .menuSectionEmpty {
     padding: 10px;
     margin: 10px;
 }
 
+*/
 #closeDiv {
     padding-top: 0px;
     padding-left: 3px;
@@ -634,7 +656,7 @@ header h1 {
     color: #1616A8;
     font-size: 1.4em;
 }
-
+/* not in use
 .replyBlack {
     width: 16px;
     height: 16px;
@@ -644,6 +666,7 @@ header h1 {
     width: 16px;
     height: 16px;
 }
+*/
 
 .private {
   background-color: #FFFFAD;

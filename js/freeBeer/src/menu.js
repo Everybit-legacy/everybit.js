@@ -382,6 +382,15 @@ var View = React.createClass({
         return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
     },
 
+    handleShowAnimation: function() {
+        return events.pub('ui/animation/show', {'view.animation': true});
+    },
+
+    handleHideAnimation: function() {
+        return events.pub('ui/animation/hide', {'view.animation': false});
+        console.log('injiimjimjmjmjimjimjimj',this.props)
+    },
+
 
     render: function() {
         return (
@@ -392,6 +401,8 @@ var View = React.createClass({
                 <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
                 <div className="menuItem"><a href="#" onClick={this.handleShowRelationships}>Show relationships</a></div>
                 <div className="menuItem"><a href="#" onClick={this.handleHideRelationships}>Hide relationships</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleShowAnimation}>Show animation</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleHideAnimation}>Hide animation</a></div>
 
             </div>
             )

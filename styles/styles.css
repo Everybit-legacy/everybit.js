@@ -714,7 +714,7 @@ a.footerText {
     font-size: .9em;
 }
 
-.animate{
+.animation, .animation .block{
     transition: all 1s;
 
 }

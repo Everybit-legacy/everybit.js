@@ -31,8 +31,11 @@ var PuffWorld = React.createClass({
 
         var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
 
+        var animateClass =  this.props.view.animation ? "animation" : '';
+        console.log(this.props)
+
         return (
-            <div>
+            <div className={animateClass}>
                 <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}

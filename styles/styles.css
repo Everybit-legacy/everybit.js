@@ -42,6 +42,10 @@ body {
     overflow-x: hidden;
 }
 
+path {
+    fill-opacity: 0;
+}
+
 section {
     text-align: center;
 }

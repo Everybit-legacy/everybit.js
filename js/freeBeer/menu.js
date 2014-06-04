@@ -1,118 +1,5 @@
 /** @jsx React.DOM */
 
-var PuffMenu = React.createClass({displayName: 'PuffMenu',
-    handleClose: function() {
-        return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
-    },
-
-    handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
-    },
-    handleNewContent: function() {
-        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
-    },
-    handleShowPrefs: function() {
-        return events.pub('ui/menu/prefs/show', {'menu.prefs': true})
-    },
-    handleShowProfile: function() {
-        return events.pub('ui/menu/profile/show', {'menu.profile': true})
-    },
-    handleLearnMore: function() {
-        var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
-        showPuff(puff)
-        return false
-    },
-    render: function() {
-        var learnMore = (
-            React.DOM.div( {className:"menuItem"}, 
-                React.DOM.a( {href:"#", onClick:this.handleLearnMore, className:"under"}, 
-                "Learn more about FreeBeer!"
-                )
-            )
-            );
-
-        // Machine preferences
-        var prefs = PuffPrefs( {prefs:this.props.prefs} )
-
-        if(!this.props.menu.prefs) {
-            prefs = (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowPrefs, id:"show_prefs", className:"under"}, "Preferences")
-                )
-                );
-        }
-
-        // Identity profile
-        var profile = PuffProfile( {profile:this.props.profile} )
-
-        if(!this.props.menu.profile) {
-            profile = (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowProfile, id:"show_profile", className:"under"}, "Profile")
-                )
-                );
-        }
-
-        // no current user
-        var username = PuffWardrobe.getCurrentUsername()
-        username = humanizeUsernames(username) || ''
-
-        if(!username) {
-            // prefs = <div></div>
-            profile = React.DOM.div(null)
-        }
-
-        return (
-            React.DOM.div( {className:"menuDos", id:"menuDos"}, 
-
-
-
-            "IDENTITY: ", React.DOM.br(null ),
-                PuffUserMenu( {user:this.props.menu.user} ),
-                
-                prefs,
-
-                profile
-
-            )
-            );
-    }
-});
-
-
-var PuffPrefs = React.createClass({displayName: 'PuffPrefs',
-    handleStoreusers: function() {
-        return events.pub('prefs/storeKeychain/toggle')
-    },
-    render: function() {
-        return (
-            React.DOM.div(null, 
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.input( {type:"checkbox", ref:"storeKeychain", name:"storeKeychain", onChange:this.handleStoreusers, checked:this.props.prefs.storeKeychain} ),
-                "Store identities on this machine"
-                ),
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.p(null, "Number of puffs to show in root view"),
-                    React.DOM.p(null, "Default view")
-                )
-            )
-            );
-    }
-});
-
-
-var PuffProfile = React.createClass({displayName: 'PuffProfile',
-    handleStoreusers: function() {
-        return events.pub('profile/nickname/set', this.refs.nickname.state.value)
-    },
-    render: function() {
-        return (
-            React.DOM.div(null
-            )
-            );
-    }
-});
-
 /*
  <div className="menuItem">
  <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
@@ -599,7 +486,7 @@ var Identity = React.createClass({displayName: 'Identity',
                 AuthorPicker(null ),
                 React.DOM.div( {className:"leftIndent"}, 
                 React.DOM.div( {className:setClass,  onClick:this.toggleShowTab.bind(this,'showSetIdentity')} , React.DOM.i( {className:"fa fa-sign-in fa-fw"})),
-                React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-pencil fa-fw"})),
+                React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"})),
                 React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"})),
                 React.DOM.br(null ),
                 SetIdentity(  {show:this.state.tabs.showSetIdentity,  username:currUser}),
@@ -681,12 +568,18 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 });
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
+
     getInitialState: function() {
         return {
             rootKeyStatus: false,
             adminKeyStatus: false,
             defaultKeyStatus: false,
-            usernameStatus: false
+
+            usernameStatus: false,
+            rootKey: false,
+            adminKey: false,
+            defaultKey: false
+
         }
     },
 
@@ -713,42 +606,68 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             })
     },
 
-    handleRootKeyCheck: function() {
+    handleKeyCheck: function(keyType) {
+        console.log(keyType);
+
+        var self = this;
+
+        // Reset state
+        this.state[keyType] = false;
+        events.pub('ui/event', {});
+
         var username = this.refs.username.getDOMNode().value;
-        var defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
+        var privateKey = this.refs[keyType].getDOMNode().value;
 
         // Check for zero length
-        if(!rootKeyPrivate.length) {
-            this.state.defaultKeyStatus = 'Key missing';
+        if(!privateKey.length) {
+            this.state[keyType] = 'Key missing';
             events.pub('ui/event', {});
             return false;
         }
 
         // Convert to public key
-        var defaultKeyPublic = Puffball.Crypto.privateToPublic(defaultKeyPrivate);
-        if(!defaultKeyPublic) {
-            this.state.defaultKeyStatus = 'Bad key';
+        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
+        if(!publicKey) {
+            this.state[keyType] = 'Bad key';
             events.pub('ui/event', {});
             return false;
         }
 
+        var prom = Puffball.getUserRecord(username);
 
-        var userInfo = this.handleUsernameLookup();
-        if(!userInfo) {
-            events.pub('ui/event', {});
-            return false;
-        }
+        prom.then(function(userInfo) {
 
-        if(defaultKeyPublic != userInfo.defaultKey) {
-            this.state.defaultKeyStatus = 'Incorrect';
-            events.pub('ui/event', {});
-            return false;
-        }
+            if(publicKey != userInfo[keyType]) {
+                self.state[keyType] = 'Incorrect';
+                events.pub('ui/event', {});
+                return false;
+            } else {
+                self.state[keyType] = true;
+                self.state.usernameStatus = true;
 
-        this.state.defaultKeyStatus = true;
-        events.pub('ui/event', {});
-        return false;
+                // Add this to wardrobe, set to current
+                if(keyType == 'defaultKey') {
+                    PuffWardrobe.storePrivateKeysDirectly(username, '', '', privateKey);
+                } else if(keyType == 'adminKey') {
+                    PuffWardrobe.storePrivateKeysDirectly(username, '', privateKey, '');
+                } else {
+                    PuffWardrobe.storePrivateKeysDirectly(username, privateKey, '', '');
+                }
 
+                PuffWardrobe.switchCurrent(username);
+
+                // Store this identity
+                events.pub('profile/nickname/set', username);
+
+                events.pub('ui/event', {});
+                return false;
+            }
+        })
+            .catch(function(err) {
+                self.state[keyType] = 'Not found';
+                events.pub('ui/event', {});
+                return false;
+            })
 
 
     },
@@ -761,23 +680,38 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 
             return (
                 React.DOM.div( {className:"menuSection"}, 
-                    React.DOM.div(null, React.DOM.em(null, "Use this area to store keys with this browser")),
+                    React.DOM.div(null, React.DOM.em(null, "Use this area to store keys with this browser. To publish content, set only your default key.")),
                     React.DOM.div( {className:"menuLabel"}, "Username:"),
                     React.DOM.div( {className:"menuInput"}, 
                         React.DOM.input( {type:"text", name:"username", ref:"username", defaultValue:currUser, size:"12"} ),
-                        React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} )),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} )),
                         React.DOM.em(null, this.state.usernameStatus)
                     ),React.DOM.br(null ),
                     React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " Private Keys"),
+
                     React.DOM.div( {className:"menuLabel"}, "default: " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate", size:"12"} ),
-                        React.DOM.a( {href:"#", onClick:this.handleRootKeyCheck}, Checkmark( {show:this.state.defaultKeyStatus} )),
-                        React.DOM.em(null, this.state.defaultKeyStatus)
-                    ),
+                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12"} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'defaultKey')}, 
+                                Checkmark( {show:this.state.defaultKey} )),
+                                React.DOM.em(null, this.state.defaultKey)
+                    ),React.DOM.br(null ),
 
-                    React.DOM.br(null )
+                    React.DOM.div( {className:"menuLabel"}, "admin: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12"} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'adminKey')}, 
+                        Checkmark( {show:this.state.adminKey} )),
+                        React.DOM.em(null, this.state.adminKey)
+                    ),React.DOM.br(null ),
 
+                    React.DOM.div( {className:"menuLabel"}, "root: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12"} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'rootKey')}, 
+                        Checkmark( {show:this.state.rootKey} )),
+                        React.DOM.em(null, this.state.rootKey)
+                    ),React.DOM.br(null )
                 )
                 )
         }
@@ -813,22 +747,29 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
             var currUser = this.props.username;
 
+            // TODO: make sure not None
+            // TODO: Allow erase keys here?
             return (
                 React.DOM.div( {className:"menuSection"}, 
-                    React.DOM.div(null, React.DOM.em(null, "Update user: " ),React.DOM.span( {className:"authorSpan"}, currUser)
+                    React.DOM.div(null, React.DOM.em(null, "Stored keys for: " ),React.DOM.span( {className:"authorSpan"}, currUser)
                     ),
 
+                    React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " Private Keys"),
 
-                    React.DOM.br(null ),
-                    "- Place to view"+' '+
-                "- Username is fixed",React.DOM.br(null ),
-                "- Existing Keys",React.DOM.br(null ),
-                "+ default, admin, root, (click to show each new level)",React.DOM.br(null ),
-                "+ Click next to each one to try and change",React.DOM.br(null ),
-                "- Message area below for results",React.DOM.br(null ),
-                "- Reminder to save keys",React.DOM.br(null )
+                    React.DOM.div( {className:"menuLabel"}, "default: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:PuffWardrobe.getCurrentKeys()['default']} )
+                    ),React.DOM.br(null ),
 
+                    React.DOM.div( {className:"menuLabel"}, "admin: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:PuffWardrobe.getCurrentKeys()['admin']} )
+                    ),React.DOM.br(null ),
 
+                    React.DOM.div( {className:"menuLabel"}, "root: " ),
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:PuffWardrobe.getCurrentKeys()['root']} )
+                    ),React.DOM.br(null )
                 )
                 )
         }
@@ -849,6 +790,19 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
     }
 
 });
+
+/*
+
+ <br />
+ - Place to view
+ - Username is fixed<br />
+ - Existing Keys<br />
+ + default, admin, root, (click to show each new level)<br />
+ + Click next to each one to try and change<br />
+ - Message area below for results<br />
+ - Reminder to save keys<br />
+ */
+
 
 var defaultPrivateKeyField = React.createClass({displayName: 'defaultPrivateKeyField',
     render: function() {

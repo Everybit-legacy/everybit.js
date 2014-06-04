@@ -78,6 +78,8 @@ section {
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
+
+    /*opacity: 0.5;*/
 }
 
 /*#talltree #center .focused .block {*/

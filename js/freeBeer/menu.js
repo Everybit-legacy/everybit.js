@@ -487,13 +487,24 @@ var View = React.createClass({displayName: 'View',
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
 
+    handleShowRelationships: function() {
+        return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+    },
+
+    handleHideRelationships: function() {
+        return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+    },
+
+
     render: function() {
         return (
             React.DOM.div(null, React.DOM.br(null ),
                 React.DOM.div( {className:"menuHeader"}, 
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " View"
                 ),
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations"))
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations")),
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowRelationships}, "Show relationships")),
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleHideRelationships}, "Hide relationships"))
 
             )
             )

@@ -346,14 +346,14 @@ var PuffTallTree = React.createClass({
                             return acc.concat(
                                 puffbox.puff.payload.parents.map(
                                     function(parent) {
-                                        return [puffbox, allPuffs.filter(
+                                        return [allPuffs.filter(
                                             function(pb) {
-                                                return pb.puff.sig == parent})[0]]}))}, [])
-                                                    .filter(function(pair) {return pair[1]})
+                                                return pb.puff.sig == parent})[0], puffbox]}))}, [])
+                                                    .filter(function(pair) {return pair[0]})
 
             var arrowList = (
                 <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
-                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="strokeWidth" markerWidth="12" markerHeight="9" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
                     {arrows.map(function(arrow) {
                         return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
                     })}
@@ -379,13 +379,56 @@ var PuffArrow =  React.createClass({
         var arrow = this.props.arrow
         var offset = 30
         var xoffset = 75
-        var yoffset = 5
-        var x1 = arrow[0].x + xoffset + arrow[0].width/2 + offset/2
-        var y1 = arrow[0].y + yoffset + offset/2
-        var x2 = arrow[1].x + xoffset + arrow[1].width/2 - offset/2
-        var y2 = arrow[1].y + yoffset + arrow[1].height - offset/2
-        
-        var stroke = '#' + ~~(Math.random()*10) + ~~(Math.random()*10) + ~~(Math.random()*10)
+        var yoffset = 0
+        var baseShift = 12
+        var x1 = arrow[0].x + xoffset + arrow[0].width/2 - offset/2
+        var y1 = arrow[0].y + yoffset + arrow[0].height - offset/2
+        var x2 = arrow[1].x + xoffset + arrow[1].width/2 + offset/2
+        var y2 = arrow[1].y + yoffset + offset/2
+
+        var stroke = CONFIG.arrowColors[Math.floor(Math.random() * CONFIG.arrowColors.length)]
+
+        // var stroke = '#88888';
+        if(x1 > x2) {
+            x1 -= baseShift;
+            x2 += baseShift*2;
+        } else {
+            x1 += baseShift;
+            x2 -= baseShift*2;
+        }
+
+        console.log(x1, x2, y1, y2, arrow[0].className, arrow[1].className)
+
+        if(y1 > y2) {
+            // set y coords to halfway down box
+            y1 = arrow[0].y + arrow[0].height/2
+            y2 = arrow[1].y + arrow[1].height/2
+
+            // set x coords to right or left side
+            if(arrow[0].x < arrow[1].x) {
+                x1 = arrow[0].x + arrow[0].width + xoffset/2
+                x2 = arrow[1].x + xoffset
+            }
+            else if (arrow[0].x == arrow[1].x) {
+                x1 = arrow[0].x + arrow[0].width/2 + xoffset + offset/2
+                x2 = arrow[1].x + arrow[1].width/2 + xoffset + offset/2
+                y1 = arrow[0].y + offset/2
+                y2 = arrow[1].y + arrow[1].height - offset/2
+                console.log('hi', x1, x2, y1, y2)
+            }
+            else {
+                x1 = arrow[0].x + xoffset
+                x2 = arrow[1].x + arrow[1].width + xoffset/2 + xoffset/4 // sigh
+            }
+
+            // Flip arrow
+
+
+            // Should it attach to left or right?
+
+            // Attach to box
+
+        }
         
         return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} />
     }
@@ -400,7 +443,7 @@ var Arrow = React.createClass({
         // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}}
         
         var result = (
-            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="5">
+            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="2">
                 
             </line>
         )

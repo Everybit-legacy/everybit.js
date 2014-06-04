@@ -485,7 +485,7 @@ header h1 {
     top: 60px;
     background-color: rgba(255, 255, 255, 0.98);
     z-index: 1000;
-    width: 400px;
+    width: 450px;
     font-size: 1.1em;
     line-height: 1.7em;
     text-decoration:none;
@@ -529,6 +529,10 @@ header h1 {
 
 .menuItem {
     text-indent: 32px;
+}
+
+.leftIndent {
+    margin-left: 24px;
 }
 
 .menuHeader {
@@ -598,7 +602,14 @@ header h1 {
 }
 
 .menuSection {
-    border: 2px solid #d6d6ff;
+    border-top: 1px solid #d6d6ff;
+    border-bottom: 1px solid #d6d6ff;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 0px;
+}
+
+.menuSectionEmpty {
     padding: 10px;
     margin: 10px;
 }
@@ -712,6 +723,10 @@ a.footerText {
 
 .gray {
     color: #888888;
+}
+
+.green {
+    color: #00CC00;
 }
 
 @keyframes fadein {

@@ -1,22 +1,5 @@
 /** @jsx React.DOM */
 
-var Arrow =  React.createClass({displayName: 'Arrow',
-    componentDidMount: function() {
-        this.getDOMNode().setAttribute('marker-end', 'url(#triangle)')
-    },
-    render: function() {
-        
-        
-        var result = (
-            React.DOM.line( {x1:this.props.x1, y1:this.props.y1, x2:this.props.x2, y2:this.props.y2, stroke:"black", strokeWidth:"10", dangerouslySetInnerHTML:{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}} 
-                
-            )
-        )
-        
-        return result
-    }
-})
- 
 
 globalCreateFancyPuffBox = function(puffplus) {
     var puff = puffplus.puff
@@ -39,9 +22,9 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         
         var offset = 30
         if(mode == 'arrows') {
-            width -= offset
+            width  -= offset
             height -= offset
-            top += offset/2
+            top  += offset/2
             left += offset/2
         }
         
@@ -50,31 +33,14 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
-
                 PuffAuthor( {username:puff.username} ),
                 PuffContent( {puff:puff} ),
                 PuffBar( {puff:puff} )
             )
-
-            );
+        );
     }
 });
 
-
-
-var PuffBox = React.createClass({displayName: 'PuffBox',
-    render: function() {
-        var puff = this.props.puff
-
-        return (
-            React.DOM.div( {id:puff.sig, key:puff.sig, className:"block"}, 
-                PuffAuthor( {username:puff.username} ),
-                PuffContent( {puff:puff} ),
-                PuffBar( {puff:puff} )
-            )
-            );
-    }
-});
 
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     handleClick: function() {
@@ -86,7 +52,7 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
 
         return (
             React.DOM.div( {className:"author"}, React.DOM.a( {href:"", onClick:this.handleClick}, username))
-            );
+        );
     }
 });
 
@@ -107,28 +73,16 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
     render: function() {
         var puff = this.props.puff
 		var link = React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-download fa-fw downloadIcon"}));
-        if(puff.payload.type=='image'){
-			return (
-				React.DOM.div( {className:"bar"}, 
-					link,
-					PuffInfoLink( {puff:puff} ),
-					PuffChildrenCount( {puff:puff} ),
-					PuffParentCount( {puff:puff} ),
-					PuffPermaLink( {sig:puff.sig} ),
-					PuffReplyLink( {sig:puff.sig} )
-				)
-				);
-		}else{
-			return (
-				React.DOM.div( {className:"bar"}, 
-					PuffInfoLink( {puff:puff} ),
-					PuffChildrenCount( {puff:puff} ),
-					PuffParentCount( {puff:puff} ),
-					PuffPermaLink( {sig:puff.sig} ),
-					PuffReplyLink( {sig:puff.sig} )
-				)
-				);
-			}
+		return (
+			React.DOM.div( {className:"bar"}, 
+				puff.payload.type=='image' ? link : '',
+				PuffInfoLink( {puff:puff} ),
+				PuffChildrenCount( {puff:puff} ),
+				PuffParentCount( {puff:puff} ),
+				PuffPermaLink( {sig:puff.sig} ),
+				PuffReplyLink( {sig:puff.sig} )
+			)
+		);
     }
 });
 
@@ -148,15 +102,13 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
     },
 
     render: function() {
-
-
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-info fa-fw"})
                 )
             )
-            );
+        );
     }
 });
 
@@ -174,14 +126,15 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
                     0,React.DOM.i( {className:"fa fa-male fa-fw"})
                 )
            );
-        } else {
+        } 
+        else {
             return (
                 React.DOM.span( {className:"icon"}, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
                         parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
                     )
                 )
-                );
+            );
         }
     }
 });
@@ -200,15 +153,16 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
                 React.DOM.span( {className:"icon"}, 
                     0,React.DOM.i( {className:"fa fa-child fa-fw"})
                 )
-                );
-        } else {
+            );
+        } 
+        else {
             return (
                 React.DOM.span( {className:"icon"}, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
                         children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
                     )
                 )
-                );
+            );
         }
     }
 });
@@ -226,7 +180,7 @@ var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
                     React.DOM.i( {className:"fa fa-link fa-fw"})
                 )
             )
-            );
+        );
     }
 });
 
@@ -255,6 +209,6 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
                     React.DOM.i( {className:"fa fa-reply fa-fw"})
                 )
             )
-            );
+        );
     }
 });

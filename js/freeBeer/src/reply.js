@@ -39,13 +39,17 @@ var PuffReplyForm = React.createClass({
     },
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
-        return events.pub('ui/reply/set-type', {'reply.type': type})
+        return events.pub('ui/reply/set-type', {'reply.type': type});
     },
     componentDidMount: function() {
+        var replyForm = document.getElementById('replyForm');
+        draggableize(replyForm);
         // $('#replyForm').eq(0).draggable();
         // $("#replyForm [name='content']").focus();
     },
     componentDidUpdate: function() {
+        var replyForm = document.getElementById('replyForm');
+        draggableize(replyForm);
         // $('#replyForm').eq(0).draggable();
     },
     getInitialState: function() {

@@ -571,7 +571,7 @@ var AuthorPicker = React.createClass({
                         return <option key={username} value={username}>{username}</option>
                     })}
                 </select>
-                <a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a>
+                <a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o"></i></a>
             </div>
             );
     }

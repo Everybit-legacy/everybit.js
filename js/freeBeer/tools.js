@@ -2,6 +2,39 @@
 
 
 // BEGIN ADVANCED TOOLS
+
+var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay',
+    getInitialState: function() {
+        return {value: '', oldpuff: ''};
+    },
+    handleChange: function(event) {
+        this.setState({value: event.target.value});
+    },
+    render: function() {
+        if(this.state.oldpuff != this.props.puff) {
+            this.state.value = formatForDisplay(this.props.puff, 'edit');
+            this.state.oldpuff = this.props.puff;
+        }
+
+
+        if(this.props.style == 'edit') {
+            var puffString = this.state.value;
+
+            return (
+                React.DOM.textarea( {ref:"puffString", name:"puffString", id:"puffString", cols:"50", value:puffString, onChange:this.handleChange} )
+            )
+        }
+
+        // for raw or formatted styles:
+        var puffString = formatForDisplay(this.props.puff, this.props.style);
+
+        return (
+            React.DOM.textarea( {ref:"puffString", name:"puffString", rows:"5", cols:"50", value:puffString})
+            )
+    }
+});
+
+
 var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
     getInitialState: function() {
@@ -143,9 +176,9 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var prom = PuffNet.updateUserRecord(puff)
 
         prom.then(function(result) {
-                self.state.result = result;
-                events.pub('ui/puff-packer/userlookup', {});
-            })
+            self.state.result = result;
+            events.pub('ui/puff-packer/userlookup', {});
+        })
             .catch(function(err) {
                 self.state.result = {'FAIL': err.message};
                 events.pub('ui/puff-packer/userlookup/failed', {});

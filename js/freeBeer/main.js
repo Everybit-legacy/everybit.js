@@ -384,6 +384,10 @@ function moveToNeighbour(currentId, dir, mode) {
            (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
         neighbour = neighbour.parentNode;
     }
+    
+    if(!neighbour)
+        neighbour = document.querySelector('.block');
+    
     return neighbour;
 }
 

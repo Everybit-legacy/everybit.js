@@ -388,7 +388,7 @@ var View = React.createClass({
 
     handleHideAnimation: function() {
         return events.pub('ui/animation/hide', {'view.animation': false});
-        console.log('injiimjimjmjmjimjimjimj',this.props)
+        console.log(this.props)
     },
 
 

@@ -35,8 +35,6 @@ PuffForum.init = function() {
 PuffForum.getPuffById = function(id) {
     //// get a particular puff
   
-    // TODO: check the graph instead of this
-    
     var shell = PuffData.shells.filter(function(shell) { return id === shell.sig })[0]
     
     return Puffball.getPuffFromShell(shell)

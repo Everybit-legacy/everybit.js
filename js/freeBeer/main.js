@@ -23,6 +23,7 @@ puffworldprops = {
         user: false,
         mode: 'browse',
         cols: 5,
+        animation: true,
         cursor: false // puff where the cursor is
     },
 
@@ -518,6 +519,9 @@ var eatPuffs = function(puffs) {
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
 
 PuffForum.init(); // initialize the forum module (and by extension the puffball network)
+
+// TODO: make this based on config, and changeable
+PuffWardrobe.setPref('storeKeychain', true);
 
 renderPuffWorld(); // bootstrap the GUI
 

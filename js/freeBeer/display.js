@@ -1,6 +1,70 @@
 /** @jsx React.DOM */
 
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
+var ViewKeybindingsMixin = {
+    componentDidMount: function() {
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            
+            if(1*char) {
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            }
+            
+            if(e.keyCode == 32) { // spacebar
+                return events.pub('ui/view-mode/change', 
+                                 {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            }
+            
+            if (e.keyCode == 13) {// enter
+                // FIXME: don't pub event if !view.cursor
+                if (this.props.view.cursor)
+                    if (this.props.view.cursor == this.props.view.puff.sig) {
+                        // remove cursor style
+                        var cursor = document.getElementById(this.props.view.cursor);
+                        cursor.className = cursor.className.replace(' cursor', '');
+                        return;
+                    }
+                    return events.pub('ui/view-puff/change', 
+                                      {'view.style': 'PuffTallTree',
+                                       'view.puff': PuffForum.getPuffById(this.props.view.cursor),
+                                       'view.cursor': false})
+            }
+            
+            if (e.keyCode == 37 || // left arrow
+                e.keyCode == 38 || // up arrow
+                e.keyCode == 39 || // right arrow
+                e.keyCode == 40) { // down arrow
+                var current = this.props.view.cursor;
+                
+                if (!current || !document.getElementById(current))
+                    current = this.props.view.puff.sig;
+                    
+                if (!current)
+                    current = document.querySelector('.block').id;
+                    
+                current = document.getElementById(current);
+                var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
+                
+                if (next) {
+                    this.props.view.cursor = next.id;
+                
+                    // remove style for current
+                    current.className = current.className.replace(' cursor', '');
+                    // add style for next
+                    next.className = next.className.replace(' cursor', '');
+                    next.className = next.className + ' cursor';
+                }
+                e.preventDefault();
+            }
+        }.bind(this)
+        document.addEventListener('keydown', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keydown', this.keyfun)
+    },
+};
+
 
 
 // MAIN VIEWS
@@ -17,13 +81,13 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             view  = PuffAllChildren( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
 
         else if( viewprops.style == 'PuffAllParents' )
-            view  = PuffAllParents( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
+            view  = PuffAllParents(  {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
 
         else if( viewprops.style == 'PuffByUser' )
-            view  = PuffByUser( {view:viewprops, reply:this.props.reply, user:viewprops.user} )
+            view  = PuffByUser(      {view:viewprops, reply:this.props.reply, user:viewprops.user} )
 
         else if( viewprops.style == 'PuffLatest' )
-            view  = PuffLatest( {view:viewprops, reply:this.props.reply} )
+            view  = PuffLatest(      {view:viewprops, reply:this.props.reply} )
 
         else if( viewprops.style == 'PuffPacker' )
             view  = PuffPacker( {tools:this.props.tools} )
@@ -82,22 +146,7 @@ var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay
 });
 
 var PuffRoots = React.createClass({displayName: 'PuffRoots',
-    componentDidMount: function() {
-        // TODO: make this a mixin
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-        }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
         var puffs = PuffForum.getRootPuffs(); // sorted
 
@@ -118,22 +167,7 @@ var PuffRoots = React.createClass({displayName: 'PuffRoots',
 });
 
 var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
-    componentDidMount: function() {
-        // TODO: make this a mixin
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-        }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
         var kids = PuffForum.getChildren(this.props.puff); // sorted
 
@@ -152,22 +186,7 @@ var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
 });
 
 var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
-    componentDidMount: function() {
-        // TODO: make this a mixin
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-        }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
         var kids = PuffForum.getParents(this.props.puff); // sorted
 
@@ -186,22 +205,7 @@ var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
 });
 
 var PuffByUser = React.createClass({displayName: 'PuffByUser',
-    componentDidMount: function() {
-        // TODO: make this a mixin
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-        }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
         var puffs = PuffForum.getByUser(this.props.user); // sorted
 
@@ -220,22 +224,7 @@ var PuffByUser = React.createClass({displayName: 'PuffByUser',
 });
 
 var PuffLatest = React.createClass({displayName: 'PuffLatest',
-    componentDidMount: function() {
-        // TODO: make this a mixin
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            if(1*char)
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            if(e.keyCode == 32)
-                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-        }.bind(this)
-        document.addEventListener('keypress', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keypress', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
         var rows   = 4
         var cols   = this.props.view.cols
@@ -255,64 +244,7 @@ var PuffLatest = React.createClass({displayName: 'PuffLatest',
 
 
 var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
-    componentDidMount: function() {
-        this.keyfun = function(e) {
-            if(this.props.reply.show)
-                return false
-            var char = String.fromCharCode(e.keyCode)
-            
-            if(1*char) {
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            }
-            
-            if(e.keyCode == 32) { // spacebar
-                return events.pub('ui/view-mode/change', 
-                                 {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-            }
-            
-            if (e.keyCode == 13) {// enter
-                // FIXME: don't pub event if !view.cursor
-                if (this.props.view.cursor)
-                    if (this.props.view.cursor == this.props.view.puff.sig) {
-                        // remove cursor style
-                        var cursor = document.getElementById(this.props.view.cursor);
-                        cursor.className = cursor.className.replace(' cursor', '');
-                        return;
-                    }
-                    return events.pub('ui/view-puff/change', 
-                                      {'view.style': 'PuffTallTree',
-                                       'view.puff': PuffForum.getPuffById(this.props.view.cursor),
-                                       'view.cursor': false})
-            }
-            
-            if (e.keyCode == 37 || // left arrow
-                e.keyCode == 38 || // up arrow
-                e.keyCode == 39 || // right arrow
-                e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor;
-                if (!current || !document.getElementById(current))
-                    current = this.props.view.puff.sig;
-                    
-                current = document.getElementById(current);
-                var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
-                
-                if (next) {
-                    this.props.view.cursor = next.id;
-                
-                    // remove style for current
-                    current.className = current.className.replace(' cursor', '');
-                    // add style for next
-                    next.className = next.className.replace(' cursor', '');
-                    next.className = next.className + ' cursor';
-                }
-                e.preventDefault();
-            }
-        }.bind(this)
-        document.addEventListener('keydown', this.keyfun)
-    },
-    componentWillUnmount: function() {
-        document.removeEventListener('keydown', this.keyfun)
-    },
+    mixins: [ViewKeybindingsMixin],
     render: function() {
 
         var puff   = this.props.view.puff

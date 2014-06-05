@@ -29,10 +29,13 @@ var PuffWorld = React.createClass({
 
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
 
-        var menu = this.props.menu.show ? <div><PuffMenu menu={this.props.menu} prefs={this.props.prefs} profile={this.props.profile} /> <Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
+        var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
+
+        var animateClass =  this.props.view.animation ? "animation" : '';
+        console.log(this.props)
 
         return (
-            <div>
+            <div className={animateClass}>
                 <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}
@@ -346,21 +349,23 @@ var PuffTallTree = React.createClass({
                             return acc.concat(
                                 puffbox.puff.payload.parents.map(
                                     function(parent) {
-                                        return [puffbox, allPuffs.filter(
+                                        return [allPuffs.filter(
                                             function(pb) {
-                                                return pb.puff.sig == parent})[0]]}))}, [])
-                                                    .filter(function(pair) {return pair[1]})
+                                                return pb.puff.sig == parent})[0], puffbox]}))}, [])
+                                                    .filter(function(pair) {return pair[0]})
 
             var arrowList = (
                 <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
-                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 10 10" refX="0" refY="5" markerUnits="strokeWidth" markerWidth="4" markerHeight="3" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" /></marker>'}} ></defs>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ></defs>
                     {arrows.map(function(arrow) {
                         return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
                     })}
                 </svg>
             )
         }
-        
+
+        //
+
         return (
             <div>
                 <div id="talltree">
@@ -377,17 +382,162 @@ var PuffTallTree = React.createClass({
 var PuffArrow =  React.createClass({
     render: function() {
         var arrow = this.props.arrow
+        
+        var p = arrow[0]
+        var c = arrow[1]
+        
         var offset = 30
-        var xoffset = 75
-        var yoffset = 5
-        var x1 = arrow[0].x + xoffset + arrow[0].width/2 + offset/2
-        var y1 = arrow[0].y + yoffset + offset/2
-        var x2 = arrow[1].x + xoffset + arrow[1].width/2 - offset/2
-        var y2 = arrow[1].y + yoffset + arrow[1].height - offset/2
+        var xoffset = CONFIG.leftMargin
+        var yoffset = 0
+        var baseShift = 12
+
+        var x1 = p.x + p.width/2 + xoffset
+        var y1 = p.y + p.height/2
+        var x2 = c.x + c.width/2 + xoffset
+        var y2 = c.y + c.height/2
+
+        /*
+        var leftEdge = x2 - (c.height/2) - offset/2
+        var rightEdge = x2 + (c.height/2) + offset/2
+        var topEdge = y2 -(c.height/2) - offset/2
+        var bottomEdge = y2 + (c.height/2) + offset/2
+        */
+
+        var boxSlope = Math.abs(c.height/c.width)
+
+        var dx = x2-x1
+        var dy = y2-y1
+        var lineSlope = Math.abs(dy/dx)
+        var theta = Math.atan(lineSlope)
+
+        // Child is below parent or sideways
+        if(y2 >= y1) {
+
+            // Which does it hit first, top edge or left edge?
+            if (x2 > x1) {
+                // Arrow is left to right
+                if (boxSlope < lineSlope) {
+
+                    // Limited by top edge
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    y2 -= ((c.height / 2) - offset / 2)
+
+                    y2 -= Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by right edge
+                    x2 -= ((c.width / 2) - offset / 2)
+                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 -= Math.abs(Math.cos(theta)) * 5
+
+                }
+            } else {
+                if (boxSlope < lineSlope) {
+
+                    // Limited by top edge
+                    x2 += ((c.height / 2) + offset / 2) / lineSlope
+                    y2 -= ((c.height / 2) - offset / 2)
+
+                    y2 -= Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by left edge
+                    x2 += ((c.width / 2) - offset / 2)
+                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 += Math.abs(Math.cos(theta)) * 5
+                }
+            }
+        } else {
+            // Which does it hit first, top edge or left edge?
+            if (x2 < x1) {
+                // Arrow is right to left
+                if (boxSlope > lineSlope) {
+
+                    // Limited by bottom edge
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    y2 += ((c.height / 2) - offset / 2)
+
+                    y2 += Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by right edge
+                    x2 += ((c.width / 2) - offset / 2)
+                    y2 += ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 += Math.abs(Math.cos(theta)) * 5
+
+                }
+            } else {
+                // Arrow is left to right
+                if (boxSlope < lineSlope) {
+
+                    // Limited by bottom edge
+                    x2 -= ((c.height / 2) + offset / 2) / lineSlope
+                    y2 += ((c.height / 2) - offset / 2)
+
+                    y2 += Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by left edge
+                    x2 -= ((c.width / 2) - offset / 2)
+                    y2 += ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 -= Math.abs(Math.cos(theta)) * 5
+                }
+            }
+        }
+
+        // WORKING: All downward arrows
+        // WORKING: Straight up
+        // ?: Up and left limited by bottom
+        // ?: Up and right limited by bottom
+        // ?: Up and left limited by edge
+        // WORKING: Up and right limited by edge
+
+
+        var stroke = CONFIG.arrowColors[Math.floor(Math.random() * CONFIG.arrowColors.length)]
+
+
+        /*
+        if(x1 > x2) {
+            x1 -= baseShift;
+            x2 += baseShift*2;
+        } else {
+            x1 += baseShift;
+            x2 -= baseShift*2;
+        }
+
+
+        // console.log(x1, x2, y1, y2, arrow[0].className, c.className)
+
+        if(y1 > y2) {
+            // set y coords to halfway down box
+            y1 = p.y + p.height/2
+            y2 = c.y + c.height/2
+
+            // set x coords to right or left side
+            if(p.x < c.x) {
+                x1 = p.x + p.width + xoffset/2
+                x2 = c.x + xoffset
+            }
+            else if (p.x == c.x) {
+                x1 = p.x + p.width/2 + xoffset + offset/2
+                x2 = c.x + c.width/2 + xoffset + offset/2
+                y1 = p.y + offset/2
+                y2 = c.y + c.height - offset/2
+                console.log('hi', x1, x2, y1, y2)
+            }
+            else {
+                x1 = p.x + xoffset
+                x2 = c.x + c.width + xoffset/2 + xoffset/4 // sigh
+            }
+        }
+
+        */
         
-        var stroke = '#' + ~~(Math.random()*10) + ~~(Math.random()*10) + ~~(Math.random()*10)
-        
-        return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} />
+        return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} fill={stroke} />
     }
 })
 
@@ -398,11 +548,15 @@ var Arrow = React.createClass({
     render: function() {
         
         // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}}
-        
+
+        // save this!
+        // <path d={'M ' + this.props.x1 + ' ' + this.props.y1 + ' Q ' + (this.props.x2  + (this.props.x2 - this.props.x1)/2 - 10) + ' ' + (this.props.y2 + (this.props.y2 - this.props.y1)/2 - 20) + ' ' + this.props.x2 + ' ' + this.props.y2} fillOpacity="0" stroke={this.props.stroke} strokeWidth="2" />
+
+        //
+
         var result = (
-            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="5">
-                
-            </line>
+            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="2" fill={this.props.fill} ></line>
+
         )
         
         return result

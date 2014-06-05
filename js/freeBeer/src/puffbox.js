@@ -27,6 +27,14 @@ var PuffFancyBox = React.createClass({
             top  += offset/2
             left += offset/2
         }
+
+        var spacing = 3
+        if(mode != 'arrows') {
+            width  -= spacing
+            height -= spacing
+            top  += spacing
+            left += spacing
+        }
         
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
@@ -86,7 +94,6 @@ var PuffBar = React.createClass({
     }
 });
 
-
 var PuffInfoLink = React.createClass({
     handleClick: function() {
         var puff = this.props.puff;
@@ -122,8 +129,8 @@ var PuffParentCount = React.createClass({
         var parents = PuffForum.getParents(puff)
         if (parents.length==0) {
             return (
-                <span className="icon">
-                    {0}<i className="fa fa-male fa-fw"></i>
+                <span className="click">
+                    <span className="click">0</span><i className="fa fa-male fa-fw"></i>
                 </span>
            );
         } 
@@ -150,11 +157,11 @@ var PuffChildrenCount = React.createClass({
         var children = PuffForum.getChildren(puff)
         if (children.length==0) {
             return (
-                <span className="icon">
-                    {0}<i className="fa fa-child fa-fw"></i>
+                <span className="click">
+                    <span className="click">0</span><i className="fa fa-child fa-fw"></i>
                 </span>
             );
-        } 
+        }
         else {
             return (
                 <span className="icon">

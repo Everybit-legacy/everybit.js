@@ -1,118 +1,5 @@
 /** @jsx React.DOM */
 
-var PuffMenu = React.createClass({
-    handleClose: function() {
-        return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
-    },
-
-    handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
-    },
-    handleNewContent: function() {
-        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
-    },
-    handleShowPrefs: function() {
-        return events.pub('ui/menu/prefs/show', {'menu.prefs': true})
-    },
-    handleShowProfile: function() {
-        return events.pub('ui/menu/profile/show', {'menu.profile': true})
-    },
-    handleLearnMore: function() {
-        var puff = PuffForum.getPuffById('3oqfs5nwrNxmxBQ6aL2XzZvNFRv3kYXD6MED2Qo8KeyV9PPwtBXWanHKZ8eSTgFcwt6pg1AuXhzHdesC1Jd55DcZZ')
-        showPuff(puff)
-        return false
-    },
-    render: function() {
-        var learnMore = (
-            <div className="menuItem">
-                <a href="#" onClick={this.handleLearnMore} className="under">
-                Learn more about FreeBeer!
-                </a>
-            </div>
-            );
-
-        // Machine preferences
-        var prefs = <PuffPrefs prefs={this.props.prefs} />
-
-        if(!this.props.menu.prefs) {
-            prefs = (
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleShowPrefs} id="show_prefs" className="under">Preferences</a>
-                </div>
-                );
-        }
-
-        // Identity profile
-        var profile = <PuffProfile profile={this.props.profile} />
-
-        if(!this.props.menu.profile) {
-            profile = (
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleShowProfile} id="show_profile" className="under">Profile</a>
-                </div>
-                );
-        }
-
-        // no current user
-        var username = PuffWardrobe.getCurrentUsername()
-        var username = humanizeUsernames(username) || ''
-
-        if(!username) {
-            // prefs = <div></div>
-            profile = <div></div>
-        }
-
-        return (
-            <div className="menuDos" id="menuDos">
-
-
-
-            IDENTITY: <br />
-                <PuffUserMenu user={this.props.menu.user} />
-                
-                {prefs}
-
-                {profile}
-
-            </div>
-            );
-    }
-});
-
-
-var PuffPrefs = React.createClass({
-    handleStoreusers: function() {
-        return events.pub('prefs/storeKeychain/toggle')
-    },
-    render: function() {
-        return (
-            <div>
-                <div className="menuItem">
-                    <input type="checkbox" ref="storeKeychain" name="storeKeychain" onChange={this.handleStoreusers} checked={this.props.prefs.storeKeychain} />
-                Store identities on this machine
-                </div>
-                <div className="menuItem">
-                    <p>Number of puffs to show in root view</p>
-                    <p>Default view</p>
-                </div>
-            </div>
-            );
-    }
-});
-
-
-var PuffProfile = React.createClass({
-    handleStoreusers: function() {
-        return events.pub('profile/nickname/set', this.refs.nickname.state.value)
-    },
-    render: function() {
-        return (
-            <div>
-            </div>
-            );
-    }
-});
-
 /*
  <div className="menuItem">
  <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
@@ -142,7 +29,7 @@ var PuffUserMenu = React.createClass({
 
         // Current User
         var username = PuffWardrobe.getCurrentUsername()
-        var username = humanizeUsernames(username) || ''
+        username = humanizeUsernames(username) || ''
         var all_usernames = Object.keys(PuffWardrobe.getAll())
 
         // Add User
@@ -472,7 +359,7 @@ var Menu = React.createClass({
     handleClose: function() {
         return events.pub('ui/menu/close', {'menu.show': false})
     }
-})
+});
 
 var Logo = React.createClass({
     render: function() {
@@ -480,6 +367,71 @@ var Logo = React.createClass({
             <a href={CONFIG.url}><img src="img/logo.gif" alt="Logo" className="logo" /></a>
             )
     }
+});
+
+var View = React.createClass({
+    handleViewRoots: function() {
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+    },
+
+    handleShowRelationships: function() {
+        return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+    },
+
+    handleHideRelationships: function() {
+        return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+    },
+
+    handleShowAnimation: function() {
+        return events.pub('ui/animation/show', {'view.animation': true});
+    },
+
+    handleHideAnimation: function() {
+        return events.pub('ui/animation/hide', {'view.animation': false});
+        console.log(this.props)
+    },
+
+
+    render: function() {
+        return (
+            <div><br />
+                <div className="menuHeader">
+                    <i className="fa fa-sitemap fa-fw gray"></i> View
+                </div>
+                <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleShowRelationships}>Show relationships</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleHideRelationships}>Hide relationships</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleShowAnimation}>Show animation</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleHideAnimation}>Hide animation</a></div>
+
+            </div>
+            )
+    }
+
+    // TODO: <div>Latest puffs</div><div>Search</div>
+});
+
+var Publish = React.createClass({
+    handleNewContent: function() {
+        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+    },
+
+    render: function() {
+        // TODO: Add puff icon to font
+        return (
+            <div>
+                <div className="menuHeader">
+                    <i className="fa fa-paper-plane fa-fw gray"></i> Publish
+                </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleNewContent}>New puff</a>
+                </div>
+            </div>
+
+            )
+    }
+
+
 });
 
 var Identity = React.createClass({
@@ -503,7 +455,7 @@ var Identity = React.createClass({
             prom.then(function() {
                 PuffWardrobe.switchCurrent('anon');
                 events.pub('ui/puff-packer/set-identity-to-anon', {});
-            })
+            });
 
             this.setState({username: 'anon'});
 
@@ -540,18 +492,18 @@ var Identity = React.createClass({
 
 
         return (
-            <div><br />
-                <div className="menuHeader"><div className="fa fa-user fa-fw"></div> Identity</div>
-                <div className="menuLabel"> <em>Current identity:</em> </div><br />
-                <div className="menuInput"> <AuthorPicker />
-                </div><br />
-                <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')} ><i className="fa fa-sign-in fa-fw"></i>Set </div>
-                <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-pencil fa-fw"></i>Edit </div>
-                <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i>New </div>
+            <div>
+                <div className="menuHeader"><i className="fa fa-user fa-fw gray"></i> Identity</div>
+                <AuthorPicker />
+                <div className="leftIndent">
+                <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')} ><i className="fa fa-sign-in fa-fw"></i></div>
+                <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-eye fa-fw"></i></div>
+                <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i></div>
                 <br />
                 <SetIdentity  show={this.state.tabs.showSetIdentity}  username={currUser}/>
                 <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
                 <NewIdentity  show={this.state.tabs.showNewIdentity}  />
+                </div>
 
             </div>
             )
@@ -597,15 +549,15 @@ var AuthorPicker = React.createClass({
         }
 
         PuffWardrobe.removeKeys(userToRemove);
-        events.pub('user/'+userToRemove+'/remove', {})
-        events.pub('ui/user/'+userToRemove+'/remove', {}) // this should be generated by previous event
-        return false
+        events.pub('user/'+userToRemove+'/remove', {});
+        events.pub('ui/user/'+userToRemove+'/remove', {}); // this should be generated by previous event
+        return false;
     },
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
 
-        if(!all_usernames.length) return <div>None</div>
+        if(!all_usernames.length) return <div className="menuItem">None</div>
 
         var username = PuffWardrobe.getCurrentUsername()
 
@@ -613,16 +565,269 @@ var AuthorPicker = React.createClass({
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
 
         return (
-            <div>
-                <select ref="switcher" onChange={this.handleUserPick} value={username}>
+            <div className="menuItem">
+                Current: <select ref="switcher" onChange={this.handleUserPick} value={username}>
                     {all_usernames.map(function(username) {
                         return <option key={username} value={username}>{username}</option>
                     })}
-                </select> <a href="#" onClick={this.handleRemoveUser}><span className="smallCaps">Unset</span></a>
+                </select>
+                <a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o"></i></a>
             </div>
             );
     }
+    // TODO add alt tags to icons
 });
+
+var SetIdentity = React.createClass({
+
+    getInitialState: function() {
+        return {
+            rootKeyStatus: false,
+            adminKeyStatus: false,
+            defaultKeyStatus: false,
+
+            usernameStatus: false,
+            rootKey: false,
+            adminKey: false,
+            defaultKey: false
+
+        }
+    },
+
+    handleUsernameLookup: function() {
+        var username = this.refs.username.getDOMNode().value;
+        var self = this;
+
+        // Check for zero length
+        if(!username.length) {
+            this.state.usernameStatus = 'Missing';
+            events.pub('ui/event', {});
+            return false;
+        }
+
+        var prom = Puffball.getUserRecord(username);
+
+        prom.then(function(result) {
+            self.state.usernameStatus = true;
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                self.state.usernameStatus = 'Not found';
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+    },
+
+    handleKeyCheck: function(keyType) {
+        console.log(keyType);
+
+        var self = this;
+
+        // Reset state
+        this.state[keyType] = false;
+        events.pub('ui/event', {});
+
+        var username = this.refs.username.getDOMNode().value;
+        var privateKey = this.refs[keyType].getDOMNode().value;
+
+        // Check for zero length
+        if(!privateKey.length) {
+            this.state[keyType] = 'Key missing';
+            events.pub('ui/event', {});
+            return false;
+        }
+
+        // Convert to public key
+        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
+        if(!publicKey) {
+            this.state[keyType] = 'Bad key';
+            events.pub('ui/event', {});
+            return false;
+        }
+
+        var prom = Puffball.getUserRecord(username);
+
+        prom.then(function(userInfo) {
+
+            if(publicKey != userInfo[keyType]) {
+                self.state[keyType] = 'Incorrect';
+                events.pub('ui/event', {});
+                return false;
+            } else {
+                self.state[keyType] = true;
+                self.state.usernameStatus = true;
+
+                // Add this to wardrobe, set to current
+                if(keyType == 'defaultKey') {
+                    PuffWardrobe.storePrivateKeysDirectly(username, '', '', privateKey);
+                } else if(keyType == 'adminKey') {
+                    PuffWardrobe.storePrivateKeysDirectly(username, '', privateKey, '');
+                } else {
+                    PuffWardrobe.storePrivateKeysDirectly(username, privateKey, '', '');
+                }
+
+                PuffWardrobe.switchCurrent(username);
+
+                // Store this identity
+                events.pub('profile/nickname/set', username);
+
+                events.pub('ui/event', {});
+                return false;
+            }
+        })
+            .catch(function(err) {
+                self.state[keyType] = 'Not found';
+                events.pub('ui/event', {});
+                return false;
+            })
+
+
+    },
+
+    render: function() {
+        if (!this.props.show) {
+            return <div></div>
+        } else {
+            var currUser = this.props.username;
+
+            return (
+                <div className="menuSection">
+                    <div><em>Use this area to store keys with this browser. To publish content, set only your default key.</em></div>
+                    <div className="menuLabel">Username:</div>
+                    <div className="menuInput">
+                        <input type="text" name="username" ref="username" defaultValue={currUser} size="12" />
+                        {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <em>{this.state.usernameStatus}</em>
+                    </div><br />
+                    <div><i className="fa fa-lock fa-fw gray"></i> Private Keys</div>
+
+                    <div className="menuLabel">default: </div>
+                    <div className="menuInput">
+                        <input type="text" name="defaultKey" ref="defaultKey" size="12" />
+                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'defaultKey')}>
+                                <Checkmark show={this.state.defaultKey} /></a>
+                                <em>{this.state.defaultKey}</em>
+                    </div><br />
+
+                    <div className="menuLabel">admin: </div>
+                    <div className="menuInput">
+                        <input type="text" name="adminKey" ref="adminKey" size="12" />
+                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
+                        <Checkmark show={this.state.adminKey} /></a>
+                        <em>{this.state.adminKey}</em>
+                    </div><br />
+
+                    <div className="menuLabel">root: </div>
+                    <div className="menuInput">
+                        <input type="text" name="rootKey" ref="rootKey" size="12" />
+                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'rootKey')}>
+                        <Checkmark show={this.state.rootKey} /></a>
+                        <em>{this.state.rootKey}</em>
+                    </div><br />
+                </div>
+                )
+        }
+    }
+});
+
+/*
+
+ + default, admin, root, (click to show each new level) <br />
+ + Click next to each one to try and set <br />
+ - Message area below for results <br />
+ */
+
+var Checkmark = React.createClass({
+   render: function() {
+       if(this.props.show === false) {
+           return <i className="fa fa-check-circle fa-fw gray"></i>
+       } else if(this.props.show === true) {
+           return <i className="fa fa-check-circle fa-fw green"></i>
+       } else {
+           return <i className="fa fa-check-circle fa-fw red"></i>
+       }
+
+   }
+});
+
+var EditIdentity = React.createClass({
+
+    render: function() {
+        if (!this.props.show) {
+            return <span></span>
+        } else {
+
+            var currUser = this.props.username;
+
+            // TODO: make sure not None
+            // TODO: Allow erase keys here?
+            return (
+                <div className="menuSection">
+                    <div><em>Stored keys for: </em><span className="authorSpan">{currUser}</span>
+                    </div>
+
+                    <div><i className="fa fa-lock fa-fw gray"></i> Private Keys</div>
+
+                    <div className="menuLabel">default: </div>
+                    <div className="menuInput">
+                        <input type="text" name="defaultKey" ref="defaultKey" size="12" value={PuffWardrobe.getCurrentKeys()['default']} />
+                    </div><br />
+
+                    <div className="menuLabel">admin: </div>
+                    <div className="menuInput">
+                        <input type="text" name="adminKey" ref="adminKey" size="12" value={PuffWardrobe.getCurrentKeys()['admin']} />
+                    </div><br />
+
+                    <div className="menuLabel">root: </div>
+                    <div className="menuInput">
+                        <input type="text" name="rootKey" ref="rootKey" size="12" value={PuffWardrobe.getCurrentKeys()['root']} />
+                    </div><br />
+                </div>
+                )
+        }
+    },
+
+    toggleShowRootKey: function() {
+        console.log(this.state.rootKey);
+        if(this.state.rootKey == 'hidden') {
+            this.setState({rootKey: PuffWardrobe.getCurrentUserRecord().rootKey});
+        } else {
+            this.setState({rootKey: 'hidden'});
+        }
+        return false;
+    },
+
+    handleChange: function(event){
+        return false;
+    }
+
+});
+
+/*
+
+ <br />
+ - Place to view
+ - Username is fixed<br />
+ - Existing Keys<br />
+ + default, admin, root, (click to show each new level)<br />
+ + Click next to each one to try and change<br />
+ - Message area below for results<br />
+ - Reminder to save keys<br />
+ */
+
+
+var defaultPrivateKeyField = React.createClass({
+    render: function() {
+        return (
+            <span>
+                <div className="menuLabel">default: </div>
+                <div className="menuInput">
+                    <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" />
+                </div>
+            </span>
+            )
+    }
+
+})
 
 var NewIdentity = React.createClass({
     getInitialState: function() {
@@ -674,13 +879,9 @@ var NewIdentity = React.createClass({
                     <div className="menuInput">
                         <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="18" />
                     </div>
-
                     <br />
 
-
                     <a href="#" onClick={this.handleGeneratePrivateKeys} >Generate</a> or <a href="#" onClick={this.handleConvertPrivatePublic} >Private<span className="fa fa-long-arrow-right fa-fw"></span>Public</a><br />
-
-
 
                     <em>{this.state.rootKeyMessage} {this.state.adminKeyMessage} {this.state.defaultKeyMessage}</em>
                     <br />
@@ -930,150 +1131,19 @@ var UsernameCheckbox = React.createClass({
     }
 });
 
-var SetIdentity = React.createClass({
-    render: function() {
-        if (!this.props.show) {
-            return <span></span>
-        } else {
-
-            var currUser = this.props.username;
-
-            return (
-                <div className="menuSection">
-                    <div><em>Use this area to "login"</em></div>
-                    <div className="menuLabel">Username:</div>
-                    <div className="menuInput">
-                        <input type="text" name="username" defaultValue={currUser} />
-                    </div><br />
-                    <div className="menuHeader"><i className="fa fa-lock"></i> Private Keys</div>
-                    <div className="menuLabel">default: </div>
-                    <div className="menuInput">
-                        <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="12" />
-                    </div>
-
-                    <br />
-                - Username<br />
-                - Existing Keys<br />
-                + default, admin, root, (click to show each new level)
-                + Click next to each one to try and set
-                - Message area below for results
-                - Reminder to save keys
-                </div>
-                )
-        }
-    }
-});
-
-var EditIdentity = React.createClass({
-
-    render: function() {
-        if (!this.props.show) {
-            return <span></span>
-        } else {
-
-            var currUser = this.props.username;
-
-            return (
-                <div className="menuSection">
-                    <div><em>Update user: </em><span className="authorSpan">{currUser}</span>
-                    </div>
 
 
-                    <br />
-                - Username is fixed<br />
-                - Existing Keys<br />
-                + default, admin, root, (click to show each new level)
-                + Click next to each one to try and change
-                - Message area below for results
-                - Reminder to save keys
 
 
-                </div>
-                )
-        }
-    },
-
-    toggleShowRootKey: function() {
-        console.log(this.state.rootKey);
-        if(this.state.rootKey == 'hidden') {
-            this.setState({rootKey: PuffWardrobe.getCurrentUserRecord().rootKey});
-        } else {
-            this.setState({rootKey: 'hidden'});
-        }
-        return false;
-    },
-
-    handleChange: function(event){
-        return false;
-    }
-
-});
-
-var defaultPrivateKeyField = React.createClass({
-    render: function() {
-        return (
-            <span>
-                <div className="menuLabel">default: </div>
-                <div className="menuInput">
-                    <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" />
-                </div>
-            </span>
-            )
-    }
-
-})
-
-var Publish = React.createClass({
-    handleNewContent: function() {
-        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
-    },
-
-    render: function() {
-        // TODO: Add puff icon to font
-        return (
-            <div>
-                <br />
-                <div className="menuHeader">
-                    <div className="fa fa-paper-plane fa-fw"></div> Publish
-                </div>
-                <div className="menuItem">
-                <a href="#" onClick={this.handleNewContent}>New puff</a>
-                </div>
-            </div>
-
-            )
-    }
 
 
-})
-
-
-var View = React.createClass({
-    handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
-    },
-
-    render: function() {
-        return (
-            <div>
-                <br /><div className="menuHeader">
-                <div className="fa fa-sitemap fa-fw"></div> View
-            </div>
-            <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
-
-            </div>
-            )
-    }
-
-    // TODO: <div>Latest puffs</div><div>Search</div>
-})
 
 var About = React.createClass({
     render: function() {
         return (
             <div>
-                <br /><div className="menuHeader">
-                <div className="fa fa-info-circle fa-fw"></div> About
+                <div className="menuHeader">
+                <i className="fa fa-info-circle fa-fw gray"></i> About
             </div>
 
                 <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">Source code</a></div>
@@ -1102,8 +1172,8 @@ var Tools = React.createClass({
     render: function() {
         return (
             <div>
-                <br /><div className="menuHeader">
-                <div className="fa fa-wrench fa-fw"></div> Advanced tools
+                <div className="menuHeader">
+                <i className="fa fa-wrench fa-fw gray"></i> Advanced tools
             </div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handlePackPuffs} className="menuItem">Puff builder</a>

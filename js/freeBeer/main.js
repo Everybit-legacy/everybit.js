@@ -321,35 +321,9 @@ events.shallow_copy = function(obj) {
 }
 
 
-function showPuff(puff) {
-    //// show a puff and do other stuff
-    showPuffDirectly(puff)
-
-    // set window.location.hash and allow back button usage
-    // TODO: convert this to a simple event system
-    if(history.state && history.state.sig == puff.sig) return false
-
-    var state = { 'sig': puff.sig };
-    history.pushState(state, '', '#' + puff.sig);
-}
-
 function showPuffDirectly(puff) {
     //// show a puff without doing pushState
     events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
-
-window.onpopstate = function(event) {
-    //// grab back/forward button changes
-
-    if(!event.state) return false
-
-    var puff = PuffForum.getPuffById(event.state.sig)
-
-    if(!puff)
-        events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-    else
-        showPuffDirectly(puff)
 }
 
 
@@ -442,6 +416,75 @@ function draggableize(el) {
 
 
 
+function showPuff(puff) {
+    //// show a puff and do other stuff
+    
+    if(!puff || !puff.sig) return false
+    
+    showPuffDirectly(puff)
+
+    // when we're showing a puff we only really care about the view
+    var state = events.shallow_copy(puffworldprops.view)
+    state.puff = state.puff.sig
+    setURL(state)
+}
+
+function setURL(state, path) {
+    var currentState = history.state || {}
+    
+    if(JSON.stringify(currentState) == JSON.stringify(state)) 
+        return false
+    
+    history.pushState(state, path || '', '?' + 
+        Object.keys(state).map( function(key) {
+            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key]) })
+        .join('&'))
+}
+
+function setPropsFromURL() {
+    var props = getQuerystringObject()
+    var sig = props.puff
+    
+    props.puff = PuffForum.getPuffById(sig)
+    
+    props = Object.keys(props).reduce(function(acc, key) {acc['view.' + key] = props[key]; return acc}, {})
+    
+    if(props['view.puff']) // we've got it
+        return events.pub('ui/url/load', props) // THINK: this is not a very useful event path
+    
+    // we ain't got it
+    var prom = PuffData.pending[sig]
+    prom.then(function(puff) {
+        props.view.puff = puff
+        return events.pub('ui/url/load', props) // THINK: this is not a very useful event path
+    })
+    
+    // return events.handle_merge_array(puffworldprops, getQuerystringObject())
+}
+
+function getQuerystringObject() {
+    return window.location.search.substring(1).split('&')
+                 .reduce(function(acc, chunk) {
+                     var pair = chunk.split('=')
+                     acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
+                     return acc}, {})
+}
+
+window.onpopstate = function(event) {
+    //// grab back/forward button changes
+
+    if(!event.state) return false
+
+    
+
+    // var puff = PuffForum.getPuffById(event.state.sig)
+    // 
+    // if(!puff)
+    //     events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
+    // else
+    //     showPuffDirectly(puff)
+}
+
 
 
 ///////// PuffForum Interface ////////////
@@ -477,5 +520,9 @@ PuffForum.onNewPuffs(eatPuffs); // assign our callback
 PuffForum.init(); // initialize the forum module (and by extension the puffball network)
 
 renderPuffWorld(); // bootstrap the GUI
+
+// handle pushstate hash
+
+
 
 ////////// End PuffForum Interface ////////////

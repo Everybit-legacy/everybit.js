@@ -165,11 +165,9 @@ Puffball.getPuffFromShell = function(shell) {
     if(PuffData.pending[shell.sig])
         return false
     
-    PuffData.pending[shell.sig] = true
+    PuffData.pending[shell.sig] = PuffNet.getPuffBySig(shell.sig) // THINK: need some GC here...
+    PuffData.pending[shell.sig].then(Puffball.receiveNewPuffs)
     
-    PuffNet.getPuffBySig(shell.sig)
-           .then(Puffball.receiveNewPuffs)
-           
     return false // so we can filter empty shells out easily, while still loading them on demand
 }
 

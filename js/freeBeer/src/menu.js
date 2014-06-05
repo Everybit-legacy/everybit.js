@@ -370,39 +370,66 @@ var Logo = React.createClass({
 });
 
 var View = React.createClass({
+
+
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
 
-    handleShowRelationships: function() {
-        return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+    handleShowHideRelationships: function() {
+
+        if(puffworldprops.view.mode == 'browse') {
+            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+        } else {
+            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+        }
     },
 
-    handleHideRelationships: function() {
-        return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
-    },
+    handleShowHideAnimations: function() {
 
-    handleShowAnimation: function() {
-        return events.pub('ui/animation/show', {'view.animation': true});
-    },
-
-    handleHideAnimation: function() {
-        return events.pub('ui/animation/hide', {'view.animation': false});
-        console.log(this.props)
+        if(puffworldprops.view.animation) {
+            return events.pub('ui/animation/hide', {'view.animation': false});
+        } else {
+            return events.pub('ui/animation/show', {'view.animation': true});
+        }
     },
 
 
     render: function() {
+        // CSS for tabs
+        var cb = React.addons.classSet;
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': (puffworldprops.view.mode == 'arrows'),
+            'fa-square-o': !(puffworldprops.view.mode == 'arrows'),
+            'green': (puffworldprops.view.mode == 'arrows')
+        });
+
+        var cb2 = React.addons.classSet;
+        var cbClass2 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': puffworldprops.view.animation,
+            'fa-square-o': !puffworldprops.view.animation,
+            'green': puffworldprops.view.animation
+        });
+
         return (
             <div><br />
                 <div className="menuHeader">
                     <i className="fa fa-sitemap fa-fw gray"></i> View
                 </div>
+
                 <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
-                <div className="menuItem"><a href="#" onClick={this.handleShowRelationships}>Show relationships</a></div>
-                <div className="menuItem"><a href="#" onClick={this.handleHideRelationships}>Hide relationships</a></div>
-                <div className="menuItem"><a href="#" onClick={this.handleShowAnimation}>Show animation</a></div>
-                <div className="menuItem"><a href="#" onClick={this.handleHideAnimation}>Hide animation</a></div>
+
+                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span><div className="menuItem">
+                Show relationships
+                </div>
+
+                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span><div className="menuItem">
+                Show animations
+                </div>
 
             </div>
             )

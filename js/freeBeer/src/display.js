@@ -87,7 +87,17 @@ var GridLayoutMixin = {
                 return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
                                              {puff: puff, className: className}) } } 
     },
-    
+    standardGrid: function(puffs) {
+        var cols        = ~~this.props.view.cols
+        var standardBox = this.getStandardBox(cols)
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+    }
 };
 
 // MAIN VIEWS
@@ -140,58 +150,23 @@ var PuffRoots = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
         var puffs = PuffForum.getRootPuffs(); // sorted
-
-        // puffs.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
-
-        // puffs = puffs.slice(-1 * CONFIG.maxLatestRootsToShow);                    // don't show them all
-
-        var cols   = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
-
-        return (
-            <div id="talltree">
-                {puffBoxList}
-            </div>
-        )
+        return this.standardGrid(puffs);
     }
 });
 
 var PuffAllChildren = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var kids = PuffForum.getChildren(this.props.puff); // sorted
-
-        //kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
-
-        var cols   = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
-
-        return (
-            <div id="talltree">
-                {puffBoxList}
-            </div>
-        )
+        var puffs = PuffForum.getChildren(this.props.puff); // sorted
+        return this.standardGrid(puffs);
     }
 });
 
 var PuffAllParents = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var kids = PuffForum.getParents(this.props.puff); // sorted
-
-        // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
-
-        var cols   = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        var puffBoxList = kids.map(standardBox('child')).map(globalCreateFancyPuffBox)
-
-        return (
-            <div id="talltree">
-                {puffBoxList}
-            </div>
-        )
+        var puffs = PuffForum.getParents(this.props.puff); // sorted
+        return this.standardGrid(puffs);
     }
 });
 
@@ -199,37 +174,17 @@ var PuffByUser = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
         var puffs = PuffForum.getByUser(this.props.user); // sorted
-
-        // kids.sort(function(a, b) {return b.payload.time - a.payload.time});      // sort by payload time
-
-        var cols   = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
-
-        return (
-            <div id="talltree">
-                {puffBoxList}
-            </div>
-        )
+        return this.standardGrid(puffs);
     }
 });
 
 var PuffLatest = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var rows   = 4
+        var rows   = 4 // TODO: change this
         var cols   = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        
         var puffs = PuffForum.getLatestPuffs(cols * rows); // sorted
-        
-        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
-
-        return (
-            <div id="talltree">
-                {puffBoxList}
-            </div>
-        )
+        return this.standardGrid(puffs);
     }
 });
 

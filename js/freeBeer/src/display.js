@@ -396,6 +396,106 @@ var PuffArrow =  React.createClass({
         var x2 = c.x + c.width/2 + xoffset
         var y2 = c.y + c.height/2
 
+        /*
+        var leftEdge = x2 - (c.height/2) - offset/2
+        var rightEdge = x2 + (c.height/2) + offset/2
+        var topEdge = y2 -(c.height/2) - offset/2
+        var bottomEdge = y2 + (c.height/2) + offset/2
+        */
+
+        var boxSlope = Math.abs(c.height/c.width)
+
+        var dx = x2-x1
+        var dy = y2-y1
+        var lineSlope = Math.abs(dy/dx)
+        var theta = Math.atan(lineSlope)
+
+        // Child is below parent or sideways
+        if(y2 >= y1) {
+
+            // Which does it hit first, top edge or left edge?
+            if (x2 > x1) {
+                // Arrow is left to right
+                if (boxSlope < lineSlope) {
+
+                    // Limited by top edge
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    y2 -= ((c.height / 2) - offset / 2)
+
+                    y2 -= Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by right edge
+                    x2 -= ((c.width / 2) - offset / 2)
+                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 -= Math.abs(Math.cos(theta)) * 5
+
+                }
+            } else {
+                if (boxSlope < lineSlope) {
+
+                    // Limited by top edge
+                    x2 += ((c.height / 2) + offset / 2) / lineSlope
+                    y2 -= ((c.height / 2) - offset / 2)
+
+                    y2 -= Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by left edge
+                    x2 += ((c.width / 2) - offset / 2)
+                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 += Math.abs(Math.cos(theta)) * 5
+                }
+            }
+        } else {
+            // Which does it hit first, top edge or left edge?
+            if (x2 < x1) {
+                // Arrow is right to left
+                if (boxSlope > lineSlope) {
+
+                    // Limited by bottom edge
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    y2 += ((c.height / 2) - offset / 2)
+
+                    y2 += Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by right edge
+                    x2 += ((c.width / 2) - offset / 2)
+                    y2 += ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 += Math.abs(Math.cos(theta)) * 5
+
+                }
+            } else {
+                // Arrow is left to right
+                if (boxSlope < lineSlope) {
+
+                    // Limited by bottom edge
+                    x2 -= ((c.height / 2) + offset / 2) / lineSlope
+                    y2 += ((c.height / 2) - offset / 2)
+
+                    y2 += Math.abs(Math.sin(theta)) * 5
+                } else {
+
+                    // Limited by left edge
+                    x2 -= ((c.width / 2) - offset / 2)
+                    y2 += ((c.width / 2) - offset / 2) * lineSlope
+
+                    x2 -= Math.abs(Math.cos(theta)) * 5
+                }
+            }
+        }
+
+        // WORKING: All downward arrows
+        // WORKING: Straight up
+        // ?: Up and left limited by bottom
+        // ?: Up and right limited by bottom
+        // ?: Up and left limited by edge
+        // WORKING: Up and right limited by edge
+
 
         var stroke = CONFIG.arrowColors[Math.floor(Math.random() * CONFIG.arrowColors.length)]
 

@@ -376,6 +376,10 @@ var View = React.createClass({displayName: 'View',
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
 
+    handleViewLatest: function() {
+        return events.pub('ui/show/roots', {'view.style': 'PuffLatest', 'menu': puffworlddefaults.menu});
+    },
+
     handleShowHideRelationships: function() {
 
         if(puffworldprops.view.mode == 'browse') {
@@ -422,6 +426,8 @@ var View = React.createClass({displayName: 'View',
                 ),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations")),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, "Latest puffs")),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),React.DOM.div( {className:"menuItem"}, 
                 "Show relationships"

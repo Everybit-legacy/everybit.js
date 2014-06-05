@@ -22,6 +22,9 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffByUser' )
             view  = <PuffByUser view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
+        else if( viewprops.style == 'PuffLatest' )
+            view  = <PuffLatest view={viewprops} reply={this.props.reply} />
+
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker tools={this.props.tools} />
 
@@ -206,6 +209,40 @@ var PuffByUser = React.createClass({
 
         var cols   = this.props.view.cols
         var standardBox = getStandardBox(cols)
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+    }
+});
+
+var PuffLatest = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
+    render: function() {
+        var rows   = 4
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
+        
+        var puffs = PuffForum.getLatestPuffs(cols * rows); // sorted
+        
         var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
 
         return (

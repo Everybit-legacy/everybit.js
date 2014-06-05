@@ -143,9 +143,9 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var prom = PuffNet.updateUserRecord(puff)
 
         prom.then(function(result) {
-            self.state.result = result;
-            events.pub('ui/puff-packer/userlookup', {});
-        })
+                self.state.result = result;
+                events.pub('ui/puff-packer/userlookup', {});
+            })
             .catch(function(err) {
                 self.state.result = {'FAIL': err.message};
                 events.pub('ui/puff-packer/userlookup/failed', {});

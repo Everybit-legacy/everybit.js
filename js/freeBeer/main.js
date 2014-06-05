@@ -352,7 +352,7 @@ function moveToNeighbour(currentId, dir, mode) {
     var current = document.getElementById(currentId);
     var x = parseFloat(current.style.left);
     var y = parseFloat(current.style.top);
-    var offset = mode == "browse" ? 1 : 31;
+    var offset = mode == "browse" ? 7 : 31;
     
     switch (dir) {
         case 37: // left
@@ -445,7 +445,7 @@ function setURL(state, path) {
     
     history.pushState(state, path || '', '?' + 
         Object.keys(state).map( function(key) {
-            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key]) })
+            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
         .join('&'))
 }
 

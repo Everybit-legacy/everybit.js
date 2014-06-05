@@ -22,6 +22,9 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffByUser' )
             view  = <PuffByUser view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
+        else if( viewprops.style == 'PuffLatest' )
+            view  = <PuffLatest view={viewprops} reply={this.props.reply} />
+
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker tools={this.props.tools} />
 
@@ -32,7 +35,6 @@ var PuffWorld = React.createClass({
         var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
 
         var animateClass =  this.props.view.animation ? "animation" : '';
-        console.log(this.props)
 
         return (
             <div className={animateClass}>
@@ -217,6 +219,40 @@ var PuffByUser = React.createClass({
     }
 });
 
+var PuffLatest = React.createClass({
+    componentDidMount: function() {
+        // TODO: make this a mixin
+        this.keyfun = function(e) {
+            if(this.props.reply.show)
+                return false
+            var char = String.fromCharCode(e.keyCode)
+            if(1*char)
+                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
+            if(e.keyCode == 32)
+                return events.pub('ui/view-mode/change', {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this)
+        document.addEventListener('keypress', this.keyfun)
+    },
+    componentWillUnmount: function() {
+        document.removeEventListener('keypress', this.keyfun)
+    },
+    render: function() {
+        var rows   = 4
+        var cols   = this.props.view.cols
+        var standardBox = getStandardBox(cols)
+        
+        var puffs = PuffForum.getLatestPuffs(cols * rows); // sorted
+        
+        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+
+        return (
+            <div id="talltree">
+                {puffBoxList}
+            </div>
+        )
+    }
+});
+
 
 var PuffTallTree = React.createClass({
     componentDidMount: function() {
@@ -343,6 +379,13 @@ var PuffTallTree = React.createClass({
         
         
         var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
+
+        /*
+        var colNumber = parseInt(Bitcoin.Crypto.MD5(puff.sig.slice(-32)),16);
+        colNumber = colNumber % CONFIG.arrowColors.length;
+
+        var fillColor = CONFIG.arrowColors[colNumber]
+        */
         
         if(mode == 'arrows') {
             var arrows = allPuffs.reduce(function(acc, puffbox) {
@@ -356,7 +399,7 @@ var PuffTallTree = React.createClass({
 
             var arrowList = (
                 <svg width={screenwidth} height={screenheight} style={{position:'absolute', top:'0px', left:'0px'}}>
-                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ></defs>
+                    <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ></defs>
                     {arrows.map(function(arrow) {
                         return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
                     })}
@@ -497,45 +540,12 @@ var PuffArrow =  React.createClass({
         // WORKING: Up and right limited by edge
 
 
-        var stroke = CONFIG.arrowColors[Math.floor(Math.random() * CONFIG.arrowColors.length)]
+        // Use mod of sig, so we can do same for arrowheads!
+        // TODO: Make mini-helper function
+        var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16);
+        colNumber = colNumber % CONFIG.arrowColors.length;
 
-
-        /*
-        if(x1 > x2) {
-            x1 -= baseShift;
-            x2 += baseShift*2;
-        } else {
-            x1 += baseShift;
-            x2 -= baseShift*2;
-        }
-
-
-        // console.log(x1, x2, y1, y2, arrow[0].className, c.className)
-
-        if(y1 > y2) {
-            // set y coords to halfway down box
-            y1 = p.y + p.height/2
-            y2 = c.y + c.height/2
-
-            // set x coords to right or left side
-            if(p.x < c.x) {
-                x1 = p.x + p.width + xoffset/2
-                x2 = c.x + xoffset
-            }
-            else if (p.x == c.x) {
-                x1 = p.x + p.width/2 + xoffset + offset/2
-                x2 = c.x + c.width/2 + xoffset + offset/2
-                y1 = p.y + offset/2
-                y2 = c.y + c.height - offset/2
-                console.log('hi', x1, x2, y1, y2)
-            }
-            else {
-                x1 = p.x + xoffset
-                x2 = c.x + c.width + xoffset/2 + xoffset/4 // sigh
-            }
-        }
-
-        */
+        var stroke = CONFIG.arrowColors[colNumber]
         
         return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} fill={stroke} />
     }

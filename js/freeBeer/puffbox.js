@@ -42,7 +42,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {username:puff.username} ),
-                PuffContent( {puff:puff} ),
+                PuffContent( {puff:puff, height:height} ),
                 PuffBar( {puff:puff} )
             )
         );
@@ -73,7 +73,7 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
         var puff = this.props.puff
         var puffcontent = PuffForum.getProcessedPuffContent(puff)
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
-        return React.DOM.div( {className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})
+        return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})
     }
 });
 

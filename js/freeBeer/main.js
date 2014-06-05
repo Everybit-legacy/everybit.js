@@ -225,13 +225,6 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     }
 }
 
-applySizes = function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
-    return function(className) {
-        return function(puff) {
-            return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
-                                         {puff: puff, className: className}) } } }
-
-
 extend = function() {
     var newobj = {}
     Array.prototype.slice.call(arguments).forEach(function(arg) {
@@ -335,18 +328,6 @@ function showPuffDirectly(puff) {
 //     // When browser window is resized, refresh jsPlumb connecting lines.
 //     jsPlumb.repaintEverything();
 // });
-
-function getStandardBox(cols) {
-    // TODO: make this a mixin
-    var screenwidth  = window.innerWidth
-    var screenheight = window.innerHeight
-    var cols = cols || 4
-    var rows = 200
-    var gridbox = getGridCoordBox(rows, cols, screenwidth, (rows/4)*screenheight)
-    var standardBox  = applySizes(1, 1, gridbox)
-
-    return standardBox
-}
 
 function moveToNeighbour(currentId, dir, mode) {
     var current = document.getElementById(currentId);

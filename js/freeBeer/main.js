@@ -293,6 +293,9 @@ events.sub('ui/*', function(data, path) {
         else
             puffworldprops = events.handle_merge_array(puffworldprops, data)
 
+    // set the props in the url and history
+    setViewPropsInURL()
+
     // then re-render PuffWorld w/ the new props
     renderPuffWorld()
 })
@@ -423,11 +426,15 @@ function showPuff(puff) {
     if(!puff || !puff.sig) return false
     
     showPuffDirectly(puff)
+}
 
-    // when we're showing a puff we only really care about the view
-    var state = events.shallow_copy(puffworldprops.view)
-    state.puff = state.puff.sig
-    setURL(state)
+function setViewPropsInURL() {
+    var props = events.shallow_copy(puffworldprops.view)
+    if(props.puff)
+        props.puff = props.puff.sig
+    else
+        delete props.puff
+    setURL(props)
 }
 
 function setURL(state, path) {
@@ -442,25 +449,34 @@ function setURL(state, path) {
         .join('&'))
 }
 
-function setPropsFromURL() {
-    var props = getQuerystringObject()
-    var sig = props.puff
+function setViewPropsFromURL() {
+    var pushstate = getQuerystringObject()
+    setViewPropsFromPushstate(pushstate)
+}
+
+function setViewPropsFromPushstate(pushstate) {
+    var sig = pushstate.puff
     
-    props.puff = PuffForum.getPuffById(sig)
+    if(sig)
+        pushstate.puff = PuffForum.getPuffById(sig)
     
-    props = Object.keys(props).reduce(function(acc, key) {acc['view.' + key] = props[key]; return acc}, {})
+    var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     
-    if(props['view.puff']) // we've got it
-        return events.pub('ui/url/load', props) // THINK: this is not a very useful event path
+    if(!sig || props['view.puff']) { // we've got it
+        puffworldprops = events.handle_merge_array(puffworldprops, props) // THINK: we're doing this manually to prevent
+        return renderPuffWorld()                                          // a history-adding loop, but it's kinda smelly
+    }
     
     // we ain't got it
     var prom = PuffData.pending[sig]
-    prom.then(function(puff) {
-        props.view.puff = puff
-        return events.pub('ui/url/load', props) // THINK: this is not a very useful event path
-    })
+    if(!prom) 
+        return Puffball.onError('Bad sig in pushstate')
     
-    // return events.handle_merge_array(puffworldprops, getQuerystringObject())
+    prom.then(function(puffs) {
+        props['view.puff'] = puffs[0]
+        puffworldprops = events.handle_merge_array(puffworldprops, props) // THINK: we're doing this manually to prevent
+        renderPuffWorld()                                                 // a history-adding loop, but it's kinda smelly
+    })
 }
 
 function getQuerystringObject() {
@@ -476,7 +492,7 @@ window.onpopstate = function(event) {
 
     if(!event.state) return false
 
-    
+    setViewPropsFromPushstate(event.state)
 
     // var puff = PuffForum.getPuffById(event.state.sig)
     // 
@@ -523,10 +539,9 @@ PuffForum.init(); // initialize the forum module (and by extension the puffball 
 // TODO: make this based on config, and changeable
 PuffWardrobe.setPref('storeKeychain', true);
 
-renderPuffWorld(); // bootstrap the GUI
+// renderPuffWorld(); // bootstrap the GUI
 
-// handle pushstate hash
-
+setViewPropsFromURL() // handle pushstate hash
 
 
 ////////// End PuffForum Interface ////////////

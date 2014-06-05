@@ -27,6 +27,14 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             top  += offset/2
             left += offset/2
         }
+
+        var spacing = 3
+        if(mode != 'arrows') {
+            width  -= spacing
+            height -= spacing
+            top  += spacing
+            left += spacing
+        }
         
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
@@ -85,7 +93,6 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 		);
     }
 });
-
 
 var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
     handleClick: function() {

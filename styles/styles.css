@@ -206,6 +206,14 @@ h4 {
     float: right;
 }
 
+.floatingCheckbox {
+    float: left;
+    cursor: pointer;
+    padding-left: 10px;
+    position: relative;
+    top: .3em;
+}
+
 .clear {
     clear: both;
 }
@@ -558,7 +566,7 @@ header h1 {
 }
 
 .menuItem {
-    text-indent: 32px;
+    padding-left: 32px;
 }
 
 .leftIndent {
@@ -763,7 +771,7 @@ a.footerText {
 }
 
 .green {
-    color: #00CC00;
+    color: #00AA00;
 }
 
 @keyframes fadein {

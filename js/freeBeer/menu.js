@@ -370,39 +370,66 @@ var Logo = React.createClass({displayName: 'Logo',
 });
 
 var View = React.createClass({displayName: 'View',
+
+
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
     },
 
-    handleShowRelationships: function() {
-        return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+    handleShowHideRelationships: function() {
+
+        if(puffworldprops.view.mode == 'browse') {
+            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+        } else {
+            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+        }
     },
 
-    handleHideRelationships: function() {
-        return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
-    },
+    handleShowHideAnimations: function() {
 
-    handleShowAnimation: function() {
-        return events.pub('ui/animation/show', {'view.animation': true});
-    },
-
-    handleHideAnimation: function() {
-        return events.pub('ui/animation/hide', {'view.animation': false});
-        console.log(this.props)
+        if(puffworldprops.view.animation) {
+            return events.pub('ui/animation/hide', {'view.animation': false});
+        } else {
+            return events.pub('ui/animation/show', {'view.animation': true});
+        }
     },
 
 
     render: function() {
+        // CSS for tabs
+        var cb = React.addons.classSet;
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': (puffworldprops.view.mode == 'arrows'),
+            'fa-square-o': !(puffworldprops.view.mode == 'arrows'),
+            'green': (puffworldprops.view.mode == 'arrows')
+        });
+
+        var cb2 = React.addons.classSet;
+        var cbClass2 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': puffworldprops.view.animation,
+            'fa-square-o': !puffworldprops.view.animation,
+            'green': puffworldprops.view.animation
+        });
+
         return (
             React.DOM.div(null, React.DOM.br(null ),
                 React.DOM.div( {className:"menuHeader"}, 
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " View"
                 ),
+
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations")),
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowRelationships}, "Show relationships")),
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleHideRelationships}, "Hide relationships")),
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowAnimation}, "Show animation")),
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleHideAnimation}, "Hide animation"))
+
+                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),React.DOM.div( {className:"menuItem"}, 
+                "Show relationships"
+                ),
+
+                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),React.DOM.div( {className:"menuItem"}, 
+                "Show animations"
+                )
 
             )
             )

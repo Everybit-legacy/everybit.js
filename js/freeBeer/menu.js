@@ -571,7 +571,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                         return React.DOM.option( {key:username, value:username}, username)
                     })
                 ),
-                React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"}))
+                React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o"}))
             )
             );
     }

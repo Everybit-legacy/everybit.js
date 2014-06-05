@@ -69,8 +69,6 @@ section {
     display: inline-block;
     text-align: left;
     z-index: 999;
-    overflow-y: auto;
-    overflow-x: hidden;
     position:relative;
     
     -webkit-border-radius: 2px;
@@ -112,7 +110,7 @@ section {
 
 
 #talltree .sibling .txt {
-    background-color: #fafaec;
+    /*background-color: #fafaec;*/
 }
 
 #talltree .child .txt {
@@ -125,34 +123,16 @@ section {
  /* transition: opacity 5s;*/
 }
 
-/* not in use
-.example-enter-active {
-  opacity: 1;
-}
-
-
-
-.example-leave {
-  opacity: 1;
-  transition: opacity 5s;
-}
-
-.example-leave-active {
-  opacity: 0.01;
-}
-
-
-#talltree line {
-    transition: all 2s;
-}
-*/
-
-/* END New Tall Tree Styles */
 
 
 img {
     max-width:100%;
     max-height:100%;
+}
+
+.imgInBox {
+    display: block;
+    margin:auto;
 }
 
 
@@ -166,7 +146,6 @@ p {
 }
 
 a {
-
     text-decoration:none;
     color: #1616A8;
 }
@@ -204,6 +183,14 @@ h4 {
 
 .float-right {
     float: right;
+}
+
+.floatingCheckbox {
+    float: left;
+    cursor: pointer;
+    padding-left: 10px;
+    position: relative;
+    top: .3em;
 }
 
 .clear {
@@ -558,7 +545,7 @@ header h1 {
 }
 
 .menuItem {
-    text-indent: 32px;
+    padding-left: 32px;
 }
 
 .leftIndent {
@@ -763,7 +750,7 @@ a.footerText {
 }
 
 .green {
-    color: #00CC00;
+    color: #00AA00;
 }
 
 @keyframes fadein {

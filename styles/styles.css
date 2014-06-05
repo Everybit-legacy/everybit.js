@@ -42,6 +42,10 @@ body {
     overflow-x: hidden;
 }
 
+path {
+    /* fill-opacity: 0; */
+}
+
 section {
     text-align: center;
 }
@@ -59,7 +63,7 @@ section {
     min-height: 25%;
     max-height: 25%;
 */
-    border: 3px solid #eee7d0;
+    border: 0px solid #eee7d0;
     padding: 20px 0 0 0;
     margin: 0 0 0 0;
     display: inline-block;
@@ -74,10 +78,12 @@ section {
     border-radius: 2px;
     font-size: 0.9em;
     
-    transition: all 1s;
+ /*   transition: all 1s; */
 /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
     
     float: left;
+
+    /*opacity: 0.5;*/
 }
 
 /*#talltree #center .focused .block {*/
@@ -92,7 +98,7 @@ section {
 /* cursor */
 #talltree .block.cursor {
     outline: 4px solid #a81a0d;
-    transition: all .5s;
+ /*   transition: all .5s;*/
     z-index: 9999;
 }
 
@@ -103,6 +109,7 @@ section {
 #talltree .parent .txt {
     background-color: #f6faff;
 }
+
 
 #talltree .sibling .txt {
     background-color: #fafaec;
@@ -115,12 +122,15 @@ section {
 
 .example-enter {
   opacity: 0.01;
-  transition: opacity 5s;
+ /* transition: opacity 5s;*/
 }
 
+/* not in use
 .example-enter-active {
   opacity: 1;
 }
+
+
 
 .example-leave {
   opacity: 1;
@@ -131,10 +141,11 @@ section {
   opacity: 0.01;
 }
 
+
 #talltree line {
     transition: all 2s;
 }
-
+*/
 
 /* END New Tall Tree Styles */
 
@@ -200,7 +211,7 @@ h4 {
 }
 
 .author {
- //   position: fixed;
+//    position: fixed;
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
     text-align: center;
@@ -307,6 +318,7 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
+ //   position: relative;;
     bottom:0;
     right:0;
     /* background:#EEE; */
@@ -385,10 +397,11 @@ header h1 {
     /* line-height: 60px; */
 }
 
+/* not in use
 .zoom-controls {
     width: 100%;
 }
-
+*/
 
 #text-zoom {
     width: 50px;
@@ -397,12 +410,14 @@ header h1 {
     font-weight: bold;
 }
 
+/* not in use
 #puff-filter {
     width: 80px;
     border: 2px;
     color: black;
     font-weight: bold;
 }
+*/
 
 ._jsPlumb_connector {
     z-index: -1;
@@ -411,6 +426,20 @@ header h1 {
 ._jsPlumb_endpoint {
     z-index: 5;
 }
+
+/*
+.wrapper{
+    position: relative;
+}
+
+.fixed-wrapper {
+    position: absolute;
+}
+
+.fixed {
+    position: fixed;
+}
+*/
 
 #replyForm {
     left: 50%;
@@ -451,8 +480,6 @@ header h1 {
 #addContentDiv form input {
     cursor: pointer;
 }
-
-
 
 .logo {
     position: absolute;
@@ -529,9 +556,6 @@ header h1 {
     -o-animation: fadein 1s; /* Opera */
     animation: fadein 1s;
 }
-
-
-
 
 .menuItem {
     text-indent: 32px;
@@ -614,12 +638,13 @@ header h1 {
     padding-bottom: 10px;
     margin: 0px;
 }
-
+/* not in use
 .menuSectionEmpty {
     padding: 10px;
     margin: 10px;
 }
 
+*/
 #closeDiv {
     padding-top: 0px;
     padding-left: 3px;
@@ -630,7 +655,7 @@ header h1 {
     color: #1616A8;
     font-size: 1.4em;
 }
-
+/* not in use
 .replyBlack {
     width: 16px;
     height: 16px;
@@ -640,6 +665,7 @@ header h1 {
     width: 16px;
     height: 16px;
 }
+*/
 
 .private {
   background-color: #FFFFAD;
@@ -686,6 +712,11 @@ header h1 {
 a.footerText {
     text-decoration: none;
     font-size: .9em;
+}
+
+.animation, .animation .block{
+    transition: all 1s;
+
 }
 
 #adminForm {

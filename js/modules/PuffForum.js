@@ -247,7 +247,7 @@ PuffForum.addContentType('bbcode', {
 
 PuffForum.addContentType('image', {
     toHtml: function(content) {
-        return '<img src=' + content + ' />';
+        return '<img class="imgInBox" src=' + content + ' />';
     }
 })
 

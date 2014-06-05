@@ -80,7 +80,7 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 var PuffBar = React.createClass({displayName: 'PuffBar',
     render: function() {
         var puff = this.props.puff
-		var link = React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-download fa-fw downloadIcon"}));
+		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-download fa-fw downloadIcon"})));
 		return (
 			React.DOM.div( {className:"bar"}, 
 				puff.payload.type=='image' ? link : '',
@@ -94,30 +94,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
     }
 });
 
-var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
-    handleClick: function() {
-        var puff = this.props.puff;
-        var date = new Date(puff.payload.time);
-        var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
-        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
-        var version = '\n' + 'Version: ' + puff.version;
-        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
-        alert(altText);
-        return false;
-    },
-
-    render: function() {
-        return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                    React.DOM.i( {className:"fa fa-info fa-fw"})
-                )
-            )
-        );
-    }
-});
 
 var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     handleClick: function() {
@@ -143,6 +120,31 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
                 )
             );
         }
+    }
+});
+
+var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
+    handleClick: function() {
+        var puff = this.props.puff;
+        var date = new Date(puff.payload.time);
+        var formattedTime = 'Created ' + timeSince(date) + ' ago';
+        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
+        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
+        var version = '\n' + 'Version: ' + puff.version;
+        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
+
+        alert(altText);
+        return false;
+    },
+
+    render: function() {
+        return (
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-info fa-fw"})
+                )
+            )
+            );
     }
 });
 

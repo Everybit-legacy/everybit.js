@@ -403,8 +403,6 @@ function draggableize(el) {
     });
 }
 
-
-
 function showPuff(puff) {
     //// show a puff and do other stuff
     

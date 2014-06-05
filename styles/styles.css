@@ -337,6 +337,15 @@ h4 {
     opacity: 0.8;
     background-color: #f1e4ea;
 }
+/*
+.bar.infoLink .popup {
+    display: none;
+}
+
+.bar.infoLink:hover .popup {
+    display: block;
+}
+*/
 
 header {
     background-color: #fff;

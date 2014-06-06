@@ -71,15 +71,19 @@ var GridLayoutMixin = {
                , height: window.innerHeight
                }
     },
+    getDimensions: function() {
+        return { rows: ~~this.props.view.rows || 4
+               , cols: ~~this.props.view.cols || 5
+               }
+    },
     getGridBox: function(rows, cols) {
         var screencoords = this.getScreenCoords()
-        var rows = rows || 4
-        var cols = cols || 5
         return getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
     },
     getStandardBox: function(rows, cols) {
         var gridbox = this.getGridBox(rows, cols)
-        return this.applySizes(1, 1, gridbox)
+        var mode    = this.props.view.mode
+        return this.applySizes(1, 1, gridbox, {mode: mode})
     },
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
@@ -87,14 +91,47 @@ var GridLayoutMixin = {
                 return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
                                              {puff: puff, className: className}) } } 
     },
-    standardGrid: function(puffs) {
-        var cols        = ~~this.props.view.cols
-        var standardBox = this.getStandardBox(cols)
-        var puffBoxList = puffs.map(standardBox('child')).map(globalCreateFancyPuffBox)
+    getPuffBoxList: function(puffs) {
+        var dimensions  = this.getDimensions() 
+        var standardBox = this.getStandardBox(dimensions.rows, dimensions.cols)
+        return puffs.map(standardBox('child'))
+                    .filter(function(pbox) {return pbox.height})
+    },
+    makeArrows: function(puffBoxen) {
+        var screencoords = this.getScreenCoords()
+        
+        var arrows = puffBoxen.reduce(function(acc, puffbox) {
+                        return acc.concat(
+                            puffbox.puff.payload.parents.map(
+                                function(parent) {
+                                    return [puffBoxen.filter(
+                                        function(pb) {
+                                            return pb.puff.sig == parent})[0], puffbox]}))}, [])
+                                                .filter(function(pair) {return pair[0]})
 
         return (
-            React.DOM.div( {id:"talltree"}, 
-                puffBoxList
+            React.DOM.svg( {width:screencoords.width, height:screencoords.height, style:{position:'absolute', top:'0px', left:'0px'}}, 
+                React.DOM.defs( {dangerouslySetInnerHTML:{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ),
+                arrows.map(function(arrow) {
+                    return PuffArrow( {key:'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig, arrow:arrow} )
+                })
+            )
+        )        
+    },
+    standardGridify: function(puffs) {
+        var puffBoxList = this.getPuffBoxList(puffs)
+        return this.manualGridify(puffBoxList)
+    },
+    manualGridify: function(puffBoxList) {
+        var arrowList = this.props.view.mode == 'arrows' ? this.makeArrows(puffBoxList) : ''
+        
+        return (
+            React.DOM.div(null, 
+                React.DOM.div( {id:"talltree"}, 
+                    puffBoxList.map(globalCreateFancyPuffBox)
+                ),
+
+                arrowList
             )
         )
     }
@@ -149,42 +186,44 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 var PuffRoots = React.createClass({displayName: 'PuffRoots',
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getRootPuffs(); // sorted
-        return this.standardGrid(puffs);
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var puffs = PuffForum.getRootPuffs(limit); // pre-sorted
+        return this.standardGridify(puffs);
     }
 });
 
 var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getChildren(this.props.puff); // sorted
-        return this.standardGrid(puffs);
+        var puffs = PuffForum.getChildren(this.props.puff); // pre-sorted
+        return this.standardGridify(puffs);
     }
 });
 
 var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getParents(this.props.puff); // sorted
-        return this.standardGrid(puffs);
+        var puffs = PuffForum.getParents(this.props.puff); // pre-sorted
+        return this.standardGridify(puffs);
     }
 });
 
 var PuffByUser = React.createClass({displayName: 'PuffByUser',
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getByUser(this.props.user); // sorted
-        return this.standardGrid(puffs);
+        var puffs = PuffForum.getByUser(this.props.user); // pre-sorted
+        return this.standardGridify(puffs);
     }
 });
 
 var PuffLatest = React.createClass({displayName: 'PuffLatest',
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var rows   = 4 // TODO: change this
-        var cols   = ~~this.props.view.cols
-        var puffs = PuffForum.getLatestPuffs(cols * rows); // sorted
-        return this.standardGrid(puffs);
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var puffs = PuffForum.getLatestPuffs(limit); // pre-sorted
+        return this.standardGridify(puffs);
     }
 });
 
@@ -195,23 +234,21 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
 
         var puff   = this.props.view.puff
         var mode   = this.props.view.mode
-        var cols   = ~~this.props.view.cols
         var sigfun = function(item) {return item.sig}
         
         // gridCoord params
-        var rows
         var screencoords = this.getScreenCoords()
-        var gridbox = this.getGridBox(rows, cols)
+        var dimensions   = this.getDimensions()
+        var cols    = dimensions.cols
+        var gridbox = this.getGridBox(dimensions.rows, cols)
         
         var standardBox  = this.applySizes(1, 1, gridbox, {mode: mode})
         var secondRowBox = this.applySizes(1, 1, gridbox, {mode: mode}, 1)
         var fourthRowBox = this.applySizes(1, 1, gridbox, {mode: mode}, 4)
-        var stuckbigBox  = this.applySizes(cols>1?2:1,
-                                         2, gridbox, {mode: mode}, 1, 0, 1, 0)
-        
+        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, 2, gridbox, {mode: mode}, 1, 0, 1, 0)
         
         // gather puffs
-        var parentPuffs   = PuffForum.getParents(puff) // sorted
+        var parentPuffs   = PuffForum.getParents(puff) // pre-sorted
 
         var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
@@ -219,17 +256,17 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .slice(0, cols)
-        var siblingPuffs  = PuffForum.getSiblings(puff) // sorted
+        var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
                                      .slice(0, cols > 1 ? (cols-2)*2 : 0)
-        var childrenPuffs = PuffForum.getChildren(puff) // sorted
+        var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
                                      .slice(0, cols)
         
-        var allPuffs = [].concat( [puff].map(stuckbigBox('focused'))
+        var allPuffs = [].concat( [puff].map(stuckBigBox('focused'))
                                 , parentPuffs.map(standardBox('parent'))
                                 , siblingPuffs.map(secondRowBox('sibling'))
                                 , childrenPuffs.map(fourthRowBox('child'))
@@ -241,60 +278,8 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                              return 0; })
                              // return a.puff.sig+'' < b.puff.sig+'' ? 1 : a.puff.sig+'' == b.puff.sig+'' ? 0 : -1})
         
-        /*
-            - resize in place
-            - draw arrows
         
-        
-                <ReactCSSTransitionGroup transitionName="example">
-                    {puffBoxList}
-                </ReactCSSTransitionGroup>
-        
-        */
-        
-        // debugger;
-        
-        
-        var puffBoxList = allPuffs.map(globalCreateFancyPuffBox)
-
-        /*
-        var colNumber = parseInt(Bitcoin.Crypto.MD5(puff.sig.slice(-32)),16);
-        colNumber = colNumber % CONFIG.arrowColors.length;
-
-        var fillColor = CONFIG.arrowColors[colNumber]
-        */
-        
-        if(mode == 'arrows') {
-            var arrows = allPuffs.reduce(function(acc, puffbox) {
-                            return acc.concat(
-                                puffbox.puff.payload.parents.map(
-                                    function(parent) {
-                                        return [allPuffs.filter(
-                                            function(pb) {
-                                                return pb.puff.sig == parent})[0], puffbox]}))}, [])
-                                                    .filter(function(pair) {return pair[0]})
-
-            var arrowList = (
-                React.DOM.svg( {width:screencoords.width, height:screencoords.height, style:{position:'absolute', top:'0px', left:'0px'}}, 
-                    React.DOM.defs( {dangerouslySetInnerHTML:{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ),
-                    arrows.map(function(arrow) {
-                        return PuffArrow( {key:'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig, arrow:arrow} )
-                    })
-                )
-            )
-        }
-
-        //
-
-        return (
-            React.DOM.div(null, 
-                React.DOM.div( {id:"talltree"}, 
-                    puffBoxList
-                ),
-                
-                arrowList
-            )
-        );
+        return this.manualGridify(allPuffs)
     }
 })
 

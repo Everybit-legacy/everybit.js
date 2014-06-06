@@ -103,13 +103,12 @@ PuffForum.getSiblings = function(puff) {
 PuffForum.getRootPuffs = function(limit) {
     //// returns the most recent parentless puffs, sorted by time
 
-    // limit defaults to 0, which returns all root puffs
+    // OPT: we should probably index these rather than doing a full graph traversal
   
-    // we should probably index these rather than doing a full graph traversal
-  
-    // TODO: add limit
+    limit = limit || Infinity
 
     return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
+                          .slice(0, limit)
                           .map(Puffball.getPuffFromShell)
                           .filter(Boolean)
                           .sort(PuffForum.sortByPayload)
@@ -118,11 +117,6 @@ PuffForum.getRootPuffs = function(limit) {
 PuffForum.getLatestPuffs = function(limit) {
     //// returns the most recent puffs, sorted by time
 
-    // limit defaults to Infinity, which returns all puffs
-  
-    // we should probably index these rather than doing a full graph traversal
-  
-    // TODO: add limit
     limit = limit || Infinity
 
     return PuffData.shells.sort(PuffForum.sortByPayload)

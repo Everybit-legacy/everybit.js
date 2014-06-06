@@ -1,6 +1,24 @@
 /** @jsx React.DOM */
 
 var PuffReplyForm = React.createClass({
+    componentDidMount: function() {
+        // set silly global this is very very dumb
+        globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+        
+        var replyForm = document.getElementById('replyForm');
+        draggableize(replyForm);
+    },
+    componentDidUpdate: function() {
+        var replyForm = document.getElementById('replyForm');
+        draggableize(replyForm);
+    },
+    componentWillUnmount: function() {
+        // remove silly global
+        globalReplyFormSubmitArg = null;
+    },
+    getInitialState: function() {
+        return {imageSrc: ''};
+    },
     handleSubmit: function() {
         var type = this.props.reply.type;
         var content = '';
@@ -45,20 +63,6 @@ var PuffReplyForm = React.createClass({
         var type = this.refs.type.getDOMNode().value;
         return events.pub('ui/reply/set-type', {'reply.type': type});
     },
-    componentDidMount: function() {
-        var replyForm = document.getElementById('replyForm');
-        draggableize(replyForm);
-        // $('#replyForm').eq(0).draggable();
-        // $("#replyForm [name='content']").focus();
-    },
-    componentDidUpdate: function() {
-        var replyForm = document.getElementById('replyForm');
-        draggableize(replyForm);
-        // $('#replyForm').eq(0).draggable();
-    },
-    getInitialState: function() {
-        return {imageSrc: ''};
-    },
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         var username = humanizeUsernames(username) || 'anonymous'
@@ -68,7 +72,7 @@ var PuffReplyForm = React.createClass({
         var type = this.props.reply.type
         var typeFields = (
             <div>
-                <textarea id="content" ref="content" name="content" rows="15" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
+                <textarea id="content" ref="content" name="content" className="mousetrap" rows="13" cols="50" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these."></textarea>
             </div>
             )
 

@@ -108,10 +108,10 @@ PuffForum.getRootPuffs = function(limit) {
     limit = limit || Infinity
 
     return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
+                          .sort(PuffForum.sortByPayload)
                           .slice(0, limit)
                           .map(Puffball.getPuffFromShell)
                           .filter(Boolean)
-                          .sort(PuffForum.sortByPayload)
 } 
 
 PuffForum.getLatestPuffs = function(limit) {

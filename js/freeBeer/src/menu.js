@@ -373,11 +373,11 @@ var View = React.createClass({
 
 
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffLatest', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleShowHideRelationships: function() {

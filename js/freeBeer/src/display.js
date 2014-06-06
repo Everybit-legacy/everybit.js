@@ -507,8 +507,9 @@ var PuffHeader = React.createClass({
 
 var PuffFooter = React.createClass({
     render: function() {
+        var width = (window.innerHeight-66)+'px';
         return (
-            <div className="footer">
+            <div className="footer" style={{width: width}}>
                 <div className="footerText">
                 Powered by <a href="http://www.puffball.io" className="footerText">puffball</a>.
                 Responsibility for all content lies with the publishing author and not this website.

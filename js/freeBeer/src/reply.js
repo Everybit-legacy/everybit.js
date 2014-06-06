@@ -101,24 +101,25 @@ var PuffReplyForm = React.createClass({
                 </div>
                 )
         }
-
+        
         return (
             <div id="replyForm" className="mainForm">
+                <div id="replyFormBox">
+                    <div id="authorDiv">{username}</div>
+                    <form id="otherContentForm" onSubmit={this.handleSubmit}>
+                        
+                        {typeFields}
 
-                <div id="authorDiv">{username}</div>
-                <form id="otherContentForm" onSubmit={this.handleSubmit}>
-                    
-                    {typeFields}
+                        <select ref="type" className="btn" onChange={this.handlePickType}>
+                            {contentTypeNames.map(function(type) {
+                                return <option key={type} value={type}>{type}</option>
+                            })}
+                        </select>
 
-                    <select ref="type" className="btn" onChange={this.handlePickType}>
-                        {contentTypeNames.map(function(type) {
-                            return <option key={type} value={type}>{type}</option>
-                        })}
-                    </select>
-
-                    <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
-                    <input type="submit" className="btn" value="GO!" />
-                </form>
+                        <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
+                        <input type="submit" className="btn" value="GO!" />
+                    </form>
+                </div>
             </div>
             );
     }

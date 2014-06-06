@@ -225,13 +225,6 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     }
 }
 
-applySizes = function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
-    return function(className) {
-        return function(puff) {
-            return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
-                                         {puff: puff, className: className}) } } }
-
-
 extend = function() {
     var newobj = {}
     Array.prototype.slice.call(arguments).forEach(function(arg) {
@@ -336,23 +329,11 @@ function showPuffDirectly(puff) {
 //     jsPlumb.repaintEverything();
 // });
 
-function getStandardBox(cols) {
-    // TODO: make this a mixin
-    var screenwidth  = window.innerWidth
-    var screenheight = window.innerHeight
-    var cols = cols || 4
-    var rows = 200
-    var gridbox = getGridCoordBox(rows, cols, screenwidth, (rows/4)*screenheight)
-    var standardBox  = applySizes(1, 1, gridbox)
-
-    return standardBox
-}
-
 function moveToNeighbour(currentId, dir, mode) {
     var current = document.getElementById(currentId);
     var x = parseFloat(current.style.left);
     var y = parseFloat(current.style.top);
-    var offset = mode == "browse" ? 1 : 31;
+    var offset = mode == "browse" ? 7 : 31;
     
     switch (dir) {
         case 37: // left
@@ -384,6 +365,10 @@ function moveToNeighbour(currentId, dir, mode) {
            (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
         neighbour = neighbour.parentNode;
     }
+    
+    if(!neighbour)
+        neighbour = document.querySelector('.block');
+    
     return neighbour;
 }
 
@@ -418,8 +403,6 @@ function draggableize(el) {
     });
 }
 
-
-
 function showPuff(puff) {
     //// show a puff and do other stuff
     
@@ -445,7 +428,7 @@ function setURL(state, path) {
     
     history.pushState(state, path || '', '?' + 
         Object.keys(state).map( function(key) {
-            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key]) })
+            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
         .join('&'))
 }
 

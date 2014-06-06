@@ -373,11 +373,11 @@ var View = React.createClass({displayName: 'View',
 
 
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffLatest', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleShowHideRelationships: function() {
@@ -396,6 +396,10 @@ var View = React.createClass({displayName: 'View',
         } else {
             return events.pub('ui/animation/show', {'view.animation': true});
         }
+    },
+
+    handleShowUserPuffs: function(username) {
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
     },
 
 
@@ -428,6 +432,8 @@ var View = React.createClass({displayName: 'View',
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations")),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, "Latest puffs")),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, "Choices collection")),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),React.DOM.div( {className:"menuItem"}, 
                 "Show relationships"
@@ -604,7 +610,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                         return React.DOM.option( {key:username, value:username}, username)
                     })
                 ),
-                React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o"}))
+                ' ',React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o"}))
             )
             );
     }
@@ -1209,7 +1215,7 @@ var Tools = React.createClass({displayName: 'Tools',
                 React.DOM.i( {className:"fa fa-wrench fa-fw gray"}), " Advanced tools"
             ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs, className:"menuItem"}, "Puff builder")
+                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, "Puff builder")
                 )
             )
             )

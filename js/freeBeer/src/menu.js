@@ -373,11 +373,11 @@ var View = React.createClass({
 
 
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffLatest', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleShowHideRelationships: function() {
@@ -396,6 +396,10 @@ var View = React.createClass({
         } else {
             return events.pub('ui/animation/show', {'view.animation': true});
         }
+    },
+
+    handleShowUserPuffs: function(username) {
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
     },
 
 
@@ -428,6 +432,8 @@ var View = React.createClass({
                 <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
 
                 <div className="menuItem"><a href="#" onClick={this.handleViewLatest}>Latest puffs</a></div>
+
+                <div className="menuItem"><a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>Choices collection</a></div>
 
                 <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span><div className="menuItem">
                 Show relationships
@@ -604,7 +610,7 @@ var AuthorPicker = React.createClass({
                         return <option key={username} value={username}>{username}</option>
                     })}
                 </select>
-                <a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o"></i></a>
+                {' '}<a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o"></i></a>
             </div>
             );
     }
@@ -1209,7 +1215,7 @@ var Tools = React.createClass({
                 <i className="fa fa-wrench fa-fw gray"></i> Advanced tools
             </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handlePackPuffs} className="menuItem">Puff builder</a>
+                    <a href="#" onClick={this.handlePackPuffs}>Puff builder</a>
                 </div>
             </div>
             )

@@ -632,9 +632,10 @@ header h1 {
     bottom: 0;
     position: fixed;
     right:0;
-/*    z-index:1050;*/
+/*    z-index:1050;
     margin-left:auto;
-    margin-right:auto;
+    margin-right:auto;*/
+    white-space: pre-wrap;
 }
 
 a.footerText {

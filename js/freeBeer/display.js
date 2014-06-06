@@ -507,8 +507,9 @@ var PuffHeader = React.createClass({displayName: 'PuffHeader',
 
 var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
+        var width = (window.innerHeight-66)+'px';
         return (
-            React.DOM.div( {className:"footer"}, 
+            React.DOM.div( {className:"footer", style:{width: width}}, 
                 React.DOM.div( {className:"footerText"}, 
                 "Powered by ", React.DOM.a( {href:"http://www.puffball.io", className:"footerText"}, "puffball"),"."+' '+
                 "Responsibility for all content lies with the publishing author and not this website."

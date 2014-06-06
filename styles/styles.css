@@ -332,15 +332,21 @@ h4 {
     opacity: 0.8;
     background-color: #f1e4ea;
 }
-/*
-.bar.infoLink .popup {
+
+.infoLink .popup {
     display: none;
+    bottom:28px;
+    right:1px;
+    height:auto;
+    width:auto;
+    border: 1px solid black;
+    position:absolute;
+    background:white;
 }
 
-.bar.infoLink:hover .popup {
+.infoLink:hover .popup, .infoLink.sfhover {
     display: block;
 }
-*/
 
 header {
     background-color: #fff;

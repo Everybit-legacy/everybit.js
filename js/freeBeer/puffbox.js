@@ -124,29 +124,43 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
 });
 
 var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
-    handleClick: function() {
+    componentDidMount: function(){
+        var node = this.getDOMNode();
+        var infoLink = node.getElementsByClassName('infoLink')[0];
+        var popup = node.getElementsByClassName('popup')[0];
+
+        infoLink.onmouseover = function() {
+            popup.style.display = 'block';
+        }
+        infoLink.onmouseout = function() {
+            popup.style.display = 'none';
+        }
+    },
+    render: function() {
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
-        var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
-        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
-        var version = '\n' + 'Version: ' + puff.version;
-        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
+        var formattedTime = React.DOM.span(null, "Created ", timeSince(date), " ago");
+        var lisc = puff.payload.license ?  React.DOM.span(null, React.DOM.br(null),"License:",puff.payload.license) : '';
+        var photographer = puff.photographer ? React.DOM.span(null, React.DOM.br(null),"Photographer:",puff.photographer) : '';
+        var version = React.DOM.span(null, React.DOM.br(null), " Version: ", puff.version);
+   //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
-        alert(altText);
-        return false;
-    },
-
-    render: function() {
         return (
-            React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                    React.DOM.i( {className:"fa fa-info fa-fw"})
+            React.DOM.a(null, React.DOM.span( {className:"icon"}, 
+                React.DOM.span( {className:"infoLink"}, 
+                    React.DOM.i( {className:"fa fa-info fa-fw"}),
+                    React.DOM.span( {className:"popup"}, 
+                    formattedTime,
+                    lisc,
+                    photographer,
+                    version
+                    )
                 )
-            )
+            ))
             );
     }
 });
+
 
 var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     handleClick: function() {

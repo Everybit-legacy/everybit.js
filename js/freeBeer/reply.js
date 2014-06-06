@@ -16,7 +16,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         var parents = this.props.reply.parents;
         if (content.length<1) {
-            var errorMSG = "Cannot send empty puff!"
+            var errorMSG = "Cannot send empty Puff!"
             alert(errorMSG)
             return false;
         }

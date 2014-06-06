@@ -19,13 +19,13 @@ puffworldprops = {
 
     view: {
         style: 'PuffRoots',
-        puff: false,
-        user: false,
+        puff: false,                                // focused puff (not just sig)
+        user: false,                                // username // TODO: make this part of filter
         mode: 'browse',
         rows: 4,
         cols: 5,
         animation: true,
-        cursor: false // puff where the cursor is
+        cursor: false                               // sig of selected puff
     },
 
     reply: {

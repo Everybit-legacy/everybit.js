@@ -83,17 +83,29 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/menu/close', {'view.cursor': false})
             }
 
-                alert("I'm afraid there's nothing left to close!")
+            alert("I'm afraid there's nothing left to close!")
         }.bind(this));
         
+        // cmd-enter submits the reply box
+        Mousetrap.bind('command+enter', function(e) { 
+            if(!this.props.reply.show) 
+                return true
+            
+            if(typeof globalReplyFormSubmitArg == 'function')
+                globalReplyFormSubmitArg()
+        }.bind(this));
         
-        if(this.props.reply.show) {
-            // cmd-enter submits
-            
-            
-            return false
+        // we have to customize this to make cmd-enter work inside reply boxes
+        Mousetrap.stopCallback = function(e, element, combo) {
+
+            // if the element has the class "mousetrap" then no need to stop
+            if(combo == 'command+enter' && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+                return false;
+            }
+
+            // stop for input, select, and textarea
+            return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || (element.contentEditable && element.contentEditable == 'true');
         }
-        
     },
     componentWillUnmount: function() {
         Mousetrap.reset()

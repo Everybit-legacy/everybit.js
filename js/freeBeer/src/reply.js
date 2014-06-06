@@ -15,7 +15,11 @@ var PuffReplyForm = React.createClass({
         }
 
         var parents = this.props.reply.parents;
-
+        if (content.length<1) {
+            var errorMSG = "Cannot send empty puff!"
+            alert(errorMSG)
+            return false;
+        }
         PuffForum.addPost( type, content, parents, metadata );
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});

@@ -44,7 +44,7 @@
      * Check if a username exists in DHT
      */
     function checkNameExists($username) {
-
+        set_time_limit(5);
         $url = 'http://162.219.162.56/c/users/api.php?type=getUser&username=' . $username;
 
         $result = file_get_contents($url);
@@ -59,25 +59,44 @@
     }
 
     function checkUsersExist($usernames) {
-
+        $existing = array();
         foreach($usernames as $username) {
 
             if(checkNameExists($username)) {
                 echo $username . ' user exists';
                 echo '<br>';
+                array_push($existing, $username);
             } else {
-                echo $username. ' no user';
-                echo '<br>';
+                //echo $username. ' no user';
+                //echo '<br>';
             }
             ob_flush();
+        }
+        return $existing;
+    }
+    function deleteUsers($usernames) {
+        foreach($usernames as $username) {
+
+            if(checkNameExists($username)) {
+                echo $username . ' user exists';
+                echo '<br>';
+                $result = file_get_contents("http://162.219.162.56/c/users/api.php?type=deleteUser&username=" . $username);
+                echo $username . " deleted<br>";
+                ob_flush();
+            } else {
+                //echo $username. ' no user';
+                //echo '<br>';
+                echo '.';
+                ob_flush();
+            }
         }
     }
 
 
-    $sqlToRun = "SELECT * FROM users WHERE NOT username='anon.usenet'";
+    $sqlToRun = "SELECT username FROM users WHERE NOT username='anon.usenet'";
     $users = $db->get_col($sqlToRun);
-    $db->debug();
-    checkUsersExist($users);
+    // $db->debug();
+    deleteUsers($users);
 
     exit();
     

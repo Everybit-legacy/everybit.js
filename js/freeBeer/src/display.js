@@ -2,86 +2,98 @@
 
 var ViewKeybindingsMixin = {
     componentDidMount: function() {
-        this.keyfun = function(e) {
-            var char = String.fromCharCode(e.keyCode).toUpperCase()
-            
-            if(this.props.reply.show) {
-                // cmd-enter submits
-                
-                
-                return false
-            }
-            
-            // n shows new puff box
-            if(char == 'N') {
-                return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
-            }
-            
-            // r replies 'selected' box
-            if(char == 'R') {
-                var parents = []
-                var cursor_sig = puffworldprops.view.cursor
-                if(cursor_sig)
-                    parents.push(cursor_sig)
-                return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents,
+        
+        // n shows new puff form
+        Mousetrap.bind('n', function() { 
+            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+        }.bind(this));
+        
+        // r replies to 'selected' puff
+        Mousetrap.bind('r', function() { 
+            var parents = []
+            var cursor_sig = puffworldprops.view.cursor
+            if(cursor_sig)
+                parents.push(cursor_sig)
+            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents,
 }});
-            }
+        }.bind(this));
+        
+        // 1-9 controls number of columns
+        Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
+            return events.pub('ui/view-cols/change', {'view.cols': 1*String.fromCharCode(e.keyCode)})
+        }.bind(this));
+        
+        // spacebar toggles display mode
+        Mousetrap.bind('space', function(e) { 
+            return events.pub( 'ui/view-mode/change', 
+                             { 'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+        }.bind(this));
+        
+        
+        // arrows move the selection cursor
+        Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
+            var current = this.props.view.cursor;
             
-            if(1*char) {
-                return events.pub('ui/view-cols/change', {'view.cols': 1*char})
-            }
-            
-            if(e.keyCode == 32) { // spacebar
-                return events.pub('ui/view-mode/change', 
-                                 {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
-            }
-            
-            if (e.keyCode == 13) { // enter
-                // FIXME: don't pub event if !view.cursor
-                if (this.props.view.cursor)
-                    if (this.props.view.cursor == this.props.view.puff.sig) {
-                        // remove cursor style
-                        var cursor = document.getElementById(this.props.view.cursor);
-                        cursor.className = cursor.className.replace(' cursor', '');
-                        return;
-                    }
-                    return events.pub('ui/view-puff/change', 
-                                      {'view.style': 'PuffTallTree',
-                                       'view.puff': PuffForum.getPuffById(this.props.view.cursor),
-                                       'view.cursor': false})
-            }
-            
-            if (e.keyCode == 37 || // left arrow
-                e.keyCode == 38 || // up arrow
-                e.keyCode == 39 || // right arrow
-                e.keyCode == 40) { // down arrow
-                var current = this.props.view.cursor;
+            if (!current || !document.getElementById(current))
+                current = this.props.view.puff.sig;
                 
-                if (!current || !document.getElementById(current))
-                    current = this.props.view.puff.sig;
-                    
-                if (!current)
-                    current = document.querySelector('.block').id;
-                    
-                current = document.getElementById(current);
-                var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
+            if (!current)
+                current = document.querySelector('.block').id;
                 
-                if (next) {
-                    this.props.view.cursor = next.id;
-                
-                    // remove style for current
-                    current.className = current.className.replace(' cursor', '');
-                    // add style for next
-                    next.className = next.className.replace(' cursor', '');
-                    next.className = next.className + ' cursor';
+            current = document.getElementById(current);
+            var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
+            
+            if (next) {
+                this.props.view.cursor = next.id;            
+                current.classList.remove('cursor');
+                next.classList.add('cursor');
+            }
+            
+            return false
+        }.bind(this));
+        
+        // enter focuses the selected puff
+        Mousetrap.bind('enter', function(e) { 
+            // FIXME: don't pub event if !view.cursor
+            if (this.props.view.cursor)
+                if (this.props.view.cursor == this.props.view.puff.sig) {
+                    // remove cursor style
+                    var cursor = document.getElementById(this.props.view.cursor);
+                    cursor.className = cursor.className.replace(' cursor', '');
+                    return;
                 }
-                e.preventDefault();
-            }
-        }.bind(this)
-        document.addEventListener('keydown', this.keyfun)
+                return events.pub('ui/view-puff/change', 
+                                  {'view.style': 'PuffTallTree',
+                                   'view.puff': PuffForum.getPuffById(this.props.view.cursor),
+                                   'view.cursor': false})
+        }.bind(this));
+        
+        
+        // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
+        Mousetrap.bind('esc', function(e) { 
+            if(puffworldprops.menu.show)
+                return events.pub('ui/menu/close', {'menu.show': false})
+
+            if(puffworldprops.reply.show)
+                return events.pub('ui/menu/close', {'reply.show': false})
+
+            if(puffworldprops.view.cursor)
+                return events.pub('ui/menu/close', {'view.cursor': false})
+
+                alert("I'm afraid there's nothing left to close!")
+        }.bind(this));
+        
+        
+        if(this.props.reply.show) {
+            // cmd-enter submits
+            
+            
+            return false
+        }
+        
     },
     componentWillUnmount: function() {
-        document.removeEventListener('keydown', this.keyfun)
+        Mousetrap.reset()
     },
 };
 
@@ -232,7 +244,9 @@ var PuffAllParents = React.createClass({
 var PuffByUser = React.createClass({
     mixins: [ViewKeybindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getByUser(this.props.user); // pre-sorted
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var puffs = PuffForum.getByUser(this.props.user, limit); // pre-sorted
         return this.standardGridify(puffs);
     }
 });

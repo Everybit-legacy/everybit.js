@@ -22,6 +22,7 @@ puffworldprops = {
         puff: false,
         user: false,
         mode: 'browse',
+        rows: 4,
         cols: 5,
         animation: true,
         cursor: false // puff where the cursor is

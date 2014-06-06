@@ -124,29 +124,43 @@ var PuffParentCount = React.createClass({
 });
 
 var PuffInfoLink = React.createClass({
-    handleClick: function() {
+    componentDidMount: function(){
+        var node = this.getDOMNode();
+        var infoLink = node.getElementsByClassName('infoLink')[0];
+        var popup = node.getElementsByClassName('popup')[0];
+
+        infoLink.onmouseover = function() {
+            popup.style.display = 'block';
+        }
+        infoLink.onmouseout = function() {
+            popup.style.display = 'none';
+        }
+    },
+    render: function() {
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
-        var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
-        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
-        var version = '\n' + 'Version: ' + puff.version;
-        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
+        var formattedTime = <span>Created {timeSince(date)} ago</span>;
+        var lisc = puff.payload.license ?  <span><br/>License:{puff.payload.license}</span> : '';
+        var photographer = puff.photographer ? <span><br/>Photographer:{puff.photographer}</span> : '';
+        var version = <span><br/> Version: {puff.version}</span>;
+   //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
-        alert(altText);
-        return false;
-    },
-
-    render: function() {
         return (
-            <span className="icon">
-                <a href='#' onClick={this.handleClick}>
+            <a><span className="icon">
+                <span className="infoLink">
                     <i className="fa fa-info fa-fw"></i>
-                </a>
-            </span>
+                    <span className="popup">
+                    {formattedTime}
+                    {lisc}
+                    {photographer}
+                    {version}
+                    </span>
+                </span>
+            </span></a>
             );
     }
 });
+
 
 var PuffChildrenCount = React.createClass({
     handleClick: function() {

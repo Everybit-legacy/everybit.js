@@ -197,8 +197,8 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
     handleClick: function() {
         var sig = this.props.sig;
 
-        var parents = puffworldprops.reply.parents         // THINK: how can we get rid of this dependency?
-            ? puffworldprops.reply.parents.slice() // clone to keep pwp immutable
+        var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
         var index   = parents.indexOf(sig)
 

@@ -80,7 +80,7 @@ var PuffContent = React.createClass({
 var PuffBar = React.createClass({
     render: function() {
         var puff = this.props.puff
-		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-download fa-fw downloadIcon"></i></a></span>;
+		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>;
 		return (
 			<div className="bar">
 				{puff.payload.type=='image' ? link : ''}

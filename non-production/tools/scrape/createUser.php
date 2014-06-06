@@ -1,3 +1,4 @@
+<!--
 <script src="../../freebeer/scripts/xbbcode.js"></script>
 <script src="../../freebeer/scripts/qrcode.js"></script>
 
@@ -23,8 +24,10 @@
 <script src="../../freebeer/js/freeBeer/main.js"></script>
 
 <script src="createUser.js"></script>
-
+-->
 <?php
+    ini_set('error_reporting', E_ALL);
+
     require 'config.php';
     require 'ez_sql.php';
     set_time_limit(120);
@@ -36,7 +39,47 @@
     function findParent($username){
         return substr($username, 0, strrpos($username, '.'));
     }
-    
+
+    /**
+     * Check if a username exists in DHT
+     */
+    function checkNameExists($username) {
+
+        $url = 'http://162.219.162.56/c/users/api.php?type=getUser&username=' . $username;
+
+        $result = file_get_contents($url);
+
+        // Do call, return result
+        // echo $result . ' for ' . $username . ' looking at ' . $url;
+
+        if(substr($result,0,7) == '{"FAIL"') {
+            return false;
+        }
+        return true;
+    }
+
+    function checkUsersExist($usernames) {
+
+        foreach($usernames as $username) {
+
+            if(checkNameExists($username)) {
+                echo $username . ' user exists';
+                echo '<br>';
+            } else {
+                echo $username. ' no user';
+                echo '<br>';
+            }
+            ob_flush();
+        }
+    }
+
+
+    $sqlToRun = "SELECT * FROM users WHERE NOT username='anon.usenet'";
+    $users = $db->get_col($sqlToRun);
+    $db->debug();
+    checkUsersExist($users);
+
+    exit();
     
     $counter = 0; // for testing
     $list = array();

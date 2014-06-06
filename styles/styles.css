@@ -336,12 +336,14 @@ h4 {
 .infoLink .popup {
     display: none;
     bottom:28px;
-    right:1px;
+    /*right:1px;*/
     height:auto;
-    width:auto;
-    border: 1px solid black;
+    width:100%;
+    /*border: 1px solid black;*/
     position:absolute;
-    background:white;
+    background-color: rgba(222, 222, 222, 0.75);
+    color: #000;
+    /*background:white;*/
 }
 
 .infoLink:hover .popup, .infoLink.sfhover {

@@ -267,3 +267,11 @@ PuffForum.addContentType('image', {
     }
 })
 
+PuffForum.addContentType('markdown', {
+    toHtml: function(content) {
+        var converter = new Markdown.Converter();
+
+        return converter.makeHtml(content);
+    }
+})
+

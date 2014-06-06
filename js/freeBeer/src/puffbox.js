@@ -80,7 +80,7 @@ var PuffContent = React.createClass({
 var PuffBar = React.createClass({
     render: function() {
         var puff = this.props.puff
-		var link = <a href={puff.payload.content} target="new"><i className="fa fa-download fa-fw downloadIcon"></i></a>;
+		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-download fa-fw downloadIcon"></i></a></span>;
 		return (
 			<div className="bar">
 				{puff.payload.type=='image' ? link : ''}
@@ -94,30 +94,7 @@ var PuffBar = React.createClass({
     }
 });
 
-var PuffInfoLink = React.createClass({
-    handleClick: function() {
-        var puff = this.props.puff;
-        var date = new Date(puff.payload.time);
-        var formattedTime = 'Created ' + timeSince(date) + ' ago';
-        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
-        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
-        var version = '\n' + 'Version: ' + puff.version;
-        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
-        alert(altText);
-        return false;
-    },
-
-    render: function() {
-        return (
-            <span className="icon">
-                <a href='#' onClick={this.handleClick}>
-                    <i className="fa fa-info fa-fw"></i>
-                </a>
-            </span>
-        );
-    }
-});
 
 var PuffParentCount = React.createClass({
     handleClick: function() {
@@ -143,6 +120,31 @@ var PuffParentCount = React.createClass({
                 </span>
             );
         }
+    }
+});
+
+var PuffInfoLink = React.createClass({
+    handleClick: function() {
+        var puff = this.props.puff;
+        var date = new Date(puff.payload.time);
+        var formattedTime = 'Created ' + timeSince(date) + ' ago';
+        var lisc = puff.payload.license ? '\n' + 'License: ' + puff.payload.license : '';
+        var photographer = puff.photographer ? '\n' + 'Photographer: ' + puff.photographer : '';
+        var version = '\n' + 'Version: ' + puff.version;
+        var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
+
+        alert(altText);
+        return false;
+    },
+
+    render: function() {
+        return (
+            <span className="icon">
+                <a href='#' onClick={this.handleClick}>
+                    <i className="fa fa-info fa-fw"></i>
+                </a>
+            </span>
+            );
     }
 });
 

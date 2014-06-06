@@ -78,8 +78,11 @@ var ViewKeybindingsMixin = {
             if(puffworldprops.reply.show)
                 return events.pub('ui/menu/close', {'reply.show': false})
 
-            if(puffworldprops.view.cursor)
+            if(puffworldprops.view.cursor) {
+                var cursor = document.getElementById(puffworldprops.view.cursor);
+                cursor.className = cursor.className.replace(' cursor', '');
                 return events.pub('ui/menu/close', {'view.cursor': false})
+            }
 
             alert("I'm afraid there's nothing left to close!")
         }.bind(this));
@@ -283,6 +286,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var puff   = this.props.view.puff
         var mode   = this.props.view.mode
         var sigfun = function(item) {return item.sig}
+        
         
         // gridCoord params
         var screencoords = this.getScreenCoords()

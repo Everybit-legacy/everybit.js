@@ -9,7 +9,7 @@
         //if ($count > 8) continue;
         if ($u != 'anon.usenet'){
             $count += 1;
-            $result = file_get_contents("http://162.219.162.56/c/users/api.php?type=deleteUser&username=" . $u);
+            $result = file_get_contents("" . $u);
             //echo $u . ' ' . $result . '<br>';
             if ($result == 'CANT FIND') {
                 $db->query("DELETE FROM users WHERE username='$u'");

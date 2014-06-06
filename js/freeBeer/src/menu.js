@@ -435,12 +435,14 @@ var View = React.createClass({
 
                 <div className="menuItem"><a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>Choices collection</a></div>
 
-                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span><div className="menuItem">
-                Show relationships
+                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowHideRelationships}>Show relationships</a>
                 </div>
 
-                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span><div className="menuItem">
-                Show animations
+                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowHideAnimations}>Show animations</a>
                 </div>
 
             </div>

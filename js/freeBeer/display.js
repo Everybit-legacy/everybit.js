@@ -3,9 +3,29 @@
 var ViewKeybindingsMixin = {
     componentDidMount: function() {
         this.keyfun = function(e) {
-            if(this.props.reply.show)
+            var char = String.fromCharCode(e.keyCode).toUpperCase()
+            
+            if(this.props.reply.show) {
+                // cmd-enter submits
+                
+                
                 return false
-            var char = String.fromCharCode(e.keyCode)
+            }
+            
+            // n shows new puff box
+            if(char == 'N') {
+                return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+            }
+            
+            // r replies 'selected' box
+            if(char == 'R') {
+                var parents = []
+                var cursor_sig = puffworldprops.view.cursor
+                if(cursor_sig)
+                    parents.push(cursor_sig)
+                return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents,
+}});
+            }
             
             if(1*char) {
                 return events.pub('ui/view-cols/change', {'view.cols': 1*char})
@@ -16,7 +36,7 @@ var ViewKeybindingsMixin = {
                                  {'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
             }
             
-            if (e.keyCode == 13) {// enter
+            if (e.keyCode == 13) { // enter
                 // FIXME: don't pub event if !view.cursor
                 if (this.props.view.cursor)
                     if (this.props.view.cursor == this.props.view.puff.sig) {

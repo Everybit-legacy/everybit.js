@@ -385,7 +385,7 @@ function draggableize(el) {
         y_pos = e.pageY;
         x_elem = x_pos - el.offsetLeft;
         y_elem = y_pos - el.offsetTop;
-        el.addEventListener('mousemove', move_el);
+        document.addEventListener('mousemove', move_el);
         return false
     }
 
@@ -400,7 +400,7 @@ function draggableize(el) {
     // Bind the functions...
     el.addEventListener('mousedown', drag_init);
     el.addEventListener('mouseup', function() {
-        el.removeEventListener('mousemove', move_el);
+        document.removeEventListener('mousemove', move_el);
     });
 }
 

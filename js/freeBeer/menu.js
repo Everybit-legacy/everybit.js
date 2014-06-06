@@ -373,11 +373,11 @@ var View = React.createClass({displayName: 'View',
 
 
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/roots', {'view.style': 'PuffLatest', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
 
     handleShowHideRelationships: function() {
@@ -435,12 +435,14 @@ var View = React.createClass({displayName: 'View',
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, "Choices collection")),
 
-                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),React.DOM.div( {className:"menuItem"}, 
-                "Show relationships"
+                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, "Show relationships")
                 ),
 
-                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),React.DOM.div( {className:"menuItem"}, 
-                "Show animations"
+                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, "Show animations")
                 )
 
             )

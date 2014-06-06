@@ -1,0 +1,148 @@
+<script src="../../freebeer/scripts/xbbcode.js"></script>
+<script src="../../freebeer/scripts/qrcode.js"></script>
+
+<script src="../../freebeer/scripts/timeSince.js"></script>
+
+<script src="../../freebeer/scripts/bitcoinjs-min.js"></script>
+<script src="../../freebeer/scripts/peer.js"></script>
+
+<script src="../../freebeer/scripts/react.js"></script>
+
+<script src="../../freebeer/js/freeBeer/config.js"></script>
+
+
+<script src="../../freebeer/js/core/Puffball.js"></script>
+<script src="../../freebeer/js/core/PuffNet.js"></script>
+<script src="../../freebeer/js/modules/PuffForum.js"></script>
+<script src="../../freebeer/js/modules/PuffWardrobe.js"></script>
+<script src="../../freebeer/js/freeBeer/display.js"></script>
+<script src="../../freebeer/js/freeBeer/menu.js"></script>
+<script src="../../freebeer/js/freeBeer/puffbox.js"></script>
+<script src="../../freebeer/js/freeBeer/reply.js"></script>
+<script src="../../freebeer/js/freeBeer/tools.js"></script>
+<script src="../../freebeer/js/freeBeer/main.js"></script>
+
+<script src="createUser.js"></script>
+
+<?php
+    require 'config.php';
+    require 'ez_sql.php';
+    set_time_limit(120);
+    
+    //  for each row in the users table (except username=anon.usenet)
+    // get parent and its privateAdminKey
+    // call Scrape.userCreate with parameters
+    
+    function findParent($username){
+        return substr($username, 0, strrpos($username, '.'));
+    }
+    
+    
+    $counter = 0; // for testing
+    $list = array();
+    echo '<div id="userCreateResult"></div>'; // for display result of user creation
+    $users = $db->get_results("SELECT * FROM users WHERE NOT username='anon.usenet'");
+    foreach ($users as $user) {
+        if ($counter > 40) continue;
+        $counter += 1;
+        // get parameters
+        $username = $user->username;
+        $ak = $user->privateAdminKey;
+        $dk = $user->privateDefaultKey;
+        $rk = $user->privateRootKey;
+        
+        $parent = findParent($username);
+        $signingKey = $db->get_var("SELECT privateAdminKey FROM users WHERE username='$parent' LIMIT 1");
+        
+        // build array of parameter array
+        $param = array($parent, $signingKey, $username, $rk, $ak, $dk);
+        $param_js = '["' . implode('","', $param) . '"]';
+        array_push($list, $param_js);
+        //$param = '"' . implode('","', array($parent, $signingKey, $username, $rk, $ak, $dk)) . '"';
+        //$script_to_run = 'Scrape.userCreate(' . $param . ');';
+        //echo $script_to_run . '<br>';
+        //ob_flush();
+        //echo "<script>" . $script_to_run . "</script>";
+        //ob_flush();
+        
+    }
+    $script_for_list = 'Scrape.LIST = [' . implode(',', $list) . '];';
+    // echo $script_for_list . "<br>";
+    echo "<script>" . $script_for_list . "</script>";
+    echo "<script>Scrape.rec();</script>";
+    
+    /*
+    $counter  = 0;
+    foreach ($posts as $username) {
+        if ($counter > 10) continue;
+        $counter += 1;
+        $username = preg_split('/\./', $username);
+        $user = '';
+        foreach ($username as $u) {
+            $parent = $user;
+            if ($user != '') $user = $user . '.';
+            $user = $user . $u;
+            if (($user != 'anon') && (!$user != 'anon.usenet')) {
+                // select three keys
+                $key = $db->get_row("SELECT * FROM `keys` ORDER BY RAND() LIMIT 1");
+                $ak = $key->privateAdminKey;
+                $dk = $key->privateDefaultKey;
+                $rk = $key->privateRootKey;
+                // add username and keys to users table
+                $exist = $db->get_results("SELECT * FROM users WHERE username = '$user'");
+                if (!count($exist)) {
+                    $sql_for_add = "INSERT INTO users
+                            SET username = '$user',
+                                privateAdminKey = '$ak',
+                                privateDefaultKey = '$dk',
+                                privateRootKey = '$rk'";
+                    echo $sql_for_add . '<br>';
+                    //$db->query($sql_for_add);
+                }
+                continue;
+                // create user
+                $exist = $db->get_row("SELECT * FROM users WHERE username = $user");
+                $ak = $exist->privateAdminKey;
+                $dk = $exist->privateDefaultKey;
+                $rk = $exist->privateRootKey;
+                
+                $parentAdmin = $db->get_var("SELECT privateAdminKey FROM users WHERE username='$parent' LIMIT 1");
+                $param = '"' . implode('","', 
+                                 array($parent, $parentAdmin,
+                                       $user, $rk, $ak, $dk)) . '"';
+                $script_to_run = '<script>Scrape.userCreate(' . $param . ');</script>';
+                echo '<div id="userCreateResult"></div>';
+                ob_flush();
+                echo $script_to_run;
+                ob_flush();
+                
+            }
+        }
+    }
+    */
+    
+    
+    /*
+    $users = $db->get_results("SELECT * FROM users WHERE NOT username='anon.usenet'");
+    foreach ($users as $user) {
+        $u = $user->username;
+        $prev_u = $user->username;
+        $rk = $user->privateRootKey;
+        $ak = $user->privateAdminKey;
+        $dk = $user->privateDefaultKey;
+            
+        // create user
+        $parentUser = substr($u, 0, strrpos($u, '.'));
+        $parentAdmin = $db->get_var("SELECT privateAdminKey FROM users WHERE username='$parentUser' LIMIT 1");
+        $param = '"' . implode('","', 
+                         array($parentUser, $parentAdmin,
+                               $u, $rk, $ak, $dk)) . '"';
+        $script_to_run = '<script>Scrape.userCreate(' . $param . ');</script>';
+        echo '<div id="userCreateResult"></div>';
+        ob_flush();
+        echo $script_to_run;
+        ob_flush();
+    }
+    */
+    
+?>

@@ -90,7 +90,6 @@ section {
     /*opacity: 0.5;*/
 }
 
-/*#talltree #center .focused .block {*/
 #talltree .block.focused  {
 /*    min-width: 40%;
     max-width: 40%;
@@ -350,11 +349,9 @@ h4 {
     /*right:1px;*/
     height:auto;
     width:100%;
-    /*border: 1px solid black;*/
     position:absolute;
     background-color: rgba(222, 222, 222, 0.75);
     color: #000;
-    /*background:white;*/
 }
 
 .infoLink:hover .popup, .infoLink.sfhover {
@@ -623,8 +620,6 @@ header h1 {
     -ms-transform: rotate(90deg);
     -o-transform: rotate(90deg);
     float:left;
-/*    background: #1616A8; */
-    /* background: rgba(22,22,200,.9); */
     background: rgba(255,255,255,.1);
     color: #303030;
     font-family: GudeaBold;
@@ -632,9 +627,6 @@ header h1 {
     bottom: 0;
     position: fixed;
     right:0;
-/*    z-index:1050;
-    margin-left:auto;
-    margin-right:auto;*/
     white-space: pre-wrap;
 }
 

@@ -12,8 +12,11 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('r', function() { 
             var parents = []
             var cursor_sig = puffworldprops.view.cursor
-            if(cursor_sig)
-                parents.push(cursor_sig)
+            
+            // do not show reply if cursor_sig is invalid
+            if (!cursor_sig) return;
+            
+            parents.push(cursor_sig)
             return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents,
 }});
         }.bind(this));
@@ -55,18 +58,20 @@ var ViewKeybindingsMixin = {
         
         // enter focuses the selected puff
         Mousetrap.bind('enter', function(e) { 
-            // FIXME: don't pub event if !view.cursor
-            if (this.props.view.cursor)
-                if (this.props.view.cursor == this.props.view.puff.sig) {
-                    // remove cursor style
-                    var cursor = document.getElementById(this.props.view.cursor);
-                    cursor.className = cursor.className.replace(' cursor', '');
-                    return;
-                }
-                return events.pub('ui/view-puff/change', 
-                                  {'view.style': 'PuffTallTree',
-                                   'view.puff': PuffForum.getPuffById(this.props.view.cursor),
-                                   'view.cursor': false})
+            // Don't pub event if !view.cursor
+            if (!this.props.view.cursor)
+                return;
+            
+            if (this.props.view.cursor == this.props.view.puff.sig) {
+                // remove cursor style
+                var cursor = document.getElementById(this.props.view.cursor);
+                cursor.className = cursor.className.replace(' cursor', '');
+                return;
+            }
+            return events.pub('ui/view-puff/change', 
+                              {'view.style': 'PuffTallTree',
+                               'view.puff': PuffForum.getPuffById(this.props.view.cursor),
+                               'view.cursor': false})
         }.bind(this));
         
         

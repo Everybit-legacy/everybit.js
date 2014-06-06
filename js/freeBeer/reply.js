@@ -5,12 +5,18 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
         
-        var replyForm = document.getElementById('replyForm');
-        draggableize(replyForm);
+        var replyForm_el = this.getDOMNode();
+        draggableize(replyForm_el);
+        
+        if(this.refs.content) {
+            var content_el = this.refs.content.getDOMNode();
+            if(content_el.focus)
+                content_el.focus();
+        }
     },
     componentDidUpdate: function() {
-        var replyForm = document.getElementById('replyForm');
-        draggableize(replyForm);
+        var replyForm_el = this.getDOMNode();
+        draggableize(replyForm_el);
     },
     componentWillUnmount: function() {
         // remove silly global

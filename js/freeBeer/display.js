@@ -18,6 +18,7 @@ var ViewKeybindingsMixin = {
 }});
         }.bind(this));
         
+        
         // 1-9 controls number of columns
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
             return events.pub('ui/view-cols/change', {'view.cols': 1*String.fromCharCode(e.keyCode)})
@@ -95,11 +96,12 @@ var ViewKeybindingsMixin = {
                 globalReplyFormSubmitArg()
         }.bind(this));
         
-        // we have to customize this to make cmd-enter work inside reply boxes
+        
+        // we have to customize stopCallback to make cmd-enter work inside reply boxes
         Mousetrap.stopCallback = function(e, element, combo) {
 
-            // if the element has the class "mousetrap" then no need to stop
-            if(combo == 'command+enter' && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+            // if the element has the class "mousetrap" AND the combo is command+enter or esc, then no need to stop
+            if(~['command+enter', 'esc'].indexOf(combo) && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
                 return false;
             }
 

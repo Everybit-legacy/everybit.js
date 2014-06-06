@@ -1,3 +1,15 @@
+/*
+
+Official z-index guide to all z-indices in the GUI so check here before you z-index anything ok?
+
+100: regular puff block 
+200: selected puff block
+300: menu
+400: reply form
+
+*/
+
+
 @charset "utf-8";
 
 @font-face {
@@ -29,8 +41,6 @@ html {
 }
 
 body {
-/*    background: #8585F5;*/
-/*    background: #1616A8;*/
     background: #eee7d0;
     font-family: Gudea, sans-serif;
     font-size: 1em;
@@ -43,6 +53,7 @@ body {
 }
 
 path {
+    /* save this for bendy paths */
     /* fill-opacity: 0; */
 }
 
@@ -63,7 +74,7 @@ section {
     margin: 0 0 0 0;
     display: inline-block;
     text-align: left;
-    z-index: 999;
+/*    z-index: 999;*/
     position:relative;
     
     -webkit-border-radius: 2px;
@@ -92,7 +103,7 @@ section {
 #talltree .block.cursor {
     outline: 4px solid #a81a0d;
  /*   transition: all .5s;*/
-    z-index: 9999;
+    z-index: 200;
 }
 
 .block.focused .txt {
@@ -206,7 +217,7 @@ h4 {
     width:100%;
     color: #1616A8;
     /* border-bottom: 1px solid #a1a1a1; */
-    z-index:15;
+    /* z-index:15; */
     display: none;
     background-color: rgba(232, 232, 232, 0.75);
 }
@@ -238,7 +249,7 @@ h4 {
     overflow-y:auto;
     overflow-x:hidden;
 /*    max-height:30%;*/
-    z-index:10;
+/*    z-index:10;*/
     font-size: 1.1em;
     line-height: 1.5em;
 }
@@ -264,7 +275,7 @@ h4 {
     display: inline-block;
     box-sizing: border-box;
     text-align: left;
-    z-index: 999;
+    z-index: 100;
     overflow-y: hidden;
     overflow-x: hidden;
     position:relative;
@@ -307,7 +318,7 @@ h4 {
     width:100%;
     padding-top: 5px;
     padding-bottom: 5px;
-    z-index: 99;
+/*    z-index: 99;*/
     display: none;
     background-color: rgba(222, 222, 222, 0.75);
 }
@@ -409,41 +420,11 @@ header h1 {
     font-weight: bold;
 }
 
-/* not in use
-#puff-filter {
-    width: 80px;
-    border: 2px;
-    color: black;
-    font-weight: bold;
-}
-*/
-
-._jsPlumb_connector {
-    z-index: -1;
-}
-
-._jsPlumb_endpoint {
-    z-index: 5;
-}
-
-/*
-.wrapper{
-    position: relative;
-}
-
-.fixed-wrapper {
-    position: absolute;
-}
-
-.fixed {
-    position: fixed;
-}
-*/
 
 #replyForm {
     left: 50%;
 /*    margin-left: -250px;*/
-    z-index: 1001;
+    z-index: 400;
     position: absolute;
     top: 200px;
     background: #FAFAFA;
@@ -476,21 +457,6 @@ header h1 {
     cursor: pointer;
 }
 
-#addContentDiv {
-    z-index: 20;
-}
-
-#addContentDiv:hover, #addContentDiv form:hover {
-    cursor: all-scroll;
-}
-#addContentDiv form > * {
-    cursor: auto;
-}
-#addContentDiv form button,
-#addContentDiv form input {
-    cursor: pointer;
-}
-
 .logo {
     position: absolute;
     top: 10px;
@@ -500,17 +466,13 @@ header h1 {
 
 #puffballIcon {
     position: absolute;
-    z-index: 1000;
+/*    z-index: 1000;*/
     top: 12px;
     left: 12px;
 }
 
 #puffballIcon:hover {
     cursor: pointer;
-}
-
-.menuOn {
-  /* background-color: yellow */
 }
 
 .menu {
@@ -527,7 +489,7 @@ header h1 {
     left: 50px;
     top: 60px;
     background-color: rgba(255, 255, 255, 0.98);
-    z-index: 1000;
+    z-index: 300;
     width: 450px;
     font-size: 1.1em;
     line-height: 1.7em;
@@ -539,32 +501,6 @@ header h1 {
     animation: fadein 1s;
     max-height: 80%;
     overflow: auto;
-}
-
-.menuDos {
-    font-family: Gudea;
-    padding: 12px;
-    margin-bottom: 3px;
-    text-align: left;
-    color: #000000;
-    border: 2px solid #a1a1a1;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    position: absolute;
-    left: 500px;
-    top: 60px;
-    background-color: rgba(255, 255, 255, 0.85);
-    z-index: 1000;
-    width: 400px;
-    font-size: 1.1em;
-    line-height: 1.7em;
-    text-decoration:none;
-    -webkit-animation: fadein 1s; /* Safari and Chrome */
-    -moz-animation: fadein 1s; /* Firefox */
-    -ms-animation: fadein 1s; /* Internet Explorer */
-    -o-animation: fadein 1s; /* Opera */
-    animation: fadein 1s;
 }
 
 .menuItem {
@@ -648,13 +584,7 @@ header h1 {
     padding-bottom: 10px;
     margin: 0px;
 }
-/* not in use
-.menuSectionEmpty {
-    padding: 10px;
-    margin: 10px;
-}
 
-*/
 #closeDiv {
     padding-top: 0px;
     padding-left: 3px;
@@ -665,22 +595,10 @@ header h1 {
     color: #1616A8;
     font-size: 1.4em;
 }
-/* not in use
-.replyBlack {
-    width: 16px;
-    height: 16px;
-}
-
-.replyRed {
-    width: 16px;
-    height: 16px;
-}
-*/
 
 .private {
   background-color: #FFFFAD;
 }
-
 
 .private .author:before {
   display: inline-block;
@@ -714,7 +632,7 @@ header h1 {
     bottom: 0;
     position: fixed;
     right:0;
-    z-index:1050;
+/*    z-index:1050;*/
     margin-left:auto;
     margin-right:auto;
 }

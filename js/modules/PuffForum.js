@@ -125,13 +125,16 @@ PuffForum.getLatestPuffs = function(limit) {
                           .filter(Boolean)
 } 
 
-PuffForum.getByUser = function(username) {
+PuffForum.getByUser = function(username, limit) {
     //// returns all known puffs from given user, sorted by time
 
+    limit = limit || Infinity
+
     return PuffData.shells.filter(function(shell) { return shell ? shell.username == username : 0 })
+                               .sort(PuffForum.sortByPayload)
+                               .slice(0, limit)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean)
-                               .sort(PuffForum.sortByPayload)
 } 
 
 

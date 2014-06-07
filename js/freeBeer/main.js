@@ -446,9 +446,10 @@ function setViewPropsFromPushstate(pushstate) {
     
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     
+    puffworldprops = events.handle_merge_array(puffworldprops, props)     // THINK: we're doing this manually to prevent
+                                                                          // a history-adding loop, but it's kinda smelly
     if(!sig || props['view.puff']) { // we've got it
-        puffworldprops = events.handle_merge_array(puffworldprops, props) // THINK: we're doing this manually to prevent
-        return renderPuffWorld()                                          // a history-adding loop, but it's kinda smelly
+        return renderPuffWorld()
     }
     
     // we ain't got it
@@ -458,8 +459,8 @@ function setViewPropsFromPushstate(pushstate) {
     
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
-        puffworldprops = events.handle_merge_array(puffworldprops, props) // THINK: we're doing this manually to prevent
-        renderPuffWorld()                                                 // a history-adding loop, but it's kinda smelly
+        puffworldprops = events.handle_merge_array(puffworldprops, props) // see above note on smelliness
+        renderPuffWorld()                                                 
     })
 }
 
@@ -500,19 +501,6 @@ var eatPuffs = function(puffs) {
         return false;
     }
 
-    // TODO: just call some kind of 'look for puff' function instead
-    if(typeof globalStupidFirstTimeFlag == 'undefined') {
-        globalStupidFirstTimeFlag = true
-        var hash = window.location.hash
-        if(hash) {
-            var puff = PuffForum.getPuffById(hash.slice(1))
-            if(puff) {
-                showPuffDirectly(puff)
-                return false
-            }
-        }
-    }
-    
     renderPuffWorld()
 }
 
@@ -523,9 +511,10 @@ PuffForum.init(); // initialize the forum module (and by extension the puffball 
 // TODO: make this based on config, and changeable
 PuffWardrobe.setPref('storeKeychain', true);
 
+setViewPropsFromURL() // handle pushstate hash
+
 // renderPuffWorld(); // bootstrap the GUI
 
-setViewPropsFromURL() // handle pushstate hash
 
 
 ////////// End PuffForum Interface ////////////

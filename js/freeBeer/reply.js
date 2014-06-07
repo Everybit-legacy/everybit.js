@@ -39,9 +39,8 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         }
 
         var parents = this.props.reply.parents;
-        if (content.length<1) {
-            var errorMSG = "Cannot send empty Puff!"
-            alert(errorMSG)
+        if (content.length<CONFIG.minimumPuffLength) {
+            alert("Not enough content");
             return false;
         }
         PuffForum.addPost( type, content, parents, metadata );
@@ -71,11 +70,11 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
     },
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
-        var username = humanizeUsernames(username) || 'anonymous'
+        username = humanizeUsernames(username) || 'anonymous';
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
-        var type = this.props.reply.type
+        var type = this.props.reply.type;
         var typeFields = (
             React.DOM.div(null, 
                 React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"13", cols:"50", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these."})

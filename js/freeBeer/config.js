@@ -37,6 +37,8 @@ CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiW
 // How much space to leave on left side of screen, in pixels
 CONFIG.leftMargin = 60;
 
+CONFIG.minimumPuffLength = 3;
+
 /*
 CONFIG.arrowColors =
     ['#348017',

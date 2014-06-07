@@ -2,6 +2,7 @@
 
 Official z-index guide to all z-indices in the GUI so check here before you z-index anything ok?
 
+001: puffball icon
 100: regular puff block 
 200: selected puff block
 300: menu
@@ -463,7 +464,7 @@ header h1 {
 
 #puffballIcon {
     position: absolute;
-/*    z-index: 1000;*/
+    z-index: 1;
     top: 12px;
     left: 12px;
 }

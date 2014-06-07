@@ -10,7 +10,7 @@ var ViewKeybindingsMixin = {
         
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
-            var parents = []
+            var parents = puffworldprops.reply.parents || []
             var cursor_sig = puffworldprops.view.cursor
             
             // do not show reply if cursor_sig is invalid
@@ -35,6 +35,7 @@ var ViewKeybindingsMixin = {
         
         
         // arrows move the selection cursor
+        // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
             var current = this.props.view.cursor;
             
@@ -292,6 +293,8 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var mode   = this.props.view.mode
         var sigfun = function(item) {return item.sig}
         
+        if(!puff)
+            return React.DOM.div(null)
         
         // gridCoord params
         var screencoords = this.getScreenCoords()

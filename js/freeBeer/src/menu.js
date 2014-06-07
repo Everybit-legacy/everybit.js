@@ -656,6 +656,7 @@ var SetIdentity = React.createClass({
                 self.state.usernameStatus = 'Not found';
                 events.pub('ui/puff-packer/userlookup/failed', {});
             })
+        return false;
     },
 
     handleKeyCheck: function(keyType) {
@@ -664,8 +665,10 @@ var SetIdentity = React.createClass({
         var self = this;
 
         // Reset state
+        /*
         this.state[keyType] = false;
         events.pub('ui/event', {});
+        */
 
         var username = this.refs.username.getDOMNode().value;
         var privateKey = this.refs[keyType].getDOMNode().value;
@@ -720,7 +723,7 @@ var SetIdentity = React.createClass({
                 events.pub('ui/event', {});
                 return false;
             })
-
+        return false;
 
     },
 

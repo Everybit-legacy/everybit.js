@@ -491,16 +491,16 @@ var Identity = React.createClass({displayName: 'Identity',
     },
 
     componentWillMount: function() {
-        // if (!this.state.username) {
-        //     var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-        //     prom.then(function() {
-        //         PuffWardrobe.switchCurrent('anon');
-        //         events.pub('ui/puff-packer/set-identity-to-anon', {});
-        //     });
-        // 
-        //     this.setState({username: 'anon'});
-        // 
-        // }
+        if (!this.state.username) {
+            var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+            prom.then(function() {
+                PuffWardrobe.switchCurrent('anon');
+                events.pub('ui/puff-packer/set-identity-to-anon', {});
+            });
+
+            this.setState({username: 'anon'});
+
+        }
     },
 
     render: function() {
@@ -656,6 +656,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                 self.state.usernameStatus = 'Not found';
                 events.pub('ui/puff-packer/userlookup/failed', {});
             })
+        return false;
     },
 
     handleKeyCheck: function(keyType) {
@@ -664,8 +665,10 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         var self = this;
 
         // Reset state
+        /*
         this.state[keyType] = false;
         events.pub('ui/event', {});
+        */
 
         var username = this.refs.username.getDOMNode().value;
         var privateKey = this.refs[keyType].getDOMNode().value;
@@ -720,7 +723,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                 events.pub('ui/event', {});
                 return false;
             })
-
+        return false;
 
     },
 

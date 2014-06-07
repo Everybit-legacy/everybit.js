@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 
+
 globalCreateFancyPuffBox = function(puffplus) {
     var puff = puffplus.puff
     var className = puffplus.className
@@ -123,6 +124,10 @@ var PuffParentCount = React.createClass({
     }
 });
 
+/**
+ *
+ * Show the Info icon and pop-up the infromation window
+ */
 var PuffInfoLink = React.createClass({
     componentDidMount: function(){
         var node = this.getDOMNode();
@@ -140,8 +145,8 @@ var PuffInfoLink = React.createClass({
         var puff = this.props.puff;
         var date = new Date(puff.payload.time);
         var formattedTime = <span>Created {timeSince(date)} ago</span>;
-        var lisc = puff.payload.license ?  <span><br/>License:{puff.payload.license}</span> : '';
-        var photographer = puff.photographer ? <span><br/>Photographer:{puff.photographer}</span> : '';
+        var lisc = puff.payload.license ?  <span><br/>License: {puff.payload.license}</span> : '';
+        var photographer = puff.photographer ? <span><br/>Photographer: {puff.photographer}</span> : '';
         var version = <span><br/> Version: {puff.version}</span>;
    //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
@@ -153,7 +158,6 @@ var PuffInfoLink = React.createClass({
                     {formattedTime}
                     {lisc}
                     {photographer}
-                    {version}
                     </span>
                 </span>
             </span></a>

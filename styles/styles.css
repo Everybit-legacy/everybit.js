@@ -65,7 +65,7 @@ section {
 /* BEGIN New Tall Tree Styles */
 
 #talltree {
-    
+
 }
 
 #talltree .block {
@@ -75,39 +75,39 @@ section {
     margin: 0 0 0 0;
     display: inline-block;
     text-align: left;
-/*    z-index: 999;*/
+    /*    z-index: 999;*/
     position:relative;
-    
+
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     border-radius: 2px;
     font-size: 0.9em;
-    
- /*   transition: all 1s; */
-/*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
-    
+
+    /*   transition: all 1s; */
+    /*    transition: min-width 0.5s, min-height 0.5s, max-width 0.5s, max-height 0.5s, font-size 0.5s, top 2s, left 2s;*/
+
     float: left;
 
     /*opacity: 0.5;*/
 }
 
 #talltree .block.focused  {
-/*    min-width: 40%;
-    max-width: 40%;
-    min-height: 49.9%;
-    max-height: 49.9%;
-*/    font-size: 1.1em;
+    /*    min-width: 40%;
+        max-width: 40%;
+        min-height: 49.9%;
+        max-height: 49.9%;
+    */    font-size: 1.1em;
 }
 
 /* cursor */
 #talltree .block.cursor {
     outline: 4px solid #a81a0d;
- /*   transition: all .5s;*/
+    /*   transition: all .5s;*/
     z-index: 200;
 }
 
 .block.focused .txt {
-/*    max-height:40%;*/
+    /*    max-height:40%;*/
 }
 
 #talltree .parent .txt {
@@ -125,8 +125,8 @@ section {
 
 
 .example-enter {
-  opacity: 0.01;
- /* transition: opacity 5s;*/
+    opacity: 0.01;
+    /* transition: opacity 5s;*/
 }
 
 
@@ -248,8 +248,8 @@ h4 {
     cursor:pointer;
     overflow-y:auto;
     overflow-x:hidden;
-/*    max-height:30%;*/
-/*    z-index:10;*/
+    /*    max-height:30%;*/
+    /*    z-index:10;*/
     font-size: 1.1em;
     line-height: 1.5em;
 }
@@ -260,10 +260,10 @@ h4 {
 
 .block {
     background: #FAFAFA;
-/*    width: 30%;
-    min-width: 300px;
-    max-height: 30%;
-*/    -webkit-border-radius: 25px;
+    /*    width: 30%;
+        min-width: 300px;
+        max-height: 30%;
+    */    -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 4px solid #6c6175;
@@ -311,14 +311,14 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
- //   position: relative;;
+//   position: relative;;
     bottom:0;
     right:0;
     /* background:#EEE; */
     width:100%;
     padding-top: 5px;
     padding-bottom: 5px;
-/*    z-index: 99;*/
+    /*    z-index: 99;*/
     display: none;
     background-color: rgba(222, 222, 222, 0.75);
 }
@@ -345,13 +345,15 @@ h4 {
 }
 
 .infoLink .popup {
+    font-family: GudeaBold, sans-serif;
     display: none;
-    bottom:28px;
+    bottom:30px;
     /*right:1px;*/
     height:auto;
     width:100%;
     position:absolute;
-    background-color: rgba(222, 222, 222, 0.75);
+    right: 10px;
+    background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
 
@@ -421,7 +423,7 @@ header h1 {
 
 #replyForm {
     left: 50%;
-/*    margin-left: -250px;*/
+    /*    margin-left: -250px;*/
     z-index: 400;
     position: absolute;
     top: 200px;
@@ -595,18 +597,18 @@ header h1 {
 }
 
 .private {
-  background-color: #FFFFAD;
+    background-color: #FFFFAD;
 }
 
 .private .author:before {
-  display: inline-block;
-  content: "";
-  background-image: url(../img/sneaky.gif);
-  background-size: 50% 50%;
-  width: 19px;
-  height: 19px;
-  background-size: 100% 100%;
-  margin-right: 8px;
+    display: inline-block;
+    content: "";
+    background-image: url(../img/sneaky.gif);
+    background-size: 50% 50%;
+    width: 19px;
+    height: 19px;
+    background-size: 100% 100%;
+    margin-right: 8px;
 }
 
 .footer {
@@ -713,6 +715,6 @@ a.footerText {
 
 /* Internet Explorer */
 @-ms-keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}​
+     from { opacity: 0; }
+     to   { opacity: 1; }
+ }​

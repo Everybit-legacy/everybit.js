@@ -293,6 +293,8 @@ var PuffTallTree = React.createClass({
         var mode   = this.props.view.mode
         var sigfun = function(item) {return item.sig}
         
+        if(!puff)
+            return <div></div>
         
         // gridCoord params
         var screencoords = this.getScreenCoords()

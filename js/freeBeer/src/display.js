@@ -10,7 +10,7 @@ var ViewKeybindingsMixin = {
         
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
-            var parents = []
+            var parents = puffworldprops.reply.parents || []
             var cursor_sig = puffworldprops.view.cursor
             
             // do not show reply if cursor_sig is invalid

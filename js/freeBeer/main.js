@@ -475,16 +475,12 @@ function getQuerystringObject() {
 window.onpopstate = function(event) {
     //// grab back/forward button changes
 
-    if(!event.state) return false
-
-    setViewPropsFromPushstate(event.state)
-
-    // var puff = PuffForum.getPuffById(event.state.sig)
-    // 
-    // if(!puff)
-    //     events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-    // else
-    //     showPuffDirectly(puff)
+    if(event.state)
+        return setViewPropsFromPushstate(event.state)
+    
+    // load the default scene
+    puffworldprops = puffworlddefaults
+    renderPuffWorld()
 }
 
 

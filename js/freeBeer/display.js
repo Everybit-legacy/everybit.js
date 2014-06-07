@@ -35,6 +35,7 @@ var ViewKeybindingsMixin = {
         
         
         // arrows move the selection cursor
+        // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
             var current = this.props.view.cursor;
             

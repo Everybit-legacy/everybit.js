@@ -98,6 +98,10 @@ var PuffBar = React.createClass({
 
 var PuffFlagLink = React.createClass({
 
+    getInitialState: function() {
+        return {flagged: false}
+    },
+
     handleFlagRequest: function() {
         var self = this;
         var privateKeys = PuffWardrobe.getCurrentKeys();
@@ -129,21 +133,28 @@ var PuffFlagLink = React.createClass({
         // console.log(puff);
 
         prom.then(function(result) {
-            alert('flagged!');
+            self.setState({flagged: true});
         })
             .catch(function(err) {
                alert(err);
             });
 
-        // TODO submit
-        console.log(puff);
-
         return false;
     },
+
+
+
     render: function() {
-        // Does this user have right to see this link
+        var cx1 = React.addons.classSet;
+        var newClass = cx1({
+            'fa fa-bomb fa-fw': true,
+            'gray': this.state.flagged,
+            'red': !this.state.flagged
+        });
+
+        // Does this user have right to flag?
         if(PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
-            return <a href="#" onClick={this.handleFlagRequest}><i className="fa fa-bomb fa-fw black"></i></a>
+            return <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
         } else {
             return <i></i>
         }

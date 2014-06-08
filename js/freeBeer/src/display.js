@@ -17,7 +17,7 @@ var ViewKeybindingsMixin = {
             if (!cursor_sig) return;
             
             parents.push(cursor_sig)
-            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents,
+            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents
 }});
         }.bind(this));
         
@@ -117,7 +117,7 @@ var ViewKeybindingsMixin = {
     },
     componentWillUnmount: function() {
         Mousetrap.reset()
-    },
+    }
 };
 
 var GridLayoutMixin = {    
@@ -196,6 +196,10 @@ var GridLayoutMixin = {
 var PuffWorld = React.createClass({
     render: function() {
 
+        var defaultPuff = PuffForum.getPuffById('AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD');
+        var defaultViewProps = {};
+        defaultViewProps.puff = defaultPuff;
+
         var view;
         var viewprops = this.props.view || {};
 
@@ -217,8 +221,7 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker tools={this.props.tools} />
 
-        else view = <PuffByUser       view={viewprops} reply={this.props.reply} user='choices.book'
-            />
+        else view = <PuffTallTree    view={defaultViewProps} reply={this.props.reply} />
 
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
 

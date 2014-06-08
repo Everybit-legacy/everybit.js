@@ -85,6 +85,7 @@ var PuffBar = React.createClass({
 		return (
 			<div className="bar">
 				{puff.payload.type=='image' ? link : ''}
+                <PuffFlagLink sig={puff.sig} />
 				<PuffInfoLink puff={puff} />
 				<PuffChildrenCount puff={puff} />
 				<PuffParentCount puff={puff} />
@@ -92,6 +93,61 @@ var PuffBar = React.createClass({
 				<PuffReplyLink sig={puff.sig} />
 			</div>
 		);
+    }
+});
+
+var PuffFlagLink = React.createClass({
+
+    handleFlagRequest: function() {
+        var self = this;
+        var privateKeys = PuffWardrobe.getCurrentKeys();
+
+        if(!privateKeys.username) {
+            // TODO handle fail
+        }
+
+        if(!privateKeys.admin) {
+            // TODO handle fail
+        }
+
+        // Stuff to register. These are public keys
+        var payload = {};
+        var routes = [];
+        var type = 'flagPuff';
+        var content = this.props.sig;
+
+        payload.time = Date.now();
+
+        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+
+        var data = { type: 'flagPuff'
+            , puff: puff
+        };
+
+        var prom = PuffNet.post(CONFIG.puffApi, data);
+
+        // console.log(puff);
+
+        prom.then(function(result) {
+            alert('flagged!');
+        })
+            .catch(function(err) {
+               alert(err);
+            });
+
+        // TODO submit
+        console.log(puff);
+
+        return false;
+    },
+    render: function() {
+        // Does this user have right to see this link
+        if(PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
+            return <a href="#" onClick={this.handleFlagRequest}><i className="fa fa-bomb fa-fw black"></i></a>
+        } else {
+            return <i></i>
+        }
+
     }
 });
 

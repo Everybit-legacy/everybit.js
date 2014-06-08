@@ -690,6 +690,10 @@ a.footerText {
     color: #00AA00;
 }
 
+.black {
+    color: #000;
+}
+
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }

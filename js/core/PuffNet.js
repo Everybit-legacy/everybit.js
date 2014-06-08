@@ -167,6 +167,16 @@ PuffNet.updateUserRecord = function(puff) {
                })
 }
 
+/**
+ *
+ * @param $puff
+ * @returns {*}
+ * Send a generic puff to the puff api
+ */
+PuffNet.sendGeneralPuffApiRequest = function($puff) {
+
+}
+
 
 /*
 

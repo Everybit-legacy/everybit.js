@@ -185,6 +185,7 @@ PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     
     return prom.then(function(userRecord) {
         PuffWardrobe.switchCurrent(userRecord.username)
+        console.log("Setting current user to " + userRecord.username);
         return userRecord
     })
 }

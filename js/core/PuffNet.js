@@ -209,8 +209,8 @@ PuffNet.xhr = function(url, options, data) {
             req.responseType = options.type;
                 
         req.onload = function() {
-          if (req.status == 200)
-            resolve(req.response);
+          if (req.status == 200) // silly safari
+            resolve((req.responseType != options.type) && options.type == 'json' ? JSON.parse(req.response) : req.response);
           else 
             reject(Error(req.statusText));
         };

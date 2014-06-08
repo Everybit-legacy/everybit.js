@@ -492,13 +492,13 @@ var Identity = React.createClass({
 
     componentWillMount: function() {
         if (!this.state.username) {
-            var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-            prom.then(function() {
-                PuffWardrobe.switchCurrent('anon');
-                events.pub('ui/puff-packer/set-identity-to-anon', {});
-            });
-
-            this.setState({username: 'anon'});
+            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+            // prom.then(function() {
+            //     PuffWardrobe.switchCurrent('anon');
+            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
+            // });
+            // 
+            // this.setState({username: 'anon'});
 
         }
     },

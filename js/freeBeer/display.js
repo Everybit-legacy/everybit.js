@@ -217,7 +217,8 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         else if( viewprops.style == 'PuffPacker' )
             view  = PuffPacker( {tools:this.props.tools} )
 
-        else view = PuffRoots(       {view:viewprops, reply:this.props.reply} )
+        else view = PuffByUser(       {view:viewprops, reply:this.props.reply, user:"choices.book"}
+            )
 
         var reply = this.props.reply.show ? PuffReplyForm( {reply:this.props.reply} ) : ''
 

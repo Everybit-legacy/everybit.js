@@ -1068,6 +1068,7 @@ var NewIdentity = React.createClass({
         this.setState({rootKeyMessage: ''});
         this.setState({adminKeyMessage: ''});
         this.setState({defaultKeyMessage: ''});
+        return false;
     },
 
     handleConvertPrivatePublic: function() {
@@ -1109,6 +1110,7 @@ var NewIdentity = React.createClass({
          this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(aP);
          this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(dP);
          */
+        return false;
 
     },
 
@@ -1132,6 +1134,7 @@ var NewIdentity = React.createClass({
             console.log("ERROR");
             console.log(err.message);
         })
+        return false;
     }
 });
 

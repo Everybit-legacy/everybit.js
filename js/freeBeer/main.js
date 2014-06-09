@@ -457,6 +457,7 @@ function setViewPropsFromPushstate(pushstate) {
     if(!prom) 
         return Puffball.onError('Bad sig in pushstate')
     
+    // now we have it
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
         puffworldprops = events.handle_merge_array(puffworldprops, props) // see above note on smelliness

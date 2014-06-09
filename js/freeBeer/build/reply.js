@@ -112,7 +112,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         }
         
         return (
-            React.DOM.div( {id:"replyForm", className:"mainForm"}, 
+            React.DOM.div( {id:"replyForm"}, 
                 React.DOM.div( {id:"replyFormBox"}, 
                     React.DOM.div( {id:"authorDiv"}, username),
                     React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
@@ -125,8 +125,8 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                             })
                         ),
 
-                        React.DOM.input( {id:"cancelreply", className:"btn", type:"reset", value:"cancel", onClick:this.handleCancel}),
-                        React.DOM.input( {type:"submit", className:"btn", value:"GO!"} )
+                        React.DOM.a( {href:"#", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}),"GO!"),' ',
+                        React.DOM.a( {href:"#", onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o fa-fw"}),"NO!")
                     )
                 )
             )

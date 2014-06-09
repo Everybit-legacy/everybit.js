@@ -279,7 +279,17 @@ var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
 });
 
 var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
+    getInitialState: function() {
+      return (
+            {included: false}
+          );
+
+
+    },
     handleClick: function() {
+        // TODO: make this a toggle. Does it already?
+        // TODO: Remove coloring when submit puff
+
         var sig = this.props.sig;
 
         var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
@@ -287,20 +297,41 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             : []
         var index   = parents.indexOf(sig)
 
-        if(index == -1)
+        if(index == -1) {
             parents.push(sig)
-        else
+            // this.setState({included: true})
+            console.log("Included " + sig);
+        } else {
             parents.splice(index, 1)
+            // this.setState({included: false})
+        }
 
         return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
 
-        // TODO: draw reply arrows
+        // TODO: draw reply arrows. Maybe
     },
     render: function() {
+        var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+        var cx1 = React.addons.classSet;
+        var index   = parents.indexOf(this.props.sig)
+
+        if(index == -1) {
+            var isGreen = false;
+        } else {
+            var isGreen = true;
+        }
+
+        var newClass = cx1({
+            'fa fa-reply fa-fw': true,
+            'green': isGreen
+        });
+
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                    React.DOM.i( {className:"fa fa-reply fa-fw"})
+                    React.DOM.i( {className:newClass})
                 )
             )
         );

@@ -27,10 +27,11 @@
     <!-- polyfills -->
     <script src="scripts/promise.min.js"></script>
 
-    <!-- libraries -->
+    <!-- content type libs -->
     <script src="scripts/xbbcode.js"></script>
     <script src="scripts/markdown.js"></script>
 
+    <!-- libraries -->
     <script src="scripts/qrcode.js"></script>
     <script src="scripts/timeSince.js"></script>
     <script src="scripts/mousetrap.js"></script>
@@ -41,11 +42,12 @@
     <script src="scripts/react.js"></script>
     <!-- 
       <script src="scripts/react-0.10.0/build/react-with-addons.js"></script>
-      <script src="scripts/JSXTransformer.js"></script> 
+      Swap with above for debugging
     -->
 
     <!-- configuration file -->
     <script src="js/freeBeer/config.js"></script>
+    <script src="js/freeBeer/config_dev.js"></script> <!-- private config: don't commit it, don't remove this -->
 
     <!-- platform and modules -->
     <script src="js/core/Puffball.js"></script>
@@ -54,13 +56,12 @@
     <script src="js/modules/PuffWardrobe.js"></script>
 
     <!-- freebeer -->
-    <!-- <script src="js/freeBeer/validations.js"></script> -->
-
-    <script src="js/freeBeer/display.js"></script>
-    <script src="js/freeBeer/menu.js"></script>
-    <script src="js/freeBeer/puffbox.js"></script>
-    <script src="js/freeBeer/reply.js"></script>
-    <script src="js/freeBeer/tools.js"></script>
+    <script src="js/freeBeer/build/display.js"></script>
+    <script src="js/freeBeer/build/menu.js"></script>
+    <script src="js/freeBeer/build/puffbox.js"></script>
+    <script src="js/freeBeer/build/reply.js"></script>
+    <script src="js/freeBeer/build/tools.js"></script>
+    
     <script src="js/freeBeer/main.js"></script>
 
 

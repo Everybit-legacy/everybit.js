@@ -152,8 +152,13 @@ Puffball.getUserRecordNoCache = function(username) {
 
 
 Puffball.getPuffFromShell = function(shell) {
-    if(!shell || !shell.payload)
+    if(!shell)
         return false
+    
+    if(!shell.payload) { // shell is a sig
+        PuffData.pending[shell] = PuffNet.getPuffBySig(shell)
+        return false
+    }
     
     if(shell.payload.content !== undefined)
         return shell

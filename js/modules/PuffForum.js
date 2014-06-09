@@ -37,7 +37,7 @@ PuffForum.getPuffById = function(id) {
   
     var shell = PuffData.shells.filter(function(shell) { return id === shell.sig })[0]
     
-    return Puffball.getPuffFromShell(shell)
+    return Puffball.getPuffFromShell(shell || id)
 }
 
 // helper for sorting by payload.time

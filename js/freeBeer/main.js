@@ -473,6 +473,9 @@ function getQuerystringObject() {
                      return acc}, {})
 }
 
+
+globalPopBlocker = true
+
 window.onpopstate = function(event) {
     //// grab back/forward button changes
 
@@ -480,10 +483,16 @@ window.onpopstate = function(event) {
         return setViewPropsFromPushstate(event.state)
     
     // load the default scene
-    puffworldprops = puffworlddefaults
-    renderPuffWorld()
+    if(!globalPopBlocker) {
+        // Some browsers fire onpopstate on page load, others don't.
+        // We have to block the first one, or it overwrites the url and always shows the default.
+        // We have to grab the others in case we back up over a null state (a url w/o querystring).
+        puffworldprops = puffworlddefaults
+        renderPuffWorld()
+    }
 }
 
+setImmediate(function() {globalPopBlocker = false})
 
 
 ///////// PuffForum Interface ////////////

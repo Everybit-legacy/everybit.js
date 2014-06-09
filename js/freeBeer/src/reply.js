@@ -112,7 +112,7 @@ var PuffReplyForm = React.createClass({
         }
         
         return (
-            <div id="replyForm" className="mainForm">
+            <div id="replyForm">
                 <div id="replyFormBox">
                     <div id="authorDiv">{username}</div>
                     <form id="otherContentForm" onSubmit={this.handleSubmit}>
@@ -125,8 +125,8 @@ var PuffReplyForm = React.createClass({
                             })}
                         </select>
 
-                        <input id="cancelreply" className="btn" type="reset" value="cancel" onClick={this.handleCancel}/>
-                        <input type="submit" className="btn" value="GO!" />
+                        <a href="#" onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i>GO!</a>{' '}
+                        <a href="#" onClick={this.handleCancel}><i className="fa fa-trash-o fa-fw"></i>NO!</a>
                     </form>
                 </div>
             </div>

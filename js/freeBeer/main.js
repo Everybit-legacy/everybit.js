@@ -479,20 +479,20 @@ globalPopBlocker = true
 window.onpopstate = function(event) {
     //// grab back/forward button changes
 
-    if(event.state)
-        return setViewPropsFromPushstate(event.state)
-    
     // load the default scene
-    if(!globalPopBlocker) {
+    if(!event.state && !globalPopBlocker) {
         // Some browsers fire onpopstate on page load, others don't.
         // We have to block the first one, or it overwrites the url and always shows the default.
         // We have to grab the others in case we back up over a null state (a url w/o querystring).
         puffworldprops = puffworlddefaults
         renderPuffWorld()
     }
+        
+    globalPopBlocker = false
+    
+    if(event.state)
+        return setViewPropsFromPushstate(event.state)    
 }
-
-setImmediate(function() {globalPopBlocker = false})
 
 
 ///////// PuffForum Interface ////////////

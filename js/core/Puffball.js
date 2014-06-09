@@ -336,7 +336,12 @@ PuffData.getMyPuffChain = function(username) {
 Puffball.Crypto = {};
 
 Puffball.Crypto.generatePrivateKey = function() {
-    return new Bitcoin.ECKey().toWif()
+    // OPT: remove this test once Bitcoin.ECKey no longer generates invalid keys (about 1 in 1,000 right now)
+    var prikey = new Bitcoin.ECKey().toWif()
+    if(Puffball.Crypto.wifToPriKey(prikey))
+        return prikey
+    else
+        return Puffball.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
 }
 
 // TODO: This should return false if string is empty

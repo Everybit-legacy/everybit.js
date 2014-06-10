@@ -448,8 +448,6 @@ var View = React.createClass({
             </div>
             )
     }
-
-    // TODO: <div>Latest puffs</div><div>Search</div>
 });
 
 var Publish = React.createClass({
@@ -458,7 +456,7 @@ var Publish = React.createClass({
     },
 
     render: function() {
-        // TODO: Add puff icon to font
+
         return (
             <div>
                 <div className="menuHeader">
@@ -526,9 +524,6 @@ var Identity = React.createClass({
 
         var currUser = PuffWardrobe.getCurrentUsername();
 
-
-        // TODO: Logout button if logged in
-        // TODO: Logout button sets alert, clears username
         // TODO: Help icon takes you to tutorial related to this.
 
 
@@ -582,7 +577,7 @@ var AuthorPicker = React.createClass({
     handleRemoveUser: function() {
         var userToRemove = this.refs.switcher.getDOMNode().value;
 
-        // TODO, confirm alert first
+        // Confirm alert first
         var msg = "WARNING: This will erase all of this user's private keys from your web browser. If you have not yet saved your private keys, hit Cancel and use the EDIT section of the menu to save your keys. Are you sure you wish to continue?"
         var r = confirm(msg);
         if (r == false) {

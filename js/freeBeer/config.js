@@ -22,6 +22,7 @@ CONFIG.sortOrder = 'recent';
 
 CONFIG.zone = 'freebeer';
 CONFIG.url = 'http://www.freebeer.com';
+CONFIG.defaultPuff = 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD';
 
 CONFIG.text_threshold = 400;
 

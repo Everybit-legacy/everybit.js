@@ -74,7 +74,7 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
 var PuffContent = React.createClass({displayName: 'PuffContent',
     handleClick: function() {
         var puff = this.props.puff
-        showPuff(puff)
+        showPuff(puff.sig)
     },
     render: function() {
         var puff = this.props.puff
@@ -270,8 +270,8 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
 var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
     handleClick: function() {
         var sig  = this.props.sig;
-        var puff = PuffForum.getPuffById(sig);
-        showPuff(puff);
+        // var puff = PuffForum.getPuffById(sig);
+        showPuff(sig);
     },
     render: function() {
         return (
@@ -285,13 +285,6 @@ var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
 });
 
 var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
-    getInitialState: function() {
-      return (
-            {included: false}
-          );
-
-
-    },
     handleClick: function() {
         // TODO: make this a toggle. Does it already?
         // TODO: Remove coloring when submit puff
@@ -301,15 +294,13 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
-        var index   = parents.indexOf(sig)
+
+        var index = parents.indexOf(sig)
 
         if(index == -1) {
             parents.push(sig)
-            // this.setState({included: true})
-            console.log("Included " + sig);
         } else {
             parents.splice(index, 1)
-            // this.setState({included: false})
         }
 
         return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});

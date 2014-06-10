@@ -403,7 +403,7 @@ var View = React.createClass({displayName: 'View',
     },
 
     handleShowShortcuts: function() {
-        showPuff(PuffForum.getPuffById('381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'));
+        showPuff('381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM');
     },
 
 

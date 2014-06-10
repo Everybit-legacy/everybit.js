@@ -74,7 +74,7 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
 var PuffContent = React.createClass({displayName: 'PuffContent',
     handleClick: function() {
         var puff = this.props.puff
-        showPuff(puff)
+        showPuff(puff.sig)
     },
     render: function() {
         var puff = this.props.puff
@@ -270,8 +270,8 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
 var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
     handleClick: function() {
         var sig  = this.props.sig;
-        var puff = PuffForum.getPuffById(sig);
-        showPuff(puff);
+        // var puff = PuffForum.getPuffById(sig);
+        showPuff(sig);
     },
     render: function() {
         return (

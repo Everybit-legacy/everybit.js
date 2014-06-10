@@ -401,12 +401,25 @@ function draggableize(el) {
 
 
 
-function showPuff(puff) {
+function showPuff(sig) {
     //// show a puff and do other stuff
     
-    if(!puff || !puff.sig) return false
+    if(!sig)
+        return false
     
-    showPuffDirectly(puff)
+    var puff = PuffForum.getPuffById(sig)                           // get it?
+    
+    if(puff)
+        return showPuffDirectly(puff)                               // got it.
+
+    var prom = PuffData.pending[sig]                                // say what?
+    if(!prom) 
+        return Puffball.onError('Bad sig in pushstate')
+
+    prom.then(function(puffs) {                                     // okay got it.
+        showPuffDirectly(puffs[0])
+    })
+
 }
 
 function showPuffDirectly(puff) {

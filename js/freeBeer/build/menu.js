@@ -402,6 +402,10 @@ var View = React.createClass({displayName: 'View',
         return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
     },
 
+    handleShowShortcuts: function() {
+        showPuff(PuffForum.getPuffById('381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'));
+    },
+
 
     render: function() {
         // CSS for tabs
@@ -429,11 +433,11 @@ var View = React.createClass({displayName: 'View',
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " View"
                 ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewRoots}, "Recent conversations")),
-
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, "Latest puffs")),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, "Choices collection")),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, "Keyboard shortcuts")),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
                 React.DOM.div( {className:"menuItem"}, 
@@ -449,6 +453,9 @@ var View = React.createClass({displayName: 'View',
             )
     }
 });
+
+// TODO put back when working
+// <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
 
 var Publish = React.createClass({displayName: 'Publish',
     handleNewContent: function() {

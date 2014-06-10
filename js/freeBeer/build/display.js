@@ -196,7 +196,7 @@ var GridLayoutMixin = {
 var PuffWorld = React.createClass({displayName: 'PuffWorld',
     render: function() {
 
-        var defaultPuff = PuffForum.getPuffById('AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD');
+        var defaultPuff = PuffForum.getPuffById(CONFIG.defaultPuff);
         var defaultViewProps = {};
         defaultViewProps.puff = defaultPuff;
 
@@ -219,7 +219,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             view  = PuffLatest(      {view:viewprops, reply:this.props.reply} )
 
         else if( viewprops.style == 'PuffPacker' )
-            view  = PuffPacker( {tools:this.props.tools} )
+            view  = PuffPacker(         {tools:this.props.tools} )
 
         else view = PuffTallTree(    {view:defaultViewProps, reply:this.props.reply} )
 

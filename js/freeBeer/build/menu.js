@@ -595,10 +595,19 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         return false;
     },
 
+    handleViewUser: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
 
         if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, "None")
+
+        if(all_usernames.length == 1) {
+            PuffWardrobe.switchCurrent(all_usernames[0]);
+        }
 
         var username = PuffWardrobe.getCurrentUsername()
 
@@ -612,11 +621,32 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                         return React.DOM.option( {key:username, value:username}, username)
                     })
                 ),
-                ' ',React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o"}))
+                ' ',React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
+                ' ',ViewUserLink( {username:username} )
             )
             );
     }
     // TODO add alt tags to icons
+});
+
+var ViewUserLink = React.createClass({displayName: 'ViewUserLink',
+    viewUser: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
+    render: function() {
+        if(!Object.keys(PuffWardrobe.getAll()).length) {
+            return React.DOM.i(null);
+        }
+
+        return (
+            React.DOM.a( {href:"#", onClick:this.viewUser}, 
+                React.DOM.i( {className:"fa fa-search fa-fw"})
+            )
+            )
+    }
+
 });
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',

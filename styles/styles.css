@@ -204,11 +204,11 @@ h4 {
 }
 
 .author {
-//    position: fixed;
+/*    position: fixed;*/
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
     text-align: center;
-    /* color: #2d479a; 006738 */
+/*    color: #2d479a; 006738 */
     position:absolute;
     top:0;
     padding-bottom:5px;
@@ -216,9 +216,9 @@ h4 {
     padding-top: 2px;
     width:100%;
     color: #1616A8;
-    /* border-bottom: 1px solid #a1a1a1; */
-    /* z-index:15; */
-    display: none;
+/*    border-bottom: 1px solid #a1a1a1; */
+/*    z-index:15; */
+/*    display: none;*/
     background-color: rgba(232, 232, 232, 0.75);
 }
 
@@ -248,8 +248,8 @@ h4 {
     cursor:pointer;
     overflow-y:auto;
     overflow-x:hidden;
-    /*    max-height:30%;*/
-    /*    z-index:10;*/
+/*    max-height:30%;*/
+/*    z-index:10;*/
     font-size: 1.1em;
     line-height: 1.5em;
 }
@@ -260,10 +260,10 @@ h4 {
 
 .block {
     background: #FAFAFA;
-    /*    width: 30%;
-        min-width: 300px;
-        max-height: 30%;
-    */    -webkit-border-radius: 25px;
+/*    width: 30%;*/
+/*    min-width: 300px;*/
+/*    max-height: 30%;*/
+    -webkit-border-radius: 25px;
     -moz-border-radius: 25px;
     border-radius: 25px;
     border: 4px solid #6c6175;
@@ -282,7 +282,11 @@ h4 {
     top:0;
 }
 
-.block:hover .bar{
+.hidden {
+    display: none;
+}
+
+.block:hover .bar.hidden{
     display : block;
     text-decoration:none;
     -webkit-animation: fadein .5s; /* Safari and Chrome */
@@ -292,7 +296,7 @@ h4 {
     animation: fadein .5s;
 }
 
-.block:hover .author{
+.block:hover .author.hidden{
     display : block;
     text-decoration:none;
     -webkit-animation: fadein .5s; /* Safari and Chrome */
@@ -311,15 +315,15 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
-//   position: relative;;
+/*   position: relative;*/
     bottom:0;
     right:0;
-    /* background:#EEE; */
+/* background:#EEE; */
     width:100%;
     padding-top: 5px;
     padding-bottom: 5px;
-    /*    z-index: 99;*/
-    display: none;
+/*    z-index: 99;*/
+/*    display: none;*/
     background-color: rgba(222, 222, 222, 0.75);
 }
 

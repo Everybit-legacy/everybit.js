@@ -21,11 +21,12 @@ puffworldprops = {
         style: 'PuffRoots',
         puff: false,                                // focused puff (not just sig)
         user: false,                                // username // TODO: make this part of filter
-        mode: 'browse',
+        mode: 'browse',                             // 'browse' or 'arrow'
         rows: 4,
         cols: 5,
-        animation: true,
-        cursor: false                               // sig of selected puff
+        animation: true,                            // true -> animate everything; false -> animate nothing
+        cursor: false,                              // sig of selected puff
+        showinfo: false                             // true -> always show info boxes; false -> only on hover
     },
 
     reply: {

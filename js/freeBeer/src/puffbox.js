@@ -1,29 +1,21 @@
 /** @jsx React.DOM */
 
-
-
-globalCreateFancyPuffBox = function(puffplus) {
-    var puff = puffplus.puff
-    var className = puffplus.className
-    var stats = puffplus
-    return <PuffFancyBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} />
-}
-
 var PuffFancyBox = React.createClass({
     render: function() {
-        var puff = this.props.puff
-        var style = {}
-        var stats = this.props.stats
-        var mode = stats.mode
-        var width = stats.width
+        var   puff = this.props.puff
+        var  style = {}
+        var  stats = this.props.stats
+        var   mode = stats.mode
+        var  width = stats.width
         var height = stats.height
-        var top = stats.y
-        var left = stats.x + CONFIG.leftMargin
+        var    top = stats.y
+        var   left = stats.x + CONFIG.leftMargin
+        var hidden = !this.props.view.showinfo
         
         var classArray = ['block']
         if(this.props.extraClassy)
             classArray.push(this.props.extraClassy)
-        if(puffworldprops.view.cursor == puff.sig) // OPT: global props hits prevent early bailout
+        if(this.props.view.cursor == puff.sig)
             classArray.push('cursor')
         var className = classArray.join(' ')
         
@@ -48,9 +40,9 @@ var PuffFancyBox = React.createClass({
         
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
-                <PuffAuthor username={puff.username} />
+                <PuffAuthor username={puff.username} hidden={hidden} />
                 <PuffContent puff={puff} height={height} />
-                <PuffBar puff={puff} />
+                <PuffBar puff={puff} hidden={hidden} />
             </div>
         );
     }
@@ -64,9 +56,10 @@ var PuffAuthor = React.createClass({
     },
     render: function() {
         var username = humanizeUsernames(this.props.username)
+        var className = 'author' + (this.props.hidden ? ' hidden' : '')
 
         return (
-            <div className="author"><a href="" onClick={this.handleClick}>{username}</a></div>
+            <div className={className}><a href="" onClick={this.handleClick}>{username}</a></div>
         );
     }
 });
@@ -88,8 +81,10 @@ var PuffBar = React.createClass({
     render: function() {
         var puff = this.props.puff
 		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>;
+        var className = 'bar' + (this.props.hidden ? ' hidden' : '')
+        
 		return (
-			<div className="bar">
+			<div className={className}>
 				{puff.payload.type=='image' ? link : ''}
                 <PuffFlagLink sig={puff.sig} />
 				<PuffInfoLink puff={puff} />
@@ -291,7 +286,7 @@ var PuffReplyLink = React.createClass({
 
         var sig = this.props.sig;
 
-        var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
 
@@ -308,7 +303,7 @@ var PuffReplyLink = React.createClass({
         // TODO: draw reply arrows. Maybe
     },
     render: function() {
-        var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
         var cx1 = React.addons.classSet;

@@ -11,12 +11,19 @@ var ViewKeybindingsMixin = {
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
             var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
-            var cursor_sig = this.props.view.cursor
+            parents = parents.slice()                        // don't mutate props directly
+            var sig = this.props.view.cursor
             
-            // do not show reply if cursor_sig is invalid
-            if (!cursor_sig) return;
+            if (!sig) return;                                // no cursor? do nothing
             
-            parents.push(cursor_sig)
+            var index = parents.indexOf(sig)
+            
+            if(index == -1) {
+                parents.push(sig)
+            } else {
+                parents.splice(index, 1)
+            }
+            
             return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents
 }});
         }.bind(this));

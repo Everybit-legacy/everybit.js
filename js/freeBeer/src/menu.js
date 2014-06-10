@@ -448,8 +448,6 @@ var View = React.createClass({
             </div>
             )
     }
-
-    // TODO: <div>Latest puffs</div><div>Search</div>
 });
 
 var Publish = React.createClass({
@@ -458,7 +456,7 @@ var Publish = React.createClass({
     },
 
     render: function() {
-        // TODO: Add puff icon to font
+
         return (
             <div>
                 <div className="menuHeader">
@@ -526,9 +524,6 @@ var Identity = React.createClass({
 
         var currUser = PuffWardrobe.getCurrentUsername();
 
-
-        // TODO: Logout button if logged in
-        // TODO: Logout button sets alert, clears username
         // TODO: Help icon takes you to tutorial related to this.
 
 
@@ -582,7 +577,7 @@ var AuthorPicker = React.createClass({
     handleRemoveUser: function() {
         var userToRemove = this.refs.switcher.getDOMNode().value;
 
-        // TODO, confirm alert first
+        // Confirm alert first
         var msg = "WARNING: This will erase all of this user's private keys from your web browser. If you have not yet saved your private keys, hit Cancel and use the EDIT section of the menu to save your keys. Are you sure you wish to continue?"
         var r = confirm(msg);
         if (r == false) {
@@ -595,10 +590,19 @@ var AuthorPicker = React.createClass({
         return false;
     },
 
+    handleViewUser: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
 
         if(!all_usernames.length) return <div className="menuItem">None</div>
+
+        if(all_usernames.length == 1) {
+            PuffWardrobe.switchCurrent(all_usernames[0]);
+        }
 
         var username = PuffWardrobe.getCurrentUsername()
 
@@ -612,11 +616,32 @@ var AuthorPicker = React.createClass({
                         return <option key={username} value={username}>{username}</option>
                     })}
                 </select>
-                {' '}<a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o"></i></a>
+                {' '}<a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a>
+                {' '}<ViewUserLink username={username} />
             </div>
             );
     }
     // TODO add alt tags to icons
+});
+
+var ViewUserLink = React.createClass({
+    viewUser: function() {
+        var username = this.props.username;
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
+    render: function() {
+        if(!Object.keys(PuffWardrobe.getAll()).length) {
+            return <i></i>;
+        }
+
+        return (
+            <a href="#" onClick={this.viewUser}>
+                <i className="fa fa-search fa-fw"></i>
+            </a>
+            )
+    }
+
 });
 
 var SetIdentity = React.createClass({

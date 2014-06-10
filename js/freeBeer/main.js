@@ -211,13 +211,14 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     return function(width, height, miny, minx, maxy, maxx) {
         maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
         miny = min(miny||0, maxy), minx = min(minx||0, maxx)
+        if(maxx<0 || maxy<0) return Puffball.onError('Block is too big for the grid')
+        
         top: for (var y = miny; y <= maxy; y++) {
             bot: for (var x = minx; x <= maxx;  x++) {
                 for (var dy = 0; dy < height; dy++) {
                     for (var dx = 0; dx < width; dx++) {
                         if(grid[y+dy][x+dx]) continue bot }}
                 break top }}
-        if(maxx<0 || maxy<0) return Puffball.onError('Block too big for the grid')
         if(x == maxx+1 && y == maxy+1) return Puffball.onError('No room in the grid')
         if(x == null || y == null) return Puffball.onError('Block too big for the grid')
         for (var dy = 0; dy < height; dy++) {

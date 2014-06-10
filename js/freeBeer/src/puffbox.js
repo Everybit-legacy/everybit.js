@@ -285,13 +285,6 @@ var PuffPermaLink = React.createClass({
 });
 
 var PuffReplyLink = React.createClass({
-    getInitialState: function() {
-      return (
-            {included: false}
-          );
-
-
-    },
     handleClick: function() {
         // TODO: make this a toggle. Does it already?
         // TODO: Remove coloring when submit puff
@@ -301,15 +294,13 @@ var PuffReplyLink = React.createClass({
         var parents = puffworldprops.reply.parents          // THINK: how can we get rid of this dependency?
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
-        var index   = parents.indexOf(sig)
+
+        var index = parents.indexOf(sig)
 
         if(index == -1) {
             parents.push(sig)
-            // this.setState({included: true})
-            console.log("Included " + sig);
         } else {
             parents.splice(index, 1)
-            // this.setState({included: false})
         }
 
         return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});

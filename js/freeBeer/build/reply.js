@@ -43,6 +43,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             alert("Not enough content");
             return false;
         }
+        
         PuffForum.addPost( type, content, parents, metadata );
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});

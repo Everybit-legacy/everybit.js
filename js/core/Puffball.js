@@ -155,23 +155,23 @@ Puffball.getPuffFromShell = function(shell) {
     if(!shell)
         return false
     
-    if(!shell.payload) { // shell is a sig
-        PuffData.pending[shell] = PuffNet.getPuffBySig(shell)
-        return false
+    if(shell.payload) { // shell is not just a sig    
+        if(shell.payload.content !== undefined)
+            return shell
+    
+        var puff = PuffData.puffs.filter(function(puff) { return puff.sig === shell.sig })[0]
+        
+        if(puff)
+            return puff
     }
     
-    if(shell.payload.content !== undefined)
-        return shell
+    var sig = shell.sig || shell
     
-    var puff = PuffData.puffs.filter(function(puff) { return puff.sig === shell.sig })[0]
-    if(puff)
-        return puff
-    
-    if(PuffData.pending[shell.sig])
+    if(PuffData.pending[sig])
         return false
     
-    PuffData.pending[shell.sig] = PuffNet.getPuffBySig(shell.sig) // THINK: need some GC here...
-    PuffData.pending[shell.sig].then(Puffball.receiveNewPuffs)
+    PuffData.pending[sig] = PuffNet.getPuffBySig(sig) // THINK: need some GC here...
+    PuffData.pending[sig].then(Puffball.receiveNewPuffs)
     
     return false // so we can filter empty shells out easily, while still loading them on demand
 }

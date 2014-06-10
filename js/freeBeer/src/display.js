@@ -28,6 +28,12 @@ var ViewKeybindingsMixin = {
 }});
         }.bind(this));
         
+        // i toggles info boxes
+        Mousetrap.bind('i', function() { 
+            return events.pub( 'ui/view/showinfo/toggle', 
+                             { 'view.showinfo': !this.props.view.showinfo})
+        }.bind(this));
+        
         
         // 1-9 controls number of columns
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
@@ -179,11 +185,23 @@ var GridLayoutMixin = {
     },
     manualGridify: function(puffBoxList) {
         var arrowList = this.props.view.mode == 'arrows' ? this.makeArrows(puffBoxList) : ''
+        var viewprops = this.props.view
+        
+        var fancyWrapper = (function() {
+            return function(puffplus) {     // this is getting really messy -- maybe just transfer props
+                var className = puffplus.className
+                var stats = puffplus
+                var puff  = puffplus.puff
+                var view  = viewprops
+                return <PuffFancyBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} view={view} />
+            }
+        })()
+        
         
         return (
             <div>
                 <div id="talltree">
-                    {puffBoxList.map(globalCreateFancyPuffBox)}
+                    {puffBoxList.map(fancyWrapper)}
                 </div>
 
                 {arrowList}

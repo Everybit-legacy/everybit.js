@@ -474,25 +474,20 @@ function getQuerystringObject() {
 }
 
 
-globalPopBlocker = true
+window.addEventListener('load', function() {
+    /// this is cumbersome, but it gets around browser inconsistencies (some fire popstate on page load, others don't)
+    //  via https://code.google.com/p/chromium/issues/detail?id=63040
+    setTimeout(function() {
+        window.addEventListener('popstate', function(event) {
+            if(event.state)
+                return setViewPropsFromPushstate(event.state)    
+            
+            puffworldprops = puffworlddefaults
+            renderPuffWorld()
+        });
+    }, 0);
+});
 
-window.onpopstate = function(event) {
-    //// grab back/forward button changes
-
-    // load the default scene
-    if(!event.state && !globalPopBlocker) {
-        // Some browsers fire onpopstate on page load, others don't.
-        // We have to block the first one, or it overwrites the url and always shows the default.
-        // We have to grab the others in case we back up over a null state (a url w/o querystring).
-        puffworldprops = puffworlddefaults
-        renderPuffWorld()
-    }
-        
-    globalPopBlocker = false
-    
-    if(event.state)
-        return setViewPropsFromPushstate(event.state)    
-}
 
 
 ///////// PuffForum Interface ////////////

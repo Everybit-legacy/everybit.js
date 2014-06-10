@@ -64,7 +64,7 @@ var ViewKeybindingsMixin = {
             if (this.props.view.cursor == this.props.view.puff.sig)
                 return false;
             
-            showPuff(PuffForum.getPuffById(this.props.view.cursor));
+            showPuff(this.props.view.cursor);
             return false;
         }.bind(this));
         

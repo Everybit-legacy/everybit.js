@@ -319,11 +319,6 @@ events.shallow_copy = function(obj) {
 }
 
 
-function showPuffDirectly(puff) {
-    //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
 
 // $(window).resize(function(){
 //     // When browser window is resized, refresh jsPlumb connecting lines.
@@ -404,6 +399,8 @@ function draggableize(el) {
     });
 }
 
+
+
 function showPuff(puff) {
     //// show a puff and do other stuff
     
@@ -411,6 +408,12 @@ function showPuff(puff) {
     
     showPuffDirectly(puff)
 }
+
+function showPuffDirectly(puff) {
+    //// show a puff with no checks or balances
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'cursor': puff.sig})
+}
+
 
 function setViewPropsInURL() {
     var props = events.shallow_copy(puffworldprops.view)

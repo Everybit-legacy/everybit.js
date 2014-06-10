@@ -11,7 +11,7 @@ var ViewKeybindingsMixin = {
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
             var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
-            var cursor_sig = puffworldprops.view.cursor
+            var cursor_sig = this.props.view.cursor
             
             // do not show reply if cursor_sig is invalid
             if (!cursor_sig) return;
@@ -48,12 +48,8 @@ var ViewKeybindingsMixin = {
             current = document.getElementById(current);
             var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
             
-            if (next) {
-                events.pub('ui/view/cursor/set', {'view.cursor': next.id})
-                // this.props.view.cursor = next.id;            
-                // current.classList.remove('cursor');
-                // next.classList.add('cursor');
-            }
+            if (next)
+                events.pub('ui/view/cursor/set', {'view.cursor': next.id});
             
             return false
         }.bind(this));
@@ -68,10 +64,8 @@ var ViewKeybindingsMixin = {
             if (this.props.view.cursor == this.props.view.puff.sig)
                 return false;
             
-            return events.pub('ui/view-puff/change', 
-                              {'view.style': 'PuffTallTree',
-                               'view.puff': PuffForum.getPuffById(this.props.view.cursor),
-                               'view.cursor': false})
+            showPuff(PuffForum.getPuffById(this.props.view.cursor));
+            return false;
         }.bind(this));
         
         

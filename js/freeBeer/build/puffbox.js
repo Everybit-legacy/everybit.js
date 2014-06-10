@@ -12,7 +12,6 @@ globalCreateFancyPuffBox = function(puffplus) {
 var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
     render: function() {
         var puff = this.props.puff
-        var className = 'block ' + (this.props.extraClassy || '')
         var style = {}
         var stats = this.props.stats
         var mode = stats.mode
@@ -20,6 +19,13 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var height = stats.height
         var top = stats.y
         var left = stats.x + CONFIG.leftMargin
+        
+        var classArray = ['block']
+        if(this.props.extraClassy)
+            classArray.push(this.props.extraClassy)
+        if(puffworldprops.view.cursor == puff.sig) // OPT: global props hits prevent early bailout
+            classArray.push('cursor')
+        var className = classArray.join(' ')
         
         var offset = 30
         if(mode == 'arrows') {

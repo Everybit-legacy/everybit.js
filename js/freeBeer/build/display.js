@@ -10,7 +10,7 @@ var ViewKeybindingsMixin = {
         
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
-            var parents = puffworldprops.reply.parents || []
+            var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
             var cursor_sig = puffworldprops.view.cursor
             
             // do not show reply if cursor_sig is invalid
@@ -49,9 +49,10 @@ var ViewKeybindingsMixin = {
             var next = moveToNeighbour(current.id, e.keyCode, this.props.view.mode);
             
             if (next) {
-                this.props.view.cursor = next.id;            
-                current.classList.remove('cursor');
-                next.classList.add('cursor');
+                events.pub('ui/view/cursor/set', {'view.cursor': next.id})
+                // this.props.view.cursor = next.id;            
+                // current.classList.remove('cursor');
+                // next.classList.add('cursor');
             }
             
             return false
@@ -59,16 +60,14 @@ var ViewKeybindingsMixin = {
         
         // enter focuses the selected puff
         Mousetrap.bind('enter', function(e) { 
-            // Don't pub event if !view.cursor
+            // don't refocus if there's nothing selected
             if (!this.props.view.cursor)
-                return;
+                return false;
             
-            if (this.props.view.cursor == this.props.view.puff.sig) {
-                // remove cursor style
-                var cursor = document.getElementById(this.props.view.cursor);
-                cursor.className = cursor.className.replace(' cursor', '');
-                return;
-            }
+            // don't refocus if we're selecting the focused puff 
+            if (this.props.view.cursor == this.props.view.puff.sig)
+                return false;
+            
             return events.pub('ui/view-puff/change', 
                               {'view.style': 'PuffTallTree',
                                'view.puff': PuffForum.getPuffById(this.props.view.cursor),

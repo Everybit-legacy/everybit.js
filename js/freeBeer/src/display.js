@@ -93,7 +93,7 @@ var ViewKeybindingsMixin = {
         }.bind(this));
         
         // cmd-enter submits the reply box
-        Mousetrap.bind('command+enter', function(e) { 
+        Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
             if(!this.props.reply.show) 
                 return true
             
@@ -106,7 +106,7 @@ var ViewKeybindingsMixin = {
         Mousetrap.stopCallback = function(e, element, combo) {
 
             // if the element has the class "mousetrap" AND the combo is command+enter or esc, then no need to stop
-            if(~['command+enter', 'esc'].indexOf(combo) && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
+            if(~['command+enter', 'esc','ctrl+enter'].indexOf(combo) && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
                 return false;
             }
 

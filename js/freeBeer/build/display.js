@@ -37,7 +37,12 @@ var ViewKeybindingsMixin = {
         
         // 1-9 controls number of columns
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
-            return events.pub('ui/view-cols/change', {'view.cols': 1*String.fromCharCode(e.keyCode)})
+            return events.pub('ui/view/cols/set', {'view.cols': 1*String.fromCharCode(e.keyCode)})
+        }.bind(this));
+        
+        // shift+1-9 controls number of rows
+        Mousetrap.bind(['shift+1','shift+2','shift+3','shift+4','shift+5','shift+6','shift+7','shift+8','shift+9'], function(e) { 
+            return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.keyCode)})
         }.bind(this));
         
         // spacebar toggles display mode

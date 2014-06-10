@@ -319,11 +319,6 @@ events.shallow_copy = function(obj) {
 }
 
 
-function showPuffDirectly(puff) {
-    //// show a puff without doing pushState
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
 
 // $(window).resize(function(){
 //     // When browser window is resized, refresh jsPlumb connecting lines.
@@ -404,13 +399,34 @@ function draggableize(el) {
     });
 }
 
-function showPuff(puff) {
+
+
+function showPuff(sig) {
     //// show a puff and do other stuff
     
-    if(!puff || !puff.sig) return false
+    if(!sig)
+        return false
     
-    showPuffDirectly(puff)
+    var puff = PuffForum.getPuffById(sig)                           // get it?
+    
+    if(puff)
+        return showPuffDirectly(puff)                               // got it.
+
+    var prom = PuffData.pending[sig]                                // say what?
+    if(!prom) 
+        return Puffball.onError('Bad sig in pushstate')
+
+    prom.then(function(puffs) {                                     // okay got it.
+        showPuffDirectly(puffs[0])
+    })
+
 }
+
+function showPuffDirectly(puff) {
+    //// show a puff with no checks or balances
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'cursor': puff.sig})
+}
+
 
 function setViewPropsInURL() {
     var props = events.shallow_copy(puffworldprops.view)

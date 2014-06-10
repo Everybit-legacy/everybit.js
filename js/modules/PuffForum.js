@@ -149,6 +149,9 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
         return Puffball.falsePromise('Those are not good parents')
     
+    // ensure parents is unique
+    parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
+    
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
     
     // get a user promise

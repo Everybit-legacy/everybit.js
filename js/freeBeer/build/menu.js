@@ -621,9 +621,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     getInitialState: function() {
         return {
             usernameAvailable: 'unknown',
-            rootKeyMessage: '',
-            adminKeyMessage: '',
-            defaultKeyMessage: '',
             usernameMessage: '',
             newUsername: ''
         }
@@ -644,8 +641,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     React.DOM.div( {className:"menuInput"}, 
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername", readOnly:true,  value:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-refresh fa-fw", rel:"tooltip", title:"Generate a new username"})), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                     ),
-
                     React.DOM.br(null ),
+                    React.DOM.em(null, this.state.usernameMessage),
                     React.DOM.br(null ),
                     React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-unlock-alt"}), " Public Keys"),
 
@@ -671,8 +668,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
                     React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , "Generate"), " or ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , "Private",React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),"Public"),React.DOM.br(null ),
 
-                    React.DOM.em(null, this.state.rootKeyMessage, " ", this.state.adminKeyMessage, " ", this.state.defaultKeyMessage),
-                    React.DOM.br(null ),
                     React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-lock"}), " Private Keys"),
                     React.DOM.div( {className:"menuLabel"}, "root: " ),
                     React.DOM.div( {className:"menuInput"}, 
@@ -693,8 +688,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
                     React.DOM.br(null ),
 
-                    React.DOM.input( {className:"btn-link", type:"button", value:"Submit username request", onClick:this.handleUsernameRequest} ),React.DOM.br(null ),
-                    React.DOM.em(null, this.state.usernameMessage)
+                    React.DOM.a( {href:"#", onClick:this.handleUsernameRequest}, "Submit username request"),React.DOM.br(null )
+
                 )
                 )
         }
@@ -731,26 +726,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             return false;
         }
 
-        /*
-
-
-         var privateKeys = PuffWardrobe.getCurrentKeys();
-
-         if(!privateKeys.username) {
-         this.setState({usernameMessage: "You must set your identity before building registration requests."});
-         // this.state.result = {"FAIL": "You must set your identity before building registration requests."}
-         return events.pub('ui/puff-packer/user-registration/error', {});
-         }
-
-
-         var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
-         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-         var self = this;
-         self.state.puff = puff;
-         events.pub('ui/puff-packer/build-register-puff', {});
-         */
-
         var self = this;
 
         // SUBMIT REQUEST
@@ -761,7 +736,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({usernameMessage: 'Success!'});
                 events.pub('ui/event', {});
-                return userRecord;
+                // TODO: Set this person as the current user
+
+
             },
             function(err) {
                 console.log("ERR")
@@ -769,29 +746,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 events.pub('ui/event', {});
             });
 
-        // TODO: Set this person as the current user
+        return false;
 
 
-    },
-
-    handleSendPuffToServer: function(puff) {
-        // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
-        var self = this;
-
-        var prom = PuffNet.updateUserRecord(puff)
-
-        prom.then(function(result) {
-            self.setState({result: result});
-            self.setState({usernameMessage: "Success!"});
-            events.pub('ui/puff-packer/userlookup', {});
-        }).catch(function(err) {
-            self.setState({'FAIL': err.message});
-            self.setState({usernameMessage: 'FAIL: ' + err.message});
-            events.pub('ui/puff-packer/userlookup/failed', {});
-
-        })
-
-        return prom;
     },
 
     handleGeneratePrivateKeys: function() {
@@ -809,9 +766,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
 
         // Clear out any error messages
-        this.setState({rootKeyMessage: ''});
-        this.setState({adminKeyMessage: ''});
-        this.setState({defaultKeyMessage: ''});
         return false;
     },
 

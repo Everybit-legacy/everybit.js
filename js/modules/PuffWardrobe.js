@@ -86,23 +86,37 @@ PuffWardrobe.switchCurrent = function(username) {
     return PuffWardrobe.currentKeys = keys
 }
 
-PuffWardrobe.storePrivateKeysDirectly = function(username, rootKey, adminKey, defaultKey) {
-    //// Add keys to the wardrobe with no validation
-    if(!PuffWardrobe.keychain)
-        PuffWardrobe.keychain = {}
-    
-    PuffWardrobe.keychain[username] = {     root: rootKey
-                                      ,    admin: adminKey
-                                      ,  default: defaultKey
-                                      , username: username
-                                      }
+PuffWardrobe.storeRootKey = function(username, rootKey) {
+    PuffWardrobe.storePrivateKeys(username, rootKey)
+}
 
+PuffWardrobe.storeAdminKey = function(username, adminKey) {
+    PuffWardrobe.storePrivateKeys(username, false, adminKey)
+}
+
+PuffWardrobe.storeDefaultKey = function(username, defaultKey) {
+    PuffWardrobe.storePrivateKeys(username, false, false, defaultKey)
+}
+
+PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
+    //// Add keys to the wardrobe with no validation
+    PuffWardrobe.keychain = PuffWardrobe.getAll()
+    
+    PuffWardrobe.keychain[username] = PuffWardrobe.keychain[username] || {username: username}
+    
+    if(rootKey)
+        PuffWardrobe.keychain[username].root    = rootKey
+    if(adminKey)
+        PuffWardrobe.keychain[username].admin   = adminKey
+    if(defaultKey)
+        PuffWardrobe.keychain[username].default = defaultKey
+    
     if(PuffWardrobe.getPref('storeKeychain'))
         Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
-PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
-    //// Store private keys, but first ensure they match the userRecord
+PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
+    //// Ensure keys match the userRecord
     
     var prom = Puffball.getUserRecord(username)
     
@@ -115,14 +129,13 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
         if(defaultKey && Puffball.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
             Puffball.throwError('That private default key does not match the public default key on record')
         
-        PuffWardrobe.storePrivateKeysDirectly(username, rootKey, adminKey, defaultKey)
         return userRecord
     }, Puffball.promiseError('Could not store private keys due to faulty user record'))
-    
 }
 
 PuffWardrobe.removeKeys = function(username) {
     //// clear the identity's private keys from the wardrobe
+    PuffWardrobe.keychain = PuffWardrobe.getAll()
 
     delete PuffWardrobe.keychain[username]
     
@@ -158,7 +171,7 @@ PuffWardrobe.addNewAnonUser = function() {
 
     return prom.then(function(userRecord) {
                    // store directly because we know they're valid, and so we don't get tangled up in more promises
-                   PuffWardrobe.storePrivateKeysDirectly(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+                   PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
                    return userRecord;
                },
                Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));

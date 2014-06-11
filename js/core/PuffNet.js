@@ -169,22 +169,13 @@ PuffNet.updateUserRecord = function(puff) {
                })
 }
 
-/**
- *
- * @param $puff
- * @returns {*}
- * Send a generic puff to the puff api
- */
-PuffNet.sendGeneralPuffApiRequest = function($puff) {
-
-}
 
 
 /*
 
     PuffNet promise-based XHR layer
 
-    We use promises as our default concurrency construct, because ultimately this platform is composed of a huge set of interdependent async calls which mostly each resolve to a single immutable entity -- which is the promise sweet spot.
+    We use promises as our default concurrency construct, because ultimately this platform is composed of a huge set of interdependent async calls which mostly each resolve to a single immutable entity -- aka the promise sweet spot.
     
 */
 

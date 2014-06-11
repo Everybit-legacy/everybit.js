@@ -51,42 +51,6 @@ var ViewKeybindingsMixin = {
                              { 'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
         }.bind(this));
         
-        
-        // arrows move the selection cursor
-        // THINK: wasd?
-        Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
-            var current = this.props.view.cursor;
-            
-            if (!current || !document.getElementById(current))
-                current = this.props.view.puff.sig;
-                
-            if (!current)
-                current = document.querySelector('.block').id;
-                
-            current = document.getElementById(current);
-            var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
-            
-            if (next)
-                events.pub('ui/view/cursor/set', {'view.cursor': next.id});
-            
-            return false
-        }.bind(this));
-        
-        // enter focuses the selected puff
-        Mousetrap.bind('enter', function(e) { 
-            // don't refocus if there's nothing selected
-            if (!this.props.view.cursor)
-                return false;
-            
-            // don't refocus if we're selecting the focused puff 
-            if (this.props.view.cursor == this.props.view.puff.sig)
-                return false;
-            
-            showPuff(this.props.view.cursor);
-            return false;
-        }.bind(this));
-        
-        
         // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
         Mousetrap.bind('esc', function(e) { 
             if(puffworldprops.menu.show)
@@ -127,7 +91,65 @@ var ViewKeybindingsMixin = {
         }
     },
     componentWillUnmount: function() {
-        Mousetrap.reset()
+        Mousetrap.reset();
+    }
+};
+
+var CursorBindingsMixin = {
+    componentDidMount: function() {
+        
+        // arrows move the selection cursor
+        // THINK: wasd?
+        Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
+            var current = this.props.view.cursor;
+            
+            if (!current || !document.getElementById(current))
+                current = this.props.view.puff.sig;
+                
+            if (!current)
+                current = document.querySelector('.block').id;
+                
+            current = document.getElementById(current);
+            var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
+            
+            if (next)
+                events.pub('ui/view/cursor/set', {'view.cursor': next.id});
+            
+            return false
+        }.bind(this));
+        
+        // enter focuses the selected puff
+        Mousetrap.bind('enter', function(e) { 
+            // don't refocus if there's nothing selected
+            if (!this.props.view.cursor)
+                return false;
+            
+            // don't refocus if we're selecting the focused puff 
+            if (this.props.view.cursor == this.props.view.puff.sig)
+                return false;
+            
+            showPuff(this.props.view.cursor);
+            return false;
+        }.bind(this));
+        
+    },
+    componentWillUnmount: function() {
+        Mousetrap.reset();
+    },
+    cursorPower: function(puffs, defaultPuff) {
+        var cursor = this.props.view.cursor
+        
+        if(cursor) {
+            var oneOfThesePuffsIsSelected = puffs.filter(function(puff) {return puff.sig == cursor}).length
+            if(oneOfThesePuffsIsSelected) {
+                return false 
+            }
+        }
+        
+        var newCursor = (defaultPuff||puffs[0]||{}).sig
+        
+        if(newCursor)
+            return events.pub('ui/view/cursor/set', {'view.cursor': newCursor})
     }
 };
 
@@ -266,54 +288,59 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
 
 var PuffRoots = React.createClass({displayName: 'PuffRoots',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         var puffs = PuffForum.getRootPuffs(limit); // pre-sorted
+        this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
 var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var puffs = PuffForum.getChildren(this.props.puff); // pre-sorted
+        this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
 var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var puffs = PuffForum.getParents(this.props.puff); // pre-sorted
+        this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
 var PuffByUser = React.createClass({displayName: 'PuffByUser',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         var puffs = PuffForum.getByUser(this.props.user, limit); // pre-sorted
+        this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
 var PuffLatest = React.createClass({displayName: 'PuffLatest',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         var puffs = PuffForum.getLatestPuffs(limit); // pre-sorted
+        this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
 
 var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
-    mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
 
         var puff   = this.props.view.puff
@@ -365,6 +392,8 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                              return 0; })
                              // return a.puff.sig+'' < b.puff.sig+'' ? 1 : a.puff.sig+'' == b.puff.sig+'' ? 0 : -1})
         
+        
+        this.cursorPower(allPuffs.map(function(pbox) {return pbox.puff}), puff)
         
         return this.manualGridify(allPuffs)
     }
@@ -536,7 +565,7 @@ var PuffHeader = React.createClass({displayName: 'PuffHeader',
             React.DOM.div(null, 
                 React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconBigger.png", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
             )
-            );
+        );
     }
 });
 
@@ -550,6 +579,6 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
                 "Responsibility for all content lies with the publishing author and not this website."
                 )
             )
-            );
+        );
     }
 });

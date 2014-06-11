@@ -1,312 +1,10 @@
 /** @jsx React.DOM */
 
 /*
- <div className="menuItem">
- <input type="checkbox" ref="nickname" name="nickname" onChange={this.handleSetNickname} checked={this.props.profile.nickname} />
- Set nickname
- </div>
- <div className="menuItem">
- <p>Identity avatar</p>
- <p>More profile</p>
- </div>
+  <p>Identity avatar</p>
  */
 
 
-
-var PuffUserMenu = React.createClass({displayName: 'PuffUserMenu',
-    // responsible for showing either components or the link / static text
-
-    handleShowAdd: function() {
-        return events.pub('ui/menu/user/show-add/show', {'menu.user.show_add': true})
-    },
-    handleShowManage: function() {
-        return events.pub('ui/menu/user/show-manage/show', {'menu.user.manage': true})
-    },
-    handlePickOne: function() {
-        return events.pub('ui/menu/user/pick_one/show', {'menu.user.pick_one': true})
-    },
-    render: function() {
-
-        // Current User
-        var username = PuffWardrobe.getCurrentUsername()
-        username = humanizeUsernames(username) || ''
-        var all_usernames = Object.keys(PuffWardrobe.getAll())
-
-        // Add User
-        var add_user = PuffAddUser( {user:this.props.user} )
-
-        if(!this.props.user.show_add) {
-            add_user = (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowAdd, id:"show_add", className:"under"}, "Add an identity")
-                )
-                );
-        }
-
-        // User Management
-        var manage_user = PuffManageUser( {user:this.props.user} )
-
-        if(!this.props.user.manage && username) {
-            manage_user = (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowManage, id:"show_manage", className:"under"}, "Identity management")
-                )
-                );
-        }
-
-        return (
-            React.DOM.div(null, 
-                React.DOM.div( {className:"menuItem"},  
-                    username ? React.DOM.span(null, "Posting as ", username, " " )
-                        : React.DOM.span(null, "No current identity"),
-                              
-                     (all_usernames.length && !this.props.user.pick_one)
-                        ? React.DOM.a( {onClick:this.handlePickOne, className:"under"}, "(change)")
-                        : '' 
-                ),
-
-                this.props.user.pick_one ? PuffSwitchUser(null ) : '',
-
-                add_user,
-                
-                manage_user
-            )
-            );
-    }
-});
-
-var PuffSwitchUser = React.createClass({displayName: 'PuffSwitchUser',
-    handleUserPick: function() {
-        PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
-    },
-    render: function() {
-        var all_usernames = Object.keys(PuffWardrobe.getAll())
-        
-        if(!all_usernames.length) return React.DOM.div(null)
-        
-        var username = PuffWardrobe.getCurrentUsername()
-
-        // TODO: find a way to select from just one username (for remove user with exactly two users)
-
-        return (
-            React.DOM.div( {className:"menuItem"}, 
-            "Change user:",
-                React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, value:username}, 
-                    all_usernames.map(function(username) {
-                        return React.DOM.option( {key:username, value:username}, username)
-                    })
-                )
-            )
-            );
-    }
-});
-
-var PuffAddUser = React.createClass({displayName: 'PuffAddUser',
-    handleUserAuth: function() {
-        var username   = (this.refs  .username.state.value || '').trim()
-        var rootKey    = (this.refs   .rootKey.state.value || '').trim()
-        var adminKey   = (this.refs  .adminKey.state.value || '').trim()
-        var defaultKey = (this.refs.defaultKey.state.value || '').trim()
-
-        if(!username)
-            return Puffball.onError('Invalid username')
-
-        this.refs  .username.getDOMNode().value = "" // what oh dear
-        this.refs   .rootKey.getDOMNode().value = ""
-        this.refs  .adminKey.getDOMNode().value = ""
-        this.refs.defaultKey.getDOMNode().value = ""
-
-        // what we'd like to do here is take a username and up to three private keys, 
-        // and then add both the DHT userRecord to PuffData and those keys to our PuffWardrobe.
-        // the wardrobe should manage that, but only by passing most of it through to Puffball / PuffNet.
-        // does the wardrobe always check private keys before adding them locally? 
-        // would you ever want it not to?
-
-        var prom = PuffWardrobe.storePrivateKeys(username, rootKey, adminKey, defaultKey)
-
-        prom.then(function(userRecord) {
-                PuffWardrobe.switchCurrent(username)
-                events.pub('ui/menu/user/added', {'menu.user.show_add': false, 'menu.user.add_one': false})
-            },
-            Puffball.promiseError('Failed to add user'))
-
-        return false
-    },
-    handleUserCreate: function() {
-
-        return false
-    },
-    handleNewAnon: function() {
-        var prom = PuffWardrobe.addNewAnonUser()
-        
-        prom.then(function(userRecord) {
-            events.pub('user/add/anon', {})
-            events.pub('ui/user/add/anon', {}) // THINK: should this be generated by previous event?
-            PuffWardrobe.switchCurrent(userRecord.username)
-            events.pub('ui/menu/user/show-add/hide', {'menu.user.show_add': false})
-        });
-
-        return false
-    },
-    handleShowAddOne: function() {
-        return events.pub('ui/menu/user/add-one', {'menu.user.add_one': true})
-    },
-    handleShowAddNew: function() {
-        return events.pub('ui/menu/user/add-new', {'menu.user.add_new': true})
-    },
-    render: function() {
-        // THINK: put some breadcrumbs in?
-
-        // Add a user: 
-        // Anonymous
-        // Existing
-        // need: username / prikey
-        // New named:
-        // New sub-user
-        // need: existing user, sub user username / private key
-        // New top level
-        // need: username > 33 / private key
-
-
-        // Add existing identity
-        if(this.props.user.add_one) {
-            return (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.form( {id:"setUserInfo", onSubmit:this.handleUserAuth}, 
-                        React.DOM.p(null, "Authenticate with an existing identity"),
-                        React.DOM.p(null, "Identity: ", React.DOM.input( {type:"text", ref:"username"} )),
-                        React.DOM.p(null, "Private Key: ", React.DOM.input( {type:"text", ref:"privkey"} )),
-                        React.DOM.p(null, React.DOM.input( {type:"submit", value:"set"} )),
-                        React.DOM.small(null, 
-                        "Your private key is never sent over the network. Keep it secret. Keep it safe."
-                        )
-                    )
-                )
-                );
-        }
-
-        // Create new identity
-        if(this.props.user.add_new) {
-            return (
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.form( {id:"setUserInfo", onSubmit:this.handleUserCreate}, 
-                        React.DOM.p(null, "Create a new identity"),
-                        React.DOM.p(null, "Identity: ", React.DOM.input( {type:"text", ref:"username"} )),
-                        React.DOM.p(null, "Private Key: ", React.DOM.input( {type:"text", ref:"privkey"} )),
-                        React.DOM.p(null, React.DOM.input( {type:"submit", value:"set"} )),
-                        React.DOM.small(null, 
-                        "Your identity must consist of 33 or more alphanumeric characters."+' '+
-                        "Your identity signs each piece of content that you create."+' '+
-                        "If the content is modified your identity will no longer match its signature."+' '+
-                        "Your private key is never sent over the network. Keep it secret. Keep it safe."
-                        )
-                    )
-                )
-                );
-        }
-
-        // Regular menu
-        return (
-            React.DOM.div(null, 
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowAddOne, id:"add_local", className:"under"}, "Add existing identity")
-                ),
-
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleNewAnon, id:"add_anon", className:"under"}, "Create anonymous identity")
-                ),
-
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowAddNew, id:"add_new", className:"under"}, "Create new identity")
-                )
-            )
-            );
-    }
-});
-
-var PuffManageUser = React.createClass({displayName: 'PuffManageUser',
-    handleRemoveUser: function() {
-        PuffWardrobe.removeKeys(PuffWardrobe.getCurrentUsername())
-        events.pub('user/current/remove', {})
-        events.pub('ui/user/current/remove', {}) // this should be generated by previous event
-        events.pub('ui/menu/user/show-manage/hide', {'menu.user.manage': false})
-        return false
-    },
-    handleShowKeys: function() {
-        return events.pub('ui/menu/keys/show', {'menu.user.show_key': true})
-    },
-    handleShowBlockchainLink: function() {
-        return events.pub('ui/menu/blockchain/show', {'menu.user.show_bc': true})
-    },
-    render: function() {
-        // OPT: once current user is in props, only rerender on change (blockchain and QR are expensive)
-
-        var qrCode = ''
-        var myKeyStuff = ''
-        var blockchainLink = ''
-
-        var props = this.props.user
-        
-        var username = PuffWardrobe.getCurrentUsername()
-        if(!username) return React.DOM.div(null)
-
-        var privateKeys = PuffWardrobe.getCurrentKeys() || {}
-        var myPrivateKey = privateKeys.default || privateKeys.admin || privateKeys.root || '' // derp
-        
-        var userRecord = PuffWardrobe.getCurrentUserRecord() 
-        if(!userRecord)
-            return React.DOM.div(null)
-
-        if(props.show_key) {
-            myKeyStuff = React.DOM.div(null, React.DOM.p(null, "public key: ", React.DOM.br(null ),userRecord.defaultKey),React.DOM.p(null, "private key: ", React.DOM.br(null ),myPrivateKey))
-
-            var msg = myPrivateKey.replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
-
-            var qr = qrcode(4, 'M');
-            qr.addData(msg);
-            qr.make();
-
-            var image_data = qr.createImgTag() || {}
-            var data = 'data:image/gif;base64,' + image_data.base64
-            qrCode = React.DOM.img( {src:data, width:image_data.width, height:image_data.height} )
-        }
-
-        if(props.show_bc) {
-            if(!username) return false
-
-            var allPuffs = PuffData.getMyPuffChain(username)
-            var linkData = encodeURIComponent(JSON.stringify(allPuffs))
-            var data = 'data:text/plain;charset=utf-8,' + linkData
-            blockchainLink = React.DOM.a( {download:"blockchain.json", href:data, className:"under"}, "DOWNLOAD BLOCKCHAIN")
-        }
-
-        return (
-            React.DOM.div(null, 
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleRemoveUser, className:"under"}, "Remove identity from this machine")
-                ),
-
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowKeys, className:"under"}, "View this identity's keys")
-                ),
-
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowBlockchainLink, className:"under"}, "Download this identity's blockchain")
-                ),
-                
-                 qrCode         ? React.DOM.div( {className:"menuItem"}, qrCode) : '', 
-                 myKeyStuff     ? React.DOM.div( {className:"menuItem"}, myKeyStuff) : '', 
-                 blockchainLink ? React.DOM.div( {className:"menuItem"}, blockchainLink) : '' 
-            )
-            );
-    }
-});
-
-
-
-
-// BEGIN RISPLAY
 var Basics = React.createClass({displayName: 'Basics',
     render: function() {
         return (
@@ -370,7 +68,6 @@ var Logo = React.createClass({displayName: 'Logo',
 });
 
 var View = React.createClass({displayName: 'View',
-
 
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
@@ -607,6 +304,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
         if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, "None")
 
+        // Force selection of the single user when just one
         if(all_usernames.length == 1) {
             PuffWardrobe.switchCurrent(all_usernames[0]);
         }
@@ -628,7 +326,8 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
             )
             );
     }
-    // TODO add alt tags to icons
+    // TODO add alt tags to icons, or link it too a "help" puff.
+    // NOTE: This might destroy the puff the person was working on
 });
 
 var ViewUserLink = React.createClass({displayName: 'ViewUserLink',
@@ -733,6 +432,26 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                 self.state.usernameStatus = true;
 
                 // Add this to wardrobe, set to current
+                // If they have other keys in wardrobe, don't overwrite!
+                if(PuffWardrobe.getCurrentKeys()['root']) {
+                    var rootKeyPrivate = PuffWardrobe.getCurrentKeys()['root'];
+                } else {
+                    var rootKeyPrivate = '';
+                }
+
+                if(PuffWardrobe.getCurrentKeys()['admin']) {
+                    var adminKeyPrivate = PuffWardrobe.getCurrentKeys()['admin'];
+                } else {
+                    var adminKeyPrivate = '';
+                }
+
+                if(PuffWardrobe.getCurrentKeys()['default']) {
+                    var defaultKeyPrivate = PuffWardrobe.getCurrentKeys()['default'];
+                } else {
+                    var defaultKeyPrivate = '';
+                }
+
+
                 if(keyType == 'defaultKey') {
                     PuffWardrobe.storeDefaultKey(username, privateKey);
                 } else if(keyType == 'adminKey') {
@@ -804,13 +523,6 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         }
     }
 });
-
-/*
-
- + default, admin, root, (click to show each new level) <br />
- + Click next to each one to try and set <br />
- - Message area below for results <br />
- */
 
 var Checkmark = React.createClass({displayName: 'Checkmark',
    render: function() {
@@ -917,7 +629,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         }
     },
 
-    // TODO: Add save keys abilities
+    // TODO: Add options for users to save keys
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
         if (!this.props.show) {
@@ -1211,12 +923,6 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 });
 
 
-
-
-
-
-
-
 var About = React.createClass({displayName: 'About',
     render: function() {
         return (
@@ -1233,6 +939,7 @@ var About = React.createClass({displayName: 'About',
 
 /*
 // TODO: Put in stuff for
+Call this Info instead of about, and have About puff
  <div>User guide</div>
  <div>Contact us</div>
  <div>Privacy policy</div>
@@ -1269,4 +976,3 @@ var Main = React.createClass({displayName: 'Main',
             )
     }
 });
-// END RISPLAY

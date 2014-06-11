@@ -231,17 +231,17 @@ PuffForum.addContentType = function(name, type) {
     PuffForum.contentTypes[name] = type
 }
 
-PuffForum.processContent = function(type, content) {
+PuffForum.processContent = function(type, content, puff) {
     var typeObj = PuffForum.contentTypes[type]
     if(!typeObj)
         typeObj = PuffForum.contentTypes['text']
 
-    return typeObj.toHtml(content)
+    return typeObj.toHtml(content, puff)
 }
 
 PuffForum.getProcessedPuffContent = function(puff) {
     // THINK: we've already ensured these are proper puffs, so we don't have to check for payload... right?
-    return PuffForum.processContent(puff.payload.type, puff.payload.content)
+    return PuffForum.processContent(puff.payload.type, puff.payload.content, puff) // TODO: this is redundant now
 }
 
 // DEFAULT CONTENT TYPES

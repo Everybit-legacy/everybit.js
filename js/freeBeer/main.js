@@ -426,7 +426,7 @@ function showPuff(sig) {
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'cursor': puff.sig})
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 
@@ -525,7 +525,9 @@ var UpdateUI = (function() {
         requestAnimationFrame(step)
     }
     requestAnimationFrame(step)
-    return function() { update = true }
+    return function() { 
+        update = true 
+    }
 })()
 
 // Register our update function

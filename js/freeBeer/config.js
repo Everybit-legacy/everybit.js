@@ -36,6 +36,7 @@ CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiW
 CONFIG.leftMargin = 60;
 
 CONFIG.minimumPuffLength = 3;
+CONFIG.Timeout = 5;
 
 /*
 CONFIG.arrowColors =

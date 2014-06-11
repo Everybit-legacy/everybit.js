@@ -1672,11 +1672,11 @@ BoardConfig=function(){
     this.pollPGNMilliseconds=0;
     this.pollPGNMillisecondsPostResult=30000;
     this.numberPollsAfterResult=5;
-    this.gotoEndOnRefresh=false;
+    this.gotoEndOnRefresh=true;
     this.allowPreMoveSelection=false;
     this.pieceSet="merida";
     this.pieceSize=46;
-    this.isEndgame=false;
+    this.isEndgame=true;
     this.tr=false;
     this.ie6FixCoordsOffsetSize=4;
     this.allIeFixCoordsOffsetSize=0;
@@ -1703,7 +1703,7 @@ BoardConfig=function(){
     this.squareColorClass="";
     this.analysisWindowName="analysis_window";
     this.pieceTakenSize=this.pieceSize;
-    this.pauseBetweenMoves=800;
+    this.pauseBetweenMoves=0;
     this.pgnMode=false;
     this.hidePGNErrors=false;
     this.previewMode=false;
@@ -7172,7 +7172,7 @@ Board.prototype.setupEventHandlers=function(){
      YAHOO.util.Event.addListener(this.boardName+"-play","click",this.playMoves,this,true);
      YAHOO.util.Event.addListener(this.boardName+"-stop","click",this.stopPlayingMoves,this,true);
      */
-    setTimeout(this.gotoEnd.bind(this), 500)
+    setTimeout(this.gotoEnd.bind(this), CONFIG.Timeout)
 
     if(this.r){
         YAHOO.util.Event.addListener(this.boardName+"-analyse","click",this.analysePosition,this,true);

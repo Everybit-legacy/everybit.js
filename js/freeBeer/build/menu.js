@@ -734,11 +734,11 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 
                 // Add this to wardrobe, set to current
                 if(keyType == 'defaultKey') {
-                    PuffWardrobe.storePrivateKeysDirectly(username, '', '', privateKey);
+                    PuffWardrobe.storeDefaultKey(username, privateKey);
                 } else if(keyType == 'adminKey') {
-                    PuffWardrobe.storePrivateKeysDirectly(username, '', privateKey, '');
+                    PuffWardrobe.storeAdminKey(username, privateKey);
                 } else {
-                    PuffWardrobe.storePrivateKeysDirectly(username, privateKey, '', '');
+                    PuffWardrobe.storeRootKey(username, privateKey);
                 }
 
                 PuffWardrobe.switchCurrent(username);
@@ -1046,7 +1046,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
-                PuffWardrobe.storePrivateKeysDirectly(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
+                PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({usernameMessage: 'Success!'});
                 events.pub('ui/event', {});
                 return userRecord;

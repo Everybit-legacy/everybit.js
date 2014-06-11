@@ -33,6 +33,8 @@ PuffNet.getAllPuffShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     
+    if(CONFIG.noNetwork) return Puffball.falsePromise();    // THINK: this is only for debugging and development
+    
     return PuffNet.getJSON(url, data);
 }
 

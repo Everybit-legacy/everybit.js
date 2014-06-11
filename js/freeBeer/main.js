@@ -293,7 +293,7 @@ events.sub('ui/*', function(data, path) {
     setViewPropsInURL()
 
     // then re-render PuffWorld w/ the new props
-    renderPuffWorld()
+    UpdateUI()
 })
 
 events.handle_merge_array = function(props, data) {
@@ -467,7 +467,7 @@ function setViewPropsFromPushstate(pushstate) {
     puffworldprops = events.handle_merge_array(puffworldprops, props)     // THINK: we're doing this manually to prevent
                                                                           // a history-adding loop, but it's kinda smelly
     if(!sig || props['view.puff']) { // we've got it
-        return renderPuffWorld()
+        return UpdateUI()
     }
     
     // we ain't got it
@@ -479,7 +479,7 @@ function setViewPropsFromPushstate(pushstate) {
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
         puffworldprops = events.handle_merge_array(puffworldprops, props) // see above note on smelliness
-        renderPuffWorld()                                                 
+        UpdateUI()                                                 
     })
 }
 
@@ -501,7 +501,7 @@ window.addEventListener('load', function() {
                 return setViewPropsFromPushstate(event.state)    
             
             puffworldprops = puffworlddefaults
-            renderPuffWorld()
+            UpdateUI()
         });
     }, 0);
 });
@@ -512,6 +512,22 @@ window.addEventListener('load', function() {
 
 // keep this down at the bottom -- it has to load after everything else
 
+window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
+                            || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+
+// only update once per tick
+var UpdateUI = (function() {
+    var update = false
+    var step = function(timestamp) {
+        if(update)
+            renderPuffWorld()
+        update = false
+        requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+    return function() { update = true }
+})()
+
 // Register our update function
 var eatPuffs = function(puffs) {
     // call the display logic
@@ -520,7 +536,7 @@ var eatPuffs = function(puffs) {
         return false;
     }
 
-    renderPuffWorld()
+    UpdateUI()
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
@@ -532,7 +548,7 @@ PuffWardrobe.setPref('storeKeychain', true);
 
 setViewPropsFromURL() // handle pushstate hash
 
-// renderPuffWorld(); // bootstrap the GUI
+// UpdateUI(); // bootstrap the GUI
 
 
 

@@ -351,6 +351,9 @@ Puffball.Crypto.generatePrivateKey = function() {
 
 // TODO: This should return false if string is empty
 Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
+    if(!privateKeyWIF)
+        return Puffball.onError('That private key contained no data')
+        
     try {
         return Puffball.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {

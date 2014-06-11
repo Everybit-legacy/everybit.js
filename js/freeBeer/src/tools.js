@@ -412,4 +412,31 @@ var PuffPacker = React.createClass({
     }
 });
 
+var PuffSwitchUser = React.createClass({
+    handleUserPick: function() {
+        PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
+        return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+    },
+    render: function() {
+        var all_usernames = Object.keys(PuffWardrobe.getAll())
+
+        if(!all_usernames.length) return <div></div>
+
+        var username = PuffWardrobe.getCurrentUsername()
+
+        // TODO: find a way to select from just one username (for remove user with exactly two users)
+
+        return (
+            <div className="menuItem">
+            Change user:
+                <select ref="switcher" onChange={this.handleUserPick} value={username}>
+                    {all_usernames.map(function(username) {
+                        return <option key={username} value={username}>{username}</option>
+                    })}
+                </select>
+            </div>
+            );
+    }
+});
+
 // END ADVANCED TOOLS

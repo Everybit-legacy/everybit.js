@@ -545,7 +545,7 @@ Gettext.prototype.sjax=function(uri){
         if(_9a.responseText.length){
             _9c+="\n"+_9a.responseText;
         }
-        alert(_9c);
+    /*    alert(_9c);*/
         return;
     }
 };
@@ -824,7 +824,7 @@ PGN.prototype.getPGNFromURL=function(url,_2d){
         this.setupFromPGN(o.responseText,_2d);
     },failure:function(o){
         if(!this.board.hidePGNErrors){
-            alert("pgn load failed:"+o.statusText+" for file:"+url);
+       /*     alert("pgn load failed:"+o.statusText+" for file:"+url);*/
         }
     },scope:this},"rs2="+_2e);
 };
@@ -1416,14 +1416,14 @@ PGN.prototype.setupFromPGNCallback=function(_a1,err){
             if(_a5){
                 _a5.innerHTML=err;
             }else{
-                alert(err);
+           //     alert(err);
             }
         }
         return false;
     }
     if(this.pgnGames.length==0){
         if(!this.board.hidePGNErrors){
-            alert("PgnViewer: Error: Unable to find any pgn games in:"+pgn);
+     //       alert("PgnViewer: Error: Unable to find any pgn games in:"+pgn);
         }
         return false;
     }
@@ -1691,7 +1691,7 @@ BoardConfig=function(){
     this.showSolutionButton=false;
     this.avoidMouseoverActive=false;
     this.autoScrollMoves=false;
-    this.moveAnimationLength=0.5;
+    this.moveAnimationLength=0;
     this.showBracketsOnVariation=true;
     this.hideBracketsOnTopLevelVariation=false;
     this.variationStartString=" ( ";
@@ -1948,7 +1948,7 @@ ChessApp.prototype.init=function(e,_17,_18,us,_1a){
                             _1c.problem.getProblem();
                         }else{
                             var _28=_js("Still trying to load piece images.\n If you keep receiving this message you may need to reload the page.\n If you continue to get this message, you can disable it by going into your preferences and turning 'show problem start dialog' (available under the other tab) off.");
-                            alert(_28);
+               //             alert(_28);
                         }
                     },isDefault:true}]});
                     var _29=YAHOO.util.Dom.get("ctb-"+this.board.boardName);
@@ -3039,7 +3039,7 @@ Board.prototype.makeMove=function(_e8,_e9,_ea,_eb,_ec,_ed,_ee,_ef,_f0){
             this.boardPieces[0][_e8.toRow]=null;
         }
         if(!_f4){
-            alert("No castle piece");
+    //        alert("No castle piece");
         }else{
             _f4.setPosition(_f6,_f5,_ea,null,_eb,null,_f0);
             this.boardPieces[_f4.column][_f4.row]=_f4;
@@ -4243,7 +4243,7 @@ Board.prototype.setupFromLalgArray=function(_1bd,_1be,_1bf,_1c0,_1c1,_1c2,_1c3,_
             if(_1d5){
                 var _1f2=_1cf;
                 if(_1f2==null){
-                    alert("Got no previous move for variation:"+movesArra[i]);
+          //          alert("Got no previous move for variation:"+movesArra[i]);
                 }
                 if(_1f2.numVars==0){
                     _1f2.vars=new Array();
@@ -4478,7 +4478,7 @@ Board.prototype.lalgToMoveList=function(_1fd,_1fe,_1ff,_200,_201,_202){
             if(_20d){
                 var _21b=_208;
                 if(_21b==null){
-                    alert("Got no previous move for variation:"+movesArra[i]);
+                 //   alert("Got no previous move for variation:"+movesArra[i]);
                 }
                 if(_21b.numVars==0){
                     _21b.vars=new Array();
@@ -5882,7 +5882,7 @@ Board.prototype.getDocBody=function(){
     if(!this.docBody){
         var _2f2=document.getElementsByTagName("body");
         if(_2f2==null||_2f2.length==0){
-            alert("Could not find body tag");
+        //    alert("Could not find body tag");
         }else{
             this.docBody=_2f2[0];
         }
@@ -5995,7 +5995,7 @@ Board.prototype.createBoardUI=function(){
     var _2fd=this.boardName+"-container";
     var _2fe=YAHOO.util.Dom.get(_2fd);
     if(_2fe==null){
-        alert("Could not find board container:"+_2fd);
+  //      alert("Could not find board container:"+_2fd);
         return;
     }
     YAHOO.util.Dom.addClass(_2fe,"ct-board-container");
@@ -6894,7 +6894,7 @@ Board.prototype.setupFromFenGeneric=function(fen,_392,flip,_394,_395,_396){
                         cp=this.createPiece(_3a8,ChessPiece.PAWN,_394);
                         break;
                     default:
-                        alert("unknown piece letter:"+_3a7+" for fen:"+fen);
+                 //       alert("unknown piece letter:"+_3a7+" for fen:"+fen);
                 }
                 if(isGecko||isOpera){
                     cp.setPosition(_399,row,false,null,this.moveAnimationLength);
@@ -6937,13 +6937,13 @@ Board.prototype.resetMoveListScrollPosition=function(){
 Board.prototype.changePieceSet=function(_3ac,_3ad){
     if(!this.showedIE6Warning){
         var str=_js("Depending on your browser you may need to reload the<br/> page for piece size changes to properly take effect.");
-        alert(str.replace("<br/>","\n"));
+   //     alert(str.replace("<br/>","\n"));
     }
     this.showedIE6Warning=true;
     if(check_bad_msie()){
         if(!this.showedIE6Warning){
             var str=_js("Internet Explorer version 6 does not support dynamic piece size changes.<br/> Please reload page to view new settings.");
-            alert(str.replace("<br/>","\n"));
+       //     alert(str.replace("<br/>","\n"));
         }
         this.showedIE6Warning=true;
         return;

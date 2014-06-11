@@ -280,9 +280,9 @@ PuffForum.addContentType('PGN', {
         // TODO: clean this up later
         var num = Math.random();
         setTimeout(function() {
-            new PgnViewer({ boardName: "demo"+num,pgnString: content})
-        }, 333)
-        return '<div id="demo'+num+'-container"></div>'
+            new PgnViewer({ boardName: "demo"+num,pgnString: content,gotoEndOnRefresh:true })
+        }, CONFIG.Timeout)
+        return '<div id="demo'+num+'-container" class="hidden"></div>'
       //    +  '<script>console.log("adsf"); debugger; new PgnViewer({ boardName: "demo",pgnString: content})</script>';
     }
 })

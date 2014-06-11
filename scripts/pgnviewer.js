@@ -7172,7 +7172,7 @@ Board.prototype.setupEventHandlers=function(){
      YAHOO.util.Event.addListener(this.boardName+"-play","click",this.playMoves,this,true);
      YAHOO.util.Event.addListener(this.boardName+"-stop","click",this.stopPlayingMoves,this,true);
      */
-    setTimeout(this.gotoEnd.bind(this), CONFIG.Timeout)
+    setTimeout(this.gotoEnd.bind(this), CONFIG.PGNTimeout)
 
     if(this.r){
         YAHOO.util.Event.addListener(this.boardName+"-analyse","click",this.analysePosition,this,true);

@@ -346,6 +346,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var puff   = this.props.view.puff
         var mode   = this.props.view.mode
         var sigfun = function(item) {return item.sig}
+        var username = PuffWardrobe.getCurrentUsername()
         
         if(!puff)
             return React.DOM.div(null)
@@ -370,15 +371,24 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .slice(0, cols)
+                                       
         var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
                                      .slice(0, cols > 1 ? (cols-2)*2 : 0)
+                                     
         var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
                                      .slice(0, cols)
+                                     .sort(function(a, b) {
+                                         return a.username == username ? -1 : 0       // fancy sorting for current user puffs
+                                             || b.username == username ?  1 : 0
+                                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
+                                             || b.username == puff.username ?  1 : 0
+                                             || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+                                             })
         
         var allPuffs = [].concat( [puff].map(stuckBigBox('focused'))
                                 , parentPuffs.map(standardBox('parent'))

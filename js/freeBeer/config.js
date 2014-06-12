@@ -27,7 +27,10 @@ CONFIG.defaultPuff = 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFj
 CONFIG.text_threshold = 400;
 
 // List of supported
+// TODO, this is specified elsehere remove!
 CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
+CONFIG.defaultContentType = 'markdown';
+
 
 CONFIG.anon = {};
 CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'; // public: 161s1zgTMSVLCp72SBphusQHzBzhjqtK5SSrCqKn17VfdvJPugz
@@ -37,6 +40,8 @@ CONFIG.leftMargin = 60;
 
 CONFIG.minimumPuffLength = 3;
 CONFIG.PGNTimeout = 5;
+
+
 
 /*
 CONFIG.arrowColors =

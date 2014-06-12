@@ -82,15 +82,16 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             )
             )
 
+        // TODO: Did I hear someone say switch?
         if(type == 'image') {
             typeFields = (
                 React.DOM.div(null, 
-                    React.DOM.p(null, 
-                        React.DOM.label( {htmlFor:"imageLoader"}, "Image File:"),
+                    React.DOM.div( {className:"menuItem"}, 
+                        "Image File:",
                         React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad} )
                     ),
-                    React.DOM.p(null, 
-                        React.DOM.label( {htmlFor:"imageLicense"}, "Image License:"),
+                    React.DOM.br(null ),React.DOM.br(null ),
+                    React.DOM.div( {className:"menuItem"}, "Image License:",
                         React.DOM.select( {id:"imageLicense", name:"imageLicense", ref:"imageLicense"}, 
                             React.DOM.option( {value:"Creative Commons Attribution"}, "Creative Commons Attribution"),
                             React.DOM.option( {value:"GNU Public License"}, "GNU Public License"),
@@ -99,9 +100,11 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                             React.DOM.option( {value:"Royalty-free"}, "Royalty-free")
                         )
                     ),
-                    React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} )
+                    React.DOM.br(null ),
+                        React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} )
                 )
-                )
+
+            )
         }
         else if(type == 'bbcode') {
             typeFields = (
@@ -111,23 +114,37 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                 )
                 )
         }
+
+        if (typeof this.props.reply.parents != 'undefined') {
+            var parents = this.props.reply.parents;
+        } else {
+            var parents = [];
+        }
+
+        if(parents.length) {
+            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
+            console.log("Got type " + parentType);
+        } else {
+            var parentType = CONFIG.defaultContentType;
+            console.log("We go with type " + parentType);
+        }
         
         return (
             React.DOM.div( {id:"replyForm"}, 
                 React.DOM.div( {id:"replyFormBox"}, 
                     React.DOM.div( {id:"authorDiv"}, username),
                     React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
-                        
-                        typeFields,
 
-                        React.DOM.select( {ref:"type", className:"btn", onChange:this.handlePickType}, 
+                        typeFields,
+                        React.DOM.a( {href:"#", onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o floatLeft"},  " NO!")),
+                        React.DOM.select( {ref:"type", className:"btn", onChange:this.handlePickType, defaultValue:parentType}, 
                             contentTypeNames.map(function(type) {
                                 return React.DOM.option( {key:type, value:type}, type)
                             })
                         ),
 
-                        React.DOM.a( {href:"#", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}),"GO!"),' ',
-                        React.DOM.a( {href:"#", onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o fa-fw"}),"NO!")
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane floatRight"},  " GO!"))
+
                     )
                 )
             )

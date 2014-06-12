@@ -138,14 +138,14 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                     React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
 
                         typeFields,
-                        React.DOM.a( {href:"#", onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o floatLeft"},  " NO!")),
+                        React.DOM.a( {href:"#", onClick:this.handleCancel, className:"floatLeft"}, React.DOM.i( {className:"fa fa-trash-o"}), " NO!"),
                         React.DOM.select( {ref:"type", className:"btn", onChange:this.handlePickType, defaultValue:parentType}, 
                             contentTypeNames.map(function(type) {
                                 return React.DOM.option( {key:type, value:type}, type)
                             })
                         ),
 
-                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane floatRight"},  " GO!"))
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit, className:"floatRight"}, React.DOM.i( {className:"fa fa-paper-plane"}), " GO!")
 
                     )
                 )

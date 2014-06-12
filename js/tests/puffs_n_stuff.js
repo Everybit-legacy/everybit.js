@@ -116,8 +116,10 @@ PuffWardrobe.switchCurrent(username)
 
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*
-var newUserPromise = PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
-newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
+// note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
+PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// var newUserPromise = PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 
 
 // user lookup 
@@ -192,6 +194,56 @@ goodLookupPromise.catch(function(err) { testfail("The user record lookup should 
         - Create a puff with arbitrary key-value pairs
 */
 
+/// gridbox tests
+
+getScreenCoords = function() {
+    return { width:  window.innerWidth - CONFIG.leftMargin
+           , height: window.innerHeight
+           }
+}
+
+var rows = 10
+var cols = 10
+var screencoords = getScreenCoords()
+var gridBox = getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+
+var things = {}
+
+things.foo = {foo: 123}
+var width  = 3
+var height = 4
+var minx  = 3
+var miny  = 3
+var maxx  = 7
+var maxy  = 10
+
+gridBox.add(width, height, miny, minx, maxy, maxx, things.foo)
+
+things.bar = {bar: 321}
+var width  = 2
+var height = 2
+var minx  = 1
+var miny  = 3
+var maxx  = 10
+var maxy  = 10
+
+gridBox.add(width, height, miny, minx, maxy, maxx, things.bar)
+
+things.lala = {lala: 888}
+var width  = 2
+var height = 2
+var minx  = 1
+var miny  = 3
+var maxx  = 10
+var maxy  = 10
+
+gridBox.add(width, height, miny, minx, maxy, maxx, things.lala)
+
+
+function assert(value, expected) {
+    if(value != expected)
+        testfail(value, expected)
+}
 
 function testfail() {
     console.log.apply(console, [].slice.call(arguments))

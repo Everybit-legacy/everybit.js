@@ -138,14 +138,14 @@ var PuffReplyForm = React.createClass({
                     <form id="otherContentForm" onSubmit={this.handleSubmit}>
 
                         {typeFields}
-                        <a href="#" onClick={this.handleCancel}><i className="fa fa-trash-o floatLeft"> NO!</i></a>
+                        <a href="#" onClick={this.handleCancel} className="floatLeft"><i className="fa fa-trash-o"></i> NO!</a>
                         <select ref="type" className="btn" onChange={this.handlePickType} defaultValue={parentType}>
                             {contentTypeNames.map(function(type) {
                                 return <option key={type} value={type}>{type}</option>
                             })}
                         </select>
 
-                        {' '}<a href="#" onClick={this.handleSubmit}><i className="fa fa-paper-plane floatRight"> GO!</i></a>
+                        {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> GO!</a>
 
                     </form>
                 </div>

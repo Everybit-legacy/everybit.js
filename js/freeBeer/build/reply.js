@@ -82,8 +82,22 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             )
             )
 
+        if (typeof this.props.reply.parents != 'undefined') {
+            var parents = this.props.reply.parents;
+        } else {
+            var parents = [];
+        }
+
+        if(parents.length) {
+            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
+            console.log("Got type " + parentType);
+        } else {
+            var parentType = CONFIG.defaultContentType;
+            console.log("We go with type " + parentType);
+        }
+
         // TODO: Did I hear someone say switch?
-        if(type == 'image') {
+        if(type == 'image' || parentType == 'image') {
             typeFields = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
@@ -115,19 +129,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                 )
         }
 
-        if (typeof this.props.reply.parents != 'undefined') {
-            var parents = this.props.reply.parents;
-        } else {
-            var parents = [];
-        }
 
-        if(parents.length) {
-            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
-            console.log("Got type " + parentType);
-        } else {
-            var parentType = CONFIG.defaultContentType;
-            console.log("We go with type " + parentType);
-        }
         
         return (
             React.DOM.div( {id:"replyForm"}, 

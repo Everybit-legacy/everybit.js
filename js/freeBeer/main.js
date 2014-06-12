@@ -322,11 +322,6 @@ events.shallow_copy = function(obj) {
 
 
 
-// $(window).resize(function(){
-//     // When browser window is resized, refresh jsPlumb connecting lines.
-//     jsPlumb.repaintEverything();
-// });
-
 function moveToNeighbour(currentId, dir, mode) {
     var current = document.getElementById(currentId);
     var x = parseFloat(current.style.left);
@@ -549,6 +544,11 @@ PuffForum.init(); // initialize the forum module (and by extension the puffball 
 PuffWardrobe.setPref('storeKeychain', true);
 
 setViewPropsFromURL() // handle pushstate hash
+
+window.addEventListener('resize', function(){
+    UpdateUI() 
+});
+
 
 // UpdateUI(); // bootstrap the GUI
 

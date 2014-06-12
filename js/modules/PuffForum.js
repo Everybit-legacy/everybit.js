@@ -275,6 +275,7 @@ PuffForum.addContentType('markdown', {
     }
 })
 
+/*
 PuffForum.addContentType('PGN', {
     toHtml: function(content, puff) {
         // TODO: clean this up later
@@ -289,4 +290,4 @@ PuffForum.addContentType('PGN', {
       //    +  '<script>console.log("adsf"); debugger; new PgnViewer({ boardName: "demo",pgnString: content})</script>';
     }
 })
-
+*/

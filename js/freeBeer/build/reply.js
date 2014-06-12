@@ -82,8 +82,22 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             )
             )
 
+        if (typeof this.props.reply.parents != 'undefined') {
+            var parents = this.props.reply.parents;
+        } else {
+            var parents = [];
+        }
+
+        if(parents.length) {
+            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
+            console.log("Got type " + parentType);
+        } else {
+            var parentType = CONFIG.defaultContentType;
+            console.log("We go with type " + parentType);
+        }
+
         // TODO: Did I hear someone say switch?
-        if(type == 'image') {
+        if(type == 'image' || parentType == 'image') {
             typeFields = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
@@ -115,19 +129,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                 )
         }
 
-        if (typeof this.props.reply.parents != 'undefined') {
-            var parents = this.props.reply.parents;
-        } else {
-            var parents = [];
-        }
 
-        if(parents.length) {
-            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
-            console.log("Got type " + parentType);
-        } else {
-            var parentType = CONFIG.defaultContentType;
-            console.log("We go with type " + parentType);
-        }
         
         return (
             React.DOM.div( {id:"replyForm"}, 
@@ -136,14 +138,14 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                     React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
 
                         typeFields,
-                        React.DOM.a( {href:"#", onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o floatLeft"},  " NO!")),
+                        React.DOM.a( {href:"#", onClick:this.handleCancel, className:"floatLeft"}, React.DOM.i( {className:"fa fa-trash-o"}), " NO!"),
                         React.DOM.select( {ref:"type", className:"btn", onChange:this.handlePickType, defaultValue:parentType}, 
                             contentTypeNames.map(function(type) {
                                 return React.DOM.option( {key:type, value:type}, type)
                             })
                         ),
 
-                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane floatRight"},  " GO!"))
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit, className:"floatRight"}, React.DOM.i( {className:"fa fa-paper-plane"}), " GO!")
 
                     )
                 )

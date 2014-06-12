@@ -103,17 +103,16 @@ var CursorBindingsMixin = {
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
             var current = this.props.view.cursor;
             
-            if (!current || !document.getElementById(current))
-                current = this.props.view.puff.sig;
-                
-            if (!current)
-                current = document.querySelector('.block').id;
-                
-            current = document.getElementById(current);
-            var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
+            if (!current)                              // default cursors handled elsewhere (there should always 
+                return false                           // be an active cursor, if we are in a cursorable mode)
+            
+            // current = document.getElementById(current);
+            // var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
+
+            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffById(current), arrowToDir(e.which))
             
             if (next)
-                events.pub('ui/view/cursor/set', {'view.cursor': next.id});
+                events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
             
             return false
         }.bind(this));
@@ -153,7 +152,7 @@ var CursorBindingsMixin = {
     }
 };
 
-var GridLayoutMixin = {    
+var GridLayoutMixin = {
     getScreenCoords: function() {
         return { width:  window.innerWidth - CONFIG.leftMargin
                , height: window.innerHeight
@@ -166,17 +165,20 @@ var GridLayoutMixin = {
     },
     getGridBox: function(rows, cols) {
         var screencoords = this.getScreenCoords()
-        return getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+        var gridBox = getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+        // this.setState({gridBox: gridBox}) // ugh state but whaddyagonnado
+        globalGridBox = gridBox // ugh globals but whaddyagonnado
+        return gridBox
     },
     getStandardBox: function(rows, cols) {
         var gridbox = this.getGridBox(rows, cols)
         var mode    = this.props.view.mode
-        return this.applySizes(1, 1, gridbox, {mode: mode})
+        return this.applySizes(1, 1, gridbox.add, {mode: mode})
     },
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
             return function(puff) {
-                return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx), 
+                return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
                                              {puff: puff, className: className}) } } 
     },
     getPuffBoxList: function(puffs) {
@@ -185,7 +187,7 @@ var GridLayoutMixin = {
         return puffs.map(standardBox('child'))
                     .filter(function(pbox) {return pbox.height})
     },
-    makeArrows: function(puffBoxen) {
+    makeArrowPairs: function(puffBoxen) {
         var screencoords = this.getScreenCoords()
         
         var arrows = puffBoxen.reduce(function(acc, puffbox) {
@@ -211,7 +213,7 @@ var GridLayoutMixin = {
         return this.manualGridify(puffBoxList)
     },
     manualGridify: function(puffBoxList) {
-        var arrowList = this.props.view.mode == 'arrows' ? this.makeArrows(puffBoxList) : ''
+        var arrowList = this.props.view.mode == 'arrows' ? this.makeArrowPairs(puffBoxList) : ''
         var viewprops = this.props.view
         
         var fancyWrapper = (function() {
@@ -357,10 +359,10 @@ var PuffTallTree = React.createClass({
         var cols    = dimensions.cols
         var gridbox = this.getGridBox(dimensions.rows, cols)
         
-        var standardBox  = this.applySizes(1, 1, gridbox, {mode: mode})
-        var secondRowBox = this.applySizes(1, 1, gridbox, {mode: mode}, 1)
-        var fourthRowBox = this.applySizes(1, 1, gridbox, {mode: mode}, 4)
-        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, 2, gridbox, {mode: mode}, 1, 0, 1, 0)
+        var standardBox  = this.applySizes(1, 1, gridbox.add, {mode: mode})
+        var secondRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 1)
+        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 4)
+        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, 2, gridbox.add, {mode: mode}, 1, 0, 1, 0)
         
         // gather puffs
         var parentPuffs   = PuffForum.getParents(puff) // pre-sorted

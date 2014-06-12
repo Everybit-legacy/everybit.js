@@ -402,6 +402,9 @@ Puffball.Crypto.createMessageHash = function(message) {
 }
 
 Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
+    if(!privateKeyWIF)
+        return Puffball.onError('That private key wif contains no data')
+
     try {
         return new Bitcoin.ECKey(privateKeyWIF, true)
     } catch(err) {
@@ -410,6 +413,9 @@ Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
 }
 
 Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
+    if(!publicKeyWIF)
+        return Puffball.onError('That public key wif contains no data')
+
     try {
         var pubkeyBytes = Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON()
         pubkeyBytes = pubkeyBytes.data || pubkeyBytes

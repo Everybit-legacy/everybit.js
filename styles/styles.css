@@ -187,7 +187,11 @@ h4 {
     margin-bottom: 0;
 }
 
-.float-right {
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
     float: right;
 }
 

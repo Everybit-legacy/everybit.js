@@ -391,7 +391,7 @@ var SetIdentity = React.createClass({
     },
 
     handleKeyCheck: function(keyType) {
-        console.log(keyType);
+        // console.log(keyType);
 
         var self = this;
 
@@ -424,46 +424,29 @@ var SetIdentity = React.createClass({
         prom.then(function(userInfo) {
 
             if(publicKey != userInfo[keyType]) {
-                self.state[keyType] = 'Incorrect';
+                self.state[keyType] = 'Incorrect key';
                 events.pub('ui/event', {});
                 return false;
             } else {
                 self.state[keyType] = true;
                 self.state.usernameStatus = true;
 
-                // Add this to wardrobe, set to current
-                // If they have other keys in wardrobe, don't overwrite!
-                if(PuffWardrobe.getCurrentKeys()['root']) {
-                    var rootKeyPrivate = PuffWardrobe.getCurrentKeys()['root'];
-                } else {
-                    var rootKeyPrivate = '';
-                }
-
-                if(PuffWardrobe.getCurrentKeys()['admin']) {
-                    var adminKeyPrivate = PuffWardrobe.getCurrentKeys()['admin'];
-                } else {
-                    var adminKeyPrivate = '';
-                }
-
-                if(PuffWardrobe.getCurrentKeys()['default']) {
-                    var defaultKeyPrivate = PuffWardrobe.getCurrentKeys()['default'];
-                } else {
-                    var defaultKeyPrivate = '';
-                }
-
-
+                // Add this to wardrobe, set username to current
                 if(keyType == 'defaultKey') {
-                    PuffWardrobe.storeDefaultKey(username, privateKey);
-                } else if(keyType == 'adminKey') {
-                    PuffWardrobe.storeAdminKey(username, privateKey);
-                } else {
-                    PuffWardrobe.storeRootKey(username, privateKey);
+                    PuffWardrobe.storeDefaultKey(username, publicKey);
+                    console.log("Updated default key");
                 }
 
-                PuffWardrobe.switchCurrent(username);
+                if(keyType == 'adminKey') {
+                    PuffWardrobe.storeAdminKey(username, publicKey);
+                }
 
-                // Store this identity
-                events.pub('profile/nickname/set', username);
+                if(keyType == 'rootKey') {
+                    PuffWardrobe.storeRootKey(username, publicKey);
+                }
+
+                // At least one good key, set this to current user
+                PuffWardrobe.switchCurrent(username);
 
                 events.pub('ui/event', {});
                 return false;
@@ -735,9 +718,11 @@ var NewIdentity = React.createClass({
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({usernameMessage: 'Success!'});
-                events.pub('ui/event', {});
-                // TODO: Set this person as the current user
 
+                // Set this person as the current user
+                PuffWardrobe.switchCurrent(requestedUsername);
+
+                events.pub('ui/event', {});
 
             },
             function(err) {
@@ -803,11 +788,6 @@ var NewIdentity = React.createClass({
         aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({adminKeyMessage: 'Invalid admin key. '});
         dPublic ? this.refs.defaultKeyPublic.getDOMNode().value = dPublic : this.setState({defaultKeyMessage: 'Invalid default key. '});
 
-        /*
-         this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rP);
-         this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(aP);
-         this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(dP);
-         */
         return false;
 
     },
@@ -816,7 +796,6 @@ var NewIdentity = React.createClass({
 
         this.state.usernameAvailable = 'checking';
         var username = this.refs.newUsername.getDOMNode().value;
-        var self = this;
 
         var prom = Puffball.getUserRecord(username);
 

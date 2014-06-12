@@ -82,8 +82,22 @@ var PuffReplyForm = React.createClass({
             </div>
             )
 
+        if (typeof this.props.reply.parents != 'undefined') {
+            var parents = this.props.reply.parents;
+        } else {
+            var parents = [];
+        }
+
+        if(parents.length) {
+            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
+            console.log("Got type " + parentType);
+        } else {
+            var parentType = CONFIG.defaultContentType;
+            console.log("We go with type " + parentType);
+        }
+
         // TODO: Did I hear someone say switch?
-        if(type == 'image') {
+        if(type == 'image' || parentType == 'image') {
             typeFields = (
                 <div>
                     <div className="menuItem">
@@ -115,19 +129,7 @@ var PuffReplyForm = React.createClass({
                 )
         }
 
-        if (typeof this.props.reply.parents != 'undefined') {
-            var parents = this.props.reply.parents;
-        } else {
-            var parents = [];
-        }
 
-        if(parents.length) {
-            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
-            console.log("Got type " + parentType);
-        } else {
-            var parentType = CONFIG.defaultContentType;
-            console.log("We go with type " + parentType);
-        }
         
         return (
             <div id="replyForm">
@@ -136,14 +138,14 @@ var PuffReplyForm = React.createClass({
                     <form id="otherContentForm" onSubmit={this.handleSubmit}>
 
                         {typeFields}
-                        <a href="#" onClick={this.handleCancel}><i className="fa fa-trash-o floatLeft"> NO!</i></a>
+                        <a href="#" onClick={this.handleCancel} className="floatLeft"><i className="fa fa-trash-o"></i> NO!</a>
                         <select ref="type" className="btn" onChange={this.handlePickType} defaultValue={parentType}>
                             {contentTypeNames.map(function(type) {
                                 return <option key={type} value={type}>{type}</option>
                             })}
                         </select>
 
-                        {' '}<a href="#" onClick={this.handleSubmit}><i className="fa fa-paper-plane floatRight"> GO!</i></a>
+                        {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> GO!</a>
 
                     </form>
                 </div>

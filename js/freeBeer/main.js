@@ -176,14 +176,19 @@ events.sub('ui/*', function(data, path) {
         if(Array.isArray(data))
             puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
         else
-            puffworldprops = events.handle_merge_array(puffworldprops, data)
+            events.update_puffworldprops(data)
 
     // set the props in the url and history
     setViewPropsInURL()
 
     // then re-render PuffWorld w/ the new props
-    UpdateUI()
+    updateUI()
 })
+
+/// move these into their own lib
+events.update_puffworldprops = function(data) {
+    puffworldprops = events.handle_merge_array(puffworldprops, data)
+}
 
 events.handle_merge_array = function(props, data) {
     return Object.keys(data).reduce(function(props, key) {
@@ -250,11 +255,13 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     var max = function(a, b) {return Math.max(a, b)}
     var gridwidth  = outerwidth  / cols
     var gridheight = outerheight / rows
+    var eq = function(a, b) {return a == b}
     var grid = Array.apply(0, Array(rows))
         .map(function() {return Array.apply(0, Array(cols))
             .map(function() {return 0})}) // build 2D array
 
     return { get: function() {return grid}
+           , set_eq: function(new_eq) {eq = new_eq}
            , add: function(width, height, miny, minx, maxy, maxx, pointer) {
                       maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
                       miny = min(miny||0, maxy), minx = min(minx||0, maxx)
@@ -288,21 +295,23 @@ function findNeighbor(grid, pointer, dir) {
     return firstThingInBox(grid, dirBox[0], dirBox[1])
 }
 
-function findBoxInGrid(grid, target) {
+function findBoxInGrid(grid, target, eq) {
     /// find something in a grid box and return coords
     /// NOTE: this assumes rectilinear shapes
+    eq = eq || function(a, b) {return a === b}
+    eq = function(a, b) {return a.sig === b.sig} // TODO: encapsulate eq in gridBox // OPT: don't look inside
     
     top: for(var y = 0, ly = grid.length; y < ly; y++)
         for(var x = 0, lx = grid[y].length; x < lx; x++)
-            if(grid[y][x] === target) break top                     // find top and left coords
+            if(eq(grid[y][x], target)) break top                     // find top and left coords
     
     if(y == grid.length && x == grid[0].length) return false        // target not in box
     
     for(var dy = 0, ly = grid.length-y; dy < ly; dy++)
-        if(grid[y+dy][x] !== target) break                         // find bottom coord
+        if(!eq(grid[y+dy][x], target)) break                         // find bottom coord
     
     for(var dx = 0, lx = grid[y].length-x; dx < lx; dx++)
-        if(grid[y][x+dx] !== target) break                         // find right coord
+        if(!eq(grid[y][x+dx], target)) break                         // find right coord
     
     return [[x, y], [x+dx-1, y+dy-1]]                              // minus one because deltas always overshoot
 }
@@ -449,14 +458,29 @@ function setViewPropsInURL() {
 
 function setURL(state, path) {
     var currentState = history.state || {}
+    var flatCurrent = JSON.stringify(currentState)
+    var flatState  = JSON.stringify(state)
     
-    if(JSON.stringify(currentState) == JSON.stringify(state)) 
+    if(flatState == flatCurrent)                                        // are they equivalent?
         return false
     
-    history.pushState(state, path || '', '?' + 
-        Object.keys(state).map( function(key) {
-            return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
-        .join('&'))
+    var url = '?' + Object.keys(state).map( function(key) {
+                              return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
+                          .join('&')
+    
+    // saving in case we need this in the future
+    //
+    // var cloneCurrent = JSON.parse(flatCurrent)
+    // var cloneState = JSON.parse(flatState)
+    // delete cloneCurrent.cursor
+    // delete cloneState.cursor
+    //     
+    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))      // equiv up to cursor?
+    //     return false
+    
+    
+    
+    history.pushState(state, path || '', url)
 }
 
 function setViewPropsFromURL() {
@@ -471,11 +495,10 @@ function setViewPropsFromPushstate(pushstate) {
         pushstate.puff = PuffForum.getPuffById(sig)
     
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
+    events.update_puffworldprops(props)
     
-    puffworldprops = events.handle_merge_array(puffworldprops, props)     // THINK: we're doing this manually to prevent
-                                                                          // a history-adding loop, but it's kinda smelly
     if(!sig || props['view.puff']) { // we've got it
-        return UpdateUI()
+        return updateUI()
     }
     
     // we ain't got it
@@ -486,8 +509,8 @@ function setViewPropsFromPushstate(pushstate) {
     // now we have it
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
-        puffworldprops = events.handle_merge_array(puffworldprops, props) // see above note on smelliness
-        UpdateUI()                                                 
+        events.update_puffworldprops(props)
+        updateUI()                                                 
     })
 }
 
@@ -554,17 +577,21 @@ window.requestAnimationFrame = window.requestAnimationFrame       || window.mozR
                             || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
 
 // only update once per tick
-var UpdateUI = (function() {
+var updateUI = (function() {
     var update = false
     var step = function(timestamp) {
-        if(update)
-            renderPuffWorld()
-        update = false
-        requestAnimationFrame(step)
+        if(update) {
+            update = false            // we have to set this before entering puffworld
+            renderPuffWorld()         // THINK: should we set it after too?
+        } else {            
+            update = false
+        }
+        // requestAnimationFrame(step)
     }
-    requestAnimationFrame(step)
-    return function() { 
+    return function() {
+        if(update) return false
         update = true 
+        requestAnimationFrame(step)
     }
 })()
 
@@ -577,7 +604,7 @@ var eatPuffs = function(puffs) {
         return false;
     }
 
-    UpdateUI();
+    updateUI();
 }
 
 PuffForum.onNewPuffs(eatPuffs); // assign our callback
@@ -589,7 +616,7 @@ PuffWardrobe.setPref('storeKeychain', true); // TODO: make this based on config,
 setViewPropsFromURL(); // handle pushstate hash
 
 window.addEventListener('resize', function(){
-    UpdateUI();
+    updateUI();
 });
 
 window.addEventListener('load', function() {
@@ -601,12 +628,12 @@ window.addEventListener('load', function() {
                 return setViewPropsFromPushstate(event.state); 
             
             puffworldprops = puffworlddefaults;
-            UpdateUI();
+            updateUI();
         });
     }, 0);
 });
 
-// UpdateUI(); // bootstrap the GUI
+// updateUI(); // bootstrap the GUI
 
 
 

@@ -13,10 +13,20 @@ var PuffReplyForm = React.createClass({
             if(content_el.focus)
                 content_el.focus();
         }
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentWillUnmount: function() {
         // remove silly global

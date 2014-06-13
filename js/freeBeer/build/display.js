@@ -363,7 +363,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         
         var standardBox  = this.applySizes(1, 1, gridbox.add, {mode: mode})
         var secondRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 1)
-        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 4)
+        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 3)
         var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, 2, gridbox.add, {mode: mode}, 1, 0, 1, 0)
         
         // gather puffs

@@ -26,11 +26,13 @@ var PuffReplyForm = React.createClass({
         return {imageSrc: ''};
     },
     handleSubmit: function() {
-        var type = this.props.reply.type;
         var content = '';
         var metadata = {};
 
-        // THINK: allow the content type itself to dictate this part (pass all refs and props and state?)
+        var type = this.props.reply.type || this.refs.type.getDOMNode().value;
+        if(!type) return false
+
+        // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
             metadata.license = this.refs.imageLicense.getDOMNode().value;
@@ -112,6 +114,7 @@ var PuffReplyForm = React.createClass({
             )
 
         // TODO: Did I hear someone say switch?
+        // TODO: move this in to the content type handlers
         if(type == 'image' || parentType == 'image') {
             typeFields = (
                 <div>

@@ -1,0 +1,45 @@
+.chessSquare {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.chessSquareWhite {
+    vertical-align: middle;
+    text-align: center;
+    background-color: #e4cf9c;
+}
+
+.chessSquareBlack {
+    vertical-align: middle;
+    text-align: center;
+    background-color: #8c332e;
+}
+
+.chessPiece {
+    max-height: 80%;
+    max-width: 80%;
+}
+
+.chessTable {
+    width: 100%;
+    height: 100%;
+}
+
+
+
+div.stretchy-wrapper {
+    width: 100%;
+    padding-bottom: 100%; /* 16:9 */
+    position: relative;
+
+    background: blue;
+}
+
+div.stretchy-wrapper > div {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+
+    color: white;
+    font-size: 24px;
+    text-align: center;
+}

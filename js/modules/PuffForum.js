@@ -275,19 +275,10 @@ PuffForum.addContentType('markdown', {
     }
 })
 
-/*
-PuffForum.addContentType('PGN', {
-    toHtml: function(content, puff) {
-        // TODO: clean this up later
-        var num = puff.sig;
-        if (document.getElementById('demo'+num+'-container') == null){
-        setTimeout(function() {
-            new PgnViewer({ boardName: "demo"+num,pgnString: content,gotoEndOnRefresh:true })
-        }, CONFIG.PGNTimeout)
-        }
 
-            return '<div id="demo'+num+'-container"></div>'
-      //    +  '<script>console.log("adsf"); debugger; new PgnViewer({ boardName: "demo",pgnString: content})</script>';
+PuffForum.addContentType('PGN', {
+
+    toHtml: function(content, puff) {
+        return chessBoard(content);
     }
 })
-*/

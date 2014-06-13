@@ -115,6 +115,12 @@ var PuffReplyForm = React.createClass({
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
         if(type == 'image') {
+            // emply src will show no image icon in firefox
+            var imageField = (<img id="preview_image" />);
+            if (this.state.imageSrc) {
+                imageField = (<img src={this.state.imageSrc} id="preview_image" />);
+            }
+
             typeFields = (
                 <div>
                     <div className="menuItem">
@@ -132,7 +138,7 @@ var PuffReplyForm = React.createClass({
                         </select>
                     </div>
                     <br />
-                        <img src={this.state.imageSrc} id="preview_image" />
+                    {imageField}
                 </div>
 
             )

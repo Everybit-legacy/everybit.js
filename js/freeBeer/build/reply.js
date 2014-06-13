@@ -38,6 +38,10 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             content = this.refs.content.getDOMNode().value.trim();
         }
 
+        if(type == 'PGN') {
+            metadata.quote = true;
+        }
+
         var parents = this.props.reply.parents;
         if (content.length<CONFIG.minimumPuffLength) {
             alert("Not enough content");
@@ -76,11 +80,8 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
         var type = this.props.reply.type;
-        var typeFields = (
-            React.DOM.div(null, 
-                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"13", cols:"50", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these."})
-            )
-            )
+
+
 
         if (typeof this.props.reply.parents != 'undefined') {
             var parents = this.props.reply.parents;
@@ -88,13 +89,27 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             var parents = [];
         }
 
+        var defaultContent = '';
         if(parents.length) {
             var parentType = PuffForum.getPuffById(parents[0]).payload.type;
-            console.log("Got type " + parentType);
+
+            // Should we quote the parent
+            if (typeof PuffForum.getPuffById(parents[0]).payload.quote != 'undefined') {
+                if(PuffForum.getPuffById(parents[0]).payload.quote) {
+                    defaultContent = PuffForum.getPuffById(parents[0]).payload.content;
+                }
+            }
+
         } else {
             var parentType = CONFIG.defaultContentType;
-            console.log("We go with type " + parentType);
         }
+
+
+        var typeFields = (
+            React.DOM.div(null, 
+                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"13", cols:"50", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these.", defaultValue:defaultContent})
+            )
+            )
 
         // TODO: Did I hear someone say switch?
         if(type == 'image' || parentType == 'image') {
@@ -128,7 +143,9 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                 )
                 )
         }
+        else if(type=='PGN') {
 
+        }
 
         
         return (

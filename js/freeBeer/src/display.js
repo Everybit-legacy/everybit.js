@@ -147,8 +147,10 @@ var CursorBindingsMixin = {
         
         var newCursor = (defaultPuff||puffs[0]||{}).sig
         
-        if(newCursor)
-            return events.pub('ui/view/cursor/set', {'view.cursor': newCursor})
+        if(newCursor) {    // do this manually so auto-cursoring doesn't gum up history
+            events.update_puffworldprops({'view.cursor': newCursor})
+            updateUI()
+        }
     }
 };
 
@@ -268,7 +270,7 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker         tools={this.props.tools} />
 
-        else view = <PuffTallTree    view={defaultViewProps} reply={this.props.reply} />
+        else view = <PuffTallTree    view={extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
 
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
 

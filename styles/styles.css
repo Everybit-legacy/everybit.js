@@ -502,6 +502,7 @@ fieldset[disabled] .btn-link {
     padding: 8px;
     border: 4px solid #a1a1a1;
     max-width: 60%;
+    height: 350px;
     max-height: 80%;
     /* overflow-y: auto;
     // overflow-x: auto; */

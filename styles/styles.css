@@ -522,6 +522,10 @@ fieldset[disabled] .btn-link {
 #replyForm form > * {
     cursor: auto;
 }
+#replyForm form > a {
+    cursor: pointer; /* for firefox */
+}
+
 #replyForm form button,
 #replyForm form input {
     cursor: pointer;

@@ -81,7 +81,6 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
-        var type = this.props.reply.type;
 
 
 
@@ -105,7 +104,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         } else {
             var parentType = CONFIG.defaultContentType;
         }
-
+        var type = this.props.reply.type || parentType;
 
         var typeFields = (
             React.DOM.div(null, 
@@ -115,7 +114,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if(type == 'image' || parentType == 'image') {
+        if(type == 'image') {
             typeFields = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 

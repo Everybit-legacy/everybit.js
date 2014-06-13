@@ -214,6 +214,11 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
         var date = new Date(puff.payload.time);
         var formattedTime = React.DOM.span(null, "Created ", timeSince(date), " ago");
         var lisc = puff.payload.license ?  React.DOM.span(null, React.DOM.br(null),"License: ", puff.payload.license) : '';
+
+        var type = React.DOM.span(null, React.DOM.br(null),"Type: ", puff.payload.type)
+
+        // var quote = puff.payload.quote ?  <span><br/>Quote: {puff.payload.quote}</span> : '';
+
         var photographer = puff.photographer ? React.DOM.span(null, React.DOM.br(null),"Photographer: ", puff.photographer) : '';
         var version = React.DOM.span(null, React.DOM.br(null), " Version: ", puff.version);
    //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
@@ -224,6 +229,7 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
                     React.DOM.i( {className:"fa fa-info fa-fw"}),
                     React.DOM.span( {className:"popup"}, 
                     formattedTime,
+                    type,
                     lisc,
                     photographer
                     )

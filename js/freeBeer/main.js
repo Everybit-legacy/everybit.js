@@ -21,6 +21,7 @@ puffworldprops = {
         // filter: {
         //     route: false,                           // a single route
         // },
+        language: 'en',
         filterroute: false, // blargh
         
         style: 'PuffRoots',

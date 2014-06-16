@@ -5,6 +5,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 001: puffball icon
 100: regular puff block 
 200: selected puff block
+250: author and info bar
 300: menu
 400: reply form
 
@@ -71,7 +72,7 @@ section {
 #talltree .block {
     background: #FAFAFA;
     border: 0px solid #eee7d0;
-    padding: 20px 0 0 0;
+    padding: 12px;
     margin: 0 0 0 0;
     display: inline-block;
     text-align: left;
@@ -220,6 +221,7 @@ h4 {
     padding-top: 2px;
     width:100%;
     color: #1616A8;
+    z-index: 250;
 /*    border-bottom: 1px solid #a1a1a1; */
 /*    z-index:15; */
 /*    display: none;*/
@@ -247,7 +249,7 @@ h4 {
 
 .txt {
     margin: 0;
-    padding: 0px 8px 0 6px;
+    padding: 0;
     text-align:left;
     cursor:pointer;
     overflow-y:auto;
@@ -319,14 +321,12 @@ h4 {
     text-align: right;
     padding-right: 10px;
     position:absolute;
-/*   position: relative;*/
     bottom:0;
     right:0;
-/* background:#EEE; */
     width:100%;
     padding-top: 5px;
     padding-bottom: 5px;
-/*    z-index: 99;*/
+    z-index: 250;
 /*    display: none;*/
     background-color: rgba(222, 222, 222, 0.75);
 }

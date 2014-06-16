@@ -118,7 +118,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         var typeFields = (
             React.DOM.div(null, 
-                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"13", cols:"50", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these.", defaultValue:defaultContent})
+                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"10", cols:"40", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these.", defaultValue:defaultContent})
             )
             )
 

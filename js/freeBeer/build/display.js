@@ -161,13 +161,32 @@ var GridLayoutMixin = {
                }
     },
     getDimensions: function() {
-        return { rows: ~~this.props.view.rows || 4
-               , cols: ~~this.props.view.cols || 5
+        var rows = ~~this.props.view.rows || 4
+        var cols = this.getCols(rows)
+        return { rows: rows
+               , cols: cols
                }
+    },
+    getCols: function(rows) {
+        var screencoords = this.getScreenCoords()
+        var boxHeight = screencoords.height / rows;
+
+        // How many cols fit in this page
+        var nCol = Math.floor(screencoords.width/boxHeight);
+
+        return nCol;
+
     },
     getGridBox: function(rows, cols) {
         var screencoords = this.getScreenCoords()
-        var gridBox = getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+        var boxHeight = screencoords.height / rows;
+
+        // How many cols fit in this page
+        var nCol = this.getCols(rows);
+        var w = nCol * boxHeight;
+        var gridBox = getGridCoordBox(rows, nCol, w, screencoords.height)
+
+
         // this.setState({gridBox: gridBox}) // ugh state but whaddyagonnado
         globalGridBox = gridBox // ugh globals but whaddyagonnado
         return gridBox

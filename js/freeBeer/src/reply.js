@@ -13,10 +13,20 @@ var PuffReplyForm = React.createClass({
             if(content_el.focus)
                 content_el.focus();
         }
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -81,7 +91,6 @@ var PuffReplyForm = React.createClass({
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
-        var type = this.props.reply.type;
 
 
 
@@ -105,7 +114,7 @@ var PuffReplyForm = React.createClass({
         } else {
             var parentType = CONFIG.defaultContentType;
         }
-
+        var type = this.props.reply.type || parentType;
 
         var typeFields = (
             <div>
@@ -115,7 +124,13 @@ var PuffReplyForm = React.createClass({
 
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if(type == 'image' || parentType == 'image') {
+        if(type == 'image') {
+            // emply src will show no image icon in firefox
+            var imageField = (<img id="preview_image" />);
+            if (this.state.imageSrc) {
+                imageField = (<img src={this.state.imageSrc} id="preview_image" />);
+            }
+
             typeFields = (
                 <div>
                     <div className="menuItem">
@@ -133,7 +148,7 @@ var PuffReplyForm = React.createClass({
                         </select>
                     </div>
                     <br />
-                        <img src={this.state.imageSrc} id="preview_image" />
+                    {imageField}
                 </div>
 
             )

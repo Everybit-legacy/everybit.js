@@ -194,7 +194,7 @@ var PuffParentCount = React.createClass({
 
 /**
  *
- * Show the Info icon and pop-up the infromation window
+ * Show the Info icon and pop-up the information window
  */
 var PuffInfoLink = React.createClass({
     componentDidMount: function(){

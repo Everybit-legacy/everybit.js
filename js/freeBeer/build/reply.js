@@ -13,10 +13,20 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             if(content_el.focus)
                 content_el.focus();
         }
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
+
+        var content = document.getElementById("content");
+        if (content) {
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -81,7 +91,6 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
-        var type = this.props.reply.type;
 
 
 
@@ -105,7 +114,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         } else {
             var parentType = CONFIG.defaultContentType;
         }
-
+        var type = this.props.reply.type || parentType;
 
         var typeFields = (
             React.DOM.div(null, 
@@ -115,7 +124,13 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if(type == 'image' || parentType == 'image') {
+        if(type == 'image') {
+            // emply src will show no image icon in firefox
+            var imageField = (React.DOM.img( {id:"preview_image"} ));
+            if (this.state.imageSrc) {
+                imageField = (React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} ));
+            }
+
             typeFields = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
@@ -133,7 +148,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                         )
                     ),
                     React.DOM.br(null ),
-                        React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} )
+                    imageField
                 )
 
             )

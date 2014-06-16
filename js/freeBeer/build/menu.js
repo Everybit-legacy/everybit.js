@@ -46,6 +46,7 @@ var Menu = React.createClass({displayName: 'Menu',
                 ),
                 Logo(null ),
                 View(null ),
+                Filter(null ),
                 Publish(null ),
                 Identity(null ),
                 About(null ),
@@ -151,6 +152,30 @@ var View = React.createClass({displayName: 'View',
             )
     }
 });
+
+var Filter = React.createClass({displayName: 'Filter',
+    handlePickRoute: function() {
+        var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', {'view.route': route});
+    },
+    
+    render: function() {
+        var route = puffworldprops.view.route;
+        var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
+                                        .filter(function(item, key, array) {return array.indexOf(item) == key});
+        
+        return (
+            React.DOM.div( {className:"menuItem"}, 
+                "Route: ", React.DOM.select( {ref:"pickroute", onChange:this.handlePickRoute, value:route}, 
+                    React.DOM.option( {key:"null", value:""}, "Unfiltered"),
+                    all_routes.map(function(route) {
+                        return React.DOM.option( {key:route, value:route}, route)
+                    })
+                )
+            )
+        );
+    }
+})
 
 // TODO put back when working
 // <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>

@@ -283,6 +283,9 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffByUser' )
             view  = <PuffByUser      view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
+        else if( viewprops.style == 'PuffByRoute' )
+            view  = <PuffByRoute     view={viewprops} reply={this.props.reply} user={viewprops.user} />
+
         else if( viewprops.style == 'PuffLatest' )
             view  = <PuffLatest      view={viewprops} reply={this.props.reply} />
 
@@ -345,6 +348,17 @@ var PuffByUser = React.createClass({
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         var puffs = PuffForum.getByUser(this.props.user, limit); // pre-sorted
+        this.cursorPower(puffs)
+        return this.standardGridify(puffs);
+    }
+});
+
+var PuffByRoute = React.createClass({
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    render: function() {
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var puffs = PuffForum.getByRoute(this.props.view.route, limit); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

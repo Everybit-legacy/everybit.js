@@ -137,6 +137,18 @@ PuffForum.getByUser = function(username, limit) {
                                .filter(Boolean)
 } 
 
+PuffForum.getByRoute = function(route, limit) {
+    //// returns all known puffs containing a particular route
+
+    limit = limit || Infinity
+
+    return PuffData.shells.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
+                               .sort(PuffForum.sortByPayload)
+                               .slice(0, limit)
+                               .map(Puffball.getPuffFromShell)
+                               .filter(Boolean)
+}
+
 
 PuffForum.addPost = function(type, content, parents, metadata) {
     //// Given a string of content, create a puff and push it into the system

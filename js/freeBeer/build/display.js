@@ -35,15 +35,15 @@ var ViewKeybindingsMixin = {
         }.bind(this));
         
         
-        // 1-9 controls number of columns
+        // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
-            return events.pub('ui/view/cols/set', {'view.cols': 1*String.fromCharCode(e.which)})
-        }.bind(this));
-        
-        // shift+1-9 controls number of rows
-        Mousetrap.bind(['shift+1','shift+2','shift+3','shift+4','shift+5','shift+6','shift+7','shift+8','shift+9'], function(e) { 
             return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
         }.bind(this));
+        
+        // shift+1-9 controls number of cols
+        // Mousetrap.bind(['shift+1','shift+2','shift+3','shift+4','shift+5','shift+6','shift+7','shift+8','shift+9'], function(e) { 
+        //     return events.pub('ui/view/cols/set', {'view.cols': 1*String.fromCharCode(e.which)})
+        // }.bind(this));
         
         // spacebar toggles display mode
         Mousetrap.bind('space', function(e) { 
@@ -283,6 +283,9 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         else if( viewprops.style == 'PuffByUser' )
             view  = PuffByUser(      {view:viewprops, reply:this.props.reply, user:viewprops.user} )
 
+        else if( viewprops.style == 'PuffByRoute' )
+            view  = PuffByRoute(     {view:viewprops, reply:this.props.reply, user:viewprops.user} )
+
         else if( viewprops.style == 'PuffLatest' )
             view  = PuffLatest(      {view:viewprops, reply:this.props.reply} )
 
@@ -345,6 +348,17 @@ var PuffByUser = React.createClass({displayName: 'PuffByUser',
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         var puffs = PuffForum.getByUser(this.props.user, limit); // pre-sorted
+        this.cursorPower(puffs)
+        return this.standardGridify(puffs);
+    }
+});
+
+var PuffByRoute = React.createClass({displayName: 'PuffByRoute',
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    render: function() {
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var puffs = PuffForum.getByRoute(this.props.view.route, limit); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

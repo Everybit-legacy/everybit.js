@@ -156,11 +156,11 @@ var View = React.createClass({displayName: 'View',
 var Filter = React.createClass({displayName: 'Filter',
     handlePickRoute: function() {
         var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.route': route});
+        return events.pub('ui/view/route/set', {'view.filterroute': route});
     },
     
     render: function() {
-        var route = puffworldprops.view.route;
+        var route = puffworldprops.view.filterroute;
         var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
                                         .filter(function(item, key, array) {return array.indexOf(item) == key});
         

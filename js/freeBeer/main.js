@@ -18,10 +18,14 @@ puffworldprops = {
     },
 
     view: {
+        // filter: {
+        //     route: false,                           // a single route
+        // },
+        filterroute: false, // blargh
+        
         style: 'PuffRoots',
         puff: false,                                // focused puff (not just sig)
         user: false,                                // username // TODO: make this part of filter
-        route: false,                               // a route // TODO: make this part of filter
         mode: 'browse',                             // 'browse' or 'arrow'
         rows: 4,
         cols: 5,

@@ -283,8 +283,8 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         else if( viewprops.style == 'PuffByUser' )
             view  = PuffByUser(      {view:viewprops, reply:this.props.reply, user:viewprops.user} )
 
-        else if( viewprops.style == 'PuffByRoute' )
-            view  = PuffByRoute(     {view:viewprops, reply:this.props.reply, user:viewprops.user} )
+        // else if( viewprops.style == 'PuffByRoute' )
+        //     view  = <PuffByRoute     view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
         else if( viewprops.style == 'PuffLatest' )
             view  = PuffLatest(      {view:viewprops, reply:this.props.reply} )
@@ -318,7 +318,7 @@ var PuffRoots = React.createClass({displayName: 'PuffRoots',
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getRootPuffs(limit); // pre-sorted
+        var puffs = PuffForum.getRootPuffs(limit, this.props); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
@@ -327,7 +327,7 @@ var PuffRoots = React.createClass({displayName: 'PuffRoots',
 var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getChildren(this.props.puff); // pre-sorted
+        var puffs = PuffForum.getChildren(this.props.puff, this.props); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
@@ -336,7 +336,7 @@ var PuffAllChildren = React.createClass({displayName: 'PuffAllChildren',
 var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
-        var puffs = PuffForum.getParents(this.props.puff); // pre-sorted
+        var puffs = PuffForum.getParents(this.props.puff, this.props); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
@@ -347,29 +347,29 @@ var PuffByUser = React.createClass({displayName: 'PuffByUser',
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getByUser(this.props.user, limit); // pre-sorted
+        var puffs = PuffForum.getByUser(this.props.user, limit, this.props); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
 });
 
-var PuffByRoute = React.createClass({displayName: 'PuffByRoute',
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-    render: function() {
-        var dimensions = this.getDimensions();
-        var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getByRoute(this.props.view.route, limit); // pre-sorted
-        this.cursorPower(puffs)
-        return this.standardGridify(puffs);
-    }
-});
+// var PuffByRoute = React.createClass({
+//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+//     render: function() {
+//         var dimensions = this.getDimensions();
+//         var limit = dimensions.cols * dimensions.rows;
+//         var puffs = PuffForum.getByRoute(this.props.view.route, limit); // pre-sorted
+//         this.cursorPower(puffs)
+//         return this.standardGridify(puffs);
+//     }
+// });
 
 var PuffLatest = React.createClass({displayName: 'PuffLatest',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getLatestPuffs(limit); // pre-sorted
+        var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

@@ -116,9 +116,10 @@ var PuffReplyForm = React.createClass({
         }
         var type = this.props.reply.type || parentType;
 
+        var polyglot = translate[puffworldprops.view.language];
         var typeFields = (
             <div>
-                <textarea id="content" ref="content" name="content" className="mousetrap" rows="10" cols="40" placeholder="Add your content here. Click on the reply buttons of other puffs to reply to these." defaultValue={defaultContent}></textarea>
+                <textarea id="content" ref="content" name="content" className="mousetrap" rows="10" cols="40" placeholder={polyglot.t('replyForm.textarea')} defaultValue={defaultContent}></textarea>
             </div>
             )
 
@@ -134,11 +135,11 @@ var PuffReplyForm = React.createClass({
             typeFields = (
                 <div>
                     <div className="menuItem">
-                        Image File:
+                        {polyglot.t("replyForm.format.imageFile")}:
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
                     </div>
                     <br /><br />
-                    <div className="menuItem">Image License:
+                    <div className="menuItem">{polyglot.t("replyForm.format.imageLicense")}:
                         <select id="imageLicense" name="imageLicense" ref="imageLicense">
                             <option value="Creative Commons Attribution">Creative Commons Attribution</option>
                             <option value="GNU Public License">GNU Public License</option>
@@ -157,7 +158,7 @@ var PuffReplyForm = React.createClass({
             typeFields = (
                 <div>
                     {typeFields}
-                    <p>You can use BBCode-style tags</p>
+                    <p>{polyglot.t("replyForm.format.bbcodeMsg")}</p>
                 </div>
                 )
         }
@@ -173,14 +174,14 @@ var PuffReplyForm = React.createClass({
                     <form id="otherContentForm" onSubmit={this.handleSubmit}>
 
                         {typeFields}
-                        <a href="#" onClick={this.handleCancel} className="floatLeft"><i className="fa fa-trash-o"></i> NO!</a>
+                        <a href="#" onClick={this.handleCancel} className="floatLeft"><i className="fa fa-trash-o"></i> {polyglot.t("replyForm.cancel")}!</a>
                         <select ref="type" className="btn" onChange={this.handlePickType} defaultValue={parentType}>
                             {contentTypeNames.map(function(type) {
                                 return <option key={type} value={type}>{type}</option>
                             })}
                         </select>
 
-                        {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> GO!</a>
+                        {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> {polyglot.t("replyForm.submit")}!</a>
 
                     </form>
                 </div>

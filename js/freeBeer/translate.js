@@ -67,7 +67,10 @@ translate["en"].extend({
 			imageLicense: 'Image License'
 		}
 	},
-	footer: 'Powered by puffball. Responsibility for all content lies with the publishing author and not this website.'
+	footer: {
+		powered: 'Powered by',
+		rest: 'Responsibility for all content lies with the publishing author and not this website.'
+	}
 });
 
 translate["zh"] = new Polyglot({locale:"zh"});
@@ -143,5 +146,8 @@ translate["zh"].extend({
 			imageLicense: '图片许可'
 		}
 	},
-	footer: '基于puffball。所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
+	footer: {
+		powered: '基于',
+		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
+	}
 });

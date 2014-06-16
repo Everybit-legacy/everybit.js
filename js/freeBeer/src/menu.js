@@ -459,16 +459,16 @@ var SetIdentity = React.createClass({
 
                 // Add this to wardrobe, set username to current
                 if(keyType == 'defaultKey') {
-                    PuffWardrobe.storeDefaultKey(username, publicKey);
+                    PuffWardrobe.storeDefaultKey(username, privateKey);
                     console.log("Updated default key");
                 }
 
                 if(keyType == 'adminKey') {
-                    PuffWardrobe.storeAdminKey(username, publicKey);
+                    PuffWardrobe.storeAdminKey(username, privateKey);
                 }
 
                 if(keyType == 'rootKey') {
-                    PuffWardrobe.storeRootKey(username, publicKey);
+                    PuffWardrobe.storeRootKey(username, privateKey);
                 }
 
                 // At least one good key, set this to current user

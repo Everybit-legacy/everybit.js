@@ -647,9 +647,15 @@ var NewIdentity = React.createClass({
 
                     <div className="menuLabel"><em>Desired username:</em></div><br />
 
-                    <div className="menuInput">
-                        <input type="text" name="newUsername" ref="newUsername" readOnly  value={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}><i className="fa fa-refresh fa-fw" rel="tooltip" title="Generate a new username"></i></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
-                    </div>
+
+                    <div className = "menuItem">
+                        <select ref="prefix">
+                            {CONFIG.users.map(function(u) {
+                                return <option key={u.username} value={u.username}>{u.username}</option>
+                            })}
+                        </select> <em>.</em>{' '}
+                        <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
+                       </div>
                     <br />
                     <em>{this.state.usernameMessage}</em>
                     <br />
@@ -705,7 +711,7 @@ var NewIdentity = React.createClass({
     },
 
     handleGenerateUsername: function() {
-        var generatedName = 'anon.' + PuffWardrobe.generateRandomUsername();
+        var generatedName = PuffWardrobe.generateRandomUsername();
         this.setState({newUsername: generatedName});
         return false;
     },
@@ -724,11 +730,16 @@ var NewIdentity = React.createClass({
         var adminKeyPublic = this.refs.adminKeyPublic.getDOMNode().value;
         var defaultKeyPublic = this.refs.defaultKeyPublic.getDOMNode().value;
 
+        var prefix = this.refs.prefix.getDOMNode().value;
+
         rootKeyPrivate = this.refs.rootKeyPrivate.getDOMNode().value;
         adminKeyPrivate = this.refs.adminKeyPrivate.getDOMNode().value;
         defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
 
-        requestedUsername = this.refs.newUsername.getDOMNode().value;
+        requestedUsername = prefix +'.'+ this.refs.newUsername.getDOMNode().value;
+
+        // TODO: Make sure it is at least 5 chars long
+        // TODO: Make sure it is valid characters
 
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
             this.setState({usernameMessage: "You must set all of your public keys before making a registration request."});
@@ -738,7 +749,7 @@ var NewIdentity = React.createClass({
         var self = this;
 
         // SUBMIT REQUEST
-        var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
+        var prom = PuffNet.registerSubuser(prefix, CONFIG.users[prefix].adminKey, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
 
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
@@ -758,8 +769,6 @@ var NewIdentity = React.createClass({
             });
 
         return false;
-
-
     },
 
     handleGeneratePrivateKeys: function() {

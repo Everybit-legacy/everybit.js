@@ -429,6 +429,18 @@ Puffball.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
 
+Puffball.Crypto.encryptWithAES = function(message, key) {
+    var enc = Bitcoin.Crypto.AES.encrypt(message, key)
+    return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
+}
+
+Puffball.Crypto.decryptWithAES = function(enc, key) {
+    var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
+    var words = Bitcoin.Crypto.AES.decrypt(message, key)
+    var bytes = Bitcoin.convert.wordsToBytes(words.words)
+    return bytes.map(function(x) {return String.fromCharCode(x)}).join('')    
+}
+
 
 
 // Puffball.Crypto.verifyBlock = function(block, publicKeyBase58) {

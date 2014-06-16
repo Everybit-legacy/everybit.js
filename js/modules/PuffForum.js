@@ -40,13 +40,30 @@ PuffForum.getPuffById = function(id) {
     return Puffball.getPuffFromShell(shell || id)
 }
 
-// helper for sorting by payload.time
 PuffForum.sortByPayload = function(a,b) {
+    //// helper for sorting by payload.time
     return b.payload.time - a.payload.time;
 }
 
+PuffForum.getPropsFilter = function(props) {
+    if(!props) return function() {return true}
+    
+    props = props.view ? props.view : props
+    // props = props.filter ? props.filter : props
 
-PuffForum.getParents = function(puff) {
+    // puffs = puffs.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
+    
+    //// get a filtering function
+    return function(shell) {
+        if(props.filterroute)
+            if(!~shell.routes.indexOf(props.filterroute)) return false
+    
+        return true
+    }
+}
+
+
+PuffForum.getParents = function(puff, props) {
     //// get parents from a puff
   
     // THINK: do we really need this? the puff will have links to its parents...
@@ -54,14 +71,15 @@ PuffForum.getParents = function(puff) {
     if(typeof puff === 'string') {
         puff = PuffForum.getPuffById(puff);
     }
-  
+    
     return puff.payload.parents.map(PuffForum.getPuffById)
                                .filter(Boolean)
+                               .filter(PuffForum.getPropsFilter(props))
                                .sort(PuffForum.sortByPayload)
                                                           
 }
 
-PuffForum.getChildren = function(puff) {
+PuffForum.getChildren = function(puff, props) {
     //// get children from a puff
   
     // THINK: do we really need this? the puff will have links to its children...
@@ -73,12 +91,13 @@ PuffForum.getChildren = function(puff) {
     }
 
     return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
-                               .map(Puffball.getPuffFromShell)
-                               .filter(Boolean)
-                               .sort(PuffForum.sortByPayload)
+                          .filter(PuffForum.getPropsFilter(props))
+                          .map(Puffball.getPuffFromShell)
+                          .filter(Boolean)
+                          .sort(PuffForum.sortByPayload)
 }
 
-PuffForum.getSiblings = function(puff) {
+PuffForum.getSiblings = function(puff, props) {
     //// get siblings from a puff
   
     if(typeof puff === 'string')
@@ -96,11 +115,12 @@ PuffForum.getSiblings = function(puff) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
                             .map(Puffball.getPuffFromShell)
                                 .filter(Boolean)
-                                    .sort(PuffForum.sortByPayload)
+                                    .filter(PuffForum.getPropsFilter(props))
+                                        .sort(PuffForum.sortByPayload)
 }
 
 
-PuffForum.getRootPuffs = function(limit) {
+PuffForum.getRootPuffs = function(limit, props) {
     //// returns the most recent parentless puffs, sorted by time
 
     // OPT: we should probably index these rather than doing a full graph traversal
@@ -109,32 +129,35 @@ PuffForum.getRootPuffs = function(limit) {
 
     return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
                           .sort(PuffForum.sortByPayload)
+                          .filter(PuffForum.getPropsFilter(props))
                           .slice(0, limit)
                           .map(Puffball.getPuffFromShell)
                           .filter(Boolean)
 } 
 
-PuffForum.getLatestPuffs = function(limit) {
+PuffForum.getLatestPuffs = function(limit, props) {
     //// returns the most recent puffs, sorted by time
 
     limit = limit || Infinity
 
     return PuffData.shells.sort(PuffForum.sortByPayload)
+                          .filter(PuffForum.getPropsFilter(props))
                           .slice(0, limit)
                           .map(Puffball.getPuffFromShell)
                           .filter(Boolean)
 } 
 
-PuffForum.getByUser = function(username, limit) {
+PuffForum.getByUser = function(username, limit, props) {
     //// returns all known puffs from given user, sorted by time
 
     limit = limit || Infinity
 
     return PuffData.shells.filter(function(shell) { return shell ? shell.username == username : 0 })
-                               .sort(PuffForum.sortByPayload)
-                               .slice(0, limit)
-                               .map(Puffball.getPuffFromShell)
-                               .filter(Boolean)
+                          .filter(PuffForum.getPropsFilter(props))
+                          .sort(PuffForum.sortByPayload)
+                          .slice(0, limit)
+                          .map(Puffball.getPuffFromShell)
+                          .filter(Boolean)
 } 
 
 PuffForum.getByRoute = function(route, limit) {
@@ -143,10 +166,10 @@ PuffForum.getByRoute = function(route, limit) {
     limit = limit || Infinity
 
     return PuffData.shells.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
-                               .sort(PuffForum.sortByPayload)
-                               .slice(0, limit)
-                               .map(Puffball.getPuffFromShell)
-                               .filter(Boolean)
+                          .sort(PuffForum.sortByPayload)
+                          .slice(0, limit)
+                          .map(Puffball.getPuffFromShell)
+                          .filter(Boolean)
 }
 
 

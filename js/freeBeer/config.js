@@ -50,6 +50,11 @@ CONFIG.users = [
     }
 ];
 
+
+CONFIG.users['anon'] = {adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'}
+CONFIG.users['forum'] = {adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'}
+CONFIG.users['chess'] = {adminKey: '5HuvxAxU1ER2riUjA6yhJ6uVHp8eCJFoqVuXHnG5Jw4ZDZUrN62'}
+
 // How much space to leave on left side of screen, in pixels
 CONFIG.leftMargin = 60;
 

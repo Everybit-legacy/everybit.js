@@ -95,11 +95,8 @@ section {
 }
 
 #talltree .block.focused  {
-    /*    min-width: 40%;
-        max-width: 40%;
-        min-height: 49.9%;
-        max-height: 49.9%;
-    */    font-size: 1.1em;
+    font-size: 1.1em;
+    overflow-x: auto;
 }
 
 /* cursor */
@@ -110,7 +107,7 @@ section {
 }
 
 .block.focused .txt {
-    /*    max-height:40%;*/
+    overflow-x: auto;
 }
 
 #talltree .parent .txt {
@@ -300,7 +297,7 @@ h4 {
     /*    border-bottom: 1px solid #a1a1a1; */
     /*    z-index:15; */
     /*    display: none;*/
-    background-color: rgba(232, 232, 232, 0.75);
+    background-color: rgba(242, 242, 242, 0.85);
 }
 
 .authorDiv {
@@ -333,7 +330,7 @@ h4 {
     padding-bottom: 5px;
     z-index: 250;
 /*    display: none;*/
-    background-color: rgba(222, 222, 222, 0.75);
+    background-color: rgba(242, 242, 242, 0.9);
 }
 
 .bar:hover {
@@ -353,8 +350,7 @@ h4 {
 }
 
 .bar .icon:hover {
-    opacity: 0.8;
-    background-color: #f1e4ea;
+    background-color: rgba(242, 242, 242, 0.9);
 }
 
 .infoLink .popup {
@@ -505,9 +501,11 @@ fieldset[disabled] .btn-link {
     text-align: center;
     padding: 8px;
     border: 4px solid #a1a1a1;
+    /*
     max-width: 60%;
     height: 350px;
     max-height: 80%;
+    */
     /* overflow-y: auto;
     // overflow-x: auto; */
 }

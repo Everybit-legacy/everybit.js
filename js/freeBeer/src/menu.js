@@ -106,6 +106,14 @@ var View = React.createClass({
         return false;
     },
 
+    handleShowMyPuffs: function(username){
+       // var route = this.refs.pickroute.getDOMNode().value;
+        var route = puffworldprops.view.filterroute;
+        username = PuffWardrobe.getCurrentUsername();
+        return events.pub('ui/view/route/set/show/by-user', {'view.filterroute': route, 'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
+
 
     render: function() {
         // CSS for tabs
@@ -150,10 +158,13 @@ var View = React.createClass({
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.view.animation")}</a>
                 </div>
 
+                <div className="menuItem"><a href="#" onClick={this.handleShowMyPuffs}>{polyglot.t("menu.view.showpuffs")}</a></div>
+
             </div>
             )
     }
 });
+
 
 var Filter = React.createClass({
     handlePickRoute: function() {
@@ -222,11 +233,8 @@ var Publish = React.createClass({
                     <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.new")}</a>
                 </div>
             </div>
-
             )
     }
-
-
 });
 
 var Identity = React.createClass({

@@ -106,6 +106,14 @@ var View = React.createClass({displayName: 'View',
         return false;
     },
 
+    handleShowMyPuffs: function(username){
+       // var route = this.refs.pickroute.getDOMNode().value;
+        var route = puffworldprops.view.filterroute;
+        username = PuffWardrobe.getCurrentUsername();
+        return events.pub('ui/view/route/set/show/by-user', {'view.filterroute': route, 'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+    },
+
+
 
     render: function() {
         // CSS for tabs
@@ -148,12 +156,15 @@ var View = React.createClass({displayName: 'View',
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.view.animation"))
-                )
+                ),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowMyPuffs}, polyglot.t("menu.view.showpuffs")))
 
             )
             )
     }
 });
+
 
 var Filter = React.createClass({displayName: 'Filter',
     handlePickRoute: function() {
@@ -222,11 +233,8 @@ var Publish = React.createClass({displayName: 'Publish',
                     React.DOM.a( {href:"#", onClick:this.handleNewContent}, polyglot.t("menu.publish.new"))
                 )
             )
-
             )
     }
-
-
 });
 
 var Identity = React.createClass({displayName: 'Identity',

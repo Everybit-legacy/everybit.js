@@ -441,6 +441,31 @@ Puffball.Crypto.decryptWithAES = function(enc, key) {
     return bytes.map(function(x) {return String.fromCharCode(x)}).join('')    
 }
 
+Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
+    var pubkey = Puffball.Crypto.wifToPubKey(yourPublicWif)
+    var prikey = Puffball.Crypto.wifToPriKey(myPrivateWif)
+    // var dub1 = dk1.getPub(false)
+    // var dub2 = dk2.getPub(false)
+    // var dk1_bi = Bitcoin.BigInteger.fromByteArrayUnsigned(dk1.toBytes())
+    // var dk2_bi = Bitcoin.BigInteger.fromByteArrayUnsigned(dk2.toBytes())
+    
+    var secret = pubkey.multiply(prikey).toWif()
+    var key = Bitcoin.Crypto.SHA256(secret).toString()
+    
+    return key
+}
+
+Puffball.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
+    var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+    var ciphertext = Puffball.Crypto.encryptWithAES(plaintext, key)
+    return ciphertext
+}
+
+Puffball.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
+    var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+    var plaintext = Puffball.Crypto.decryptWithAES(ciphertext, key)
+    return plaintext
+}
 
 
 // Puffball.Crypto.verifyBlock = function(block, publicKeyBase58) {

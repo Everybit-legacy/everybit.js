@@ -748,7 +748,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
 
     handleUsernameRequest: function() {
-
         // BUILD REQUEST
         console.log("BEGIN username request for ", this.refs.newUsername.getDOMNode().value);
 
@@ -767,9 +766,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         // TODO: Make sure it is at least 5 chars long
         // TODO: Make sure it is valid characters
-
+        // 
+        var polyglot = translate[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({usernameMessage: "You must set all of your public keys before making a registration request."});
+            this.setState({usernameMessage: polyglot.t("menu.identity.newKey.error.missing")});
             return false;
         }
 
@@ -777,11 +777,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         // SUBMIT REQUEST
         var prom = PuffNet.registerSubuser(prefix, CONFIG.users[prefix].adminKey, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
-
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
-                self.setState({usernameMessage: 'Success!'});
+                self.setState({usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);

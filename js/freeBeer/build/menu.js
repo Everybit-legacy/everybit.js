@@ -106,11 +106,16 @@ var View = React.createClass({displayName: 'View',
         return false;
     },
 
-    handleShowMyPuffs: function(username){
+    handleShowPuffsForMe: function(){
+        var polyglot = translate[puffworldprops.view.language];
+        var username = PuffWardrobe.getCurrentUsername();
+        if(!username.length) {
+            alert(polyglot.t("menu.view.noUserSet"))
+            return false;
+        }
+        // console.log(username);
        // var route = this.refs.pickroute.getDOMNode().value;
-        var route = puffworldprops.view.filterroute;
-        username = PuffWardrobe.getCurrentUsername();
-        return events.pub('ui/view/route/set/show/by-user', {'view.filterroute': route, 'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+        return events.pub('ui/view/route/set', {'view.filterroute': username});
     },
 
 
@@ -158,7 +163,7 @@ var View = React.createClass({displayName: 'View',
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.view.animation"))
                 ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowMyPuffs}, polyglot.t("menu.view.showpuffs")))
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")))
 
             )
             )

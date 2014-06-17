@@ -89,10 +89,11 @@ translate["zh"].extend({
 			shortcut: "快捷键",
 			relationship: "显示关联",
 			animation: "显示动画",
-            showpuffs:"显示我的puff",
+            showpuffs:"为我显示puff",
 			route: "路径",
 			unfiltered: "无",
-			language: "语言"
+			language: "语言",
+            noUserSet: "需要先设置身份!"
 		},
 		publish: {
 			title: '发布',

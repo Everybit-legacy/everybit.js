@@ -298,8 +298,9 @@ var GridLayoutMixin = {
 // MAIN VIEWS
 var PuffWorld = React.createClass({
     render: function() {
-
-        var defaultPuff = PuffForum.getPuffById(CONFIG.defaultPuff);
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var defaultPuffId = polyglot.t("puff.default") || CONFIG.defaultPuff;
+        var defaultPuff = PuffForum.getPuffById(defaultPuffId);
         var defaultViewProps = {};
         defaultViewProps.puff = defaultPuff;
 

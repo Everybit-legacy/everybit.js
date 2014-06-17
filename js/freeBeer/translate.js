@@ -43,6 +43,10 @@ translate["en"].extend({
 					private: 'Private',
 					public: 'Public'
 				},
+				error: {
+					missing: 'You must set all of your public keys before making a registration request.'
+				},
+				success: 'Success!',
 				submit: 'Submit username request'
 			}
 		},
@@ -117,12 +121,10 @@ translate["zh"].extend({
 					private: '密钥',
 					public: '公钥'
 				},
-				public: {
-					title: '公钥'
+				error: {
+					missing: '在提交之前必须设定好所有的公钥。'
 				},
-				private: {
-					title: '密钥'
-				},
+				success: '成功!',
 				submit: '提交新用户名'
 			}
 		},

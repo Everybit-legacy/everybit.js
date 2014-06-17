@@ -33,8 +33,23 @@ var ViewKeybindingsMixin = {
             return events.pub( 'ui/view/showinfo/toggle', 
                              { 'view.showinfo': !this.props.view.showinfo})
         }.bind(this));
-        
-        
+
+        // m toggles menu show
+        Mousetrap.bind('m', function() {
+            if(puffworldprops.menu.show) {
+                return events.pub('ui/menu/close', {'menu.show': false})
+            } else {
+                return events.pub('ui/menu/open', {'menu.show': true})
+            }
+
+        }.bind(this));
+
+        // m shows latest puffs
+        Mousetrap.bind('l', function() {
+            return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
+        }.bind(this));
+
+
         // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
             return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})

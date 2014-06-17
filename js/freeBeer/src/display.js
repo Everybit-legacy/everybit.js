@@ -619,11 +619,12 @@ var PuffHeader = React.createClass({
 var PuffFooter = React.createClass({
     render: function() {
         var width = (window.innerHeight-66)+'px';
+        var polyglot = translate[puffworldprops.view.language];
         return (
             <div className="footer" style={{width: width}}>
                 <div className="footerText">
-                Powered by <a href="http://www.puffball.io" className="footerText">puffball</a>.
-                Responsibility for all content lies with the publishing author and not this website.
+                {polyglot.t("footer.powered")} <a href="http://www.puffball.io" className="footerText">puffball</a>.
+                {polyglot.t("footer.rest")}
                 </div>
             </div>
         );

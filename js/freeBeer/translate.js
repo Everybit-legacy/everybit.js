@@ -1,8 +1,14 @@
-var translate = {};
+var Translate = {};
+Translate.language = {};
 
-translate["en"] = new Polyglot({locale:"en"});
-translate["en"].extend({
-	dropdownDisplay: 'English', // specify what to display in the dropdown
+Translate.language["en"] = new Polyglot({locale:"en"});
+Translate.language["en"].extend({
+	dropdownDisplay: 'English'
+});
+Translate.language["en"].extend({
+	alert: {
+		noUserSet: "You will need to set your identity first"
+	},
 	menu: {
 		view: {
 			title: 'VIEW',
@@ -14,8 +20,7 @@ translate["en"].extend({
             showpuffs:"Show puffs for me",
 			route: "Route",
 			unfiltered: "Unfiltered",
-			language: "Language",
-            noUserSet: "You will need to set your identity first"
+			language: "Language"
 		},
 		publish: {
 			title: 'PUBLISH',
@@ -80,9 +85,14 @@ translate["en"].extend({
 	}
 });
 
-translate["zh"] = new Polyglot({locale:"zh"});
-translate["zh"].extend({
-	dropdownDisplay: '中文',
+Translate.language["zh"] = new Polyglot({locale:"zh"});
+Translate.language["zh"].extend({
+	dropdownDisplay: '中文'
+});
+Translate.language["zh"].extend({
+	alert: {
+		noUserSet: "需要先设置身份!"
+	},
 	menu: {
 		view: {
 			title: '查看',
@@ -94,8 +104,7 @@ translate["zh"].extend({
             showpuffs:"显示我的puff",
 			route: "路径",
 			unfiltered: "无",
-			language: "语言",
-            noUserSet: "需要先设置身份!"
+			language: "语言"
 		},
 		publish: {
 			title: '发布',
@@ -159,3 +168,35 @@ translate["zh"].extend({
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
 	}
 });
+
+
+
+// check if any keys are missing
+	// if true, assign the value from english
+Translate.checkMissingKey = function() {
+	var all_language = Object.keys(Translate.language);
+	all_language = all_language.splice(1);
+
+	// get the set of required keys from english
+	var english = Translate.language['en'].phrases;
+	var requiredKeys = Object.keys(english);
+
+	for (var i=0; i<all_language.length; i++) {
+		var name = all_language[i];
+		console.log(name);
+		var lang = Translate.language[name];
+		// check if dropdownDisplay is set
+		if (!lang.phrases['dropdownDisplay']) {
+			lang.extend({
+				dropdownDisplay: name
+			})
+		}
+		for (var j=0; j<requiredKeys.length; j++) {
+			var key = requiredKeys[j];
+			if (!lang.phrases[key]) {
+				lang.phrases[key] = english[key];
+			}
+		}
+	}
+}
+Translate.checkMissingKey();

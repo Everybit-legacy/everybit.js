@@ -116,9 +116,10 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         }
         var type = this.props.reply.type || parentType;
 
+        var polyglot = translate[puffworldprops.view.language];
         var typeFields = (
             React.DOM.div(null, 
-                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"10", cols:"40", placeholder:"Add your content here. Click on the reply buttons of other puffs to reply to these.", defaultValue:defaultContent})
+                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"10", cols:"40", placeholder:polyglot.t('replyForm.textarea'), defaultValue:defaultContent})
             )
             )
 
@@ -134,11 +135,11 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             typeFields = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
-                        "Image File:",
+                        polyglot.t("replyForm.format.imageFile"),":",
                         React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad} )
                     ),
                     React.DOM.br(null ),React.DOM.br(null ),
-                    React.DOM.div( {className:"menuItem"}, "Image License:",
+                    React.DOM.div( {className:"menuItem"}, polyglot.t("replyForm.format.imageLicense"),":",
                         React.DOM.select( {id:"imageLicense", name:"imageLicense", ref:"imageLicense"}, 
                             React.DOM.option( {value:"Creative Commons Attribution"}, "Creative Commons Attribution"),
                             React.DOM.option( {value:"GNU Public License"}, "GNU Public License"),
@@ -157,7 +158,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             typeFields = (
                 React.DOM.div(null, 
                     typeFields,
-                    React.DOM.p(null, "You can use BBCode-style tags")
+                    React.DOM.p(null, polyglot.t("replyForm.format.bbcodeMsg"))
                 )
                 )
         }
@@ -173,14 +174,14 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                     React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
 
                         typeFields,
-                        React.DOM.a( {href:"#", onClick:this.handleCancel, className:"floatLeft"}, React.DOM.i( {className:"fa fa-trash-o"}), " NO!"),
+                        React.DOM.a( {href:"#", onClick:this.handleCancel, className:"floatLeft"}, React.DOM.i( {className:"fa fa-trash-o"}), " ", polyglot.t("replyForm.cancel"),"!"),
                         React.DOM.select( {ref:"type", className:"btn", onChange:this.handlePickType, defaultValue:parentType}, 
                             contentTypeNames.map(function(type) {
                                 return React.DOM.option( {key:type, value:type}, type)
                             })
                         ),
 
-                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit, className:"floatRight"}, React.DOM.i( {className:"fa fa-paper-plane"}), " GO!")
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit, className:"floatRight"}, React.DOM.i( {className:"fa fa-paper-plane"}), " ", polyglot.t("replyForm.submit"),"!")
 
                     )
                 )

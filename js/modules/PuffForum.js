@@ -186,8 +186,15 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     
     // ensure parents is unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
+
+    // find the routes using parents
+    var routes = parents.map(function(id) {
+        return PuffForum.getPuffById(id).username;
+    });
+    // ensure all routes is unique
+    routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes)
     
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
@@ -202,7 +209,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
 }
 
 
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -213,7 +220,8 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
     payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
 
     var type  = type || 'text'
-    var routes = CONFIG.zone ? [CONFIG.zone] : []
+    var routes = routes ? routes : [];
+    routes = routes.concat(CONFIG.zone);
     
     return function(userRecord) {
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 

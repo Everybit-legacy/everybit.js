@@ -89,7 +89,7 @@ translate["zh"].extend({
 			shortcut: "快捷键",
 			relationship: "显示关联",
 			animation: "显示动画",
-            showpuffs:"为我显示puff",
+            showpuffs:"显示我的puff",
 			route: "路径",
 			unfiltered: "无",
 			language: "语言",

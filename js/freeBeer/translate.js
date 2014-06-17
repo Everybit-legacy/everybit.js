@@ -2,6 +2,7 @@ var translate = {};
 
 translate["en"] = new Polyglot({locale:"en"});
 translate["en"].extend({
+	dropdownDisplay: 'English', // specify what to display in the dropdown
 	menu: {
 		view: {
 			title: 'VIEW',
@@ -80,6 +81,7 @@ translate["en"].extend({
 
 translate["zh"] = new Polyglot({locale:"zh"});
 translate["zh"].extend({
+	dropdownDisplay: '中文',
 	menu: {
 		view: {
 			title: '查看',

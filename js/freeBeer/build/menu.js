@@ -201,12 +201,13 @@ var Language = React.createClass({displayName: 'Language',
     render: function() {
         var language = puffworldprops.view.language || "en";
         var polyglot = translate[language];
-        
+        var all_languages = Object.keys(translate);
         return (
             React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.view.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, value:language}, 
-                    React.DOM.option( {key:"en", value:"en"}, "English"),
-                    React.DOM.option( {key:"zh", value:"zh"}, "中文")
+                    all_languages.map(function(lang) {
+                        return React.DOM.option( {key:lang, value:lang}, translate[lang].t("dropdownDisplay"))
+                    })
                 )
             )
         );

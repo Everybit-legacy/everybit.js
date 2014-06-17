@@ -32,7 +32,7 @@ div.stretchy-wrapper {
     padding-bottom: 100%; /* 16:9 */
     position: relative;
 
-    background: blue;
+    background: rgba(255, 253, 252, 0);
 }
 
 div.stretchy-wrapper > div {

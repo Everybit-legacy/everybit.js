@@ -30,6 +30,7 @@ puffworldprops = {
         mode: 'browse',                             // 'browse' or 'arrow'
         rows: 4,
         cols: 5,
+        boxRatio: 1,
         animation: true,                            // true -> animate everything; false -> animate nothing
         cursor: false,                              // sig of selected puff
         showinfo: false                             // true -> always show info boxes; false -> only on hover

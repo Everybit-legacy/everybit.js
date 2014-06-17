@@ -54,11 +54,21 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
             return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
         }.bind(this));
-        
-        // shift+1-9 controls number of cols
-        // Mousetrap.bind(['shift+1','shift+2','shift+3','shift+4','shift+5','shift+6','shift+7','shift+8','shift+9'], function(e) { 
-        //     return events.pub('ui/view/cols/set', {'view.cols': 1*String.fromCharCode(e.which)})
-        // }.bind(this));
+
+        // Go with wide aspect ratio
+        Mousetrap.bind('w', function(e) {
+            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
+        }.bind(this));
+
+        // Go with tall aspect ratio
+        Mousetrap.bind('t', function(e) {
+            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
+        }.bind(this));
+
+        // Go square
+        Mousetrap.bind('s', function(e) {
+            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
+        }.bind(this));
         
         // spacebar toggles display mode
         Mousetrap.bind('space', function(e) { 
@@ -183,22 +193,32 @@ var GridLayoutMixin = {
                }
     },
     getCols: function(rows) {
-        var screencoords = this.getScreenCoords()
+        var screencoords = this.getScreenCoords();
         var boxHeight = screencoords.height / rows;
 
-        // How many cols fit in this page
-        var nCol = Math.floor(screencoords.width/boxHeight);
+
+        var boxWidth = this.props.view.boxRatio * boxHeight;
+        // Make sure this is not too big for page!
+        if (boxWidth > screencoords.width) {
+            boxWidth = screencoords.width;
+        }
+
+        var nCol = Math.floor(screencoords.width/boxWidth);
 
         return nCol;
 
     },
-    getGridBox: function(rows, cols) {
+    getGridBox: function(rows) {
         var screencoords = this.getScreenCoords()
         var boxHeight = screencoords.height / rows;
 
         // How many cols fit in this page
         var nCol = this.getCols(rows);
-        var w = nCol * boxHeight;
+        var w = nCol * this.props.view.boxRatio* boxHeight;
+        if(w > screencoords.width) {
+            w = screencoords.width;
+        }
+        
         var gridBox = getGridCoordBox(rows, nCol, w, screencoords.height)
 
 
@@ -207,7 +227,7 @@ var GridLayoutMixin = {
         return gridBox
     },
     getStandardBox: function(rows, cols) {
-        var gridbox = this.getGridBox(rows, cols)
+        var gridbox = this.getGridBox(rows)
         var mode    = this.props.view.mode
         return this.applySizes(1, 1, gridbox.add, {mode: mode})
     },
@@ -219,7 +239,7 @@ var GridLayoutMixin = {
     },
     getPuffBoxList: function(puffs) {
         var dimensions  = this.getDimensions() 
-        var standardBox = this.getStandardBox(dimensions.rows, dimensions.cols)
+        var standardBox = this.getStandardBox(dimensions.rows)
         return puffs.map(standardBox('child'))
                     .filter(function(pbox) {return pbox.height})
     },

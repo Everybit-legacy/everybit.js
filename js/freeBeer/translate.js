@@ -13,7 +13,8 @@ translate["en"].extend({
             showpuffs:"Show puffs for me",
 			route: "Route",
 			unfiltered: "Unfiltered",
-			language: "Language"
+			language: "Language",
+            noUserSet: "You will need to set your identity first"
 		},
 		publish: {
 			title: 'PUBLISH',

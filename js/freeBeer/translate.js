@@ -84,6 +84,12 @@ Translate.language["en"].extend({
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
 	}
 });
+Translate.language["en"].extend({
+	puff: {
+		default: 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD',
+		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
+	}
+});
 
 Translate.language["zh"] = new Polyglot({locale:"zh"});
 Translate.language["zh"].extend({
@@ -168,6 +174,11 @@ Translate.language["zh"].extend({
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
 	}
 });
+Translate.language["zh"].extend({
+	puff: {
+		default: 'AN1rKp8pNT4HSMwCW7nnL3YWHDeWbgAEsyrsPkQAorwVSFANkBDxzhTyPHjSEppCeRXsjK87RuEzjrTHyCFkYFTu8dAoY66BC'
+	}
+})
 
 
 
@@ -183,7 +194,6 @@ Translate.checkMissingKey = function() {
 
 	for (var i=0; i<all_language.length; i++) {
 		var name = all_language[i];
-		console.log(name);
 		var lang = Translate.language[name];
 		// check if dropdownDisplay is set
 		if (!lang.phrases['dropdownDisplay']) {

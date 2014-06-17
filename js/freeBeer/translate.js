@@ -14,7 +14,8 @@ translate["en"].extend({
             showpuffs:"Show puffs for me",
 			route: "Route",
 			unfiltered: "Unfiltered",
-			language: "Language"
+			language: "Language",
+            noUserSet: "You will need to set your identity first"
 		},
 		publish: {
 			title: 'PUBLISH',
@@ -93,7 +94,8 @@ translate["zh"].extend({
             showpuffs:"显示我的puff",
 			route: "路径",
 			unfiltered: "无",
-			language: "语言"
+			language: "语言",
+            noUserSet: "需要先设置身份!"
 		},
 		publish: {
 			title: '发布',

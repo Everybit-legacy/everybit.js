@@ -10,6 +10,7 @@ translate["en"].extend({
 			shortcut: "Keyboard shortcuts",
 			relationship: "Show relationships",
 			animation: "Show animations",
+            showpuffs:"Show puffs for me",
 			route: "Route",
 			unfiltered: "Unfiltered",
 			language: "Language"
@@ -73,7 +74,7 @@ translate["en"].extend({
 	},
 	footer: {
 		powered: 'Powered by',
-		rest: 'Responsibility for all content lies with the publishing author and not this website.'
+		rest: ' Responsibility for all content lies with the publishing author and not this website.'
 	}
 });
 
@@ -87,6 +88,7 @@ translate["zh"].extend({
 			shortcut: "快捷键",
 			relationship: "显示关联",
 			animation: "显示动画",
+            showpuffs:"显示我的puff",
 			route: "路径",
 			unfiltered: "无",
 			language: "语言"

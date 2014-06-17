@@ -635,7 +635,7 @@ var PuffHeader = React.createClass({
 var PuffFooter = React.createClass({
     render: function() {
         var width = (window.innerHeight-66)+'px';
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div className="footer" style={{width: width}}>
                 <div className="footerText">

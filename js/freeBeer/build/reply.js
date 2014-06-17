@@ -116,7 +116,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         }
         var type = this.props.reply.type || parentType;
 
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         var typeFields = (
             React.DOM.div(null, 
                 React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"10", cols:"40", placeholder:polyglot.t('replyForm.textarea'), defaultValue:defaultContent})

@@ -207,8 +207,6 @@ h4 {
     clear: both;
 }
 
-
-
 .txt {
     margin: 0;
     padding: 0;
@@ -374,7 +372,6 @@ h4 {
     display: block;
 }
 
-
 header {
     background-color: #fff;
     height: 70px;
@@ -472,7 +469,6 @@ fieldset[disabled] .btn-link {
   background-color: transparent;
 }
 
-
 /* custom overwrites to bootstrap btn */
 .btn {
     padding: 5px 5px;
@@ -484,8 +480,6 @@ fieldset[disabled] .btn-link {
     cursor: pointer;
     color: #555;
 }
-
-
 
 #text-zoom {
     width: 50px;
@@ -526,9 +520,11 @@ fieldset[disabled] .btn-link {
 #replyForm:hover {
     cursor: all-scroll;
 }
+
 #replyForm form > * {
     cursor: auto;
 }
+
 #replyForm form > a {
     cursor: pointer; /* for firefox */
 }

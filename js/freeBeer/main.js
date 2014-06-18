@@ -42,6 +42,10 @@ puffworldprops = {
         type: 'text'
     },
 
+    raw: {
+        puffs: []
+    },
+
     prefs: { },
     profile: { },
     tools: {

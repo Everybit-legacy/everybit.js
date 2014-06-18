@@ -40,8 +40,8 @@ Puffball.init = function(zone) {
     
     PuffData.depersistUserRecords()
     
-    PuffData.getLocalShells(Puffball.receiveNewPuffs)
-    PuffData.getNewShells() // THINK: this should take a set of zones
+    PuffData.fetchLocalShells(Puffball.receiveNewPuffs)
+    PuffData.fetchNewShells() // THINK: this should take a set of zones
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
@@ -138,7 +138,7 @@ Puffball.processUserRecord = function(userRecord) {
  * Looks first in the cache, then grabs from the network
  */
 Puffball.getUserRecord = function(username) {
-    //// This always checks the cache
+    //// This always checks the cache, and always returns a promise
     
     var userRecord = PuffData.getCachedUserRecord(username);
     
@@ -208,7 +208,7 @@ Puffball.receiveNewPuffs = function(puffs) {
     puffs = puffs.filter(function(puff) {
         return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
   
-    puffs.forEach(function(puff) { PuffData.eat(puff) });                           // cache all the puffs
+    puffs.forEach(function(puff) { PuffData.eatPuff(puff) });                       // cache all the puffs
   
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
@@ -242,8 +242,9 @@ Puffball.decryptPuff = function(puff, yourPublicWif, myUsername, myPrivateWif) {
         return Puffball.onError('Invalid encrypted payload', $e)
     }
     
+    puff = events.shallow_copy(puff) // TODO: ugh move persistent lib somewhere else
     puff.payload = payload
-    return puff // NOTE: we're mutating this as a memory optimization, but that may bite us later...
+    return puff 
 }
 
 
@@ -254,13 +255,25 @@ Puffball.decryptPuff = function(puff, yourPublicWif, myUsername, myPrivateWif) {
 PuffData = {};
 PuffData.puffs = [];
 PuffData.shells = [];
+PuffData.shelf = [];
 PuffData.pending = {};
 PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
 
-PuffData.eat = function(puff) {
+PuffData.getShells = function() {
+    //// Get the currently known shells
+    // NOTE: always use this accessor instead of referencing PuffData.shells directly, as what this function does will change.
+    return PuffData.shells
+}
+
+PuffData.getEncryptedPuffsForMe = function(username) {
+    //// Get currently known private shells for a particular user
+    return PuffData.shelf.filter(function(shell) {return shell.keys[username]})
+}
+
+PuffData.eatPuff = function(puff) {
     if(!!~PuffData.puffs
-                       .map(function(p) {return p.sig})     // OPT: check the sig index instead
-                       .indexOf(puff.sig)) 
+                  .map(function(p) {return p.sig})     // OPT: check the sig index instead
+                  .indexOf(puff.sig)) 
       return false;
     PuffData.puffs.push(puff);  
 }
@@ -270,16 +283,24 @@ PuffData.persistShells = function(shells) {
     Puffball.Persist.save('shells', shells);
 }
 
-PuffData.addNewShell = function(puff) {
+PuffData.addNewShell = function(shell) {
     
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     
-    PuffData.shells.push(puff);
+    // if a shell is private, put it on the shelf
+    if(typeof shell.payload == 'string')
+        return PuffData.shelf.push(shell)
+    
+    // later, GC shells on the shelf that aren't in my wardrobe
+    
+    PuffData.shells.push(shell);
     PuffData.persistShells(PuffData.shells);
 }
 
-PuffData.getLocalShells = function(callback) {
-    PuffData.shells = Puffball.Persist.get('shells') || [];
+PuffData.fetchLocalShells = function(callback) {
+    // PuffData.shells = Puffball.Persist.get('shells') || [];
+    var localShells = Puffball.Persist.get('shells') || [];
+    localShells.forEach(PuffData.addNewShell)
     
     setImmediate(function() {callback(PuffData.shells)});
     // we're doing this asynchronously in order to not interrupt the loading process
@@ -287,8 +308,8 @@ PuffData.getLocalShells = function(callback) {
     // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
 }
 
-PuffData.getNewShells = function() {
-    /// TODO: this should call PuffNet.getNewShells and then integrate that with our shells from local storage
+PuffData.fetchNewShells = function() {
+    /// TODO: this should call PuffNet.fetchNewShells and then integrate that with our shells from local storage
     ///       and then we'll get the missing content on demand
     
     var prom = PuffNet.getAllPuffShells();
@@ -296,7 +317,8 @@ PuffData.getNewShells = function() {
     prom.then(function(shells) {
         if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 
             return false;
-        PuffData.shells = shells;
+        // PuffData.shells = shells;
+        shells.forEach(PuffData.addNewShell)
         Puffball.Persist.save('shells', shells);
         shells.forEach(function(shell) {
             if(shell.payload && shell.payload.content) {
@@ -352,7 +374,8 @@ PuffData.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
     // TODO: the puffchain should also be sorted in chain order, not general collection order
-    return PuffData.puffs.filter(function(puff) { return puff && puff.username == username })    
+    return PuffData.puffs.filter(function(puff) { return puff && puff.username == username })
+    // return PuffForum.getByUser(username) // TODO: test this
 }
 
 
@@ -473,7 +496,9 @@ Puffball.Crypto.decryptWithAES = function(enc, key) {
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
     var bytes = Bitcoin.convert.wordsToBytes(words.words) 
-    return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(/\u0004+$/g, '') // TODO: fix fiddly endbits
+    // var uglyRegex = /[\u0002\u0004\u0007\u000e]+$/g // TODO: fix this so AES padding doesn't ever leak out 
+    var uglyRegex = /[\u0000-\u0010]+$/g // TODO: fix this so AES padding doesn't ever leak out 
+    return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(uglyRegex, '')
 }
 
 Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {

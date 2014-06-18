@@ -102,9 +102,23 @@ var View = React.createClass({displayName: 'View',
     },
 
     handleShowShortcuts: function() {
-        showPuff('381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM');
+        var polyglot = Translate.language[puffworldprops.view.language];
+        showPuff(polyglot.t("puff.shortcut"));
         return false;
     },
+
+    handleShowPuffsForMe: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var username = PuffWardrobe.getCurrentUsername();
+        if(!username.length) {
+            alert(polyglot.t("alert.noUserSet"))
+            return false;
+        }
+        // console.log(username);
+       // var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', {'view.filterroute': username});
+    },
+
 
 
     render: function() {
@@ -127,7 +141,7 @@ var View = React.createClass({displayName: 'View',
             'green': puffworldprops.view.animation
         });
 
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, React.DOM.br(null ),
                 React.DOM.div( {className:"menuHeader"}, 
@@ -148,12 +162,15 @@ var View = React.createClass({displayName: 'View',
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.view.animation"))
-                )
+                ),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")))
 
             )
             )
     }
 });
+
 
 var Filter = React.createClass({displayName: 'Filter',
     handlePickRoute: function() {
@@ -166,7 +183,7 @@ var Filter = React.createClass({displayName: 'Filter',
         var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
                                         .filter(function(item, key, array) {return array.indexOf(item) == key});
         
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.view.route"),": ", React.DOM.select( {ref:"pickroute", onChange:this.handlePickRoute, value:route}, 
@@ -189,13 +206,14 @@ var Language = React.createClass({displayName: 'Language',
     
     render: function() {
         var language = puffworldprops.view.language || "en";
-        var polyglot = translate[language];
-        
+        var polyglot = Translate.language[language];
+        var all_languages = Object.keys(Translate.language);
         return (
             React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.view.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, value:language}, 
-                    React.DOM.option( {key:"en", value:"en"}, "English"),
-                    React.DOM.option( {key:"zh", value:"zh"}, "中文")
+                    all_languages.map(function(lang) {
+                        return React.DOM.option( {key:lang, value:lang}, Translate.language[lang].t("dropdownDisplay"))
+                    })
                 )
             )
         );
@@ -212,7 +230,7 @@ var Publish = React.createClass({displayName: 'Publish',
     },
 
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 
@@ -222,11 +240,8 @@ var Publish = React.createClass({displayName: 'Publish',
                     React.DOM.a( {href:"#", onClick:this.handleNewContent}, polyglot.t("menu.publish.new"))
                 )
             )
-
             )
     }
-
-
 });
 
 var Identity = React.createClass({displayName: 'Identity',
@@ -282,7 +297,7 @@ var Identity = React.createClass({displayName: 'Identity',
 
         // TODO: Help icon takes you to tutorial related to this.
 
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-user fa-fw gray"}), " ", polyglot.t("menu.identity.title")),
@@ -353,7 +368,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, polyglot.t("menu.identity.none"))
 
         // Force selection of the single user when just one
@@ -518,7 +533,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             return React.DOM.div(null)
         } else {
             var currUser = this.props.username;
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 React.DOM.div( {className:"menuSection"}, 
                     React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.storeKey.msg"))),
@@ -583,7 +598,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
             // TODO: make sure not None
             // TODO: Allow erase keys here?
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 React.DOM.div( {className:"menuSection"}, 
                     React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.edit.msg"),": " ),React.DOM.span( {className:"authorSpan"}, currUser)
@@ -668,7 +683,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         if (!this.props.show) {
             return React.DOM.span(null)
         } else {
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 React.DOM.div( {className:"menuSection"}, 
 
@@ -748,7 +763,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
 
     handleUsernameRequest: function() {
-
         // BUILD REQUEST
         console.log("BEGIN username request for ", this.refs.newUsername.getDOMNode().value);
 
@@ -767,9 +781,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         // TODO: Make sure it is at least 5 chars long
         // TODO: Make sure it is valid characters
-
+        // 
+        var polyglot = Translate.language[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({usernameMessage: "You must set all of your public keys before making a registration request."});
+            this.setState({usernameMessage: polyglot.t("menu.identity.newKey.error.missing")});
             return false;
         }
 
@@ -777,11 +792,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         // SUBMIT REQUEST
         var prom = PuffNet.registerSubuser(prefix, CONFIG.users[prefix].adminKey, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
-
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
-                self.setState({usernameMessage: 'Success!'});
+                self.setState({usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);
@@ -920,7 +934,7 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 
 var About = React.createClass({displayName: 'About',
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 
@@ -952,7 +966,7 @@ var Tools = React.createClass({displayName: 'Tools',
     },
 
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 

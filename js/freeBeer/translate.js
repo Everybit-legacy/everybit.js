@@ -1,7 +1,14 @@
-var translate = {};
+var Translate = {};
+Translate.language = {};
 
-translate["en"] = new Polyglot({locale:"en"});
-translate["en"].extend({
+Translate.language["en"] = new Polyglot({locale:"en"});
+Translate.language["en"].extend({
+	dropdownDisplay: 'English'
+});
+Translate.language["en"].extend({
+	alert: {
+		noUserSet: "You will need to set your identity first"
+	},
 	menu: {
 		view: {
 			title: 'VIEW',
@@ -10,6 +17,7 @@ translate["en"].extend({
 			shortcut: "Keyboard shortcuts",
 			relationship: "Show relationships",
 			animation: "Show animations",
+            showpuffs:"Show puffs for me",
 			route: "Route",
 			unfiltered: "Unfiltered",
 			language: "Language"
@@ -42,6 +50,10 @@ translate["en"].extend({
 					private: 'Private',
 					public: 'Public'
 				},
+				error: {
+					missing: 'You must set all of your public keys before making a registration request.'
+				},
+				success: 'Success!',
 				submit: 'Submit username request'
 			}
 		},
@@ -69,12 +81,24 @@ translate["en"].extend({
 	},
 	footer: {
 		powered: 'Powered by',
-		rest: 'Responsibility for all content lies with the publishing author and not this website.'
+		rest: ' Responsibility for all content lies with the publishing author and not this website.'
+	}
+});
+Translate.language["en"].extend({
+	puff: {
+		default: 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD',
+		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
 	}
 });
 
-translate["zh"] = new Polyglot({locale:"zh"});
-translate["zh"].extend({
+Translate.language["zh"] = new Polyglot({locale:"zh"});
+Translate.language["zh"].extend({
+	dropdownDisplay: '中文'
+});
+Translate.language["zh"].extend({
+	alert: {
+		noUserSet: "需要先设置身份!"
+	},
 	menu: {
 		view: {
 			title: '查看',
@@ -83,6 +107,7 @@ translate["zh"].extend({
 			shortcut: "快捷键",
 			relationship: "显示关联",
 			animation: "显示动画",
+            showpuffs:"显示我的puff",
 			route: "路径",
 			unfiltered: "无",
 			language: "语言"
@@ -115,12 +140,10 @@ translate["zh"].extend({
 					private: '密钥',
 					public: '公钥'
 				},
-				public: {
-					title: '公钥'
+				error: {
+					missing: '在提交之前必须设定好所有的公钥。'
 				},
-				private: {
-					title: '密钥'
-				},
+				success: '成功!',
 				submit: '提交新用户名'
 			}
 		},
@@ -151,3 +174,39 @@ translate["zh"].extend({
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
 	}
 });
+Translate.language["zh"].extend({
+	puff: {
+		default: 'AN1rKp8pNT4HSMwCW7nnL3YWHDeWbgAEsyrsPkQAorwVSFANkBDxzhTyPHjSEppCeRXsjK87RuEzjrTHyCFkYFTu8dAoY66BC'
+	}
+})
+
+
+
+// check if any keys are missing
+	// if true, assign the value from english
+Translate.checkMissingKey = function() {
+	var all_language = Object.keys(Translate.language);
+	all_language = all_language.splice(1);
+
+	// get the set of required keys from english
+	var english = Translate.language['en'].phrases;
+	var requiredKeys = Object.keys(english);
+
+	for (var i=0; i<all_language.length; i++) {
+		var name = all_language[i];
+		var lang = Translate.language[name];
+		// check if dropdownDisplay is set
+		if (!lang.phrases['dropdownDisplay']) {
+			lang.extend({
+				dropdownDisplay: name
+			})
+		}
+		for (var j=0; j<requiredKeys.length; j++) {
+			var key = requiredKeys[j];
+			if (!lang.phrases[key]) {
+				lang.phrases[key] = english[key];
+			}
+		}
+	}
+}
+Translate.checkMissingKey();

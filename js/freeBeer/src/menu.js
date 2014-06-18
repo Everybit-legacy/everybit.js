@@ -102,9 +102,23 @@ var View = React.createClass({
     },
 
     handleShowShortcuts: function() {
-        showPuff('381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM');
+        var polyglot = Translate.language[puffworldprops.view.language];
+        showPuff(polyglot.t("puff.shortcut"));
         return false;
     },
+
+    handleShowPuffsForMe: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var username = PuffWardrobe.getCurrentUsername();
+        if(!username.length) {
+            alert(polyglot.t("alert.noUserSet"))
+            return false;
+        }
+        // console.log(username);
+       // var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', {'view.filterroute': username});
+    },
+
 
 
     render: function() {
@@ -127,7 +141,7 @@ var View = React.createClass({
             'green': puffworldprops.view.animation
         });
 
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div><br />
                 <div className="menuHeader">
@@ -150,10 +164,13 @@ var View = React.createClass({
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.view.animation")}</a>
                 </div>
 
+                <div className="menuItem"><a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a></div>
+
             </div>
             )
     }
 });
+
 
 var Filter = React.createClass({
     handlePickRoute: function() {
@@ -166,7 +183,7 @@ var Filter = React.createClass({
         var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
                                         .filter(function(item, key, array) {return array.indexOf(item) == key});
         
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div className="menuItem">
                 {polyglot.t("menu.view.route")}: <select ref="pickroute" onChange={this.handlePickRoute} value={route}>
@@ -189,13 +206,14 @@ var Language = React.createClass({
     
     render: function() {
         var language = puffworldprops.view.language || "en";
-        var polyglot = translate[language];
-        
+        var polyglot = Translate.language[language];
+        var all_languages = Object.keys(Translate.language);
         return (
             <div className="menuItem">
                 {polyglot.t("menu.view.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} value={language}>
-                    <option key="en" value="en">English</option>
-                    <option key="zh" value="zh">中文</option>
+                    {all_languages.map(function(lang) {
+                        return <option key={lang} value={lang}>{Translate.language[lang].t("dropdownDisplay")}</option>
+                    })}
                 </select>
             </div>
         );
@@ -212,7 +230,7 @@ var Publish = React.createClass({
     },
 
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <div className="menuHeader">
@@ -222,11 +240,8 @@ var Publish = React.createClass({
                     <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.new")}</a>
                 </div>
             </div>
-
             )
     }
-
-
 });
 
 var Identity = React.createClass({
@@ -282,7 +297,7 @@ var Identity = React.createClass({
 
         // TODO: Help icon takes you to tutorial related to this.
 
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <div className="menuHeader"><i className="fa fa-user fa-fw gray"></i> {polyglot.t("menu.identity.title")}</div>
@@ -353,7 +368,7 @@ var AuthorPicker = React.createClass({
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.none")}</div>
 
         // Force selection of the single user when just one
@@ -518,7 +533,7 @@ var SetIdentity = React.createClass({
             return <div></div>
         } else {
             var currUser = this.props.username;
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 <div className="menuSection">
                     <div><em>{polyglot.t("menu.identity.storeKey.msg")}</em></div>
@@ -583,7 +598,7 @@ var EditIdentity = React.createClass({
 
             // TODO: make sure not None
             // TODO: Allow erase keys here?
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 <div className="menuSection">
                     <div><em>{polyglot.t("menu.identity.edit.msg")}: </em><span className="authorSpan">{currUser}</span>
@@ -668,7 +683,7 @@ var NewIdentity = React.createClass({
         if (!this.props.show) {
             return <span></span>
         } else {
-            var polyglot = translate[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language];
             return (
                 <div className="menuSection">
 
@@ -748,7 +763,6 @@ var NewIdentity = React.createClass({
     },
 
     handleUsernameRequest: function() {
-
         // BUILD REQUEST
         console.log("BEGIN username request for ", this.refs.newUsername.getDOMNode().value);
 
@@ -767,9 +781,10 @@ var NewIdentity = React.createClass({
 
         // TODO: Make sure it is at least 5 chars long
         // TODO: Make sure it is valid characters
-
+        // 
+        var polyglot = Translate.language[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({usernameMessage: "You must set all of your public keys before making a registration request."});
+            this.setState({usernameMessage: polyglot.t("menu.identity.newKey.error.missing")});
             return false;
         }
 
@@ -777,11 +792,10 @@ var NewIdentity = React.createClass({
 
         // SUBMIT REQUEST
         var prom = PuffNet.registerSubuser(prefix, CONFIG.users[prefix].adminKey, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
-
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
-                self.setState({usernameMessage: 'Success!'});
+                self.setState({usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);
@@ -920,7 +934,7 @@ var UsernameCheckbox = React.createClass({
 
 var About = React.createClass({
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <div className="menuHeader">
@@ -952,7 +966,7 @@ var Tools = React.createClass({
     },
 
     render: function() {
-        var polyglot = translate[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <div className="menuHeader">

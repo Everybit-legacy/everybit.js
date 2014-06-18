@@ -78,18 +78,24 @@ var PuffContent = React.createClass({
 });
 
 var PuffBar = React.createClass({
+
+    handleClick: function() {
+
+            console.log("1234567");
+            var jswin = window.open("");
+            jswin.document.write(jsonstring);
+
+        },
     render: function() {
         var puff = this.props.puff
 		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>;
+
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         
 		return (
-            //  this for the raw view
-            //    {puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN' ? <PuffViewRaw puff={puff} /> : ''}
-
 			<div className={className}>
 				{puff.payload.type=='image' ? link : ''}
-
+                <PuffJson puff={puff} />
                 <PuffFlagLink sig={puff.sig} />
                 <PuffInfoLink puff={puff} />
 				<PuffChildrenCount puff={puff} />
@@ -100,6 +106,19 @@ var PuffBar = React.createClass({
 		);
     }
 });
+
+var PuffJson = React.createClass({
+    handleClick: function() {
+        var jsonstring = JSON.stringify(this.props.puff);
+        var jswin = window.open("");
+        jswin.document.write(jsonstring);
+    },
+    render: function() {
+        return (
+            <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-circle-thin"></i></a></span>
+            )
+        }
+ });
 
 var PuffFlagLink = React.createClass({
 
@@ -242,6 +261,16 @@ var PuffInfoLink = React.createClass({
             );
     }
 });
+
+/*
+var PuffJSON = React.createClass({
+    handleClick:function(){
+        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
+    }
+
+})
+*/
+
 
 var PuffViewRaw = React.createClass({
     handleClick:function() {

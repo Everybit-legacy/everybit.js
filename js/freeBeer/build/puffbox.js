@@ -78,18 +78,24 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 });
 
 var PuffBar = React.createClass({displayName: 'PuffBar',
+
+    handleClick: function() {
+
+            console.log("1234567");
+            var jswin = window.open("");
+            jswin.document.write(jsonstring);
+
+        },
     render: function() {
         var puff = this.props.puff
 		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus"})));
+
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         
 		return (
-            //  this for the raw view
-            //    {puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN' ? <PuffViewRaw puff={puff} /> : ''}
-
 			React.DOM.div( {className:className}, 
 				puff.payload.type=='image' ? link : '',
-
+                PuffJson( {puff:puff} ),
                 PuffFlagLink( {sig:puff.sig} ),
                 PuffInfoLink( {puff:puff} ),
 				PuffChildrenCount( {puff:puff} ),
@@ -100,6 +106,19 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 		);
     }
 });
+
+var PuffJson = React.createClass({displayName: 'PuffJson',
+    handleClick: function() {
+        var jsonstring = JSON.stringify(this.props.puff);
+        var jswin = window.open("");
+        jswin.document.write(jsonstring);
+    },
+    render: function() {
+        return (
+            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
+            )
+        }
+ });
 
 var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
@@ -242,6 +261,16 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
             );
     }
 });
+
+/*
+var PuffJSON = React.createClass({
+    handleClick:function(){
+        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
+    }
+
+})
+*/
+
 
 var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
     handleClick:function() {

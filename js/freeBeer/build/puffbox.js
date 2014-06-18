@@ -71,7 +71,15 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
     },
     render: function() {
         var puff = this.props.puff
-        var puffcontent = PuffForum.getProcessedPuffContent(puff)
+        var rawPuffs = puffworldprops.raw.puffs || [];
+        var puffcontent = '';
+        if (rawPuffs.indexOf(puff.sig) == -1) {
+            puffcontent = PuffForum.getProcessedPuffContent(puff);
+        } else {
+            puffcontent = puff.payload.content;
+            puffcontent = puffcontent.replace(/(?:\r\n|\r|\n)/g, '<br />'); // replace line break with <br /> tag
+
+        }
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})
     }
@@ -82,14 +90,11 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         var puff = this.props.puff
 		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus"})));
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
-        
+        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
 		return (
-            //  this for the raw view
-            //    {puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN' ? <PuffViewRaw puff={puff} /> : ''}
-
 			React.DOM.div( {className:className}, 
 				puff.payload.type=='image' ? link : '',
-
+                canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                 PuffFlagLink( {sig:puff.sig} ),
                 PuffInfoLink( {puff:puff} ),
 				PuffChildrenCount( {puff:puff} ),
@@ -245,19 +250,42 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
 
 var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
     handleClick:function() {
-     //   var puff = this.props.puff;
-    //    showPuff(puff.sig)
-       // return puff;
-     //   return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
+        var sig = this.props.sig;
+        var rawPuff = puffworldprops.raw.puffs
+            ? puffworldprops.raw.puffs.slice() 
+            : [];
+        var index = rawPuff.indexOf(sig);
+        if(index == -1) {
+            rawPuff.push(sig)
+        } else {
+            rawPuff.splice(index, 1)
+        }
+
+        return events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
     },
     render: function() {
+        var rawPuff = puffworldprops.raw.puffs
+            ? puffworldprops.raw.puffs.slice() 
+            : [];
+        var cx1 = React.addons.classSet;
+        var index   = rawPuff.indexOf(this.props.sig)
+        if(index == -1) {
+            var isGreen = false;
+        } else {
+            var isGreen = true;
+        }
+
+        var newClass = cx1({
+            'fa fa-file-code-o': true,
+            'green': isGreen
+        });
 
         return (
-        React.DOM.span( {className:"icon"}, 
-            React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                React.DOM.i( {className:"fa fa-file-code-o"})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:newClass})
+                )
             )
-        )
         );
     }
 

@@ -45,8 +45,8 @@ var Menu = React.createClass({displayName: 'Menu',
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"}))
                 ),
                 Logo(null ),
-                View(null ),
                 Filter(null ),
+                View(null ),
                 Language(null ),
                 Publish(null ),
                 Identity(null ),
@@ -65,6 +65,52 @@ var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
             React.DOM.a( {href:CONFIG.url}, React.DOM.img( {src:"img/logo.gif", alt:"Logo", className:"logo"} ))
+            )
+    }
+});
+
+var Filter = React.createClass({displayName: 'Filter',
+    handlePickFilter: function() {
+        var user = this.refs.pickuser.getDOMNode().value || false;
+        var route = this.refs.pickroute.getDOMNode().value || false;
+        return events.pub('ui/view/route/set', 
+                        {'view.filterroute': route, 
+                         'view.filteruser':user});
+    },
+    handleClearRoute: function() {
+        this.refs.pickroute.getDOMNode().value = '';
+        return events.pub('ui/view/route/clear', {'view.filterroute': false});
+    },
+    handleClearUser: function() {
+        this.refs.pickuser.getDOMNode().value = '';
+        return events.pub('ui/view/user/clear', {'view.filteruser': false});
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var route = puffworldprops.view.filterroute || "";
+        var user = puffworldprops.view.filteruser || "";
+        return (
+            React.DOM.div(null, React.DOM.br(null ),
+                React.DOM.div( {className:"menuHeader"}, 
+                    React.DOM.i( {className:"fa fa-filter fa-fw gray"}), " ", polyglot.t("menu.filter.title")
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.filter.route"),":",
+                    React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12"} ),
+                    React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
+                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    ),React.DOM.br(null)
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.filter.user"),":", 
+                    React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12"} ), 
+                    React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
+                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    ),React.DOM.br(null)
+                )
+            )
             )
     }
 });
@@ -143,7 +189,7 @@ var View = React.createClass({displayName: 'View',
 
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            React.DOM.div(null, React.DOM.br(null ),
+            React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title")
                 ),
@@ -171,8 +217,8 @@ var View = React.createClass({displayName: 'View',
     }
 });
 
-
-var Filter = React.createClass({displayName: 'Filter',
+/*
+var Filter2 = React.createClass({
     handlePickRoute: function() {
         var route = this.refs.pickroute.getDOMNode().value;
         return events.pub('ui/view/route/set', {'view.filterroute': route});
@@ -185,18 +231,18 @@ var Filter = React.createClass({displayName: 'Filter',
         
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            React.DOM.div( {className:"menuItem"}, 
-                polyglot.t("menu.view.route"),": ", React.DOM.select( {ref:"pickroute", onChange:this.handlePickRoute, value:route}, 
-                    React.DOM.option( {key:"null", value:""}, polyglot.t("menu.view.unfiltered")),
-                    all_routes.map(function(route) {
-                        return React.DOM.option( {key:route, value:route}, route)
-                    })
-                )
-            )
+            <div className="menuItem">
+                {polyglot.t("menu.view.route")}: <select ref="pickroute" onChange={this.handlePickRoute} value={route}>
+                    <option key="null" value="">{polyglot.t("menu.view.unfiltered")}</option>
+                    {all_routes.map(function(route) {
+                        return <option key={route} value={route}>{route}</option>
+                    })}
+                </select>
+            </div>
         );
     }
 })
-
+*/
 
 var Language = React.createClass({displayName: 'Language',
     handlePickLanguage: function() {

@@ -10,6 +10,11 @@ Translate.language["en"].extend({
 		noUserSet: "You will need to set your identity first"
 	},
 	menu: {
+		filter: {
+			title: 'Filter',
+			route: 'Route',
+			user: 'Username'
+		},
 		view: {
 			title: 'VIEW',
 			latest: "Latest puffs",

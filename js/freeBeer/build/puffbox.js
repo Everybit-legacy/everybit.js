@@ -298,7 +298,7 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
         }
 
         var newClass = cx1({
-            'fa fa-file-code-o fa-fw': true,
+            'fa fa-code fa-fw': true,
             'green': isGreen
         });
 

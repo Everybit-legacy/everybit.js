@@ -11,14 +11,14 @@ function chessBoard(content) {
 
     var htmlToWrite = '<div class="stretchy-wrapper"><div>';
     htmlToWrite += '<table class="chessTable">';
-    for(m = 1; m <= 8; m++) {
+    for(m = 8; m >= 1; m--) {
         htmlToWrite += '<tr>';
         for (i = 0; i < 8; i++) {
             var n = letters[i];
             var cell = n + m;
 
             colorIndex = (m + i) % 2;
-            if (colorIndex) {
+            if (!colorIndex) {
                 classToUse = 'chessSquareWhite'
             } else {
                 classToUse = 'chessSquareBlack'

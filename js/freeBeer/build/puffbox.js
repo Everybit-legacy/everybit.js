@@ -92,14 +92,6 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 });
 
 var PuffBar = React.createClass({displayName: 'PuffBar',
-
-    handleClick: function() {
-
-            console.log("1234567");
-            var jswin = window.open("");
-            jswin.document.write(jsonstring);
-
-        },
     render: function() {
         var puff = this.props.puff
 		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus"})));
@@ -276,15 +268,6 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
             );
     }
 });
-
-/*
-var PuffJSON = React.createClass({
-    handleClick:function(){
-        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
-    }
-
-})
-*/
 
 
 var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',

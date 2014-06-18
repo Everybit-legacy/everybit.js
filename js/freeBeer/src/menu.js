@@ -698,7 +698,7 @@ var NewIdentity = React.createClass({
                         </select> <em>.</em>{' '}
                         <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
                        </div>
-                    <br />
+
                     <em>{this.state.usernameMessage}</em>
                     <br />
                     <div className="menuHeader"><i className="fa fa-unlock-alt"></i> {polyglot.t("menu.identity.public")}</div>
@@ -706,7 +706,7 @@ var NewIdentity = React.createClass({
 
                     <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.root")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" />
+                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" } />
                     </div>
                     <br />
 

@@ -180,8 +180,9 @@ var Filter = React.createClass({displayName: 'Filter',
     
     render: function() {
         var route = puffworldprops.view.filterroute;
-        var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
-                                        .filter(function(item, key, array) {return array.indexOf(item) == key});
+        var shells = PuffForum.getShells();
+        var all_routes = shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
+                               .filter(function(item, key, array) {return array.indexOf(item) == key});
         
         var polyglot = Translate.language[puffworldprops.view.language];
         return (

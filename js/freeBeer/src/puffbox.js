@@ -71,25 +71,46 @@ var PuffContent = React.createClass({
     },
     render: function() {
         var puff = this.props.puff
-        var puffcontent = PuffForum.getProcessedPuffContent(puff)
+        var rawPuffs = puffworldprops.raw.puffs || [];
+        var puffcontent = '';
+        if (rawPuffs.indexOf(puff.sig) == -1) {
+            puffcontent = PuffForum.getProcessedPuffContent(puff);
+        } else {
+            puffcontent = puff.payload.content;
+            puffcontent = puffcontent
+                                     .replace(/&/g, "&amp;") // escape html
+                                     .replace(/</g, "&lt;")
+                                     .replace(/>/g, "&gt;")
+                                     .replace(/"/g, "&quot;")
+                                     .replace(/'/g, "&#039;")
+                                     .replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag;
+
+        }
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick} dangerouslySetInnerHTML={{__html: puffcontent}}></div>
     }
 });
 
 var PuffBar = React.createClass({
+
+    handleClick: function() {
+
+            console.log("1234567");
+            var jswin = window.open("");
+            jswin.document.write(jsonstring);
+
+        },
     render: function() {
         var puff = this.props.puff
 		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>;
-        var className = 'bar' + (this.props.hidden ? ' hidden' : '')
-        
-		return (
-            //  this for the raw view
-            //    {puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN' ? <PuffViewRaw puff={puff} /> : ''}
 
+        var className = 'bar' + (this.props.hidden ? ' hidden' : '')
+        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
+		return (
 			<div className={className}>
 				{puff.payload.type=='image' ? link : ''}
-
+                {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
+                <PuffJson puff={puff} />
                 <PuffFlagLink sig={puff.sig} />
                 <PuffInfoLink puff={puff} />
 				<PuffChildrenCount puff={puff} />
@@ -100,6 +121,19 @@ var PuffBar = React.createClass({
 		);
     }
 });
+
+var PuffJson = React.createClass({
+    handleClick: function() {
+        var jsonstring = JSON.stringify(this.props.puff);
+        var jswin = window.open("");
+        jswin.document.write(jsonstring);
+    },
+    render: function() {
+        return (
+            <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-circle-thin"></i></a></span>
+            )
+        }
+ });
 
 var PuffFlagLink = React.createClass({
 
@@ -243,21 +277,54 @@ var PuffInfoLink = React.createClass({
     }
 });
 
+/*
+var PuffJSON = React.createClass({
+    handleClick:function(){
+        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
+    }
+
+})
+*/
+
+
 var PuffViewRaw = React.createClass({
     handleClick:function() {
-     //   var puff = this.props.puff;
-    //    showPuff(puff.sig)
-       // return puff;
-     //   return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
+        var sig = this.props.sig;
+        var rawPuff = puffworldprops.raw.puffs
+            ? puffworldprops.raw.puffs.slice() 
+            : [];
+        var index = rawPuff.indexOf(sig);
+        if(index == -1) {
+            rawPuff.push(sig)
+        } else {
+            rawPuff.splice(index, 1)
+        }
+
+        return events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
     },
     render: function() {
+        var rawPuff = puffworldprops.raw.puffs
+            ? puffworldprops.raw.puffs.slice() 
+            : [];
+        var cx1 = React.addons.classSet;
+        var index   = rawPuff.indexOf(this.props.sig)
+        if(index == -1) {
+            var isGreen = false;
+        } else {
+            var isGreen = true;
+        }
+
+        var newClass = cx1({
+            'fa fa-code fa-fw': true,
+            'green': isGreen
+        });
 
         return (
-        <span className="icon">
-            <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                <i className="fa fa-file-code-o"></i>
-            </a>
-        </span>
+            <span className="icon">
+                <a href="#" onClick={this.handleClick}>
+                    <i className={newClass}></i>
+                </a>
+            </span>
         );
     }
 

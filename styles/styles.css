@@ -361,14 +361,19 @@ h4 {
     height:auto;
     width:100%;
     position:absolute;
-    right: 10px;
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
-
+.infoLink {
+    right: 10px;
+}
+.popup {
+    right: 0px;
+}
 .infoLink:hover .popup, .infoLink.sfhover {
     display: block;
 }
+
 
 header {
     background-color: #fff;

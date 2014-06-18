@@ -44,7 +44,7 @@ var ViewKeybindingsMixin = {
 
         }.bind(this));
 
-        // m shows latest puffs
+        // l shows latest puffs
         Mousetrap.bind('l', function() {
             return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
         }.bind(this));

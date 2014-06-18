@@ -72,7 +72,8 @@ section {
 }
 
 #talltree .block {
-    background: #FFFFFF;
+    background: rgba(255,254,253,.97);
+    /* background-color: #faf8f3; */
     border: 0px solid #eee7d0;
     padding: 12px;
     margin: 0;
@@ -111,7 +112,6 @@ section {
 }
 
 #talltree .parent .txt {
-    background-color: #ffffff;
 }
 
 

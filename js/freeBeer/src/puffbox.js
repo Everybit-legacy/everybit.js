@@ -92,33 +92,47 @@ var PuffContent = React.createClass({
 });
 
 var PuffBar = React.createClass({
-
-    handleClick: function() {
-
-            console.log("1234567");
-            var jswin = window.open("");
-            jswin.document.write(jsonstring);
-
-        },
+    getInitialState: function() {
+        return {showMain: true};
+    },
+    handleShowMore: function() {
+        this.setState({showMain: !this.state.showMain});
+    },
     render: function() {
         var puff = this.props.puff
-		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>;
+		var link = <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus fa-fw"></i></a></span>;
 
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
-		return (
-			<div className={className}>
-				{puff.payload.type=='image' ? link : ''}
+
+        if (!this.state.showMain) {
+            console.log("123");
+            return (
+                <div className={className}>
+                    <PuffJson puff={puff} />
+                    <PuffPermaLink sig={puff.sig} />
+                    
+                    <span className ="icon" onClick = {this.handleShowMore}>
+                        <a><i className="fa fa-ellipsis-h fa-fw"></i></a>
+                    </span>
+                </div>
+            );
+        }
+
+        return (
+            <div className={className}>
                 {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
-                <PuffJson puff={puff} />
                 <PuffFlagLink sig={puff.sig} />
                 <PuffInfoLink puff={puff} />
-				<PuffChildrenCount puff={puff} />
-				<PuffParentCount puff={puff} />
-				<PuffPermaLink sig={puff.sig} />
-				<PuffReplyLink sig={puff.sig} />
-			</div>
-		);
+                <PuffChildrenCount puff={puff} />
+                <PuffParentCount puff={puff} />
+                <PuffReplyLink sig={puff.sig} />
+                
+                <span className ="icon" onClick={this.handleShowMore}>
+                    <a><i className="fa fa-ellipsis-h"></i></a>
+                </span>
+            </div>
+        );
     }
 });
 
@@ -129,10 +143,10 @@ var PuffJson = React.createClass({
         jswin.document.write(jsonstring);
     },
     render: function() {
-        return (
-            <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-circle-thin"></i></a></span>
-            )
-        }
+    return (
+        <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-circle-thin"></i></a></span>
+        )
+    }
  });
 
 var PuffFlagLink = React.createClass({
@@ -276,15 +290,6 @@ var PuffInfoLink = React.createClass({
             );
     }
 });
-
-/*
-var PuffJSON = React.createClass({
-    handleClick:function(){
-        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
-    }
-
-})
-*/
 
 
 var PuffViewRaw = React.createClass({

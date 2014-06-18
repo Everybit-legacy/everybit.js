@@ -92,33 +92,47 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 });
 
 var PuffBar = React.createClass({displayName: 'PuffBar',
-
-    handleClick: function() {
-
-            console.log("1234567");
-            var jswin = window.open("");
-            jswin.document.write(jsonstring);
-
-        },
+    getInitialState: function() {
+        return {showMain: true};
+    },
+    handleShowMore: function() {
+        this.setState({showMain: !this.state.showMain});
+    },
     render: function() {
         var puff = this.props.puff
-		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus"})));
+		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus fa-fw"})));
 
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
-		return (
-			React.DOM.div( {className:className}, 
-				puff.payload.type=='image' ? link : '',
+
+        if (!this.state.showMain) {
+            console.log("123");
+            return (
+                React.DOM.div( {className:className}, 
+                    PuffJson( {puff:puff} ),
+                    PuffPermaLink( {sig:puff.sig} ),
+                    
+                    React.DOM.span( {className: "icon", onClick:  this.handleShowMore}, 
+                        React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"}))
+                    )
+                )
+            );
+        }
+
+        return (
+            React.DOM.div( {className:className}, 
                 canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
-                PuffJson( {puff:puff} ),
                 PuffFlagLink( {sig:puff.sig} ),
                 PuffInfoLink( {puff:puff} ),
-				PuffChildrenCount( {puff:puff} ),
-				PuffParentCount( {puff:puff} ),
-				PuffPermaLink( {sig:puff.sig} ),
-				PuffReplyLink( {sig:puff.sig} )
-			)
-		);
+                PuffChildrenCount( {puff:puff} ),
+                PuffParentCount( {puff:puff} ),
+                PuffReplyLink( {sig:puff.sig} ),
+                
+                React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
+                    React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h"}))
+                )
+            )
+        );
     }
 });
 
@@ -129,10 +143,10 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
         jswin.document.write(jsonstring);
     },
     render: function() {
-        return (
-            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
-            )
-        }
+    return (
+        React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
+        )
+    }
  });
 
 var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
@@ -276,15 +290,6 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
             );
     }
 });
-
-/*
-var PuffJSON = React.createClass({
-    handleClick:function(){
-        <span className ="icon"><a href={puff.payload.content} target="new"><i className="fa fa-search-plus"></i></a></span>
-    }
-
-})
-*/
 
 
 var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',

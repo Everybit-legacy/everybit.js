@@ -329,10 +329,8 @@ h4 {
     padding-top: 5px;
     padding-bottom: 5px;
     z-index: 250;
-/*    display: none;*/
     background-color: rgba(242, 242, 242, 0.9);
 }
-
 .bar:hover {
     display : block;
 }
@@ -360,15 +358,10 @@ h4 {
     /*right:1px;*/
     height:auto;
     width:100%;
+    right: 0px;
     position:absolute;
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
-}
-.infoLink {
-    right: 10px;
-}
-.popup {
-    right: 0px;
 }
 .infoLink:hover .popup, .infoLink.sfhover {
     display: block;

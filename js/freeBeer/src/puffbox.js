@@ -278,7 +278,7 @@ var PuffInfoLink = React.createClass({
             <a><span className="icon">
                 <span className="infoLink">
                     <i className="fa fa-info fa-fw"></i>
-                    <span className="popup">
+                    <span className="detailInfo">
                     {formattedTime}
                     {type}
                     {lisc}

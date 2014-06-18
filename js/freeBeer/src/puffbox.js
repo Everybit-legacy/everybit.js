@@ -108,12 +108,11 @@ var PuffBar = React.createClass({
         if (!this.state.showMain) {
             return (
                 <div className={className}>
+                    {puff.payload.type == 'image' ? link : ""}
                     <PuffJson puff={puff} />
                     <PuffPermaLink sig={puff.sig} />
                     
-                    <span className ="icon" onClick = {this.handleShowMore}>
-                        <a><i className="fa fa-ellipsis-h fa-fw"></i></a>
-                    </span>
+                    <span className ="icon" onClick={this.handleShowMore}><a><i className="fa fa-ellipsis-h fa-fw"></i></a></span>
                 </div>
             );
         }
@@ -127,9 +126,7 @@ var PuffBar = React.createClass({
                 <PuffParentCount puff={puff} />
                 <PuffReplyLink sig={puff.sig} />
                 
-                <span className ="icon" onClick={this.handleShowMore}>
-                    <a><i className="fa fa-ellipsis-h"></i></a>
-                </span>
+                <span className ="icon" onClick={this.handleShowMore}><a><i className="fa fa-ellipsis-h fa-fw"></i></a></span>
             </div>
         );
     }

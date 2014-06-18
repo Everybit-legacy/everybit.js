@@ -84,10 +84,14 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         
 		return (
+            //  this for the raw view
+            //    {puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN' ? <PuffViewRaw puff={puff} /> : ''}
+
 			React.DOM.div( {className:className}, 
 				puff.payload.type=='image' ? link : '',
+
                 PuffFlagLink( {sig:puff.sig} ),
-				PuffInfoLink( {puff:puff} ),
+                PuffInfoLink( {puff:puff} ),
 				PuffChildrenCount( {puff:puff} ),
 				PuffParentCount( {puff:puff} ),
 				PuffPermaLink( {sig:puff.sig} ),
@@ -239,6 +243,25 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
     }
 });
 
+var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
+    handleClick:function() {
+     //   var puff = this.props.puff;
+    //    showPuff(puff.sig)
+       // return puff;
+     //   return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
+    },
+    render: function() {
+
+        return (
+        React.DOM.span( {className:"icon"}, 
+            React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                React.DOM.i( {className:"fa fa-file-code-o"})
+            )
+        )
+        );
+    }
+
+})
 
 var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     handleClick: function() {

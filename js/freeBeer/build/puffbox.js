@@ -77,12 +77,13 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
             puffcontent = PuffForum.getProcessedPuffContent(puff);
         } else {
             puffcontent = puff.payload.content;
-            puffcontent = puffcontent.replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag
+            puffcontent = puffcontent
                                      .replace(/&/g, "&amp;") // escape html
                                      .replace(/</g, "&lt;")
                                      .replace(/>/g, "&gt;")
                                      .replace(/"/g, "&quot;")
-                                     .replace(/'/g, "&#039;");
+                                     .replace(/'/g, "&#039;")
+                                     .replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag;
 
         }
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
@@ -110,7 +111,6 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 		);
     }
 });
-
 var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
     getInitialState: function() {
@@ -281,7 +281,7 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
         }
 
         var newClass = cx1({
-            'fa fa-file-code-o': true,
+            'fa fa-file-code-o fa-fw': true,
             'green': isGreen
         });
 

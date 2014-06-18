@@ -90,7 +90,7 @@ PuffForum.getChildren = function(puff, props) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
+    return PuffData.shells.filter(function(kidpuff) { return ~(kidpuff.payload.parents||[]).indexOf(puff.sig) })
                           .filter(PuffForum.getPropsFilter(props))
                           .map(Puffball.getPuffFromShell)
                           .filter(Boolean)
@@ -110,7 +110,7 @@ PuffForum.getSiblings = function(puff, props) {
     return PuffData.shells.filter(
         function(puff) { 
             return puff.sig != originalSig 
-                && puff.payload.parents.reduce(
+                && (puff.payload.parents||[]).reduce(
                     function(acc, parent_sig) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
                             .map(Puffball.getPuffFromShell)
@@ -173,7 +173,7 @@ PuffForum.getByRoute = function(route, limit) {
 }
 
 
-PuffForum.addPost = function(type, content, parents, metadata) {
+PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -187,7 +187,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     // ensure parents is unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata)
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, userRecordsForWhomToEncrypt)
     
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
@@ -202,7 +202,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
 }
 
 
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -224,7 +224,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata) {
         if(!privateKeys || !privateKeys.default)
             return Puffball.onError('No valid private key found for signing the content')
 
-        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous)
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt)
 
         return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }

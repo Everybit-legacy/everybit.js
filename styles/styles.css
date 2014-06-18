@@ -72,7 +72,8 @@ section {
 }
 
 #talltree .block {
-    background: #FFFFFF;
+    background: rgba(255,254,253,.97);
+    /* background-color: #faf8f3; */
     border: 0px solid #eee7d0;
     padding: 12px;
     margin: 0;
@@ -111,7 +112,6 @@ section {
 }
 
 #talltree .parent .txt {
-    background-color: #ffffff;
 }
 
 
@@ -206,8 +206,6 @@ h4 {
 .clear {
     clear: both;
 }
-
-
 
 .txt {
     margin: 0;
@@ -367,7 +365,6 @@ h4 {
     display: block;
 }
 
-
 header {
     background-color: #fff;
     height: 70px;
@@ -465,7 +462,6 @@ fieldset[disabled] .btn-link {
   background-color: transparent;
 }
 
-
 /* custom overwrites to bootstrap btn */
 .btn {
     padding: 5px 5px;
@@ -477,8 +473,6 @@ fieldset[disabled] .btn-link {
     cursor: pointer;
     color: #555;
 }
-
-
 
 #text-zoom {
     width: 50px;
@@ -519,9 +513,11 @@ fieldset[disabled] .btn-link {
 #replyForm:hover {
     cursor: all-scroll;
 }
+
 #replyForm form > * {
     cursor: auto;
 }
+
 #replyForm form > a {
     cursor: pointer; /* for firefox */
 }

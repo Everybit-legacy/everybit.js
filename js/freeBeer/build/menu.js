@@ -698,7 +698,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                        ),
-                    React.DOM.br(null ),
+
                     React.DOM.em(null, this.state.usernameMessage),
                     React.DOM.br(null ),
                     React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-unlock-alt"}), " ", polyglot.t("menu.identity.public")),

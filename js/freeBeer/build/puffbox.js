@@ -106,7 +106,6 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
 
         if (!this.state.showMain) {
-            console.log("123");
             return (
                 React.DOM.div( {className:className}, 
                     PuffJson( {puff:puff} ),
@@ -144,7 +143,7 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
     },
     render: function() {
     return (
-        React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
+            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
         )
     }
  });

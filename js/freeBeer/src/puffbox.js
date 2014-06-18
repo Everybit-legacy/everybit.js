@@ -108,6 +108,7 @@ var PuffBar = React.createClass({
         if (!this.state.showMain) {
             return (
                 <div className={className}>
+                    {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                     {puff.payload.type == 'image' ? link : ""}
                     <PuffJson puff={puff} />
                     <PuffPermaLink sig={puff.sig} />
@@ -119,11 +120,10 @@ var PuffBar = React.createClass({
 
         return (
             <div className={className}>
-                {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                 <PuffFlagLink sig={puff.sig} />
                 <PuffInfoLink puff={puff} />
-                <PuffChildrenCount puff={puff} />
                 <PuffParentCount puff={puff} />
+                <PuffChildrenCount puff={puff} />
                 <PuffReplyLink sig={puff.sig} />
                 
                 <span className ="icon" onClick={this.handleShowMore}><a><i className="fa fa-ellipsis-h fa-fw"></i></a></span>
@@ -140,7 +140,7 @@ var PuffJson = React.createClass({
     },
     render: function() {
     return (
-            <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-circle-thin"></i></a></span>
+            <span className ="icon" onClick={this.handleClick}><a><i className="fa fa-cubes fa-fw"></i></a></span>
         )
     }
  });

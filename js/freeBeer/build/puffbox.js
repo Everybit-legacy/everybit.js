@@ -108,6 +108,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         if (!this.state.showMain) {
             return (
                 React.DOM.div( {className:className}, 
+                    canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                     puff.payload.type == 'image' ? link : "",
                     PuffJson( {puff:puff} ),
                     PuffPermaLink( {sig:puff.sig} ),
@@ -119,11 +120,10 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 
         return (
             React.DOM.div( {className:className}, 
-                canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                 PuffFlagLink( {sig:puff.sig} ),
                 PuffInfoLink( {puff:puff} ),
-                PuffChildrenCount( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
+                PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
                 
                 React.DOM.span( {className: "icon", onClick:this.handleShowMore}, React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})))
@@ -140,7 +140,7 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
     },
     render: function() {
     return (
-            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-circle-thin"})))
+            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-cubes fa-fw"})))
         )
     }
  });

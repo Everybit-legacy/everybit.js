@@ -38,7 +38,12 @@ var PuffReplyForm = React.createClass({
     handleSubmit: function() {
         var content = '';
         var metadata = {};
-
+        
+        var privacy = this.refs.privacy.getDOMNode().value
+        var users = this.refs.users
+        users = ["anon.rps6d8d0ex", "anon.p563pdn4z2", "anon.oz4ujo3cfx"]
+        users = users.map(PuffData.getCachedUserRecord)
+        
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
 
@@ -60,7 +65,11 @@ var PuffReplyForm = React.createClass({
             return false;
         }
         
-        PuffForum.addPost( type, content, parents, metadata );
+        if(privacy == 'public') {
+            PuffForum.addPost( type, content, parents, metadata );
+        } else {
+            PuffForum.addPost( type, content, parents, metadata, users );
+        }
 
         return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
     },
@@ -89,10 +98,9 @@ var PuffReplyForm = React.createClass({
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
 
+        var userList = ['dann', 'mattasher', 'freebeer'];
+
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
-
-
-
 
         if (typeof this.props.reply.parents != 'undefined') {
             var parents = this.props.reply.parents;
@@ -182,7 +190,30 @@ var PuffReplyForm = React.createClass({
                         </select>
 
                         {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> {polyglot.t("replyForm.submit")}!</a>
-
+                        
+                        <div>
+                            <p>
+                                Privacy options:
+                                <select ref="privacy" className="btn" defaultValue="public">
+                                    <option key="public" value="public">Public (everyone can see this)</option>
+                                    <option key="private" value="private">Private (content is encrypted)</option>
+                                    <option key="anon" value="anon">Anonymous (encrypted and anonymous)</option>
+                                    <option key="paranoid" value="paranoid">Paranoid (regenerate anon user each time)</option>
+                                </select>
+                            </p>
+                            
+                            <p>
+                                Send to users:
+                                {userList.map(function(user) {
+                                    return (
+                                        <p><label>
+                                            <input type="checkbox" defaultChecked="checked" ref="users" name={'user-'+user} id={'user-'+user} />
+                                            {user}
+                                        </label></p>
+                                    )
+                                })}
+                            </p>
+                        </div>
                     </form>
                 </div>
             </div>

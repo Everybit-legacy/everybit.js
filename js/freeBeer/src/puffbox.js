@@ -77,7 +77,12 @@ var PuffContent = React.createClass({
             puffcontent = PuffForum.getProcessedPuffContent(puff);
         } else {
             puffcontent = puff.payload.content;
-            puffcontent = puffcontent.replace(/(?:\r\n|\r|\n)/g, '<br />'); // replace line break with <br /> tag
+            puffcontent = puffcontent.replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag
+                                     .replace(/&/g, "&amp;") // escape html
+                                     .replace(/</g, "&lt;")
+                                     .replace(/>/g, "&gt;")
+                                     .replace(/"/g, "&quot;")
+                                     .replace(/'/g, "&#039;");
 
         }
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously

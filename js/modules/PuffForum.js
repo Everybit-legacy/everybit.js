@@ -57,7 +57,8 @@ PuffForum.getPropsFilter = function(props) {
     return function(shell) {
         if(props.filterroute)
             if(!~shell.routes.indexOf(props.filterroute)) return false
-    
+        if(props.filteruser)
+            if (shell.username != props.filteruser) return false
         return true
     }
 }

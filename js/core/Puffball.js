@@ -48,9 +48,21 @@ Puffball.init = function(zone) {
     PuffNet.init()
 }
 
-Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous) {
+Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt) {
     //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
+    puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
+
+    if(userRecordsForWhomToEncrypt) {
+        puff = Puffball.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt)
+    }
+    
+    puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
+
+    return puff
+}
+
+Puffball.packagePuffStructure = function(username, routes, type, content, payload, previous) {
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
@@ -64,9 +76,7 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
                ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
                ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
                }
-
-    puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
-
+    
     return puff
 }
 
@@ -210,6 +220,30 @@ Puffball.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
     Puffball.newPuffCallbacks.push(callback);
+}
+
+
+Puffball.encryptPuff = function(puff, myPrivateWif, userRecords) {
+    //// return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
+    var puffkey = Puffball.Crypto.getRandomKey()
+    puff.payload = Puffball.Crypto.encryptWithAES(JSON.stringify(puff.payload), puffkey)
+    puff.keys = Puffball.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)
+    return puff // NOTE: we're mutating this as a memory optimization, but that may bite us later...
+}
+
+Puffball.decryptPuff = function(puff, yourPublicWif, myUsername, myPrivateWif) {
+    var keyForMe = puff.keys[myUsername]
+    var puffkey  = Puffball.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var encryptedPayload = puff.payload
+    var decryptedPayload = Puffball.Crypto.decryptWithAES(encryptedPayload, puffkey)
+    try {
+        var payload = JSON.parse(decryptedPayload)
+    } catch ($e) {
+        return Puffball.onError('Invalid encrypted payload', $e)
+    }
+    
+    puff.payload = payload
+    return puff // NOTE: we're mutating this as a memory optimization, but that may bite us later...
 }
 
 
@@ -429,6 +463,7 @@ Puffball.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
 
+
 Puffball.Crypto.encryptWithAES = function(message, key) {
     var enc = Bitcoin.Crypto.AES.encrypt(message, key)
     return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
@@ -437,18 +472,14 @@ Puffball.Crypto.encryptWithAES = function(message, key) {
 Puffball.Crypto.decryptWithAES = function(enc, key) {
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
-    var bytes = Bitcoin.convert.wordsToBytes(words.words)
-    return bytes.map(function(x) {return String.fromCharCode(x)}).join('')    
+    var bytes = Bitcoin.convert.wordsToBytes(words.words) 
+    return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(/\u0004+$/g, '') // TODO: fix fiddly endbits
 }
 
 Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
+    // TODO: check our ECDH maths
     var pubkey = Puffball.Crypto.wifToPubKey(yourPublicWif)
-    var prikey = Puffball.Crypto.wifToPriKey(myPrivateWif)
-    // var dub1 = dk1.getPub(false)
-    // var dub2 = dk2.getPub(false)
-    // var dk1_bi = Bitcoin.BigInteger.fromByteArrayUnsigned(dk1.toBytes())
-    // var dk2_bi = Bitcoin.BigInteger.fromByteArrayUnsigned(dk2.toBytes())
-    
+    var prikey = Puffball.Crypto.wifToPriKey(myPrivateWif)    
     var secret = pubkey.multiply(prikey).toWif()
     var key = Bitcoin.Crypto.SHA256(secret).toString()
     
@@ -464,8 +495,25 @@ Puffball.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPriv
 Puffball.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
     var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     var plaintext = Puffball.Crypto.decryptWithAES(ciphertext, key)
-    return plaintext
+    return plaintext // .replace(/\n+$/g, '')
 }
+
+Puffball.Crypto.getRandomKey = function(size) {
+    size = size || 256/8 // AES key size is 256 bits
+    var bytes = new Uint8Array(size);
+    crypto.getRandomValues(bytes);
+    return Bitcoin.convert.bytesToBase64(bytes)
+}
+
+Puffball.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
+    return userRecords.reduce(function(acc, userRecord) {
+        acc[userRecord.username] = Puffball.Crypto.encodePrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
+        return acc
+    }, {})
+}
+
+
+
 
 
 // Puffball.Crypto.verifyBlock = function(block, publicKeyBase58) {

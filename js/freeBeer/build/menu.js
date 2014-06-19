@@ -225,6 +225,11 @@ var Preferences = React.createClass({displayName: 'Preferences',
         }
     },
 
+    handleShowHideInfobar: function() {
+        return events.pub( 'ui/view/showinfo/toggle', 
+                         { 'view.showinfo': !puffworldprops.view.showinfo})
+    },
+
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;
         return events.pub('ui/view/language/set', {'view.language': language});
@@ -254,6 +259,14 @@ var Preferences = React.createClass({displayName: 'Preferences',
             'green': puffworldprops.view.animation
         });
 
+        var cbClass3 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': puffworldprops.view.showinfo,
+            'fa-square-o': !puffworldprops.view.showinfo,
+            'green': puffworldprops.view.showinfo
+        });
+
         return(
             React.DOM.div(null, 
 
@@ -272,9 +285,13 @@ var Preferences = React.createClass({displayName: 'Preferences',
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation"))
                 ),
 
+                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass3, onClick:this.handleShowHideInfobar} )),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar"))
+                ),
 
                 React.DOM.div( {className:"menuItem"}, 
-                polyglot.t("menu.view.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, value:language}, 
+                polyglot.t("menu.preferences.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, value:language}, 
                     all_languages.map(function(lang) {
                         return React.DOM.option( {key:lang, value:lang}, Translate.language[lang].t("dropdownDisplay"))
                     })

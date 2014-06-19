@@ -174,16 +174,16 @@ var PuffFlagLink = React.createClass({
         var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
 
         var data = { type: 'flagPuff'
-            , puff: puff
-        };
+                   , puff: puff
+                   };
 
         var prom = PuffNet.post(CONFIG.puffApi, data);
 
         // console.log(puff);
 
         prom.then(function(result) {
-            self.setState({flagged: true});
-        })
+                self.setState({flagged: true});
+            })
             .catch(function(err) {
                alert(err);
             });

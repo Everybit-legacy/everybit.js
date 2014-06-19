@@ -75,7 +75,8 @@ var Filter = React.createClass({displayName: 'Filter',
         var route = this.refs.pickroute.getDOMNode().value || false;
         return events.pub('ui/view/route/set', 
                         {'view.filterroute': route, 
-                         'view.filteruser':user});
+                         'view.filteruser':user,
+                         'view.style':'PuffLatest'});
     },
     handleClearRoute: function() {
         this.refs.pickroute.getDOMNode().value = '';
@@ -84,6 +85,11 @@ var Filter = React.createClass({displayName: 'Filter',
     handleClearUser: function() {
         this.refs.pickuser.getDOMNode().value = '';
         return events.pub('ui/view/user/clear', {'view.filteruser': false});
+    },
+    handleKeyDown: function(event) {
+        if (event.keyCode == 13) {
+            this.handlePickFilter();
+        }
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -97,15 +103,15 @@ var Filter = React.createClass({displayName: 'Filter',
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.route"),":",
                     React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12"} ),
-                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
+                    React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12", onKeyDown:this.handleKeyDown} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search fa-fw"})),
                     ' ',React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.user"),":", 
                     React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12"} ),
+                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12", onKeyDown:this.handleKeyDown}  ),
                     ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
                     ' ',React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
@@ -258,12 +264,12 @@ var Preferences = React.createClass({displayName: 'Preferences',
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.view.relationship"))
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship"))
                 ),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.view.animation"))
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation"))
                 ),
 
 

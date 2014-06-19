@@ -4,7 +4,6 @@
   <p>Identity avatar</p>
  */
 
-
 var Basics = React.createClass({displayName: 'Basics',
     render: function() {
         return (

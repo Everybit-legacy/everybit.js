@@ -372,7 +372,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
 
 /**
  * callback takes an array of puffs as its argument, and is called each time puffs are added to the system
- * @param  {array of puffs} callback
+ * @param  {function} callback
  */
 PuffForum.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system

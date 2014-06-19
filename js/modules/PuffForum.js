@@ -31,8 +31,50 @@ PuffForum.init = function() {
   
     Puffball.onNewPuffs(PuffForum.receiveNewPuffs);
   
-    Puffball.init(CONFIG.zone);
-    // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
+    Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
+}
+
+
+PuffForum.secretStash = {}
+
+PuffForum.getShells = function() {
+    var myUsername = PuffWardrobe.getCurrentUsername()
+    var myKeys = PuffWardrobe.getCurrentKeys()
+    var shells = PuffData.getShells(myUsername)
+    var privateShells = []
+    var encryptedPuffs = PuffData.getEncryptedPuffsForMe(myUsername)
+    
+    encryptedPuffs.forEach(function(puff) {
+        if(!PuffForum.secretStash[myUsername])
+            PuffForum.secretStash[myUsername] = {}
+        
+        if(PuffForum.secretStash[myUsername][puff.sig])
+            return privateShells.push(PuffForum.secretStash[myUsername][puff.sig])
+        
+        var yourUsername = puff.username
+        var yourUserRecord = PuffData.getCachedUserRecord(yourUsername)
+        if(yourUserRecord) {
+            var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
+            PuffForum.secretStash[myUsername][puff.sig] = puff
+            privateShells.push((puff))   // we already have the user record, so just push it
+            return false
+        }
+        
+        var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
+        yourUserRecordPromise.then(function(yourUserRecord) {
+            var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
+            PuffForum.secretStash[myUsername][puff.sig] = puff
+
+            // var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
+            updateUI() // this is pretty hacky... but we can't bring the decrypted puff in the front door, 
+                       // or it gets added to the main list of shells in decrypted form. so we just get 
+                       // the user record locally and then trigger a redraw which brings the puff into 
+                       // the UI without adding it to the system at large. 
+                       // TODO: revisit this whole thing, and add a smarter caching/persisting/etc layer
+        })
+    })
+    
+    return PuffData.shells.concat(privateShells);
 }
 
 /**
@@ -43,7 +85,7 @@ PuffForum.init = function() {
 PuffForum.getPuffById = function(id) {
     //// get a particular puff
   
-    var shell = PuffData.shells.filter(function(shell) { return id === shell.sig })[0]
+    var shell = PuffForum.getShells().filter(function(shell) { return id === shell.sig })[0]
     
     return Puffball.getPuffFromShell(shell || id)
 }
@@ -121,11 +163,13 @@ PuffForum.getChildren = function(puff, props) {
         puff = PuffForum.getPuffById(puff);
     }
 
-    return PuffData.shells.filter(function(kidpuff) { return ~kidpuff.payload.parents.indexOf(puff.sig) })
-                          .filter(PuffForum.getPropsFilter(props))
-                          .map(Puffball.getPuffFromShell)
-                          .filter(Boolean)
-                          .sort(PuffForum.sortByPayload)
+    var shells = PuffForum.getShells()
+
+    return shells.filter(function(kidpuff) { return ~(kidpuff.payload.parents||[]).indexOf(puff.sig) })
+                 .filter(PuffForum.getPropsFilter(props))
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
+                 .sort(PuffForum.sortByPayload)
 }
 
 /**
@@ -144,10 +188,12 @@ PuffForum.getSiblings = function(puff, props) {
 
     var parent_sigs = PuffForum.getParents(puff).map(function(puff) { return puff.sig });
 
-    return PuffData.shells.filter(
+    var shells = PuffForum.getShells()
+
+    return shells.filter(
         function(puff) { 
             return puff.sig != originalSig 
-                && puff.payload.parents.reduce(
+                && (puff.payload.parents||[]).reduce(
                     function(acc, parent_sig) {
                         return acc || ~parent_sigs.indexOf(parent_sig) }, false) })
                             .map(Puffball.getPuffFromShell)
@@ -169,12 +215,14 @@ PuffForum.getRootPuffs = function(limit, props) {
   
     limit = limit || Infinity
 
-    return PuffData.shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
-                          .sort(PuffForum.sortByPayload)
-                          .filter(PuffForum.getPropsFilter(props))
-                          .slice(0, limit)
-                          .map(Puffball.getPuffFromShell)
-                          .filter(Boolean)
+    var shells = PuffForum.getShells()
+
+    return shells.filter(function(shell) { return shell ? !shell.payload.parents.length : 0 })
+                 .sort(PuffForum.sortByPayload)
+                 .filter(PuffForum.getPropsFilter(props))
+                 .slice(0, limit)
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
 } 
 
 /**
@@ -188,11 +236,13 @@ PuffForum.getLatestPuffs = function(limit, props) {
 
     limit = limit || Infinity
 
-    return PuffData.shells.sort(PuffForum.sortByPayload)
-                          .filter(PuffForum.getPropsFilter(props))
-                          .slice(0, limit)
-                          .map(Puffball.getPuffFromShell)
-                          .filter(Boolean)
+    var shells = PuffForum.getShells()
+
+    return shells.sort(PuffForum.sortByPayload)
+                 .filter(PuffForum.getPropsFilter(props))
+                 .slice(0, limit)
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
 } 
 
 /**
@@ -207,12 +257,14 @@ PuffForum.getByUser = function(username, limit, props) {
 
     limit = limit || Infinity
 
-    return PuffData.shells.filter(function(shell) { return shell ? shell.username == username : 0 })
-                          .filter(PuffForum.getPropsFilter(props))
-                          .sort(PuffForum.sortByPayload)
-                          .slice(0, limit)
-                          .map(Puffball.getPuffFromShell)
-                          .filter(Boolean)
+    var shells = PuffForum.getShells()
+
+    return shells.filter(function(shell) { return shell ? shell.username == username : 0 })
+                 .filter(PuffForum.getPropsFilter(props))
+                 .sort(PuffForum.sortByPayload)
+                 .slice(0, limit)
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
 } 
 
 /**
@@ -226,11 +278,13 @@ PuffForum.getByRoute = function(route, limit) {
 
     limit = limit || Infinity
 
-    return PuffData.shells.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
-                          .sort(PuffForum.sortByPayload)
-                          .slice(0, limit)
-                          .map(Puffball.getPuffFromShell)
-                          .filter(Boolean)
+    var shells = PuffForum.getShells()
+
+    return shells.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
+                 .sort(PuffForum.sortByPayload)
+                 .slice(0, limit)
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
 }
 
 
@@ -240,8 +294,9 @@ PuffForum.getByRoute = function(route, limit) {
  * @param {string} content
  * @param {array of puffs} parents
  * @param {object} metadata
+ * @param {array of userRecords} encrypt if present
  */
-PuffForum.addPost = function(type, content, parents, metadata) {
+PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -262,7 +317,7 @@ PuffForum.addPost = function(type, content, parents, metadata) {
     // ensure all routes is unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes)
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt)
     
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
@@ -283,9 +338,10 @@ PuffForum.addPost = function(type, content, parents, metadata) {
  * @param  {array of puffs} parents
  * @param  {object} metadata
  * @param  {array of strings} routes
+ * @param {array of userRecords} encrypt if present
  * @return {puff}
  */
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes) {
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -308,7 +364,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         if(!privateKeys || !privateKeys.default)
             return Puffball.onError('No valid private key found for signing the content')
 
-        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous)
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt)
 
         return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }

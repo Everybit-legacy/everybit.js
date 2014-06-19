@@ -225,6 +225,11 @@ var Preferences = React.createClass({
         }
     },
 
+    handleShowHideInfobar: function() {
+        return events.pub( 'ui/view/showinfo/toggle', 
+                         { 'view.showinfo': !puffworldprops.view.showinfo})
+    },
+
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;
         return events.pub('ui/view/language/set', {'view.language': language});
@@ -254,6 +259,14 @@ var Preferences = React.createClass({
             'green': puffworldprops.view.animation
         });
 
+        var cbClass3 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': puffworldprops.view.showinfo,
+            'fa-square-o': !puffworldprops.view.showinfo,
+            'green': puffworldprops.view.showinfo
+        });
+
         return(
             <div>
 
@@ -272,9 +285,13 @@ var Preferences = React.createClass({
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>
                 </div>
 
+                <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>
+                </div>
 
                 <div className="menuItem">
-                {polyglot.t("menu.view.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} value={language}>
+                {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} value={language}>
                     {all_languages.map(function(lang) {
                         return <option key={lang} value={lang}>{Translate.language[lang].t("dropdownDisplay")}</option>
                     })}

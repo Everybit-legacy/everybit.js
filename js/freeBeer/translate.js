@@ -17,8 +17,7 @@ Translate.language["en"].extend({
 			shortcut: "Keyboard shortcuts",
             showpuffs:"Show puffs for me",
 			route: "Route",
-			unfiltered: "Unfiltered",
-			language: "Language"
+			unfiltered: "Unfiltered"
 		},
 		filter: {
 			title: 'Filter',
@@ -28,7 +27,9 @@ Translate.language["en"].extend({
         preferences: {
             title: "Preferences",
 			relationship: "Show relationships",
-			animation: "Show animations"
+			animation: "Show animations",
+			infobar: "Show information bar",
+			language: "Language"
         },
 		publish: {
 			title: 'Publish',
@@ -115,8 +116,7 @@ Translate.language["zh"].extend({
 			shortcut: "快捷键",
             showpuffs:"显示我的puff",
 			route: "路径",
-			unfiltered: "无",
-			language: "语言"
+			unfiltered: "无"
 		},
 		filter: {
 			title: '筛选',
@@ -127,6 +127,8 @@ Translate.language["zh"].extend({
 			title: '偏好设置',
 			relationship: "显示关联",
 			animation: "显示动画",
+			infobar: "显示信息栏",
+			language: "语言"
 		},
 		publish: {
 			title: '发布',

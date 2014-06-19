@@ -33,7 +33,7 @@ var PuffReplyForm = React.createClass({
         globalReplyFormSubmitArg = null;
     },
     getInitialState: function() {
-        return {imageSrc: ''};
+        return {imageSrc: '', showPreview: false};
     },
     handleSubmit: function() {
         var content = '';
@@ -54,7 +54,7 @@ var PuffReplyForm = React.createClass({
             content = this.state.imageSrc;
             metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
-            content = this.refs.content.getDOMNode().value.trim();
+            content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : this.props.content ;
         }
 
         if(type == 'PGN') {
@@ -96,6 +96,9 @@ var PuffReplyForm = React.createClass({
         var type = this.refs.type.getDOMNode().value;
         return events.pub('ui/reply/set-type', {'reply.type': type});
     },
+    handleTogglePreview: function() {
+        this.setState({showPreview: !this.state.showPreview});
+    },
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
@@ -110,14 +113,15 @@ var PuffReplyForm = React.createClass({
             var parents = [];
         }
 
-        var defaultContent = '';
+        var defaultContent = this.props.content || '';
         if(parents.length) {
             var parentType = PuffForum.getPuffById(parents[0]).payload.type;
 
             // Should we quote the parent
             if (typeof PuffForum.getPuffById(parents[0]).payload.quote != 'undefined') {
                 if(PuffForum.getPuffById(parents[0]).payload.quote) {
-                    defaultContent = PuffForum.getPuffById(parents[0]).payload.content;
+                    if (!defaultContent)
+                        defaultContent = PuffForum.getPuffById(parents[0]).payload.content;
                 }
             }
 
@@ -127,11 +131,48 @@ var PuffReplyForm = React.createClass({
         var type = this.props.reply.type || parentType;
 
         var polyglot = Translate.language[puffworldprops.view.language];
+        var divStyle = {
+            width: '22em',
+            textAlign: 'left',
+            height: (type == 'PGN' && this.state.showPreview ? '100%' : '15em'),
+            margin: 'auto',
+            overflow: 'auto',
+            marginBottom: '5px',
+            background: '#fff'
+        }
         var typeFields = (
             <div>
-                <textarea id="content" ref="content" name="content" className="mousetrap" rows="10" cols="40" placeholder={polyglot.t('replyForm.textarea')} defaultValue={defaultContent}></textarea>
+                <textarea id="content" ref="content" name="content" className="mousetrap" rows="10" cols="40" style={divStyle} placeholder={polyglot.t('replyForm.textarea')} defaultValue={defaultContent}></textarea>
             </div>
             )
+        if (this.state.showPreview) {
+            var type = this.props.reply.type || this.refs.type.getDOMNode().value;
+            var content = this.refs.content.getDOMNode().value.trim();
+            this.props.content = content;
+            console.log(this.props.content);
+            content = PuffForum.processContent(type, content, {});
+            typeFields = (
+                <div style={divStyle}>
+                    <div id="preview" ref="preview" name="preview" className="mousetrap" dangerouslySetInnerHTML={{__html: content}}></div>
+                </div>
+            )
+        }
+
+        // preview toggle
+        // CSS for checkbox
+        var cbClass = React.addons.classSet({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': this.state.showPreview,
+            'fa-square-o': !this.state.showPreview,
+            'green': this.state.showPreview
+        });
+        var previewToggle = (
+            <span className="replyPreview">
+                <i className={cbClass} onClick={this.handleTogglePreview} ></i>
+                <a onClick={this.handleTogglePreview}>{polyglot.t("replyForm.preview")}</a>
+            </span>
+            );
 
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
@@ -162,7 +203,8 @@ var PuffReplyForm = React.createClass({
                     {imageField}
                 </div>
 
-            )
+            );
+            previewToggle = (<span></span>);
         }
         else if(type == 'bbcode') {
             typeFields = (
@@ -185,12 +227,11 @@ var PuffReplyForm = React.createClass({
 
                         {typeFields}
                         <a href="#" onClick={this.handleCancel} className="floatLeft"><i className="fa fa-trash-o"></i> {polyglot.t("replyForm.cancel")}!</a>
-                        <select ref="type" className="btn" onChange={this.handlePickType} defaultValue={parentType}>
+                        <select disabled={this.state.showPreview} ref="type" className="btn" onChange={this.handlePickType} defaultValue={parentType}>
                             {contentTypeNames.map(function(type) {
                                 return <option key={type} value={type}>{type}</option>
                             })}
-                        </select>
-
+                        </select>{previewToggle}
                         {' '}<a href="#" onClick={this.handleSubmit} className="floatRight"><i className="fa fa-paper-plane"></i> {polyglot.t("replyForm.submit")}!</a>
                         
                         <div>

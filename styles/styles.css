@@ -410,7 +410,7 @@ header h1 {
   margin-bottom: 0;
   font-size: 14px;
   font-weight: normal;
-  line-height: 1.42857143;
+  line-height: 1em;
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
@@ -532,6 +532,12 @@ fieldset[disabled] .btn-link {
 #replyForm form button,
 #replyForm form input {
     cursor: pointer;
+}
+
+#replyForm form > .replyPreview {
+    margin-left: 15px;
+    cursor: pointer;
+    vertical-align: middle;
 }
 
 .logo {

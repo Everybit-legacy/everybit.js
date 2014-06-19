@@ -79,6 +79,7 @@ Translate.language["en"].extend({
 		textarea: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
 		submit: 'GO',
 		cancel: 'NO',
+		preview: 'preview',
 		format: {
 			text: 'text',
 			image: 'image',
@@ -96,7 +97,7 @@ Translate.language["en"].extend({
 Translate.language["en"].extend({
 	puff: {
 		default: 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD',
-		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaFgs5qzNHF9hBZVJaVxHGymKnkhReHUbj25D7DFqA9hqh'
+		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
 	}
 });
 
@@ -178,6 +179,7 @@ Translate.language["zh"].extend({
 		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
 		submit: '提交',
 		cancel: '取消',
+		preview: '预览',
 		format: {
 			text: '文字',
 			image: '图片',
@@ -194,7 +196,8 @@ Translate.language["zh"].extend({
 });
 Translate.language["zh"].extend({
 	puff: {
-		default: 'AN1rKp8pNT4HSMwCW7nnL3YWHDeWbgAEsyrsPkQAorwVSFANkBDxzhTyPHjSEppCeRXsjK87RuEzjrTHyCFkYFTu8dAoY66BC'
+		default: 'AN1rKp8pNT4HSMwCW7nnL3YWHDeWbgAEsyrsPkQAorwVSFANkBDxzhTyPHjSEppCeRXsjK87RuEzjrTHyCFkYFTu8dAoY66BC',
+		shortcut: 'iKx1CJMRR5t3i8gJDkL6JLM3AEqKSDfLuek3XoD4TupbkPCvRLpnH7gkscU8LGd2yCyKJZEqEGpUao3BJM3wQdwR2bRC992LmC'
 	}
 })
 

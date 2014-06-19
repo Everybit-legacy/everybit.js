@@ -4,7 +4,6 @@
   <p>Identity avatar</p>
  */
 
-
 var Basics = React.createClass({
     render: function() {
         return (
@@ -45,8 +44,8 @@ var Menu = React.createClass({
                         <i className="fa fa-times-circle-o fa-fw"></i></a>
                 </div>
                 <Logo />
-                <View />
                 <Filter />
+                <View />
                 <Language />
                 <Publish />
                 <Identity />
@@ -65,6 +64,52 @@ var Logo = React.createClass({
     render: function() {
         return (
             <a href={CONFIG.url}><img src="img/logo.gif" alt="Logo" className="logo" /></a>
+            )
+    }
+});
+
+var Filter = React.createClass({
+    handlePickFilter: function() {
+        var user = this.refs.pickuser.getDOMNode().value || false;
+        var route = this.refs.pickroute.getDOMNode().value || false;
+        return events.pub('ui/view/route/set', 
+                        {'view.filterroute': route, 
+                         'view.filteruser':user});
+    },
+    handleClearRoute: function() {
+        this.refs.pickroute.getDOMNode().value = '';
+        return events.pub('ui/view/route/clear', {'view.filterroute': false});
+    },
+    handleClearUser: function() {
+        this.refs.pickuser.getDOMNode().value = '';
+        return events.pub('ui/view/user/clear', {'view.filteruser': false});
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var route = puffworldprops.view.filterroute || "";
+        var user = puffworldprops.view.filteruser || "";
+        return (
+            <div><br />
+                <div className="menuHeader">
+                    <i className="fa fa-filter fa-fw gray"></i> {polyglot.t("menu.filter.title")}
+                </div>
+                <div className="menuItem">
+                    {polyglot.t("menu.filter.route")}:
+                    <div className="menuInput">
+                    <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" />
+                    <a href="#" onClick={this.handleClearRoute} ><i className="fa fa-trash-o fa-fw"></i></a>
+                    <a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    </div><br/>
+                </div>
+                <div className="menuItem">
+                    {polyglot.t("menu.filter.user")}: 
+                    <div className="menuInput">
+                    <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" /> 
+                    <a href="#" onClick={this.handleClearUser} ><i className="fa fa-trash-o fa-fw"></i></a>
+                    <a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    </div><br/>
+                </div>
+            </div>
             )
     }
 });
@@ -143,7 +188,7 @@ var View = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            <div><br />
+            <div>
                 <div className="menuHeader">
                     <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
                 </div>
@@ -170,32 +215,6 @@ var View = React.createClass({
             )
     }
 });
-
-
-var Filter = React.createClass({
-    handlePickRoute: function() {
-        var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filterroute': route});
-    },
-    
-    render: function() {
-        var route = puffworldprops.view.filterroute;
-        var all_routes = PuffData.shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
-                                        .filter(function(item, key, array) {return array.indexOf(item) == key});
-        
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            <div className="menuItem">
-                {polyglot.t("menu.view.route")}: <select ref="pickroute" onChange={this.handlePickRoute} value={route}>
-                    <option key="null" value="">{polyglot.t("menu.view.unfiltered")}</option>
-                    {all_routes.map(function(route) {
-                        return <option key={route} value={route}>{route}</option>
-                    })}
-                </select>
-            </div>
-        );
-    }
-})
 
 
 var Language = React.createClass({

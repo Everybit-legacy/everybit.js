@@ -21,7 +21,6 @@ PuffNet = {};
  * fire up networks (currently just the peer connections)
  */
 PuffNet.init = function() {
-    //// fire up the networks (currently just the peer connections)    
     PuffNet.P2P.init();
 }
 
@@ -37,6 +36,10 @@ PuffNet.getPuffBySig = function(sig) {
     return PuffNet.getJSON(url, data);
 }
 
+/**
+ * get the shells of all puff as an array
+ * @return {array of objects}
+ */
 PuffNet.getAllPuffShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
@@ -48,10 +51,9 @@ PuffNet.getAllPuffShells = function() {
 
 /**
  * get all puffs within the zone (default to CONFIG.zone)
- * @return {promise} 
+ * @return {promise} on fulfilled passes lisst of puff objects
  */
 PuffNet.getAllPuffs = function() {
-    //// get all the puffs from this zone
     // TODO: add zone parameter (default to CONFIG.zone)
     
     // TODO: instead of getting all puffs, this should only get all puff shells
@@ -123,7 +125,7 @@ PuffNet.sendPuffToServer = function(puff) {
 /**
  * get the user record for a given username
  * @param  {string} username 
- * @return {promise}          return the user record, otherwise throw error
+ * @return {promise}          on fullfilled passes the user record as object, otherwise re-throw error
  */
 PuffNet.getUserRecord = function(username) {
     // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
@@ -155,7 +157,7 @@ PuffNet.getUserRecordFile = function(username) {
 }
 
 /**
- * register a subusername for an existed user
+ * register a subuser for an existed user
  * @param  {string} signingUsername username of existed user
  * @param  {string} privateAdminKey private admin key for existed user
  * @param  {string} newUsername     desired new subuser name
@@ -274,6 +276,12 @@ PuffNet.getJSON = function(url, params) {
     return PuffNet.xhr(url + qstring, options) 
 }
 
+/**
+ * send a post request
+ * @param  {string} url  requested url
+ * @param  {object} data 
+ * @return {promise}    
+ */
 PuffNet.post = function(url, data) {
     var options = { headers: {   
         // 'Content-type': 'application/x-www-form-urlencoded' 

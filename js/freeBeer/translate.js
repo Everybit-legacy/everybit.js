@@ -16,7 +16,7 @@ Translate.language["en"].extend({
 			user: 'Username'
 		},
 		view: {
-			title: 'VIEW',
+			title: 'View',
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
@@ -27,12 +27,15 @@ Translate.language["en"].extend({
 			unfiltered: "Unfiltered",
 			language: "Language"
 		},
+        preferences: {
+            title: "Preferences"
+        },
 		publish: {
-			title: 'PUBLISH',
+			title: 'Publish',
 			new: "New puff"
 		},
 		identity: {
-			title: 'IDENTITY',
+			title: 'Identity',
 			current: 'Current',
 			none: 'None',
 			username: 'Username',

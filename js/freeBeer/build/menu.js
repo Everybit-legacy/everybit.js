@@ -44,9 +44,10 @@ var Menu = React.createClass({displayName: 'Menu',
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"}))
                 ),
                 Logo(null ),
-                Filter(null ),
+                React.DOM.br(null ),
                 View(null ),
-                Language(null ),
+                Preferences(null ),
+                Filter(null ),
                 Publish(null ),
                 Identity(null ),
                 About(null ),
@@ -89,7 +90,7 @@ var Filter = React.createClass({displayName: 'Filter',
         var route = puffworldprops.view.filterroute || "";
         var user = puffworldprops.view.filteruser || "";
         return (
-            React.DOM.div(null, React.DOM.br(null ),
+            React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 
                     React.DOM.i( {className:"fa fa-filter fa-fw gray"}), " ", polyglot.t("menu.filter.title")
                 ),
@@ -97,16 +98,16 @@ var Filter = React.createClass({displayName: 'Filter',
                     polyglot.t("menu.filter.route"),":",
                     React.DOM.div( {className:"menuInput"}, 
                     React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12"} ),
-                    React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
-                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.user"),":", 
                     React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12"} ), 
-                    React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
-                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12"} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
                 )
             )
@@ -122,24 +123,6 @@ var View = React.createClass({displayName: 'View',
 
     handleViewLatest: function() {
         return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
-    },
-
-    handleShowHideRelationships: function() {
-
-        if(puffworldprops.view.mode == 'browse') {
-            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
-        } else {
-            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
-        }
-    },
-
-    handleShowHideAnimations: function() {
-
-        if(puffworldprops.view.animation) {
-            return events.pub('ui/animation/hide', {'view.animation': false});
-        } else {
-            return events.pub('ui/animation/show', {'view.animation': true});
-        }
     },
 
     handleShowUserPuffs: function(username) {
@@ -167,7 +150,86 @@ var View = React.createClass({displayName: 'View',
 
 
     render: function() {
-        // CSS for tabs
+
+
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.div(null, 
+                React.DOM.div( {className:"menuHeader"}, 
+                    React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title")
+                ),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest"))),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection"))),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut"))),
+
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")))
+
+            )
+            )
+    }
+});
+
+/*
+var Filter = React.createClass({
+    handlePickRoute: function() {
+        var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', {'view.filterroute': route});
+    },
+    
+    render: function() {
+        var route = puffworldprops.view.filterroute;
+        var shells = PuffForum.getShells();
+        var all_routes = shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
+                               .filter(function(item, key, array) {return array.indexOf(item) == key});
+        
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <div className="menuItem">
+                {polyglot.t("menu.view.route")}: <select ref="pickroute" onChange={this.handlePickRoute} value={route}>
+                    <option key="null" value="">{polyglot.t("menu.view.unfiltered")}</option>
+                    {all_routes.map(function(route) {
+                        return <option key={route} value={route}>{route}</option>
+                    })}
+                </select>
+            </div>
+        );
+    }
+})
+*/
+
+var Preferences = React.createClass({displayName: 'Preferences',
+    handleShowHideRelationships: function() {
+
+        if(puffworldprops.view.mode == 'browse') {
+            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+        } else {
+            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+        }
+    },
+
+    handleShowHideAnimations: function() {
+
+        if(puffworldprops.view.animation) {
+            return events.pub('ui/animation/hide', {'view.animation': false});
+        } else {
+            return events.pub('ui/animation/show', {'view.animation': true});
+        }
+    },
+
+    handlePickLanguage: function() {
+        var language = this.refs.picklanguage.getDOMNode().value;
+        return events.pub('ui/view/language/set', {'view.language': language});
+    },
+
+    render: function() {
+        var language = puffworldprops.view.language || "en";
+        var polyglot = Translate.language[language];
+        var all_languages = Object.keys(Translate.language);
+
+        // CSS for checkboxes
         var cb = React.addons.classSet;
         var cbClass = cb({
             'fa': true,
@@ -186,18 +248,13 @@ var View = React.createClass({displayName: 'View',
             'green': puffworldprops.view.animation
         });
 
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
+        return(
             React.DOM.div(null, 
+
                 React.DOM.div( {className:"menuHeader"}, 
-                    React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title")
+                    React.DOM.i( {className:"fa fa-gears fa-fw gray"}), " ", polyglot.t("menu.preferences.title")
                 ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest"))),
-
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection"))),
-
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut"))),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
                 React.DOM.div( {className:"menuItem"}, 
@@ -209,62 +266,23 @@ var View = React.createClass({displayName: 'View',
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.view.animation"))
                 ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")))
 
-            )
-            )
-    }
-});
-
-
-var Filter = React.createClass({displayName: 'Filter',
-    handlePickRoute: function() {
-        var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filterroute': route});
-    },
-    
-    render: function() {
-        var route = puffworldprops.view.filterroute;
-        var shells = PuffForum.getShells();
-        var all_routes = shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
-                               .filter(function(item, key, array) {return array.indexOf(item) == key});
-        
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            React.DOM.div( {className:"menuItem"}, 
-                polyglot.t("menu.view.route"),": ", React.DOM.select( {ref:"pickroute", onChange:this.handlePickRoute, value:route}, 
-                    React.DOM.option( {key:"null", value:""}, polyglot.t("menu.view.unfiltered")),
-                    all_routes.map(function(route) {
-                        return React.DOM.option( {key:route, value:route}, route)
-                    })
-                )
-            )
-        );
-    }
-})
-
-
-var Language = React.createClass({displayName: 'Language',
-    handlePickLanguage: function() {
-        var language = this.refs.picklanguage.getDOMNode().value;
-        return events.pub('ui/view/language/set', {'view.language': language});
-    },
-    
-    render: function() {
-        var language = puffworldprops.view.language || "en";
-        var polyglot = Translate.language[language];
-        var all_languages = Object.keys(Translate.language);
-        return (
-            React.DOM.div( {className:"menuItem"}, 
+                React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.view.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, value:language}, 
                     all_languages.map(function(lang) {
                         return React.DOM.option( {key:lang, value:lang}, Translate.language[lang].t("dropdownDisplay"))
                     })
                 )
+                )
+
+
             )
-        );
+
+            )
+
     }
-})
+
+});
 
 
 // TODO put back when working

@@ -17,11 +17,18 @@
 
 PuffNet = {};
 
+/**
+ * fire up networks (currently just the peer connections)
+ */
 PuffNet.init = function() {
-    //// fire up the networks (currently just the peer connections)    
     PuffNet.P2P.init();
 }
 
+/**
+ * given a signature, return puff with that signature
+ * @param  {string} sig signature of a puff
+ * @return {puff object}     puff corresponds to the specified signature
+ */
 PuffNet.getPuffBySig = function(sig) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffBySig', sig: sig};
@@ -29,6 +36,10 @@ PuffNet.getPuffBySig = function(sig) {
     return PuffNet.getJSON(url, data);
 }
 
+/**
+ * get the shells of all puff as an array
+ * @return {array of objects}
+ */
 PuffNet.getAllPuffShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
@@ -38,15 +49,15 @@ PuffNet.getAllPuffShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
+/**
+ * get all puffs within the zone (default to CONFIG.zone)
+ * @return {promise} on fulfilled passes lisst of puff objects
+ */
 PuffNet.getAllPuffs = function() {
-    //// get all the puffs from this zone
     // TODO: add zone parameter (default to CONFIG.zone)
     
     // TODO: instead of getting all puffs, this should only get all puff shells
     //       and then we'll get missing puff content on demand.
-    
-    
-    
     
     /// old style:
     
@@ -80,6 +91,10 @@ PuffNet.getAllPuffs = function() {
     return prom;
 }
 
+/**
+ * add puff to the server and braodcast to peers
+ * @param  {puff object} puff the puff to be added to the server
+ */
 PuffNet.distributePuff = function(puff) {
     //// distribute a puff to the network
 
@@ -90,6 +105,11 @@ PuffNet.distributePuff = function(puff) {
     PuffNet.P2P.sendPuffToPeers(puff);              // broadcast it to peers
 }
 
+/**
+ * add a puff to the server's pufflist
+ * @param  {puff object} puff 
+ * @return {promise}      
+ */
 PuffNet.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
@@ -102,6 +122,11 @@ PuffNet.sendPuffToServer = function(puff) {
                   .catch(Puffball.promiseError('Could not send puff to server'));
 }
 
+/**
+ * get the user record for a given username
+ * @param  {string} username 
+ * @return {promise}          on fullfilled passes the user record as object, otherwise re-throw error
+ */
 PuffNet.getUserRecord = function(username) {
     // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
@@ -131,6 +156,16 @@ PuffNet.getUserRecordFile = function(username) {
                 , Puffball.promiseError('Unable to access user file from the DHT'));
 }
 
+/**
+ * register a subuser for an existed user
+ * @param  {string} signingUsername username of existed user
+ * @param  {string} privateAdminKey private admin key for existed user
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {promise}                user record for the newly created subuser
+ */
 PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
     var payload = {};
     
@@ -151,6 +186,11 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     return PuffNet.updateUserRecord(puff)
 }
 
+/**
+ * modify a user record
+ * @param  {puff} puff a signed puff containing information of modified user record
+ * @return {promise}      throw error when the update fails
+ */
 PuffNet.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
@@ -171,16 +211,17 @@ PuffNet.updateUserRecord = function(puff) {
 
 
 
-/*
-
-    PuffNet promise-based XHR layer
-
-    We use promises as our default concurrency construct, because ultimately this platform is composed of a huge set of interdependent async calls which mostly each resolve to a single immutable entity -- aka the promise sweet spot.
-    
-*/
-
-
-
+/**
+ * PuffNet promise-based XHR layer
+ * 
+ *   We use promises as default concurrency construct, because ultimately this platform is composed of a huge set of interdependent async calls 
+ *   
+ *   which mostly each resolve to a single immutable entity -- aka the promise sweet spot.
+ * @param  {string} url     requested url
+ * @param  {object} options 
+ * @param  {object} data    
+ * @return {promise} 
+ */
 PuffNet.xhr = function(url, options, data) {
     //// very simple promise-based XHR implementation
     
@@ -216,6 +257,12 @@ PuffNet.xhr = function(url, options, data) {
     });
 }
 
+/**
+ * request an url, get result in JSON
+ * @param  {string} url    
+ * @param  {object} params 
+ * @return {promise}        
+ */
 PuffNet.getJSON = function(url, params) {
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'
@@ -229,6 +276,12 @@ PuffNet.getJSON = function(url, params) {
     return PuffNet.xhr(url + qstring, options) 
 }
 
+/**
+ * send a post request
+ * @param  {string} url  requested url
+ * @param  {object} data 
+ * @return {promise}    
+ */
 PuffNet.post = function(url, data) {
     var options = { headers: {   
         // 'Content-type': 'application/x-www-form-urlencoded' 
@@ -256,6 +309,9 @@ PuffNet.post = function(url, data) {
 PuffNet.P2P = {};
 PuffNet.P2P.peers = {};
 
+/**
+ * initialize the peer-to-peer layer
+ */
 PuffNet.P2P.init = function() {
     PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
                                  ,  port: 9000
@@ -266,6 +322,7 @@ PuffNet.P2P.init = function() {
     PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
     PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
 }
+
 
 PuffNet.P2P.reloadPeers = function() {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);

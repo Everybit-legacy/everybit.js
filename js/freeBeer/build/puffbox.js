@@ -248,13 +248,13 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
     componentDidMount: function(){
         var node = this.getDOMNode();
         var infoLink = node.getElementsByClassName('infoLink')[0];
-        var popup = node.getElementsByClassName('popup')[0];
+        var detailInfo = node.getElementsByClassName('detailInfo')[0];
 
         infoLink.onmouseover = function() {
-            popup.style.display = 'block';
+            detailInfo.style.display = 'block';
         }
         infoLink.onmouseout = function() {
-            popup.style.display = 'none';
+            detailInfo.style.display = 'none';
         }
     },
     render: function() {

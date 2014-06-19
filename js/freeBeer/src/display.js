@@ -27,6 +27,12 @@ var ViewKeybindingsMixin = {
             return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents
 }});
         }.bind(this));
+
+        // a toggles animation
+        Mousetrap.bind('a', function() {
+            return events.pub( 'ui/animation/toggle',
+                             { 'view.animation': !this.props.view.animation})
+        }.bind(this));
         
         // i toggles info boxes
         Mousetrap.bind('i', function() { 

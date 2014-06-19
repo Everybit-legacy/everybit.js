@@ -35,6 +35,11 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
     font-style: normal;
 }
 
+@font-face {
+    font-family: 'DroidSansMono';
+    src: url("fonts/DroidSansMono.ttf");
+}
+
 body,
 html {
     height: 100%;
@@ -623,7 +628,7 @@ fieldset[disabled] .btn-link {
 
 .shortcut {
     text-transform: uppercase;
-    font-family: courier;
+    font-family: DroidSansMono;
     font-size: 80%;
     vertical-align: baseline;
 }

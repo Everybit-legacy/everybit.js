@@ -40,9 +40,11 @@ var PuffReplyForm = React.createClass({
         var metadata = {};
         
         var privacy = this.refs.privacy.getDOMNode().value
-        var users = this.refs.users
-        users = ["anon.rps6d8d0ex", "anon.p563pdn4z2", "anon.oz4ujo3cfx"]
-        users = users.map(PuffData.getCachedUserRecord)
+        // var users = this.refs.users.getDOMNode().value
+        // users = ["anon.rps6d8d0ex", "anon.p563pdn4z2", "anon.oz4ujo3cfx"]
+        // users = users.map(PuffData.getCachedUserRecord)
+        var sendToUsers = this.refs.usernames.getDOMNode().value.split(',').map(function(str) {return str.trim()})
+        var users = sendToUsers.concat(PuffWardrobe.getCurrentUsername()).map(PuffData.getCachedUserRecord).filter(Boolean)
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
@@ -98,7 +100,7 @@ var PuffReplyForm = React.createClass({
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
 
-        var userList = ['dann', 'mattasher', 'freebeer'];
+        // var userList = ['dann', 'mattasher', 'freebeer'];
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
 
@@ -203,15 +205,10 @@ var PuffReplyForm = React.createClass({
                             </p>
                             
                             <p>
-                                Send to users:
-                                {userList.map(function(user) {
-                                    return (
-                                        <p><label>
-                                            <input type="checkbox" defaultChecked="checked" ref="users" name={'user-'+user} id={'user-'+user} />
-                                            {user}
-                                        </label></p>
-                                    )
-                                })}
+                                <label>
+                                    Send to user:
+                                    <input type="text" name="usernames" ref="usernames"></input>
+                                </label>
                             </p>
                         </div>
                     </form>
@@ -219,4 +216,15 @@ var PuffReplyForm = React.createClass({
             </div>
             );
     }
+    
+    /*
+    {userList.map(function(user) {
+        return (
+            <p><label>
+                <input type="checkbox" defaultChecked="checked" ref="users" name="users" id={'user-'+user} />
+                {user}
+            </label></p>
+        )
+    })}
+    */
 });

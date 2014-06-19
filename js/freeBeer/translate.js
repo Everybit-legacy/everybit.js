@@ -10,25 +10,26 @@ Translate.language["en"].extend({
 		noUserSet: "You will need to set your identity first"
 	},
 	menu: {
-		filter: {
-			title: 'Filter',
-			route: 'Route',
-			user: 'Username'
-		},
 		view: {
 			title: 'View',
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
-			relationship: "Show relationships",
-			animation: "Show animations",
             showpuffs:"Show puffs for me",
 			route: "Route",
-			unfiltered: "Unfiltered",
-			language: "Language"
+			unfiltered: "Unfiltered"
+		},
+		filter: {
+			title: 'Filter',
+			route: 'Route',
+			user: 'Username'
 		},
         preferences: {
-            title: "Preferences"
+            title: "Preferences",
+			relationship: "Show relationships",
+			animation: "Show animations",
+			infobar: "Show information bar",
+			language: "Language"
         },
 		publish: {
 			title: 'Publish',
@@ -108,21 +109,25 @@ Translate.language["zh"].extend({
 		noUserSet: "需要先设置身份!"
 	},
 	menu: {
-		filter: {
-			title: '筛选',
-			route: '路径',
-			user: '用户名'
-		},
 		view: {
 			title: '查看',
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
-			relationship: "显示关联",
-			animation: "显示动画",
             showpuffs:"显示我的puff",
 			route: "路径",
-			unfiltered: "无",
+			unfiltered: "无"
+		},
+		filter: {
+			title: '筛选',
+			route: '路径',
+			user: '用户名'
+		},
+		preferences: {
+			title: '偏好设置',
+			relationship: "显示关联",
+			animation: "显示动画",
+			infobar: "显示信息栏",
 			language: "语言"
 		},
 		publish: {

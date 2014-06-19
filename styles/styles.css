@@ -621,6 +621,13 @@ fieldset[disabled] .btn-link {
     font-size: .91em;
 }
 
+.shortcut {
+    text-transform: uppercase;
+    font-family: courier;
+    font-size: 80%;
+    vertical-align: baseline;
+}
+
 .linkTab {
     text-transform: uppercase;
     font-size: 1em;

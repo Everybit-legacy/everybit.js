@@ -32,12 +32,13 @@ Puffball = {};
 
 Puffball.newPuffCallbacks = [];
 
-
+/**
+ * initialize the network layer;  
+ * slurp in available data;  
+ * do other amazing things
+ * @param  {array} zone array of zones
+ */
 Puffball.init = function(zone) {
-    // initialize the network layer 
-    // slurp in available data
-    // do other amazing things
-    
     PuffData.depersistUserRecords()
     
     PuffData.fetchLocalShells(Puffball.receiveNewPuffs)
@@ -48,9 +49,21 @@ Puffball.init = function(zone) {
     PuffNet.init()
 }
 
-Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt) {
-    //// Returns a new puff object. Does not hit the network, and hence does no real verification whatsoever.
 
+/**
+ * build a new puff object based on the parameters;  
+ * does not hit the network, hence does no real verification whatsoever
+ * @param  {string} username                    user who sign the puff
+ * @param  {string} privatekey                  private default key for the user
+ * @param  {array of string} routes                      routes of the puff
+ * @param  {string} type                        type of the puff
+ * @param  {string} content                     content of the puff
+ * @param  {object} payload                     other payload information for the puff
+ * @param  {string} previous                    most recently published content by the user
+ * @param  {object} userRecordsForWhomToEncrypt 
+ * @return {puff object}                             the new puff object
+ */
+Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt) {
     puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
 
     if(userRecordsForWhomToEncrypt) {
@@ -62,6 +75,16 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
     return puff
 }
 
+/**
+ * pack all the parameters into an object with puff structure (without signature)
+ * @param  {string} username 
+ * @param  {array of string} routes   
+ * @param  {string} type     
+ * @param  {string} content  
+ * @param  {object} payload  
+ * @param  {string} previous 
+ * @return {object}          object which has similar structure as a puff (without signature)
+ */
 Puffball.packagePuffStructure = function(username, routes, type, content, payload, previous) {
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
@@ -80,9 +103,17 @@ Puffball.packagePuffStructure = function(username, routes, type, content, payloa
     return puff
 }
 
+/**
+ * returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc)
+ * @param  {string} username   
+ * @param  {string} defaultKey public default key
+ * @param  {string} adminKey   public admin key
+ * @param  {string} rootKey    public root key
+ * @param  {string} latest     signature of the most recent puff published by the user
+ * @param  {string} updated    date of the most recent update to the username
+ * @return {object}            a canonical user object
+ */
 Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated) {
-    //// Returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc).
-    
     latest = latest || ""
     updated = updated || ""
     
@@ -102,6 +133,12 @@ Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, lat
            }
 }
 
+/**
+ * check if a username is valid
+ *     a username must be shorter than 256 characters, all lowercase and contains only alphanumeric and . sign
+ * @param  {string} username the string to be check
+ * @return {boolean}          return true if  the parameter string is a valid username, otherwise throw error
+ */
 Puffball.validateUsername = function(username) {
     if(!username) 
         return Puffball.onError('Username is required', username)
@@ -117,6 +154,7 @@ Puffball.validateUsername = function(username) {
     
     return true;
 }
+
 
 Puffball.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
@@ -160,7 +198,11 @@ Puffball.getUserRecordNoCache = function(username) {
     return PuffNet.getUserRecord(username);
 }
 
-
+/**
+ * returns a puff from a shell
+ * @param  {string or object} shell a string which is a signature of a puff; or an object cotnains partial information of a puff
+ * @return {puff object}       returns a puff based on the shell; returns false if the shell is empty
+ */
 Puffball.getPuffFromShell = function(shell) {
     if(!shell)
         return false
@@ -186,10 +228,11 @@ Puffball.getPuffFromShell = function(shell) {
     return false // so we can filter empty shells out easily, while still loading them on demand
 }
 
- 
+/**
+ * add a puff to our loal cache and fire the callback for new content
+ * @param {puff object} puff 
+ */
 Puffball.addPuffToSystem = function(puff) {
-    //// add a puff to our local cache and fire the callback for new content
-    
     PuffData.addNewShell(puff);
     
     Puffball.receiveNewPuffs([puff]);
@@ -215,9 +258,11 @@ Puffball.receiveNewPuffs = function(puffs) {
     return puffs;
 }
 
-
+/**
+ * add new callback which is called when a new puff added to the system
+ * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
+ */
 Puffball.onNewPuffs = function(callback) {
-    //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
     Puffball.newPuffCallbacks.push(callback);
 }

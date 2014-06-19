@@ -10,6 +10,11 @@ Translate.language["en"].extend({
 		noUserSet: "You will need to set your identity first"
 	},
 	menu: {
+		filter: {
+			title: 'Filter',
+			route: 'Route',
+			user: 'Username'
+		},
 		view: {
 			title: 'VIEW',
 			latest: "Latest puffs",
@@ -100,6 +105,11 @@ Translate.language["zh"].extend({
 		noUserSet: "需要先设置身份!"
 	},
 	menu: {
+		filter: {
+			title: '筛选',
+			route: '路径',
+			user: '用户名'
+		},
 		view: {
 			title: '查看',
 			latest: "最近",

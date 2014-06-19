@@ -72,7 +72,8 @@ section {
 }
 
 #talltree .block {
-    background: #FFFFFF;
+    background: rgba(255,254,253,.97);
+    /* background-color: #faf8f3; */
     border: 0px solid #eee7d0;
     padding: 12px;
     margin: 0;
@@ -111,7 +112,6 @@ section {
 }
 
 #talltree .parent .txt {
-    background-color: #ffffff;
 }
 
 
@@ -206,8 +206,6 @@ h4 {
 .clear {
     clear: both;
 }
-
-
 
 .txt {
     margin: 0;
@@ -329,10 +327,10 @@ h4 {
     padding-top: 5px;
     padding-bottom: 5px;
     z-index: 250;
-/*    display: none;*/
     background-color: rgba(242, 242, 242, 0.9);
+    font-size: 1em;
+    line-height: 1em;
 }
-
 .bar:hover {
     display : block;
 }
@@ -353,20 +351,19 @@ h4 {
     background-color: rgba(242, 242, 242, 0.9);
 }
 
-.infoLink .popup {
+.infoLink .detailInfo {
     font-family: GudeaBold, sans-serif;
     display: none;
-    bottom:30px;
+    bottom:100%;
     /*right:1px;*/
-    height:auto;
+    /*height:auto;*/
     width:100%;
+    right: 0px;
     position:absolute;
-    right: 10px;
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
-
-.infoLink:hover .popup, .infoLink.sfhover {
+.infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }
 
@@ -467,7 +464,6 @@ fieldset[disabled] .btn-link {
   background-color: transparent;
 }
 
-
 /* custom overwrites to bootstrap btn */
 .btn {
     padding: 5px 5px;
@@ -479,8 +475,6 @@ fieldset[disabled] .btn-link {
     cursor: pointer;
     color: #555;
 }
-
-
 
 #text-zoom {
     width: 50px;
@@ -521,9 +515,11 @@ fieldset[disabled] .btn-link {
 #replyForm:hover {
     cursor: all-scroll;
 }
+
 #replyForm form > * {
     cursor: auto;
 }
+
 #replyForm form > a {
     cursor: pointer; /* for firefox */
 }
@@ -610,7 +606,7 @@ fieldset[disabled] .btn-link {
     float:left;
     display: inline-block;
     position: absolute;
-    left: 120px;
+    left: 135px;
 }
 
 .menuIcon {

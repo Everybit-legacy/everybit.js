@@ -21,6 +21,9 @@ PuffForum.graph = {};
 PuffForum.newPuffCallbacks = [];
 PuffForum.contentTypes = {}
 
+/**
+ * set up everything
+ */
 PuffForum.init = function() {
     //// set up everything. 
     // THINK: maybe you can only call this once?
@@ -74,6 +77,11 @@ PuffForum.getShells = function() {
     return PuffData.shells.concat(privateShells);
 }
 
+/**
+ * get a particular puff by its id
+ * @param  {String} id
+ * @return {puff}
+ */
 PuffForum.getPuffById = function(id) {
     //// get a particular puff
   
@@ -82,11 +90,22 @@ PuffForum.getPuffById = function(id) {
     return Puffball.getPuffFromShell(shell || id)
 }
 
+/**
+ * helper for sorting by payload.time
+ * @param  {puff} a
+ * @param  {puff} b
+ * @return {number}
+ */
 PuffForum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
     return b.payload.time - a.payload.time;
 }
 
+/**
+ * filter if it is not props
+ * @param  {props} props
+ * @return {boolean}
+ */		
 PuffForum.getPropsFilter = function(props) {
     if(!props) return function() {return true}
     
@@ -99,12 +118,18 @@ PuffForum.getPropsFilter = function(props) {
     return function(shell) {
         if(props.filterroute)
             if(!~shell.routes.indexOf(props.filterroute)) return false
-    
+        if(props.filteruser)
+            if (shell.username != props.filteruser) return false
         return true
     }
 }
 
-
+/**
+ * get the current puff's parents
+ * @param  {puff} puff
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getParents = function(puff, props) {
     //// get parents from a puff
   
@@ -121,6 +146,12 @@ PuffForum.getParents = function(puff, props) {
                                                           
 }
 
+/**
+ * get the current puff's children
+ * @param  {puff} puff
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getChildren = function(puff, props) {
     //// get children from a puff
   
@@ -141,6 +172,12 @@ PuffForum.getChildren = function(puff, props) {
                  .sort(PuffForum.sortByPayload)
 }
 
+/**
+ * get the current puff's sibling
+ * @param  {puff} puff
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getSiblings = function(puff, props) {
     //// get siblings from a puff
   
@@ -165,7 +202,12 @@ PuffForum.getSiblings = function(puff, props) {
                                         .sort(PuffForum.sortByPayload)
 }
 
-
+/**
+ * returns the most recent parentless puffs, sorted by time
+ * @param  {number} limit
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getRootPuffs = function(limit, props) {
     //// returns the most recent parentless puffs, sorted by time
 
@@ -183,6 +225,12 @@ PuffForum.getRootPuffs = function(limit, props) {
                  .filter(Boolean)
 } 
 
+/**
+ * returns the most recent puffs, sorted by time
+ * @param  {number} limit
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getLatestPuffs = function(limit, props) {
     //// returns the most recent puffs, sorted by time
 
@@ -197,6 +245,13 @@ PuffForum.getLatestPuffs = function(limit, props) {
                  .filter(Boolean)
 } 
 
+/**
+ * returns all known puffs from given user, sorted by time
+ * @param  {string} username
+ * @param  {number} limit
+ * @param  {props} props
+ * @return {array of puffs}
+ */
 PuffForum.getByUser = function(username, limit, props) {
     //// returns all known puffs from given user, sorted by time
 
@@ -212,6 +267,12 @@ PuffForum.getByUser = function(username, limit, props) {
                  .filter(Boolean)
 } 
 
+/**
+ * returns all known puffs containing a particular route
+ * @param  {string} route
+ * @param  {number} limit
+ * @return {array of puffs}
+ */
 PuffForum.getByRoute = function(route, limit) {
     //// returns all known puffs containing a particular route
 
@@ -227,6 +288,14 @@ PuffForum.getByRoute = function(route, limit) {
 }
 
 
+/**
+ * Given a string of content, create a puff and push it into the system
+ * @param {string} type
+ * @param {string} content
+ * @param {array of puffs} parents
+ * @param {object} metadata
+ * @param {array of userRecords} encrypt if present
+ */
 PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
     //// Given a string of content, create a puff and push it into the system
     
@@ -262,7 +331,16 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     // TODO: make an official interface fulfillment thing
 }
 
-
+/**
+ * Make a puff... except the parts that require a user
+ * @param  {string} type
+ * @param  {string} content
+ * @param  {array of puffs} parents
+ * @param  {object} metadata
+ * @param  {array of strings} routes
+ * @param {array of userRecords} encrypt if present
+ * @return {puff}
+ */
 PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt) {
     //// Make a puff... except the parts that require a user
     
@@ -292,13 +370,20 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
     }
 }
 
-
+/**
+ * callback takes an array of puffs as its argument, and is called each time puffs are added to the system
+ * @param  {array of puffs} callback
+ */
 PuffForum.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
     PuffForum.newPuffCallbacks.push(callback)
 }
 
+/**
+ * called by core Puff library any time puffs are added to the system
+ * @param  {array of puffs} puffs
+ */
 PuffForum.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
@@ -306,6 +391,10 @@ PuffForum.receiveNewPuffs = function(puffs) {
     PuffForum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
 }
 
+/**
+ * add a set of puffs to our internal graph
+ * @param  {array of puffs} puffs
+ */
 PuffForum.addToGraph = function(puffs) {
     //// add a set of puffs to our internal graph
   
@@ -319,7 +408,11 @@ PuffForum.addToGraph = function(puffs) {
     })
 }
 
-
+/**
+ * to add content type
+ * @param {string} name
+ * @param {string} type
+ */
 PuffForum.addContentType = function(name, type) {
     if(!name) return Puffball.onError('Invalid content type name')
     if(!type.toHtml) return Puffball.onError('Invalid content type: object is missing toHtml method')
@@ -328,6 +421,13 @@ PuffForum.addContentType = function(name, type) {
     PuffForum.contentTypes[name] = type
 }
 
+/**
+ * to process the content
+ * @param  {string} type
+ * @param  {string} content
+ * @param  {puff} puff
+ * @return {string}
+ */
 PuffForum.processContent = function(type, content, puff) {
     var typeObj = PuffForum.contentTypes[type]
     if(!typeObj)
@@ -336,13 +436,22 @@ PuffForum.processContent = function(type, content, puff) {
     return typeObj.toHtml(content, puff)
 }
 
+/**
+ * to the the processed puff content
+ * @param  {puff} puff
+ * @return {string}
+ */
 PuffForum.getProcessedPuffContent = function(puff) {
     // THINK: we've already ensured these are proper puffs, so we don't have to check for payload... right?
     return PuffForum.processContent(puff.payload.type, puff.payload.content, puff) // TODO: this is redundant now
 }
 
 // DEFAULT CONTENT TYPES
-
+/**
+ * to add content type text
+ * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @return {string}
+ */
 PuffForum.addContentType('text', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
@@ -350,6 +459,11 @@ PuffForum.addContentType('text', {
     }
 })
 
+/**
+ * to add content type bbcode
+ * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @return {string}
+ */
 PuffForum.addContentType('bbcode', {
     toHtml: function(content) {
         var bbcodeParse = XBBCODE.process({ text: content });
@@ -358,12 +472,22 @@ PuffForum.addContentType('bbcode', {
     }
 })
 
+/**
+ * to add content type image
+ * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @return {string}
+ */
 PuffForum.addContentType('image', {
     toHtml: function(content) {
         return '<img class="imgInBox" src=' + content + ' />';
     }
 })
 
+/**
+ * to add content type markdown
+ * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @return {string}
+ */
 PuffForum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
@@ -372,7 +496,11 @@ PuffForum.addContentType('markdown', {
     }
 })
 
-
+/**
+ * to add content type PGN
+ * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @return {string}
+ */
 PuffForum.addContentType('PGN', {
 
     toHtml: function(content, puff) {

@@ -4,7 +4,6 @@
   <p>Identity avatar</p>
  */
 
-
 var Basics = React.createClass({displayName: 'Basics',
     render: function() {
         return (
@@ -45,8 +44,8 @@ var Menu = React.createClass({displayName: 'Menu',
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"}))
                 ),
                 Logo(null ),
-                View(null ),
                 Filter(null ),
+                View(null ),
                 Language(null ),
                 Publish(null ),
                 Identity(null ),
@@ -65,6 +64,52 @@ var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
             React.DOM.a( {href:CONFIG.url}, React.DOM.img( {src:"img/logo.gif", alt:"Logo", className:"logo"} ))
+            )
+    }
+});
+
+var Filter = React.createClass({displayName: 'Filter',
+    handlePickFilter: function() {
+        var user = this.refs.pickuser.getDOMNode().value || false;
+        var route = this.refs.pickroute.getDOMNode().value || false;
+        return events.pub('ui/view/route/set', 
+                        {'view.filterroute': route, 
+                         'view.filteruser':user});
+    },
+    handleClearRoute: function() {
+        this.refs.pickroute.getDOMNode().value = '';
+        return events.pub('ui/view/route/clear', {'view.filterroute': false});
+    },
+    handleClearUser: function() {
+        this.refs.pickuser.getDOMNode().value = '';
+        return events.pub('ui/view/user/clear', {'view.filteruser': false});
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var route = puffworldprops.view.filterroute || "";
+        var user = puffworldprops.view.filteruser || "";
+        return (
+            React.DOM.div(null, React.DOM.br(null ),
+                React.DOM.div( {className:"menuHeader"}, 
+                    React.DOM.i( {className:"fa fa-filter fa-fw gray"}), " ", polyglot.t("menu.filter.title")
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.filter.route"),":",
+                    React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12"} ),
+                    React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
+                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    ),React.DOM.br(null)
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.filter.user"),":", 
+                    React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12"} ), 
+                    React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
+                    React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"}))
+                    ),React.DOM.br(null)
+                )
+            )
             )
     }
 });
@@ -143,7 +188,7 @@ var View = React.createClass({displayName: 'View',
 
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            React.DOM.div(null, React.DOM.br(null ),
+            React.DOM.div(null, 
                 React.DOM.div( {className:"menuHeader"}, 
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title")
                 ),
@@ -699,7 +744,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                        ),
-                    React.DOM.br(null ),
+
                     React.DOM.em(null, this.state.usernameMessage),
                     React.DOM.br(null ),
                     React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-unlock-alt"}), " ", polyglot.t("menu.identity.public")),

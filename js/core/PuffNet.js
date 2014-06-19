@@ -28,7 +28,7 @@ PuffNet.init = function() {
 /**
  * given a signature, return puff with that signature
  * @param  {string} sig signature of a puff
- * @return {puff}     puff corresponds to the specified signature
+ * @return {puff object}     puff corresponds to the specified signature
  */
 PuffNet.getPuffBySig = function(sig) {
     var url  = CONFIG.puffApi;
@@ -36,7 +36,6 @@ PuffNet.getPuffBySig = function(sig) {
     
     return PuffNet.getJSON(url, data);
 }
-
 
 PuffNet.getAllPuffShells = function() {
     var url  = CONFIG.puffApi;
@@ -57,9 +56,6 @@ PuffNet.getAllPuffs = function() {
     
     // TODO: instead of getting all puffs, this should only get all puff shells
     //       and then we'll get missing puff content on demand.
-    
-    
-    
     
     /// old style:
     
@@ -94,7 +90,7 @@ PuffNet.getAllPuffs = function() {
 }
 
 /**
- * add puff to the server
+ * add puff to the server and braodcast to peers
  * @param  {puff object} puff the puff to be added to the server
  */
 PuffNet.distributePuff = function(puff) {
@@ -107,6 +103,11 @@ PuffNet.distributePuff = function(puff) {
     PuffNet.P2P.sendPuffToPeers(puff);              // broadcast it to peers
 }
 
+/**
+ * add a puff to the server's pufflist
+ * @param  {puff object} puff 
+ * @return {promise}      
+ */
 PuffNet.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
@@ -313,6 +314,7 @@ PuffNet.P2P.init = function() {
     PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
     PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
 }
+
 
 PuffNet.P2P.reloadPeers = function() {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);

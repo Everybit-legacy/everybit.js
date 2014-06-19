@@ -178,34 +178,6 @@ var View = React.createClass({
     }
 });
 
-/*
-var Filter = React.createClass({
-    handlePickRoute: function() {
-        var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filterroute': route});
-    },
-    
-    render: function() {
-        var route = puffworldprops.view.filterroute;
-        var shells = PuffForum.getShells();
-        var all_routes = shells.reduce(function(acc, shell) {return acc.concat(shell.routes)}, [])
-                               .filter(function(item, key, array) {return array.indexOf(item) == key});
-        
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            <div className="menuItem">
-                {polyglot.t("menu.view.route")}: <select ref="pickroute" onChange={this.handlePickRoute} value={route}>
-                    <option key="null" value="">{polyglot.t("menu.view.unfiltered")}</option>
-                    {all_routes.map(function(route) {
-                        return <option key={route} value={route}>{route}</option>
-                    })}
-                </select>
-            </div>
-        );
-    }
-})
-*/
-
 var Preferences = React.createClass({
     handleShowHideRelationships: function() {
 

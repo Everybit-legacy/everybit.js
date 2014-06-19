@@ -258,9 +258,11 @@ Puffball.receiveNewPuffs = function(puffs) {
     return puffs;
 }
 
-
+/**
+ * add new callback which is called when a new puff added to the system
+ * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
+ */
 Puffball.onNewPuffs = function(callback) {
-    //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
     Puffball.newPuffCallbacks.push(callback);
 }

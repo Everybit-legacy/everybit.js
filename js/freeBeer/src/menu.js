@@ -165,7 +165,7 @@ var View = React.createClass({
                     <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
                 </div>
 
-                <div className="menuItem"><a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a></div>
+                <div className="menuItem"><a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span></div>
 
                 <div className="menuItem"><a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>{polyglot.t("menu.view.collection")}</a></div>
 
@@ -249,17 +249,17 @@ var Preferences = React.createClass({
 
                 <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>
+                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
                 </div>
 
                 <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>
+                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>{' '}<span className="shortcut">[a]</span>
                 </div>
 
                 <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>
+                    <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>{' '}<span className="shortcut">[i]</span>
                 </div>
 
                 <div className="menuItem">
@@ -296,7 +296,7 @@ var Publish = React.createClass({
                     <i className="fa fa-paper-plane fa-fw gray"></i> {polyglot.t("menu.publish.title")}
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.new")}</a>
+                    <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.new")}</a>{' '}<span className="shortcut">[n]</span>
                 </div>
             </div>
             )

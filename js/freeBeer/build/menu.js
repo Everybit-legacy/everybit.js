@@ -723,6 +723,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         }
     },
 
+    handleFocus: function(e) {
+        var target = e.target;
+        setTimeout(function() {
+            target.select();
+        }, 0);
+    },
+
     // TODO: Add options for users to save keys
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
@@ -752,20 +759,20 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity.root"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"rootKeyPublic", ref:"rootKeyPublic", size:"18"} )
+                        React.DOM.input( {type:"text", name:"rootKeyPublic", ref:"rootKeyPublic", size:"18", onFocus:this.handleFocus} )
                     ),
                     React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity.admin"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"adminKeyPublic", ref:"adminKeyPublic", size:"18"} )
+                        React.DOM.input( {type:"text", name:"adminKeyPublic", ref:"adminKeyPublic", size:"18", onFocus:this.handleFocus} )
                     ),
 
                     React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity.default"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic", size:"18"} )
+                        React.DOM.input( {type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic", size:"18", onFocus:this.handleFocus} )
                     ),
                     React.DOM.br(null ),
 

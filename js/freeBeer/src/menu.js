@@ -723,6 +723,13 @@ var NewIdentity = React.createClass({
         }
     },
 
+    handleFocus: function(e) {
+        var target = e.target;
+        setTimeout(function() {
+            target.select();
+        }, 0);
+    },
+
     // TODO: Add options for users to save keys
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
@@ -752,20 +759,20 @@ var NewIdentity = React.createClass({
 
                     <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.root")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" />
+                        <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" onFocus={this.handleFocus} />
                     </div>
                     <br />
 
                     <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.admin")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="adminKeyPublic" ref="adminKeyPublic" size="18" />
+                        <input type="text" name="adminKeyPublic" ref="adminKeyPublic" size="18" onFocus={this.handleFocus} />
                     </div>
 
                     <br />
 
                     <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.default")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="18" />
+                        <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="18" onFocus={this.handleFocus} />
                     </div>
                     <br />
 

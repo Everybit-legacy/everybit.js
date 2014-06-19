@@ -75,7 +75,8 @@ var Filter = React.createClass({
         var route = this.refs.pickroute.getDOMNode().value || false;
         return events.pub('ui/view/route/set', 
                         {'view.filterroute': route, 
-                         'view.filteruser':user});
+                         'view.filteruser':user,
+                         'view.style':'PuffLatest'});
     },
     handleClearRoute: function() {
         this.refs.pickroute.getDOMNode().value = '';
@@ -84,6 +85,11 @@ var Filter = React.createClass({
     handleClearUser: function() {
         this.refs.pickuser.getDOMNode().value = '';
         return events.pub('ui/view/user/clear', {'view.filteruser': false});
+    },
+    handleKeyDown: function(event) {
+        if (event.keyCode == 13) {
+            this.handlePickFilter();
+        }
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -97,15 +103,15 @@ var Filter = React.createClass({
                 <div className="menuItem">
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
-                    <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" />
-                    {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" onKeyDown={this.handleKeyDown} />
+                    {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search fa-fw"></i></a>
                     {' '}<a href="#" onClick={this.handleClearRoute} ><i className="fa fa-eraser fa-fw"></i></a>
                     </div><br/>
                 </div>
                 <div className="menuItem">
                     {polyglot.t("menu.filter.user")}: 
                     <div className="menuInput">
-                    <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" />
+                    <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" onKeyDown={this.handleKeyDown}  />
                     {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
                     {' '}<a href="#" onClick={this.handleClearUser} ><i className="fa fa-eraser fa-fw"></i></a>
                     </div><br/>
@@ -258,12 +264,12 @@ var Preferences = React.createClass({
 
                 <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.view.relationship")}</a>
+                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>
                 </div>
 
                 <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.view.animation")}</a>
+                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>
                 </div>
 
 

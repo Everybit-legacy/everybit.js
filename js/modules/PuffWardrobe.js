@@ -40,14 +40,26 @@ PuffWardrobe = {}
 PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
 PuffWardrobe.currentKeys = false    // false if not set, so watch out
 
+/**
+ * get the current keys
+ * @return {string}
+ */
 PuffWardrobe.getCurrentKeys = function() {
     return PuffWardrobe.currentKeys
 }
 
+/**
+ * get the current username
+ * @return {string}
+ */
 PuffWardrobe.getCurrentUsername = function() {
     return (PuffWardrobe.currentKeys || {}).username || ''
 }
 
+/**
+ * get the current user record
+ * @return {string/error}
+ */
 PuffWardrobe.getCurrentUserRecord = function() {
     var username = PuffWardrobe.getCurrentUsername()
     if(!username) 
@@ -64,6 +76,10 @@ PuffWardrobe.getCurrentUserRecord = function() {
     return userRecord
 }
 
+/**
+ * get all the username and keys
+ * @return {array of objects}
+ */
 PuffWardrobe.getAll = function() {
     if(!PuffWardrobe.keychain)
         PuffWardrobe.keychain = Puffball.Persist.get('keychain') || {}
@@ -71,6 +87,11 @@ PuffWardrobe.getAll = function() {
     return PuffWardrobe.keychain
 }
 
+/**
+ * Change current keyset. also used for clearing the current keyset (call with '')
+ * @param  {string} username
+ * @return {array of strings}
+ */
 PuffWardrobe.switchCurrent = function(username) {
     //// Change current keyset. also used for clearing the current keyset (call with '')
 
@@ -86,18 +107,40 @@ PuffWardrobe.switchCurrent = function(username) {
     return PuffWardrobe.currentKeys = keys
 }
 
+/**
+ * to store the user's private key
+ * @param  {string} username
+ * @param  {string} rootKey
+ */
 PuffWardrobe.storeRootKey = function(username, rootKey) {
     PuffWardrobe.storePrivateKeys(username, rootKey)
 }
 
+/**
+ * to store the user's admin key
+ * @param  {string} username
+ * @param  {string} rootKey
+ */
 PuffWardrobe.storeAdminKey = function(username, adminKey) {
     PuffWardrobe.storePrivateKeys(username, false, adminKey)
 }
 
+/**
+ * to store the user's default key
+ * @param  {string} username
+ * @param  {string} rootKey
+ */
 PuffWardrobe.storeDefaultKey = function(username, defaultKey) {
     PuffWardrobe.storePrivateKeys(username, false, false, defaultKey)
 }
 
+/**
+ * Add keys to the wardrobe with no validation
+ * @param  {string} username
+ * @param  {string} rootKey
+ * @param  {string} adminKey
+ * @param  {string} defaultKey
+ */
 PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
     //// Add keys to the wardrobe with no validation
     PuffWardrobe.keychain = PuffWardrobe.getAll()
@@ -115,6 +158,15 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
         Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
+/**
+ * to ensure keys match the userRecord
+ * @param  {string}   username
+ * @param  {string}   rootKey
+ * @param  {string}   adminKey
+ * @param  {string}   defaultKey
+ * @param  {Function} callback
+ * @return {string}
+ */
 PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
     //// Ensure keys match the userRecord
     
@@ -133,6 +185,11 @@ PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, default
     }, Puffball.promiseError('Could not store private keys due to faulty user record'))
 }
 
+
+/**
+ * to clear the identity's private keys from the wardrobe
+ * @param  {string} username
+ */
 PuffWardrobe.removeKeys = function(username) {
     //// clear the identity's private keys from the wardrobe
     PuffWardrobe.keychain = PuffWardrobe.getAll()
@@ -146,8 +203,9 @@ PuffWardrobe.removeKeys = function(username) {
         Puffball.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
-
-
+/**
+ * to create a new anonymous identity and add it to the local identity list
+ */
 PuffWardrobe.addNewAnonUser = function() {
     //// create a new anonymous identity and add it to the local identity list
     //// it seems strange to have this in PuffWardrobe, but we have to keep the generated private keys here.
@@ -177,6 +235,10 @@ PuffWardrobe.addNewAnonUser = function() {
                Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
+/**
+ * to generate a random username
+ * @return {string}
+ */
 PuffWardrobe.generateRandomUsername = function() {
     var generatedName = '';
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -186,6 +248,10 @@ PuffWardrobe.generateRandomUsername = function() {
     return generatedName;
 }
 
+/**
+ * to get the current user's DHT record, or create a new anon user, or die trying
+ * @return {string}
+ */
 PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
@@ -217,11 +283,20 @@ PuffWardrobe.getUpToDateUserAtAnyCost = function() {
 
 PuffWardrobe.prefsarray = false  // put this somewhere else
 
+/**
+ * to get the preference 
+ * @param  {string} key
+ * @return {prefs(string/boolean)}
+ */
 PuffWardrobe.getPref = function(key) {
     var prefs = PuffWardrobe.getAllPrefs()
     return prefs[key]
 }
 
+/**
+ * to get all the preferences
+ * @return {array of prefs(string/boolean)}
+ */
 PuffWardrobe.getAllPrefs = function() {
     if(!PuffWardrobe.prefsarray)
         PuffWardrobe.prefsarray = Puffball.Persist.get('prefs') || {}
@@ -229,6 +304,11 @@ PuffWardrobe.getAllPrefs = function() {
     return PuffWardrobe.prefsarray
 }
 
+/**
+ * to set the preference
+ * @param {string} key
+ * @param {string} value
+ */
 PuffWardrobe.setPref = function(key, value) {
     var prefs = PuffWardrobe.getAllPrefs()
     var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
@@ -241,6 +321,9 @@ PuffWardrobe.setPref = function(key, value) {
     return newprefs
 }
 
+/**
+ * to remove the preferences
+ */
 PuffWardrobe.removePrefs = function() {
     var filename = 'prefs'
     Puffball.Persist.remove(filename)
@@ -257,26 +340,51 @@ PuffWardrobe.removePrefs = function() {
 
 PuffWardrobe.profilearray = {}  // THINK: put this somewhere else
 
+/**
+ * to get the profile item
+ * @param  {string} key
+ * @return {object}
+ */
 PuffWardrobe.getProfileItem = function(key) {
     var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.getUserProfileItem(username, key)
 }
 
+/**
+ * to set the profile item
+ * @param {string} key
+ * @param {string} value
+ */
 PuffWardrobe.setProfileItem = function(key, value) {
     var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.setUserProfileItems(username, key, value)
 }
 
+/** 
+ * to get all profile items
+ * @return {object}
+ */
 PuffWardrobe.getAllProfileItems = function() {
     var username = PuffWardrobe.currentKeys.username
     return PuffWardrobe.getAllUserProfileItems(username)
 }
 
+/**
+ * to get the user's profile item
+ * @param  {string} username
+ * @param  {string} key
+ * @return {object}
+ */
 PuffWardrobe.getUserProfileItem = function(username, key) {
     var profile = PuffWardrobe.getAllUserProfileItems(username)
     return profile[key]
 }
 
+/**
+ * to get all of the user's profile items
+ * @param  {[type]} username
+ * @return {[object]}
+ */
 PuffWardrobe.getAllUserProfileItems = function(username) {
     if(!username) return {} // erm derp derp
     
@@ -289,6 +397,12 @@ PuffWardrobe.getAllUserProfileItems = function(username) {
     return parray[username]
 }
 
+/**
+ * to set the user's profile items
+ * @param {string} username
+ * @param {string} key
+ * @param {string} value
+ */
 PuffWardrobe.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
@@ -303,6 +417,11 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
     return newprofile
 }
 
+/**
+ * to remove the user's profile
+ * @param  {string} username
+ * @return {void/false}
+ */
 PuffWardrobe.removeUserProfile = function(username) {
     if(!username) return false
     

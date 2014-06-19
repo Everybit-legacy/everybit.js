@@ -44,9 +44,10 @@ var Menu = React.createClass({
                         <i className="fa fa-times-circle-o fa-fw"></i></a>
                 </div>
                 <Logo />
-                <Filter />
+                <br />
                 <View />
-                <Language />
+                <Preferences />
+                <Filter />
                 <Publish />
                 <Identity />
                 <About />
@@ -89,7 +90,7 @@ var Filter = React.createClass({
         var route = puffworldprops.view.filterroute || "";
         var user = puffworldprops.view.filteruser || "";
         return (
-            <div><br />
+            <div>
                 <div className="menuHeader">
                     <i className="fa fa-filter fa-fw gray"></i> {polyglot.t("menu.filter.title")}
                 </div>
@@ -97,16 +98,16 @@ var Filter = React.createClass({
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
                     <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" />
-                    <a href="#" onClick={this.handleClearRoute} ><i className="fa fa-trash-o fa-fw"></i></a>
-                    <a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    {' '}<a href="#" onClick={this.handleClearRoute} ><i className="fa fa-eraser fa-fw"></i></a>
                     </div><br/>
                 </div>
                 <div className="menuItem">
                     {polyglot.t("menu.filter.user")}: 
                     <div className="menuInput">
-                    <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" /> 
-                    <a href="#" onClick={this.handleClearUser} ><i className="fa fa-trash-o fa-fw"></i></a>
-                    <a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" />
+                    {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
+                    {' '}<a href="#" onClick={this.handleClearUser} ><i className="fa fa-eraser fa-fw"></i></a>
                     </div><br/>
                 </div>
             </div>
@@ -122,24 +123,6 @@ var View = React.createClass({
 
     handleViewLatest: function() {
         return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
-    },
-
-    handleShowHideRelationships: function() {
-
-        if(puffworldprops.view.mode == 'browse') {
-            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
-        } else {
-            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
-        }
-    },
-
-    handleShowHideAnimations: function() {
-
-        if(puffworldprops.view.animation) {
-            return events.pub('ui/animation/hide', {'view.animation': false});
-        } else {
-            return events.pub('ui/animation/show', {'view.animation': true});
-        }
     },
 
     handleShowUserPuffs: function(username) {
@@ -167,24 +150,7 @@ var View = React.createClass({
 
 
     render: function() {
-        // CSS for tabs
-        var cb = React.addons.classSet;
-        var cbClass = cb({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': (puffworldprops.view.mode == 'arrows'),
-            'fa-square-o': !(puffworldprops.view.mode == 'arrows'),
-            'green': (puffworldprops.view.mode == 'arrows')
-        });
 
-        var cb2 = React.addons.classSet;
-        var cbClass2 = cb({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': puffworldprops.view.animation,
-            'fa-square-o': !puffworldprops.view.animation,
-            'green': puffworldprops.view.animation
-        });
 
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -199,16 +165,6 @@ var View = React.createClass({
 
                 <div className="menuItem"><a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a></div>
 
-                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.view.relationship")}</a>
-                </div>
-
-                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.view.animation")}</a>
-                </div>
-
                 <div className="menuItem"><a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a></div>
 
             </div>
@@ -216,7 +172,7 @@ var View = React.createClass({
     }
 });
 
-
+/*
 var Filter = React.createClass({
     handlePickRoute: function() {
         var route = this.refs.pickroute.getDOMNode().value;
@@ -242,29 +198,91 @@ var Filter = React.createClass({
         );
     }
 })
+*/
 
+var Preferences = React.createClass({
+    handleShowHideRelationships: function() {
 
-var Language = React.createClass({
+        if(puffworldprops.view.mode == 'browse') {
+            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+        } else {
+            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+        }
+    },
+
+    handleShowHideAnimations: function() {
+
+        if(puffworldprops.view.animation) {
+            return events.pub('ui/animation/hide', {'view.animation': false});
+        } else {
+            return events.pub('ui/animation/show', {'view.animation': true});
+        }
+    },
+
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;
         return events.pub('ui/view/language/set', {'view.language': language});
     },
-    
+
     render: function() {
         var language = puffworldprops.view.language || "en";
         var polyglot = Translate.language[language];
         var all_languages = Object.keys(Translate.language);
-        return (
-            <div className="menuItem">
+
+        // CSS for checkboxes
+        var cb = React.addons.classSet;
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': (puffworldprops.view.mode == 'arrows'),
+            'fa-square-o': !(puffworldprops.view.mode == 'arrows'),
+            'green': (puffworldprops.view.mode == 'arrows')
+        });
+
+        var cb2 = React.addons.classSet;
+        var cbClass2 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': puffworldprops.view.animation,
+            'fa-square-o': !puffworldprops.view.animation,
+            'green': puffworldprops.view.animation
+        });
+
+        return(
+            <div>
+
+                <div className="menuHeader">
+                    <i className="fa fa-gears fa-fw gray"></i> {polyglot.t("menu.preferences.title")}
+                </div>
+
+
+                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.view.relationship")}</a>
+                </div>
+
+                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.view.animation")}</a>
+                </div>
+
+
+                <div className="menuItem">
                 {polyglot.t("menu.view.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} value={language}>
                     {all_languages.map(function(lang) {
                         return <option key={lang} value={lang}>{Translate.language[lang].t("dropdownDisplay")}</option>
                     })}
                 </select>
+                </div>
+
+
             </div>
-        );
+
+            )
+
     }
-})
+
+});
 
 
 // TODO put back when working

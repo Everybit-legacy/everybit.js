@@ -92,7 +92,7 @@ PuffNet.getAllPuffs = function() {
 }
 
 /**
- * add puff to the server and braodcast to peers
+ * add puff to the server and broadcast to peers
  * @param  {puff object} puff the puff to be added to the server
  */
 PuffNet.distributePuff = function(puff) {
@@ -323,16 +323,25 @@ PuffNet.P2P.init = function() {
     PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
 }
 
-
+/**
+ * to reload peers
+ * @return {object} 
+ */
 PuffNet.P2P.reloadPeers = function() {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
 };
 
+/**
+ * open peer connection
+ * @param  {string} id 
+ * @return {array of object}    
+ */
 PuffNet.P2P.openPeerConnection = function(id) {
     // OPT: do we really need this? 
     // THINK: why not just call PuffNet.P2P.reloadPeers?
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
 };
+
 
 PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
@@ -342,6 +351,11 @@ PuffNet.P2P.connection = function(connection) {
     });
 };
 
+/**
+ * to handle peers
+ * @param  {object} peers 
+ * @return {boolean}   
+ */
 PuffNet.P2P.handlePeers = function(peers) {
     peers.forEach(function(peer) {
         if(PuffNet.P2P.peers[peer]) 
@@ -350,6 +364,10 @@ PuffNet.P2P.handlePeers = function(peers) {
     });
 };
 
+/**
+ * to send puff to peers
+ * @param  {object} puff
+ */
 PuffNet.P2P.sendPuffToPeers = function(puff) {
     for(var peer in PuffNet.P2P.peers) {
         PuffNet.P2P.peers[peer].send(puff)

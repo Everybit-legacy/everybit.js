@@ -517,11 +517,11 @@ PuffForum.addContentType('PGN', {
  * to add content type LaTex
  * @param  {string} content
  * @return {string}
-
+ */
 PuffForum.addContentType('LaTex', {
 
     toHtml: function(content) {
-        return content;
-    }
+       // return ltxParse(content);
+
+        }
 })
-*/

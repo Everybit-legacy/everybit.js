@@ -478,11 +478,19 @@ PuffData.cacheUserRecord = function(userRecord) {
     // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
+/**
+ * to depersist user records
+ */
 PuffData.depersistUserRecords = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
     PuffData.userRecords = Puffball.Persist.get('userRecords') || {};
 }
 
+/**
+ * to get my puff chain
+ * @param  {string} username 
+ * @return {puff}
+ */
 PuffData.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
@@ -510,6 +518,10 @@ PuffData.getMyPuffChain = function(username) {
 
 Puffball.Crypto = {};
 
+/**
+ * to generate private key
+ * @return {string} 
+ */
 Puffball.Crypto.generatePrivateKey = function() {
     // OPT: remove this test once Bitcoin.ECKey no longer generates invalid keys (about 1 in 1,000 right now)
     var prikey = new Bitcoin.ECKey().toWif()
@@ -806,13 +818,22 @@ Puffball.Persist.remove = function(key) {
 
 
 /// ERROR ERROR
-
+/**
+ * on error funtion
+ * @param  {string} msg 
+ * @param  {object} obj 
+ * @return {boolean}     
+ */
 Puffball.onError = function(msg, obj) {
     console.log(msg, obj)
     return false
 }
 
-
+/**
+ * promise error function
+ * @param  {string} mes
+ * @return {boolean}
+ */
 Puffball.promiseError = function(msg) {
     return function(err) {
         Puffball.onError(msg, err)
@@ -820,13 +841,23 @@ Puffball.promiseError = function(msg) {
     }
 }
 
+/**
+ * throw error function
+ * @param  {string} msg    
+ * @param  {string} errmsg 
+ * @return {boolean}
+ */
 Puffball.throwError = function(msg, errmsg) {
     var err = Error(errmsg || msg)
     Puffball.onError(msg, err)
     throw err
 }
 
-
+/**
+ * check if the string is a valid JSON string
+ * @param  {string} str 
+ * @return {false}
+ */
 Puffball.parseJSON = function(str) {
     try {
         return JSON.parse(str)
@@ -835,6 +866,11 @@ Puffball.parseJSON = function(str) {
     }
 }
 
+/**
+ * check if false promise
+ * @param  {string} msg     
+ * @return {boolean}     
+ */
 Puffball.falsePromise = function(msg) {
     if(msg) Puffball.onError(msg)
     return Promise.reject(msg)

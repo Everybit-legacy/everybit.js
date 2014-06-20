@@ -3,8 +3,8 @@
 var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
     componentDidMount: function() {
         // set silly global this is very very dumb
-        globalReplyFormSubmitArg = this.handleSubmit;
-        // globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+        // globalReplyFormSubmitArg = this.handleSubmit;
+        globalReplyFormSubmitArg = this.handleSubmit.bind(this);
         
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);

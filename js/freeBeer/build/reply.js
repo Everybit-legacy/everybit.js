@@ -3,7 +3,8 @@
 var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
     componentDidMount: function() {
         // set silly global this is very very dumb
-        globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+        globalReplyFormSubmitArg = this.handleSubmit;
+        // globalReplyFormSubmitArg = this.handleSubmit.bind(this);
         
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
@@ -149,7 +150,6 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             var type = this.props.reply.type || this.refs.type.getDOMNode().value;
             var content = this.refs.content.getDOMNode().value.trim();
             this.props.content = content;
-            console.log(this.props.content);
             content = PuffForum.processContent(type, content, {});
             typeFields = (
                 React.DOM.div( {style:divStyle}, 

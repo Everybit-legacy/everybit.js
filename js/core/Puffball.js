@@ -155,7 +155,11 @@ Puffball.validateUsername = function(username) {
     return true;
 }
 
-
+/**
+ * to process user records
+ * @param  {string} userRecord
+ * @return {object}
+ */
 Puffball.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
@@ -242,7 +246,11 @@ Puffball.addPuffToSystem = function(puff) {
     return puff;
 }
 
-
+/**
+ * it is called by core Puff library any time puffs are added to the system
+ * @param  {array of puffs} puffs
+ * @return {array of puffs}
+ */
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
     
@@ -267,7 +275,13 @@ Puffball.onNewPuffs = function(callback) {
     Puffball.newPuffCallbacks.push(callback);
 }
 
-
+/**
+ * to return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
+ * @param  {puff} puff
+ * @param  {string} myPrivateWif
+ * @param  {string} userRecords
+ * @return {puff object}
+ */
 Puffball.encryptPuff = function(puff, myPrivateWif, userRecords) {
     //// return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
     var puffkey = Puffball.Crypto.getRandomKey()
@@ -276,6 +290,14 @@ Puffball.encryptPuff = function(puff, myPrivateWif, userRecords) {
     return puff // NOTE: we're mutating this as a memory optimization, but that may bite us later...
 }
 
+/**
+ * to decrypt a puff
+ * @param  {puff object} puff
+ * @param  {string} yourPublicWif
+ * @param  {string} myUsername
+ * @param  {string} myPrivateWif
+ * @return {puff object}
+ */
 Puffball.decryptPuff = function(puff, yourPublicWif, myUsername, myPrivateWif) {
     var keyForMe = puff.keys[myUsername]
     var puffkey  = Puffball.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
@@ -304,17 +326,31 @@ PuffData.shelf = [];
 PuffData.pending = {};
 PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
 
+/**
+ * get the current known shells
+ * @return {array of objects}
+ */
 PuffData.getShells = function() {
     //// Get the currently known shells
     // NOTE: always use this accessor instead of referencing PuffData.shells directly, as what this function does will change.
     return PuffData.shells
 }
 
+/**
+ * to get the encrypted puffs for the provided username
+ * @param  {string} username
+ * @return {array of objects}
+ */
 PuffData.getEncryptedPuffsForMe = function(username) {
     //// Get currently known private shells for a particular user
     return PuffData.shelf.filter(function(shell) {return shell.keys[username]})
 }
 
+/**
+ * to push the puff
+ * @param  {puff object} puff
+ * @return {boolean}
+ */
 PuffData.eatPuff = function(puff) {
     if(!!~PuffData.puffs
                   .map(function(p) {return p.sig})     // OPT: check the sig index instead
@@ -323,11 +359,20 @@ PuffData.eatPuff = function(puff) {
     PuffData.puffs.push(puff);  
 }
 
+/**
+ * to persist shells
+ * @param  {object} shells
+ * @return {boolean}
+ */
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
     Puffball.Persist.save('shells', shells);
 }
 
+/**
+ * to add new shell
+ * @param {object} shell
+ */
 PuffData.addNewShell = function(shell) {
     
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
@@ -342,6 +387,10 @@ PuffData.addNewShell = function(shell) {
     PuffData.persistShells(PuffData.shells);
 }
 
+/**
+ * to fetch local shells
+ * @param  {Function} callback
+ */
 PuffData.fetchLocalShells = function(callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || [];
     var localShells = Puffball.Persist.get('shells') || [];
@@ -353,6 +402,10 @@ PuffData.fetchLocalShells = function(callback) {
     // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
 }
 
+/**
+ * to fetch new shells
+ * @return {boolean}
+ */
 PuffData.fetchNewShells = function() {
     /// TODO: this should call PuffNet.fetchNewShells and then integrate that with our shells from local storage
     ///       and then we'll get the missing content on demand
@@ -373,6 +426,11 @@ PuffData.fetchNewShells = function() {
     })
 }
 
+/**
+ * to verify a puff
+ * @param  {object} puff
+ * @return {string/boolean}
+ */
 PuffData.verifyPuff = function(puff) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
@@ -386,10 +444,20 @@ PuffData.verifyPuff = function(puff) {
     });
 }
 
+/**
+ * to get cached user record
+ * @param  {string} username
+ * @return {object}
+ */
 PuffData.getCachedUserRecord = function(username) {
     return PuffData.userRecords[username];
 }
 
+/**
+ * to cache user record
+ * @param  {object} userRecord
+ * @return {object}
+ */
 PuffData.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use Puffball.processUserRecord instead
     
@@ -451,8 +519,13 @@ Puffball.Crypto.generatePrivateKey = function() {
         return Puffball.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
 }
 
-// TODO: This should return false if string is empty
+/**
+ * convert public key from private key
+ * @param  {string} privateKeyWIF
+ * @return {string}
+ */
 Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
+    // TODO: This should return false if string is empty
     if(!privateKeyWIF)
         return Puffball.onError('That private key contained no data')
         
@@ -463,6 +536,12 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
     }
 }
 
+/**
+ * sign the hash of some data with a private key and return the sig in base 58
+ * @param  {object} unsignedPuff
+ * @param  {string} privateKeyWIF
+ * @return {boolean/error}
+ */
 Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     //// sign the hash of some data with a private key and return the sig in base 58
 
@@ -477,11 +556,24 @@ Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     }
 }
 
+/**
+ * to verify puff sig
+ * @param  {object} puff
+ * @param  {string} defaultKey
+ * @return {boolean}
+ */
 Puffball.Crypto.verifyPuffSig = function(puff, defaultKey) {
     var puffString = Puffball.Crypto.puffToSiglessString(puff);
     return Puffball.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
 }
 
+/**
+ * accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
+ * @param  {string} message
+ * @param  {string} sig
+ * @param  {string} publicKeyWIF
+ * @return {boolean}
+ */
 Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     //// accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
   
@@ -499,10 +591,20 @@ Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     }
 }
 
+/**
+ * to create message hash
+ * @param  {string} message
+ * @return {string}
+ */
 Puffball.Crypto.createMessageHash = function(message) {
     return Bitcoin.Crypto.SHA256(message).toString()
 }
 
+/**
+ * crypt wif to private key
+ * @param  {string} privateKeyWIF
+ * @return {boolean}
+ */
 Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
     if(!privateKeyWIF)
         return Puffball.onError('That private key wif contains no data')
@@ -514,6 +616,11 @@ Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
     }
 }
 
+/**
+ * crypt wif to public try
+ * @param  {string} publicKeyWIF
+ * @return {boolean}
+ */
 Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
     if(!publicKeyWIF)
         return Puffball.onError('That public key wif contains no data')
@@ -527,16 +634,33 @@ Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
     }
 }
 
+/**
+ * crypt puff to string without sig
+ * @param  {object} puff
+ * @return {string}
+ */
 Puffball.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
 
 
+/**
+ * to encrypt with AES
+ * @param  {string} message
+ * @param  {string} key
+ * @return {string}
+ */
 Puffball.Crypto.encryptWithAES = function(message, key) {
     var enc = Bitcoin.Crypto.AES.encrypt(message, key)
     return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
 }
 
+/**
+ * to decrypt with AES
+ * @param  {string} message
+ * @param  {string} key
+ * @return {string}
+ */
 Puffball.Crypto.decryptWithAES = function(enc, key) {
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
@@ -546,6 +670,12 @@ Puffball.Crypto.decryptWithAES = function(enc, key) {
     return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(uglyRegex, '')
 }
 
+/**
+ * to get the shared secret of two users
+ * @param  {string} yourPublicWif
+ * @param  {string} myPrivateWif
+ * @return {string}
+ */
 Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     // TODO: check our ECDH maths
     var pubkey = Puffball.Crypto.wifToPubKey(yourPublicWif)
@@ -556,18 +686,37 @@ Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     return key
 }
 
+/**
+ * to encode private message
+ * @param  {string} plaintext
+ * @param  {string} yourPublicWif
+ * @param  {string} myPrivateWif
+ * @return {string}
+ */
 Puffball.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
     var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     var ciphertext = Puffball.Crypto.encryptWithAES(plaintext, key)
     return ciphertext
 }
 
+/**
+ * to decode private message
+ * @param  {string} plaintext
+ * @param  {string} yourPublicWif
+ * @param  {string} myPrivateWif
+ * @return {string}
+ */
 Puffball.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
     var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     var plaintext = Puffball.Crypto.decryptWithAES(ciphertext, key)
     return plaintext // .replace(/\n+$/g, '')
 }
 
+/**
+ * to get a random key
+ * @param  {number} size
+ * @return {string}
+ */
 Puffball.Crypto.getRandomKey = function(size) {
     size = size || 256/8 // AES key size is 256 bits
     var bytes = new Uint8Array(size);
@@ -575,6 +724,13 @@ Puffball.Crypto.getRandomKey = function(size) {
     return Bitcoin.convert.bytesToBase64(bytes)
 }
 
+/**
+ * to create key pairs
+ * @param  {string} puffkey
+ * @param  {string} myPrivateWif
+ * @param  {object} userRecords
+ * @return {object}
+ */
 Puffball.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     return userRecords.reduce(function(acc, userRecord) {
         acc[userRecord.username] = Puffball.Crypto.encodePrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
@@ -605,6 +761,11 @@ Puffball.Persist = {};
 Puffball.Persist.todo = {}
 Puffball.Persist.todoflag = false
 
+/**
+ * to save key/value
+ * @param  {string} key
+ * @param  {string} value
+ */
 Puffball.Persist.save = function(key, value) {
     Puffball.Persist.todo[key] = value
     if(!Puffball.Persist.todoflag) {
@@ -622,6 +783,11 @@ Puffball.Persist.save = function(key, value) {
     Puffball.Persist.todoflag = true
 }
 
+/**
+ * to get the parsed JSON info from the given key
+ * @param  {string} key
+ * @return {false/boolean}
+ */
 Puffball.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
@@ -629,6 +795,10 @@ Puffball.Persist.get = function(key) {
     return Puffball.parseJSON(str);
 }
 
+/**
+ * to remove the item according to the given key
+ * @param  {string} key
+ */
 Puffball.Persist.remove = function(key) {
     var realkey = 'PUFF::' + key;
     localStorage.removeItem(realkey);

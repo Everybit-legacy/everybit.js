@@ -9,10 +9,18 @@
 
 Puff = {};
 
+/**
+ * to validate the username
+ * @param  {string} username
+ */
 Puff.validateUsername = function(username) {
 
 }
 
+/**
+ * to validate the payload key
+ * @param  {string} key
+ */
 Puff.validatePayloadKey = function(key) {
     // Characters
 
@@ -21,6 +29,11 @@ Puff.validatePayloadKey = function(key) {
 
 }
 
+/**
+ * to validate the content length
+ * @param  {string} content
+ * @return {boolean}
+ */
 Puff.validateContentLength = function(content) {
     if (content.length > 10e6)
         return false

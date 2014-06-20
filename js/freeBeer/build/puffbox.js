@@ -103,7 +103,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus fa-fw"})));
 
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
-        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
+        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN'||puff.payload.type=='LaTex';
 
         if (!this.state.showMain) {
             return (

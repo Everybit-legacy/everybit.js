@@ -454,7 +454,7 @@ PuffForum.getProcessedPuffContent = function(puff) {
 // DEFAULT CONTENT TYPES
 /**
  * to add content type text
- * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @param  {string} content
  * @return {string}
  */
 PuffForum.addContentType('text', {
@@ -466,7 +466,7 @@ PuffForum.addContentType('text', {
 
 /**
  * to add content type bbcode
- * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @param  {string} content
  * @return {string}
  */
 PuffForum.addContentType('bbcode', {
@@ -479,7 +479,7 @@ PuffForum.addContentType('bbcode', {
 
 /**
  * to add content type image
- * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @param  {string} content
  * @return {string}
  */
 PuffForum.addContentType('image', {
@@ -490,7 +490,7 @@ PuffForum.addContentType('image', {
 
 /**
  * to add content type markdown
- * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @param  {string} content
  * @return {string}
  */
 PuffForum.addContentType('markdown', {
@@ -503,12 +503,25 @@ PuffForum.addContentType('markdown', {
 
 /**
  * to add content type PGN
- * @param  {string} content) {        var safe_content = XBBCODE.process({ text: content })           return '<p>' + safe_content.html + '</p>'                   }}
+ * @param  {string} content
  * @return {string}
  */
 PuffForum.addContentType('PGN', {
 
-    toHtml: function(content, puff) {
+    toHtml: function(content) {
         return chessBoard(content);
     }
+})
+
+/**
+ * to add content type LaTex
+ * @param  {string} content
+ * @return {string}
+ */
+PuffForum.addContentType('LaTex', {
+
+    toHtml: function(content) {
+       // return ltxParse(content);
+
+        }
 })

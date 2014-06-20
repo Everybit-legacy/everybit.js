@@ -240,9 +240,9 @@ PuffForum.getLatestPuffs = function(limit, props) {
 
     return shells.sort(PuffForum.sortByPayload)
                  .filter(PuffForum.getPropsFilter(props))
-                 .slice(0, limit)
                  .map(Puffball.getPuffFromShell)
                  .filter(Boolean)
+                 .slice(0, limit)
 } 
 
 /**

@@ -21,19 +21,19 @@ puffworldprops = {
         // filter: {
         //     route: false,                           // a single route
         // },
-        language: 'en',
+        language   : 'en',
         filterroute: false, // blargh
-        filteruser: false,
-        style: 'PuffRoots',
-        puff: false,                                // focused puff (not just sig)
-        user: false,                                // username // TODO: make this part of filter
-        mode: 'browse',                             // 'browse' or 'arrow'
-        rows: 4,
-        cols: 5,
-        boxRatio: 1,
-        animation: true,                            // true -> animate everything; false -> animate nothing
-        cursor: false,                              // sig of selected puff
-        showinfo: false                             // true -> always show info boxes; false -> only on hover
+        filteruser : false,
+        style      : 'PuffRoots',
+        puff       : false,                                // focused puff (not just sig)
+        user       : false,                                // username // TODO: make this part of filter
+        mode       : 'browse',                             // 'browse' or 'arrow'
+        rows       : 4,
+        cols       : 5,
+        boxRatio   : 1,
+        animation  : true,                            // true -> animate everything; false -> animate nothing
+        cursor     : false,                              // sig of selected puff
+        showinfo   : false                             // true -> always show info boxes; false -> only on hover
     },
 
     reply: {

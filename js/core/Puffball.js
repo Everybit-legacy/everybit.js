@@ -238,7 +238,7 @@ Puffball.getPuffFromShell = function(shell) {
  */
 Puffball.addPuffToSystem = function(puff) {
     
-    if(PuffData.getShellBySig(puff.sig)) return false
+    if(PuffData.getCachedShellBySig(puff.sig)) return false
     
     PuffData.addNewShell(puff);
     
@@ -325,6 +325,7 @@ Puffball.decryptPuff = function(puff, yourPublicWif, myUsername, myPrivateWif) {
 PuffData = {};
 PuffData.puffs = [];
 PuffData.shells = [];
+PuffData.shellSort = {};
 PuffData.shelf = [];
 PuffData.pending = {};
 PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
@@ -339,8 +340,9 @@ PuffData.getShells = function() {
     return PuffData.shells
 }
 
-PuffData.getShellBySig = function(sig) {
-    return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
+PuffData.getCachedShellBySig = function(sig) {
+    return PuffData.shellSort[sig]
+    // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
 }
 
 /**
@@ -382,17 +384,18 @@ PuffData.persistShells = function(shells) {
  */
 PuffData.addNewShell = function(shell) {
     
-    if(PuffData.getShellBySig(shell.sig)) return false
+    if(PuffData.getCachedShellBySig(shell.sig)) return false;
     
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     
     // if a shell is private, put it on the shelf
     if(typeof shell.payload == 'string')
-        return PuffData.shelf.push(shell)
+        return PuffData.shelf.push(shell);
     
     // later, GC shells on the shelf that aren't in my wardrobe
     
     PuffData.shells.push(shell);
+    PuffData.shellSort[shell.sig] = shell;
     PuffData.persistShells(PuffData.shells);
 }
 
@@ -403,7 +406,7 @@ PuffData.addNewShell = function(shell) {
 PuffData.fetchLocalShells = function(callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || [];
     var localShells = Puffball.Persist.get('shells') || [];
-    localShells.forEach(PuffData.addNewShell)
+    localShells.forEach(PuffData.addNewShell);
     
     setImmediate(function() {callback(PuffData.shells)});
     // we're doing this asynchronously in order to not interrupt the loading process

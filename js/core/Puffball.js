@@ -204,8 +204,8 @@ Puffball.getUserRecordNoCache = function(username) {
 
 /**
  * returns a puff from a shell
- * @param  {string or object} shell a string which is a signature of a puff; or an object cotnains partial information of a puff
- * @return {puff object}       returns a puff based on the shell; returns false if the shell is empty
+ * @param  {string or object} shell a string which is a signature of a puff; or an object contains partial information of a puff
+ * @return {puff object} returns a puff based on the shell; returns false if the shell is empty
  */
 Puffball.getPuffFromShell = function(shell) {
     if(!shell)
@@ -233,10 +233,13 @@ Puffball.getPuffFromShell = function(shell) {
 }
 
 /**
- * add a puff to our loal cache and fire the callback for new content
+ * add a puff to our local cache and fire the callback for new content
  * @param {puff object} puff 
  */
 Puffball.addPuffToSystem = function(puff) {
+    
+    if(PuffData.getShellBySig(puff.sig)) return false
+    
     PuffData.addNewShell(puff);
     
     Puffball.receiveNewPuffs([puff]);
@@ -336,6 +339,10 @@ PuffData.getShells = function() {
     return PuffData.shells
 }
 
+PuffData.getShellBySig = function(sig) {
+    return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
+}
+
 /**
  * to get the encrypted puffs for the provided username
  * @param  {string} username
@@ -374,6 +381,8 @@ PuffData.persistShells = function(shells) {
  * @param {object} shell
  */
 PuffData.addNewShell = function(shell) {
+    
+    if(PuffData.getShellBySig(shell.sig)) return false
     
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     

@@ -78,16 +78,16 @@ PuffForum.getShells = function() {
 }
 
 /**
- * get a particular puff by its id
- * @param  {String} id
+ * get a particular puff by its sig
+ * @param  {String} sig
  * @return {puff}
  */
-PuffForum.getPuffById = function(id) {
+PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
   
-    var shell = PuffForum.getShells().filter(function(shell) { return id === shell.sig })[0]
+    var shell = PuffData.getShellBySig(sig)
     
-    return Puffball.getPuffFromShell(shell || id)
+    return Puffball.getPuffFromShell(shell || sig)
 }
 
 /**
@@ -136,10 +136,10 @@ PuffForum.getParents = function(puff, props) {
     // THINK: do we really need this? the puff will have links to its parents...
   
     if(typeof puff === 'string') {
-        puff = PuffForum.getPuffById(puff);
+        puff = PuffForum.getPuffBySig(puff);
     }
     
-    return puff.payload.parents.map(PuffForum.getPuffById)
+    return puff.payload.parents.map(PuffForum.getPuffBySig)
                                .filter(Boolean)
                                .filter(PuffForum.getPropsFilter(props))
                                .sort(PuffForum.sortByPayload)
@@ -160,7 +160,7 @@ PuffForum.getChildren = function(puff, props) {
     // Find out how many, but only return the latest CONFIG.maxChildrenToShow
   
     if(typeof puff === 'string') {
-        puff = PuffForum.getPuffById(puff);
+        puff = PuffForum.getPuffBySig(puff);
     }
 
     var shells = PuffForum.getShells()
@@ -182,7 +182,7 @@ PuffForum.getSiblings = function(puff, props) {
     //// get siblings from a puff
   
     if(typeof puff === 'string')
-        puff = PuffForum.getPuffById(puff);
+        puff = PuffForum.getPuffBySig(puff);
 
     var originalSig = puff.sig;
 
@@ -309,7 +309,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     if(!Array.isArray(parents)) parents = [parents]
     
     // ensure parents contains only puff ids
-    if(parents.map(PuffForum.getPuffById).filter(function(x) { return x != null }).length != parents.length)
+    if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
         return Puffball.falsePromise('Those are not good parents')
     
     // ensure parents is unique
@@ -317,7 +317,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
 
     // find the routes using parents
     var routes = parents.map(function(id) {
-        return PuffForum.getPuffById(id).username;
+        return PuffForum.getPuffBySig(id).username;
     });
     // ensure all routes is unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});

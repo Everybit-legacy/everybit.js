@@ -85,7 +85,7 @@ PuffForum.getShells = function() {
 PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
   
-    var shell = PuffData.getShellBySig(sig)
+    var shell = PuffData.getCachedShellBySig(sig)
     
     return Puffball.getPuffFromShell(shell || sig)
 }

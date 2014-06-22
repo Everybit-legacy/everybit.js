@@ -586,26 +586,10 @@ function formatForDisplay(obj, style) {
 
 window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
                             || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+                            || setTimeout
 
-// only update once per tick
-var updateUI = (function() {
-    var update = false
-    var step = function(timestamp) {
-        if(update) {
-            update = false            // we have to set this before entering puffworld
-            renderPuffWorld()         // THINK: should we set it after too?
-        } else {            
-            update = false
-        }
-        // requestAnimationFrame(step)
-    }
-    return function() {
-        if(update) return false
-        update = true 
-        requestAnimationFrame(step)
-    }
-})()
-
+// only update once per rAF
+var updateUI = onceRAF.bind(this, renderPuffWorld)
 
 // Register our update function
 var eatPuffs = function(puffs) {

@@ -917,11 +917,59 @@ Puffball.falsePromise = function(msg) {
         later = []
 
         for(var i=0, l=now.length; i < l; i++)
-        now[i]()
+            now[i]()
     }
   
     if(typeof window != 'undefined') {
         window.addEventListener('message', handleMessage, true)
         window.setImmediate = setImmediate
     }
-}();
+}()
+
+~function() {
+    var later = []
+
+    var step = function() {
+        var now = later
+        later = []
+        for(var i=0, l=now.length; i < l; i++)
+            now[i]()
+    }
+            
+    var once = function(invoker, fun) {
+        if(~later.indexOf(fun)) return false
+        later.push(fun)
+        if(later.length > 1) return false // THINK: possible race condition
+        invoker(step) 
+    }
+    
+    if(typeof window != 'undefined') {
+        window.onceImmediate = once.bind(this, setImmediate)
+        window.onceRAF = once.bind(this, requestAnimationFrame)
+    }
+}()
+
+~function() {
+    //// do something after some other things
+    var queue = []
+    
+    var nexttime = function(invoker) {
+        invoker(function() {
+            if(!queue.length) return false
+            queue.shift()()
+            nexttime(invoker)
+        })
+    }
+            
+    var queuer = function(invoker, fun) {
+        queue.push(fun)
+        if(queue.length > 1) return false // THINK: possible race condition
+        nexttime(invoker) 
+    }
+    
+    if(typeof window != 'undefined') {
+        window.queueImmediate = queuer.bind(this, setImmediate)
+        window.queueRAF = queuer.bind(this, requestAnimationFrame)
+    }
+}()
+

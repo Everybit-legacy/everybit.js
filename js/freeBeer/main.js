@@ -240,7 +240,7 @@ events.shallow_copy = function(obj) {
 //   var mapdom = $('#minimap')
 //   
 //   // PuffData.puffs.forEach(function(puff) {
-//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
+//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
 //   //   mapdom.append($(template))
@@ -436,7 +436,7 @@ function showPuff(sig) {
     if(!sig)
         return false
     
-    var puff = PuffForum.getPuffById(sig)                           // get it?
+    var puff = PuffForum.getPuffBySig(sig)                           // get it?
     
     if(puff)
         return showPuffDirectly(puff)                               // got it.
@@ -503,7 +503,7 @@ function setViewPropsFromPushstate(pushstate) {
     var sig = pushstate.puff
     
     if(sig)
-        pushstate.puff = PuffForum.getPuffById(sig)
+        pushstate.puff = PuffForum.getPuffBySig(sig)
     
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     events.update_puffworldprops(props)

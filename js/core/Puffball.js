@@ -384,19 +384,32 @@ PuffData.persistShells = function(shells) {
  */
 PuffData.addNewShell = function(shell) {
     
+    if(!PuffData.verifyShell(shell))
+        return false;
+    
     if(PuffData.getCachedShellBySig(shell.sig)) return false;
     
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     
     // if a shell is private, put it on the shelf
-    if(typeof shell.payload == 'string')
+    // THINK: later we'll need to GC shells on the shelf that aren't in my wardrobe
+    if(shell.payload.type == 'encryptedpuff')
         return PuffData.shelf.push(shell);
-    
-    // later, GC shells on the shelf that aren't in my wardrobe
     
     PuffData.shells.push(shell);
     PuffData.shellSort[shell.sig] = shell;
     PuffData.persistShells(PuffData.shells);
+}
+
+PuffData.verifyShell = function(shell) {
+    //// this just checks for the existence of required fields
+    if(!shell.sig) return false
+    if(!shell.routes) return false
+    if(!shell.username) return false
+    if(typeof shell.payload != 'object') return false
+    if(!shell.payload.type) return false
+    if(!shell.payload.content) return false
+    return true
 }
 
 /**

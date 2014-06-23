@@ -310,6 +310,7 @@ Puffball.encryptPuff = function(letter, myPrivateWif, userRecords) {
  */
 Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
     //// pull a letter out of the envelope
+    if(!envelope.keys) return false
     var keyForMe = envelope.keys[myUsername]
     var puffkey  = Puffball.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content

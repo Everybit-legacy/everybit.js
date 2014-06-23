@@ -522,6 +522,7 @@ PuffForum.addContentType('LaTex', {
 
     toHtml: function(content) {
        // return ltxParse(content);
-
-        }
+        var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
+        return '<p>' + safe_content.html + '</p>'               // THINK: is this really safe?
+    }
 })

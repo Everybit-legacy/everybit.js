@@ -28,6 +28,7 @@ var PuffReplyForm = React.createClass({
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -153,7 +154,7 @@ var PuffReplyForm = React.createClass({
             content = PuffForum.processContent(type, content, {});
             typeFields = (
                 <div style={divStyle}>
-                    <div id="preview" ref="preview" name="preview" className="mousetrap" dangerouslySetInnerHTML={{__html: content}}></div>
+                    <div id="preview" ref="preview" name="preview" className='mousetrap' dangerouslySetInnerHTML={{__html: content}}></div>
                 </div>
             )
         }

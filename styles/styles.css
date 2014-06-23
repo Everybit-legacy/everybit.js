@@ -264,6 +264,9 @@ h4 {
 .block:hover .bar.hidden{
     display : block;
     text-decoration:none;
+}
+
+.animation .block:hover .bar.hidden{
     -webkit-animation: fadein .5s; /* Safari and Chrome */
     -moz-animation: fadein .5s; /* Firefox */
     -ms-animation: fadein .5s; /* Internet Explorer */
@@ -274,6 +277,9 @@ h4 {
 .block:hover .author.hidden{
     display : block;
     text-decoration:none;
+}
+
+.animation .block:hover .author.hidden{
     -webkit-animation: fadein .5s; /* Safari and Chrome */
     -moz-animation: fadein .5s; /* Firefox */
     -ms-animation: fadein .5s; /* Internet Explorer */
@@ -581,13 +587,16 @@ fieldset[disabled] .btn-link {
     font-size: 1.1em;
     line-height: 1.7em;
     text-decoration:none;
+    max-height: 80%;
+    overflow: auto;
+}
+
+.animation .menu {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -moz-animation: fadein 1s; /* Firefox */
     -ms-animation: fadein 1s; /* Internet Explorer */
     -o-animation: fadein 1s; /* Opera */
     animation: fadein 1s;
-    max-height: 80%;
-    overflow: auto;
 }
 
 .menuItem {

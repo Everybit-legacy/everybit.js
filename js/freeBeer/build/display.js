@@ -254,7 +254,7 @@ var GridLayoutMixin = {
         
         var arrows = puffBoxen.reduce(function(acc, puffbox) {
                         return acc.concat(
-                            puffbox.puff.payload.parents.map(
+                            (puffbox.puff.payload.parents||[]).map(
                                 function(parent) {
                                     return [puffBoxen.filter(
                                         function(pb) {

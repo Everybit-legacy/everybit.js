@@ -35,47 +35,44 @@ PuffForum.init = function() {
 }
 
 
-PuffForum.secretStash = {}
-
 PuffForum.getShells = function() {
     var myUsername = PuffWardrobe.getCurrentUsername()
-    var myKeys = PuffWardrobe.getCurrentKeys()
-    var shells = PuffData.getShells(myUsername)
-    var privateShells = []
-    var encryptedPuffs = PuffData.getEncryptedPuffsForMe(myUsername)
-    
-    encryptedPuffs.forEach(function(puff) {
-        if(!PuffForum.secretStash[myUsername])
-            PuffForum.secretStash[myUsername] = {}
-        
-        if(PuffForum.secretStash[myUsername][puff.sig])
-            return privateShells.push(PuffForum.secretStash[myUsername][puff.sig])
-        
-        var yourUsername = puff.username
-        var yourUserRecord = PuffData.getCachedUserRecord(yourUsername)
-        if(yourUserRecord) {
-            var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
-            PuffForum.secretStash[myUsername][puff.sig] = puff
-            privateShells.push((puff))   // we already have the user record, so just push it
-            return false
-        }
-        
-        var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
-        yourUserRecordPromise.then(function(yourUserRecord) {
-            var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
-            PuffForum.secretStash[myUsername][puff.sig] = puff
-
-            // var puff = Puffball.decryptPuff(puff, yourUserRecord.defaultKey, myUsername, myKeys.default)
-            updateUI() // this is pretty hacky... but we can't bring the decrypted puff in the front door, 
-                       // or it gets added to the main list of shells in decrypted form. so we just get 
-                       // the user record locally and then trigger a redraw which brings the puff into 
-                       // the UI without adding it to the system at large. 
-                       // TODO: revisit this whole thing, and add a smarter caching/persisting/etc layer
-        })
-    })
-    
-    return PuffData.shells.concat(privateShells);
+    var shells = PuffData.getShells()
+    return shells.filter(function(shell) {return !shells.keys || shell.keys[username]})
+    // var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
+    // return PuffData.shells.concat(encryptedShells)
 }
+
+PuffForum.secretStash = {}
+PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
+    var myUsername = PuffWardrobe.getCurrentUsername()
+    var myKeys = PuffWardrobe.getCurrentKeys()
+    
+    if(!PuffForum.secretStash[myUsername])
+        PuffForum.secretStash[myUsername] = {}
+    
+    if(PuffForum.secretStash[myUsername][envelope.sig])
+        return PuffForum.secretStash[myUsername][envelope.sig]
+    
+    function doit(envelope, yourUserRecord) {
+        var letter = Puffball.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
+        PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
+        return letter
+    }
+    
+    var yourUsername   = envelope.username
+    var yourUserRecord = PuffData.getCachedUserRecord(yourUsername)
+    
+    if(yourUserRecord) 
+        return doit(envelope, yourUserRecord)
+    
+    var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
+    yourUserRecordPromise.then(function(yourUserRecord) {
+        doit(envelope, yourUserRecord)                                              // puts it in the cache for next time
+        updateUI()                                                                  // redraw everything once DHT responds
+    })
+}
+
 
 /**
  * get a particular puff by its sig
@@ -139,10 +136,10 @@ PuffForum.getParents = function(puff, props) {
         puff = PuffForum.getPuffBySig(puff);
     }
     
-    return puff.payload.parents.map(PuffForum.getPuffBySig)
-                               .filter(Boolean)
-                               .filter(PuffForum.getPropsFilter(props))
-                               .sort(PuffForum.sortByPayload)
+    return (puff.payload.parents||[]).map(PuffForum.getPuffBySig)
+                                     .filter(Boolean)
+                                     .filter(PuffForum.getPropsFilter(props))
+                                     .sort(PuffForum.sortByPayload)
                                                           
 }
 
@@ -507,7 +504,6 @@ PuffForum.addContentType('markdown', {
  * @return {string}
  */
 PuffForum.addContentType('PGN', {
-
     toHtml: function(content) {
         return chessBoard(content);
     }
@@ -519,9 +515,22 @@ PuffForum.addContentType('PGN', {
  * @return {string}
  */
 PuffForum.addContentType('LaTex', {
-
     toHtml: function(content) {
        // return ltxParse(content);
 
-        }
+    }
+})
+
+/**
+ * Encrypted puffs 
+ * @param  {string} Content type name
+ * @param  {object} Content type methods
+ * @return {string}
+ */
+PuffForum.addContentType('encryptedpuff', {
+    toHtml: function(content, envelope) {                                                 // the envelope is a puff
+        var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
+        if(!letter) return '';                                                            // can't read the letter
+        return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
+    }
 })

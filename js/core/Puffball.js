@@ -341,20 +341,22 @@ PuffData.getShells = function() {
     return PuffData.shells
 }
 
+PuffData.getPublicShells = function() {
+    //// Get all public shells
+    var shells = PuffData.getShells()
+    return shells.filter(function(shell) {return !shell.keys})
+}
+
+PuffData.getMyEncryptedShells = function(username) {
+    //// Get currently known private shells for a particular user
+    var shells = PuffData.getShells()
+    return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
+}
+
 PuffData.getCachedShellBySig = function(sig) {
     return PuffData.shellSort[sig]
     // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
 }
-
-/**
- * to get the encrypted puffs for the provided username
- * @param  {string} username
- * @return {array of objects}
- */
-// PuffData.getMyEncryptedShells = function(username) {
-//     //// Get currently known private shells for a particular user
-//     return PuffData.shelf.filter(function(shell) {return shell.keys[username]})
-// }
 
 /**
  * to push the puff

@@ -117,13 +117,13 @@ var PuffReplyForm = React.createClass({
 
         var defaultContent = this.props.content || '';
         if(parents.length) {
-            var parentType = PuffForum.getPuffById(parents[0]).payload.type;
+            var parentType = PuffForum.getPuffBySig(parents[0]).payload.type;
 
             // Should we quote the parent
-            if (typeof PuffForum.getPuffById(parents[0]).payload.quote != 'undefined') {
-                if(PuffForum.getPuffById(parents[0]).payload.quote) {
+            if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
+                if(PuffForum.getPuffBySig(parents[0]).payload.quote) {
                     if (!defaultContent)
-                        defaultContent = PuffForum.getPuffById(parents[0]).payload.content;
+                        defaultContent = PuffForum.getPuffBySig(parents[0]).payload.content;
                 }
             }
 

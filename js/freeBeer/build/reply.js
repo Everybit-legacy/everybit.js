@@ -28,6 +28,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     },
     componentWillUnmount: function() {
         // remove silly global

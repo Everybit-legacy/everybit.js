@@ -140,7 +140,7 @@ var CursorBindingsMixin = {
             // current = document.getElementById(current);
             // var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
 
-            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffById(current), arrowToDir(e.which))
+            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir(e.which))
             
             if (next)
                 events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
@@ -254,7 +254,7 @@ var GridLayoutMixin = {
         
         var arrows = puffBoxen.reduce(function(acc, puffbox) {
                         return acc.concat(
-                            puffbox.puff.payload.parents.map(
+                            (puffbox.puff.payload.parents||[]).map(
                                 function(parent) {
                                     return [puffBoxen.filter(
                                         function(pb) {
@@ -306,7 +306,7 @@ var PuffWorld = React.createClass({
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var defaultPuffId = polyglot.t("puff.default") || CONFIG.defaultPuff;
-        var defaultPuff = PuffForum.getPuffById(defaultPuffId);
+        var defaultPuff = PuffForum.getPuffBySig(defaultPuffId);
         var defaultViewProps = {};
         defaultViewProps.puff = defaultPuff;
 

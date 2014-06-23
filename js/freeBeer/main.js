@@ -240,7 +240,7 @@ events.shallow_copy = function(obj) {
 //   var mapdom = $('#minimap')
 //   
 //   // PuffData.puffs.forEach(function(puff) {
-//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffById(\'' 
+//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
 //   //   mapdom.append($(template))
@@ -436,7 +436,7 @@ function showPuff(sig) {
     if(!sig)
         return false
     
-    var puff = PuffForum.getPuffById(sig)                           // get it?
+    var puff = PuffForum.getPuffBySig(sig)                           // get it?
     
     if(puff)
         return showPuffDirectly(puff)                               // got it.
@@ -503,7 +503,7 @@ function setViewPropsFromPushstate(pushstate) {
     var sig = pushstate.puff
     
     if(sig)
-        pushstate.puff = PuffForum.getPuffById(sig)
+        pushstate.puff = PuffForum.getPuffBySig(sig)
     
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     events.update_puffworldprops(props)
@@ -586,26 +586,10 @@ function formatForDisplay(obj, style) {
 
 window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
                             || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+                            || setTimeout
 
-// only update once per tick
-var updateUI = (function() {
-    var update = false
-    var step = function(timestamp) {
-        if(update) {
-            update = false            // we have to set this before entering puffworld
-            renderPuffWorld()         // THINK: should we set it after too?
-        } else {            
-            update = false
-        }
-        // requestAnimationFrame(step)
-    }
-    return function() {
-        if(update) return false
-        update = true 
-        requestAnimationFrame(step)
-    }
-})()
-
+// only update once per rAF
+var updateUI = onceRAF.bind(this, renderPuffWorld)
 
 // Register our update function
 var eatPuffs = function(puffs) {

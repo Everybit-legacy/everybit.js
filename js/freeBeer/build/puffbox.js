@@ -362,7 +362,7 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
 var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
     handleClick: function() {
         var sig  = this.props.sig;
-        // var puff = PuffForum.getPuffById(sig);
+        // var puff = PuffForum.getPuffBySig(sig);
         showPuff(sig);
     },
     render: function() {

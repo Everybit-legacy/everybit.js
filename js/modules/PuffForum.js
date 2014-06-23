@@ -37,27 +37,39 @@ PuffForum.init = function() {
 
 PuffForum.getShells = function() {
     var myUsername = PuffWardrobe.getCurrentUsername()
-    var shells = PuffData.getShells()
-    return shells.filter(function(shell) {return !shells.keys || shell.keys[username]})
-    // var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
+    var publicShells = PuffData.getPublicShells()
+    var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
+                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+    return publicShells.concat(encryptedShells)
+    
+    // return shells.filter(function(shell) {return !shell.keys || shell.keys[myUsername]})
     // return PuffData.shells.concat(encryptedShells)
 }
 
 PuffForum.secretStash = {}
+
+PuffForum.getStashedShellBySig = function(username, sig) {
+    if(!PuffForum.secretStash[username])
+        PuffForum.secretStash[username] = {}
+    
+    if(PuffForum.secretStash[username][sig])
+        return PuffForum.secretStash[username][sig]
+}
+
 PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
     var myUsername = PuffWardrobe.getCurrentUsername()
     var myKeys = PuffWardrobe.getCurrentKeys()
+    var maybeShell = PuffForum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
     
-    if(!PuffForum.secretStash[myUsername])
-        PuffForum.secretStash[myUsername] = {}
-    
-    if(PuffForum.secretStash[myUsername][envelope.sig])
-        return PuffForum.secretStash[myUsername][envelope.sig]
+    if(maybeShell)
+        return maybeShell
     
     function doit(envelope, yourUserRecord) {
         var letter = Puffball.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
         if(!letter) return false
         PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
+        PuffForum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
+        PuffData.addBonus(letter, 'envelope', envelope)                             // mark it for later
         return letter
     }
     
@@ -82,8 +94,12 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
  */
 PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
+    var myUsername = PuffWardrobe.getCurrentUsername()
   
-    var shell = PuffData.getCachedShellBySig(sig)
+    var shell = PuffData.getCachedShellBySig(sig)                              // check in lower cache
+    
+    if(!shell)
+        shell = PuffForum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
     
     return Puffball.getPuffFromShell(shell || sig)
 }
@@ -530,10 +546,10 @@ PuffForum.addContentType('LaTex', {
  * @param  {object} Content type methods
  * @return {string}
  */
-PuffForum.addContentType('encryptedpuff', {
-    toHtml: function(content, envelope) {                                                 // the envelope is a puff
-        var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
-        if(!letter) return 'This is encrypted';                                                            // can't read the letter
-        return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
-    }
-})
+// PuffForum.addContentType('encryptedpuff', {
+//     toHtml: function(content, envelope) {                                                 // the envelope is a puff
+//         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
+//         if(!letter) return 'This is encrypted';                                                            // can't read the letter
+//         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
+//     }
+// })

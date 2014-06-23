@@ -2506,7 +2506,11 @@ Socket.prototype._startWebSocket = function(id) {
       util.log('Invalid server message', event.data);
       return;
     }
-    self.emit('message', data);
+    try {
+      self.emit('message', data);
+    } catch ($e) {
+      console.log('peer error', $e)
+    }
   };
 
   // Take care of the queue of connections if necessary and make sure Peer knows

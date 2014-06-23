@@ -325,6 +325,7 @@ Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWi
 
 PuffData = {};
 PuffData.puffs = [];
+PuffData.bonii = {};
 PuffData.shells = [];
 PuffData.shellSort = {};
 // PuffData.shelf = [];
@@ -341,20 +342,40 @@ PuffData.getShells = function() {
     return PuffData.shells
 }
 
+PuffData.getPublicShells = function() {
+    //// Get all public shells
+    var shells = PuffData.getShells()
+    return shells.filter(function(shell) {return !shell.keys})
+}
+
+PuffData.getMyEncryptedShells = function(username) {
+    //// Get currently known private shells for a particular user
+    var shells = PuffData.getShells()
+    return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
+}
+
 PuffData.getCachedShellBySig = function(sig) {
     return PuffData.shellSort[sig]
     // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
 }
 
-/**
- * to get the encrypted puffs for the provided username
- * @param  {string} username
- * @return {array of objects}
- */
-// PuffData.getMyEncryptedShells = function(username) {
-//     //// Get currently known private shells for a particular user
-//     return PuffData.shelf.filter(function(shell) {return shell.keys[username]})
-// }
+PuffData.addBonus = function(puff, key, value) {
+    //// this simulates a WeakMap
+    // THINK: we'll need to provide some GC here
+    var id = puff.sig
+    
+    if(!PuffData.bonii[id])
+        PuffData.bonii[id] = {}
+    
+    PuffData.bonii[id][key] = value
+}
+
+PuffData.getBonus = function(puff, key) {
+    var id = puff.sig
+    var puffBonii = PuffData.bonii[id]
+    return puffBonii && puffBonii[key]
+}
+
 
 /**
  * to push the puff
@@ -412,7 +433,7 @@ PuffData.verifyShell = function(shell) {
     if(!shell.username) return false
     if(typeof shell.payload != 'object') return false
     if(!shell.payload.type) return false
-    if(!shell.payload.content) return false
+    // if(!shell.payload.content) return false
     return true
 }
 

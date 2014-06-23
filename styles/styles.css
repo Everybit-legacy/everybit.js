@@ -116,6 +116,10 @@ section {
     overflow-x: auto;
 }
 
+#talltree .block.encrypted {
+    background-color: #fbb;
+}
+
 #talltree .parent .txt {
 }
 

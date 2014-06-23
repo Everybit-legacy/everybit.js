@@ -12,11 +12,14 @@ var PuffFancyBox = React.createClass({
         var   left = stats.x + CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
         
+        // set up classes
         var classArray = ['block']
         if(this.props.extraClassy)
             classArray.push(this.props.extraClassy)
         if(this.props.view.cursor == puff.sig)
             classArray.push('cursor')
+        if(PuffData.getBonus(puff, 'envelope'))
+            classArray.push('encrypted')
         var className = classArray.join(' ')
         
         var offset = 30

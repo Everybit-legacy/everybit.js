@@ -412,7 +412,7 @@ PuffData.verifyShell = function(shell) {
     if(!shell.username) return false
     if(typeof shell.payload != 'object') return false
     if(!shell.payload.type) return false
-    if(!shell.payload.content) return false
+    // if(!shell.payload.content) return false
     return true
 }
 

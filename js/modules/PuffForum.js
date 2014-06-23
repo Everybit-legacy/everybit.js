@@ -528,10 +528,10 @@ PuffForum.addContentType('LaTex', {
  * @param  {object} Content type methods
  * @return {string}
  */
-PuffForum.addContentType('encryptedpuff', {
-    toHtml: function(content, envelope) {                                                 // the envelope is a puff
-        var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
-        if(!letter) return 'This is encrypted';                                                            // can't read the letter
-        return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
-    }
-})
+// PuffForum.addContentType('encryptedpuff', {
+//     toHtml: function(content, envelope) {                                                 // the envelope is a puff
+//         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
+//         if(!letter) return 'This is encrypted';                                                            // can't read the letter
+//         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
+//     }
+// })

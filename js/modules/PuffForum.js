@@ -69,6 +69,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
         if(!letter) return false
         PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
         PuffForum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
+        PuffData.addBonus(letter, 'envelope', envelope)                             // mark it for later
         return letter
     }
     

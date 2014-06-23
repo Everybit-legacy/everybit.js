@@ -325,6 +325,7 @@ Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWi
 
 PuffData = {};
 PuffData.puffs = [];
+PuffData.bonii = {};
 PuffData.shells = [];
 PuffData.shellSort = {};
 // PuffData.shelf = [];
@@ -357,6 +358,24 @@ PuffData.getCachedShellBySig = function(sig) {
     return PuffData.shellSort[sig]
     // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
 }
+
+PuffData.addBonus = function(puff, key, value) {
+    //// this simulates a WeakMap
+    // THINK: we'll need to provide some GC here
+    var id = puff.sig
+    
+    if(!PuffData.bonii[id])
+        PuffData.bonii[id] = {}
+    
+    PuffData.bonii[id][key] = value
+}
+
+PuffData.getBonus = function(puff, key) {
+    var id = puff.sig
+    var puffBonii = PuffData.bonii[id]
+    return puffBonii && puffBonii[key]
+}
+
 
 /**
  * to push the puff

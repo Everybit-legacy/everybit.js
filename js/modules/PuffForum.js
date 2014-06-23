@@ -517,10 +517,8 @@ PuffForum.addContentType('PGN', {
 PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
        // return ltxParse(content);
-<<<<<<< HEAD
-        var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
-        return '<p>' + safe_content.html + '</p>'               // THINK: is this really safe?
-=======
+        var safe_content = XBBCODE.process({ text: content }) 
+        return '<p>' + safe_content.html + '</p>'
 
     }
 })
@@ -536,6 +534,5 @@ PuffForum.addContentType('encryptedpuff', {
         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
         if(!letter) return '';                                                            // can't read the letter
         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
->>>>>>> 8b1699f101e0c15a7043e08234e85693843c60d8
     }
 })

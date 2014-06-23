@@ -39,6 +39,7 @@ puffworldprops = {
     reply: {
         parents: [],
         show: false,
+        preview: false,
         type: 'text'
     },
 
@@ -192,6 +193,7 @@ events.sub('ui/*', function(data, path) {
     // set the props in the url and history
     setViewPropsInURL()
 
+    puffworldprops.reply.preview = false;
     // then re-render PuffWorld w/ the new props
     updateUI()
 })

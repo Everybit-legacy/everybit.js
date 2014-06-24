@@ -300,18 +300,15 @@ var PuffPacker = React.createClass({
         var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
 
-        // check if there is hash
-        var hash = (window.location.hash.indexOf('instagram_access_token') != -1);
+        // check if there is request username
+        var params = getQuerystringObject();
         var importUser = false;
-        var importField = "";
-        if (hash) {
-            importUser = UsernameImport.instagram.processAuthentication();
-            if (importUser) {
-                username = importUser.username;
-                this.props.importUsername = importUser.username;
-                this.props.importToken = importUser.token;
-                this.props.importAuth = importUser.auth;
-            }
+        if (params['requestUsername']) {
+            username = params['requestUsername'];
+            imposrtUser  = true;
+            this.props.username = params['requestUsername'];
+            this.props.token = params['token'];
+            this.props.auth = 'instagram';
         }
 
 

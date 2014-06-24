@@ -6,7 +6,7 @@ UsernameImport['instagram'] = {
 	'profile_url': 'https://api.instagram.com/v1/users/self/'
 };
 UsernameImport.instagram.requestAuthentication = function() {
-	var auth_url = 'https://api.instagram.com/oauth/authorize/?client_id=' + UsernameImport.instagram.client_id + '&redirect_uri=' + UsernameImport.instagram.redirect_uri + '&response_type=token';
+	var auth_url = 'https://api.instagram.com/oauth/authorize/?client_id=' + UsernameImport.instagram.client_id + '&redirect_uri=' + UsernameImport.instagram.redirect_uri + '&response_type=code';
 	window.location = auth_url;
 }
 UsernameImport.instagram.processAuthentication = function() {

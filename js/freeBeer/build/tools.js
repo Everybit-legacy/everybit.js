@@ -87,7 +87,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
 
         // import
-        if (this.props.importAuth) payload.importAuth = this.props.importAuth;
+        if (this.props.importNetwork) payload.importNetwork = this.props.importNetwork;
         if (this.props.importToken) payload.importToken = this.props.importToken;
         if (this.props.importId) payload.importId = this.props.importId; 
 
@@ -283,19 +283,9 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
         // PuffWardrobe.addUserReally('anon', keys);
     },
-
-    handleInstagramImport: function() {
-        this.props.importAuth = 'instagram';
-        UsernameImport.instagram.requestAuthentication();
-    },
-    handleRedditImport: function() {
-        this.props.importAuth = 'reddit';
-        UsernameImport.reddit.requestAuthentication();
-    },
     handleImport: function() {
-        var auth = this.refs.import.getDOMNode().value;
-        this.props.importAuth = 'instagram';
-        UsernameImport[auth].requestAuthentication();
+        var network = this.refs.import.getDOMNode().value;
+        UsernameImport[network].requestAuthentication();
     },
 
 
@@ -327,11 +317,10 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
             requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
+            this.props.importNetwork = params['network'];
             PuffWardrobe.switchCurrent('anon');
             events.pub('ui/set-current/anon', {});
             setIdentityField = "";
-        } else {
-            this.props.importAuth = false;
         }
         var disabled = importUser ? "disabled" : "";
 

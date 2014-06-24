@@ -324,8 +324,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var requestedUsername = username;
         if (params['requestedUsername']) {
             importUser  = true;
-            requestedUsername = params['requestedUsername'];
-            // this.props.importUsername = params['requestUsername']; // do i need this?
+            requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
             PuffWardrobe.switchCurrent('anon');

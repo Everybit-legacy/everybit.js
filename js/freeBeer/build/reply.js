@@ -240,18 +240,18 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                         
                         React.DOM.div(null, 
                             React.DOM.p(null, 
-                                "Privacy options:",
+                                polyglot.t("replyForm.privacyOption"),":",
                                 React.DOM.select( {ref:"privacy", className:"btn", defaultValue:"public"}, 
-                                    React.DOM.option( {key:"public", value:"public"}, "Public (everyone can see this)"),
-                                    React.DOM.option( {key:"private", value:"private"}, "Private (content is encrypted)"),
-                                    React.DOM.option( {key:"anon", value:"anon"}, "Anonymous (encrypted and anonymous)"),
-                                    React.DOM.option( {key:"paranoid", value:"paranoid"}, "Paranoid (regenerate anon user each time)")
+                                    React.DOM.option( {key:"public", value:"public"}, polyglot.t("replyForm.pOptions.public")),
+                                    React.DOM.option( {key:"private", value:"private"}, polyglot.t("replyForm.pOptions.private")),
+                                    React.DOM.option( {key:"anon", value:"anon"}, polyglot.t("replyForm.pOptions.anon")),
+                                    React.DOM.option( {key:"paranoid", value:"paranoid"}, polyglot.t("replyForm.pOptions.paranoid"))
                                 )
                             ),
                             
                             React.DOM.p(null, 
                                 React.DOM.label(null, 
-                                    "Send to user:",
+                                    polyglot.t("replyForm.sendTo"),":",
                                     React.DOM.input( {type:"text", name:"usernames", ref:"usernames"})
                                 )
                             )

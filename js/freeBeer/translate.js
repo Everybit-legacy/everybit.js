@@ -87,7 +87,16 @@ Translate.language["en"].extend({
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
 			imageLicense: 'Image License'
-		}
+		},
+        privacyOption: 'Privacy options',
+        pOptions: {
+            public: 'Public (everyone can see this)',
+            private: 'Private (content is emcrypted)',
+            anon: 'Anonymous (encrypted and anonymous)',
+            paranoid: 'Paranoid (regenerate anon user each time)'
+        },
+        sendTo: 'Send to user'
+
 	},
 	footer: {
 		powered: 'Powered by',
@@ -187,7 +196,15 @@ Translate.language["zh"].extend({
 			imageFile: '图片文件',
 			imageChosen: '没有选中文件',
 			imageLicense: '图片许可'
-		}
+		},
+        privacyOption: '隐私选项',
+        pOptions: {
+            public: '公开 (所有人可见)',
+            private: '隐私 (内容是加密的)',
+            anon: '匿名 (加密及匿名的)',
+            paranoid: '偏执狂 (每次都会重新生成用户名)'
+        },
+        sendTo: '发给用户'
 	},
 	footer: {
 		powered: '基于',

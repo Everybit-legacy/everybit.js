@@ -275,11 +275,9 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleSetIdentityToAnon: function() {
-        var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-        prom.then(function() {
-            PuffWardrobe.switchCurrent('anon');
-            events.pub('ui/puff-packer/set-identity-to-anon', {});
-        })
+        PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+        PuffWardrobe.switchCurrent('anon');
+        events.pub('ui/puff-packer/set-identity-to-anon', {});
         // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
         // PuffWardrobe.addUserReally('anon', keys);
     },
@@ -308,18 +306,20 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null )
                         ));
 
-        // check if import username
+
         var params = getQuerystringObject();
         var importUser = false;
         var requestedUsername = username;
         if (params['requestedUsername']) {
+            // Check if import username
+
+            // Request has to come from anon user
+            this.handleSetIdentityToAnon();
             importUser  = true;
             requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
             this.props.importNetwork = params['network'];
-            PuffWardrobe.switchCurrent('anon');
-            events.pub('ui/set-current/anon', {});
             setIdentityField = "";
         }
         var disabled = importUser ? "disabled" : "";

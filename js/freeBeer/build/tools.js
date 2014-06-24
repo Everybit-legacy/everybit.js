@@ -85,6 +85,9 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
         payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
+        if (this.props.importAuth) payload.auth = this.props.importAuth;
+        if (this.props.importToken) payload.token = this.props.importToken 
+
         var routes = [];
         var type = 'updateUserRecord';
         var content = 'requestUsername';
@@ -278,6 +281,11 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         // PuffWardrobe.addUserReally('anon', keys);
     },
 
+    handleInstagramImport: function() {
+        UsernameImport.instagram.requestAuthentication();
+    },
+
+
     formatForDisplay: function(obj, style) {
         if(style == 'formatted') {
             return JSON.stringify(obj, null, 2)
@@ -292,6 +300,22 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
 
+        // check if there is hash
+        var hash = (window.location.hash.indexOf('instagram_access_token') != -1);
+        var importUser = false;
+        var importField = "";
+        if (hash) {
+            importUser = UsernameImport.instagram.processAuthentication();
+            if (importUser) {
+                username = importUser.username;
+                this.props.importUsername = importUser.username;
+                this.props.importToken = importUser.token;
+                this.props.importAuth = importUser.auth;
+            }
+        }
+
+
+
         return (
             React.DOM.div( {id:"adminForm"}, 
                 React.DOM.form( {id:"PuffPacker"}, 
@@ -304,10 +328,12 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         React.DOM.h3(null, "Tools"),
 
                     "username:",
-                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:username} ), " ", React.DOM.br(null ),
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:username, disable:importUser}), " ", React.DOM.br(null ),
                         React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
 
                         React.DOM.input( {className:"btn-link", type:"button", value:"Build registration request", onClick:this.handleBuildRegisterUserPuff} ),React.DOM.br(null ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Import from Instagram", onClick:this.handleInstagramImport} ),React.DOM.br(null ),
 
                         React.DOM.b(null, "Current identity:"), " ", React.DOM.span( {className:"authorSpan"}, username),React.DOM.br(null ),
 

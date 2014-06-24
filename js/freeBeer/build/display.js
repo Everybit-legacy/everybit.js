@@ -5,11 +5,13 @@ var ViewKeybindingsMixin = {
         
         // n shows new puff form
         Mousetrap.bind('n', function() { 
+            if (puffworldprops.reply.preview) return false;
             return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
         }.bind(this));
         
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
+            if (puffworldprops.reply.preview) return false;
             var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
             parents = parents.slice()                        // don't mutate props directly
             var sig = this.props.view.cursor

@@ -50,6 +50,11 @@ puffworldprops = {
     prefs: { },
     profile: { },
     tools: {
+        importuser: {
+            username: false,
+            token: false,
+            auth: false
+        },
         users: {
             resultstyle: 'raw',
             puffstyle: 'raw'

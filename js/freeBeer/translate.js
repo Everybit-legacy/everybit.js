@@ -115,7 +115,7 @@ Translate.language["zh"].extend({
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
-            showpuffs:"显示我的puff",
+            showpuffs:"显示给我的puff",
 			route: "路径",
 			unfiltered: "无"
 		},

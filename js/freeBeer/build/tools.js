@@ -326,8 +326,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
             // Request has to come from anon user
             this.handleSetIdentityToAnon();
             importUser  = true;
-            requestedUsername = params['requestedUsername'];
-            // this.props.importUsername = params['requestUsername']; // do i need this?
+            requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
             // PuffWardrobe.switchCurrent('anon');

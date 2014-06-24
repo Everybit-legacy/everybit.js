@@ -128,7 +128,7 @@ var View = React.createClass({displayName: 'View',
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
+        return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': '', 'view.filterroute': false});
     },
 
     handleShowUserPuffs: function(username) {
@@ -152,7 +152,6 @@ var View = React.createClass({displayName: 'View',
        // var route = this.refs.pickroute.getDOMNode().value;
         return events.pub('ui/view/route/set', {'view.filterroute': username});
     },
-
 
 
     render: function() {

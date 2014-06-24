@@ -460,7 +460,7 @@ PuffData.fetchNewShells = function() {
     /// TODO: this should call PuffNet.fetchNewShells and then integrate that with our shells from local storage
     ///       and then we'll get the missing content on demand
     
-    var prom = PuffNet.getAllPuffShells();
+    var prom = PuffNet.getAllShells();
     
     prom.then(function(shells) {
         if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 

@@ -557,6 +557,9 @@ humanizeUsernames = function(username) {
     return username
 }
 
+reduceUsernameToAlphanumeric = function(username) {
+    return username.split(/[^A-Za-z0-9]/).join('');
+}
 
 
 function renderPuffWorld() {

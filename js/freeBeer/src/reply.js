@@ -240,18 +240,18 @@ var PuffReplyForm = React.createClass({
                         
                         <div>
                             <p>
-                                Privacy options:
+                                {polyglot.t("replyForm.privacyOption")}:
                                 <select ref="privacy" className="btn" defaultValue="public">
-                                    <option key="public" value="public">Public (everyone can see this)</option>
-                                    <option key="private" value="private">Private (content is encrypted)</option>
-                                    <option key="anon" value="anon">Anonymous (encrypted and anonymous)</option>
-                                    <option key="paranoid" value="paranoid">Paranoid (regenerate anon user each time)</option>
+                                    <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
+                                    <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
+                                    <option key="anon" value="anon">{polyglot.t("replyForm.pOptions.anon")}</option>
+                                    <option key="paranoid" value="paranoid">{polyglot.t("replyForm.pOptions.paranoid")}</option>
                                 </select>
                             </p>
                             
                             <p>
                                 <label>
-                                    Send to user:
+                                    {polyglot.t("replyForm.sendTo")}:
                                     <input type="text" name="usernames" ref="usernames"></input>
                                 </label>
                             </p>

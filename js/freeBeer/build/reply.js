@@ -3,9 +3,8 @@
 var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
     componentDidMount: function() {
         // set silly global this is very very dumb
-        globalReplyFormSubmitArg = this.handleSubmit;
-        // globalReplyFormSubmitArg = this.handleSubmit.bind(this);
-        
+        globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
         
@@ -19,6 +18,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
+
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -28,10 +28,12 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
     },
     componentWillUnmount: function() {
         // remove silly global
         globalReplyFormSubmitArg = null;
+        puffworldprops.reply.preview = false;
     },
     getInitialState: function() {
         return {imageSrc: '', showPreview: false};
@@ -98,11 +100,13 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         return events.pub('ui/reply/set-type', {'reply.type': type});
     },
     handleTogglePreview: function() {
+        puffworldprops.reply.preview = !this.state.showPreview;
         this.setState({showPreview: !this.state.showPreview});
     },
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
+        puffworldprops.reply.preview = this.state.showPreview;
 
         // var userList = ['dann', 'mattasher', 'freebeer'];
 
@@ -153,7 +157,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             content = PuffForum.processContent(type, content, {});
             typeFields = (
                 React.DOM.div( {style:divStyle}, 
-                    React.DOM.div( {id:"preview", ref:"preview", name:"preview", className:"mousetrap", dangerouslySetInnerHTML:{__html: content}})
+                    React.DOM.div( {id:"preview", ref:"preview", name:"preview", dangerouslySetInnerHTML:{__html: content}})
                 )
             )
         }

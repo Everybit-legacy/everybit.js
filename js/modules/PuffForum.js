@@ -534,6 +534,8 @@ PuffForum.addContentType('PGN', {
 PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
        // return ltxParse(content);
+        var safe_content = XBBCODE.process({ text: content }) 
+        return '<p>' + safe_content.html + '</p>'
 
     }
 })

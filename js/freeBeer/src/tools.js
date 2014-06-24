@@ -282,6 +282,7 @@ var PuffPacker = React.createClass({
     },
 
     handleInstagramImport: function() {
+        this.props.auth = 'instagram';
         UsernameImport.instagram.requestAuthentication();
     },
 
@@ -308,7 +309,6 @@ var PuffPacker = React.createClass({
             imposrtUser  = true;
             this.props.username = params['requestUsername'];
             this.props.token = params['token'];
-            this.props.auth = 'instagram';
         }
 
 

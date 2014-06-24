@@ -85,8 +85,11 @@ var PuffPacker = React.createClass({
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
         payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
-        if (this.props.importAuth) payload.auth = this.props.importAuth;
-        if (this.props.importToken) payload.token = this.props.importToken 
+
+        // import
+        if (this.props.importAuth) payload.importAuth = this.props.importAuth;
+        if (this.props.importToken) payload.importToken = this.props.importToken;
+        if (this.props.importId) payload.importId = this.props.importId; 
 
         var routes = [];
         var type = 'updateUserRecord';
@@ -282,7 +285,17 @@ var PuffPacker = React.createClass({
     },
 
     handleInstagramImport: function() {
+        this.props.importAuth = 'instagram';
         UsernameImport.instagram.requestAuthentication();
+    },
+    handleRedditImport: function() {
+        this.props.importAuth = 'reddit';
+        UsernameImport.reddit.requestAuthentication();
+    },
+    handleImport: function() {
+        var auth = this.refs.import.getDOMNode().value;
+        this.props.importAuth = 'instagram';
+        UsernameImport[auth].requestAuthentication();
     },
 
 
@@ -299,22 +312,29 @@ var PuffPacker = React.createClass({
         // Pre-fill with current user information if exists in memory
         var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+        var setIdentityField = (<div>To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
-        // check if there is hash
-        var hash = (window.location.hash.indexOf('instagram_access_token') != -1);
+                        <PuffSwitchUser />
+                        <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br /><br />
+                        </div>);
+
+        // check if import username
+        var params = getQuerystringObject();
         var importUser = false;
-        var importField = "";
-        if (hash) {
-            importUser = UsernameImport.instagram.processAuthentication();
-            if (importUser) {
-                username = importUser.username;
-                this.props.importUsername = importUser.username;
-                this.props.importToken = importUser.token;
-                this.props.importAuth = importUser.auth;
-            }
+        var requestedUsername = username;
+        if (params['requestedUsername']) {
+            importUser  = true;
+            requestedUsername = params['requestedUsername'];
+            // this.props.importUsername = params['requestUsername']; // do i need this?
+            this.props.importToken = params['token'];
+            this.props.importId = params['requestedUserId'];
+            PuffWardrobe.switchCurrent('anon');
+            events.pub('ui/set-current/anon', {});
+            setIdentityField = "";
+        } else {
+            this.props.importAuth = false;
         }
-
-
+        var disabled = importUser ? "disabled" : "";
 
         return (
             <div id="adminForm">
@@ -328,20 +348,18 @@ var PuffPacker = React.createClass({
                         <h3>Tools</h3>
 
                     username:
-                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={username} disable={importUser}/> <br />
+                        <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={requestedUsername} disabled={disabled}/> <br />
                         <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
 
                         <input className="btn-link" type="button" value="Build registration request" onClick={this.handleBuildRegisterUserPuff} /><br />
 
-                        <input className="btn-link" type="button" value="Import from Instagram" onClick={this.handleInstagramImport} /><br />
+                        Import from: <select id="import" ref="import">
+                                <option value="instagram">Instagram</option>
+                                <option value="reddit">Reddit</option>
+                            </select>{' '}<input className="btn-link" type="button" value="Go" onClick={this.handleImport} /><br />
 
                         <b>Current identity:</b> <span className="authorSpan">{username}</span><br />
-
-                    To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
-
-                        <PuffSwitchUser />
-
-                        <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br /><br />
+                        {setIdentityField}
 
                         <input className="btn-link" type="button" value="Generate keys" onClick={this.handleGeneratePrivateKeys} /><br />
 

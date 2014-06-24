@@ -85,8 +85,11 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
         payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
         payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
-        if (this.props.importAuth) payload.auth = this.props.importAuth;
-        if (this.props.importToken) payload.token = this.props.importToken 
+
+        // import
+        if (this.props.importAuth) payload.importAuth = this.props.importAuth;
+        if (this.props.importToken) payload.importToken = this.props.importToken;
+        if (this.props.importId) payload.importId = this.props.importId; 
 
         var routes = [];
         var type = 'updateUserRecord';
@@ -282,7 +285,17 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleInstagramImport: function() {
+        this.props.importAuth = 'instagram';
         UsernameImport.instagram.requestAuthentication();
+    },
+    handleRedditImport: function() {
+        this.props.importAuth = 'reddit';
+        UsernameImport.reddit.requestAuthentication();
+    },
+    handleImport: function() {
+        var auth = this.refs.import.getDOMNode().value;
+        this.props.importAuth = 'instagram';
+        UsernameImport[auth].requestAuthentication();
     },
 
 
@@ -299,22 +312,29 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         // Pre-fill with current user information if exists in memory
         var username    = PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+        var setIdentityField = (React.DOM.div(null, "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
 
-        // check if there is hash
-        var hash = (window.location.hash.indexOf('instagram_access_token') != -1);
+                        PuffSwitchUser(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null )
+                        ));
+
+        // check if import username
+        var params = getQuerystringObject();
         var importUser = false;
-        var importField = "";
-        if (hash) {
-            importUser = UsernameImport.instagram.processAuthentication();
-            if (importUser) {
-                username = importUser.username;
-                this.props.importUsername = importUser.username;
-                this.props.importToken = importUser.token;
-                this.props.importAuth = importUser.auth;
-            }
+        var requestedUsername = username;
+        if (params['requestedUsername']) {
+            importUser  = true;
+            requestedUsername = params['requestedUsername'];
+            // this.props.importUsername = params['requestUsername']; // do i need this?
+            this.props.importToken = params['token'];
+            this.props.importId = params['requestedUserId'];
+            PuffWardrobe.switchCurrent('anon');
+            events.pub('ui/set-current/anon', {});
+            setIdentityField = "";
+        } else {
+            this.props.importAuth = false;
         }
-
-
+        var disabled = importUser ? "disabled" : "";
 
         return (
             React.DOM.div( {id:"adminForm"}, 
@@ -328,20 +348,18 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         React.DOM.h3(null, "Tools"),
 
                     "username:",
-                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:username, disable:importUser}), " ", React.DOM.br(null ),
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:requestedUsername, disabled:disabled}), " ", React.DOM.br(null ),
                         React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
 
                         React.DOM.input( {className:"btn-link", type:"button", value:"Build registration request", onClick:this.handleBuildRegisterUserPuff} ),React.DOM.br(null ),
 
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Import from Instagram", onClick:this.handleInstagramImport} ),React.DOM.br(null ),
+                        "Import from: ", React.DOM.select( {id:"import", ref:"import"}, 
+                                React.DOM.option( {value:"instagram"}, "Instagram"),
+                                React.DOM.option( {value:"reddit"}, "Reddit")
+                            ),' ',React.DOM.input( {className:"btn-link", type:"button", value:"Go", onClick:this.handleImport} ),React.DOM.br(null ),
 
                         React.DOM.b(null, "Current identity:"), " ", React.DOM.span( {className:"authorSpan"}, username),React.DOM.br(null ),
-
-                    "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
-
-                        PuffSwitchUser(null ),
-
-                        React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null ),
+                        setIdentityField,
 
                         React.DOM.input( {className:"btn-link", type:"button", value:"Generate keys", onClick:this.handleGeneratePrivateKeys} ),React.DOM.br(null ),
 

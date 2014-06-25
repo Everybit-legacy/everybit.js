@@ -48,6 +48,7 @@ PuffData.addBonus = function(puff, key, value) {
 }
 
 PuffData.getBonus = function(puff, key) {
+    //// pull from our FauxWeakMap
     var id = puff.sig
     var puffBonii = PuffData.bonii[id]
     return puffBonii && puffBonii[key]
@@ -67,63 +68,72 @@ PuffData.eatPuff = function(puff) {
     PuffData.puffs.push(puff);  
 }
 
-/**
- * to persist shells
- * @param  {object} shells
- * @return {boolean}
- */
+
+
+
+
+/*
+    Some new shell handling equipment. Need to integrate this more deeply and clean and test.
+*/
+
+PuffData.hereHaveSomeNewShells = function(shells) {
+    //// handle incoming shells
+    
+    shells = Array.isArray(shells) ? shells : [shells];
+    
+    shells = shells.filter(PuffData.isGoodShell)
+    
+    var old_length = PuffData.shells.length
+    shells.forEach(PuffData.tryAddingShell)
+    
+    if(PuffData.shells.length == old_length) return false
+    
+    PuffData.persistShells()
+    PuffData.makeShellsAvailable()
+}
+
+PuffData.makeShellsAvailable = function() {
+    //// alert everyone: new shells have arrived!
+    
+    // TODO: this isn't right -- fix this upper layer too
+    Puffball.receiveNewPuffs(PuffData.shells) // may have to pass delta here
+    
+}
+
+PuffData.tryAddingShell = function(shell) {
+    //// no safety -- shells are already filtered
+    
+    if(PuffData.getCachedShellBySig(shell.sig)) return false
+        
+    PuffData.shells.push(shell)
+    PuffData.shellSort[shell.sig] = shell
+}
+
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
     
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
+    // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     
-    
+    shells = shells || PuffData.shells
     
     Puffball.Persist.save('shells', shells);
 }
 
-/**
- * to add new shell
- * @param {object} shell
- */
-PuffData.addNewShell = function(shell) {
-    
-    if(!PuffData.verifyShell(shell))
-        return false;
-    
-    if(PuffData.getCachedShellBySig(shell.sig)) return false;
-    
-    // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
-    
-    
-    // if(shell.payload.type == 'encryptedpuff') {
-    //     // THINK: later we'll need to GC shells on the shelf that aren't in my wardrobe
-    //     PuffData.shelf.push(shell);                                 // if a shell is private, put it on the shelf
-    //     PuffData.persistShells(PuffData.shells.concat([shell]));    // but go ahead and persist it anyway
-    //     return false
-    // }
-    
-    PuffData.shells.push(shell);                                    // otherwise, push it, sort it, persist it
-    PuffData.shellSort[shell.sig] = shell;
-    PuffData.persistShells(PuffData.shells);
-}
-
-PuffData.verifyShell = function(shell) {
+PuffData.isGoodShell = function(shell) {
     //// this just checks for the existence of required fields
     if(!shell.sig) return false
     if(!shell.routes) return false
     if(!shell.username) return false
     if(typeof shell.payload != 'object') return false
     if(!shell.payload.type) return false
-    // if(!shell.payload.content) return false
     return true
 }
-
 
 PuffData.importShells = function() {
     //// fetch shells from local and remote sources
     
-    // THINK: this should take a set of routes so we can pass it to importRemoteShells
+    // THINK: this should take a set of routes so we can pass them to importRemoteShells
     
     // grab the local shells and add them to the system
     // then grab some remote shells (latest 100) and compare them
@@ -144,13 +154,7 @@ PuffData.importLocalShells = function() {   // callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || [];
     var localShells = Puffball.Persist.get('shells') || [];
     
-    Puffball.receiveNewShells(localShells)
-    
-    // localShells.forEach(PuffData.addNewShell);
-    // setImmediate(function() {callback(PuffData.shells)})
-    // we're doing this asynchronously in order to not interrupt the loading process
-    // should probably wrap this a bit better (use a promise, or setImmediate)
-    // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
+    PuffData.hereHaveSomeNewShells(localShells)
 }
 
 /**
@@ -158,30 +162,55 @@ PuffData.importLocalShells = function() {   // callback) {
  * @return {boolean}
  */
 PuffData.importRemoteShells = function() {
-    var initial_limit = 22;
-    var prom = PuffNet.getSomeShells(initial_limit);
+    var params = {limit: 22}
+    var prom = PuffNet.getSomeShells(params);
     
     return prom.then(function(shells) {
-        Puffball.receiveNewShells(shells)
-        // if(JSON.stringify(PuffData.shells) == JSON.stringify(shells))
-        //     return false;
-        // PuffData.shells = shells;
-        // shells.forEach(PuffData.addNewShell)
-        // // Puffball.Persist.save('shells', shells);
-        // shells.forEach(function(shell) {
-        //     if(shell.payload && shell.payload.content) {
-        //         Puffball.receiveNewPuffs(shell);
-        //     }
-        // })
+        PuffData.hereHaveSomeNewShells(shells)
     })
 }
+
+/*
+    End shell collection intake equipment
+*/
+
+
+
+
+/**
+ * to add new shell
+ * @param {object} shell
+ */
+// PuffData.addNewShell = function(shell) {
+//
+//     if(!PuffData.isGoodShell(shell))
+//         return false;
+//
+//     if(PuffData.getCachedShellBySig(shell.sig)) return false;
+//
+//     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
+//
+//
+//     // if(shell.payload.type == 'encryptedpuff') {
+//     //     // THINK: later we'll need to GC shells on the shelf that aren't in my wardrobe
+//     //     PuffData.shelf.push(shell);                                 // if a shell is private, put it on the shelf
+//     //     PuffData.persistShells(PuffData.shells.concat([shell]));    // but go ahead and persist it anyway
+//     //     return false
+//     // }
+//
+//     PuffData.shells.push(shell);                                    // otherwise, push it, sort it, persist it
+//     PuffData.shellSort[shell.sig] = shell;
+//     PuffData.persistShells(PuffData.shells);
+// }
+
+
 
 /**
  * to verify a puff
  * @param  {object} puff
  * @return {string/boolean}
  */
-PuffData.verifyPuff = function(puff) {
+PuffData.isGoodPuff = function(puff) {
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
     // TODO: use this to verify incoming puffs

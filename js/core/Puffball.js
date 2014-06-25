@@ -239,20 +239,13 @@ Puffball.addPuffToSystem = function(puff) {
     
     if(PuffData.getCachedShellBySig(puff.sig)) return false
     
-    PuffData.addNewShell(puff);
+    PuffData.hereHaveSomeNewShells(puff);
     
-    Puffball.receiveNewPuffs([puff]);
+    // Puffball.receiveNewPuffs([puff]); // called inside hereHaveSomeNewShells
 
     PuffNet.distributePuff(puff);
     
     return puff;
-}
-
-Puffball.receiveNewShells = function(shells) {
-    shells.forEach(PuffData.addNewShell)
-
-    var puffs = shells.filter(function(shell) {return shell.payload && shell.payload.content})
-    Puffball.receiveNewPuffs(puffs)
 }
 
 /**

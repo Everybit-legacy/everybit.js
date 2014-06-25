@@ -206,29 +206,16 @@ Puffball.getUserRecordNoCache = function(username) {
  * @param  {string or object} shell a string which is a signature of a puff; or an object contains partial information of a puff
  * @return {puff object} returns a puff based on the shell; returns false if the shell is empty
  */
-Puffball.getPuffFromShell = function(shell) {
-    if(!shell)
-        return false
+Puffball.getPuffFromShell = function(shell_or_sig) {
+    if(!shell_or_sig)
+        return false // false so we can filter empty shells out easily, while still loading them on demand
     
-    if(shell.payload) { // shell is not just a sig    
-        if(shell.payload.content !== undefined)
-            return shell
+    if(shell_or_sig.payload && shell_or_sig.payload.content !== undefined)
+        return shell_or_sig // it's actually a full blown puff
     
-        var puff = PuffData.puffs.filter(function(puff) { return puff.sig === shell.sig })[0]
-        
-        if(puff)
-            return puff
-    }
+    var sig = shell_or_sig.sig || shell_or_sig
     
-    var sig = shell.sig || shell
-    
-    if(PuffData.pending[sig])
-        return false
-    
-    PuffData.pending[sig] = PuffNet.getPuffBySig(sig) // THINK: need some GC here...
-    PuffData.pending[sig].then(Puffball.receiveNewPuffs)
-    
-    return false // so we can filter empty shells out easily, while still loading them on demand
+    return PuffData.getPuffBySig(sig) // returns a puff, or asks the network and returns false
 }
 
 /**

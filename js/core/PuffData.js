@@ -1,7 +1,7 @@
 // DATA LAYER
 
 PuffData = {};
-PuffData.puffs = [];
+// PuffData.puffs = [];
 PuffData.bonii = {};
 PuffData.shells = [];
 PuffData.shellSort = {};
@@ -61,11 +61,13 @@ PuffData.getBonus = function(puff, key) {
  * @return {boolean}
  */
 PuffData.eatPuff = function(puff) {
-    if(!!~PuffData.puffs
-                  .map(function(p) {return p.sig})     // OPT: check the sig index instead
-                  .indexOf(puff.sig)) 
-      return false;
-    PuffData.puffs.push(puff);  
+    var shell = PuffData.getCachedShellBySig(puff.sig)
+    
+    if(!shell)
+        return PuffData.tryAddingShell(puff)            // add the full puff into the shell list
+    
+    if(!shell.payload.content)
+        shell.payload.content = puff.payload.content    // maybe missing the content
 }
 
 
@@ -79,7 +81,7 @@ PuffData.eatPuff = function(puff) {
 PuffData.hereHaveSomeNewShells = function(shells) {
     //// handle incoming shells
     
-    shells = Array.isArray(shells) ? shells : [shells];
+    shells = Array.isArray(shells) ? shells : [shells]
     
     shells = shells.filter(PuffData.isGoodShell)
     
@@ -107,20 +109,22 @@ PuffData.tryAddingShell = function(shell) {
     //// no safety -- shells are already filtered
     
     if(PuffData.getCachedShellBySig(shell.sig)) return false
-        
+    
     PuffData.shells.push(shell)
     PuffData.shellSort[shell.sig] = shell
+
+    return shell
 }
 
 PuffData.persistShells = function(shells) {
-    if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
+    if(CONFIG.noLocalStorage) return false                  // THINK: this is only for debugging and development
     
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     
     shells = shells || PuffData.shells
     
-    Puffball.Persist.save('shells', shells);
+    Puffball.Persist.save('shells', shells)
 }
 
 PuffData.isGoodShell = function(shell) {
@@ -146,45 +150,36 @@ PuffData.importShells = function() {
     
     
     PuffData.importLocalShells()
-    PuffData.importRemoteShells()
+    PuffData.getMoreShells()
+    // PuffData.importRemoteShells()
 }
 
-/**
- * to fetch local shells
- * @param  {Function} callback
- */
 PuffData.importLocalShells = function() {   // callback) {
-    // PuffData.shells = Puffball.Persist.get('shells') || [];
-    var localShells = Puffball.Persist.get('shells') || [];
+    // PuffData.shells = Puffball.Persist.get('shells') || []
+    var localShells = Puffball.Persist.get('shells') || []
     
     PuffData.hereHaveSomeNewShells(localShells)
 }
 
-/**
- * to fetch new shells
- * @return {boolean}
- */
-PuffData.importRemoteShells = function() {
-    var chunksize = 22
-    var params = {limit: chunksize}
-    var prom = PuffNet.getSomeShells(params);
-    
-    return prom.then(function(shells) {
-        var delta = PuffData.hereHaveSomeNewShells(shells)
-        if(delta == chunksize) { // all new puffs -- no overlap with local storage, so grab another set
-            params.offset = chunksize
-            var prom = PuffNet.getSomeShells(params);              // THINK: we probably don't need this ultimately...
-            prom.then(PuffData.hereHaveSomeNewShells)              // but we have to do something w/ local vs remote.
-        }
-    })
-}
+/*
+    This shell offset thing is going to get flaky:
+    - new puffs added to the system offset the offset
+    - it eventually bottoms out and only returns an empty list
+    - it's nothing like our ultimate DHT/route-based solution
+*/
+PuffData.globalShellOffset = 0 
+PuffData.globalShellBagSize = 20
 
-PuffData.getMoreShells = function() {
-    
-}
+PuffData.getMoreShells = function(params) {
+    var params = params || {}
+    params.limit = PuffData.globalShellBagSize
+    params.offset = PuffData.globalShellOffset
 
-PuffData.getMoreRootShells = function() {
+    var prom = PuffNet.getSomeShells(params)
     
+    PuffData.globalShellOffset += PuffData.globalShellBagSize // uh wat derp
+    
+    return prom.then(PuffData.hereHaveSomeNewShells)
 }
 
 
@@ -193,33 +188,26 @@ PuffData.getMoreRootShells = function() {
 */
 
 
-
-
-/**
- * to add new shell
- * @param {object} shell
- */
-// PuffData.addNewShell = function(shell) {
-//
-//     if(!PuffData.isGoodShell(shell))
-//         return false;
-//
-//     if(PuffData.getCachedShellBySig(shell.sig)) return false;
-//
-//     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
-//
-//
-//     // if(shell.payload.type == 'encryptedpuff') {
-//     //     // THINK: later we'll need to GC shells on the shelf that aren't in my wardrobe
-//     //     PuffData.shelf.push(shell);                                 // if a shell is private, put it on the shelf
-//     //     PuffData.persistShells(PuffData.shells.concat([shell]));    // but go ahead and persist it anyway
-//     //     return false
-//     // }
-//
-//     PuffData.shells.push(shell);                                    // otherwise, push it, sort it, persist it
-//     PuffData.shellSort[shell.sig] = shell;
-//     PuffData.persistShells(PuffData.shells);
-// }
+PuffData.getPuffBySig = function(sig) {
+    var shell = PuffData.getCachedShellBySig(sig)
+    
+    if(shell && shell.payload && typeof shell.payload.content != 'undefined')
+        return shell
+    
+    // var puff = PuffData.puffs.filter(function(puff) { return puff.sig === sig })[0]
+    
+    // if(puff)
+        // return puff
+    
+    if(PuffData.pending[sig])
+        return false
+    
+    PuffData.pending[sig] = PuffNet.getPuffBySig(sig)
+    PuffData.pending[sig].then(Puffball.receiveNewPuffs)
+                         .then(function() { setTimeout(function() { delete PuffData.pending[sig] }, 1000) }) // delay GC
+    
+    return false
+}
 
 
 
@@ -292,7 +280,10 @@ PuffData.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
     // TODO: the puffchain should also be sorted in chain order, not general collection order
-    return PuffData.puffs.filter(function(puff) { return puff && puff.username == username })
+    
+    var shells = PuffData.getShells()
+    
+    return shells.filter(function(puff) { return puff && puff.username == username })
     // return PuffForum.getByUser(username) // TODO: test this
 }
 

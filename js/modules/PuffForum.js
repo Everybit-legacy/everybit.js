@@ -245,22 +245,24 @@ PuffForum.getRootPuffs = function(limit, props) {
  * @param  {props} props
  * @return {array of puffs}
  */
-PuffForum.getLatestPuffs = function(limit, props, start) {
+PuffForum.getLatestPuffs = function(limit, props) {
     //// returns the most recent puffs, sorted by time
 
     limit = limit || Infinity
-    start = start || 0
 
     var shells = PuffForum.getShells()
+    
     var filtered_shells = shells.sort(PuffForum.sortByPayload)
                                 .filter(PuffForum.getPropsFilter(props));
-    var puffs = filtered_shells.slice(start, start + limit)
+                                
+    var puffs = filtered_shells.slice(0, limit)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean);
-    if (filtered_shells.length > start+limit && puffs.length < limit) {
-        // still need more puffs and there are some available
-        puffs = puffs.concat(PuffForum.getLatestPuffs(limit - puffs.length, props, start + limit));
-    } 
+    
+    if(filtered_shells.length < limit)
+        setImmediate(function() {
+            PuffData.getMoreShells(props) }) // FIXME: explodes on empty filters
+    
     return puffs;
 } 
 

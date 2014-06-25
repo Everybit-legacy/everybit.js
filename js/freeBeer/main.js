@@ -246,7 +246,7 @@ events.shallow_copy = function(obj) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // PuffData.puffs.forEach(function(puff) {
+//   // PuffData.getShells().forEach(function(puff) {
 //   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'

@@ -550,14 +550,6 @@ fieldset[disabled] .btn-link {
     vertical-align: middle;
 }
 
-.animation #replyForm {
-    -webkit-animation: fadein 1s; /* Safari and Chrome */
-    -moz-animation: fadein 1s; /* Firefox */
-    -ms-animation: fadein 1s; /* Internet Explorer */
-    -o-animation: fadein 1s; /* Opera */
-    animation: fadein 1s;
-}
-
 .logo {
     position: absolute;
     top: 10px;
@@ -599,8 +591,7 @@ fieldset[disabled] .btn-link {
     overflow: auto;
 }
 
-
-.animation .menu {
+.animation .menu, #replyForm {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -moz-animation: fadein 1s; /* Firefox */
     -ms-animation: fadein 1s; /* Internet Explorer */
@@ -864,4 +855,3 @@ a.footerText {
     from { opacity: 1; }
     to   { opacity: 0; }
 }
-

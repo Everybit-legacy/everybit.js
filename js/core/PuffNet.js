@@ -366,7 +366,7 @@ PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        Puffball.receiveNewPuffs(data);
+        PuffData.addShellsThenMakeAvailable(data);
     });
 };
 

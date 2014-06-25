@@ -55,28 +55,16 @@ PuffData.getBonus = function(puff, key) {
 }
 
 
-/**
- * to push the puff
- * @param  {puff object} puff
- * @return {boolean}
- */
-PuffData.eatPuff = function(puff) {
-    var shell = PuffData.getCachedShellBySig(puff.sig)
-    
-    if(!shell)
-        return PuffData.tryAddingShell(puff)            // add the full puff into the shell list
-    
-    if(!shell.payload.content)
-        shell.payload.content = puff.payload.content    // maybe missing the content
-}
-
-
-
 
 
 /*
     Some new shell handling equipment. Need to integrate this more deeply and clean and test.
 */
+
+PuffData.addShellsThenMakeAvailable = function(shells) {
+    PuffData.hereHaveSomeNewShells(shells)    
+    PuffData.makeShellsAvailable(shells)
+}
 
 PuffData.hereHaveSomeNewShells = function(shells) {
     //// handle incoming shells
@@ -92,7 +80,7 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     if(!delta) return false
     
     PuffData.persistShells()
-    PuffData.makeShellsAvailable()
+    // PuffData.makeShellsAvailable()
     
     return delta
 }
@@ -106,9 +94,17 @@ PuffData.makeShellsAvailable = function() {
 }
 
 PuffData.tryAddingShell = function(shell) {
-    //// no safety -- shells are already filtered
+    //// try adding a shell, or updating the content of an existing shell
     
-    if(PuffData.getCachedShellBySig(shell.sig)) return false
+    // NOTE: don't call this without filtering using isGoodShell
+    
+    var existing = PuffData.getCachedShellBySig(shell.sig)
+    
+    if(existing) {
+        if(!existing.payload.content)
+            existing.payload.content = shell.payload.content    // maybe add the missing content
+        return false
+    }
     
     PuffData.shells.push(shell)
     PuffData.shellSort[shell.sig] = shell
@@ -117,7 +113,7 @@ PuffData.tryAddingShell = function(shell) {
 }
 
 PuffData.persistShells = function(shells) {
-    if(CONFIG.noLocalStorage) return false                  // THINK: this is only for debugging and development
+    if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
@@ -158,7 +154,7 @@ PuffData.importLocalShells = function() {   // callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || []
     var localShells = Puffball.Persist.get('shells') || []
     
-    PuffData.hereHaveSomeNewShells(localShells)
+    PuffData.addShellsThenMakeAvailable(localShells)
 }
 
 /*
@@ -179,7 +175,7 @@ PuffData.getMoreShells = function(params) {
     
     PuffData.globalShellOffset += PuffData.globalShellBagSize // uh wat derp
     
-    return prom.then(PuffData.hereHaveSomeNewShells)
+    return prom.then(PuffData.addShellsThenMakeAvailable)
 }
 
 
@@ -194,17 +190,12 @@ PuffData.getPuffBySig = function(sig) {
     if(shell && shell.payload && typeof shell.payload.content != 'undefined')
         return shell
     
-    // var puff = PuffData.puffs.filter(function(puff) { return puff.sig === sig })[0]
-    
-    // if(puff)
-        // return puff
-    
     if(PuffData.pending[sig])
         return false
     
     PuffData.pending[sig] = PuffNet.getPuffBySig(sig)
-    PuffData.pending[sig].then(Puffball.receiveNewPuffs)
-                         .then(function() { setTimeout(function() { delete PuffData.pending[sig] }, 1000) }) // delay GC
+    PuffData.pending[sig].then(PuffData.addShellsThenMakeAvailable)
+                         .then(function() { setTimeout(function() { delete PuffData.pending[sig] }, 10000) }) // delay GC
     
     return false
 }

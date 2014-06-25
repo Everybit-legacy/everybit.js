@@ -226,9 +226,7 @@ Puffball.addPuffToSystem = function(puff) {
     
     if(PuffData.getCachedShellBySig(puff.sig)) return false
     
-    PuffData.hereHaveSomeNewShells(puff);
-    
-    // Puffball.receiveNewPuffs([puff]); // called inside hereHaveSomeNewShells
+    PuffData.addShellsThenMakeAvailable(puff);
 
     PuffNet.distributePuff(puff);
     
@@ -243,13 +241,13 @@ Puffball.addPuffToSystem = function(puff) {
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
     
+    // TODO: this is only called from PuffData.makeShellsAvailable -- pull this down there or rethink it all
+    
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
     
     puffs = puffs.filter(function(puff) {
         return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
-  
-    puffs.forEach(function(puff) { PuffData.eatPuff(puff) });                       // cache all the puffs
-  
+    
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
     return puffs;

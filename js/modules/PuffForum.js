@@ -39,7 +39,8 @@ PuffForum.getShells = function() {
     var myUsername = PuffWardrobe.getCurrentUsername()
     var publicShells = PuffData.getPublicShells()
     var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
-                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .filter(Boolean)
 
     return publicShells.concat(encryptedShells)
     
@@ -180,15 +181,12 @@ PuffForum.getChildren = function(puff, props) {
 
     var shells = PuffForum.getShells()
 
-    return shells.filter(function (kidpuff) {
-        return ~(kidpuff.payload.parents || []).indexOf(puff.sig)
-    })
-        .filter(PuffForum.getPropsFilter(props))
-        .map(Puffball.getPuffFromShell)
-        .filter(Boolean)
-        .sort(PuffForum.sortByPayload)
+    return shells.filter(function(kidpuff) { return ~(kidpuff.payload.parents||[]).indexOf(puff.sig) })
+                 .filter(PuffForum.getPropsFilter(props))
+                 .map(Puffball.getPuffFromShell)
+                 .filter(Boolean)
+                 .sort(PuffForum.sortByPayload)
 
->>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 }
 
 /**
@@ -211,6 +209,9 @@ PuffForum.getSiblings = function(puff, props) {
 
     return shells.filter(
         function(puff) {
+
+            if(typeof puff.payload.parents == 'undefined')
+                puff.payload.parents = [];
 
             return puff.sig != originalSig 
                 && (puff.payload.parents||[]).reduce(

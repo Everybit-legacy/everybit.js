@@ -41,8 +41,7 @@ Puffball.newPuffCallbacks = [];
 Puffball.init = function(zone) {
     PuffData.depersistUserRecords()
     
-    PuffData.fetchLocalShells(Puffball.receiveNewPuffs)
-    PuffData.fetchNewShells() // THINK: this should take a set of zones
+    PuffData.importShells()
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
@@ -233,7 +232,7 @@ Puffball.getPuffFromShell = function(shell) {
 }
 
 /**
- * add a puff to our local cache and fire the callback for new content
+ * handle a newly created puff: add to our local cache and fire new content callbacks
  * @param {puff object} puff 
  */
 Puffball.addPuffToSystem = function(puff) {
@@ -247,6 +246,13 @@ Puffball.addPuffToSystem = function(puff) {
     PuffNet.distributePuff(puff);
     
     return puff;
+}
+
+Puffball.receiveNewShells = function(shells) {
+    shells.forEach(PuffData.addNewShell)
+
+    var puffs = shells.filter(function(shell) {return shell.payload && shell.payload.content})
+    Puffball.receiveNewPuffs(puffs)
 }
 
 /**
@@ -397,6 +403,11 @@ PuffData.eatPuff = function(puff) {
  */
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
+    
+    // when you save shells, GC older "uninteresting" shells and just save the latest ones
+    
+    
+    
     Puffball.Persist.save('shells', shells);
 }
 
@@ -437,16 +448,35 @@ PuffData.verifyShell = function(shell) {
     return true
 }
 
+
+PuffData.importShells = function() {
+    //// fetch shells from local and remote sources
+    
+    // THINK: this should take a set of routes so we can pass it to importRemoteShells
+    
+    // grab the local shells and add them to the system
+    // then grab some remote shells (latest 100) and compare them
+    // go back until we fill in the gaps, or hit the threshold (500?)
+    
+    // when you want to look at shells that don't exist, like when scrolling, grab them as a batch
+    
+    
+    PuffData.importLocalShells()
+    PuffData.importRemoteShells()
+}
+
 /**
  * to fetch local shells
  * @param  {Function} callback
  */
-PuffData.fetchLocalShells = function(callback) {
+PuffData.importLocalShells = function() {   // callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || [];
     var localShells = Puffball.Persist.get('shells') || [];
-    localShells.forEach(PuffData.addNewShell);
     
-    setImmediate(function() {callback(PuffData.shells)});
+    Puffball.receiveNewShells(localShells)
+    
+    // localShells.forEach(PuffData.addNewShell);
+    // setImmediate(function() {callback(PuffData.shells)})
     // we're doing this asynchronously in order to not interrupt the loading process
     // should probably wrap this a bit better (use a promise, or setImmediate)
     // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
@@ -456,23 +486,22 @@ PuffData.fetchLocalShells = function(callback) {
  * to fetch new shells
  * @return {boolean}
  */
-PuffData.fetchNewShells = function() {
-    /// TODO: this should call PuffNet.fetchNewShells and then integrate that with our shells from local storage
-    ///       and then we'll get the missing content on demand
+PuffData.importRemoteShells = function() {
+    var initial_limit = 22;
+    var prom = PuffNet.getSomeShells(initial_limit);
     
-    var prom = PuffNet.getAllShells();
-    
-    prom.then(function(shells) {
-        if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 
-            return false;
+    return prom.then(function(shells) {
+        Puffball.receiveNewShells(shells)
+        // if(JSON.stringify(PuffData.shells) == JSON.stringify(shells))
+        //     return false;
         // PuffData.shells = shells;
-        shells.forEach(PuffData.addNewShell)
-        Puffball.Persist.save('shells', shells);
-        shells.forEach(function(shell) {
-            if(shell.payload && shell.payload.content) {
-                Puffball.receiveNewPuffs(shell); 
-            }
-        }) 
+        // shells.forEach(PuffData.addNewShell)
+        // // Puffball.Persist.save('shells', shells);
+        // shells.forEach(function(shell) {
+        //     if(shell.payload && shell.payload.content) {
+        //         Puffball.receiveNewPuffs(shell);
+        //     }
+        // })
     })
 }
 

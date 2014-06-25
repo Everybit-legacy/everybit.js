@@ -212,8 +212,7 @@ Translate.language["zh"].extend({
             userSearch: '显示此用户的所有puff',
             userErase: '取消选择本用户名',
             currentDelete:'在本浏览器中删除此用户'
-    }
-		}
+        }
 	},
 	replyForm: {
 		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',

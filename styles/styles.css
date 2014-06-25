@@ -346,6 +346,7 @@ h4 {
     font-size: 1em;
     line-height: 1em;
 }
+
 .bar:hover {
     display : block;
 }
@@ -378,6 +379,7 @@ h4 {
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
+
 .infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }
@@ -433,6 +435,7 @@ header h1 {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
 .btn:focus,
 .btn:active:focus,
 .btn.active:focus {
@@ -440,10 +443,12 @@ header h1 {
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
+
 .btn:hover,
 .btn:focus {
   text-decoration: none;
 }
+
 .btn:active,
 .btn.active {
   background-image: none;
@@ -587,11 +592,11 @@ fieldset[disabled] .btn-link {
     font-size: 1.1em;
     line-height: 1.7em;
     text-decoration:none;
-    max-height: 80%;
+    bottom: 15px;
     overflow: auto;
 }
 
-.animation .menu {
+.animation .menu, #replyForm {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -moz-animation: fadein 1s; /* Firefox */
     -ms-animation: fadein 1s; /* Internet Explorer */
@@ -743,7 +748,6 @@ a.footerText {
 
 .animation, .animation .block{
     transition: all 1s;
-
 }
 
 #adminForm {
@@ -824,4 +828,34 @@ a.footerText {
 @-ms-keyframes fadein {
      from { opacity: 0; }
      to   { opacity: 1; }
- }​
+}​
+
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Firefox */
+@-moz-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Safari and Chrome */
+@-webkit-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Opera */
+@-o-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}

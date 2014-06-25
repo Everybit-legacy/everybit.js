@@ -153,9 +153,7 @@ var View = React.createClass({
         return events.pub('ui/view/route/set', {'view.filterroute': username});
     },
 
-
     render: function() {
-
 
         var polyglot = Translate.language[puffworldprops.view.language];
         return (

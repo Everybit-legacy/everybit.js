@@ -39,7 +39,9 @@ PuffForum.getShells = function() {
     var myUsername = PuffWardrobe.getCurrentUsername()
     var publicShells = PuffData.getPublicShells()
     var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
-                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .filter(Boolean)
+
     return publicShells.concat(encryptedShells)
     
     // return shells.filter(function(shell) {return !shell.keys || shell.keys[myUsername]})
@@ -184,6 +186,7 @@ PuffForum.getChildren = function(puff, props) {
                  .map(Puffball.getPuffFromShell)
                  .filter(Boolean)
                  .sort(PuffForum.sortByPayload)
+
 }
 
 /**
@@ -205,7 +208,11 @@ PuffForum.getSiblings = function(puff, props) {
     var shells = PuffForum.getShells()
 
     return shells.filter(
-        function(puff) { 
+        function(puff) {
+
+            if(typeof puff.payload.parents == 'undefined')
+                puff.payload.parents = [];
+
             return puff.sig != originalSig 
                 && (puff.payload.parents||[]).reduce(
                     function(acc, parent_sig) {

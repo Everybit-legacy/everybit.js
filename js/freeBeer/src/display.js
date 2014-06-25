@@ -340,6 +340,9 @@ var PuffWorld = React.createClass({
 
         var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
 
+        if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
+            this.props.menu.show = true;
+        }
         var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
 
         var animateClass =  this.props.view.animation ? "animation" : '';

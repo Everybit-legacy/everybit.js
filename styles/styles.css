@@ -204,8 +204,6 @@ h4 {
     float: right;
 }
 
-=======
-}
 
 a {
     text-decoration:none;
@@ -401,9 +399,6 @@ h4 {
 
 .bar span {
     cursor: pointer;
-}
-
-=======
 }
 
 .block:hover .bar.hidden{

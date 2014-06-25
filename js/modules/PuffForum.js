@@ -205,7 +205,10 @@ PuffForum.getSiblings = function(puff, props) {
     var shells = PuffForum.getShells()
 
     return shells.filter(
-        function(puff) { 
+        function(puff) {
+            if(typeof puff.payload.parents == 'undefined')
+                puff.payload.parents = [];
+
             return puff.sig != originalSig 
                 && (puff.payload.parents||[]).reduce(
                     function(acc, parent_sig) {

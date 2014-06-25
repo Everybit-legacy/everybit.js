@@ -28,7 +28,7 @@ Translate.language["en"].extend({
             title: "Preferences",
 			relationship: "Show relationships",
 			animation: "Show animations",
-			infobar: "Show information bar",
+			infobar: "Show information bars",
 			language: "Language"
         },
 		publish: {

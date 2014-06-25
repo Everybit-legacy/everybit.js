@@ -587,7 +587,7 @@ fieldset[disabled] .btn-link {
     font-size: 1.1em;
     line-height: 1.7em;
     text-decoration:none;
-    max-height: 80%;
+    bottom: 15px;
     overflow: auto;
 }
 

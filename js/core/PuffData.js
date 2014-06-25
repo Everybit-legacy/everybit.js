@@ -86,10 +86,13 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     var old_length = PuffData.shells.length
     shells.forEach(PuffData.tryAddingShell)
     
-    if(PuffData.shells.length == old_length) return false
+    var delta = PuffData.shells.length - old_length
+    if(!delta) return false
     
     PuffData.persistShells()
     PuffData.makeShellsAvailable()
+    
+    return delta
 }
 
 PuffData.makeShellsAvailable = function() {
@@ -162,13 +165,28 @@ PuffData.importLocalShells = function() {   // callback) {
  * @return {boolean}
  */
 PuffData.importRemoteShells = function() {
-    var params = {limit: 22}
+    var chunksize = 22
+    var params = {limit: chunksize}
     var prom = PuffNet.getSomeShells(params);
     
     return prom.then(function(shells) {
-        PuffData.hereHaveSomeNewShells(shells)
+        var delta = PuffData.hereHaveSomeNewShells(shells)
+        if(delta == chunksize) { // all new puffs -- no overlap with local storage, so grab another set
+            params.offset = chunksize
+            var prom = PuffNet.getSomeShells(params);              // THINK: we probably don't need this ultimately...
+            prom.then(PuffData.hereHaveSomeNewShells)              // but we have to do something w/ local vs remote.
+        }
     })
 }
+
+PuffData.getMoreShells = function() {
+    
+}
+
+PuffData.getMoreRootShells = function() {
+    
+}
+
 
 /*
     End shell collection intake equipment

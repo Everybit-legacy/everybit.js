@@ -689,7 +689,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
                     var image_data = qr.createImgTag() || {};
                     var data = 'data:image/gif;base64,' + image_data.base64;
-                    qrcodeField = React.DOM.img( {src:data, width:image_data.width, height:image_data.height} );
+                    qrcodeField = React.DOM.img( {src:data, width:image_data.width, height:image_data.height, style:{float: 'right'}} );
                 }
                 
             }
@@ -712,6 +712,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                     ),
 
                     React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
+                    qrcodeField,
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.default"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
@@ -729,9 +730,8 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                     React.DOM.div( {className:"menuInput"}, 
                         React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus} ),
                         React.DOM.i( {className:rootKeyQRStyle, name:"root", onClick:this.handleShowQRCode})
-                    ),React.DOM.br(null ),
+                    ),React.DOM.br(null )
 
-                    qrcodeField
                 )
                 )
         }

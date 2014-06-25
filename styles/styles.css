@@ -628,7 +628,6 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     float:left;
     display: inline-block;
-    clear:both;
 }
 
 .menuInput {

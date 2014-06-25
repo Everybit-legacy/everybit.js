@@ -40,6 +40,7 @@ PuffForum.getShells = function() {
     var publicShells = PuffData.getPublicShells()
     var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
                                   .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .filter(Boolean)
     return publicShells.concat(encryptedShells)
     
     // return shells.filter(function(shell) {return !shell.keys || shell.keys[myUsername]})
@@ -179,11 +180,14 @@ PuffForum.getChildren = function(puff, props) {
 
     var shells = PuffForum.getShells()
 
-    return shells.filter(function(kidpuff) { return ~(kidpuff.payload.parents||[]).indexOf(puff.sig) })
-                 .filter(PuffForum.getPropsFilter(props))
-                 .map(Puffball.getPuffFromShell)
-                 .filter(Boolean)
-                 .sort(PuffForum.sortByPayload)
+    return shells.filter(function (kidpuff) {
+        return ~(kidpuff.payload.parents || []).indexOf(puff.sig)
+    })
+        .filter(PuffForum.getPropsFilter(props))
+        .map(Puffball.getPuffFromShell)
+        .filter(Boolean)
+        .sort(PuffForum.sortByPayload)
+
 }
 
 /**
@@ -206,8 +210,17 @@ PuffForum.getSiblings = function(puff, props) {
 
     return shells.filter(
         function(puff) {
-            if(typeof puff.payload.parents == 'undefined')
-                puff.payload.parents = [];
+
+            /*
+            // Crap for testing, need to remove when ency fixed.
+            if(typeof puff.payload === 'undefined') {
+                var parents = [];
+            } else if(typeof puff.payload.parents === 'undefined') {
+                var parents = [];
+            } else {
+                var parents = puff.payload.parents;
+            }
+            */
 
             return puff.sig != originalSig 
                 && (puff.payload.parents||[]).reduce(

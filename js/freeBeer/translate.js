@@ -15,7 +15,13 @@ Translate.language["en"].extend({
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
+<<<<<<< HEAD
             showpuffs:"Show puffs for me"
+=======
+            showpuffs:"Show puffs for me",
+			route: "Route",
+			unfiltered: "Unfiltered"
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 		},
 		filter: {
 			title: 'Filter',
@@ -71,6 +77,7 @@ Translate.language["en"].extend({
 		tool: {
 			title: 'ADVANCED TOOLS',
 			builder: "Puff builder"
+<<<<<<< HEAD
 		},
         tooltip:{
             latest:'Show latest puffs',
@@ -89,6 +96,9 @@ Translate.language["en"].extend({
             userErase: 'Unselect the user',
             currentDelete:'To delete this user from the browser'
         }
+=======
+		}
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 	},
 	replyForm: {
 		textarea: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
@@ -139,7 +149,13 @@ Translate.language["zh"].extend({
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
+<<<<<<< HEAD
             showpuffs:"显示给我的puff"
+=======
+            showpuffs:"显示给我的puff",
+			route: "路径",
+			unfiltered: "无"
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 		},
 		filter: {
 			title: '筛选',
@@ -195,6 +211,7 @@ Translate.language["zh"].extend({
 		tool: {
 			title: '高级工具',
 			builder: "生成"
+<<<<<<< HEAD
 		},
         tooltip:{
             latest:'显示最新的puff',
@@ -213,6 +230,9 @@ Translate.language["zh"].extend({
             userErase: '取消选择本用户名',
             currentDelete:'在本浏览器中删除此用户'
         }
+=======
+		}
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 	},
 	replyForm: {
 		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',

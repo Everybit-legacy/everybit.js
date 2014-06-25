@@ -204,6 +204,54 @@ h4 {
     float: right;
 }
 
+=======
+}
+
+a {
+    text-decoration:none;
+    color: #1616A8;
+}
+
+a.under {
+    text-decoration:underline;
+}
+
+textarea {
+    font-family: Gudea, sans-serif;
+    border: 0px solid #006738;
+    padding: 10px;
+    margin-bottom: 10px;
+    vertical-align: top;
+}
+
+em {
+    font-family: GudeaBold, sans-serif;
+}
+
+h3 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+h4 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.floatLeft {
+    float: left;
+}
+
+.floatRight {
+    float: right;
+}
+
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 .floatingCheckbox {
     float: left;
     cursor: pointer;
@@ -355,6 +403,103 @@ h4 {
     cursor: pointer;
 }
 
+=======
+}
+
+.block:hover .bar.hidden{
+    display : block;
+    text-decoration:none;
+}
+
+.animation .block:hover .bar.hidden{
+    -webkit-animation: fadein .5s; /* Safari and Chrome */
+    -moz-animation: fadein .5s; /* Firefox */
+    -ms-animation: fadein .5s; /* Internet Explorer */
+    -o-animation: fadein .5s; /* Opera */
+    animation: fadein .5s;
+}
+
+.block:hover .author.hidden{
+    display : block;
+    text-decoration:none;
+}
+
+.animation .block:hover .author.hidden{
+    -webkit-animation: fadein .5s; /* Safari and Chrome */
+    -moz-animation: fadein .5s; /* Firefox */
+    -ms-animation: fadein .5s; /* Internet Explorer */
+    -o-animation: fadein .5s; /* Opera */
+    animation: fadein .5s;
+}
+
+.downloadIcon {
+    text-align: right;
+    padding-top: 5px;
+}
+
+.author {
+    /*    position: fixed;*/
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.1em;
+    text-align: center;
+    /*    color: #2d479a; 006738 */
+    position:absolute;
+    top:0;
+    left: 0;
+    padding-bottom:5px;
+    padding-left: 0;
+    padding-top: 2px;
+    width:100%;
+    color: #1616A8;
+    z-index: 250;
+    /*    border-bottom: 1px solid #a1a1a1; */
+    /*    z-index:15; */
+    /*    display: none;*/
+    background-color: rgba(242, 242, 242, 0.85);
+}
+
+.authorDiv {
+    font-family: GudeaBold, sans-serif;
+    color: #1616A8;
+    float: left;
+}
+
+.authorSpan {
+    font-family: GudeaBold, sans-serif;
+    color: #1616A8;
+}
+
+#authorDiv {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.1em;
+    padding: 2px;
+    text-align: center;
+    color: #1616A8;
+}
+
+.bar {
+    text-align: right;
+    padding-right: 10px;
+    position:absolute;
+    bottom:0;
+    right:0;
+    width:100%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    z-index: 250;
+    background-color: rgba(242, 242, 242, 0.9);
+    font-size: 1em;
+    line-height: 1em;
+}
+.bar:hover {
+    display : block;
+}
+
+.bar span {
+    cursor: pointer;
+}
+
+>>>>>>> 4a2684e735519c477474ef5c48d51cac354f46c2
 .bar span.click{
     cursor: default;
 }

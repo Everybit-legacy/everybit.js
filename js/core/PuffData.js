@@ -62,8 +62,9 @@ PuffData.getBonus = function(puff, key) {
 */
 
 PuffData.addShellsThenMakeAvailable = function(shells) {
-    PuffData.hereHaveSomeNewShells(shells)    
-    PuffData.makeShellsAvailable(shells)
+    var delta = PuffData.hereHaveSomeNewShells(shells)
+    if(delta)
+        PuffData.makeShellsAvailable(shells)
 }
 
 PuffData.hereHaveSomeNewShells = function(shells) {
@@ -115,10 +116,14 @@ PuffData.tryAddingShell = function(shell) {
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
+    shells = shells || PuffData.shells
+    
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
+    // THINK: we need knowledge of our user records here... how do we get that? 
+    // PuffData.interesting_usernames?
     
-    shells = shells || PuffData.shells
+    shells = shells.filter(function(shell) { return !shell.payload.content || (shell.payload.content.length < 1000) })
     
     Puffball.Persist.save('shells', shells)
 }
@@ -164,18 +169,31 @@ PuffData.importLocalShells = function() {   // callback) {
     - it's nothing like our ultimate DHT/route-based solution
 */
 PuffData.globalShellOffset = 0 
-PuffData.globalShellBagSize = 20
+PuffData.globalShellBagSize = 2
 
-PuffData.getMoreShells = function(params) {
-    var params = params || {}
+PuffData.getMoreShells = function(props) {
+    var params = PuffData.propsToFilterParams(props)
     params.limit = PuffData.globalShellBagSize
     params.offset = PuffData.globalShellOffset
 
     var prom = PuffNet.getSomeShells(params)
     
-    PuffData.globalShellOffset += PuffData.globalShellBagSize // uh wat derp
+    PuffData.globalShellOffset += PuffData.globalShellBagSize // FIXME: make this more intelligent
     
     return prom.then(PuffData.addShellsThenMakeAvailable)
+}
+
+PuffData.propsToFilterParams = function(props) {
+    var params = {}
+    
+    if(!props || !props.view) return params
+    
+    if(props.view.filterroute)
+        params.route = props.view.filterroute
+    if(props.view.filteruser)
+        params.user = props.view.filteruser
+        
+    return params
 }
 
 

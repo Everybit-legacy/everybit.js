@@ -550,6 +550,14 @@ fieldset[disabled] .btn-link {
     vertical-align: middle;
 }
 
+.animation #replyForm {
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -moz-animation: fadein 1s; /* Firefox */
+    -ms-animation: fadein 1s; /* Internet Explorer */
+    -o-animation: fadein 1s; /* Opera */
+    animation: fadein 1s;
+}
+
 .logo {
     position: absolute;
     top: 10px;
@@ -590,6 +598,7 @@ fieldset[disabled] .btn-link {
     max-height: 80%;
     overflow: auto;
 }
+
 
 .animation .menu {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
@@ -824,4 +833,35 @@ a.footerText {
 @-ms-keyframes fadein {
      from { opacity: 0; }
      to   { opacity: 1; }
- }​
+}​
+
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Firefox */
+@-moz-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Safari and Chrome */
+@-webkit-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Opera */
+@-o-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+

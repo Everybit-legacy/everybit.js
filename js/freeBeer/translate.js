@@ -15,9 +15,7 @@ Translate.language["en"].extend({
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
-            showpuffs:"Show puffs for me",
-			route: "Route",
-			unfiltered: "Unfiltered"
+            showpuffs:"Show puffs for me"
 		},
 		filter: {
 			title: 'Filter',
@@ -73,7 +71,24 @@ Translate.language["en"].extend({
 		tool: {
 			title: 'ADVANCED TOOLS',
 			builder: "Puff builder"
-		}
+		},
+        tooltip:{
+            latest:'Show latest puffs',
+            choices:'Show Choices collection',
+            keyboard:'Show the puff for keyboard shortcuts',
+            showPuffs:'Show puffs for me',
+            showRelation:'Show relationships between puffs',
+            showAnimation:'Show animations when showing relationships, opening menu/reply box',
+            showInfobar:'Show the information bars in each puffs',
+            newPuff:'To send a new puff',
+            sourceCode:'View the source code',
+            puffBuilder:'Show the puff builder',
+            routeSearch: 'Show puffs in this route',
+            routeErase: 'Unselect the route',
+            userSearch: 'Show puffs from this user',
+            userErase: 'Unselect the user',
+            currentDelete:'To delete this user from the browser'
+        }
 	},
 	replyForm: {
 		textarea: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
@@ -124,9 +139,7 @@ Translate.language["zh"].extend({
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
-            showpuffs:"显示给我的puff",
-			route: "路径",
-			unfiltered: "无"
+            showpuffs:"显示给我的puff"
 		},
 		filter: {
 			title: '筛选',
@@ -182,7 +195,24 @@ Translate.language["zh"].extend({
 		tool: {
 			title: '高级工具',
 			builder: "生成"
-		}
+		},
+        tooltip:{
+            latest:'显示最新的puff',
+            choices:'显示特别收藏',
+            keyboard:'显示描述快捷键功能的puff',
+            showPuffs:'显示给我的puff',
+            showRelation:'显示puff直接的关联',
+            showAnimation:'显示动画当显示关联或打开菜单/回复窗口时',
+            showInfobar:'显示信息栏',
+            newPuff:'发布一个新的puff',
+            sourceCode:'显示源代码',
+            puffBuilder:'显示puff生成器',
+            routeSearch: '显示此路径的puff',
+            routeErase: '取消选择本路径',
+            userSearch: '显示此用户的所有puff',
+            userErase: '取消选择本用户名',
+            currentDelete:'在本浏览器中删除此用户'
+        }
 	},
 	replyForm: {
 		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',

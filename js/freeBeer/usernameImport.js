@@ -2,7 +2,7 @@ var UsernameImport = {};
 
 UsernameImport['instagram'] = {
 	'client_id': 'a62caaef5b6047d68445bb91653e585b',
-	'redirect_uri': 'http://www.freebeer.com/ig'
+	'redirect_uri': 'http://www.freebeer.com/r/ig'
 };
 UsernameImport.instagram.requestAuthentication = function() {
 	var auth_url = 'https://api.instagram.com/oauth/authorize/?client_id=' + UsernameImport.instagram.client_id + '&redirect_uri=' + UsernameImport.instagram.redirect_uri + '&response_type=code';
@@ -11,7 +11,7 @@ UsernameImport.instagram.requestAuthentication = function() {
 
 UsernameImport['reddit'] = {
 	'client_id': '1qm_OqK_sUCRrA',
-	'redirect_uri': 'http://www.freebeer.com/reddit/'
+	'redirect_uri': 'http://www.freebeer.com/r/reddit/'
 };
 UsernameImport.reddit.requestAuthentication = function() {
 	var state = ''; // a random string that can use later for verification
@@ -25,6 +25,7 @@ UsernameImport.reddit.requestAuthentication = function() {
 	window.location = auth_url;
 	/**
 	 * get access_token: POST https://ssl.reddit.com/api/v1/access_token with grant_type=authorization_code&code=CODE&redirect_uri=URI
+	 * 
 	 * get user information: GET https://oauth.reddit.com/api/me.json with Authentication: bearer TOKEN
 	 */
 };

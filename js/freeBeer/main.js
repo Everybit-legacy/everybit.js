@@ -8,9 +8,6 @@ puffworldprops = {
 
         user: {
             pick_one: false,
-            show_add: false,
-            add_one: false,
-            add_new: false,
             manage: false,
             show_bc: false,
             show_key: false
@@ -477,9 +474,10 @@ function setURL(state, path) {
     if(flatState == flatCurrent)                                        // are they equivalent?
         return false
     
-    var url = '?' + Object.keys(state).map( function(key) {
-                              return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
-                          .join('&')
+    var url = Object.keys(state).map( function(key) {
+                                    return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
+                                .join('&')
+    url = '?' + removeURLParameter(url);
     
     // saving in case we need this in the future
     //
@@ -494,6 +492,19 @@ function setURL(state, path) {
     
     
     history.pushState(state, path || '', url)
+}
+
+function removeURLParameter(urlPart) {
+    // urlPart is the part after ? in a url i.e. a=3&b=4&...
+    var paramsToRemove = ['requestedUsername', 'network', 'token', 'requestedUserId']; 
+    urlPart = urlPart.split('&');
+    for (var i=urlPart.length; i>0; i--) {
+        var prefix = urlPart[i-1].split('=')[0];
+        if (paramsToRemove.indexOf(prefix) != -1) {
+            urlPart.splice(i-1, 1);
+        }
+    }
+    return urlPart.join('&');
 }
 
 function setViewPropsFromURL() {

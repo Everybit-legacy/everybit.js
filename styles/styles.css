@@ -346,6 +346,7 @@ h4 {
     font-size: 1em;
     line-height: 1em;
 }
+
 .bar:hover {
     display : block;
 }
@@ -378,6 +379,7 @@ h4 {
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
+
 .infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }
@@ -433,6 +435,7 @@ header h1 {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
 .btn:focus,
 .btn:active:focus,
 .btn.active:focus {
@@ -440,10 +443,12 @@ header h1 {
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
+
 .btn:hover,
 .btn:focus {
   text-decoration: none;
 }
+
 .btn:active,
 .btn.active {
   background-image: none;
@@ -623,7 +628,6 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     float:left;
     display: inline-block;
-    clear:both;
 }
 
 .menuInput {
@@ -742,7 +746,6 @@ a.footerText {
 
 .animation, .animation .block{
     transition: all 1s;
-
 }
 
 #adminForm {

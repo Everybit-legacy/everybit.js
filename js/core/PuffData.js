@@ -196,20 +196,6 @@ PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
     
     PuffData.slotLock = true
     getMeSomeShells()
-    
-    // var propclone = events.shallow_copy(props)
-    // propclone.limit = limit === Infinity ? 10 : limit
-    // setImmediate(function() { PuffData.getMoreShells(propclone) })
-    
-    //     params.limit = props.limit
-    //     params.offset = props.offset
-    //
-    //     var prom = PuffNet.getSomeShells(params)
-    //
-    //     // PuffData.globalShellOffset += PuffData.globalShellBagSize // FIXME: make this more intelligent
-    //
-    //     return prom.then(PuffData.addShellsThenMakeAvailable)
-    
 }
 
 PuffData.propsToFilterParams = function(props) {
@@ -224,31 +210,6 @@ PuffData.propsToFilterParams = function(props) {
         
     return params
 }
-
-/*
-    This shell offset thing is going to get flaky:
-    - new puffs added to the system offset the offset
-    - it eventually bottoms out and only returns an empty list
-    - it's nothing like our ultimate DHT/route-based solution
-*/
-// PuffData.globalShellOffset = 0
-// PuffData.globalShellBagSize = 2
-//
-// PuffData.getMoreShells = function(props) {
-//     var params = PuffData.propsToFilterParams(props)
-//     // params.limit = PuffData.globalShellBagSize
-//     // params.offset = PuffData.globalShellOffset
-//
-//     params.limit = props.limit
-//     params.offset = props.offset
-//
-//     var prom = PuffNet.getSomeShells(params)
-//
-//     // PuffData.globalShellOffset += PuffData.globalShellBagSize // FIXME: make this more intelligent
-//
-//     return prom.then(PuffData.addShellsThenMakeAvailable)
-// }
-
 
 
 /*

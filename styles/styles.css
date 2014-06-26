@@ -726,7 +726,6 @@ fieldset[disabled] .btn-link {
     -ms-transform: rotate(90deg);
     -o-transform: rotate(90deg);
     float:left;
-    background: rgba(255,255,255,.1);
     color: #303030;
     font-family: GudeaBold;
     font-size: .9em;

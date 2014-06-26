@@ -64,7 +64,7 @@ Puffball.init = function(zone) {
  * @return {puff object}                             the new puff object
  */
 Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt) {
-    puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
+    var puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
 
     puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
 

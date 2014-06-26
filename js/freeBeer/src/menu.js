@@ -3,6 +3,37 @@
 /*
   <p>Identity avatar</p>
  */
+var Tooltip = React.createClass({
+    render: function() {
+        return (
+            <div className="menuTooltip">{this.props.content}</div>
+        );
+    }
+});
+
+var TooltipMixin = {
+    componentDidMount: function() {
+        var current = this.getDOMNode();
+        var menuItems = current.getElementsByClassName('menuItem');
+        for (var i=0; i<menuItems.length; i++) {
+            var item = menuItems[i];
+            var firstChild = item.childNodes[0];
+            var tooltip = item.getElementsByClassName('menuTooltip');
+            if (firstChild.tagName == 'A' && tooltip.length != 0) {
+                firstChild.onmouseover = function(e){
+                    var parent = e.target.parentNode;
+                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+                    tooltip.style.display = "block";
+                };
+                firstChild.onmouseout = function(e) {
+                    var parent = e.target.parentNode;
+                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+                    tooltip.style.display = "none";
+                };
+            }
+        }
+    }
+};
 
 var Basics = React.createClass({
     render: function() {
@@ -122,7 +153,7 @@ var Filter = React.createClass({
 });
 
 var View = React.createClass({
-
+    mixins: [TooltipMixin],
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
@@ -162,13 +193,25 @@ var View = React.createClass({
                     <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
                 </div>
 
-                <div className="menuItem"><a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span></div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.latest")} />
+                </div>
 
-                <div className="menuItem"><a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>{polyglot.t("menu.view.collection")}</a></div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>{polyglot.t("menu.view.collection")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.collection")} />
+                </div>
 
-                <div className="menuItem"><a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a></div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.shortcut")} />
+                </div>
 
-                <div className="menuItem"><a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a></div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />
+                </div>
 
             </div>
             )
@@ -176,6 +219,7 @@ var View = React.createClass({
 });
 
 var Preferences = React.createClass({
+    mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
 
         if(puffworldprops.view.mode == 'browse') {
@@ -247,16 +291,19 @@ var Preferences = React.createClass({
                 <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.relationship")} />
                 </div>
 
                 <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>{' '}<span className="shortcut">[a]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.animation")} />
                 </div>
 
                 <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>{' '}<span className="shortcut">[i]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.infobar")} />
                 </div>
 
                 <div className="menuItem">
@@ -1006,7 +1053,8 @@ var NewIdentity = React.createClass({
         this.getDOMNode().scrollIntoView(true);
     },
     componentDidMount: function() {
-        this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.style == "MenuAdd")
+            this.getDOMNode().scrollIntoView(true);
     },
 
     checkKeys: function() {
@@ -1257,3 +1305,4 @@ var Main = React.createClass({
             )
     }
 });
+

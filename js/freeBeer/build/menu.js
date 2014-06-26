@@ -3,6 +3,37 @@
 /*
   <p>Identity avatar</p>
  */
+var Tooltip = React.createClass({displayName: 'Tooltip',
+    render: function() {
+        return (
+            React.DOM.div( {className:"menuTooltip"}, this.props.content)
+        );
+    }
+});
+
+var TooltipMixin = {
+    componentDidMount: function() {
+        var current = this.getDOMNode();
+        var menuItems = current.getElementsByClassName('menuItem');
+        for (var i=0; i<menuItems.length; i++) {
+            var item = menuItems[i];
+            var firstChild = item.childNodes[0];
+            var tooltip = item.getElementsByClassName('menuTooltip');
+            if (firstChild.tagName == 'A' && tooltip.length != 0) {
+                firstChild.onmouseover = function(e){
+                    var parent = e.target.parentNode;
+                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+                    tooltip.style.display = "block";
+                };
+                firstChild.onmouseout = function(e) {
+                    var parent = e.target.parentNode;
+                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+                    tooltip.style.display = "none";
+                };
+            }
+        }
+    }
+};
 
 var Basics = React.createClass({displayName: 'Basics',
     render: function() {
@@ -122,7 +153,7 @@ var Filter = React.createClass({displayName: 'Filter',
 });
 
 var View = React.createClass({displayName: 'View',
-
+    mixins: [TooltipMixin],
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
     },
@@ -162,13 +193,25 @@ var View = React.createClass({displayName: 'View',
                     React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title")
                 ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]")),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
+                ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection"))),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.collection")} )
+                ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut"))),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.shortcut")} )
+                ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")))
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.showPuffs")} )
+                )
 
             )
             )
@@ -176,6 +219,7 @@ var View = React.createClass({displayName: 'View',
 });
 
 var Preferences = React.createClass({displayName: 'Preferences',
+    mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
 
         if(puffworldprops.view.mode == 'browse') {
@@ -246,17 +290,20 @@ var Preferences = React.createClass({displayName: 'Preferences',
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship")),' ',React.DOM.span( {className:"shortcut"}, "[space]")
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship")),' ',React.DOM.span( {className:"shortcut"}, "[space]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.relationship")} )
                 ),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation")),' ',React.DOM.span( {className:"shortcut"}, "[a]")
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation")),' ',React.DOM.span( {className:"shortcut"}, "[a]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.animation")} )
                 ),
 
                 React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass3, onClick:this.handleShowHideInfobar} )),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")),' ',React.DOM.span( {className:"shortcut"}, "[i]")
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.infobar")} )
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
@@ -1006,7 +1053,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.getDOMNode().scrollIntoView(true);
     },
     componentDidMount: function() {
-        this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.style == "MenuAdd")
+            this.getDOMNode().scrollIntoView(true);
     },
 
     checkKeys: function() {
@@ -1257,3 +1305,4 @@ var Main = React.createClass({displayName: 'Main',
             )
     }
 });
+

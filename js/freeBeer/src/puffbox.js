@@ -398,7 +398,7 @@ var PuffReplyLink = React.createClass({
             parents.splice(index, 1)
         }
 
-        return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
+        return events.pub('ui/reply/add-parent', {'reply.show': true, 'reply.parents': parents});
 
         // TODO: draw reply arrows. Maybe
     },

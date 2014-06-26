@@ -31,7 +31,7 @@ Translate.language["en"].extend({
         },
 		publish: {
 			title: 'Publish',
-			new: "New puff"
+			newPuff: "New puff"
 		},
 		identity: {
 			title: 'Identity',
@@ -81,7 +81,7 @@ Translate.language["en"].extend({
             animation:'Enable/disable animations',
             infobar:'Display/hide the information bars in each puffs',
             newPuff:'Create a new puff',
-            sourceCode:'View source code on GitHub',
+            code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',
             routeSearch: 'Show puffs in this route',
             routeErase: 'Unselect the route',
@@ -162,7 +162,7 @@ Translate.language["zh"].extend({
 		},
 		publish: {
 			title: '发布',
-			new: "新建"
+			newPuff: "新建"
 		},
 		identity: {
 			title: '身份',
@@ -212,7 +212,7 @@ Translate.language["zh"].extend({
             animation:'显示动画当显示关联或打开菜单/回复窗口时',
             infobar:'显示信息栏',
             newPuff:'发布一个新的puff',
-            sourceCode:'显示源代码',
+            code:'在GitHub查看源代码',
             puffBuilder:'显示puff生成器',
             routeSearch: '显示此路径的puff',
             routeErase: '取消选择本路径',

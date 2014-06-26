@@ -328,6 +328,7 @@ var Preferences = React.createClass({
 // <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
 
 var Publish = React.createClass({
+    mixins: [TooltipMixin],
     handleNewContent: function() {
         return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
     },
@@ -340,7 +341,8 @@ var Publish = React.createClass({
                     <i className="fa fa-paper-plane fa-fw gray"></i> {polyglot.t("menu.publish.title")}
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.new")}</a>{' '}<span className="shortcut">[n]</span>
+                    <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.newPuff")}</a>{' '}<span className="shortcut">[n]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.newPuff")} />
                 </div>
             </div>
             )
@@ -1251,6 +1253,7 @@ var UsernameCheckbox = React.createClass({
 
 
 var About = React.createClass({
+    mixins: [TooltipMixin],
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -1259,7 +1262,9 @@ var About = React.createClass({
                 <i className="fa fa-info-circle fa-fw gray"></i> {polyglot.t("menu.about.title")}
             </div>
 
-                <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a></div>
+                <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.code")} />
+                </div>
             </div>
             )
     }

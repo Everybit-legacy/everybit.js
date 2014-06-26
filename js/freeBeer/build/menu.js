@@ -328,6 +328,7 @@ var Preferences = React.createClass({displayName: 'Preferences',
 // <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
 
 var Publish = React.createClass({displayName: 'Publish',
+    mixins: [TooltipMixin],
     handleNewContent: function() {
         return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
     },
@@ -340,7 +341,8 @@ var Publish = React.createClass({displayName: 'Publish',
                     React.DOM.i( {className:"fa fa-paper-plane fa-fw gray"}), " ", polyglot.t("menu.publish.title")
                 ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleNewContent}, polyglot.t("menu.publish.new")),' ',React.DOM.span( {className:"shortcut"}, "[n]")
+                    React.DOM.a( {href:"#", onClick:this.handleNewContent}, polyglot.t("menu.publish.newPuff")),' ',React.DOM.span( {className:"shortcut"}, "[n]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.newPuff")} )
                 )
             )
             )
@@ -1251,6 +1253,7 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 
 
 var About = React.createClass({displayName: 'About',
+    mixins: [TooltipMixin],
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -1259,7 +1262,9 @@ var About = React.createClass({displayName: 'About',
                 React.DOM.i( {className:"fa fa-info-circle fa-fw gray"}), " ", polyglot.t("menu.about.title")
             ),
 
-                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")))
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.code")} )
+                )
             )
             )
     }

@@ -46,6 +46,14 @@ var PuffReplyForm = React.createClass({
         // var users = this.refs.users.getDOMNode().value
         // users = ["anon.rps6d8d0ex", "anon.p563pdn4z2", "anon.oz4ujo3cfx"]
         // users = users.map(PuffData.getCachedUserRecord)
+        
+        
+        // TODO: always get the user records before you send this out
+        // TODO: if anon or paranoid create a new anon user doing this
+        // TODO: by default include parent in the reply [add to ui box?]
+        // TODO: but respect the replyTo payload field: add it at the expense of parent [add to ui box?]
+        // TODO: if paranoid create a second new anon user as your replyTo
+        
         var sendToUsers = this.refs.usernames.getDOMNode().value.split(',').map(function(str) {return str.trim()})
         var users = sendToUsers.concat(PuffWardrobe.getCurrentUsername()).map(PuffData.getCachedUserRecord).filter(Boolean)
         
@@ -107,7 +115,7 @@ var PuffReplyForm = React.createClass({
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
         puffworldprops.reply.preview = this.state.showPreview;
-
+        
         // var userList = ['dann', 'mattasher', 'freebeer'];
 
         var contentTypeNames = Object.keys(PuffForum.contentTypes)
@@ -118,9 +126,20 @@ var PuffReplyForm = React.createClass({
             var parents = [];
         }
 
+        var privacyDefault = "public";
+
         var defaultContent = this.props.content || '';
         if(parents.length) {
-            var parentType = PuffForum.getPuffBySig(parents[0]).payload.type;
+            var parent = PuffForum.getPuffBySig(parents[0]);
+            var parentType = parent.payload.type;
+
+            // figure out reply privacy
+            var envelope = PuffData.getBonus(parent, 'envelope');
+            if(envelope && envelope.keys)
+                privacyDefault = "private";
+                
+            if(parent.payload.replyPrivacy)
+                privacyDefault = parent.payload.replyPrivacy;
 
             // Should we quote the parent
             if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
@@ -241,7 +260,7 @@ var PuffReplyForm = React.createClass({
                         <div>
                             <p>
                                 {polyglot.t("replyForm.privacyOption")}:
-                                <select ref="privacy" className="btn" defaultValue="public">
+                                <select ref="privacy" className="btn" defaultValue={privacyDefault}>
                                     <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                                     <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                                     <option key="anon" value="anon">{polyglot.t("replyForm.pOptions.anon")}</option>

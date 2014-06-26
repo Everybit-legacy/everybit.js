@@ -106,9 +106,9 @@ Translate.language["en"].extend({
         privacyOption: 'Privacy options',
         pOptions: {
             public: 'Public (everyone can see this)',
-            private: 'Private (content is emcrypted)',
+            private: 'Private (content is encrypted)',
             anon: 'Anonymous (encrypted and anonymous)',
-            paranoid: 'Paranoid (regenerate anon user each time)'
+            paranoid: 'Paranoid (double anon all the way)'
         },
         sendTo: 'Send to user'
 

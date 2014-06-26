@@ -1002,6 +1002,12 @@ var NewIdentity = React.createClass({
     componentWillMount: function() {
         this.handleGenerateUsername();
     },
+    componentDidUpdate: function() {
+        this.getDOMNode().scrollIntoView(true);
+    },
+    componentDidMount: function() {
+        this.getDOMNode().scrollIntoView(true);
+    },
 
     checkKeys: function() {
         // Stuff to register. These are public keys

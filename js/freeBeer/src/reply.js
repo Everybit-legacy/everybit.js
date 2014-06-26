@@ -42,21 +42,6 @@ var PuffReplyForm = React.createClass({
         var content = '';
         var metadata = {};
         
-        var privacy = this.refs.privacy.getDOMNode().value
-        // var users = this.refs.users.getDOMNode().value
-        // users = ["anon.rps6d8d0ex", "anon.p563pdn4z2", "anon.oz4ujo3cfx"]
-        // users = users.map(PuffData.getCachedUserRecord)
-        
-        
-        // TODO: always get the user records before you send this out
-        // TODO: if anon or paranoid create a new anon user doing this
-        // TODO: by default include parent in the reply [add to ui box?]
-        // TODO: but respect the replyTo payload field: add it at the expense of parent [add to ui box?]
-        // TODO: if paranoid create a second new anon user as your replyTo
-        
-        var sendToUsers = this.refs.usernames.getDOMNode().value.split(',').map(function(str) {return str.trim()})
-        var users = sendToUsers.concat(PuffWardrobe.getCurrentUsername()).map(PuffData.getCachedUserRecord).filter(Boolean)
-        
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
 
@@ -78,13 +63,66 @@ var PuffReplyForm = React.createClass({
             return false;
         }
         
-        if(privacy == 'public') {
-            PuffForum.addPost( type, content, parents, metadata );
-        } else {
-            PuffForum.addPost( type, content, parents, metadata, users );
+        events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
+        
+        var privacy = this.refs.privacy.getDOMNode().value
+        
+        if(privacy == 'public')
+            return PuffForum.addPost( type, content, parents, metadata );
+        
+        // ok. we're definitely sending an encrypted message now.
+        
+        
+        
+        // TODO: always get the user records before you send this out
+        // TODO: if anon or paranoid create a new anon user doing this
+        // TODO: by default include parent in the reply [add to ui box?]
+        // TODO: but respect the replyTo payload field: add it at the expense of parent [add to ui box?]
+        // TODO: if paranoid create a second new anon user as your replyTo
+        
+        var prom = Promise.resolve() // a promise we use to string everything along 
+        
+        // are we anonymous? make a new user.
+        if(privacy == 'anonymous' || privacy == 'paranoid' || !PuffWardrobe.getCurrentUsername()) {
+            prom = prom.then(function() {
+                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
+                    PuffWardrobe.switchCurrent(userRecord.username)
+                })
+            })
         }
-
-        return events.pub('ui/reply/submit', {'reply': {show: false, parents: []}});
+        
+        // are we paranoid? make another new user
+        if(privacy == 'paranoid') {
+            prom = prom.then(function() {
+                return PuffWardrobe.addNewAnonUser(function(userRecord) {
+                    metadata.replyTo = userRecord.username
+                })
+            })
+        }
+                
+        var usernames = this.refs.usernames.getDOMNode().value.split(',').map(function(str) {return str.trim()})
+                                                        .concat(PuffWardrobe.getCurrentUsername()).filter(Boolean)
+        
+        var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
+        
+        // if we haven't cached all the users, we'll need to grab them first
+        // THINK: maybe convert this to using Puffball.getUserRecords instead
+        if(userRecords.length < usernames.length) {
+            usernames.forEach(function(username) {
+                if(!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function() {
+                        return Puffball.getUserRecordNoCache(username).then(function(userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
+                }
+            })
+        }
+        
+        prom.then(function() {
+            PuffForum.addPost( type, content, parents, metadata, userRecords );
+        })
     },
     handleImageLoad: function() {
         var self   = this;
@@ -111,6 +149,10 @@ var PuffReplyForm = React.createClass({
         puffworldprops.reply.preview = !this.state.showPreview;
         this.setState({showPreview: !this.state.showPreview});
     },
+    handleChangeUsernames: function() {
+        var usernames = this.refs.usernames.getDOMNode().value;
+        return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
+    },    
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
@@ -141,6 +183,13 @@ var PuffReplyForm = React.createClass({
             if(parent.payload.replyPrivacy)
                 privacyDefault = parent.payload.replyPrivacy;
 
+            // by default we include all parent users in the reply
+            var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+                                         .map(function(puff) { return puff.payload.replyTo || puff.username })
+                                         .filter(function(item, index, array) { return array.indexOf(item) == index })
+                                         .filter(Boolean)
+                                         .join(', ')
+
             // Should we quote the parent
             if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
                 if(PuffForum.getPuffBySig(parents[0]).payload.quote) {
@@ -153,6 +202,8 @@ var PuffReplyForm = React.createClass({
             var parentType = CONFIG.defaultContentType;
         }
         var type = this.props.reply.type || parentType;
+
+        var usernames = this.props.reply.usernames || parentUsernames || ""
 
         var polyglot = Translate.language[puffworldprops.view.language];
         var divStyle = {
@@ -271,7 +322,7 @@ var PuffReplyForm = React.createClass({
                             <p>
                                 <label>
                                     {polyglot.t("replyForm.sendTo")}:
-                                    <input type="text" name="usernames" ref="usernames"></input>
+                                    <input type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames}></input>
                                 </label>
                             </p>
                         </div>

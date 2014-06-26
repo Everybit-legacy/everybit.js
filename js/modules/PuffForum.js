@@ -204,6 +204,7 @@ PuffForum.getSiblings = function(puff, props) {
 
     var shells = PuffForum.getShells()
 
+    // I know, I know, this is completely insane. But it's only here until the graph db moves in.
     return shells.filter(
         function(puff) { 
             return puff.sig != originalSig 
@@ -258,10 +259,12 @@ PuffForum.getLatestPuffs = function(limit, props) {
     var puffs = filtered_shells.slice(0, limit)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean);
-    
-    if(filtered_shells.length < limit)
-        setImmediate(function() {
-            PuffData.getMoreShells(props) }) // FIXME: explodes on empty filters
+
+    var have = filtered_shells.length
+    if(have >= limit)
+        return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
+
+    PuffData.fillSomeSlotsPlease(limit, have, props)
     
     return puffs;
 } 

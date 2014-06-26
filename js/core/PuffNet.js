@@ -54,7 +54,7 @@ PuffNet.getSomeShells = function(params) {
     var data = {type: 'getPuffs'};
     
       if(params.sort) data.sort       = params.sort         // ASC or DESC
-     if(params.limit) data.numb       = params.limit        // defaults to 20
+     if(params.limit) data.numb       = params.limit        // defaults to 20 on the server
     if(params.offset) data.offset     = params.offset       // defaults to 0, which is latest
       if(params.user) data.username   = params.user         // filter by username
      if(params.route) data.route      = params.route        // filter by route

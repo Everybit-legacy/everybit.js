@@ -668,6 +668,16 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                            'qrCodeUser' : this.props.username}); 
         }
     },
+    handleClickQRCode: function(){
+        // create the qr code
+        var key = PuffWardrobe.getCurrentKeys()[this.state.qrCode];
+        var qr = qrcode(4, 'M');
+        qr.addData(key);
+        qr.make();
+        var image_data = qr.createImgTag(10);
+        var data = 'data:image/gif;base64,' + image_data.base64;
+        window.open(data, 'Image')
+    },
 
     render: function() {
         if (!this.props.show) {
@@ -689,7 +699,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
                     var image_data = qr.createImgTag() || {};
                     var data = 'data:image/gif;base64,' + image_data.base64;
-                    qrcodeField = React.DOM.img( {src:data, width:image_data.width, height:image_data.height, style:{float: 'right'}} );
+                    qrcodeField = (React.DOM.img( {src:data, width:image_data.width, height:image_data.height, className:"floatRight", onClick:this.handleClickQRCode}));
                 }
                 
             }

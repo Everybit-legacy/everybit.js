@@ -333,14 +333,15 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
         return Puffball.falsePromise('Those are not good parents')
     
-    // ensure parents is unique
+    // ensure parents are unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
 
     // find the routes using parents
     var routes = parents.map(function(id) {
         return PuffForum.getPuffBySig(id).username;
     });
-    // ensure all routes is unique
+    
+    // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt)
@@ -537,15 +538,14 @@ PuffForum.addContentType('PGN', {
  * to add content type LaTex
  * @param  {string} content
  * @return {string}
- */
+
 PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
-       // return ltxParse(content);
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
 
     }
-})
+}) */
 
 /**
  * Encrypted puffs 

@@ -537,15 +537,14 @@ PuffForum.addContentType('PGN', {
  * to add content type LaTex
  * @param  {string} content
  * @return {string}
- */
+
 PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
-       // return ltxParse(content);
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
 
     }
-})
+}) */
 
 /**
  * Encrypted puffs 

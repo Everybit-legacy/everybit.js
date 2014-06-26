@@ -699,7 +699,7 @@ var EditIdentity = React.createClass({
 
                     var image_data = qr.createImgTag() || {};
                     var data = 'data:image/gif;base64,' + image_data.base64;
-                    qrcodeField = (<img src={data} width={image_data.width} height={image_data.height} className="floatRight" onClick={this.handleClickQRCode}/>);
+                    qrcodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
                 }
                 
             }
@@ -727,7 +727,7 @@ var EditIdentity = React.createClass({
                     <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
                     <div className="menuInput">
                         <input type="text" name="defaultKey" ref="defaultKey" size="12" value={defaultKey} onFocus={this.handleFocus} />
-                        <i className={defaultKeyQRStyle} name="default" onClick={this.handleShowQRCode}></i>
+                        <i className={defaultKeyQRStyle} name="default" onClick={this.handleShowQRCode} ></i>
                     </div><br />
 
                     <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
@@ -793,7 +793,9 @@ var defaultPrivateKeyField = React.createClass({
 var NewIdentity = React.createClass({
     getInitialState: function() {
         return {
-            import: false,
+            step: 0,
+            wantImport: false,
+            desiredUsername: '',
             usernameAvailable: 'unknown',
             usernameMessage: '',
             newUsername: ''
@@ -807,9 +809,48 @@ var NewIdentity = React.createClass({
         }, 0);
     },
 
+    handleAskForImport: function() {
+        this.setState({wantImport: !this.state.wantImport})
+    },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
         UsernameImport[network].requestAuthentication();
+    },
+    handleBack: function() {
+        this.props.keys = {};
+        this.setState({step: (this.state.step+3)%4,
+                       usernameMessage: ''});
+    },
+    handleNext: function() {
+        if (this.state.step == 0) {
+            // set the desired username
+            var username = "";
+            if (!this.props.importUsername) {
+                username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
+            } else {
+                username = this.props.importUsername;
+            }
+            // TODO check the username and make sure it is valid
+            this.setState({desiredUsername: username});
+            setViewPropsInURL();
+        } else if (this.state.step == 1) {
+            var valid = this.checkKeys();
+            if (!valid) return;
+            this.setState({usernameMessage: ''});
+        }
+        this.setState({step: (this.state.step+1)%4});
+    },
+
+    handleStartOver: function() {
+        var show = this.props.show;
+        this.props = {};
+        this.props.show = show;
+        this.setState({
+            step: 0,
+            wantImport: false,
+            desiredUsername: '',
+            usernameMessage: ''
+        });
     },
 
     // TODO: Add options for users to save keys
@@ -818,8 +859,11 @@ var NewIdentity = React.createClass({
         if (!this.props.show) {
             return <span></span>
         } else {
+            var showNext = true;
             var polyglot = Translate.language[puffworldprops.view.language];
-            var usernameField = (
+            var usernameField = "";
+            if (!this.state.wantImport) {
+                usernameField = (
                 <div>
                     <div className="menuLabel"><em>{polyglot.t("menu.identity.newKey.msg")}:</em></div><br />
                     <div className = "menuItem">
@@ -830,17 +874,18 @@ var NewIdentity = React.createClass({
                         </select> <em>.</em>{' '}
                         <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
                    </div>
-
-                    <div className="menuLabel"><em>Or import from:</em></div><br/>
-                    <div className="menuItem">
-                        <select id="import" ref="import">
-                            <option value="instagram">Instagram</option>
-                            <option value="reddit">Reddit</option>
-                        </select>
-                        {' '}<input className="btn-link" type="button" value="Go" onClick={this.handleImport} />{' '}<input className="btn-link" type="button" value="Cancel" onClick={this.handleCancelImport} />
-                    </div>
+                    Or, <input className="btn-link" type="button" onClick={this.handleAskForImport} value="import"/>from another website.
                 </div>);
-
+            } else {
+                showNext = false;
+                usernameField = (
+                    <div>
+                        <div className="menuLabel"><em>Import from:</em></div>{' '}<select id="import" ref="import">
+                                <option value="instagram">Instagram</option>
+                                <option value="reddit">Reddit</option>
+                            </select><input className="btn-link" type="button" onClick={this.handleImport} value="Go"/>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
+                    </div>);
+            }
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
             if (params['requestedUsername']) {
@@ -848,22 +893,18 @@ var NewIdentity = React.createClass({
                 this.props.importToken = params['token'];
                 this.props.importId = params['requestedUserId'];
                 this.props.importNetwork = params['network'];
+                showNext = true;
                 usernameField = (
                     <div>
-                        <div className="menuLabel"><em>Imported Username</em></div>{' '}{this.props.importUsername}
+                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.props.importUsername}</span>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
                     </div>);
             }
 
-            return (
-                <div className="menuSection">
-                    {usernameField}
-
-                    <em>{this.state.usernameMessage}</em>
-                    <br />
-                    <div className="menuHeader"><i className="fa fa-unlock-alt"></i> {polyglot.t("menu.identity.public")}</div>
-
-
-                    <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.root")}: </div>
+            // are we allowing input public keys?
+            var publicKeyField= (
+            <div>
+                <div className="menuHeader"><i className="fa fa-unlock-alt"></i> {polyglot.t("menu.identity.public")}</div>
+                <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity.root")}: </div>
                     <div className="menuInput">
                         <input type="text" name="rootKeyPublic" ref="rootKeyPublic" size="18" onFocus={this.handleFocus} />
                     </div>
@@ -881,10 +922,11 @@ var NewIdentity = React.createClass({
                         <input type="text" name="defaultKeyPublic" ref="defaultKeyPublic" size="18" onFocus={this.handleFocus} />
                     </div>
                     <br />
-
-                    <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newKey.generate")}</a> {polyglot.t("menu.identity.newKey.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.newKey.convert.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.newKey.convert.public")}</a><br />
-
-                    <div className="menuHeader"><i className="fa fa-lock"></i> {polyglot.t("menu.identity.private")}</div>
+            </div>
+            );
+            var privateKeyField = (
+            <div>
+                <div className="menuHeader"><i className="fa fa-lock"></i> {polyglot.t("menu.identity.private")}</div>
                     <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
                     <div className="menuInput">
                         <input type="text" name="rootKeyPrivate" ref="rootKeyPrivate" size="18" onFocus={this.handleFocus} />
@@ -901,11 +943,51 @@ var NewIdentity = React.createClass({
                     <div className="menuInput">
                         <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" onFocus={this.handleFocus} />
                     </div>
+                    <br/>
+            </div>
+            )
+            var keyField = (
+            <div>
+                <em>Remember to save your keys!</em>
+                {publicKeyField}
+                    <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newKey.generate")}</a> {polyglot.t("menu.identity.newKey.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.newKey.convert.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.newKey.convert.public")}</a><br />
+                {privateKeyField}
+            </div>
+            );
 
-                    <br />
+            var submitField = (
+                <a href="#" className="floatRight" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}</a>
+            );
 
-                    <a href="#" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}</a><br />
+            var mainField = [usernameField, keyField, submitField, ""];
+            var stepMessage = [
+                "Select a new username",
+                "Generate keys for " + this.state.desiredUsername,
+                "Requested username " + this.state.desiredUsername,
+                this.state.desiredUsername
+            ];
 
+            var nextField = (
+                <a className="floatRight" onClick={this.handleNext}>Next<i className="fa fa-chevron-right fa-fw"></i></a>
+            );
+            if (!showNext || this.state.step > 1) nextField = "";
+
+            var backField = (
+                <a className="floatLeft" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>Back</a>
+            );
+            if (this.state.step == 0) backField="";
+            if (this.state.step == 3) backField=(
+                <a className="floatLeft" onClick={this.handleStartOver}><i className="fa fa-chevron-left fa-fw"></i>Start Over</a>
+            );
+
+            var messageField = this.state.usernameMessage ? (<div><em>{this.state.usernameMessage}</em></div>) : "";
+
+            return (
+                <div className="menuSection">
+                    <div className="menuLabel">Step#{this.state.step+1}{': '}{stepMessage[this.state.step]}</div><br/>
+                    {mainField[this.state.step]}
+                    {messageField}
+                    {backField}{nextField}<br/>
                 </div>
                 )
         }
@@ -921,36 +1003,52 @@ var NewIdentity = React.createClass({
         this.handleGenerateUsername();
     },
 
-    handleUsernameRequest: function() {
-        // BUILD REQUEST
-        var requestedUsername = "";
-        var prefix = "anon";
-        if (this.props.importUsername) {
-            requestedUsername = this.props.importUsername;
-        } else {
-            prefix = this.refs.prefix.getDOMNode().value;
-            requestedUsername =  prefix + '.' + this.refs.newUsername.getDOMNode().value;
-        }
-        console.log("BEGIN username request for ", requestedUsername);
-
+    checkKeys: function() {
         // Stuff to register. These are public keys
-        var rootKeyPublic = this.refs.rootKeyPublic.getDOMNode().value;
-        var adminKeyPublic = this.refs.adminKeyPublic.getDOMNode().value;
+        var rootKeyPublic    = this.refs.rootKeyPublic.getDOMNode().value;
+        var adminKeyPublic   = this.refs.adminKeyPublic.getDOMNode().value;
         var defaultKeyPublic = this.refs.defaultKeyPublic.getDOMNode().value;
 
-        rootKeyPrivate = this.refs.rootKeyPrivate.getDOMNode().value;
-        adminKeyPrivate = this.refs.adminKeyPrivate.getDOMNode().value;
-        defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
-
-
-        // TODO: Make sure it is at least 5 chars long
-        // TODO: Make sure it is valid characters
-        // 
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
             this.setState({usernameMessage: polyglot.t("menu.identity.newKey.error.missing")});
             return false;
         }
+
+        var rootKeyPrivate = this.refs.rootKeyPrivate.getDOMNode().value;
+        var adminKeyPrivate = this.refs.adminKeyPrivate.getDOMNode().value;
+        var defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
+
+        // store public keys to prop
+        this.props.keys = {
+            rootKeyPublic    : rootKeyPublic,
+            adminKeyPublic   : adminKeyPublic,
+            defaultKeyPublic : defaultKeyPublic,
+            rootKeyPrivate   : rootKeyPrivate,
+            adminKeyPrivate  : adminKeyPrivate,
+            defaultKeyPrivate: defaultKeyPrivate
+        };
+        return true;        
+    },
+
+    handleUsernameRequest: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        // BUILD REQUEST
+        var requestedUsername = this.state.desiredUsername;
+        var prefix = "anon";
+        var prefixIndex = requestedUsername.indexOf('.');
+        if (requestedUsername.indexOf('.') != -1) {
+            prefix = requestedUsername.split('.')[0];
+        }
+        console.log("BEGIN username request for ", requestedUsername);
+
+        var rootKeyPublic     = this.props.keys.rootKeyPublic;
+        var adminKeyPublic    = this.props.keys.adminKeyPublic;
+        var defaultKeyPublic  = this.props.keys.defaultKeyPublic;
+        
+        var rootKeyPrivate    = this.props.keys.rootKeyPrivate;
+        var adminKeyPrivate   = this.props.keys.adminKeyPrivate;
+        var defaultKeyPrivate = this.props.keys.defaultKeyPrivate;
 
         var self = this;
 
@@ -959,7 +1057,8 @@ var NewIdentity = React.createClass({
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
-                self.setState({usernameMessage: polyglot.t("menu.identity.newKey.success")});
+                self.setState({step: 3, 
+                               usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);
@@ -969,7 +1068,8 @@ var NewIdentity = React.createClass({
             },
             function(err) {
                 console.log("ERR")
-                self.setState({usernameMessage: err.toString()});
+                self.setState({step: 3, 
+                               usernameMessage: err.toString()});
                 events.pub('ui/event', {});
             });
 

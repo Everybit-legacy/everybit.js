@@ -163,6 +163,7 @@ p {
 a {
     text-decoration:none;
     color: #1616A8;
+    cursor: pointer;
 }
 
 a.under {
@@ -690,6 +691,11 @@ fieldset[disabled] .btn-link {
     padding-top: 10px;
     padding-bottom: 10px;
     margin: 0px;
+}
+
+#qrcode {
+    float: right;
+    cursor: pointer;
 }
 
 #closeDiv {

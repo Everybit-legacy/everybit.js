@@ -73,8 +73,8 @@ Translate.language["en"].extend({
 			builder: "Puff builder"
 		},
         tooltip:{
-            latest:'Show latest puffs',
-            choices:'Show Choices collection',
+            latest:'Show the latest puffs',
+            choices:'Show the Choices collection',
             keyboard:'Show the puff for keyboard shortcuts',
             showPuffs:'Show puffs for me',
             showRelation:'Show relationships between puffs',
@@ -87,7 +87,14 @@ Translate.language["en"].extend({
             routeErase: 'Unselect the route',
             userSearch: 'Show puffs from this user',
             userErase: 'Unselect the user',
-            currentDelete:'To delete this user from the browser'
+            currentDelete:'To delete this user from the browser',
+            parent:'Show the parents of this puff',
+            children:'Show the children of this puff',
+            reply:'To reply to this puff',
+            seeMore:'Show more options',
+            viewRaw:'Show the raw code of this puff',
+            JSONstring:'Show the JSON string of this puff',
+            permaLink:'Click to move this puff to main position'
         }
 	},
 	replyForm: {
@@ -211,7 +218,14 @@ Translate.language["zh"].extend({
             routeErase: '取消选择本路径',
             userSearch: '显示此用户的所有puff',
             userErase: '取消选择本用户名',
-            currentDelete:'在本浏览器中删除此用户'
+            currentDelete:'在本浏览器中删除此用户',
+            parent:'显示本puff的上级',
+            children:'显示本puff的下级',
+            reply:'回复本puff',
+            seeMore:'显示更多选项',
+            viewRaw:'显示未加工前的代码',
+            JSONstring:'显示本puff的JSON代码',
+            permaLink:'点击移动本puff到中心'
         }
 	},
 	replyForm: {

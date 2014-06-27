@@ -226,13 +226,14 @@ Translate.language["zh"].extend({
             userSearch: '显示此用户的所有puff',
             userErase: '取消选择本用户名',
             currentDelete:'在本浏览器中删除此用户',
+            viewImage: '显示大图',
             parent:'显示本puff的上级',
             children:'显示本puff的下级',
             reply:'回复本puff',
             seeMore:'显示更多选项',
             viewRaw:'显示未加工前的代码',
             json:'显示本puff的JSON代码',
-            permaLink:'点击移动本puff到中心'
+            permaLink:'本puff的文本链接'
         }
 	},
 	replyForm: {

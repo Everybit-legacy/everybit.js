@@ -118,7 +118,7 @@ Translate.language["en"].extend({
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
             anon: 'Anonymous (encrypted and anonymous)',
-            paranoid: 'Paranoid (double anon all the way)'
+            paranoid: 'Invisible (double anon, experimental!)'
         },
         sendTo: 'Send to user'
 

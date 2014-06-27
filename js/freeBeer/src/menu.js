@@ -1003,16 +1003,16 @@ var NewIdentity = React.createClass({
             ];
 
             var nextField = (
-                <a className="floatRight" onClick={this.handleNext}>Next<i className="fa fa-chevron-right fa-fw"></i></a>
+                <a className="floatRight steps" onClick={this.handleNext}>Next<i className="fa fa-chevron-right fa-fw"></i></a>
             );
             if (!showNext || this.state.step > 1) nextField = "";
 
             var backField = (
-                <a className="floatLeft" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>Back</a>
+                <a className="floatLeft steps" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>Back</a>
             );
             if (this.state.step == 0) backField="";
             if (this.state.step == 3) backField=(
-                <a className="floatLeft" onClick={this.handleStartOver}><i className="fa fa-chevron-left fa-fw"></i>Start Over</a>
+                <a className="floatLeft steps" onClick={this.handleStartOver}><i className="fa fa-chevron-left fa-fw"></i>Start Over</a>
             );
 
             var messageField = this.state.usernameMessage ? (<div><em>{this.state.usernameMessage}</em></div>) : "";

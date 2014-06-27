@@ -646,13 +646,13 @@ fieldset[disabled] .btn-link {
 }
 
 .menuTooltip {
-    background-color: #EEE7D0;
+    background-color: #F0F4FF;
     position: absolute;
-    max-width： 180px;
-    border: 1px solid black;
+    max-width: 180px;
+    border: 1px solid rgb(110, 110, 110);
     z-index: 9;
-    padding: 2px;
-    font-size: 0.8em;
+    padding: 5px;
+    font-size: 0.9em;
     line-height: 1.2em;
     display: none;
 }
@@ -662,7 +662,7 @@ fieldset[disabled] .btn-link {
 }
 
 .menuTooltip.right {
-    top: 0.5em;
+    top: 0.2em;
     left: 250px;
 }
 .menuTooltip.under {
@@ -725,11 +725,18 @@ fieldset[disabled] .btn-link {
 }
 
 .menuSection {
+    background: #F7F7F7;
     border-top: 1px solid #d6d6ff;
     border-bottom: 1px solid #d6d6ff;
     padding-top: 10px;
     padding-bottom: 10px;
     margin: 0px;
+}
+
+.steps {
+    font-family: GudeaBold;
+    text-transform: uppercase;
+    font-size: 1em;
 }
 
 #qrcode {

@@ -5,13 +5,25 @@
  */
 var Tooltip = React.createClass({displayName: 'Tooltip',
     render: function() {
+        var className = "menuTooltip";
+        if (this.props.position) className += " " + this.props.position;
         return (
-            React.DOM.div( {className:"menuTooltip"}, this.props.content)
+            React.DOM.div( {className:className}, this.props.content)
         );
     }
 });
 
 var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this;
+        var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "block";
+    },
+    handleHideTooltip: function() {
+        var parent = this;
+        var tooltip = parent.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "none";
+    },
     componentDidMount: function() {
         var current = this.getDOMNode();
         var menuItems = current.getElementsByClassName('menuItem');
@@ -20,16 +32,8 @@ var TooltipMixin = {
             var firstChild = item.childNodes[0];
             var tooltip = item.getElementsByClassName('menuTooltip');
             if (firstChild.tagName == 'A' && tooltip.length != 0) {
-                firstChild.onmouseover = function(e){
-                    var parent = e.target.parentNode;
-                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
-                    tooltip.style.display = "block";
-                };
-                firstChild.onmouseout = function(e) {
-                    var parent = e.target.parentNode;
-                    var tooltip = parent.getElementsByClassName('menuTooltip')[0];
-                    tooltip.style.display = "none";
-                };
+                firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(item);
+                firstChild.onmouseout = TooltipMixin.handleHideTooltip.bind(item);
             }
         }
     }
@@ -122,6 +126,18 @@ var Filter = React.createClass({displayName: 'Filter',
             this.handlePickFilter();
         }
     },
+    componentDidMount: function() {
+        var menuInput = this.getDOMNode().getElementsByClassName('menuInput');
+        for (var i=0; i<menuInput.length; i++) {
+            var input = menuInput[i];
+            var firstChild = input.childNodes[0];
+            var tooltip = input.getElementsByClassName('menuTooltip');
+            if (firstChild.tagName == 'INPUT' && tooltip.length != 0) {
+                firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(input);
+                firstChild.onmouseout = TooltipMixin.handleHideTooltip.bind(input);
+            }
+        }
+    },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var route = puffworldprops.view.filterroute || "";
@@ -134,17 +150,19 @@ var Filter = React.createClass({displayName: 'Filter',
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.route"),":",
                     React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12", onKeyDown:this.handleKeyDown} ),
-                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search fa-fw"})),
-                    ' ',React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
+                        React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", defaultValue:route, size:"12", onKeyDown:this.handleKeyDown} ),
+                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.routeSearch")} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search fa-fw"})),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleClearRoute} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.user"),":", 
                     React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12", onKeyDown:this.handleKeyDown}  ),
-                    ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
-                    ' ',React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
+                        React.DOM.input( {type:"text", name:"filteruser", ref:"pickuser", defaultValue:user, size:"12", onKeyDown:this.handleKeyDown}  ),
+                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.userSearch")} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search fa-fw"})),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handleClearUser} , React.DOM.i( {className:"fa fa-eraser fa-fw"}))
                     ),React.DOM.br(null)
                 )
             )
@@ -377,6 +395,20 @@ var Identity = React.createClass({displayName: 'Identity',
         }
     },
 
+    componentDidMount: function() {
+        var tabs = this.getDOMNode().getElementsByClassName('linkTab');
+        var tabsHighlighted = this.getDOMNode().getElementsByClassName('linkTabHighlighted');
+        tabs = Array.prototype.slice.call(tabs).concat(Array.prototype.slice.call(tabsHighlighted));
+        for (var i=0; i<tabs.length; i++) {
+            var tab = tabs[i];
+            var tooltip = tab.getElementsByClassName('menuTooltip');
+            if (tooltip.length != 0) {
+                tab.onmouseover = TooltipMixin.handleShowTooltip.bind(tab);
+                tab.onmouseout  = TooltipMixin.handleHideTooltip.bind(tab);
+            }
+        }
+    },
+
     render: function() {
 
         // CSS for tabs
@@ -408,9 +440,9 @@ var Identity = React.createClass({displayName: 'Identity',
                 React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-user fa-fw gray"}), " ", polyglot.t("menu.identity.title")),
                 AuthorPicker(null ),
                 React.DOM.div( {className:"leftIndent"}, 
-                React.DOM.div( {className:setClass,  onClick:this.toggleShowTab.bind(this,'showSetIdentity')} , React.DOM.i( {className:"fa fa-sign-in fa-fw"})),
-                React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"})),
-                React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"})),
+                React.DOM.div( {className:setClass,  onClick:this.toggleShowTab.bind(this,'showSetIdentity')}, React.DOM.i( {className:"fa fa-sign-in fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.setIdentity")} )),
+                React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.editIdentity")} )),
+                React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.newIdentity")} )),
                 React.DOM.br(null ),
                 SetIdentity(  {show:this.state.tabs.showSetIdentity,  username:currUser}),
                 EditIdentity( {show:this.state.tabs.showEditIdentity, username:currUser}),

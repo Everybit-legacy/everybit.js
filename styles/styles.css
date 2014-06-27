@@ -646,18 +646,27 @@ fieldset[disabled] .btn-link {
 }
 
 .menuTooltip {
+    background-color: #EEE7D0;
     position: absolute;
     top: 0.5em;
     left: 250px;
     max-width： 180px;
     border: 1px solid black;
-    background-color: white;
     z-index: 9;
-    /* right: 0px; */
-    padding: 0;
+    padding: 2px;
     font-size: 0.8em;
     line-height: 1.2em;
     display: none;
+}
+
+.menuTooltip.under {
+    top: 2em;
+    left: 0px;
+}
+.linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
+    min-width: 150px;
+    text-transform: none;
+    top: 1.5em;
 }
 
 .smallCaps {
@@ -685,6 +694,7 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     margin-left: 10px;
     background-color: #e8e8e8;
+    position: relative;
 }
 
 .linkTabHighlighted {
@@ -699,6 +709,7 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     margin-left: 10px;
     background-color: #d6d6ff;
+    position: relative;
 }
 
 .menuSection {

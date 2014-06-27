@@ -17,12 +17,13 @@ var Tooltip = React.createClass({displayName: 'Tooltip',
 var TooltipMixin = {
     handleShowTooltip: function() {
         var parent = this;
-        this.className += " showTooltip";
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "block";
     },
     handleHideTooltip: function() {
         var parent = this;
-        var className = this.className;
-        this.className = className.substring(0, className.indexOf(' showTooltip'));
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "none";
     },
     componentDidMount: function() {
         var current = this.getDOMNode();

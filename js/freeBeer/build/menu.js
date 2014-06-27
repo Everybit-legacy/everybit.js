@@ -830,7 +830,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     getInitialState: function() {
         return {
             step: 0,
-            wantImport: false,
             desiredUsername: '',
             usernameAvailable: 'unknown',
             usernameMessage: '',
@@ -843,10 +842,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         setTimeout(function() {
             target.select();
         }, 0);
-    },
-
-    handleAskForImport: function() {
-        this.setState({wantImport: !this.state.wantImport})
     },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
@@ -883,7 +878,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.props.show = show;
         this.setState({
             step: 0,
-            wantImport: false,
             desiredUsername: '',
             usernameMessage: ''
         });
@@ -897,31 +891,23 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         } else {
             var showNext = true;
             var polyglot = Translate.language[puffworldprops.view.language];
-            var usernameField = "";
-            if (!this.state.wantImport) {
-                usernameField = (
-                React.DOM.div(null, 
-                    React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, polyglot.t("menu.identity.newKey.msg"),":")),React.DOM.br(null ),
-                    React.DOM.div( {className:  "menuItem"}, 
-                        React.DOM.select( {ref:"prefix"}, 
-                            CONFIG.users.map(function(u) {
-                                return React.DOM.option( {key:u.username, value:u.username}, u.username)
-                            })
-                        ), " ", React.DOM.em(null, "."),' ',
-                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
-                   ),
-                    "Or, ", React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"import"}),"from another website."
-                ));
-            } else {
-                showNext = false;
-                usernameField = (
-                    React.DOM.div(null, 
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Import from:")),' ',React.DOM.select( {id:"import", ref:"import"}, 
-                                React.DOM.option( {value:"instagram"}, "Instagram"),
-                                React.DOM.option( {value:"reddit"}, "Reddit")
-                            ),React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleImport, value:"Go"}),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"Cancel"})
-                    ));
-            }
+            var usernameField = (
+            React.DOM.div(null, 
+                React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, polyglot.t("menu.identity.newKey.msg"),":")),React.DOM.br(null ),
+                React.DOM.div( {className:  "menuItem"}, 
+                    React.DOM.select( {ref:"prefix"}, 
+                        CONFIG.users.map(function(u) {
+                            return React.DOM.option( {key:u.username, value:u.username}, u.username)
+                        })
+                    ), " ", React.DOM.em(null, "."),' ',
+                    React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
+               ),
+                "Or, ", React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"import"}),"from",' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
+                            React.DOM.option( {value:""}),
+                            React.DOM.option( {value:"instagram"}, "Instagram"),
+                            React.DOM.option( {value:"reddit"}, "Reddit")
+                        )
+            ));
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
             if (params['requestedUsername']) {
@@ -992,7 +978,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             );
 
             var submitField = (
-                React.DOM.a( {href:"#", className:"floatRight", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.newKey.submit"))
+                React.DOM.a( {href:"#", className:"floatRight steps", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.newKey.submit"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
             );
 
             var mainField = [usernameField, keyField, submitField, ""];
@@ -1004,16 +990,16 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             ];
 
             var nextField = (
-                React.DOM.a( {className:"floatRight", onClick:this.handleNext}, "Next",React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
+                React.DOM.a( {className:"floatRight steps", onClick:this.handleNext}, "Next",React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
             );
             if (!showNext || this.state.step > 1) nextField = "";
 
             var backField = (
-                React.DOM.a( {className:"floatLeft", onClick:this.handleBack}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Back")
+                React.DOM.a( {className:"floatLeft steps", onClick:this.handleBack}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Back")
             );
             if (this.state.step == 0) backField="";
             if (this.state.step == 3) backField=(
-                React.DOM.a( {className:"floatLeft", onClick:this.handleStartOver}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Start Over")
+                React.DOM.a( {className:"floatLeft steps", onClick:this.handleStartOver}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Start Over")
             );
 
             var messageField = this.state.usernameMessage ? (React.DOM.div(null, React.DOM.em(null, this.state.usernameMessage))) : "";

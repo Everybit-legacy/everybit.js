@@ -477,7 +477,8 @@ function setURL(state, path) {
     var url = Object.keys(state).map( function(key) {
                                     return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
                                 .join('&')
-    url = '?' + removeURLParameter(url);
+    // url = '?' + removeURLParameter(url);
+    url = '?' + url;
     
     // saving in case we need this in the future
     //

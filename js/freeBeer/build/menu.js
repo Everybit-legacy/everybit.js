@@ -881,6 +881,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             desiredUsername: '',
             usernameMessage: ''
         });
+        this.handleGenerateUsername();
     },
 
     // TODO: Add options for users to save keys
@@ -902,7 +903,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     ), " ", React.DOM.em(null, "."),' ',
                     React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                ),
-                "Or, ", React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"import"}),"from",' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
+                "Or, import from",' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
                             React.DOM.option( {value:""}),
                             React.DOM.option( {value:"instagram"}, "Instagram"),
                             React.DOM.option( {value:"reddit"}, "Reddit")

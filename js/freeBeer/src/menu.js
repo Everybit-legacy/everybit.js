@@ -881,6 +881,7 @@ var NewIdentity = React.createClass({
             desiredUsername: '',
             usernameMessage: ''
         });
+        this.handleGenerateUsername();
     },
 
     // TODO: Add options for users to save keys
@@ -902,7 +903,7 @@ var NewIdentity = React.createClass({
                     </select> <em>.</em>{' '}
                     <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
                </div>
-                Or, <input className="btn-link" type="button" onClick={this.handleAskForImport} value="import"/>from{' '}<select id="import" ref="import" onChange={this.handleImport}>
+                Or, import from{' '}<select id="import" ref="import" onChange={this.handleImport}>
                             <option value=""></option>
                             <option value="instagram">Instagram</option>
                             <option value="reddit">Reddit</option>

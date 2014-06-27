@@ -338,7 +338,7 @@ var PuffWorld = React.createClass({
 
         else view = <PuffTallTree    view={extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
 
-        var reply = this.props.reply.show ? <PuffReplyForm reply={this.props.reply} /> : ''
+        var reply = this.props.reply.show ? <PuffReplyFormExp reply={this.props.reply} /> : ''
 
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
             this.props.menu.show = true;

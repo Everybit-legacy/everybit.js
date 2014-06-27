@@ -659,9 +659,14 @@ fieldset[disabled] .btn-link {
     display: none;
 }
 
+.showTooltip > .menuTooltip {
+    display: block;
+}
+
 .menuTooltip.under {
     top: 2em;
     left: 0px;
+    min-width: 100px;
 }
 .linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
     min-width: 150px;

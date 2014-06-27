@@ -16,25 +16,20 @@ var Tooltip = React.createClass({displayName: 'Tooltip',
 var TooltipMixin = {
     handleShowTooltip: function() {
         var parent = this;
-        var tooltip = parent.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "block";
+        this.className += " showTooltip";
     },
     handleHideTooltip: function() {
         var parent = this;
-        var tooltip = parent.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "none";
+        var className = this.className;
+        this.className = className.substring(0, className.indexOf(' showTooltip'));
     },
     componentDidMount: function() {
         var current = this.getDOMNode();
-        var menuItems = current.getElementsByClassName('menuItem');
-        for (var i=0; i<menuItems.length; i++) {
-            var item = menuItems[i];
-            var firstChild = item.childNodes[0];
-            var tooltip = item.getElementsByClassName('menuTooltip');
-            if (firstChild.tagName == 'A' && tooltip.length != 0) {
-                firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(item);
-                firstChild.onmouseout = TooltipMixin.handleHideTooltip.bind(item);
-            }
+        var tooltips = current.getElementsByClassName('menuTooltip');
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode;
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
         }
     }
 };
@@ -105,6 +100,7 @@ var Logo = React.createClass({displayName: 'Logo',
 });
 
 var Filter = React.createClass({displayName: 'Filter',
+    mixins: [TooltipMixin],
     handlePickFilter: function() {
         var user = this.refs.pickuser.getDOMNode().value || false;
         var route = this.refs.pickroute.getDOMNode().value || false;
@@ -124,18 +120,6 @@ var Filter = React.createClass({displayName: 'Filter',
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
             this.handlePickFilter();
-        }
-    },
-    componentDidMount: function() {
-        var menuInput = this.getDOMNode().getElementsByClassName('menuInput');
-        for (var i=0; i<menuInput.length; i++) {
-            var input = menuInput[i];
-            var firstChild = input.childNodes[0];
-            var tooltip = input.getElementsByClassName('menuTooltip');
-            if (firstChild.tagName == 'INPUT' && tooltip.length != 0) {
-                firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(input);
-                firstChild.onmouseout = TooltipMixin.handleHideTooltip.bind(input);
-            }
         }
     },
     render: function() {
@@ -368,6 +352,7 @@ var Publish = React.createClass({displayName: 'Publish',
 });
 
 var Identity = React.createClass({displayName: 'Identity',
+    mixins: [TooltipMixin],
     getInitialState: function() {
         return {
             username: PuffWardrobe.getCurrentUsername(),
@@ -392,20 +377,6 @@ var Identity = React.createClass({displayName: 'Identity',
             // 
             // this.setState({username: 'anon'});
 
-        }
-    },
-
-    componentDidMount: function() {
-        var tabs = this.getDOMNode().getElementsByClassName('linkTab');
-        var tabsHighlighted = this.getDOMNode().getElementsByClassName('linkTabHighlighted');
-        tabs = Array.prototype.slice.call(tabs).concat(Array.prototype.slice.call(tabsHighlighted));
-        for (var i=0; i<tabs.length; i++) {
-            var tab = tabs[i];
-            var tooltip = tab.getElementsByClassName('menuTooltip');
-            if (tooltip.length != 0) {
-                tab.onmouseover = TooltipMixin.handleShowTooltip.bind(tab);
-                tab.onmouseout  = TooltipMixin.handleHideTooltip.bind(tab);
-            }
         }
     },
 
@@ -499,9 +470,11 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     },
 
     handleViewUser: function() {
-        var username = this.props.username;
+        var username = this.refs.switcher.getDOMNode().value;
+        // var username = this.props.username;
         return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
     },
+
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
@@ -517,7 +490,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
-
+        var relativeStyle = {position: 'relative'};
         return (
             React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.identity.current"),": ", React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, value:username}, 
@@ -525,33 +498,13 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                         return React.DOM.option( {key:username, value:username}, username)
                     })
                 ),
-                ' ',React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),
-                ' ',ViewUserLink( {username:username} )
+                ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} )),
+                ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleViewUser}, React.DOM.i( {className:"fa fa-search fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.userSearch')} ))
             )
             );
     }
     // TODO add alt tags to icons, or link it too a "help" puff.
     // NOTE: This might destroy the puff the person was working on
-});
-
-var ViewUserLink = React.createClass({displayName: 'ViewUserLink',
-    viewUser: function() {
-        var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
-    },
-
-    render: function() {
-        if(!Object.keys(PuffWardrobe.getAll()).length) {
-            return React.DOM.i(null);
-        }
-
-        return (
-            React.DOM.a( {href:"#", onClick:this.viewUser}, 
-                React.DOM.i( {className:"fa fa-search fa-fw"})
-            )
-            )
-    }
-
 });
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
@@ -1316,6 +1269,7 @@ Call this Info instead of about, and have About puff
  */
 
 var Tools = React.createClass({displayName: 'Tools',
+    mixins: [TooltipMixin],
     handlePackPuffs: function() {
         return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
@@ -1328,7 +1282,8 @@ var Tools = React.createClass({displayName: 'Tools',
                 React.DOM.i( {className:"fa fa-wrench fa-fw gray"}), " ", polyglot.t("menu.tool.title")
             ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, polyglot.t("menu.tool.builder"))
+                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, polyglot.t("menu.tool.builder")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
                 )
             )
             )

@@ -830,7 +830,6 @@ var NewIdentity = React.createClass({
     getInitialState: function() {
         return {
             step: 0,
-            wantImport: false,
             desiredUsername: '',
             usernameAvailable: 'unknown',
             usernameMessage: '',
@@ -843,10 +842,6 @@ var NewIdentity = React.createClass({
         setTimeout(function() {
             target.select();
         }, 0);
-    },
-
-    handleAskForImport: function() {
-        this.setState({wantImport: !this.state.wantImport})
     },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
@@ -883,7 +878,6 @@ var NewIdentity = React.createClass({
         this.props.show = show;
         this.setState({
             step: 0,
-            wantImport: false,
             desiredUsername: '',
             usernameMessage: ''
         });
@@ -897,31 +891,23 @@ var NewIdentity = React.createClass({
         } else {
             var showNext = true;
             var polyglot = Translate.language[puffworldprops.view.language];
-            var usernameField = "";
-            if (!this.state.wantImport) {
-                usernameField = (
-                <div>
-                    <div className="menuLabel"><em>{polyglot.t("menu.identity.newKey.msg")}:</em></div><br />
-                    <div className = "menuItem">
-                        <select ref="prefix">
-                            {CONFIG.users.map(function(u) {
-                                return <option key={u.username} value={u.username}>{u.username}</option>
-                            })}
-                        </select> <em>.</em>{' '}
-                        <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
-                   </div>
-                    Or, <input className="btn-link" type="button" onClick={this.handleAskForImport} value="import"/>from another website.
-                </div>);
-            } else {
-                showNext = false;
-                usernameField = (
-                    <div>
-                        <div className="menuLabel"><em>Import from:</em></div>{' '}<select id="import" ref="import">
-                                <option value="instagram">Instagram</option>
-                                <option value="reddit">Reddit</option>
-                            </select><input className="btn-link" type="button" onClick={this.handleImport} value="Go"/>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
-                    </div>);
-            }
+            var usernameField = (
+            <div>
+                <div className="menuLabel"><em>{polyglot.t("menu.identity.newKey.msg")}:</em></div><br />
+                <div className = "menuItem">
+                    <select ref="prefix">
+                        {CONFIG.users.map(function(u) {
+                            return <option key={u.username} value={u.username}>{u.username}</option>
+                        })}
+                    </select> <em>.</em>{' '}
+                    <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
+               </div>
+                Or, <input className="btn-link" type="button" onClick={this.handleAskForImport} value="import"/>from{' '}<select id="import" ref="import" onChange={this.handleImport}>
+                            <option value=""></option>
+                            <option value="instagram">Instagram</option>
+                            <option value="reddit">Reddit</option>
+                        </select>
+            </div>);
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
             if (params['requestedUsername']) {
@@ -992,7 +978,7 @@ var NewIdentity = React.createClass({
             );
 
             var submitField = (
-                <a href="#" className="floatRight" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}</a>
+                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
             );
 
             var mainField = [usernameField, keyField, submitField, ""];

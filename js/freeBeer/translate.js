@@ -61,7 +61,7 @@ Translate.language["en"].extend({
 					missing: 'You must set all of your public keys before making a registration request.'
 				},
 				success: 'Success!',
-				submit: 'Submit username request'
+				submit: 'Submit request'
 			}
 		},
 		about: {

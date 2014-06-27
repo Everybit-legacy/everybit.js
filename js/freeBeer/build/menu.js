@@ -7,6 +7,7 @@ var Tooltip = React.createClass({displayName: 'Tooltip',
     render: function() {
         var className = "menuTooltip";
         if (this.props.position) className += " " + this.props.position;
+        else className += " right";
         return (
             React.DOM.div( {className:className}, this.props.content)
         );

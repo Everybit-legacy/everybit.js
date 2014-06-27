@@ -648,8 +648,6 @@ fieldset[disabled] .btn-link {
 .menuTooltip {
     background-color: #EEE7D0;
     position: absolute;
-    top: 0.5em;
-    left: 250px;
     max-width： 180px;
     border: 1px solid black;
     z-index: 9;
@@ -663,10 +661,19 @@ fieldset[disabled] .btn-link {
     display: block;
 }
 
+.menuTooltip.right {
+    top: 0.5em;
+    left: 250px;
+}
 .menuTooltip.under {
     top: 2em;
     left: 0px;
     min-width: 100px;
+}
+.menuTooltip.above {
+    right: 0px;
+    bottom: 2em;
+    min-width: 80px;
 }
 .linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
     min-width: 150px;

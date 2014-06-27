@@ -67,8 +67,11 @@ var PuffReplyForm = React.createClass({
         
         var privacy = this.refs.privacy.getDOMNode().value
         
-        if(privacy == 'public')
-            return PuffForum.addPost( type, content, parents, metadata );
+        if(privacy == 'public') {
+            PuffForum.addPost( type, content, parents, metadata );
+            return false;
+        } 
+        
         
         // ok. we're definitely sending an encrypted message now.
         
@@ -83,10 +86,11 @@ var PuffReplyForm = React.createClass({
         var prom = Promise.resolve() // a promise we use to string everything along 
         
         // are we anonymous? make a new user.
+        var envelopeUserKeys = ''
         if(privacy == 'anonymous' || privacy == 'paranoid' || !PuffWardrobe.getCurrentUsername()) {
             prom = prom.then(function() {
                 return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
-                    PuffWardrobe.switchCurrent(userRecord.username)
+                    envelopeUserKeys = PuffWardrobe.keychain[userRecord.username]
                 })
             })
         }
@@ -100,8 +104,9 @@ var PuffReplyForm = React.createClass({
             })
         }
                 
-        var usernames = this.refs.usernames.getDOMNode().value.split(',').map(function(str) {return str.trim()})
-                                                        .concat(PuffWardrobe.getCurrentUsername()).filter(Boolean)
+        var usernames = this.refs.usernames.getDOMNode().value.split(',')
+                                                        .map(function(str) {return str.trim()})
+                                                        .filter(Boolean)
         
         var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
@@ -113,16 +118,24 @@ var PuffReplyForm = React.createClass({
                 if(!~userRecordUsernames.indexOf(username)) {
                     prom = prom.then(function() {
                         return Puffball.getUserRecordNoCache(username).then(function(userRecord) {
-                            userRecords.push(userRecord)
+                            userRecords.push(userRecord);
                         })
                     })
                 }
             })
         }
         
-        prom.then(function() {
-            PuffForum.addPost( type, content, parents, metadata, userRecords );
+        prom = prom.then(function() {
+            if(envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PuffData.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                    // add our regular old boring identity to the list of available keys
+                userRecords.push(PuffWardrobe.getCurrentUserRecord())
+            }
+            
+            return PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
         })
+        
+        return false;
     },
     handleImageLoad: function() {
         var self   = this;
@@ -152,7 +165,7 @@ var PuffReplyForm = React.createClass({
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
-    },    
+    },
     render: function() {
         var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
         username = humanizeUsernames(username) || 'anonymous';
@@ -314,7 +327,7 @@ var PuffReplyForm = React.createClass({
                                 <select ref="privacy" className="btn" defaultValue={privacyDefault}>
                                     <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                                     <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
-                                    <option key="anon" value="anon">{polyglot.t("replyForm.pOptions.anon")}</option>
+                                    <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
                                     <option key="paranoid" value="paranoid">{polyglot.t("replyForm.pOptions.paranoid")}</option>
                                 </select>
                             </p>

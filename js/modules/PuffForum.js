@@ -322,7 +322,7 @@ PuffForum.getByRoute = function(route, limit) {
  * @param {object} metadata
  * @param {array of userRecords} encrypt if present
  */
-PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
+PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -344,7 +344,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt)
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
     
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
@@ -368,7 +368,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
  * @param {array of userRecords} encrypt if present
  * @return {puff}
  */
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt) {
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -384,6 +384,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
     
     return function(userRecord) {
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
+
         var previous   = userRecord.latest
         var username   = userRecord.username
 
@@ -391,7 +392,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         if(!privateKeys || !privateKeys.default)
             return Puffball.onError('No valid private key found for signing the content')
 
-        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt)
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
         return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }

@@ -1,73 +1,24 @@
 /** @jsx React.DOM */
 
 /*
-  <p>Identity avatar</p>
+Conventions:
+    - Double chevron pointing right closes up the thing
+    - Double
+
+*/
+
+/*
+
+ <About />
+ <Tools />
  */
-var Tooltip = React.createClass({
-    render: function() {
-        var className = "menuTooltip";
-        if (this.props.position) className += " " + this.props.position;
-        else className += " right";
-        return (
-            <div className={className}>{this.props.content}</div>
-        );
-    }
-});
-
-var TooltipMixin = {
-    handleShowTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "block";
-    },
-    handleHideTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "none";
-    },
-    componentDidMount: function() {
-        var current = this.getDOMNode();
-        var tooltips = current.getElementsByClassName('menuTooltip');
-        for (var i=0; i<tooltips.length; i++) {
-            var parent = tooltips[i].parentNode;
-            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
-            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
-        }
-    }
-};
-
-var Basics = React.createClass({
-    render: function() {
-        return (
-            <PuffIcon />
-            )
-    }
-});
-
-var Blank = React.createClass({
-    render: function() {
-        return (
-            <div></div>
-            )
-    }
-});
-
-
-var PuffIcon = React.createClass({
-    render: function() {
-        return <img src={"img/puffballIcon.png"} className="puffballIcon" id="puffballIcon" height="32" width="27" onClick={this.toggleShowMenu} />
-    },
-
-    toggleShowMenu: function() {
-        if(puffworldprops.menu.show) {
-            return events.pub('ui/menu/close', {'menu.show': false})
-        } else {
-            return events.pub('ui/menu/close', {'menu.show': true})
-        }
-    }
-})
 
 var Menu = React.createClass({
+
+    handleClose: function() {
+        return events.pub('ui/menu/close', {'menu.show': false})
+    },
+
     render: function() {
         return (
             <div className="menu">
@@ -77,39 +28,77 @@ var Menu = React.createClass({
                 </div>
                 <Logo />
                 <br />
-                <View />
-                <Preferences />
-                <Filter />
-                <Publish />
-                <Identity />
-                <About />
-                <Tools />
+                <FilterCluster />
+                <PublishCluster />
+                <br />
+                <ViewCluster />
+                <IdentityCluster />
+                <PreferencesCluster />
+                <AboutCluster />
+
             </div>
             )
-    },
-
-    handleClose: function() {
-        return events.pub('ui/menu/close', {'menu.show': false})
     }
+
 });
 
 var Logo = React.createClass({
     render: function() {
         return (
-            <a href={CONFIG.url}><img src="img/logo.gif" alt="Logo" className="logo" /></a>
+            <a href={CONFIG.url}><img src={CONFIG.logo} alt="Logo" className="logo" /></a>
             )
     }
 });
 
-var Filter = React.createClass({
+var FilterCluster = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowFilterMenu: function() {
+        var changed = !puffworldprops.clusters.filter;
+        return events.pub('ui/clusters/filter', {'clusters.filter': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.filter
+        });
+
+        if(puffworldprops.clusters.filter) {
+            var filterOptions = <FilterMenu />
+        } else {
+            var filterOptions = '';
+        }
+
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowFilterMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-filter fa-fw gray"></i> {polyglot.t("menu.filter.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                <CurrentFilters />
+                {filterOptions}
+
+            </div>
+            )
+    }
+});
+
+
+var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
     handlePickFilter: function() {
         var user = this.refs.pickuser.getDOMNode().value || false;
         var route = this.refs.pickroute.getDOMNode().value || false;
-        return events.pub('ui/view/route/set', 
-                        {'view.filterroute': route, 
-                         'view.filteruser':user,
-                         'view.style':'PuffLatest'});
+        return events.pub('ui/view/route/set',
+            {'view.filterroute': route,
+                'view.filteruser':user,
+                'view.style':'PuffLatest'});
     },
     handleClearRoute: function() {
         this.refs.pickroute.getDOMNode().value = '';
@@ -130,25 +119,20 @@ var Filter = React.createClass({
         var user = puffworldprops.view.filteruser || "";
         return (
             <div>
-                <div className="menuHeader">
-                    <i className="fa fa-filter fa-fw gray"></i> {polyglot.t("menu.filter.title")}
-                </div>
                 <div className="menuItem">
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
                         <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" onKeyDown={this.handleKeyDown} />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
-                        {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search fa-fw"></i></a>
-                        {' '}<a href="#" onClick={this.handleClearRoute} ><i className="fa fa-eraser fa-fw"></i></a>
+                        {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
                 </div>
                 <div className="menuItem">
-                    {polyglot.t("menu.filter.user")}: 
+                    {polyglot.t("menu.filter.user")}:
                     <div className="menuInput">
                         <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" onKeyDown={this.handleKeyDown}  />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
-                        {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search fa-fw"></i></a>
-                        {' '}<a href="#" onClick={this.handleClearUser} ><i className="fa fa-eraser fa-fw"></i></a>
+                        {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
                 </div>
             </div>
@@ -156,7 +140,140 @@ var Filter = React.createClass({
     }
 });
 
-var View = React.createClass({
+var CurrentFilters = React.createClass({
+    render: function() {
+        var filterNodes = Object.keys(puffworldprops.filter).map(function(prop) {
+            return <Filter filterName={prop} filterValue={puffworldprops.filter[prop]} />
+        })
+
+        return (
+            <div className="filterList">
+                {filterNodes}
+            </div>
+            );
+    }
+});
+
+var Filter = React.createClass({
+    handleRemoveFilter: function(toRemove) {
+        // TODO: Remove this value from the props array
+        /*
+        var filterPath = this.props.filterName;
+        var propPiece = puffworldprops[this.props.filterName];
+
+        var index = propPiece.indexOf(toRemove);
+        if (index > -1) {
+            propPiece.splice(index, 1);
+            return events.pub('ui/filter/remove', {filterPath: propPiece})
+        }
+        */
+
+        return false;
+
+    },
+
+    render: function() {
+        var self = this;
+
+        var toReturn = (this.props.filterValue).map(function(value) {
+            return (
+            <div className="menuItem">
+                {self.props.filterName}: {value}
+                <a href="#" onClick={self.handleRemoveFilter.bind(this,value)}>
+                    <i className="fa fa-times-circle-o fa-fw"></i>
+                </a>
+            </div>
+                )
+        });
+
+        return <span>{toReturn}</span>;
+    }
+
+});
+
+var PublishCluster = React.createClass({
+    mixins: [TooltipMixin],
+
+    handleToggleShowPublish: function() {
+        var changed = !puffworldprops.clusters.publish;
+        return events.pub('ui/clusters/publish', {'clusters.publish': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.publish
+        });
+
+        if(puffworldprops.clusters.publish) {
+            var replyOptions = <PuffPublishFormEmbed reply='' />
+        } else {
+            var replyOptions = '';
+        }
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowPublish}>
+                    <div className="menuHeader">
+                        <i className="fa fa-paper-plane fa-fw gray"></i> {polyglot.t("menu.publish.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {replyOptions}
+
+            </div>
+            )
+    }
+});
+
+
+var ViewCluster = React.createClass({
+    mixins: [TooltipMixin],
+
+    handleToggleShowView: function() {
+        var changed = !puffworldprops.clusters.view;
+        return events.pub('ui/clusters/view', {'clusters.view': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.view
+        });
+
+        if(puffworldprops.clusters.view) {
+            var viewOptions = <ViewMenu />
+        } else {
+            var viewOptions = '';
+        }
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowView}>
+                    <div className="menuHeader">
+                        <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {viewOptions}
+
+            </div>
+            )
+    }
+});
+
+
+/*
+  <p>Identity avatar</p>
+ */
+
+var ViewMenu = React.createClass({
     mixins: [TooltipMixin],
     handleViewRoots: function() {
         return events.pub('ui/show/roots', {'view.style': 'PuffRoots', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
@@ -184,19 +301,15 @@ var View = React.createClass({
             return false;
         }
         // console.log(username);
-       // var route = this.refs.pickroute.getDOMNode().value;
+        // var route = this.refs.pickroute.getDOMNode().value;
         return events.pub('ui/view/route/set', {'view.filterroute': username});
     },
 
     render: function() {
-
         var polyglot = Translate.language[puffworldprops.view.language];
+
         return (
             <div>
-                <div className="menuHeader">
-                    <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
-                </div>
-
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />
@@ -222,7 +335,179 @@ var View = React.createClass({
     }
 });
 
-var Preferences = React.createClass({
+
+var IdentityCluster = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowIdentityMenu: function() {
+        var changed = !puffworldprops.clusters.identity;
+        return events.pub('ui/clusters/identity', {'clusters.identity': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.identity
+        });
+
+        if(puffworldprops.clusters.identity) {
+            var identityOptions = <IdentityMenu />
+        } else {
+            var identityOptions = '';
+        }
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowIdentityMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-user fa-fw gray"></i> {polyglot.t("menu.identity.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {identityOptions}
+
+            </div>
+            )
+    }
+});
+
+
+var IdentityMenu = React.createClass({
+    mixins: [TooltipMixin],
+    getInitialState: function() {
+        return {
+            username: PuffWardrobe.getCurrentUsername(),
+            showUserRootPrivateKey: false,
+            showUserAdminPrivateKey: false,
+            showUserDefaultPrivateKey: false,
+            tabs: {
+                showSetIdentity: false,
+                showEditIdentity: false,
+                showNewIdentity: (puffworldprops.view.style == 'MenuAdd')
+            }
+        }
+    },
+
+    componentWillMount: function() {
+        if (!this.state.username) {
+            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+            // prom.then(function() {
+            //     PuffWardrobe.switchCurrent('anon');
+            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
+            // });
+            //
+            // this.setState({username: 'anon'});
+
+        }
+    },
+
+    render: function() {
+
+        // CSS for tabs
+        var cx1 = React.addons.classSet;
+        var newClass = cx1({
+            'linkTabHighlighted': this.state.tabs.showNewIdentity,
+            'linkTab': !this.state.tabs.showNewIdentity
+        });
+
+        var cx2 = React.addons.classSet;
+        var setClass = cx2({
+            'linkTabHighlighted': this.state.tabs.showSetIdentity,
+            'linkTab': !this.state.tabs.showSetIdentity
+        });
+
+        var cx3 = React.addons.classSet;
+        var editClass = cx3({
+            'linkTabHighlighted': this.state.tabs.showEditIdentity,
+            'linkTab': !this.state.tabs.showEditIdentity
+        });
+
+        var currUser = PuffWardrobe.getCurrentUsername();
+
+        // TODO: Help icon takes you to tutorial related to this.
+
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <div>
+                <AuthorPicker />
+                <div className="leftIndent">
+                    <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')}><i className="fa fa-sign-in fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.setIdentity")} /></div>
+                    <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-eye fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.editIdentity")} /></div>
+                    <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.newIdentity")} /></div>
+                    <br />
+                    <SetIdentity  show={this.state.tabs.showSetIdentity}  username={currUser}/>
+                    <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
+                    <NewIdentity  show={this.state.tabs.showNewIdentity}  />
+                </div>
+
+            </div>
+            )
+    },
+
+    toggleShowTab: function(tabName) {
+        var self = this;
+
+        var truthArray = [false, false, false];
+        var tabArray = ['showSetIdentity', 'showEditIdentity', 'showNewIdentity'];
+
+        if(!self.state.tabs[tabName]) {
+            var toggleThis = tabArray.indexOf(tabName);
+            truthArray[toggleThis] = true;
+        }
+
+        // Do the update of tab value
+        this.setState({tabs: {
+            showSetIdentity: truthArray[0],
+            showEditIdentity: truthArray[1],
+            showNewIdentity: truthArray[2]
+        }
+        });
+
+    }
+});
+
+
+var PreferencesCluster = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowPreferencesMenu: function() {
+        var changed = !puffworldprops.clusters.preferences;
+        return events.pub('ui/clusters/preferences', {'clusters.preferences': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.preferences
+        });
+
+        if(puffworldprops.clusters.preferences) {
+            var preferencesOptions = <PreferencesMenu />
+        } else {
+            var preferencesOptions = '';
+        }
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowPreferencesMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-gears fa-fw gray"></i> {polyglot.t("menu.preferences.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {preferencesOptions}
+
+            </div>
+            )
+    }
+});
+
+
+var PreferencesMenu = React.createClass({
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
 
@@ -287,11 +572,6 @@ var Preferences = React.createClass({
         return(
             <div>
 
-                <div className="menuHeader">
-                    <i className="fa fa-gears fa-fw gray"></i> {polyglot.t("menu.preferences.title")}
-                </div>
-
-
                 <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
@@ -318,9 +598,7 @@ var Preferences = React.createClass({
                 </select>
                 </div>
 
-
             </div>
-
             )
 
     }
@@ -328,125 +606,55 @@ var Preferences = React.createClass({
 });
 
 
-// TODO put back when working
-// <div className="menuItem"><a href="#" onClick={this.handleViewRoots}>Recent conversations</a></div>
-
-var Publish = React.createClass({
+var AboutCluster = React.createClass({
     mixins: [TooltipMixin],
-    handleNewContent: function() {
-        return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+    handleToggleShowAboutMenu: function() {
+        var changed = !puffworldprops.clusters.about;
+        return events.pub('ui/clusters/about', {'clusters.about': changed});
     },
 
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.about
+        });
+
+        if(puffworldprops.clusters.about) {
+            var aboutOptions = <AboutMenu />
+        } else {
+            var aboutOptions = '';
+        }
         return (
             <div>
-                <div className="menuHeader">
-                    <i className="fa fa-paper-plane fa-fw gray"></i> {polyglot.t("menu.publish.title")}
-                </div>
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleNewContent}>{polyglot.t("menu.publish.newPuff")}</a>{' '}<span className="shortcut">[n]</span>
-                    <Tooltip content={polyglot.t("menu.tooltip.newPuff")} />
-                </div>
+                <a href="#" onClick={this.handleToggleShowAboutMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-info-circle fa-fw gray"></i> {polyglot.t("menu.about.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {aboutOptions}
+
             </div>
             )
     }
 });
 
-var Identity = React.createClass({
+
+var AboutMenu = React.createClass({
     mixins: [TooltipMixin],
-    getInitialState: function() {
-        return {
-            username: PuffWardrobe.getCurrentUsername(),
-            showUserRootPrivateKey: false,
-            showUserAdminPrivateKey: false,
-            showUserDefaultPrivateKey: false,
-            tabs: {
-                showSetIdentity: false,
-                showEditIdentity: false,
-                showNewIdentity: (puffworldprops.view.style == 'MenuAdd')
-            }
-        }
-    },
-
-    componentWillMount: function() {
-        if (!this.state.username) {
-            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-            // prom.then(function() {
-            //     PuffWardrobe.switchCurrent('anon');
-            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
-            // });
-            // 
-            // this.setState({username: 'anon'});
-
-        }
-    },
-
     render: function() {
-
-        // CSS for tabs
-        var cx1 = React.addons.classSet;
-        var newClass = cx1({
-            'linkTabHighlighted': this.state.tabs.showNewIdentity,
-            'linkTab': !this.state.tabs.showNewIdentity
-        });
-
-        var cx2 = React.addons.classSet;
-        var setClass = cx2({
-            'linkTabHighlighted': this.state.tabs.showSetIdentity,
-            'linkTab': !this.state.tabs.showSetIdentity
-        });
-
-        var cx3 = React.addons.classSet;
-        var editClass = cx3({
-            'linkTabHighlighted': this.state.tabs.showEditIdentity,
-            'linkTab': !this.state.tabs.showEditIdentity
-        });
-
-        var currUser = PuffWardrobe.getCurrentUsername();
-
-        // TODO: Help icon takes you to tutorial related to this.
-
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            <div>
-                <div className="menuHeader"><i className="fa fa-user fa-fw gray"></i> {polyglot.t("menu.identity.title")}</div>
-                <AuthorPicker />
-                <div className="leftIndent">
-                <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')}><i className="fa fa-sign-in fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.setIdentity")} /></div>
-                <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-eye fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.editIdentity")} /></div>
-                <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.newIdentity")} /></div>
-                <br />
-                <SetIdentity  show={this.state.tabs.showSetIdentity}  username={currUser}/>
-                <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
-                <NewIdentity  show={this.state.tabs.showNewIdentity}  />
-                </div>
-
+            <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
+                <Tooltip content={polyglot.t("menu.tooltip.code")} />
             </div>
             )
-    },
-
-    toggleShowTab: function(tabName) {
-        var self = this;
-
-        var truthArray = [false, false, false];
-        var tabArray = ['showSetIdentity', 'showEditIdentity', 'showNewIdentity'];
-
-        if(!self.state.tabs[tabName]) {
-            var toggleThis = tabArray.indexOf(tabName);
-            truthArray[toggleThis] = true;
-        }
-
-        // Do the update of tab value
-        this.setState({tabs: {
-            showSetIdentity: truthArray[0],
-            showEditIdentity: truthArray[1],
-            showNewIdentity: truthArray[2]
-        }
-        });
-
     }
-});
+})
 
 // Was PuffSwitchUser
 var AuthorPicker = React.createClass({
@@ -799,19 +1007,6 @@ var EditIdentity = React.createClass({
 
 });
 
-/*
-
- <br />
- - Place to view
- - Username is fixed<br />
- - Existing Keys<br />
- + default, admin, root, (click to show each new level)<br />
- + Click next to each one to try and change<br />
- - Message area below for results<br />
- - Reminder to save keys<br />
- */
-
-
 var defaultPrivateKeyField = React.createClass({
     render: function() {
         return (
@@ -1007,14 +1202,13 @@ var NewIdentity = React.createClass({
 
             return (
                 <div className="menuSection">
-                    <div className="menuLabel">Step
-                    {this.state.step+1}
+                    <div className="menuLabel">Step {this.state.step+1}
                     {': '}
                     {stepMessage[this.state.step]}</div><br/>
                     {mainField[this.state.step]}
                     {messageField}
                     {backField}
-                {nextField}<br/>
+                    {nextField}<br/>
                 </div>
                 )
         }
@@ -1230,34 +1424,18 @@ var UsernameCheckbox = React.createClass({
 });
 
 
-var About = React.createClass({
-    mixins: [TooltipMixin],
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            <div>
-                <div className="menuHeader">
-                <i className="fa fa-info-circle fa-fw gray"></i> {polyglot.t("menu.about.title")}
-            </div>
 
-                <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
-                    <Tooltip content={polyglot.t("menu.tooltip.code")} />
-                </div>
-            </div>
-            )
-    }
-})
 
 /*
 // TODO: Put in stuff for
+
+// TODO put back recent conversations when working
 Call this Info instead of about, and have About puff
  <div>User guide</div>
- <div>Contact us</div>
- <div>Privacy policy</div>
- TODO: Add puff for
+// TODO: Contact us:
+ brings up a stub for a private puff with .puffball in the routing.
+// TODO: Privacy policy:
  Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
-
- TODO: Contact us link brings up a stub for a private puff with .puffball in the routing.
 
  */
 
@@ -1283,11 +1461,36 @@ var Tools = React.createClass({
     }
 })
 
-var Main = React.createClass({
+
+var Tooltip = React.createClass({
     render: function() {
+        var className = "menuTooltip";
+        if (this.props.position) className += " " + this.props.position;
+        else className += " right";
         return (
-            <div>Main!</div>
-            )
+            <div className={className}>{this.props.content}</div>
+            );
     }
 });
 
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "block";
+    },
+    handleHideTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "none";
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode();
+        var tooltips = current.getElementsByClassName('menuTooltip');
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode;
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
+        }
+    }
+};

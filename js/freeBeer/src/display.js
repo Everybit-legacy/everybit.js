@@ -315,6 +315,12 @@ var PuffWorld = React.createClass({
         var view;
         var viewprops = this.props.view || {};
 
+        if(this.props.menu.show) {
+            CONFIG.leftMargin = 520;
+        } else {
+            CONFIG.leftMargin = 60;
+        }
+
         if( viewprops.style == 'PuffTallTree' )
             view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
 
@@ -338,7 +344,9 @@ var PuffWorld = React.createClass({
 
         else view = <PuffTallTree    view={extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
 
-        var reply = this.props.reply.show ? <PuffReplyFormExp reply={this.props.reply} /> : ''
+        // var reply = this.props.reply.show ? <PuffPublishFormEmbed reply={this.props.reply} /> : ''
+        // TODO: Focus the reply box when arrow clicked
+        reply = '';
 
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
             this.props.menu.show = true;
@@ -504,6 +512,7 @@ var PuffArrow =  React.createClass({
         
         var offset = 30
         var xoffset = CONFIG.leftMargin
+        // Move over if menu open
         var yoffset = 0
         var baseShift = 12
 

@@ -20,8 +20,10 @@ CONFIG.maxLatestRootsToShow = 26;
 
 CONFIG.sortOrder = 'recent';
 
-CONFIG.zone = 'freebeer';
-CONFIG.url = 'http://www.freebeer.com';
+CONFIG.zone = 'everybit';
+
+CONFIG.url = 'http://www.everybit.com';
+CONFIG.logo = 'img/EveryBit.gif';
 CONFIG.defaultPuff = 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD';
 
 CONFIG.text_threshold = 400;

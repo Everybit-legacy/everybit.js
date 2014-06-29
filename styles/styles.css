@@ -56,7 +56,7 @@ body {
     margin-left: 20px;
     margin-right: 0;
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
     overflow-y: hidden;
     overflow-x: hidden;
 }
@@ -525,6 +525,15 @@ fieldset[disabled] .btn-link {
     // overflow-x: auto; */
 }
 
+#replyFormEmbed {
+    z-index: 400;
+    background: #FAFAFA;
+    text-align: center;
+    padding: 10px 25px 5px 25px;
+
+}
+
+
 #replyFormBox{
     overflow-y: auto;
     overflow-x: auto;
@@ -560,7 +569,7 @@ fieldset[disabled] .btn-link {
     position: absolute;
     top: 10px;
     margin-bottom: 0.8em;
-    height: 50px;
+    height: 60px;
 }
 
 #puffballIcon {
@@ -580,20 +589,22 @@ fieldset[disabled] .btn-link {
     margin-bottom: 3px;
     text-align: left;
     color: #000000;
-    border: 2px solid #a1a1a1;
+    /*
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    */
+    border-right: 2px solid #a1a1a1;
     position: absolute;
-    left: 50px;
-    top: 60px;
+    left:60px;
+    top: 0px;
     background-color: rgba(255, 255, 255, 0.98);
     z-index: 300;
     width: 450px;
     font-size: 1.1em;
     line-height: 1.7em;
     text-decoration:none;
-    bottom: 15px;
+    bottom: 0px;
     overflow: auto;
 }
 
@@ -616,6 +627,7 @@ fieldset[disabled] .btn-link {
 
 .menuHeader {
     font-family: Gudea;
+    border-bottom: 1px solid #333333;
     text-transform: uppercase;
     display: block;
     padding-top: .7em;
@@ -829,6 +841,17 @@ a.footerText {
     left: 500px;
     top: 50px;
     width: 400px;
+}
+
+.rot90 {
+    -webkit-transform-origin: 8px 11px;
+    -moz-transform-origin: 8px 11px;
+    -ms-transform-origin: 8px 11px;
+    -o-transform-origin: 8px 11px;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
 }
 
 .red {

@@ -15,7 +15,7 @@ puffworldprops = {
         identity: true,
         preferences: true,
         about: true,
-        advanced: true
+        tools: true
 
     },
 

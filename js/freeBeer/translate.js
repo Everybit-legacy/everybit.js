@@ -76,7 +76,7 @@ Translate.language["en"].extend({
             latest:'View latest published puffs',
             collection:'View the Choices Collection',
             shortcut:'View a list of shortcuts for this website',
-            showPuffs:'View puffs that were send to me',
+            showPuffs:'View puffs that were sent to me',
             relationship:'Display/hide relationships between puffs',
             animation:'Enable/disable animations',
             infobar:'Display/hide the information bars for each puff',

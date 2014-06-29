@@ -35,12 +35,60 @@ var Menu = React.createClass({
                 <IdentityCluster />
                 <PreferencesCluster />
                 <AboutCluster />
-
+                <ToolsCluster />
             </div>
             )
     }
 
 });
+
+
+/*
+
+// NOT YET READY FOR PRIME TIME
+ <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
+
+var Cluster = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowMenu: function() {
+        var eventJSON = '{' + this.props.clusterPropPath + ': changed}';
+
+        var changed = !puffworldprops.clusters[this.props.clusterName];
+        return events.pub(this.props.clusterPath, eventJSON);
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters[this.props.clusterName]
+        });
+
+        if(puffworldprops.clusters.preferences) {
+            // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+        } else {
+            var clusterMenu = '';
+        }
+
+        var menuTitle = 'menu.' + this.props.clusterName + '.title';
+
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-gears fa-fw gray"></i> {polyglot.t(menuTitle)}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                <PreferencesMenu />
+            </div>
+            )
+    }
+});
+*/
 
 var Logo = React.createClass({
     render: function() {
@@ -655,6 +703,64 @@ var AboutMenu = React.createClass({
             )
     }
 })
+
+
+
+var ToolsCluster = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowToolsMenu: function() {
+        var changed = !puffworldprops.clusters.tools;
+        return events.pub('ui/clusters/tools', {'clusters.tools': changed});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+
+        var cls = React.addons.classSet;
+        var setClass = cls({
+            'fa': true,
+            'fa-chevron-circle-down': true,
+            'rot90': !puffworldprops.clusters.tools
+        });
+
+        if(puffworldprops.clusters.tools) {
+            var toolsOptions = <ToolsMenu />
+        } else {
+            var toolsOptions = '';
+        }
+        return (
+            <div>
+                <a href="#" onClick={this.handleToggleShowToolsMenu}>
+                    <div className="menuHeader">
+                        <i className="fa fa-wrench fa-fw gray"></i> {polyglot.t("menu.tool.title")}
+                        <span className="floatRight"><i className={setClass}></i></span>
+                    </div>
+                </a>
+                {toolsOptions}
+
+            </div>
+            )
+    }
+});
+
+var ToolsMenu = React.createClass({
+    mixins: [TooltipMixin],
+    handlePackPuffs: function() {
+        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
+    },
+
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+                <div className="menuItem">
+                    <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tool.builder")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
+                </div>
+            )
+    }
+})
+
+
 
 // Was PuffSwitchUser
 var AuthorPicker = React.createClass({
@@ -1439,27 +1545,6 @@ Call this Info instead of about, and have About puff
 
  */
 
-var Tools = React.createClass({
-    mixins: [TooltipMixin],
-    handlePackPuffs: function() {
-        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            <div>
-                <div className="menuHeader">
-                <i className="fa fa-wrench fa-fw gray"></i> {polyglot.t("menu.tool.title")}
-            </div>
-                <div className="menuItem">
-                    <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tool.builder")}</a>
-                    <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
-                </div>
-            </div>
-            )
-    }
-})
 
 
 var Tooltip = React.createClass({

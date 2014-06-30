@@ -181,6 +181,7 @@ var PuffPublishFormEmbed = React.createClass({
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
         }
+        console.log(parents);
         var parentType = CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);

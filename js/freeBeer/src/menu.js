@@ -301,7 +301,7 @@ var PublishCluster = React.createClass({
         });
 
         if(puffworldprops.clusters.publish) {
-            var replyOptions = <PuffPublishFormEmbed reply='' />
+            var replyOptions = <PuffPublishFormEmbed reply={puffworldprops.reply} />
         } else {
             var replyOptions = '';
         }

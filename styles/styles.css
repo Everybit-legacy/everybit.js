@@ -608,7 +608,15 @@ fieldset[disabled] .btn-link {
     overflow: auto;
 }
 
-.animation .menu, #replyForm {
+.animation .menu {
+    -webkit-animation: slidein 1s; /* Safari and Chrome */
+    -moz-animation: slidein 1s; /* Firefox */
+    -ms-animation: slidein 1s; /* Internet Explorer */
+    -o-animation: slidein 1s; /* Opera */
+    animation: slidein 1s;
+}
+
+#replyForm {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -moz-animation: fadein 1s; /* Firefox */
     -ms-animation: fadein 1s; /* Internet Explorer */
@@ -937,4 +945,28 @@ a.footerText {
 @-ms-keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
+}
+
+
+
+
+@-webkit-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-moz-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-o-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-ms-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
 }

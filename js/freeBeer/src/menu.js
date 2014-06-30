@@ -239,10 +239,14 @@ var Filter = React.createClass({
          var filterPath = 'filter.' + this.props.filterName;
          var propPiece = puffworldprops.filter[this.props.filterName];
 
+         var viewStyle = puffworldprops.view.style;
+         if (viewStyle=='PuffByUser') viewStyle = "PuffLatest";
+
          var index = propPiece.indexOf(toRemove);
          if (index > -1) {
-         propPiece.splice(index, 1);
-         return events.pub('ui/filter/remove', {filterPath: propPiece})
+            propPiece.splice(index, 1);
+            return events.pub('ui/filter/remove', {'view.style': viewStyle, 
+                                                   filterPath: propPiece})
          }
 
         return false;
@@ -822,7 +826,7 @@ var AuthorPicker = React.createClass({
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
         // var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'filter.usernames': [username]})
     },
 
 

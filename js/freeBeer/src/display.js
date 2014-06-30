@@ -424,7 +424,8 @@ var PuffLatest = React.createClass({
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
+        // var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
+        var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

@@ -7,6 +7,42 @@
 
  */
 
+
+
+var Tooltip = React.createClass({
+    render: function() {
+        var className = "menuTooltip";
+        if (this.props.position) className += " " + this.props.position;
+        else className += " right";
+        return (
+            <div className={className}>{this.props.content}</div>
+            );
+    }
+});
+
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "block";
+    },
+    handleHideTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "none";
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode();
+        var tooltips = current.getElementsByClassName('menuTooltip');
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode;
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
+        }
+    }
+};
+
+
 var Menu = React.createClass({
 
     handleClose: function() {
@@ -137,10 +173,16 @@ var FilterMenu = React.createClass({
     handlePickFilter: function() {
         var user = this.refs.pickuser.getDOMNode().value || false;
         var route = this.refs.pickroute.getDOMNode().value || false;
+
+        var filterRoutes = puffworldprops.filter.routes;
+        if (route && filterRoutes.indexOf(route) == -1) filterRoutes.push(route);
+        var filterUsernames = puffworldprops.filter.usernames;
+        if (user && filterUsernames.indexOf(user) == -1) filterUsernames.push(user);
+        
         return events.pub('ui/view/route/set',
-            {'view.filterroute': route,
-                'view.filteruser':user,
-                'view.style':'PuffLatest'});
+            {'filter.usernames': filterUsernames,
+             'filter.routes': filterRoutes,
+             'view.style':'PuffLatest'});
     },
     handleClearRoute: function() {
         this.refs.pickroute.getDOMNode().value = '';
@@ -157,14 +199,14 @@ var FilterMenu = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var route = puffworldprops.view.filterroute || "";
-        var user = puffworldprops.view.filteruser || "";
+        // var route = puffworldprops.view.filterroute || "";
+        // var user = puffworldprops.view.filteruser || "";
         return (
             <div>
                 <div className="menuItem">
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
-                        <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" onKeyDown={this.handleKeyDown} />
+                        <input type="text" name="filterroute" ref="pickroute" size="12" onKeyDown={this.handleKeyDown} />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
@@ -172,7 +214,7 @@ var FilterMenu = React.createClass({
                 <div className="menuItem">
                     {polyglot.t("menu.filter.user")}:
                     <div className="menuInput">
-                        <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" onKeyDown={this.handleKeyDown}  />
+                        <input type="text" name="filteruser" ref="pickuser" size="12" onKeyDown={this.handleKeyDown}  />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
@@ -1324,7 +1366,7 @@ var NewIdentity = React.createClass({
         this.handleGenerateUsername();
     },
     componentDidUpdate: function() {
-        this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.style == "MenuAdd") this.getDOMNode().scrollIntoView(true);
     },
     componentDidMount: function() {
         if (puffworldprops.style == "MenuAdd")
@@ -1538,38 +1580,3 @@ var UsernameCheckbox = React.createClass({
  Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
 
  */
-
-
-
-var Tooltip = React.createClass({
-    render: function() {
-        var className = "menuTooltip";
-        if (this.props.position) className += " " + this.props.position;
-        else className += " right";
-        return (
-            <div className={className}>{this.props.content}</div>
-            );
-    }
-});
-
-var TooltipMixin = {
-    handleShowTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "block";
-    },
-    handleHideTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "none";
-    },
-    componentDidMount: function() {
-        var current = this.getDOMNode();
-        var tooltips = current.getElementsByClassName('menuTooltip');
-        for (var i=0; i<tooltips.length; i++) {
-            var parent = tooltips[i].parentNode;
-            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
-            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
-        }
-    }
-};

@@ -316,7 +316,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         var viewprops = this.props.view || {};
 
         if(this.props.menu.show) {
-            CONFIG.leftMargin = 520;
+            CONFIG.leftMargin = 465;
         } else {
             CONFIG.leftMargin = 60;
         }

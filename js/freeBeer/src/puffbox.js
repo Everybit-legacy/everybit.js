@@ -247,23 +247,32 @@ var PuffParentCount = React.createClass({
         var puff  = this.props.puff;
         return events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
     },
+    showCount: function() {
+        this.refs.count.getDOMNode().style.display = "inline";
+    },
+    hideCount: function() {
+        this.refs.count.getDOMNode().style.display = "none";
+    },
+    componentDidMount: function() {
+        this.hideCount();
+    },
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (parents.length==0) {
             return (
-                <span className="click">
-                    <span className="click">0<i className="fa fa-male fa-fw"></i></span>
+                <span className="click" onMouseOver={this.showCount} onMouseOut={this.hideCount}>
+                    <span className="click"><span ref="count" >0</span><i className="fa fa-male fa-fw"></i></span>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.parent")}/>
                 </span>
            );
         } 
         else {
             return (
-                <span className="icon">
+                <span className="icon" onMouseOver={this.showCount} onMouseOut={this.hideCount}>
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                        {parents.length}<i className="fa fa-male fa-fw"></i>
+                        <span ref="count">{parents.length}</span><i className="fa fa-male fa-fw"></i>
                     </a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.parent")}/>
                 </span>
@@ -371,23 +380,32 @@ var PuffChildrenCount = React.createClass({
         return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
         // viewAllChildren(puff)
     },
+    showCount: function() {
+        this.refs.count.getDOMNode().style.display = "inline";
+    },
+    hideCount: function() {
+        this.refs.count.getDOMNode().style.display = "none";
+    },
+    componentDidMount: function() {
+        this.hideCount();
+    },
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (children.length==0) {
             return (
-                <span className="click">
-                    <span className="click">0<i className="fa fa-child fa-fw"></i></span>
+                <span className="click" onMouseOver={this.showCount} onMouseOut={this.hideCount}>
+                    <span className="click"><span ref="count">0</span><i className="fa fa-child fa-fw"></i></span>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.children")}/>
                 </span>
             );
         }
         else {
             return (
-                <span className="icon">
+                <span className="icon" onMouseOver={this.showCount} onMouseOut={this.hideCount}>
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                        {children.length}<i className="fa fa-child fa-fw"></i>
+                        <span ref="count">{children.length}</span><i className="fa fa-child fa-fw"></i>
                     </a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.children")}/>
                 </span>

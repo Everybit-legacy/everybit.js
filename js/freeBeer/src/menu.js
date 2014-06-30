@@ -1559,8 +1559,6 @@ var UsernameCheckbox = React.createClass({
 });
 
 
-
-
 /*
  // TODO: Put in stuff for
 

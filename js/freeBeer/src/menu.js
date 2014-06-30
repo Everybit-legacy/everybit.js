@@ -7,6 +7,42 @@
 
  */
 
+
+
+var Tooltip = React.createClass({
+    render: function() {
+        var className = "menuTooltip";
+        if (this.props.position) className += " " + this.props.position;
+        else className += " right";
+        return (
+            <div className={className}>{this.props.content}</div>
+            );
+    }
+});
+
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "block";
+    },
+    handleHideTooltip: function() {
+        var parent = this;
+        var tooltip = this.getElementsByClassName('menuTooltip')[0];
+        tooltip.style.display = "none";
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode();
+        var tooltips = current.getElementsByClassName('menuTooltip');
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode;
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
+        }
+    }
+};
+
+
 var Menu = React.createClass({
 
     handleClose: function() {
@@ -137,18 +173,19 @@ var FilterMenu = React.createClass({
     handlePickFilter: function() {
         var user = this.refs.pickuser.getDOMNode().value || false;
         var route = this.refs.pickroute.getDOMNode().value || false;
-        return events.pub('ui/view/route/set',
-            {'view.filterroute': route,
-                'view.filteruser':user,
-                'view.style':'PuffLatest'});
-    },
-    handleClearRoute: function() {
+
+        var filterRoutes = puffworldprops.filter.routes;
+        if (route && filterRoutes.indexOf(route) == -1) filterRoutes.push(route);
+        var filterUsernames = puffworldprops.filter.usernames;
+        if (user && filterUsernames.indexOf(user) == -1) filterUsernames.push(user);
+        
         this.refs.pickroute.getDOMNode().value = '';
-        return events.pub('ui/view/route/clear', {'view.filterroute': false});
-    },
-    handleClearUser: function() {
         this.refs.pickuser.getDOMNode().value = '';
-        return events.pub('ui/view/user/clear', {'view.filteruser': false});
+
+        return events.pub('ui/view/route/set',
+            {'filter.usernames': filterUsernames,
+             'filter.routes': filterRoutes,
+             'view.style':'PuffLatest'});
     },
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
@@ -157,14 +194,14 @@ var FilterMenu = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var route = puffworldprops.view.filterroute || "";
-        var user = puffworldprops.view.filteruser || "";
+        // var route = puffworldprops.view.filterroute || "";
+        // var user = puffworldprops.view.filteruser || "";
         return (
             <div>
                 <div className="menuItem">
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
-                        <input type="text" name="filterroute" ref="pickroute" defaultValue={route} size="12" onKeyDown={this.handleKeyDown} />
+                        <input type="text" name="filterroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
@@ -172,7 +209,7 @@ var FilterMenu = React.createClass({
                 <div className="menuItem">
                     {polyglot.t("menu.filter.user")}:
                     <div className="menuInput">
-                        <input type="text" name="filteruser" ref="pickuser" defaultValue={user} size="12" onKeyDown={this.handleKeyDown}  />
+                        <input type="text" name="filteruser" ref="pickuser" size="12" onKeyDown={this.handleKeyDown}  />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
@@ -199,16 +236,18 @@ var CurrentFilters = React.createClass({
 var Filter = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
-        /*
-         var filterPath = this.props.filterName;
-         var propPiece = puffworldprops[this.props.filterName];
+         var filterPath = 'filter.' + this.props.filterName;
+         var propPiece = puffworldprops.filter[this.props.filterName];
+
+         var viewStyle = puffworldprops.view.style;
+         if (viewStyle=='PuffByUser') viewStyle = "PuffLatest";
 
          var index = propPiece.indexOf(toRemove);
          if (index > -1) {
-         propPiece.splice(index, 1);
-         return events.pub('ui/filter/remove', {filterPath: propPiece})
+            propPiece.splice(index, 1);
+            return events.pub('ui/filter/remove', {'view.style': viewStyle, 
+                                                   filterPath: propPiece})
          }
-         */
 
         return false;
 
@@ -219,16 +258,21 @@ var Filter = React.createClass({
 
         var toReturn = (this.props.filterValue).map(function(value) {
             return (
-                <div className="menuItem">
-                {self.props.filterName}: {value}
+                <span className='filterNode'>
+                    {value}
                     <a href="#" onClick={self.handleRemoveFilter.bind(this,value)}>
                         <i className="fa fa-times-circle-o fa-fw"></i>
                     </a>
-                </div>
+                </span>
                 )
         });
-
-        return <span>{toReturn}</span>;
+        if (this.props.filterValue.length == 0) return <span></span>;
+        return (
+            <div className="menuItem">
+                {self.props.filterName}:{' '}
+                {toReturn}
+            </div>
+        );
     }
 
 });
@@ -782,7 +826,7 @@ var AuthorPicker = React.createClass({
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
         // var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'filter.usernames': [username]})
     },
 
 
@@ -1324,7 +1368,7 @@ var NewIdentity = React.createClass({
         this.handleGenerateUsername();
     },
     componentDidUpdate: function() {
-        this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.style == "MenuAdd") this.getDOMNode().scrollIntoView(true);
     },
     componentDidMount: function() {
         if (puffworldprops.style == "MenuAdd")
@@ -1538,38 +1582,3 @@ var UsernameCheckbox = React.createClass({
  Privacy policy: If you choose to make a puff public, it is public for everyone to see. If you encrypt a puff, its true contents will only be visible to your intended recipient, subject to the limitations of the cryptograhic tools used and your ability to keep your private keys private. Nothing prevents your intended recipient from sharing decripted copies of your content. <br /> Your username entry contains your public keys and information about your most recent content. You can view your full username record in the Advanced Tools section.
 
  */
-
-
-
-var Tooltip = React.createClass({
-    render: function() {
-        var className = "menuTooltip";
-        if (this.props.position) className += " " + this.props.position;
-        else className += " right";
-        return (
-            <div className={className}>{this.props.content}</div>
-            );
-    }
-});
-
-var TooltipMixin = {
-    handleShowTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "block";
-    },
-    handleHideTooltip: function() {
-        var parent = this;
-        var tooltip = this.getElementsByClassName('menuTooltip')[0];
-        tooltip.style.display = "none";
-    },
-    componentDidMount: function() {
-        var current = this.getDOMNode();
-        var tooltips = current.getElementsByClassName('menuTooltip');
-        for (var i=0; i<tooltips.length; i++) {
-            var parent = tooltips[i].parentNode;
-            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
-            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent);
-        }
-    }
-};

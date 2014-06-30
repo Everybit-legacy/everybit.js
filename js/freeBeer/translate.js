@@ -98,7 +98,8 @@ Translate.language["en"].extend({
             seeMore:'Show more options',
             viewRaw:'Show the raw code of this puff',
             json:'Show the JSON string of this puff',
-            permaLink:'Permalink to this puff'
+            permaLink:'Permalink to this puff',
+            expand: 'Expand puff to one row'
         }
 	},
 	replyForm: {

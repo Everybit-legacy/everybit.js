@@ -125,17 +125,21 @@ PuffForum.sortByPayload = function(a,b) {
 PuffForum.getPropsFilter = function(props) {
     if(!props) return function() {return true}
     
-    props = props.view ? props.view : props
-    // props = props.filter ? props.filter : props
-
+    // props = props.view ? props.view : props
+    props = props.filter ? props.filter : props
     // puffs = puffs.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
     
     //// get a filtering function
     return function(shell) {
-        if(props.filterroute)
-            if(!~shell.routes.indexOf(props.filterroute)) return false
-        if(props.filteruser)
-            if (shell.username != props.filteruser) return false
+        if(props.routes && props.routes.length > 0) {
+            var routeMatch = false;
+            for (var i=0; i<props.routes.length; i++) {
+                if (shell.routes.indexOf(props.routes[i]) > -1) routeMatch = true;
+            }
+            if (!routeMatch) return false;
+        }
+        if(props.usernames && props.usernames.length > 0)
+            if (!~props.usernames.indexOf(shell.username)) return false
         return true
     }
 }

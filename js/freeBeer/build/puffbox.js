@@ -118,6 +118,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                     puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
                     PuffJson( {puff:puff} ),
                     PuffPermaLink( {sig:puff.sig} ),
+                    PuffExpand( {puff:puff} ),
                     
                     React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
                         React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
@@ -466,3 +467,23 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         );
     }
 });
+
+
+var PuffExpand = React.createClass({displayName: 'PuffExpand',
+    handleClick: function() {
+        var puff  = this.props.puff;
+        return events.pub("ui/expand-puff", {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-expand fa-fw"})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.expand")})
+            )
+        );
+    }
+});
+

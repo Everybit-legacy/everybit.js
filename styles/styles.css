@@ -669,10 +669,6 @@ fieldset[disabled] .btn-link {
     display: none;
 }
 
-.showTooltip > .menuTooltip {
-    display: block;
-}
-
 .menuTooltip.right {
     top: 0.2em;
     left: 250px;
@@ -750,6 +746,16 @@ fieldset[disabled] .btn-link {
     text-transform: uppercase;
     font-size: 1em;
 }
+
+
+.filterNode {
+    display: inline-block;
+    background-color: #DADADA;
+    border-radius: 10px;
+    padding: 2px;
+    margin: 2px;
+}
+
 
 #qrcode {
     float: right;

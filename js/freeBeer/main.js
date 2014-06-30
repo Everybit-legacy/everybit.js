@@ -37,8 +37,8 @@ puffworldprops = {
         //     route: false,                           // a single route
         // },
         language   : 'en',
-        filterroute: false, // blargh
-        filteruser : false,
+        // filterroute: false, // blargh
+        // filteruser : false,
         style      : 'PuffRoots',
         puff       : false,                                // focused puff (not just sig)
         user       : false,                                // username // TODO: make this part of filter

@@ -1,14 +1,5 @@
 /** @jsx React.DOM */
 
-/*
- Conventions:
- - Double chevron pointing right closes up the thing
- - Double
-
- */
-
-
-
 var Tooltip = React.createClass({displayName: 'Tooltip',
     render: function() {
         var className = "menuTooltip";
@@ -1588,8 +1579,6 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 
     }
 });
-
-
 
 
 /*

@@ -1,14 +1,5 @@
 /** @jsx React.DOM */
 
-/*
- Conventions:
- - Double chevron pointing right closes up the thing
- - Double
-
- */
-
-
-
 var Tooltip = React.createClass({
     render: function() {
         var className = "menuTooltip";

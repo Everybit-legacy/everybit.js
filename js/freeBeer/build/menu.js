@@ -179,18 +179,13 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         var filterUsernames = puffworldprops.filter.usernames;
         if (user && filterUsernames.indexOf(user) == -1) filterUsernames.push(user);
         
+        this.refs.pickroute.getDOMNode().value = '';
+        this.refs.pickuser.getDOMNode().value = '';
+
         return events.pub('ui/view/route/set',
             {'filter.usernames': filterUsernames,
              'filter.routes': filterRoutes,
              'view.style':'PuffLatest'});
-    },
-    handleClearRoute: function() {
-        this.refs.pickroute.getDOMNode().value = '';
-        return events.pub('ui/view/route/clear', {'view.filterroute': false});
-    },
-    handleClearUser: function() {
-        this.refs.pickuser.getDOMNode().value = '';
-        return events.pub('ui/view/user/clear', {'view.filteruser': false});
     },
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
@@ -206,7 +201,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.filter.route"),":",
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", size:"12", onKeyDown:this.handleKeyDown} ),
+                        React.DOM.input( {type:"text", name:"filterroute", ref:"pickroute", size:"12", defaultValue:"", onKeyDown:this.handleKeyDown} ),
                         Tooltip( {position:"under", content:polyglot.t("menu.tooltip.routeSearch")} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search-plus fa-fw"}))
                     ),React.DOM.br(null)
@@ -241,16 +236,14 @@ var CurrentFilters = React.createClass({displayName: 'CurrentFilters',
 var Filter = React.createClass({displayName: 'Filter',
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
-        /*
-         var filterPath = this.props.filterName;
-         var propPiece = puffworldprops[this.props.filterName];
+         var filterPath = 'filter.' + this.props.filterName;
+         var propPiece = puffworldprops.filter[this.props.filterName];
 
          var index = propPiece.indexOf(toRemove);
          if (index > -1) {
          propPiece.splice(index, 1);
          return events.pub('ui/filter/remove', {filterPath: propPiece})
          }
-         */
 
         return false;
 
@@ -261,16 +254,22 @@ var Filter = React.createClass({displayName: 'Filter',
 
         var toReturn = (this.props.filterValue).map(function(value) {
             return (
-                React.DOM.div( {className:"menuItem"}, 
-                self.props.filterName,": ", value,
+                React.DOM.span(null, 
+                    value,
                     React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(this,value)}, 
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
                     )
                 )
                 )
         });
-
-        return React.DOM.span(null, toReturn);
+        if (this.props.filterValue.length == 0) return React.DOM.span(null);
+        return (
+            React.DOM.span(null, 
+                React.DOM.div( {className:"menuItem"}, 
+                self.props.filterName,":",toReturn
+                )
+            )
+        );
     }
 
 });

@@ -179,18 +179,13 @@ var FilterMenu = React.createClass({
         var filterUsernames = puffworldprops.filter.usernames;
         if (user && filterUsernames.indexOf(user) == -1) filterUsernames.push(user);
         
+        this.refs.pickroute.getDOMNode().value = '';
+        this.refs.pickuser.getDOMNode().value = '';
+
         return events.pub('ui/view/route/set',
             {'filter.usernames': filterUsernames,
              'filter.routes': filterRoutes,
              'view.style':'PuffLatest'});
-    },
-    handleClearRoute: function() {
-        this.refs.pickroute.getDOMNode().value = '';
-        return events.pub('ui/view/route/clear', {'view.filterroute': false});
-    },
-    handleClearUser: function() {
-        this.refs.pickuser.getDOMNode().value = '';
-        return events.pub('ui/view/user/clear', {'view.filteruser': false});
     },
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
@@ -206,7 +201,7 @@ var FilterMenu = React.createClass({
                 <div className="menuItem">
                     {polyglot.t("menu.filter.route")}:
                     <div className="menuInput">
-                        <input type="text" name="filterroute" ref="pickroute" size="12" onKeyDown={this.handleKeyDown} />
+                        <input type="text" name="filterroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
@@ -241,16 +236,14 @@ var CurrentFilters = React.createClass({
 var Filter = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
-        /*
-         var filterPath = this.props.filterName;
-         var propPiece = puffworldprops[this.props.filterName];
+         var filterPath = 'filter.' + this.props.filterName;
+         var propPiece = puffworldprops.filter[this.props.filterName];
 
          var index = propPiece.indexOf(toRemove);
          if (index > -1) {
          propPiece.splice(index, 1);
          return events.pub('ui/filter/remove', {filterPath: propPiece})
          }
-         */
 
         return false;
 
@@ -261,16 +254,22 @@ var Filter = React.createClass({
 
         var toReturn = (this.props.filterValue).map(function(value) {
             return (
-                <div className="menuItem">
-                {self.props.filterName}: {value}
+                <span>
+                    {value}
                     <a href="#" onClick={self.handleRemoveFilter.bind(this,value)}>
                         <i className="fa fa-times-circle-o fa-fw"></i>
                     </a>
-                </div>
+                </span>
                 )
         });
-
-        return <span>{toReturn}</span>;
+        if (this.props.filterValue.length == 0) return <span></span>;
+        return (
+            <span>
+                <div className="menuItem">
+                {self.props.filterName}:{toReturn}
+                </div>
+            </span>
+        );
     }
 
 });

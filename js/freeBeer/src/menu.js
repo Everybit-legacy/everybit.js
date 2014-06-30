@@ -217,7 +217,7 @@ var CurrentFilters = React.createClass({
         })
 
         return (
-            <div className="filterList">
+            <div>
                 {filterNodes}
             </div>
             );

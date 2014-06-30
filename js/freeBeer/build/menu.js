@@ -254,7 +254,7 @@ var Filter = React.createClass({displayName: 'Filter',
 
         var toReturn = (this.props.filterValue).map(function(value) {
             return (
-                React.DOM.span(null, 
+                React.DOM.span( {className:"filterNode"}, 
                     value,
                     React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(this,value)}, 
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -264,10 +264,9 @@ var Filter = React.createClass({displayName: 'Filter',
         });
         if (this.props.filterValue.length == 0) return React.DOM.span(null);
         return (
-            React.DOM.span(null, 
-                React.DOM.div( {className:"menuItem"}, 
-                self.props.filterName,":",toReturn
-                )
+            React.DOM.div( {className:"menuItem"}, 
+                self.props.filterName,":",' ',
+                toReturn
             )
         );
     }

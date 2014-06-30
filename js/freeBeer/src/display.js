@@ -25,8 +25,12 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
+
+            var menu = puffworlddefaults.menu;
+            menu.show = true;
+            menu.section = 'publish';
             
-            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents
+            return events.pub('ui/reply/open', {'menu': menu, 'reply': {show: true, parents: parents
 }});
         }.bind(this));
 
@@ -354,7 +358,8 @@ var PuffWorld = React.createClass({
         if (viewprops.style == "MenuAdd") {
             this.props.menu.section = "identity";
         }
-        var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : ''
+
+        var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : '';
 
         var animateClass =  this.props.view.animation ? "animation" : '';
 

@@ -569,7 +569,7 @@ fieldset[disabled] .btn-link {
     position: absolute;
     top: 10px;
     margin-bottom: 0.8em;
-    height: 60px;
+    height: 50px;
 }
 
 #puffballIcon {
@@ -600,9 +600,9 @@ fieldset[disabled] .btn-link {
     top: 0px;
     background-color: rgba(255, 255, 255, 0.98);
     z-index: 300;
-    width: 450px;
-    font-size: 1.1em;
-    line-height: 1.7em;
+    width: 400px;
+    font-size: 1em;
+    line-height: 1.6em;
     text-decoration:none;
     bottom: 0px;
     overflow: auto;
@@ -634,7 +634,7 @@ fieldset[disabled] .btn-link {
     padding-bottom: 0;
     margin: 0;
     color: #000000;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .menuLabel {

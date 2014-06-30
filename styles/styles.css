@@ -764,6 +764,13 @@ fieldset[disabled] .btn-link {
     margin: 2px;
 }
 
+.contentField {
+    width: 100%;
+    height: 200px;
+    margin-top: 10px;
+    border: 1px solid #333;
+}
+
 
 #qrcode {
     float: right;

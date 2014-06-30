@@ -221,7 +221,6 @@ var PuffPublishFormEmbed = React.createClass({
             border: '1px solid #333333',
             marginBottom: '5px'
         }
-        console.log(usernames);
         var sendToField = (
             <div>
                 <span style={sendToSpanStyle}>Send to: </span><input style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>

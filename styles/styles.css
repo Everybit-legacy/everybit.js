@@ -527,7 +527,7 @@ fieldset[disabled] .btn-link {
 
 #replyFormEmbed {
     z-index: 400;
-    background: #FAFAFA;
+    /*background: #FAFAFA;*/
     text-align: center;
     padding: 10px 25px 5px 25px;
 
@@ -741,7 +741,7 @@ fieldset[disabled] .btn-link {
 }
 
 .menuSection {
-    background: #F7F7F7;
+    /*background: #F7F7F7;*/
     border-top: 1px solid #d6d6ff;
     border-bottom: 1px solid #d6d6ff;
     padding-top: 10px;
@@ -779,6 +779,16 @@ fieldset[disabled] .btn-link {
     text-align: right;
     color: #1616A8;
     font-size: 1.4em;
+}
+
+
+.flash {
+    -webkit-animation: flash 1s; /* Safari and Chrome */
+    -moz-animation: flash 1s; /* Firefox */
+    -ms-animation: flash 1s; /* Internet Explorer */
+    -o-animation: flash 1s; /* Opera */
+    animation: flash 1s;
+    background: #F7F7F7;
 }
 
 .private {
@@ -969,4 +979,40 @@ a.footerText {
 @keyframes slidein {
     from { left: -360px; }
     to { left: 60px; }
+}
+
+@-webkit-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-moz-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-o-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-ms-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
 }

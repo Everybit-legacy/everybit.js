@@ -351,6 +351,9 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
             this.props.menu.show = true;
         }
+        if (viewprops.style == "MenuAdd") {
+            this.props.menu.section = "identity";
+        }
         var menu = this.props.menu.show ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile} )) : ''
 
         var animateClass =  this.props.view.animation ? "animation" : '';

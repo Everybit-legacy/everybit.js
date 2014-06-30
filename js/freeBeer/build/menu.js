@@ -42,6 +42,16 @@ var TooltipMixin = {
     }
 };
 
+var FlashSectionMixin = {
+    switchMenuSection: function() {
+        var section = this.props.section || false;
+        events.pub("ui/menu-section", {'menu.section': section});
+    },
+    componentDidMount: function() {
+        this.getDOMNode().onclick = this.switchMenuSection;
+    }
+};
+
 
 var Menu = React.createClass({displayName: 'Menu',
 
@@ -58,14 +68,14 @@ var Menu = React.createClass({displayName: 'Menu',
                 ),
                 Logo(null ),
                 React.DOM.br(null ),
-                FilterCluster(null ),
-                PublishCluster(null ),
+                FilterCluster( {section:"filter"} ),
+                PublishCluster( {section:"publish"} ),
                 React.DOM.br(null ),
-                ViewCluster(null ),
-                IdentityCluster(null ),
-                PreferencesCluster(null ),
-                AboutCluster(null ),
-                ToolsCluster(null )
+                ViewCluster( {section:"view"}),
+                IdentityCluster( {section:"identity"} ),
+                PreferencesCluster( {section:"preferences"} ),
+                AboutCluster( {section:"about"} ),
+                ToolsCluster( {section:"false"} )
             )
             )
     }
@@ -129,7 +139,8 @@ var Logo = React.createClass({displayName: 'Logo',
 });
 
 var FilterCluster = React.createClass({displayName: 'FilterCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
+
     handleToggleShowFilterMenu: function() {
         var changed = !puffworldprops.clusters.filter;
         return events.pub('ui/clusters/filter', {'clusters.filter': changed});
@@ -151,8 +162,11 @@ var FilterCluster = React.createClass({displayName: 'FilterCluster',
             var filterOptions = '';
         }
 
+        var section = this.props.section;
+        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
+
         return (
-            React.DOM.div(null, 
+            React.DOM.div( {className:className}, 
                 React.DOM.a( {href:"#", onClick:this.handleToggleShowFilterMenu}, 
                     React.DOM.div( {className:"menuHeader"}, 
                         React.DOM.i( {className:"fa fa-filter fa-fw gray"}), " ", polyglot.t("menu.filter.title"),
@@ -278,7 +292,7 @@ var Filter = React.createClass({displayName: 'Filter',
 });
 
 var PublishCluster = React.createClass({displayName: 'PublishCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
 
     handleToggleShowPublish: function() {
         var changed = !puffworldprops.clusters.publish;
@@ -300,8 +314,13 @@ var PublishCluster = React.createClass({displayName: 'PublishCluster',
         } else {
             var replyOptions = '';
         }
+
+
+        var section = this.props.section;
+        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
+
         return (
-            React.DOM.div(null, 
+            React.DOM.div( {className:className}, 
                 React.DOM.a( {href:"#", onClick:this.handleToggleShowPublish}, 
                     React.DOM.div( {className:"menuHeader"}, 
                         React.DOM.i( {className:"fa fa-paper-plane fa-fw gray"}), " ", polyglot.t("menu.publish.title"),
@@ -317,7 +336,7 @@ var PublishCluster = React.createClass({displayName: 'PublishCluster',
 
 
 var ViewCluster = React.createClass({displayName: 'ViewCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
 
     handleToggleShowView: function() {
         var changed = !puffworldprops.clusters.view;
@@ -423,7 +442,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
 
 var IdentityCluster = React.createClass({displayName: 'IdentityCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
     handleToggleShowIdentityMenu: function() {
         var changed = !puffworldprops.clusters.identity;
         return events.pub('ui/clusters/identity', {'clusters.identity': changed});
@@ -444,8 +463,11 @@ var IdentityCluster = React.createClass({displayName: 'IdentityCluster',
         } else {
             var identityOptions = '';
         }
+
+        var section = this.props.section;
+        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
         return (
-            React.DOM.div(null, 
+            React.DOM.div( {className:className}, 
                 React.DOM.a( {href:"#", onClick:this.handleToggleShowIdentityMenu}, 
                     React.DOM.div( {className:"menuHeader"}, 
                         React.DOM.i( {className:"fa fa-user fa-fw gray"}), " ", polyglot.t("menu.identity.title"),
@@ -523,7 +545,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
                     React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.editIdentity")} )),
                     React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.newIdentity")} )),
                     React.DOM.br(null ),
-                    SetIdentity(  {show:this.state.tabs.showSetIdentity,  username:currUser}),
+                    SetIdentity( {show:this.state.tabs.showSetIdentity,  username:currUser}),
                     EditIdentity( {show:this.state.tabs.showEditIdentity, username:currUser}),
                     NewIdentity(  {show:this.state.tabs.showNewIdentity}  )
                 )
@@ -556,7 +578,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
 
 
 var PreferencesCluster = React.createClass({displayName: 'PreferencesCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
     handleToggleShowPreferencesMenu: function() {
         var changed = !puffworldprops.clusters.preferences;
         return events.pub('ui/clusters/preferences', {'clusters.preferences': changed});
@@ -693,7 +715,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 
 
 var AboutCluster = React.createClass({displayName: 'AboutCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
     handleToggleShowAboutMenu: function() {
         var changed = !puffworldprops.clusters.about;
         return events.pub('ui/clusters/about', {'clusters.about': changed});
@@ -745,7 +767,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 
 
 var ToolsCluster = React.createClass({displayName: 'ToolsCluster',
-    mixins: [TooltipMixin],
+    mixins: [TooltipMixin, FlashSectionMixin],
     handleToggleShowToolsMenu: function() {
         var changed = !puffworldprops.clusters.tools;
         return events.pub('ui/clusters/tools', {'clusters.tools': changed});
@@ -862,7 +884,6 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 });
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
-
     getInitialState: function() {
         return {
             rootKeyStatus: false,
@@ -1368,10 +1389,11 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.handleGenerateUsername();
     },
     componentDidUpdate: function() {
-        if (puffworldprops.style == "MenuAdd") this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.menu.section == "identity") 
+            this.getDOMNode().scrollIntoView(true);
     },
     componentDidMount: function() {
-        if (puffworldprops.style == "MenuAdd")
+        if (puffworldprops.menu.section == "identity")
             this.getDOMNode().scrollIntoView(true);
     },
 

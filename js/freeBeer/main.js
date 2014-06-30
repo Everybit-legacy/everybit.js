@@ -23,6 +23,7 @@ puffworldprops = {
         show: false,
         prefs: false,
         profile: false,
+        section: false, // the section user is currently working on
 
         user: {
             pick_one: false,

@@ -44,14 +44,16 @@ var PuffPublishFormEmbed = React.createClass({
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
-
+        this.setState({'showPreview': false});
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
             metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
-            content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : this.props.content ;
+            content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content ;
         }
+        puffworldprops.reply.content = "";
+        this.refs.content.getDOMNode().value = '';
 
         if(type == 'PGN') {
             metadata.quote = true;
@@ -131,10 +133,9 @@ var PuffPublishFormEmbed = React.createClass({
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PuffWardrobe.getCurrentUserRecord())
             }
-            
+
             return PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
         })
-        
         return false;
     },
     handleCancel: function() {
@@ -176,12 +177,11 @@ var PuffPublishFormEmbed = React.createClass({
         var author = PuffWardrobe.getCurrentUsername();
         author = humanizeUsernames(author) || "anonymous";
 
-        var defaultContent = this.props.content || '';
+        var defaultContent = puffworldprops.reply.content || '';
         var parents = [];
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
         }
-        console.log(parents);
         var parentType = CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);
@@ -263,8 +263,12 @@ var PuffPublishFormEmbed = React.createClass({
         );
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
-            var currentContent = this.refs.content.getDOMNode().value.trim();
-            this.props.content = currentContent;
+            var currentContent = puffworldprops.reply.content;
+            if (this.refs.content) {
+                currentContent = this.refs.content.getDOMNode().value.trim();
+                puffworldprops.reply.content = currentContent;
+            };
+
             currentContent = PuffForum.processContent(currentType, currentContent, {});
             contentField = (
                 <div>

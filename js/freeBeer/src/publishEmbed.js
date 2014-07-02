@@ -2,7 +2,7 @@
 
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
-        return {imageSrc: '', showPreview: false};
+        return {imageSrc: '', showPreview: false, err: false};
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
@@ -39,22 +39,22 @@ var PuffPublishFormEmbed = React.createClass({
     },
 
     handleSubmit: function() {
+        var self = this;
         var content = '';
         var metadata = {};
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
+
         this.setState({'showPreview': false});
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
             metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
-            content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content ;
+            content = this.refs.content.getDOMNode().value.trim();
         }
-        puffworldprops.reply.content = "";
-        this.refs.content.getDOMNode().value = '';
-
+        
         if(type == 'PGN') {
             metadata.quote = true;
         }
@@ -66,11 +66,20 @@ var PuffPublishFormEmbed = React.createClass({
         }
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
+
+        
         
         var privacy = this.refs.privacy.getDOMNode().value
         
         if(privacy == 'public') {
-            PuffForum.addPost( type, content, parents, metadata );
+            var post_prom = PuffForum.addPost( type, content, parents, metadata );
+            post_prom.then(function() {
+                puffworldprops.reply.content = "";
+                self.refs.content.getDOMNode().value = '';
+                self.setState({err: false});
+            })      .catch(function(err) {
+                self.setState({err: err.message});
+            })
             return false;
         } 
         
@@ -126,7 +135,7 @@ var PuffPublishFormEmbed = React.createClass({
                 }
             })
         }
-        
+
         prom = prom.then(function() {
             if(envelopeUserKeys) {      // add our secret identity to the list of available keys
                 userRecords.push(PuffData.getCachedUserRecord(envelopeUserKeys.username))
@@ -134,8 +143,17 @@ var PuffPublishFormEmbed = React.createClass({
                 userRecords.push(PuffWardrobe.getCurrentUserRecord())
             }
 
-            return PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
+            var post_prom = PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
+            post_prom.then(function() {
+                puffworldprops.reply.content = "";
+                self.refs.content.getDOMNode().value = '';
+                self.setState({err: false});
+            })
+            return post_prom;
+        }) .catch(function(err) {
+            self.setState({err: err.message});
         })
+
         return false;
     },
     handleCancel: function() {
@@ -360,6 +378,9 @@ var PuffPublishFormEmbed = React.createClass({
             position: 'relative'
         }
 
+        var errorField = "";
+        if (this.state.err) errorField =  <span>{this.state.err}<br /></span>;
+
         return (
             <div id="replyFormEmbed" style={formStyle}>
                 <div id="replyFormBox" style={boxStyle}>
@@ -367,6 +388,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {typeOption}
                     {privacyOption}<br />
                     {contentField}<br/>
+                    {errorField}
                     {previewToggle}
                     {sendButton}
                 </div>

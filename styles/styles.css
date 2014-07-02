@@ -117,9 +117,13 @@ section {
 }
 
 #talltree .block.encrypted,
-#replyFormEmbed.encrypted {
-    background-color: #fbb;
+#replyFormEmbed.encrypted{
+    background-image:url('../img/lock.gif');
+    background-repeat:repeat;
+    background-size: 36px 36px;
+    background-color: #eeeeee;
 }
+
 
 #talltree .parent .txt {
 }
@@ -573,6 +577,7 @@ fieldset[disabled] .btn-link {
     top: 10px;
     margin-bottom: 1em;
     height: 50px;
+
 }
 
 #puffballIcon {

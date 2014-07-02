@@ -53,10 +53,10 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div className="menu">
-                <div id="closeDiv">
                     <a href="#" onClick={this.handleClose}>
-                        <i className="fa fa-times-circle-o fa-fw"></i></a>
-                </div>
+                        <i className="fa fa-times-circle-o fa-fw closeBox"></i>
+                    </a>
+
                 <Logo />
                 <br />
                 <FilterCluster section='filter' />

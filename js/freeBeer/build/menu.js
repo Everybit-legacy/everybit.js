@@ -53,10 +53,10 @@ var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-                React.DOM.div( {id:"closeDiv"}, 
                     React.DOM.a( {href:"#", onClick:this.handleClose}, 
-                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw"}))
-                ),
+                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw closeBox"})
+                    ),
+
                 Logo(null ),
                 React.DOM.br(null ),
                 FilterCluster( {section:"filter"} ),

@@ -205,6 +205,11 @@ h4 {
     float: right;
 }
 
+.closeBox {
+    float: right;
+    font-size: 1.1em;
+}
+
 .floatingCheckbox {
     float: left;
     cursor: pointer;
@@ -566,9 +571,9 @@ fieldset[disabled] .btn-link {
 }
 
 .logo {
-    position: absolute;
+    position: relative;
     top: 10px;
-    margin-bottom: 0.8em;
+    margin-bottom: 1em;
     height: 50px;
 }
 
@@ -777,25 +782,13 @@ fieldset[disabled] .btn-link {
     cursor: pointer;
 }
 
-#closeDiv {
-    padding-top: 0px;
-    padding-left: 3px;
-    padding-right: 0px;
-    padding-bottom: 0;
-    margin-bottom: 3px;
-    text-align: right;
-    color: #1616A8;
-    font-size: 1.4em;
-}
-
-
 .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */
     -o-animation: flash 1s; /* Opera */
     animation: flash 1s;
-    background: #F7F7F7;
+    background: #F0F0FF;
 }
 
 .private {
@@ -965,8 +958,6 @@ a.footerText {
 }
 
 
-
-
 @-webkit-keyframes slidein {
     from { left: -360px; }
     to { left: 60px; }
@@ -988,6 +979,9 @@ a.footerText {
     to { left: 60px; }
 }
 
+
+/* DOUBLE FLASH */
+/*
 @-webkit-keyframes flash {
     0%  { background: #fff; }
     25% { background: #ccc; }
@@ -1022,4 +1016,32 @@ a.footerText {
     50% { background: #fff; }
     75% { background: #ccc; }
     100% { background: #F7F7F7;}
+}
+*/
+
+/* Single Flash */
+@-webkit-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-moz-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-o-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-ms-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
 }

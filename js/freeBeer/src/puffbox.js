@@ -131,6 +131,7 @@ var PuffBar = React.createClass({
         return (
             <div className={className}>
                 <PuffFlagLink sig={puff.sig} />
+                <PuffTipLink username={puff.username} />
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
@@ -317,6 +318,122 @@ var PuffInfoLink = React.createClass({
             </span>
             );
     }
+});
+
+var PuffTipLink = React.createClass({
+    getInitialState: function() {
+        return {
+            showTipButtons: false
+        };
+    },
+
+    handleToggleTipInfo: function(){
+        var node = this.getDOMNode();
+        var walletInfo = node.getElementsByClassName('walletInfo')[0];
+
+        if(!this.state.showTipButtons) {
+            this.setState({showTipButtons: true});
+            walletInfo.style.display = 'block';
+
+        } else {
+            this.setState({showTipButtons: false});
+            walletInfo.style.display = 'none';
+        }
+        return false;
+    },
+
+    render: function() {
+        if(this.state.showTipButtons) {
+
+            var tipButtons = <TipButton currency="BTC" username={this.props.username} />
+        } else {
+            var tipButtons = ''
+        }
+
+        return (
+            <span className="icon">
+            <span className="walletLink">
+                <a href="#" onClick={this.handleToggleTipInfo}>
+                    <i className="fa fa-gittip fa-fw"></i>
+                </a>
+                <span className="walletInfo">
+                    {tipButtons}
+                </span>
+            </span>
+            </span>
+            );
+    }
+});
+
+var TipButton = React.createClass({
+    getInitialState: function() {
+        return {
+            publicKey: '',
+            btcAddy: '',
+            akShort: ''
+        };
+    },
+
+    componentDidMount: function(){
+        // Get the public key for this user, convert to wallet
+        // TODO: Get the link so have meta-data set, like "From puffball"
+
+
+
+        var self = this;
+        var prom = Puffball.getUserRecord(this.props.username);
+
+        prom.then(function(result) {
+
+            self.setState({publicKey: result.adminKey});
+            console.log(result.adminKey);
+
+            var btcAddy = Puffball.Crypto.wifToPubKey(result.adminKey);
+
+            console.log(btcAddy);
+
+            btcAddy = btcAddy.getAddress().toString();
+            this.setState({btcAddy: btcAddy});
+
+            console.log("HI");
+
+            var akShort = btcAddy.substr(0,5)+'...';
+            this.setState({akShort: akShort});
+
+
+
+            events.pub('ui/tipbutton/userlookup', {});
+
+
+
+            return false;
+        })
+            .catch(function(err) {
+                console.log("PROBLEM");
+
+                self.setState({publicKey: false});
+                this.setState({btcAddy: 'Unknown :-('});
+                this.setState({akShort: 'FAIL'});
+                events.pub('ui/tipbutton/userlookup/failed', {});
+                return false;
+            })
+    },
+
+    render: function() {
+
+
+        return (
+                <div>
+                    <i className="fa fa-bitcoin fa-fw"></i>
+                    <a href={"wallet:" + this.state.btcAddy}>
+                    {this.state.akShort}
+                    </a>
+                </div>
+            )
+
+
+    }
+
 });
 
 

@@ -387,6 +387,18 @@ h4 {
     color: #000;
 }
 
+.walletLink .walletInfo {
+    font-family: Gudea, sans-serif;
+    font-size: 1em;
+    display: none;
+    bottom:100%;
+    width:100%;
+    padding-right: 5px;
+    position:absolute;
+    background-color: rgba(242, 242, 242, 0.90);
+    color: #000;
+}
+
 .infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }

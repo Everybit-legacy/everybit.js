@@ -3,11 +3,16 @@
 
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
-        return {imageSrc: '', showPreview: false, err: false};
+        return {imageSrc    : '', 
+                showPreview : false, 
+                err         : false,
+                showAdvanced: false,
+                advancedOpt : {}};
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+
 
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
@@ -24,7 +29,8 @@ var PuffPublishFormEmbed = React.createClass({
             content.focus();
         }
 
-        this.handlePickPrivacy();
+        if (this.refs.privacy) this.handlePickPrivacy();
+        this.setState(puffworldprops.reply.state);
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -41,13 +47,19 @@ var PuffPublishFormEmbed = React.createClass({
     },
 
     handlePickPrivacy: function() {
-        if (this.refs.privacy.getDOMNode().value != "public") {
+        var privacy = this.refs.privacy.getDOMNode().value;
+        if (privacy != "public") {
             this.getDOMNode().className = "encrypted";
         } else {
             this.getDOMNode().className = "";
         }
     },
-
+    handlePickAdvancedOpt: function(e) {
+        var key = e.target.name;
+        var advancedOpt = this.state.advancedOpt;
+        advancedOpt[key] = e.target.value;
+        this.setState({advancedOpt: advancedOpt});
+    },
     handleSubmitSuccess: function(puff) {
         // clear the content
         puffworldprops.reply.content = '';
@@ -55,13 +67,12 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // FIXME not working with encrypted puff
-        console.log(puff.sig);
-        if (this.refs.privacy.getDOMNode().value == "public")
-            events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
-                                        'view.puff': puff, 
-                                        'menu.show': false, 
-                                        'menu.section': false,
-                                        'reply.show': false});
+        events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+        console.log("privacy", this.refs.privacy.getDOMNode().value);
+        if (this.refs.privacy.getDOMNode().value == "public") {
+            events.pub('ui/view-puff', {'view.style': 'PuffTallTree',
+                                        'view.puff': puff});
+        }
 
         // set back to initial state
         this.setState(this.getInitialState());
@@ -78,10 +89,11 @@ var PuffPublishFormEmbed = React.createClass({
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
-            metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
             content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
         }
+        metadata.license = this.state.advancedOpt.contentLicense;
+        metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
         
         if(type == 'PGN') {
             metadata.quote = true;
@@ -95,10 +107,10 @@ var PuffPublishFormEmbed = React.createClass({
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
 
-        var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
+        /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {
             metadata.replyPrivacy = replyPrivacy;
-        }
+        }*/
         
         var privacy = this.refs.privacy.getDOMNode().value;
         
@@ -177,10 +189,6 @@ var PuffPublishFormEmbed = React.createClass({
 
         return false;
     },
-    handleCancel: function() {
-        // THINK: save the content in case they accidentally closed?
-        return events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
-    },
 
     handleImageLoad: function() {
         var self   = this;
@@ -205,6 +213,29 @@ var PuffPublishFormEmbed = React.createClass({
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
+    },
+    handleExpand: function() {
+        // save current content and state
+        var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
+        puffworldprops.reply.content = content;
+        puffworldprops.reply.state = this.state;
+        
+        // publish events
+        var expanded = this.props.reply.expand;
+        if (expanded) {
+            return events.pub('ui/publish-menu', {'reply.expand': false,
+                                                  'menu.section': 'publish',
+                                                  'menu.show': true,
+                                                  'clusters.publish': true});
+        } else {
+            return events.pub('ui/publish-expand', {'reply.expand': true,
+                                                    'menu.section': false,
+                                                    'menu.show': false});
+        }
+    },
+    handleShowAdvanced: function() {
+        this.setState({showAdvanced: !this.state.showAdvanced});
+        return false;
     },
 
 
@@ -332,16 +363,6 @@ var PuffPublishFormEmbed = React.createClass({
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
                     </div>
                     <br /><br />
-                    <div className="menuItem">{polyglot.t("replyForm.format.imageLicense")}:
-                        <select id="imageLicense" name="imageLicense" ref="imageLicense">
-                            <option value="Creative Commons Attribution">Creative Commons Attribution</option>
-                            <option value="GNU Public License">GNU Public License</option>
-                            <option value="Public domain">Public domain</option>
-                            <option value="Rights-managed">Rights-managed</option>
-                            <option value="Royalty-free">Royalty-free</option>
-                        </select>
-                    </div>
-                    <br />
                     {imageField}
                 </div>
             );
@@ -378,20 +399,21 @@ var PuffPublishFormEmbed = React.createClass({
             previewToggle = (<span></span>); // no preview toggle for image
         }
 
-        var discardStyle = {
-            minWidth: '23%',
-            marginRight: '2%',
-            display: 'inline-block'
-        };
-        var discardButton = (
-            <a href="#" style={discardStyle} onClick={this.handleCancel}><i className="fa fa-trash-o"></i> Discard</a>
-        );
         var sendStyle = {
-            marginTop: '10px',
+            minWidth: '60%',
+            marginRight: '2%',
             display: 'inline-block'
         };
         var sendButton = (
             <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> Send as {author}</a>
+        );
+
+        var expandStyle = {
+            textAlign: 'right',
+            display: 'inline-block'
+        };
+        var expandButton = (
+            <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>
         );
 
         var boxStyle = {
@@ -401,11 +423,11 @@ var PuffPublishFormEmbed = React.createClass({
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
+        var replyPrivacyDefault = this.state.advancedOpt.replyPrivacy || privacyDefault; 
         var replyPrivacyOption = (
             <div>
                 Reply privacy level: <br />
-                <select ref="replyPrivacy" className="btn"
-            defaultValue={privacyDefault} onClick={this.handlePickReplyPrivacy}>
+                <select ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={replyPrivacyDefault} onChange={this.handlePickAdvancedOpt}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -413,7 +435,33 @@ var PuffPublishFormEmbed = React.createClass({
             </select>
                 </div>
             );
-
+        var licenseDefault = this.state.advancedOpt.contentLicense || "";
+        var licenseOption = (
+            <div>
+                {polyglot.t("replyForm.format.contentLicense")}:
+                <select ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                    <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
+                    <option value="GNUPublicLicense">GNU Public License</option>
+                    <option value="Publicdomain">Public domain</option>
+                    <option value="Rights-managed">Rights-managed</option>
+                    <option value="Royalty-free">Royalty-free</option>
+                </select>
+            </div>
+            );
+        var advancedField = (
+            <div>
+                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
+            </div>
+        );
+        if (this.state.showAdvanced) {
+            advancedField = (
+                <div>
+                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
+                {replyPrivacyOption}
+                {licenseOption}
+                </div>
+            );
+        }
         return (
             <div id="replyFormEmbed">
                 <div id="replyFormBox" style={boxStyle}>
@@ -422,9 +470,8 @@ var PuffPublishFormEmbed = React.createClass({
                     {privacyOption}<br />
                     {contentField}<br/>
                     {errorField}
-                    {previewToggle}
-                    {sendButton}
-                    {replyPrivacyOption}
+                    <span>{previewToggle}{sendButton}{expandButton}</span>
+                    {advancedField}
                 </div>
             </div>
         )

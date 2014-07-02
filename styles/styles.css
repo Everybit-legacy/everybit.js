@@ -117,9 +117,13 @@ section {
 }
 
 #talltree .block.encrypted,
-#replyFormEmbed.encrypted {
-    background-color: #fbb;
+#replyFormEmbed.encrypted{
+    background-image:url('../img/lock.gif');
+    background-repeat:repeat;
+    background-size: 36px 36px;
+    background-color: #eeeeee;
 }
+
 
 #talltree .parent .txt {
 }
@@ -523,7 +527,7 @@ fieldset[disabled] .btn-link {
 }
 
 
-#replyForm {
+#replyFormExpand {
     left: 50%;
     /*    margin-left: -250px;*/
     z-index: 400;
@@ -557,24 +561,24 @@ fieldset[disabled] .btn-link {
 }
 
 /*#replyForm:hover, form:hover {*/
-#replyForm:hover {
+#replyFormExpand:hover {
     cursor: all-scroll;
 }
 
-#replyForm form > * {
+#replyFormExpand form > * {
     cursor: auto;
 }
 
-#replyForm form > a {
+#replyFormExpand form > a {
     cursor: pointer; /* for firefox */
 }
 
-#replyForm form button,
-#replyForm form input {
+#replyFormExpand form button,
+#replyFormExpand form input {
     cursor: pointer;
 }
 
-#replyForm form > .replyPreview {
+#replyFormExpand form > .replyPreview {
     margin-left: 15px;
     cursor: pointer;
     vertical-align: middle;
@@ -585,6 +589,7 @@ fieldset[disabled] .btn-link {
     top: 10px;
     margin-bottom: 1em;
     height: 50px;
+
 }
 
 #puffballIcon {

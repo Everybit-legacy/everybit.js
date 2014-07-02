@@ -110,6 +110,7 @@ Translate.language["en"].extend({
         }
 	},
 	replyForm: {
+		advanced: 'Advanced Options',
 		textarea: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
 		submit: 'GO',
 		cancel: 'NO',
@@ -120,7 +121,7 @@ Translate.language["en"].extend({
 			bbcodeMsg: 'You can use BBCode-style tags',
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
-			imageLicense: 'Image License'
+			contentLicense: 'Content License'
 		},
         privacyOption: 'Privacy options',
         pOptions: {
@@ -252,6 +253,7 @@ Translate.language["zh"].extend({
         }
 	},
 	replyForm: {
+		advanced: '高级选项',
 		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
 		submit: '提交',
 		cancel: '取消',
@@ -262,7 +264,7 @@ Translate.language["zh"].extend({
 			bbcodeMsg: '你可以使用BBCode格式的标签',
 			imageFile: '图片文件',
 			imageChosen: '没有选中文件',
-			imageLicense: '图片许可'
+			contentLicense: '内容许可'
 		},
         privacyOption: '隐私选项',
         pOptions: {

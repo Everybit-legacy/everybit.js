@@ -82,10 +82,11 @@ var Menu = React.createClass({displayName: 'Menu',
  var Cluster = React.createClass({displayName: 'Cluster',
  mixins: [TooltipMixin],
  handleToggleShowMenu: function() {
- var changed = !puffworldprops.clusters[this.props.clusterName];
- var eventJSON = '{' + this.props.clusterPropPath + ': changed}';
+     var changed = !puffworldprops.clusters[this.props.clusterName];
+     var eventJSON = {};
+     eventJSON[this.props.clusterPropPath] = changed;
 
- return events.pub(this.props.clusterPath, eventJSON);
+     return events.pub(this.props.clusterPath, eventJSON);
  },
 
  render: function() {
@@ -99,10 +100,10 @@ var Menu = React.createClass({displayName: 'Menu',
  });
 
  if(puffworldprops.clusters[this.props.clusterName]) {
- // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
- var clusterMenu = React.DOM.div(null, "Hi");
+    // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+    var clusterMenu = React.DOM.div(null, "Hi");
  } else {
-  var clusterMenu = '';
+    var clusterMenu = '';
  }
 
  var menuTitle = 'menu.' + this.props.clusterName + '.title';

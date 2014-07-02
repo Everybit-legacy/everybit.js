@@ -62,7 +62,6 @@ var Menu = React.createClass({displayName: 'Menu',
                 React.DOM.br(null ),
                 Cluster( {clusterName:"filter", clusterPath:"ui/clusters/filter", clusterPropPath:"clusters.filter", clusterMenu:"FilterMenu", clusterIcon:"fa-search-plus"} ),
                 Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish", clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane"} ),
-                React.DOM.br(null ),
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view", clusterMenu:"ViewMenu", clusterIcon:"fa-sitemap"} ),
                 Cluster( {clusterName:"identity", clusterPath:"ui/clusters/identity", clusterPropPath:"clusters.identity", clusterMenu:"IdentityMenu", clusterIcon:"fa-user"} ),
                 Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", clusterPropPath:"clusters.preferences", clusterMenu:"PreferencesMenu", clusterIcon:"fa-gears"} ),
@@ -112,7 +111,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
              clusterMenu = React.DOM.div(null, CurrentFilters(null ),FilterMenu(null ))
              break;
          case "publish":
-             clusterMenu = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
+             clusterMenu = puffworldprops.reply.expand ? '' : PuffPublishFormEmbed( {reply:puffworldprops.reply} )
              break;
          case "view":
              clusterMenu = ViewMenu(null )
@@ -136,7 +135,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
      if(!puffworldprops.clusters[this.props.clusterName]) {
         clusterMenu = '';
-     }   
+     } 
 
      var section = this.props.clusterName;
      var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';

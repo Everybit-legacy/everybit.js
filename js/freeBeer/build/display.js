@@ -118,8 +118,9 @@ var ViewKeybindingsMixin = {
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!this.props.reply.show) 
+            if(!this.props.reply.show) {
                 return true
+            }
             
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
@@ -359,9 +360,8 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         else view = PuffTallTree(    {view:extend(this.props.view, defaultViewProps), reply:this.props.reply} )
 
-        // var reply = this.props.reply.show ? <PuffPublishFormEmbed reply={this.props.reply} /> : ''
+        var replyExpand = this.props.reply.expand ? PuffPublishFormExpand( {reply:this.props.reply} ) : ''
         // TODO: Focus the reply box when arrow clicked
-        reply = '';
 
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
             this.props.menu.show = true;
@@ -379,7 +379,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
-                reply,
+                replyExpand,
                 PuffFooter(null )
             )
             )

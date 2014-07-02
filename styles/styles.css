@@ -515,7 +515,7 @@ fieldset[disabled] .btn-link {
 }
 
 
-#replyForm {
+#replyFormExpand {
     left: 50%;
     /*    margin-left: -250px;*/
     z-index: 400;
@@ -549,24 +549,24 @@ fieldset[disabled] .btn-link {
 }
 
 /*#replyForm:hover, form:hover {*/
-#replyForm:hover {
+#replyFormExpand:hover {
     cursor: all-scroll;
 }
 
-#replyForm form > * {
+#replyFormExpand form > * {
     cursor: auto;
 }
 
-#replyForm form > a {
+#replyFormExpand form > a {
     cursor: pointer; /* for firefox */
 }
 
-#replyForm form button,
-#replyForm form input {
+#replyFormExpand form button,
+#replyFormExpand form input {
     cursor: pointer;
 }
 
-#replyForm form > .replyPreview {
+#replyFormExpand form > .replyPreview {
     margin-left: 15px;
     cursor: pointer;
     vertical-align: middle;

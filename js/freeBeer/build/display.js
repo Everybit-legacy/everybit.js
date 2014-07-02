@@ -118,8 +118,9 @@ var ViewKeybindingsMixin = {
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!this.props.reply.show) 
+            if(!this.props.reply.show) {
                 return true
+            }
             
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()

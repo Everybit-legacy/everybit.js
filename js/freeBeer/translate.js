@@ -121,7 +121,7 @@ Translate.language["en"].extend({
 			bbcodeMsg: 'You can use BBCode-style tags',
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
-			contentLicense: 'Image License'
+			contentLicense: 'Content License'
 		},
         privacyOption: 'Privacy options',
         pOptions: {
@@ -264,7 +264,7 @@ Translate.language["zh"].extend({
 			bbcodeMsg: '你可以使用BBCode格式的标签',
 			imageFile: '图片文件',
 			imageChosen: '没有选中文件',
-			contentLicense: '图片许可'
+			contentLicense: '内容许可'
 		},
         privacyOption: '隐私选项',
         pOptions: {

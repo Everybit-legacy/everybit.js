@@ -62,7 +62,6 @@ var Menu = React.createClass({
                 <br />
                 <Cluster clusterName="filter" clusterPath='ui/clusters/filter' clusterPropPath='clusters.filter' clusterMenu='FilterMenu' clusterIcon='fa-search-plus' />
                 <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' />
-                <br />
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view' clusterMenu='ViewMenu' clusterIcon='fa-sitemap' />
                 <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' clusterMenu='IdentityMenu' clusterIcon='fa-user' />
                 <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath='clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />

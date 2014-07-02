@@ -6,7 +6,8 @@ var PuffPublishFormEmbed = React.createClass({
         return {imageSrc    : '', 
                 showPreview : false, 
                 err         : false,
-                showAdvanced: false};
+                showAdvanced: false,
+                advancedOpt : {}};
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
@@ -50,7 +51,12 @@ var PuffPublishFormEmbed = React.createClass({
             this.getDOMNode().className = "";
         }
     },
-
+    handlePickAdvancedOpt: function(e) {
+        var key = e.target.name;
+        var advancedOpt = this.state.advancedOpt;
+        advancedOpt[key] = e.target.value;
+        this.setState({advancedOpt: advancedOpt});
+    },
     handleSubmitSuccess: function(puff) {
         // clear the content
         puffworldprops.reply.content = '';
@@ -80,7 +86,8 @@ var PuffPublishFormEmbed = React.createClass({
         } else {
             content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
         }
-        metadata.license = this.refs.contentLicense.getDOMNode().value;
+        metadata.license = this.state.advancedOpt.contentLicense;
+        metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
         
         if(type == 'PGN') {
             metadata.quote = true;
@@ -94,10 +101,10 @@ var PuffPublishFormEmbed = React.createClass({
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
 
-        var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
+        /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {
             metadata.replyPrivacy = replyPrivacy;
-        }
+        }*/
         
         var privacy = this.refs.privacy.getDOMNode().value;
         
@@ -175,10 +182,6 @@ var PuffPublishFormEmbed = React.createClass({
         })
 
         return false;
-    },
-    handleCancel: function() {
-        // THINK: save the content in case they accidentally closed?
-        return events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
     },
 
     handleImageLoad: function() {
@@ -371,14 +374,6 @@ var PuffPublishFormEmbed = React.createClass({
             previewToggle = (<span></span>); // no preview toggle for image
         }
 
-        var discardStyle = {
-            minWidth: '23%',
-            marginRight: '2%',
-            display: 'inline-block'
-        };
-        var discardButton = (
-            <a href="#" style={discardStyle} onClick={this.handleCancel}><i className="fa fa-trash-o"></i> Discard</a>
-        );
         var sendStyle = {
             marginTop: '10px',
             display: 'inline-block'
@@ -397,8 +392,7 @@ var PuffPublishFormEmbed = React.createClass({
         var replyPrivacyOption = (
             <div>
                 Reply privacy level: <br />
-                <select ref="replyPrivacy" className="btn"
-            defaultValue={privacyDefault} onClick={this.handlePickReplyPrivacy}>
+                <select ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={privacyDefault} onChange={this.handlePickAdvancedOpt}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -408,7 +402,7 @@ var PuffPublishFormEmbed = React.createClass({
             );
         var licenseOption = (
             <div>{polyglot.t("replyForm.format.contentLicense")}:
-                <select className="btn" id="contentLicense" name="contentLicense" ref="contentLicense">
+                <select className="btn" id="contentLicense" name="contentLicense" ref="contentLicense" onChange={this.handlePickAdvancedOpt}>
                     <option value="Creative Commons Attribution">Creative Commons Attribution</option>
                     <option value="GNU Public License">GNU Public License</option>
                     <option value="Public domain">Public domain</option>

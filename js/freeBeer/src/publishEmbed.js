@@ -55,6 +55,7 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // FIXME not working with encrypted puff
+        console.log(puff.sig);
         if (this.refs.privacy.getDOMNode().value == "public")
             events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
                                         'view.puff': puff, 

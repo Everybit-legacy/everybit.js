@@ -134,7 +134,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
      }
 
 
-     if(! puffworldprops.clusters[this.props.clusterName]) {
+     if(!puffworldprops.clusters[this.props.clusterName]) {
         clusterMenu = '';
      }   
 
@@ -940,6 +940,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     getInitialState: function() {
         return {
             step: 0,
+            keys: {},
             desiredUsername: '',
             usernameAvailable: 'unknown',
             usernameMessage: '',
@@ -958,7 +959,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         UsernameImport[network].requestAuthentication();
     },
     handleBack: function() {
-        this.props.keys = {};
+        this.state.keys = {};
         this.setState({step: (this.state.step+3)%4,
             usernameMessage: ''});
     },
@@ -1013,12 +1014,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                     ),
-                "Or, import from",' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
+                polyglot.t("menu.identity.step.import"),' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
                     React.DOM.option( {value:""}),
                     React.DOM.option( {value:"instagram"}, "Instagram"),
                     React.DOM.option( {value:"reddit"}, "Reddit")
                 )
                 ));
+
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
             if (params['requestedUsername']) {
@@ -1081,7 +1083,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 )
             var keyField = (
                 React.DOM.div(null, 
-                    React.DOM.em(null, "Remember to save your keys!"),
+                    React.DOM.em(null, polyglot.t("menu.identity.step.remember")),
                 publicKeyField,
                     React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , polyglot.t("menu.identity.newKey.generate")), " ", polyglot.t("menu.identity.newKey.or"), " ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , polyglot.t("menu.identity.newKey.convert.private"),React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),polyglot.t("menu.identity.newKey.convert.public")),React.DOM.br(null ),
                 privateKeyField
@@ -1094,9 +1096,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
             var mainField = [usernameField, keyField, submitField, ""];
             var stepMessage = [
-                "Select a new username",
-                    "Generate keys for " + this.state.desiredUsername,
-                    "Requested username " + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.select"),
+                    polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
+                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
                 this.state.desiredUsername
             ];
 
@@ -1163,8 +1165,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         var adminKeyPrivate = this.refs.adminKeyPrivate.getDOMNode().value;
         var defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
 
-        // store public keys to prop
-        this.props.keys = {
+        // store keys to state
+        this.state.keys = {
             rootKeyPublic    : rootKeyPublic,
             adminKeyPublic   : adminKeyPublic,
             defaultKeyPublic : defaultKeyPublic,
@@ -1186,13 +1188,15 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         }
         console.log("BEGIN username request for ", requestedUsername);
 
-        var rootKeyPublic     = this.props.keys.rootKeyPublic;
-        var adminKeyPublic    = this.props.keys.adminKeyPublic;
-        var defaultKeyPublic  = this.props.keys.defaultKeyPublic;
+        var rootKeyPublic     = this.state.keys.rootKeyPublic;
+        var adminKeyPublic    = this.state.keys.adminKeyPublic;
+        var defaultKeyPublic  = this.state.keys.defaultKeyPublic;
 
-        var rootKeyPrivate    = this.props.keys.rootKeyPrivate;
-        var adminKeyPrivate   = this.props.keys.adminKeyPrivate;
-        var defaultKeyPrivate = this.props.keys.defaultKeyPrivate;
+        var rootKeyPrivate    = this.state.keys.rootKeyPrivate;
+        var adminKeyPrivate   = this.state.keys.adminKeyPrivate;
+        var defaultKeyPrivate = this.state.keys.defaultKeyPrivate;
+
+        this.setState({keys: {}});
 
         var self = this;
 

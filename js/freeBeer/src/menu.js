@@ -76,10 +76,7 @@ var Menu = React.createClass({
 
 
 
- // NOT YET READY FOR PRIME TIME
- // <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
-
- var Cluster = React.createClass({
+var Cluster = React.createClass({
  mixins: [TooltipMixin],
     switchMenuSection: function() {
         var section = this.props.clusterName || false;

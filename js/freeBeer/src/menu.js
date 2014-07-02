@@ -81,6 +81,13 @@ var Menu = React.createClass({
 
  var Cluster = React.createClass({
  mixins: [TooltipMixin],
+    switchMenuSection: function() {
+        var section = this.props.clusterName || false;
+        events.pub("ui/menu-section", {'menu.section': section});
+    },
+    componentDidMount: function() {
+        this.getDOMNode().onclick = this.switchMenuSection;
+    },
  handleToggleShowMenu: function() {
      var changed = !puffworldprops.clusters[this.props.clusterName];
      var eventJSON = {};
@@ -99,20 +106,13 @@ var Menu = React.createClass({
      'rot90': !puffworldprops.clusters[this.props.clusterName]
      });
 
-     if(puffworldprops.clusters[this.props.clusterName]) {
-        // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
-        var clusterMenu = <div>Hi</div>;
-     } else {
-        var clusterMenu = '';
-     }
-
      var menuTitle = 'menu.' + this.props.clusterName + '.title';
      var clusterMenu;
 
      switch (this.props.clusterName) {
 
          case "filter":
-             clusterMenu = <FilterMenu />
+             clusterMenu = <div><CurrentFilters /><FilterMenu /></div>
              break;
          case "publish":
              clusterMenu = <PuffPublishFormEmbed reply={puffworldprops.reply} />
@@ -136,8 +136,17 @@ var Menu = React.createClass({
              break;
      }
 
+
+     if(! puffworldprops.clusters[this.props.clusterName]) {
+        clusterMenu = '';
+     }   
+
+     var section = this.props.clusterName;
+     var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
+
+
      return (
-         <div>
+         <div className={className}>
          <a href="#" onClick={this.handleToggleShowMenu}>
          <div className="menuHeader">
          <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i> {polyglot.t(menuTitle)}
@@ -157,50 +166,6 @@ var Logo = React.createClass({
             )
     }
 });
-
-var FilterCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowFilterMenu: function() {
-        var changed = !puffworldprops.clusters.filter;
-        return events.pub('ui/clusters/filter', {'clusters.filter': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.filter
-        });
-
-        if(puffworldprops.clusters.filter) {
-            var filterOptions = <FilterMenu />
-        } else {
-            var filterOptions = '';
-        }
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-
-        return (
-            <div className={className}>
-                <a href="#" onClick={this.handleToggleShowFilterMenu}>
-                    <div className="menuHeader">
-                        <i className="fa fa-filter fa-fw gray"></i> {polyglot.t("menu.filter.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                <CurrentFilters />
-                {filterOptions}
-
-            </div>
-            )
-    }
-});
-
 
 var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
@@ -311,88 +276,6 @@ var Filter = React.createClass({
 
 });
 
-var PublishCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowPublish: function() {
-        var changed = !puffworldprops.clusters.publish;
-        return events.pub('ui/clusters/publish', {'clusters.publish': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.publish
-        });
-
-        if(puffworldprops.clusters.publish) {
-            var replyOptions = <PuffPublishFormEmbed reply={puffworldprops.reply} />
-        } else {
-            var replyOptions = '';
-        }
-
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-
-        return (
-            <div className={className}>
-                <a href="#" onClick={this.handleToggleShowPublish}>
-                    <div className="menuHeader">
-                        <i className="fa fa-paper-plane fa-fw gray"></i> {polyglot.t("menu.publish.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {replyOptions}
-
-            </div>
-            )
-    }
-});
-
-
-var ViewCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowView: function() {
-        var changed = !puffworldprops.clusters.view;
-        return events.pub('ui/clusters/view', {'clusters.view': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.view
-        });
-
-        if(puffworldprops.clusters.view) {
-            var viewOptions = <ViewMenu />
-        } else {
-            var viewOptions = '';
-        }
-        return (
-            <div>
-                <a href="#" onClick={this.handleToggleShowView}>
-                    <div className="menuHeader">
-                        <i className="fa fa-sitemap fa-fw gray"></i> {polyglot.t("menu.view.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {viewOptions}
-
-            </div>
-            )
-    }
-});
-
 
 /*
  <p>Identity avatar</p>
@@ -460,46 +343,6 @@ var ViewMenu = React.createClass({
     }
 });
 
-
-var IdentityCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowIdentityMenu: function() {
-        var changed = !puffworldprops.clusters.identity;
-        return events.pub('ui/clusters/identity', {'clusters.identity': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.identity
-        });
-
-        if(puffworldprops.clusters.identity) {
-            var identityOptions = <IdentityMenu />
-        } else {
-            var identityOptions = '';
-        }
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-        return (
-            <div className={className}>
-                <a href="#" onClick={this.handleToggleShowIdentityMenu}>
-                    <div className="menuHeader">
-                        <i className="fa fa-user fa-fw gray"></i> {polyglot.t("menu.identity.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {identityOptions}
-
-            </div>
-            )
-    }
-});
 
 
 var IdentityMenu = React.createClass({
@@ -593,44 +436,6 @@ var IdentityMenu = React.createClass({
         }
         });
 
-    }
-});
-
-
-var PreferencesCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowPreferencesMenu: function() {
-        var changed = !puffworldprops.clusters.preferences;
-        return events.pub('ui/clusters/preferences', {'clusters.preferences': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.preferences
-        });
-
-        if(puffworldprops.clusters.preferences) {
-            var preferencesOptions = <PreferencesMenu />
-        } else {
-            var preferencesOptions = '';
-        }
-        return (
-            <div>
-                <a href="#" onClick={this.handleToggleShowPreferencesMenu}>
-                    <div className="menuHeader">
-                        <i className="fa fa-gears fa-fw gray"></i> {polyglot.t("menu.preferences.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {preferencesOptions}
-
-            </div>
-            )
     }
 });
 
@@ -734,44 +539,6 @@ var PreferencesMenu = React.createClass({
 });
 
 
-var AboutCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowAboutMenu: function() {
-        var changed = !puffworldprops.clusters.about;
-        return events.pub('ui/clusters/about', {'clusters.about': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.about
-        });
-
-        if(puffworldprops.clusters.about) {
-            var aboutOptions = <AboutMenu />
-        } else {
-            var aboutOptions = '';
-        }
-        return (
-            <div>
-                <a href="#" onClick={this.handleToggleShowAboutMenu}>
-                    <div className="menuHeader">
-                        <i className="fa fa-info-circle fa-fw gray"></i> {polyglot.t("menu.about.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {aboutOptions}
-
-            </div>
-            )
-    }
-});
-
-
 var AboutMenu = React.createClass({
     mixins: [TooltipMixin],
     render: function() {
@@ -785,43 +552,6 @@ var AboutMenu = React.createClass({
 })
 
 
-
-var ToolsCluster = React.createClass({
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowToolsMenu: function() {
-        var changed = !puffworldprops.clusters.tools;
-        return events.pub('ui/clusters/tools', {'clusters.tools': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.tools
-        });
-
-        if(puffworldprops.clusters.tools) {
-            var toolsOptions = <ToolsMenu />
-        } else {
-            var toolsOptions = '';
-        }
-        return (
-            <div>
-                <a href="#" onClick={this.handleToggleShowToolsMenu}>
-                    <div className="menuHeader">
-                        <i className="fa fa-wrench fa-fw gray"></i> {polyglot.t("menu.tool.title")}
-                        <span className="floatRight"><i className={setClass}></i></span>
-                    </div>
-                </a>
-                {toolsOptions}
-
-            </div>
-            )
-    }
-});
 
 var ToolsMenu = React.createClass({
     mixins: [TooltipMixin],

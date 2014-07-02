@@ -81,6 +81,13 @@ var Menu = React.createClass({displayName: 'Menu',
 
  var Cluster = React.createClass({displayName: 'Cluster',
  mixins: [TooltipMixin],
+    switchMenuSection: function() {
+        var section = this.props.clusterName || false;
+        events.pub("ui/menu-section", {'menu.section': section});
+    },
+    componentDidMount: function() {
+        this.getDOMNode().onclick = this.switchMenuSection;
+    },
  handleToggleShowMenu: function() {
      var changed = !puffworldprops.clusters[this.props.clusterName];
      var eventJSON = {};
@@ -99,20 +106,13 @@ var Menu = React.createClass({displayName: 'Menu',
      'rot90': !puffworldprops.clusters[this.props.clusterName]
      });
 
-     if(puffworldprops.clusters[this.props.clusterName]) {
-        // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
-        var clusterMenu = React.DOM.div(null, "Hi");
-     } else {
-        var clusterMenu = '';
-     }
-
      var menuTitle = 'menu.' + this.props.clusterName + '.title';
      var clusterMenu;
 
      switch (this.props.clusterName) {
 
          case "filter":
-             clusterMenu = FilterMenu(null )
+             clusterMenu = React.DOM.div(null, CurrentFilters(null ),FilterMenu(null ))
              break;
          case "publish":
              clusterMenu = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
@@ -136,8 +136,17 @@ var Menu = React.createClass({displayName: 'Menu',
              break;
      }
 
+
+     if(! puffworldprops.clusters[this.props.clusterName]) {
+        clusterMenu = '';
+     }   
+
+     var section = this.props.clusterName;
+     var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
+
+
      return (
-         React.DOM.div(null, 
+         React.DOM.div( {className:className}, 
          React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
          React.DOM.div( {className:"menuHeader"}, 
          React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}), " ", polyglot.t(menuTitle),
@@ -157,50 +166,6 @@ var Logo = React.createClass({displayName: 'Logo',
             )
     }
 });
-
-var FilterCluster = React.createClass({displayName: 'FilterCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowFilterMenu: function() {
-        var changed = !puffworldprops.clusters.filter;
-        return events.pub('ui/clusters/filter', {'clusters.filter': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.filter
-        });
-
-        if(puffworldprops.clusters.filter) {
-            var filterOptions = FilterMenu(null )
-        } else {
-            var filterOptions = '';
-        }
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-
-        return (
-            React.DOM.div( {className:className}, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowFilterMenu}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-filter fa-fw gray"}), " ", polyglot.t("menu.filter.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                CurrentFilters(null ),
-                filterOptions
-
-            )
-            )
-    }
-});
-
 
 var FilterMenu = React.createClass({displayName: 'FilterMenu',
     mixins: [TooltipMixin],
@@ -311,88 +276,6 @@ var Filter = React.createClass({displayName: 'Filter',
 
 });
 
-var PublishCluster = React.createClass({displayName: 'PublishCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowPublish: function() {
-        var changed = !puffworldprops.clusters.publish;
-        return events.pub('ui/clusters/publish', {'clusters.publish': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.publish
-        });
-
-        if(puffworldprops.clusters.publish) {
-            var replyOptions = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
-        } else {
-            var replyOptions = '';
-        }
-
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-
-        return (
-            React.DOM.div( {className:className}, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowPublish}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-paper-plane fa-fw gray"}), " ", polyglot.t("menu.publish.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                replyOptions
-
-            )
-            )
-    }
-});
-
-
-var ViewCluster = React.createClass({displayName: 'ViewCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-
-    handleToggleShowView: function() {
-        var changed = !puffworldprops.clusters.view;
-        return events.pub('ui/clusters/view', {'clusters.view': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.view
-        });
-
-        if(puffworldprops.clusters.view) {
-            var viewOptions = ViewMenu(null )
-        } else {
-            var viewOptions = '';
-        }
-        return (
-            React.DOM.div(null, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowView}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-sitemap fa-fw gray"}), " ", polyglot.t("menu.view.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                viewOptions
-
-            )
-            )
-    }
-});
-
 
 /*
  <p>Identity avatar</p>
@@ -460,46 +343,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     }
 });
 
-
-var IdentityCluster = React.createClass({displayName: 'IdentityCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowIdentityMenu: function() {
-        var changed = !puffworldprops.clusters.identity;
-        return events.pub('ui/clusters/identity', {'clusters.identity': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.identity
-        });
-
-        if(puffworldprops.clusters.identity) {
-            var identityOptions = IdentityMenu(null )
-        } else {
-            var identityOptions = '';
-        }
-
-        var section = this.props.section;
-        var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-        return (
-            React.DOM.div( {className:className}, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowIdentityMenu}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-user fa-fw gray"}), " ", polyglot.t("menu.identity.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                identityOptions
-
-            )
-            )
-    }
-});
 
 
 var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
@@ -593,44 +436,6 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         }
         });
 
-    }
-});
-
-
-var PreferencesCluster = React.createClass({displayName: 'PreferencesCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowPreferencesMenu: function() {
-        var changed = !puffworldprops.clusters.preferences;
-        return events.pub('ui/clusters/preferences', {'clusters.preferences': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.preferences
-        });
-
-        if(puffworldprops.clusters.preferences) {
-            var preferencesOptions = PreferencesMenu(null )
-        } else {
-            var preferencesOptions = '';
-        }
-        return (
-            React.DOM.div(null, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowPreferencesMenu}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-gears fa-fw gray"}), " ", polyglot.t("menu.preferences.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                preferencesOptions
-
-            )
-            )
     }
 });
 
@@ -734,44 +539,6 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 });
 
 
-var AboutCluster = React.createClass({displayName: 'AboutCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowAboutMenu: function() {
-        var changed = !puffworldprops.clusters.about;
-        return events.pub('ui/clusters/about', {'clusters.about': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.about
-        });
-
-        if(puffworldprops.clusters.about) {
-            var aboutOptions = AboutMenu(null )
-        } else {
-            var aboutOptions = '';
-        }
-        return (
-            React.DOM.div(null, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowAboutMenu}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-info-circle fa-fw gray"}), " ", polyglot.t("menu.about.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                aboutOptions
-
-            )
-            )
-    }
-});
-
-
 var AboutMenu = React.createClass({displayName: 'AboutMenu',
     mixins: [TooltipMixin],
     render: function() {
@@ -785,43 +552,6 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 })
 
 
-
-var ToolsCluster = React.createClass({displayName: 'ToolsCluster',
-    mixins: [TooltipMixin, FlashSectionMixin],
-    handleToggleShowToolsMenu: function() {
-        var changed = !puffworldprops.clusters.tools;
-        return events.pub('ui/clusters/tools', {'clusters.tools': changed});
-    },
-
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-
-        var cls = React.addons.classSet;
-        var setClass = cls({
-            'fa': true,
-            'fa-chevron-circle-down': true,
-            'rot90': !puffworldprops.clusters.tools
-        });
-
-        if(puffworldprops.clusters.tools) {
-            var toolsOptions = ToolsMenu(null )
-        } else {
-            var toolsOptions = '';
-        }
-        return (
-            React.DOM.div(null, 
-                React.DOM.a( {href:"#", onClick:this.handleToggleShowToolsMenu}, 
-                    React.DOM.div( {className:"menuHeader"}, 
-                        React.DOM.i( {className:"fa fa-wrench fa-fw gray"}), " ", polyglot.t("menu.tool.title"),
-                        React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
-                    )
-                ),
-                toolsOptions
-
-            )
-            )
-    }
-});
 
 var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
     mixins: [TooltipMixin],

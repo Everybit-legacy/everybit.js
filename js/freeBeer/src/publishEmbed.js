@@ -21,10 +21,10 @@ var PuffPublishFormEmbed = React.createClass({
         var content = document.getElementById("content");
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+            content.focus();
         }
 
         this.handlePickPrivacy();
-
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -49,19 +49,21 @@ var PuffPublishFormEmbed = React.createClass({
     },
 
     handleSubmitSuccess: function(puff) {
-        // clear the content, set back to initial state
-        puffworldprops.reply.content = false;
+        // clear the content
+        puffworldprops.reply.content = '';
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
-        this.setState(this.getInitialState());
 
         // go to the puff
-        // problem: not working with encrypted puff
+        // FIXME not working with encrypted puff
         if (this.refs.privacy.getDOMNode().value == "public")
             events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
                                         'view.puff': puff, 
                                         'menu.show': false, 
                                         'menu.section': false,
                                         'reply.show': false});
+
+        // set back to initial state
+        this.setState(this.getInitialState());
     },
     handleSubmit: function() {
         var self = this;

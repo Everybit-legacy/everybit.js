@@ -56,7 +56,7 @@ puffworldprops = {
         parents: [],
         show: false,
         // preview: false,
-        content: false,
+        content: '',
         type: 'text'
     },
 

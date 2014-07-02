@@ -127,10 +127,11 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 )
             );
         }
-
+        // <PuffTipLink username={puff.username} />
         return (
             React.DOM.div( {className:className}, 
                 PuffFlagLink( {sig:puff.sig} ),
+
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
@@ -319,6 +320,122 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
     }
 });
 
+var PuffTipLink = React.createClass({displayName: 'PuffTipLink',
+    getInitialState: function() {
+        return {
+            showTipButtons: false
+        };
+    },
+
+    handleToggleTipInfo: function(){
+        var node = this.getDOMNode();
+        var walletInfo = node.getElementsByClassName('walletInfo')[0];
+
+        if(!this.state.showTipButtons) {
+            this.setState({showTipButtons: true});
+            walletInfo.style.display = 'block';
+
+        } else {
+            this.setState({showTipButtons: false});
+            walletInfo.style.display = 'none';
+        }
+        return false;
+    },
+
+    render: function() {
+        if(this.state.showTipButtons) {
+
+            var tipButtons = TipButton( {currency:"BTC", username:this.props.username} )
+        } else {
+            var tipButtons = ''
+        }
+
+        return (
+            React.DOM.span( {className:"icon"}, 
+            React.DOM.span( {className:"walletLink"}, 
+                React.DOM.a( {href:"#", onClick:this.handleToggleTipInfo}, 
+                    React.DOM.i( {className:"fa fa-gittip fa-fw"})
+                ),
+                React.DOM.span( {className:"walletInfo"}, 
+                    tipButtons
+                )
+            )
+            )
+            );
+    }
+});
+
+var TipButton = React.createClass({displayName: 'TipButton',
+    getInitialState: function() {
+        return {
+            publicKey: '',
+            btcAddy: '',
+            akShort: ''
+        };
+    },
+
+    componentDidMount: function(){
+        // Get the public key for this user, convert to wallet
+        // TODO: Get the link so have meta-data set, like "From puffball"
+
+
+
+        var self = this;
+        var prom = Puffball.getUserRecord(this.props.username);
+
+        prom.then(function(result) {
+
+            self.setState({publicKey: result.adminKey});
+            console.log(result.adminKey);
+
+            var btcAddy = Puffball.Crypto.wifToPubKey(result.adminKey);
+
+            console.log(btcAddy);
+
+            btcAddy = btcAddy.getAddress().toString();
+            this.setState({btcAddy: btcAddy});
+
+            console.log("HI");
+
+            var akShort = btcAddy.substr(0,5)+'...';
+            this.setState({akShort: akShort});
+
+
+
+            events.pub('ui/tipbutton/userlookup', {});
+
+
+
+            return false;
+        })
+            .catch(function(err) {
+                console.log("PROBLEM");
+
+                self.setState({publicKey: false});
+                this.setState({btcAddy: 'Unknown :-('});
+                this.setState({akShort: 'FAIL'});
+                events.pub('ui/tipbutton/userlookup/failed', {});
+                return false;
+            })
+    },
+
+    render: function() {
+
+
+        return (
+                React.DOM.div(null, 
+                    React.DOM.i( {className:"fa fa-bitcoin fa-fw"}),
+                    React.DOM.a( {href:"wallet:" + this.state.btcAddy}, 
+                    this.state.akShort
+                    )
+                )
+            )
+
+
+    }
+
+});
+
 
 var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
     handleClick:function() {
@@ -434,9 +551,14 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             parents.splice(index, 1)
         }
 
+        var menu = puffworldprops.menu;
+        if (!puffworldprops.reply.expand) {
+            menu.show = true;
+            menu.section = 'publish';
+        }
         return events.pub('ui/reply/add-parent', 
                          {'reply.show': true, 'reply.parents': parents,
-                          'menu.show': true, 'menu.section': 'publish'});
+                          'menu': menu});
 
         // TODO: draw reply arrows. Maybe
     },

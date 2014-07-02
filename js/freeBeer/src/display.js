@@ -36,8 +36,10 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/reply/open', {'reply': {parents: parents}});
 
             var menu = puffworlddefaults.menu;
-            menu.show = true;
-            menu.section = 'publish';
+            if (!puffworldprops.reply.expand) {
+                menu.show = true;
+                menu.section = 'publish';
+            }
 
             return events.pub('ui/reply/open', {'clusters.publish': true,
                                                 'menu': menu, 

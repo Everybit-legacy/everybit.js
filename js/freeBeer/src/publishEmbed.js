@@ -63,16 +63,17 @@ var PuffPublishFormEmbed = React.createClass({
     handleSubmitSuccess: function(puff) {
         // clear the content
         puffworldprops.reply.content = '';
+        // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
         // FIXME not working with encrypted puff
-        var setProps = {'reply': puffworlddefaults.reply};
-        if (this.refs.privacy.getDOMNode().value == "public") {
-            setProps['view.style'] = 'PuffTallTree';
-            setProps['view.puff'] = puff;
+        events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+        if (typeof puff.payload.parents !== 'undefined') {
+            events.pub('ui/view-puff', {'view.style': 'PuffTallTree',
+                                        'view.puff': puff});
         }
-        events.pub('ui/submit', setProps);
+
         // set back to initial state
         this.setState(this.getInitialState());
     },
@@ -114,7 +115,9 @@ var PuffPublishFormEmbed = React.createClass({
         var privacy = this.refs.privacy.getDOMNode().value;
         
         if(privacy == 'public') {
+            var self=this;
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
+
             post_prom
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {

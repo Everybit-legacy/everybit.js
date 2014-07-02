@@ -56,11 +56,12 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // problem: not working with encrypted puff
-        events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
-                                    'view.puff': puff, 
-                                    'menu.show': false, 
-                                    'menu.section': false,
-                                    'reply.show': false});
+        if (this.refs.privacy.getDOMNode().value == "public")
+            events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
+                                        'view.puff': puff, 
+                                        'menu.show': false, 
+                                        'menu.section': false,
+                                        'reply.show': false});
     },
     handleSubmit: function() {
         var self = this;

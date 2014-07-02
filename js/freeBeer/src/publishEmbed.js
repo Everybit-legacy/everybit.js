@@ -327,7 +327,8 @@ var PuffPublishFormEmbed = React.createClass({
             // height: (type=="PGN" && this.state.showPreview) ? '100%' : '20em',
             height: '200px',
             marginTop: '10px',
-            border: '1px solid #333'
+            border: '1px solid #333',
+            background: '#FFFFFF'
         }
         var contentField = (
             <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textarea')} defaultValue={defaultContent} style={contentStyle}></textarea>

@@ -143,17 +143,20 @@ var Menu = React.createClass({
 
      var section = this.props.clusterName;
      var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
-
+    // <span className="floatRight gray"><i className={setClass}></i></span>
 
      return (
-         <div className={className}>
-         <a href="#" onClick={this.handleToggleShowMenu}>
-         <div className="menuHeader">
-         <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i> {polyglot.t(menuTitle)}
-         <span className="floatRight"><i className={setClass}></i></span>
-         </div>
-         </a>
-         {clusterMenu}
+         <div className="menuCluster">
+             <div className={className}>
+             <a href="#" onClick={this.handleToggleShowMenu}>
+
+             <div className="menuHeader">
+                 <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i>
+                {polyglot.t(menuTitle)}
+             </div>
+             </a>
+             {clusterMenu}
+             </div>
          </div>
      )
  }

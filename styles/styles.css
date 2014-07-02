@@ -613,6 +613,10 @@ fieldset[disabled] .btn-link {
     overflow: auto;
 }
 
+.menuCluster {
+    padding-bottom: 10px;
+}
+
 .animation .menu {
     -webkit-animation: slidein 1s; /* Safari and Chrome */
     -moz-animation: slidein 1s; /* Firefox */

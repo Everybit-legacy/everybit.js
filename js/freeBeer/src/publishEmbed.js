@@ -56,7 +56,7 @@ var PuffPublishFormEmbed = React.createClass({
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
 
-        this.setState({'showPreview': false});
+        if (type != 'image') this.setState({'showPreview': false});
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
@@ -84,8 +84,8 @@ var PuffPublishFormEmbed = React.createClass({
         if(privacy == 'public') {
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
             post_prom.then(function() {
-                puffworldprops.reply.content = "";
-                self.refs.content.getDOMNode().value = '';
+                puffworldprops.reply.content = false;
+                if (self.refs.content) self.refs.content.getDOMNode().value = '';
                 self.setState({err: false});
             })      .catch(function(err) {
                 self.setState({err: err.message});

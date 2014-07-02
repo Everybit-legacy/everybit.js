@@ -11,7 +11,9 @@ var ViewKeybindingsMixin = {
             menu.show = true;
             menu.section = 'publish';
 
-            return events.pub('ui/reply/open', {'menu': menu, 'reply': {show: true}});
+            return events.pub('ui/reply/open', {'clusters.publish': true,
+                                                'menu': menu, 
+                                                'reply': {show: true}});
         }.bind(this));
         
         // r replies to 'selected' puff
@@ -36,9 +38,11 @@ var ViewKeybindingsMixin = {
             var menu = puffworlddefaults.menu;
             menu.show = true;
             menu.section = 'publish';
-            
-            return events.pub('ui/reply/open', {'menu': menu, 'reply': {show: true, parents: parents
-}});
+
+            return events.pub('ui/reply/open', {'clusters.publish': true,
+                                                'menu': menu, 
+                                                'reply': {show: true, parents: parents}
+                                                });
         }.bind(this));
 
         // a toggles animation

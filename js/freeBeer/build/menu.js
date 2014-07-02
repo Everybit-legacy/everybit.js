@@ -134,7 +134,8 @@ var Cluster = React.createClass({displayName: 'Cluster',
      }
 
 
-     if(! puffworldprops.clusters[this.props.clusterName]) {
+     if(!puffworldprops.clusters[this.props.clusterName]) {
+        console.log(this.props.clusterName);
         clusterMenu = '';
      }   
 

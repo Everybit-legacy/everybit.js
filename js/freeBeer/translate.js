@@ -68,7 +68,7 @@ Translate.language["en"].extend({
 			title: 'ABOUT',
 			code: 'Source code'
 		},
-		tool: {
+		tools: {
 			title: 'ADVANCED TOOLS',
 			builder: "Puff builder"
 		},
@@ -204,7 +204,7 @@ Translate.language["zh"].extend({
 			title: '关于',
 			code: '源代码'
 		},
-		tool: {
+		tools: {
 			title: '高级工具',
 			builder: "生成"
 		},

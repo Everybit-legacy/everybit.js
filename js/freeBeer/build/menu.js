@@ -58,16 +58,16 @@ var Menu = React.createClass({displayName: 'Menu',
                     ),
 
                 Logo(null ),
- Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", clusterPropPath:  "clusters.preferences", clusterMenu:"PreferencesMenu", clusterIcon:"fa-gears"} ),
+
                 React.DOM.br(null ),
-                FilterCluster( {section:"filter"} ),
-                PublishCluster( {section:"publish"} ),
+                Cluster( {clusterName:"filter", clusterPath:"ui/clusters/filter", clusterPropPath:"clusters.filter", clusterMenu:"FilterMenu", clusterIcon:"fa-search-plus"} ),
+                Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish", clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane"} ),
                 React.DOM.br(null ),
-                ViewCluster( {section:"view"}),
-                IdentityCluster( {section:"identity"} ),
-                PreferencesCluster( {section:"preferences"} ),
-                AboutCluster( {section:"about"} ),
-                ToolsCluster( {section:"false"} )
+                Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view", clusterMenu:"ViewMenu", clusterIcon:"fa-sitemap"} ),
+                Cluster( {clusterName:"identity", clusterPath:"ui/clusters/identity", clusterPropPath:"clusters.identity", clusterMenu:"IdentityMenu", clusterIcon:"fa-user"} ),
+                Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", clusterPropPath:"clusters.preferences", clusterMenu:"PreferencesMenu", clusterIcon:"fa-gears"} ),
+                Cluster( {clusterName:"about", clusterPath:"ui/clusters/about", clusterPropPath:"clusters.about", clusterMenu:"AboutMenu", clusterIcon:"fa-info-circle"} ),
+                Cluster( {clusterName:"tools", clusterPath:"ui/clusters/tools", clusterPropPath:"clusters.tools", clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench"} )
             )
             )
     }
@@ -90,35 +90,63 @@ var Menu = React.createClass({displayName: 'Menu',
  },
 
  render: function() {
- var polyglot = Translate.language[puffworldprops.view.language];
+     var polyglot = Translate.language[puffworldprops.view.language];
 
- var cls = React.addons.classSet;
- var setClass = cls({
- 'fa': true,
- 'fa-chevron-circle-down': true,
- 'rot90': !puffworldprops.clusters[this.props.clusterName]
- });
+     var cls = React.addons.classSet;
+     var setClass = cls({
+     'fa': true,
+     'fa-chevron-circle-down': true,
+     'rot90': !puffworldprops.clusters[this.props.clusterName]
+     });
 
- if(puffworldprops.clusters[this.props.clusterName]) {
-    // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
-    var clusterMenu = React.DOM.div(null, "Hi");
- } else {
-    var clusterMenu = '';
- }
+     if(puffworldprops.clusters[this.props.clusterName]) {
+        // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+        var clusterMenu = React.DOM.div(null, "Hi");
+     } else {
+        var clusterMenu = '';
+     }
 
- var menuTitle = 'menu.' + this.props.clusterName + '.title';
+     var menuTitle = 'menu.' + this.props.clusterName + '.title';
+     var clusterMenu;
 
- return (
- React.DOM.div(null, 
- React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
- React.DOM.div( {className:"menuHeader"}, 
- React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}), " ", polyglot.t(menuTitle),
- React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
- )
- ),
- clusterMenu
- )
- )
+     switch (this.props.clusterName) {
+
+         case "filter":
+             clusterMenu = FilterMenu(null )
+             break;
+         case "publish":
+             clusterMenu = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
+             break;
+         case "view":
+             clusterMenu = ViewMenu(null )
+             break;
+         case "identity":
+             clusterMenu = IdentityMenu(null )
+             break;
+         case "preferences":
+             clusterMenu = PreferencesMenu(null )
+             break;
+         case "about":
+             clusterMenu = AboutMenu(null )
+             break;
+         case "tools":
+             clusterMenu = ToolsMenu(null )
+             break;
+         default:
+             break;
+     }
+
+     return (
+         React.DOM.div(null, 
+         React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
+         React.DOM.div( {className:"menuHeader"}, 
+         React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}), " ", polyglot.t(menuTitle),
+         React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
+         )
+         ),
+         clusterMenu
+         )
+     )
  }
  });
 
@@ -805,7 +833,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div( {className:"menuItem"}, 
-                React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, polyglot.t("menu.tool.builder")),
+                React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, polyglot.t("menu.tools.builder")),
                 Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
             )
             )

@@ -58,16 +58,16 @@ var Menu = React.createClass({
                     </a>
 
                 <Logo />
- <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
+
                 <br />
-                <FilterCluster section='filter' />
-                <PublishCluster section='publish' />
+                <Cluster clusterName="filter" clusterPath='ui/clusters/filter' clusterPropPath='clusters.filter' clusterMenu='FilterMenu' clusterIcon='fa-search-plus' />
+                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' />
                 <br />
-                <ViewCluster section='view'/>
-                <IdentityCluster section='identity' />
-                <PreferencesCluster section='preferences' />
-                <AboutCluster section='about' />
-                <ToolsCluster section='false' />
+                <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view' clusterMenu='ViewMenu' clusterIcon='fa-sitemap' />
+                <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' clusterMenu='IdentityMenu' clusterIcon='fa-user' />
+                <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath='clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
+                <Cluster clusterName="about" clusterPath='ui/clusters/about' clusterPropPath='clusters.about' clusterMenu='AboutMenu' clusterIcon='fa-info-circle' />
+                <Cluster clusterName="tools" clusterPath='ui/clusters/tools' clusterPropPath='clusters.tools' clusterMenu='ToolsMenu' clusterIcon='fa-wrench' />
             </div>
             )
     }
@@ -90,35 +90,63 @@ var Menu = React.createClass({
  },
 
  render: function() {
- var polyglot = Translate.language[puffworldprops.view.language];
+     var polyglot = Translate.language[puffworldprops.view.language];
 
- var cls = React.addons.classSet;
- var setClass = cls({
- 'fa': true,
- 'fa-chevron-circle-down': true,
- 'rot90': !puffworldprops.clusters[this.props.clusterName]
- });
+     var cls = React.addons.classSet;
+     var setClass = cls({
+     'fa': true,
+     'fa-chevron-circle-down': true,
+     'rot90': !puffworldprops.clusters[this.props.clusterName]
+     });
 
- if(puffworldprops.clusters[this.props.clusterName]) {
-    // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
-    var clusterMenu = <div>Hi</div>;
- } else {
-    var clusterMenu = '';
- }
+     if(puffworldprops.clusters[this.props.clusterName]) {
+        // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+        var clusterMenu = <div>Hi</div>;
+     } else {
+        var clusterMenu = '';
+     }
 
- var menuTitle = 'menu.' + this.props.clusterName + '.title';
+     var menuTitle = 'menu.' + this.props.clusterName + '.title';
+     var clusterMenu;
 
- return (
- <div>
- <a href="#" onClick={this.handleToggleShowMenu}>
- <div className="menuHeader">
- <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i> {polyglot.t(menuTitle)}
- <span className="floatRight"><i className={setClass}></i></span>
- </div>
- </a>
- {clusterMenu}
- </div>
- )
+     switch (this.props.clusterName) {
+
+         case "filter":
+             clusterMenu = <FilterMenu />
+             break;
+         case "publish":
+             clusterMenu = <PuffPublishFormEmbed reply={puffworldprops.reply} />
+             break;
+         case "view":
+             clusterMenu = <ViewMenu />
+             break;
+         case "identity":
+             clusterMenu = <IdentityMenu />
+             break;
+         case "preferences":
+             clusterMenu = <PreferencesMenu />
+             break;
+         case "about":
+             clusterMenu = <AboutMenu />
+             break;
+         case "tools":
+             clusterMenu = <ToolsMenu />
+             break;
+         default:
+             break;
+     }
+
+     return (
+         <div>
+         <a href="#" onClick={this.handleToggleShowMenu}>
+         <div className="menuHeader">
+         <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i> {polyglot.t(menuTitle)}
+         <span className="floatRight"><i className={setClass}></i></span>
+         </div>
+         </a>
+         {clusterMenu}
+         </div>
+     )
  }
  });
 
@@ -805,7 +833,7 @@ var ToolsMenu = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div className="menuItem">
-                <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tool.builder")}</a>
+                <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tools.builder")}</a>
                 <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
             </div>
             )

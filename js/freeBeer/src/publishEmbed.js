@@ -3,7 +3,10 @@
 
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
-        return {imageSrc: '', showPreview: false, err: false};
+        return {imageSrc    : '', 
+                showPreview : false, 
+                err         : false,
+                showAdvanced: false};
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
@@ -55,13 +58,9 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // FIXME not working with encrypted puff
-        console.log(puff.sig);
         if (this.refs.privacy.getDOMNode().value == "public")
             events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
-                                        'view.puff': puff, 
-                                        'menu.show': false, 
-                                        'menu.section': false,
-                                        'reply.show': false});
+                                        'view.puff': puff});
 
         // set back to initial state
         this.setState(this.getInitialState());
@@ -78,10 +77,10 @@ var PuffPublishFormEmbed = React.createClass({
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
         if(type == 'image') {
             content = this.state.imageSrc;
-            metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
             content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
         }
+        metadata.license = this.refs.contentLicense.getDOMNode().value;
         
         if(type == 'PGN') {
             metadata.quote = true;
@@ -205,6 +204,10 @@ var PuffPublishFormEmbed = React.createClass({
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
+    },
+    handleShowAdvanced: function() {
+        this.setState({showAdvanced: !this.state.showAdvanced});
+        return false;
     },
 
 
@@ -332,16 +335,6 @@ var PuffPublishFormEmbed = React.createClass({
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad} />
                     </div>
                     <br /><br />
-                    <div className="menuItem">{polyglot.t("replyForm.format.imageLicense")}:
-                        <select id="imageLicense" name="imageLicense" ref="imageLicense">
-                            <option value="Creative Commons Attribution">Creative Commons Attribution</option>
-                            <option value="GNU Public License">GNU Public License</option>
-                            <option value="Public domain">Public domain</option>
-                            <option value="Rights-managed">Rights-managed</option>
-                            <option value="Royalty-free">Royalty-free</option>
-                        </select>
-                    </div>
-                    <br />
                     {imageField}
                 </div>
             );
@@ -413,7 +406,31 @@ var PuffPublishFormEmbed = React.createClass({
             </select>
                 </div>
             );
-
+        var licenseOption = (
+            <div>{polyglot.t("replyForm.format.contentLicense")}:
+                <select className="btn" id="contentLicense" name="contentLicense" ref="contentLicense">
+                    <option value="Creative Commons Attribution">Creative Commons Attribution</option>
+                    <option value="GNU Public License">GNU Public License</option>
+                    <option value="Public domain">Public domain</option>
+                    <option value="Rights-managed">Rights-managed</option>
+                    <option value="Royalty-free">Royalty-free</option>
+                </select>
+            </div>
+            );
+        var advancedField = (
+            <div>
+                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
+            </div>
+        );
+        if (this.state.showAdvanced) {
+            advancedField = (
+                <div>
+                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
+                {replyPrivacyOption}
+                {licenseOption}
+                </div>
+            );
+        }
         return (
             <div id="replyFormEmbed">
                 <div id="replyFormBox" style={boxStyle}>
@@ -424,7 +441,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {errorField}
                     {previewToggle}
                     {sendButton}
-                    {replyPrivacyOption}
+                    {advancedField}
                 </div>
             </div>
         )

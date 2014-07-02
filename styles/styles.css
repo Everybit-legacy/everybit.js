@@ -116,7 +116,8 @@ section {
     overflow-x: auto;
 }
 
-#talltree .block.encrypted {
+#talltree .block.encrypted,
+#replyFormEmbed.encrypted {
     background-color: #fbb;
 }
 
@@ -532,12 +533,9 @@ fieldset[disabled] .btn-link {
 
 #replyFormEmbed {
     z-index: 400;
-    /*background: #FAFAFA;*/
-    text-align: center;
+    text-align: left;
     padding: 10px 25px 5px 25px;
-
 }
-
 
 #replyFormBox{
     overflow-y: auto;

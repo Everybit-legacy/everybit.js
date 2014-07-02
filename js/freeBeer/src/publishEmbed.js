@@ -22,6 +22,8 @@ var PuffPublishFormEmbed = React.createClass({
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
 
+        this.handlePickPrivacy();
+
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -36,6 +38,14 @@ var PuffPublishFormEmbed = React.createClass({
         // remove silly global
         globalReplyFormSubmitArg = null;
         puffworldprops.reply.preview = false;
+    },
+
+    handlePickPrivacy: function() {
+        if (this.refs.privacy.getDOMNode().value != "public") {
+            this.getDOMNode().className = "encrypted";
+        } else {
+            this.getDOMNode().className = "";
+        }
     },
 
     handleSubmit: function() {
@@ -67,7 +77,7 @@ var PuffPublishFormEmbed = React.createClass({
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
 
-        
+
         
         var privacy = this.refs.privacy.getDOMNode().value
         
@@ -246,12 +256,12 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
-        var tyleStyle = {
+        var typeStyle = {
             width: '28%',
             marginRight: '2%'
         }
         var typeOption = (
-            <select style={tyleStyle} ref="type" className="btn" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select style={typeStyle} ref="type" className="btn" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}
@@ -261,7 +271,8 @@ var PuffPublishFormEmbed = React.createClass({
             width: '70%'
         };
         var privacyOption = (
-            <select style={privacyStyle} ref="privacy" className="btn" defaultValue={privacyDefault}>
+            <select style={privacyStyle} ref="privacy" className="btn" 
+                defaultValue={privacyDefault} onClick={this.handlePickPrivacy}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -371,18 +382,15 @@ var PuffPublishFormEmbed = React.createClass({
             <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> Send as {author}</a>
         );
 
-        var formStyle = {
-            textAlign: 'left'
-        }
         var boxStyle = {
             position: 'relative'
         }
 
         var errorField = "";
-        if (this.state.err) errorField =  <span>{this.state.err}<br /></span>;
+        if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
         return (
-            <div id="replyFormEmbed" style={formStyle}>
+            <div id="replyFormEmbed">
                 <div id="replyFormBox" style={boxStyle}>
                     {sendToField}
                     {typeOption}

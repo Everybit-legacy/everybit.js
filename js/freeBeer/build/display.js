@@ -6,7 +6,12 @@ var ViewKeybindingsMixin = {
         // n shows new puff form
         Mousetrap.bind('n', function() { 
             if (puffworldprops.reply.preview) return false;
-            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+            
+            var menu = puffworlddefaults.menu;
+            menu.show = true;
+            menu.section = 'publish';
+
+            return events.pub('ui/reply/open', {'menu': menu, 'reply': {show: true}});
         }.bind(this));
         
         // r replies to 'selected' puff
@@ -25,6 +30,8 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
+            if (parents.length == 0) 
+                return events.pub('ui/reply/open', {'reply': {parents: parents}});
 
             var menu = puffworlddefaults.menu;
             menu.show = true;

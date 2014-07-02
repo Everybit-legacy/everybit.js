@@ -248,11 +248,13 @@ var PuffPublishFormEmbed = React.createClass({
         var usernames = this.props.reply.usernames || parentUsernames || "";
 
         var sendToSpanStyle = {
+            width: '28%',
             marginRight: '2%',
             display: 'inline-block'
         }
         var sendToInputStyle = {
             display: 'inline-block',
+            width: '70%',
             border: '1px solid #333333',
             marginBottom: '5px'
         }

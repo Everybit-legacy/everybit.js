@@ -58,6 +58,7 @@ var Menu = React.createClass({displayName: 'Menu',
                     ),
 
                 Logo(null ),
+ Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", clusterPropPath:  "clusters.preferences", clusterMenu:"PreferencesMenu", clusterIcon:"fa-gears"} ),
                 React.DOM.br(null ),
                 FilterCluster( {section:"filter"} ),
                 PublishCluster( {section:"publish"} ),
@@ -74,17 +75,16 @@ var Menu = React.createClass({displayName: 'Menu',
 });
 
 
-/*
 
  // NOT YET READY FOR PRIME TIME
- <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
+ // <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
 
- var Cluster = React.createClass({
+ var Cluster = React.createClass({displayName: 'Cluster',
  mixins: [TooltipMixin],
  handleToggleShowMenu: function() {
+ var changed = !puffworldprops.clusters[this.props.clusterName];
  var eventJSON = '{' + this.props.clusterPropPath + ': changed}';
 
- var changed = !puffworldprops.clusters[this.props.clusterName];
  return events.pub(this.props.clusterPath, eventJSON);
  },
 
@@ -98,28 +98,28 @@ var Menu = React.createClass({displayName: 'Menu',
  'rot90': !puffworldprops.clusters[this.props.clusterName]
  });
 
- if(puffworldprops.clusters.preferences) {
+ if(puffworldprops.clusters[this.props.clusterName]) {
  // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+ var clusterMenu = React.DOM.div(null, "Hi");
  } else {
- var clusterMenu = '';
+  var clusterMenu = '';
  }
 
  var menuTitle = 'menu.' + this.props.clusterName + '.title';
 
  return (
- <div>
- <a href="#" onClick={this.handleToggleShowMenu}>
- <div className="menuHeader">
- <i className="fa fa-gears fa-fw gray"></i> {polyglot.t(menuTitle)}
- <span className="floatRight"><i className={setClass}></i></span>
- </div>
- </a>
- <PreferencesMenu />
- </div>
+ React.DOM.div(null, 
+ React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
+ React.DOM.div( {className:"menuHeader"}, 
+ React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}), " ", polyglot.t(menuTitle),
+ React.DOM.span( {className:"floatRight"}, React.DOM.i( {className:setClass}))
+ )
+ ),
+ clusterMenu
+ )
  )
  }
  });
- */
 
 var Logo = React.createClass({displayName: 'Logo',
     render: function() {

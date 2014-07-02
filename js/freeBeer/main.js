@@ -13,7 +13,7 @@ puffworldprops = {
         publish: true,
         view: true,
         identity: true,
-        preferences: false,
+        preferences: true,
         about: false,
         tools: false
 

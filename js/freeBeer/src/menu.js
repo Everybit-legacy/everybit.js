@@ -58,6 +58,7 @@ var Menu = React.createClass({
                     </a>
 
                 <Logo />
+ <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
                 <br />
                 <FilterCluster section='filter' />
                 <PublishCluster section='publish' />
@@ -74,17 +75,16 @@ var Menu = React.createClass({
 });
 
 
-/*
 
  // NOT YET READY FOR PRIME TIME
- <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
+ // <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' clusterPropPath = 'clusters.preferences' clusterMenu='PreferencesMenu' clusterIcon='fa-gears' />
 
  var Cluster = React.createClass({
  mixins: [TooltipMixin],
  handleToggleShowMenu: function() {
- var eventJSON = '{' + this.props.clusterPropPath + ': changed}';
-
  var changed = !puffworldprops.clusters[this.props.clusterName];
+ var eventJSON = { this.props.clusterPropPath : changed };
+
  return events.pub(this.props.clusterPath, eventJSON);
  },
 
@@ -98,10 +98,11 @@ var Menu = React.createClass({
  'rot90': !puffworldprops.clusters[this.props.clusterName]
  });
 
- if(puffworldprops.clusters.preferences) {
+ if(puffworldprops.clusters[this.props.clusterName]) {
  // var clusterMenu = eval('<' + this.props.clusterMenu + ' />');
+ var clusterMenu = <div>Hi</div>;
  } else {
- var clusterMenu = '';
+  var clusterMenu = '';
  }
 
  var menuTitle = 'menu.' + this.props.clusterName + '.title';
@@ -110,16 +111,15 @@ var Menu = React.createClass({
  <div>
  <a href="#" onClick={this.handleToggleShowMenu}>
  <div className="menuHeader">
- <i className="fa fa-gears fa-fw gray"></i> {polyglot.t(menuTitle)}
+ <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i> {polyglot.t(menuTitle)}
  <span className="floatRight"><i className={setClass}></i></span>
  </div>
  </a>
- <PreferencesMenu />
+ {clusterMenu}
  </div>
  )
  }
  });
- */
 
 var Logo = React.createClass({
     render: function() {

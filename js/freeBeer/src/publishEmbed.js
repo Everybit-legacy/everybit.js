@@ -78,9 +78,12 @@ var PuffPublishFormEmbed = React.createClass({
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
 
-
+        var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
+        if(replyPrivacy) {
+            metadata.replyPrivacy = replyPrivacy;
+        }
         
-        var privacy = this.refs.privacy.getDOMNode().value
+        var privacy = this.refs.privacy.getDOMNode().value;
         
         if(privacy == 'public') {
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
@@ -390,6 +393,19 @@ var PuffPublishFormEmbed = React.createClass({
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
+        var replyPrivacyOption = (
+            <div>
+                Reply privacy level: <br />
+                <select ref="replyPrivacy" className="btn"
+            defaultValue={privacyDefault} onClick={this.handlePickReplyPrivacy}>
+                <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
+                <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
+                <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
+                <option key="paranoid" value="paranoid">{polyglot.t("replyForm.pOptions.paranoid")}</option>
+            </select>
+                </div>
+            );
+
         return (
             <div id="replyFormEmbed">
                 <div id="replyFormBox" style={boxStyle}>
@@ -400,6 +416,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {errorField}
                     {previewToggle}
                     {sendButton}
+                    {replyPrivacyOption}
                 </div>
             </div>
         )

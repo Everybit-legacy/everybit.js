@@ -1013,7 +1013,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
                     ),
-                "Or, import from",' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
+                polyglot.t("menu.identity.step.import"),' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
                     React.DOM.option( {value:""}),
                     React.DOM.option( {value:"instagram"}, "Instagram"),
                     React.DOM.option( {value:"reddit"}, "Reddit")
@@ -1081,7 +1081,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 )
             var keyField = (
                 React.DOM.div(null, 
-                    React.DOM.em(null, "Remember to save your keys!"),
+                    React.DOM.em(null, polyglot.t("menu.identity.step.remember")),
                 publicKeyField,
                     React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , polyglot.t("menu.identity.newKey.generate")), " ", polyglot.t("menu.identity.newKey.or"), " ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , polyglot.t("menu.identity.newKey.convert.private"),React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),polyglot.t("menu.identity.newKey.convert.public")),React.DOM.br(null ),
                 privateKeyField
@@ -1094,9 +1094,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
             var mainField = [usernameField, keyField, submitField, ""];
             var stepMessage = [
-                "Select a new username",
-                    "Generate keys for " + this.state.desiredUsername,
-                    "Requested username " + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.select"),
+                    polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
+                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
                 this.state.desiredUsername
             ];
 

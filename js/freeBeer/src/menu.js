@@ -1013,7 +1013,7 @@ var NewIdentity = React.createClass({
                         </select> <em>.</em>{' '}
                         <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
                     </div>
-                Or, import from{' '}<select id="import" ref="import" onChange={this.handleImport}>
+                {polyglot.t("menu.identity.step.import")}{' '}<select id="import" ref="import" onChange={this.handleImport}>
                     <option value=""></option>
                     <option value="instagram">Instagram</option>
                     <option value="reddit">Reddit</option>
@@ -1081,7 +1081,7 @@ var NewIdentity = React.createClass({
                 )
             var keyField = (
                 <div>
-                    <em>Remember to save your keys!</em>
+                    <em>{polyglot.t("menu.identity.step.remember")}</em>
                 {publicKeyField}
                     <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newKey.generate")}</a> {polyglot.t("menu.identity.newKey.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.newKey.convert.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.newKey.convert.public")}</a><br />
                 {privateKeyField}
@@ -1094,9 +1094,9 @@ var NewIdentity = React.createClass({
 
             var mainField = [usernameField, keyField, submitField, ""];
             var stepMessage = [
-                "Select a new username",
-                    "Generate keys for " + this.state.desiredUsername,
-                    "Requested username " + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.select"),
+                    polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
+                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
                 this.state.desiredUsername
             ];
 

@@ -49,6 +49,13 @@ Translate.language["en"].extend({
 			edit: {
 				msg: 'Stored keys for'
 			},
+            step: {
+                select:'Select a new username ',
+                import:'Or, import from ',
+                generate:'Generate keys for ',
+                remember:'Remember to save your keys!',
+                request:'Requested username '
+            },
 			newKey: {
 				msg: 'Desired username',
 				generate: 'Generate',
@@ -185,6 +192,13 @@ Translate.language["zh"].extend({
 			edit: {
 				msg: '已储存的用户密钥'
 			},
+            step: {
+                select:'选择一个新用户名 ',
+                import:'或者，从这里引入 ',
+                generate:'为本用户名生成密匙 ',
+                remember:'记得保存密匙！',
+                request:'申请用户名 '
+            },
 			newKey: {
 				msg: '新用户名',
 				generate: '生成',

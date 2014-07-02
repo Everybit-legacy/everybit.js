@@ -111,7 +111,7 @@ var Cluster = React.createClass({
              clusterMenu = <div><CurrentFilters /><FilterMenu /></div>
              break;
          case "publish":
-             clusterMenu = <PuffPublishFormEmbed reply={puffworldprops.reply} />
+             clusterMenu = puffworldprops.reply.expand ? '' : <PuffPublishFormEmbed reply={puffworldprops.reply} />
              break;
          case "view":
              clusterMenu = <ViewMenu />
@@ -135,7 +135,7 @@ var Cluster = React.createClass({
 
      if(!puffworldprops.clusters[this.props.clusterName]) {
         clusterMenu = '';
-     }   
+     } 
 
      var section = this.props.clusterName;
      var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';

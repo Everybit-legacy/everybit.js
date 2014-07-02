@@ -13,6 +13,7 @@ var PuffPublishFormEmbed = React.createClass({
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
 
+
         var replyForm_el = this.getDOMNode();
         draggableize(replyForm_el);
         
@@ -28,7 +29,7 @@ var PuffPublishFormEmbed = React.createClass({
             content.focus();
         }
 
-        this.handlePickPrivacy();
+        if (this.refs.privacy) this.handlePickPrivacy();
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -208,6 +209,19 @@ var PuffPublishFormEmbed = React.createClass({
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },
+    handleExpand: function() {
+        var expanded = this.props.reply.expand;
+        if (expanded) {
+            return events.pub('ui/publish-menu', {'reply.expand': false,
+                                                  'menu.section': 'publish',
+                                                  'menu.show': true,
+                                                  'clusters.publish': true});
+        } else {
+            return events.pub('ui/publish-expand', {'reply.expand': true,
+                                                    'menu.section': false,
+                                                    'menu.show': false});
+        }
+    },
     handleShowAdvanced: function() {
         this.setState({showAdvanced: !this.state.showAdvanced});
         return false;
@@ -375,11 +389,20 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         var sendStyle = {
-            marginTop: '10px',
+            minWidth: '60%',
+            marginRight: '2%',
             display: 'inline-block'
         };
         var sendButton = (
             <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> Send as {author}</a>
+        );
+
+        var expandStyle = {
+            textAlign: 'right',
+            display: 'inline-block'
+        };
+        var expandButton = (
+            <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>
         );
 
         var boxStyle = {
@@ -433,8 +456,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {privacyOption}<br />
                     {contentField}<br/>
                     {errorField}
-                    {previewToggle}
-                    {sendButton}
+                    <span>{previewToggle}{sendButton}{expandButton}</span>
                     {advancedField}
                 </div>
             </div>

@@ -360,9 +360,8 @@ var PuffWorld = React.createClass({
 
         else view = <PuffTallTree    view={extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
 
-        // var reply = this.props.reply.show ? <PuffPublishFormEmbed reply={this.props.reply} /> : ''
+        var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
         // TODO: Focus the reply box when arrow clicked
-        reply = '';
 
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
             this.props.menu.show = true;
@@ -380,7 +379,7 @@ var PuffWorld = React.createClass({
                 <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}
-                {reply}
+                {replyExpand}
                 <PuffFooter />
             </div>
             )

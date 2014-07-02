@@ -30,6 +30,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();
+        this.setState(puffworldprops.reply.state);
     },
     componentDidUpdate: function() {
         var replyForm_el = this.getDOMNode();
@@ -46,7 +47,8 @@ var PuffPublishFormEmbed = React.createClass({
     },
 
     handlePickPrivacy: function() {
-        if (this.refs.privacy.getDOMNode().value != "public") {
+        var privacy = this.refs.privacy.getDOMNode().value;
+        if (privacy != "public") {
             this.getDOMNode().className = "encrypted";
         } else {
             this.getDOMNode().className = "";
@@ -65,10 +67,12 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // FIXME not working with encrypted puff
-        if (this.refs.privacy.getDOMNode().value == "public")
-            events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
-                                        'view.puff': puff});
-
+        var setProps = {'reply': puffworlddefaults.reply};
+        if (this.refs.privacy.getDOMNode().value == "public") {
+            setProps['view.style'] = 'PuffTallTree';
+            setProps['view.puff'] = puff;
+        }
+        events.pub('ui/submit', setProps);
         // set back to initial state
         this.setState(this.getInitialState());
     },
@@ -210,6 +214,12 @@ var PuffPublishFormEmbed = React.createClass({
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },
     handleExpand: function() {
+        // save current content and state
+        var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
+        puffworldprops.reply.content = content;
+        puffworldprops.reply.state = this.state;
+        
+        // publish events
         var expanded = this.props.reply.expand;
         if (expanded) {
             return events.pub('ui/publish-menu', {'reply.expand': false,
@@ -412,10 +422,11 @@ var PuffPublishFormEmbed = React.createClass({
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
+        var replyPrivacyDefault = this.state.advancedOpt.replyPrivacy || privacyDefault; 
         var replyPrivacyOption = (
             <div>
                 Reply privacy level: <br />
-                <select ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={privacyDefault} onChange={this.handlePickAdvancedOpt}>
+                <select ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={replyPrivacyDefault} onChange={this.handlePickAdvancedOpt}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -423,12 +434,14 @@ var PuffPublishFormEmbed = React.createClass({
             </select>
                 </div>
             );
+        var licenseDefault = this.state.advancedOpt.contentLicense || "";
         var licenseOption = (
-            <div>{polyglot.t("replyForm.format.contentLicense")}:
-                <select className="btn" id="contentLicense" name="contentLicense" ref="contentLicense" onChange={this.handlePickAdvancedOpt}>
-                    <option value="Creative Commons Attribution">Creative Commons Attribution</option>
-                    <option value="GNU Public License">GNU Public License</option>
-                    <option value="Public domain">Public domain</option>
+            <div>
+                {polyglot.t("replyForm.format.contentLicense")}:
+                <select ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                    <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
+                    <option value="GNUPublicLicense">GNU Public License</option>
+                    <option value="Publicdomain">Public domain</option>
                     <option value="Rights-managed">Rights-managed</option>
                     <option value="Royalty-free">Royalty-free</option>
                 </select>

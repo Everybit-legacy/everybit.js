@@ -247,32 +247,23 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
         var puff  = this.props.puff;
         return events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
     },
-    showCount: function() {
-        this.refs.count.getDOMNode().style.display = "inline";
-    },
-    hideCount: function() {
-        this.refs.count.getDOMNode().style.display = "none";
-    },
-    componentDidMount: function() {
-        this.hideCount();
-    },
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (parents.length==0) {
             return (
-                React.DOM.span( {className:"click", onMouseOver:this.showCount, onMouseOut:this.hideCount}, 
-                    React.DOM.span( {className:"click"}, React.DOM.span( {ref:"count"} , "0"),React.DOM.i( {className:"fa fa-male fa-fw"})),
-                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")})
-                )
+                    React.DOM.span(null, 
+                        React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"} , "0"), " " ),
+                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")} )
+                    )
            );
-        } 
+        }
         else {
             return (
-                React.DOM.span( {className:"icon", onMouseOver:this.showCount, onMouseOut:this.hideCount}, 
+                React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        React.DOM.span( {ref:"count"}, parents.length),React.DOM.i( {className:"fa fa-male fa-fw"})
+                        React.DOM.span( {ref:"count droid"}, parents.length, " " )
                     ),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")})
                 )
@@ -380,32 +371,23 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
         return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
         // viewAllChildren(puff)
     },
-    showCount: function() {
-        this.refs.count.getDOMNode().style.display = "inline";
-    },
-    hideCount: function() {
-        this.refs.count.getDOMNode().style.display = "none";
-    },
-    componentDidMount: function() {
-        this.hideCount();
-    },
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (children.length==0) {
             return (
-                React.DOM.span( {className:"click", onMouseOver:this.showCount, onMouseOut:this.hideCount}, 
-                    React.DOM.span( {className:"click"}, React.DOM.span( {ref:"count"}, "0"),React.DOM.i( {className:"fa fa-child fa-fw"})),
+                React.DOM.span(null, 
+                    React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"}, "0"), " " ),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )
             );
         }
         else {
             return (
-                React.DOM.span( {className:"icon", onMouseOver:this.showCount, onMouseOut:this.hideCount}, 
+                React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        React.DOM.span( {ref:"count"}, children.length),React.DOM.i( {className:"fa fa-child fa-fw"})
+                        React.DOM.span( {ref:"count droid"}, children.length, " " )
                     ),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )

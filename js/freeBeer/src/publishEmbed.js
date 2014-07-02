@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
         return {imageSrc: '', showPreview: false, err: false};

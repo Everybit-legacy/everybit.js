@@ -645,7 +645,7 @@ fieldset[disabled] .btn-link {
     border-bottom: 1px solid #333333;
     text-transform: uppercase;
     display: block;
-    padding-top: .7em;
+    padding-top: .0;
     padding-bottom: 0;
     margin: 0;
     color: #000000;
@@ -715,6 +715,10 @@ fieldset[disabled] .btn-link {
     font-family: DroidSansMono;
     font-size: 80%;
     vertical-align: baseline;
+}
+
+.droid {
+    font-family: DroidSansMono;
 }
 
 .linkTab {

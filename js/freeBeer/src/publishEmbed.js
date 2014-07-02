@@ -37,7 +37,6 @@ var PuffPublishFormEmbed = React.createClass({
     componentWillUnmount: function() {
         // remove silly global
         globalReplyFormSubmitArg = null;
-        puffworldprops.reply.preview = false;
     },
 
     handlePickPrivacy: function() {
@@ -48,6 +47,20 @@ var PuffPublishFormEmbed = React.createClass({
         }
     },
 
+    handleSubmitSuccess: function(puff) {
+        // clear the content, set back to initial state
+        puffworldprops.reply.content = false;
+        if (this.refs.content) this.refs.content.getDOMNode().value = '';
+        this.setState(this.getInitialState());
+
+        // go to the puff
+        // problem: not working with encrypted puff
+        events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 
+                                    'view.puff': puff, 
+                                    'menu.show': false, 
+                                    'menu.section': false,
+                                    'reply.show': false});
+    },
     handleSubmit: function() {
         var self = this;
         var content = '';
@@ -62,7 +75,7 @@ var PuffPublishFormEmbed = React.createClass({
             content = this.state.imageSrc;
             metadata.license = this.refs.imageLicense.getDOMNode().value;
         } else {
-            content = this.refs.content.getDOMNode().value.trim();
+            content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
         }
         
         if(type == 'PGN') {
@@ -83,19 +96,13 @@ var PuffPublishFormEmbed = React.createClass({
         
         if(privacy == 'public') {
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
-            post_prom.then(function() {
-                puffworldprops.reply.content = false;
-                if (self.refs.content) self.refs.content.getDOMNode().value = '';
-                self.setState({err: false});
-            })      .catch(function(err) {
-                self.setState({err: err.message});
-            })
+            post_prom
+                .then(self.handleSubmitSuccess.bind(self))
+                .catch(function(err) {
+                    self.setState({err: err.message});
+                })
             return false;
         } 
-        
-        
-        // ok. we're definitely sending an encrypted message now.
-        
         
         
         // TODO: always get the user records before you send this out
@@ -154,11 +161,7 @@ var PuffPublishFormEmbed = React.createClass({
             }
 
             var post_prom = PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
-            post_prom.then(function() {
-                puffworldprops.reply.content = "";
-                self.refs.content.getDOMNode().value = '';
-                self.setState({err: false});
-            })
+            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom;
         }) .catch(function(err) {
             self.setState({err: err.message});
@@ -189,7 +192,6 @@ var PuffPublishFormEmbed = React.createClass({
         return events.pub('ui/reply/set-type', {'reply.type': type});
     },
     handleTogglePreview: function() {
-        puffworldprops.reply.preview = !this.state.showPreview;
         this.setState({showPreview: !this.state.showPreview});
     },
     handleChangeUsernames: function() {
@@ -261,7 +263,7 @@ var PuffPublishFormEmbed = React.createClass({
             marginRight: '2%'
         }
         var typeOption = (
-            <select style={typeStyle} ref="type" className="btn" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select style={typeStyle} ref="type" className="btn" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}
@@ -272,7 +274,7 @@ var PuffPublishFormEmbed = React.createClass({
         };
         var privacyOption = (
             <select style={privacyStyle} ref="privacy" className="btn" 
-                defaultValue={privacyDefault} onClick={this.handlePickPrivacy}>
+                defaultValue={privacyDefault} onChange={this.handlePickPrivacy}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>

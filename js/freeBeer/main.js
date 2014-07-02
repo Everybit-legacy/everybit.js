@@ -55,7 +55,7 @@ puffworldprops = {
     reply: {
         parents: [],
         show: false,
-        preview: false,
+        // preview: false,
         content: false,
         type: 'text'
     },

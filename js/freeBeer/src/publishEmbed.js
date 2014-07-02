@@ -67,12 +67,13 @@ var PuffPublishFormEmbed = React.createClass({
 
         // go to the puff
         // FIXME not working with encrypted puff
-        var setProps = {'reply': puffworlddefaults.reply};
+        events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+        console.log("privacy", this.refs.privacy.getDOMNode().value);
         if (this.refs.privacy.getDOMNode().value == "public") {
-            setProps['view.style'] = 'PuffTallTree';
-            setProps['view.puff'] = puff;
+            events.pub('ui/view-puff', {'view.style': 'PuffTallTree',
+                                        'view.puff': puff});
         }
-        events.pub('ui/submit', setProps);
+
         // set back to initial state
         this.setState(this.getInitialState());
     },

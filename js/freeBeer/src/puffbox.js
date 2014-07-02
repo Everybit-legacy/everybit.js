@@ -127,11 +127,11 @@ var PuffBar = React.createClass({
                 </div>
             );
         }
-
+        // <PuffTipLink username={puff.username} />
         return (
             <div className={className}>
                 <PuffFlagLink sig={puff.sig} />
-                <PuffTipLink username={puff.username} />
+
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />

@@ -127,11 +127,11 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 )
             );
         }
-
+        // <PuffTipLink username={puff.username} />
         return (
             React.DOM.div( {className:className}, 
                 PuffFlagLink( {sig:puff.sig} ),
-                PuffTipLink( {username:puff.username} ),
+
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),

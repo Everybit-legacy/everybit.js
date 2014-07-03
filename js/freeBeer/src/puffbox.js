@@ -127,11 +127,11 @@ var PuffBar = React.createClass({
                 </div>
             );
         }
-        // <PuffTipLink username={puff.username} />
+        //
         return (
             <div className={className}>
                 <PuffFlagLink sig={puff.sig} />
-
+                <PuffTipLink username={puff.username} />
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
@@ -393,18 +393,16 @@ var TipButton = React.createClass({
             console.log(btcAddy);
 
             btcAddy = btcAddy.getAddress().toString();
-            this.setState({btcAddy: btcAddy});
+            self.setState({btcAddy: btcAddy});
 
             console.log("HI");
 
             var akShort = btcAddy.substr(0,5)+'...';
-            this.setState({akShort: akShort});
+            self.setState({akShort: akShort});
 
 
 
             events.pub('ui/tipbutton/userlookup', {});
-
-
 
             return false;
         })
@@ -420,18 +418,16 @@ var TipButton = React.createClass({
     },
 
     render: function() {
-
-
-        return (
-                <div>
-                    <i className="fa fa-bitcoin fa-fw"></i>
-                    <a href={"wallet:" + this.state.btcAddy}>
-                    {this.state.akShort}
-                    </a>
-                </div>
+        if(this.state.btcAddy)
+            return (
+                    <div>
+                        Tip in BTC:  <i className="fa fa-bitcoin fa-fw"></i><a href={"wallet:" + this.state.btcAddy}>
+                        {this.state.akShort}
+                        </a>
+                    </div>
             )
 
-
+        return <i className="fa fa-fw fa-spinner"></i>
     }
 
 });

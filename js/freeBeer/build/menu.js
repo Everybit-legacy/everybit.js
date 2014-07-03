@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+   
 var Tooltip = React.createClass({displayName: 'Tooltip',
     render: function() {
         var className = "menuTooltip";

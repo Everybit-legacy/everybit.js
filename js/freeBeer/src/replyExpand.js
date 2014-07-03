@@ -12,4 +12,4 @@ var PuffPublishFormExpand = React.createClass({
             </div>
         )
     }
-})
+});

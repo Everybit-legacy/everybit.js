@@ -975,10 +975,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         if (this.state.step == 0) {
             // set the desired username
             var username = "";
-            if (!this.props.importUsername) {
+            if (!this.state.importInfo.username) {
                 username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
             } else {
-                username = this.props.importUsername;
+                username = this.state.importInfo.username;
             }
             // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
@@ -1031,18 +1031,22 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
-            if (params['requestedUsername']) {
+            if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
                 this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase();
                 var importInfo = {
+                    username: this.props.importUsername,
                     token  : params['token'],
                     id     : params['requestedUserId'],
                     network: params['network']
                 };
                 this.setState({'importInfo': importInfo});
+                setViewPropsInURL();
+            }
+            if (Object.keys(this.state.importInfo).length != 0) {
                 showNext = true;
                 usernameField = (
                     React.DOM.div(null, 
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Imported Username")),' ',React.DOM.span(null, this.props.importUsername),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"Cancel"})
+                        React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Imported Username")),' ',React.DOM.span(null, this.state.importInfo.username),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"Cancel"})
                     ));
             }
 
@@ -1227,6 +1231,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         // import
         var importInfo = this.state.importInfo;
+        console.log(importInfo);
         if (Object.keys(importInfo).length != 0) {
             payload.importNetwork = importInfo.network;
             payload.importToken = importInfo.token;

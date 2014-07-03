@@ -975,10 +975,10 @@ var NewIdentity = React.createClass({
         if (this.state.step == 0) {
             // set the desired username
             var username = "";
-            if (!this.props.importUsername) {
+            if (!this.state.importInfo.username) {
                 username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
             } else {
-                username = this.props.importUsername;
+                username = this.state.importInfo.username;
             }
             // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
@@ -1031,18 +1031,22 @@ var NewIdentity = React.createClass({
 
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
-            if (params['requestedUsername']) {
+            if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
                 this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase();
                 var importInfo = {
+                    username: this.props.importUsername,
                     token  : params['token'],
                     id     : params['requestedUserId'],
                     network: params['network']
                 };
                 this.setState({'importInfo': importInfo});
+                setViewPropsInURL();
+            }
+            if (Object.keys(this.state.importInfo).length != 0) {
                 showNext = true;
                 usernameField = (
                     <div>
-                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.props.importUsername}</span>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
+                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.state.importInfo.username}</span>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
                     </div>);
             }
 
@@ -1227,6 +1231,7 @@ var NewIdentity = React.createClass({
 
         // import
         var importInfo = this.state.importInfo;
+        console.log(importInfo);
         if (Object.keys(importInfo).length != 0) {
             payload.importNetwork = importInfo.network;
             payload.importToken = importInfo.token;

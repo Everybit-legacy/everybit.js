@@ -11,8 +11,7 @@ UsernameImport.instagram.requestAuthentication = function() {
 UsernameImport.instagram.importContent = function(username, userid, access_token) {
 	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/";
 
-	var result = xhr.responseText;
-	var prom = PuffNext.getJSON(url, {access_token: access_token})
+	var prom = PuffNext.getJSON(url, {access_token: access_token, count: 100})
 	prom.then(function(result){
 		if (result.meta.code == 200) {
 			var data = result.data;

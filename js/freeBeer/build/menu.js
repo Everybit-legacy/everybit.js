@@ -1262,6 +1262,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             function(err) {
                 console.log("ERR")
                 self.setState({step: 3,
+                    enableContentImport: true,
                     usernameMessage: err.toString()});
                 events.pub('ui/event', {});
             });

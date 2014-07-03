@@ -413,7 +413,8 @@ var PuffPublishFormEmbed = React.createClass({
 
         var expandStyle = {
             position: 'relative',
-            top: '-2em'
+            top: '-2em',
+            float: 'right'
         };
         var expandButton = (
             <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>
@@ -473,7 +474,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {privacyOption}<br />
                     {contentField}<br/>
                     {errorField}
-                    <span>{previewToggle}{sendButton}{expandButton}</span>
+                    {expandButton}{previewToggle}{sendButton}
                     {advancedField}
                 </div>
             </div>

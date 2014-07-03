@@ -943,6 +943,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             keys: {},
             desiredUsername: '',
             importInfo: {},
+            enableContentImport: false,
             usernameAvailable: 'unknown',
             usernameMessage: '',
             newUsername: ''
@@ -961,10 +962,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
     handleContentImport: function() {
         var network = this.state.importInfo.network;
-        var prom = UsernameImport[network].importContent(this.state.requestedUsername, this.state.importInfo.id, this.state.importInfo.id);
+        var prom = UsernameImport[network].importContent(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.id);
         prom.then(function() {
             console.log('import finished');
             this.props.importUsername = "";
+            this.setState({enableContentImport: false});
+        })  .catch(function(err) {
+            this.setState({usernameMessage: err.message})
         });
     },
     handleBack: function() {
@@ -1109,10 +1113,12 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 React.DOM.a( {href:"#", className:"floatRight steps", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.newKey.submit"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 );
 
-            var importContentField = (
-                React.DOM.a( {href:"#", onClick:this.handleContentImport}, "Import Content")
-            );
-            if (Object.keys(this.state.importInfo).length == 0) importContentField = "";
+            var importContentField = "";
+            if (this.state.enableContentImport) {
+                importContentField = (
+                    React.DOM.a( {href:"#", onClick:this.handleContentImport}, "Import Content")
+                );
+            }
 
             var mainField = [usernameField, keyField, submitField, importContentField];
             var stepMessage = [
@@ -1247,6 +1253,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
+                    enableContentImport: true,
                     usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user

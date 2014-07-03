@@ -18,11 +18,19 @@ UsernameImport.instagram.importContent = function(username, userid, access_token
 			for (var i=0; i<data.length; i++) {
 				var entry = data[i];
 				if (entry.type != 'image') continue;
-				var img = {
-					created_time: entry['created_time'],
-					image_url: entry.images['standard_resolution']['url']
+
+				var img_el = document.createElement("img");
+				img_el.setAttribute('src', entry.images['standard_resolution']['url']);
+				img_el.setAttribute('width', entry.images['standard_resolution']['width']);
+				img_el.setAttribute('height', entry.images['standard_resolution']['height'])
+				var img = getBase64Image(img_el);
+
+				var metadata = {
+					time: entry.created_time * 1000,
+					tags: entry.tags,
+					title: entry.caption.text
 				}
-				var post_prom = PuffForum.addPost('image', image_url);
+				var post_prom = PuffForum.addPost('image', image_url, [], metadata);
 				post_prom.then(function(puff){
 					console.log(puff.sig);
 				})

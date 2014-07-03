@@ -970,6 +970,9 @@ var NewIdentity = React.createClass({
             this.setState({usernameMessage: err.message})
         });
     },
+    handleCancelImport: function() {
+        this.setState({desiredUsername: '', importInfo: {}})
+    },
     handleBack: function() {
         this.state.keys = {};
         this.setState({step: (this.state.step+3)%4,
@@ -1050,7 +1053,7 @@ var NewIdentity = React.createClass({
                 showNext = true;
                 usernameField = (
                     <div>
-                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.state.importInfo.username}</span>{' '}<input className="btn-link" type="button" onClick={this.handleAskForImport} value="Cancel"/>
+                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.state.importInfo.username}</span>{' '}<input className="btn-link" type="button" onClick={this.handleCancelImport} value="Cancel"/>
                     </div>);
             }
 

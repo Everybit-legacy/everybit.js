@@ -970,6 +970,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             this.setState({usernameMessage: err.message})
         });
     },
+    handleCancelImport: function() {
+        this.setState({desiredUsername: '', importInfo: {}})
+    },
     handleBack: function() {
         this.state.keys = {};
         this.setState({step: (this.state.step+3)%4,
@@ -1050,7 +1053,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 showNext = true;
                 usernameField = (
                     React.DOM.div(null, 
-                        React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Imported Username")),' ',React.DOM.span(null, this.state.importInfo.username),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleAskForImport, value:"Cancel"})
+                        React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Imported Username")),' ',React.DOM.span(null, this.state.importInfo.username),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleCancelImport, value:"Cancel"})
                     ));
             }
 

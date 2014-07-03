@@ -412,8 +412,8 @@ var PuffPublishFormEmbed = React.createClass({
         );
 
         var expandStyle = {
-            textAlign: 'right',
-            display: 'inline-block'
+            position: 'relative',
+            top: '-2em'
         };
         var expandButton = (
             <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>

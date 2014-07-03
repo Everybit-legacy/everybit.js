@@ -941,6 +941,7 @@ var NewIdentity = React.createClass({
             step: 0,
             keys: {},
             desiredUsername: '',
+            importInfo: {},
             usernameAvailable: 'unknown',
             usernameMessage: '',
             newUsername: ''
@@ -956,6 +957,14 @@ var NewIdentity = React.createClass({
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
         UsernameImport[network].requestAuthentication();
+    },
+    handleContentImport: function() {
+        var network = this.state.importInfo.network;
+        var prom = UsernameImport[network].importContent(this.state.requestedUsername, this.state.importInfo.id, this.state.importInfo.id);
+        prom.then(function() {
+            console.log('import finished');
+            this.props.importUsername = "";
+        });
     },
     handleBack: function() {
         this.state.keys = {};
@@ -1023,10 +1032,13 @@ var NewIdentity = React.createClass({
             // check if there is requestedUsername parameter
             var params = getQuerystringObject();
             if (params['requestedUsername']) {
-                this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
-                this.props.importToken = params['token'];
-                this.props.importId = params['requestedUserId'];
-                this.props.importNetwork = params['network'];
+                this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase();
+                var importInfo = {
+                    token  : params['token'],
+                    id     : params['requestedUserId'],
+                    network: params['network']
+                };
+                this.setState({'importInfo': importInfo});
                 showNext = true;
                 usernameField = (
                     <div>
@@ -1034,7 +1046,6 @@ var NewIdentity = React.createClass({
                     </div>);
             }
 
-            // are we allowing input public keys?
             var publicKeyField= (
                 <div>
                     <div className="menuHeader"><i className="fa fa-unlock-alt"></i> {polyglot.t("menu.identity.public")}</div>
@@ -1093,7 +1104,12 @@ var NewIdentity = React.createClass({
                 <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 );
 
-            var mainField = [usernameField, keyField, submitField, ""];
+            var importContentField = (
+                <a href="#" onClick={this.handleContentImport}>Import Content</a>
+            );
+            if (Object.keys(this.state.importInfo).length == 0) importContentField = "";
+
+            var mainField = [usernameField, keyField, submitField, importContentField];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
                     polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
@@ -1199,8 +1215,28 @@ var NewIdentity = React.createClass({
 
         var self = this;
 
+        var payload = {
+            requestedUsername: requestedUsername,
+            rootKey: rootKeyPublic,
+            adminKey: adminKeyPublic,
+            defaultKey: defaultKeyPublic
+        };
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'requestUsername';
+
+        // import
+        var importInfo = this.state.importInfo;
+        if (Object.keys(importInfo).length != 0) {
+            payload.importNetwork = importInfo.network;
+            payload.importToken = importInfo.token;
+            payload.importId = importInfo.id;
+        }
+
+        var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
+
         // SUBMIT REQUEST
-        var prom = PuffNet.registerSubuser(prefix, CONFIG.users[prefix].adminKey, requestedUsername, rootKeyPublic, adminKeyPublic, defaultKeyPublic);
+        var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
@@ -1209,9 +1245,7 @@ var NewIdentity = React.createClass({
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);
-
                 events.pub('ui/event', {});
-
             },
             function(err) {
                 console.log("ERR")
@@ -1219,7 +1253,6 @@ var NewIdentity = React.createClass({
                     usernameMessage: err.toString()});
                 events.pub('ui/event', {});
             });
-
         return false;
     },
 

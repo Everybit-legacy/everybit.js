@@ -292,12 +292,13 @@ var PuffPublishFormEmbed = React.createClass({
         var sendToInputStyle = {
             display: 'inline-block',
             width: '70%',
-            border: '1px solid #333333',
+            border: 'none',
+            textAlign: 'left',
             marginBottom: '5px'
         }
         var sendToField = (
             <div>
-                <span style={sendToSpanStyle}>Send to: </span><input style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>
+                <span style={sendToSpanStyle}>Send to: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>
             </div>
         );
 
@@ -306,7 +307,7 @@ var PuffPublishFormEmbed = React.createClass({
             marginRight: '2%'
         }
         var typeOption = (
-            <select style={typeStyle} ref="type" className="btn" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select className="btn" style={typeStyle} ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}

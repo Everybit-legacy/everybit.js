@@ -106,7 +106,7 @@ var ViewKeybindingsMixin = {
             if(puffworldprops.menu.show)
                 return events.pub('ui/menu/close', {'menu.show': false})
 
-            if(puffworldprops.reply.show)
+            if(puffworldprops.reply.expand)
                 return events.pub('ui/menu/close', {'reply': {show: false, parents: []}})
 
             if(puffworldprops.view.cursor) {

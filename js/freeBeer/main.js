@@ -208,15 +208,16 @@ function draggableize(el) {
 }
 
 
-//// props and urls and pushstate oh my
+
+//// props and urls and pushstate oh my ////
 
 function setViewPropsInURL() {
-    var props = PB.shallow_copy(puffworldprops.view)
-    if(props.puff)
-        props.puff = props.puff.sig
+    var viewprops = PB.shallow_copy(puffworldprops.view)
+    if(viewprops.puff)
+        viewprops.puff = viewprops.puff.sig
     else
-        delete props.puff
-    setURL(props)
+        delete viewprops.puff
+    setURL(viewprops)
 }
 
 function setURL(state, path) {

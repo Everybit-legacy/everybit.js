@@ -1113,7 +1113,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var importContentField = "";
             if (this.state.enableContentImport) {
                 importContentField = (
-                    React.DOM.a( {href:"#", onClick:this.handleContentImport}, "Import Content")
+                    React.DOM.span( {id:"importContent"}, React.DOM.a( {href:"#", onClick:this.handleContentImport}, "Import Content"))
                 );
             }
 
@@ -1259,7 +1259,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             function(err) {
                 console.log("ERR")
                 self.setState({step: 3,
-                    enableContentImport: (importInfo.network == "instagram"),
+                    enableContentImport: importInfo.network == "instagram",
                     usernameMessage: err.toString()});
                 events.pub('ui/event', {});
             });

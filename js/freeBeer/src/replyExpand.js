@@ -2,6 +2,11 @@
 
 
 var PuffPublishFormExpand = React.createClass({
+    componentDidMount: function(){
+        var el = this.getDOMNode();
+        draggableize(el);
+
+    },
     render: function() {
         if (!puffworldprops.reply.expand) {
             return <span></span>

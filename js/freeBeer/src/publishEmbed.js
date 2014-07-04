@@ -9,37 +9,27 @@ var PuffPublishFormEmbed = React.createClass({
                 showAdvanced: false,
                 advancedOpt : {}};
     },
+    preventDragText: function() {
+        if (this.refs.content) {
+            var content = this.refs.content.getDOMNode();
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
+    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
-
-
-        var replyForm_el = this.getDOMNode();
-        draggableize(replyForm_el);
         
         if(this.refs.content) {
-            var content_el = this.refs.content.getDOMNode();
-            // if(content_el.focus)
-                // content_el.focus();
-        }
-
-        var content = document.getElementById("content");
-        if (content) {
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-            content.focus();
+            var content = this.refs.content.getDOMNode();
+            if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();
         this.setState(puffworldprops.reply.state);
+        this.preventDragText();
     },
     componentDidUpdate: function() {
-        var replyForm_el = this.getDOMNode();
-        draggableize(replyForm_el);
-
-        var content = document.getElementById("content");
-        if (content) {
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-        }
+        this.preventDragText();
     },
     componentWillUnmount: function() {
         // remove silly global

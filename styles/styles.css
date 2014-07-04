@@ -955,41 +955,47 @@ a.footerText {
      to   { opacity: 1; }
 }​
 
-
+/* not in use
 @keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
 }
+*/
 
 /* Firefox */
+/* not in use
 @-moz-keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
-}
+}*/
 
 /* Safari and Chrome */
+/* not in use
 @-webkit-keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
-}
+}*/
 
 /* Opera */
+/* not in use
 @-o-keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
-}
+}*/
 
 /* Internet Explorer */
+/* not in use
 @-ms-keyframes fadeout {
     from { opacity: 1; }
     to   { opacity: 0; }
-}
+} */
 
-
+/* not in use
 @-webkit-keyframes slidein {
     from { left: -360px; }
     to { left: 60px; }
-}
+} */
+
 @-moz-keyframes slidein {
     from { left: -360px; }
     to { left: 60px; }

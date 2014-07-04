@@ -168,7 +168,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
     //// we have empty slots on screen. fill them with puffs.
     
     var offset = 0
-    var params = events.shallow_copy(props)
+    var params = PB.shallow_copy(props)
     var giveup = 5000
     
     if(PuffData.slotLock) return false

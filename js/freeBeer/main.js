@@ -113,7 +113,7 @@ events.sub('ui/*', function(data, path) {
         if(Array.isArray(data))
             puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
         else
-            events.update_puffworldprops(data)
+            PB.update_puffworldprops(data)
 
     // set the props in the url and history
     setViewPropsInURL()
@@ -123,38 +123,34 @@ events.sub('ui/*', function(data, path) {
     updateUI()
 })
 
-/// move these into their own lib
-events.update_puffworldprops = function(data) {
-    puffworldprops = events.handle_merge_array(puffworldprops, data)
+
+
+
+
+
+// TODO: move these somewhere nicer
+
+formatForDisplay = function(obj, style) {
+    if(style == 'formatted') {
+        return JSON.stringify(obj, null, 2)
+            .replace(/[{}",\[\]]/g, '')
+            .replace(/^\n/, '')
+            .replace(/\n$/, '');
+    }
+
+    // style is raw
+    return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
-events.handle_merge_array = function(props, data) {
-    return Object.keys(data).reduce(function(props, key) {
-        return events.merge_props(props, key, data[key])
-    }, props)
+humanizeUsernames = function(username) {
+    if(/^[A-Za-z0-9]{32}$/.test(username))
+        return username.slice(0, 7) + '...'
+    return username
 }
 
-events.merge_props = function(props, path, value) {
-    var segs = path.split('.')
-    var last = segs.pop()
-    var final = next = events.shallow_copy(props)
-
-    segs.forEach(function(seg) {
-        next[seg] = events.shallow_copy(next[seg])
-        next = next[seg]
-    })
-
-    next[last] = value
-    return final
+reduceUsernameToAlphanumeric = function(username) {
+    return username.split(/[^A-Za-z0-9]/).join('');
 }
-
-events.shallow_copy = function(obj) {
-    return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
-}
-
-
-
-
 
 
 
@@ -179,22 +175,6 @@ events.shallow_copy = function(obj) {
 
 
 
-
-
-
-
-
-
-///////////// display-related helper functions or something like that ///////////////////
-
-
-
-function arrowToDir(char) {
-    if(char == 37) return 'left'
-    if(char == 38) return 'up'
-    if(char == 39) return 'right'
-    if(char == 40) return 'down'
-}
 
 function draggableize(el) {
     // modified from http://jsfiddle.net/tovic/Xcb8d/light/
@@ -228,37 +208,10 @@ function draggableize(el) {
 }
 
 
-
-function showPuff(sig) {
-    //// show a puff and do other stuff
-
-    if(!sig)
-        return false
-
-    var puff = PuffForum.getPuffBySig(sig)                           // get it?
-
-    if(puff)
-        return showPuffDirectly(puff)                               // got it.
-
-    var prom = PuffData.pending[sig]                                // say what?
-    if(!prom)
-        return Puffball.onError('Bad sig in pushstate')
-
-    prom.then(function(puffs) {                                     // okay got it.
-        showPuffDirectly(puffs[0])
-    })
-
-}
-
-function showPuffDirectly(puff) {
-    //// show a puff with no checks or balances
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
 //// props and urls and pushstate oh my
 
 function setViewPropsInURL() {
-    var props = events.shallow_copy(puffworldprops.view)
+    var props = PB.shallow_copy(puffworldprops.view)
     if(props.puff)
         props.puff = props.puff.sig
     else
@@ -290,8 +243,6 @@ function setURL(state, path) {
     // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))      // equiv up to cursor?
     //     return false
 
-
-
     history.pushState(state, path || '', url)
 }
 
@@ -320,7 +271,7 @@ function setViewPropsFromPushstate(pushstate) {
         pushstate.puff = PuffForum.getPuffBySig(sig)
 
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
-    events.update_puffworldprops(props)
+    PB.update_puffworldprops(props)
 
     if(!sig || props['view.puff']) { // we've got it
         return updateUI()
@@ -334,7 +285,7 @@ function setViewPropsFromPushstate(pushstate) {
     // now we have it
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
-        events.update_puffworldprops(props)
+        PB.update_puffworldprops(props)
         updateUI()
     })
 }
@@ -349,23 +300,34 @@ function getQuerystringObject() {
 
 
 
-extend = function() {
-    var newobj = {}
-    Array.prototype.slice.call(arguments).forEach(function(arg) {
-        for(var prop in arg) {
-            newobj[prop] = arg[prop] } })
-    return newobj
+
+
+
+
+function showPuff(sig) {
+    //// show a puff and do other stuff
+
+    if(!sig)
+        return false
+
+    var puff = PuffForum.getPuffBySig(sig)                          // get it?
+
+    if(puff)
+        return showPuffDirectly(puff)                               // got it.
+
+    var prom = PuffData.pending[sig]                                // say what?
+    if(!prom)
+        return Puffball.onError('Bad sig in pushstate')
+
+    prom.then(function(puffs) {                                     // okay got it.
+        showPuffDirectly(puffs[0])
+    })
+
 }
 
-
-humanizeUsernames = function(username) {
-    if(/^[A-Za-z0-9]{32}$/.test(username))
-        return username.slice(0, 7) + '...'
-    return username
-}
-
-reduceUsernameToAlphanumeric = function(username) {
-    return username.split(/[^A-Za-z0-9]/).join('');
+function showPuffDirectly(puff) {
+    //// show a puff with no checks or balances
+    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
 }
 
 
@@ -378,21 +340,6 @@ function renderPuffWorld() {
     puffworldprops.profile = PuffWardrobe.getAllProfileItems()
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
-}
-
-
-
-// TODO: move this somewhere nicer
-function formatForDisplay(obj, style) {
-    if(style == 'formatted') {
-        return JSON.stringify(obj, null, 2)
-            .replace(/[{}",\[\]]/g, '')
-            .replace(/^\n/, '')
-            .replace(/\n$/, '');
-    }
-
-    // style is raw
-    return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
 

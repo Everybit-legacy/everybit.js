@@ -11,9 +11,9 @@ var ViewKeybindingsMixin = {
             menu.show = true;
             menu.section = 'publish';
 
-            return events.pub('ui/reply/open', {'clusters.publish': true,
-                                                'menu': menu, 
-                                                'reply': {show: true}});
+            return events.pub('ui/reply/open', { 'clusters.publish': true
+                                               , 'menu': menu
+                                               , 'reply': {show: true} });
         }.bind(this));
         
         // r replies to 'selected' puff
@@ -33,7 +33,7 @@ var ViewKeybindingsMixin = {
                 parents.splice(index, 1)
             }
             if (parents.length == 0) 
-                return events.pub('ui/reply/open', {'reply': {parents: parents}});
+                return events.pub('ui/reply/open', { 'reply': {parents: parents} });
 
             var menu = puffworlddefaults.menu;
             if (!puffworldprops.reply.expand) {
@@ -41,22 +41,21 @@ var ViewKeybindingsMixin = {
                 menu.section = 'publish';
             }
 
-            return events.pub('ui/reply/open', {'clusters.publish': true,
-                                                'menu': menu, 
-                                                'reply': {show: true, parents: parents}
-                                                });
+            return events.pub('ui/reply/open', { 'clusters.publish': true
+                                               , 'menu': menu
+                                               , 'reply': {show: true, parents: parents} });
         }.bind(this));
 
         // a toggles animation
         Mousetrap.bind('a', function() {
             return events.pub( 'ui/animation/toggle',
-                             { 'view.animation': !this.props.view.animation})
+                             { 'view.animation': !this.props.view.animation })
         }.bind(this));
         
         // i toggles info boxes
         Mousetrap.bind('i', function() { 
             return events.pub( 'ui/view/showinfo/toggle', 
-                             { 'view.showinfo': !this.props.view.showinfo})
+                             { 'view.showinfo': !this.props.view.showinfo })
         }.bind(this));
 
         // m toggles menu show
@@ -64,14 +63,17 @@ var ViewKeybindingsMixin = {
             if(puffworldprops.menu.show) {
                 return events.pub('ui/menu/close', {'menu.show': false})
             } else {
-                return events.pub('ui/menu/open', {'menu.show': true})
+                return events.pub('ui/menu/open',  {'menu.show': true})
             }
 
         }.bind(this));
 
         // l shows latest puffs
         Mousetrap.bind('l', function() {
-            return events.pub('ui/show/latest', {'view.style': 'PuffLatest', 'view.puff': false, 'menu': puffworlddefaults.menu, 'view.user': ''});
+            return events.pub('ui/show/latest', { 'view.style': 'PuffLatest'
+                                                , 'view.puff': false
+                                                , 'menu': puffworlddefaults.menu
+                                                , 'view.user': ''});
         }.bind(this));
 
 
@@ -149,6 +151,11 @@ var ViewKeybindingsMixin = {
 var CursorBindingsMixin = {
     componentDidMount: function() {
         
+        var arrowToDir = { 37: 'left'
+                         , 38: 'up'
+                         , 39: 'right'
+                         , 40: 'down' }
+        
         // arrows move the selection cursor
         // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
@@ -160,7 +167,7 @@ var CursorBindingsMixin = {
             // current = document.getElementById(current);
             // var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
 
-            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir(e.which))
+            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
             
             if (next)
                 events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
@@ -199,7 +206,7 @@ var CursorBindingsMixin = {
         var newCursor = (defaultPuff||puffs[0]||{}).sig
         
         if(newCursor) {    // do this manually so auto-cursoring doesn't gum up history
-            events.update_puffworldprops({'view.cursor': newCursor})
+            PB.update_puffworldprops({'view.cursor': newCursor})
             updateUI()
         }
     }
@@ -260,7 +267,7 @@ var GridLayoutMixin = {
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
             return function(puff) {
-                return extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
+                return PB.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
                                              {puff: puff, className: className}) } } 
     },
     getPuffBoxList: function(puffs) {
@@ -321,6 +328,7 @@ var GridLayoutMixin = {
     }
 };
 
+
 // MAIN VIEWS
 var PuffWorld = React.createClass({
     render: function() {
@@ -358,9 +366,9 @@ var PuffWorld = React.createClass({
             view  = <PuffLatest      view={viewprops} reply={this.props.reply} />
 
         else if( viewprops.style == 'PuffPacker' )
-            view  = <PuffPacker         tools={this.props.tools} />
+            view  = <PuffPacker      tools={this.props.tools} />
 
-        else view = <PuffTallTree    view={extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
+        else view = <PuffTallTree    view={PB.extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
 
         var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
         // TODO: Focus the reply box when arrow clicked
@@ -446,6 +454,18 @@ var PuffLatest = React.createClass({
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         // var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
+        var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
+        this.cursorPower(puffs)
+        return this.standardGridify(puffs);
+    }
+});
+
+var PuffList = React.createClass({
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    render: function() {
+        var dimensions = this.getDimensions();
+        var limit = dimensions.cols * dimensions.rows;
+        var filters = this.props.filters
         var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
         this.cursorPower(puffs)
         return this.standardGridify(puffs);

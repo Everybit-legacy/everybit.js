@@ -421,7 +421,7 @@ var TipButton = React.createClass({
         if(this.state.btcAddy)
             return (
                     <div className="tip">
-                        Tip user: <a href={"wallet:" + this.state.btcAddy}><i className="fa fa-bitcoin fa-fw"></i></a>
+                        Tip user: <a href={"bitcoin:" + this.state.btcAddy}><i className="fa fa-bitcoin fa-fw"></i></a>
                     </div>
             )
 

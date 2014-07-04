@@ -15,7 +15,7 @@ var PuffPublishFormEmbed = React.createClass({
 
 
         var replyForm_el = this.getDOMNode();
-        draggableize(replyForm_el);
+        // draggableize(replyForm_el);
         
         if(this.refs.content) {
             var content_el = this.refs.content.getDOMNode();
@@ -26,7 +26,7 @@ var PuffPublishFormEmbed = React.createClass({
         var content = document.getElementById("content");
         if (content) {
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-            content.focus();
+            if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();

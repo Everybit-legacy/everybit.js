@@ -1030,7 +1030,8 @@ var NewIdentity = React.createClass({
                         </select> <em>.</em>{' '}
                         <input type="text" name="newUsername" ref="newUsername"  defaultValue={this.state.newUsername} size="12" /> <a href="#" onClick={this.handleGenerateUsername}></a> <i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i>
                     </div>
-                {polyglot.t("menu.identity.step.import")}{' '}<select id="import" ref="import" onChange={this.handleImport}>
+                {polyglot.t("menu.identity.step.import")}
+                {' '}<select id="import" ref="import" onChange={this.handleImport}>
                     <option value=""></option>
                     <option value="instagram">Instagram</option>
                     <option value="reddit">Reddit</option>

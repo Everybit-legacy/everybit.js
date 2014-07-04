@@ -403,6 +403,11 @@ h4 {
     color: #000;
 }
 
+.tip {
+    font-family: GudeaBold;
+    text-transform: uppercase;
+}
+
 .infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }

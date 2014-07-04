@@ -39,7 +39,9 @@ PuffForum.getShells = function() {
     var myUsername = PuffWardrobe.getCurrentUsername()
     var publicShells = PuffData.getPublicShells()
     var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
-                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                    .filter(Boolean)
+
     return publicShells.concat(encryptedShells)
     
     // return shells.filter(function(shell) {return !shell.keys || shell.keys[myUsername]})
@@ -123,17 +125,21 @@ PuffForum.sortByPayload = function(a,b) {
 PuffForum.getPropsFilter = function(props) {
     if(!props) return function() {return true}
     
-    props = props.view ? props.view : props
-    // props = props.filter ? props.filter : props
-
+    // props = props.view ? props.view : props
+    props = props.filter ? props.filter : props
     // puffs = puffs.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
     
     //// get a filtering function
     return function(shell) {
-        if(props.filterroute)
-            if(!~shell.routes.indexOf(props.filterroute)) return false
-        if(props.filteruser)
-            if (shell.username != props.filteruser) return false
+        if(props.routes && props.routes.length > 0) {
+            var routeMatch = false;
+            for (var i=0; i<props.routes.length; i++) {
+                if (shell.routes.indexOf(props.routes[i]) > -1) routeMatch = true;
+            }
+            if (!routeMatch) return false;
+        }
+        if(props.usernames && props.usernames.length > 0)
+            if (!~props.usernames.indexOf(shell.username)) return false
         return true
     }
 }
@@ -184,6 +190,7 @@ PuffForum.getChildren = function(puff, props) {
                  .map(Puffball.getPuffFromShell)
                  .filter(Boolean)
                  .sort(PuffForum.sortByPayload)
+
 }
 
 /**
@@ -206,7 +213,11 @@ PuffForum.getSiblings = function(puff, props) {
 
     // I know, I know, this is completely insane. But it's only here until the graph db moves in.
     return shells.filter(
-        function(puff) { 
+        function(puff) {
+
+            if(typeof puff.payload.parents == 'undefined')
+                puff.payload.parents = [];
+
             return puff.sig != originalSig 
                 && (puff.payload.parents||[]).reduce(
                     function(acc, parent_sig) {
@@ -320,7 +331,7 @@ PuffForum.getByRoute = function(route, limit) {
  * @param {object} metadata
  * @param {array of userRecords} encrypt if present
  */
-PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt) {
+PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -331,17 +342,18 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
         return Puffball.falsePromise('Those are not good parents')
     
-    // ensure parents is unique
+    // ensure parents are unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
 
     // find the routes using parents
     var routes = parents.map(function(id) {
         return PuffForum.getPuffBySig(id).username;
     });
-    // ensure all routes is unique
+    
+    // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt)
+    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
     
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
@@ -365,7 +377,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
  * @param {array of userRecords} encrypt if present
  * @return {puff}
  */
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt) {
+PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -381,6 +393,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
     
     return function(userRecord) {
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
+
         var previous   = userRecord.latest
         var username   = userRecord.username
 
@@ -388,7 +401,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         if(!privateKeys || !privateKeys.default)
             return Puffball.onError('No valid private key found for signing the content')
 
-        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt)
+        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
         return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }
@@ -535,15 +548,14 @@ PuffForum.addContentType('PGN', {
  * to add content type LaTex
  * @param  {string} content
  * @return {string}
- */
+
 PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
-       // return ltxParse(content);
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
 
     }
-})
+}) */
 
 /**
  * Encrypted puffs 

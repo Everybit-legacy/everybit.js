@@ -56,7 +56,7 @@ body {
     margin-left: 20px;
     margin-right: 0;
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
     overflow-y: hidden;
     overflow-x: hidden;
 }
@@ -116,9 +116,14 @@ section {
     overflow-x: auto;
 }
 
-#talltree .block.encrypted {
-    background-color: #fbb;
+#talltree .block.encrypted,
+#replyFormEmbed.encrypted{
+    background-image:url('../img/lock.gif');
+    background-repeat:repeat;
+    background-size: 36px 36px;
+    background-color: #eeeeee;
 }
+
 
 #talltree .parent .txt {
 }
@@ -163,6 +168,7 @@ p {
 a {
     text-decoration:none;
     color: #1616A8;
+    cursor: pointer;
 }
 
 a.under {
@@ -202,6 +208,11 @@ h4 {
 
 .floatRight {
     float: right;
+}
+
+.closeBox {
+    float: right;
+    font-size: 1.1em;
 }
 
 .floatingCheckbox {
@@ -346,6 +357,7 @@ h4 {
     font-size: 1em;
     line-height: 1em;
 }
+
 .bar:hover {
     display : block;
 }
@@ -378,6 +390,24 @@ h4 {
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
 }
+
+.walletLink .walletInfo {
+    font-family: Gudea, sans-serif;
+    font-size: 1em;
+    display: none;
+    bottom:100%;
+    width:100%;
+    padding-right: 5px;
+    position:absolute;
+    background-color: rgba(242, 242, 242, 0.90);
+    color: #000;
+}
+
+.tip {
+    font-family: GudeaBold;
+    text-transform: uppercase;
+}
+
 .infoLink:hover .detailInfo, .infoLink.sfhover {
     display: block;
 }
@@ -433,6 +463,7 @@ header h1 {
   border: 1px solid transparent;
   border-radius: 4px;
 }
+
 .btn:focus,
 .btn:active:focus,
 .btn.active:focus {
@@ -440,10 +471,12 @@ header h1 {
   outline: 5px auto -webkit-focus-ring-color;
   outline-offset: -2px;
 }
+
 .btn:hover,
 .btn:focus {
   text-decoration: none;
 }
+
 .btn:active,
 .btn.active {
   background-image: none;
@@ -499,7 +532,7 @@ fieldset[disabled] .btn-link {
 }
 
 
-#replyForm {
+#replyFormExpand {
     left: 50%;
     /*    margin-left: -250px;*/
     z-index: 400;
@@ -519,6 +552,12 @@ fieldset[disabled] .btn-link {
     // overflow-x: auto; */
 }
 
+#replyFormEmbed {
+    z-index: 400;
+    text-align: left;
+    padding: 10px 25px 5px 25px;
+}
+
 #replyFormBox{
     overflow-y: auto;
     overflow-x: auto;
@@ -527,34 +566,35 @@ fieldset[disabled] .btn-link {
 }
 
 /*#replyForm:hover, form:hover {*/
-#replyForm:hover {
+#replyFormExpand:hover {
     cursor: all-scroll;
 }
 
-#replyForm form > * {
+#replyFormExpand form > * {
     cursor: auto;
 }
 
-#replyForm form > a {
+#replyFormExpand form > a {
     cursor: pointer; /* for firefox */
 }
 
-#replyForm form button,
-#replyForm form input {
+#replyFormExpand form button,
+#replyFormExpand form input {
     cursor: pointer;
 }
 
-#replyForm form > .replyPreview {
+#replyFormExpand form > .replyPreview {
     margin-left: 15px;
     cursor: pointer;
     vertical-align: middle;
 }
 
 .logo {
-    position: absolute;
+    position: relative;
     top: 10px;
-    margin-bottom: 0.8em;
+    margin-bottom: 1em;
     height: 50px;
+
 }
 
 #puffballIcon {
@@ -574,24 +614,38 @@ fieldset[disabled] .btn-link {
     margin-bottom: 3px;
     text-align: left;
     color: #000000;
-    border: 2px solid #a1a1a1;
+    /*
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
+    */
+    border-right: 2px solid #a1a1a1;
     position: absolute;
-    left: 50px;
-    top: 60px;
+    left:60px;
+    top: 0px;
     background-color: rgba(255, 255, 255, 0.98);
     z-index: 300;
-    width: 450px;
-    font-size: 1.1em;
-    line-height: 1.7em;
+    width: 400px;
+    font-size: 1em;
+    line-height: 1.6em;
     text-decoration:none;
-    max-height: 80%;
+    bottom: 0px;
     overflow: auto;
 }
 
+.menuCluster {
+    padding-bottom: 10px;
+}
+
 .animation .menu {
+    -webkit-animation: slidein 1s; /* Safari and Chrome */
+    -moz-animation: slidein 1s; /* Firefox */
+    -ms-animation: slidein 1s; /* Internet Explorer */
+    -o-animation: slidein 1s; /* Opera */
+    animation: slidein 1s;
+}
+
+#replyForm {
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -moz-animation: fadein 1s; /* Firefox */
     -ms-animation: fadein 1s; /* Internet Explorer */
@@ -601,6 +655,7 @@ fieldset[disabled] .btn-link {
 
 .menuItem {
     padding-left: 32px;
+    position: relative;
 }
 
 .leftIndent {
@@ -609,13 +664,14 @@ fieldset[disabled] .btn-link {
 
 .menuHeader {
     font-family: Gudea;
+    border-bottom: 1px solid #333333;
     text-transform: uppercase;
     display: block;
-    padding-top: .7em;
+    padding-top: .0;
     padding-bottom: 0;
     margin: 0;
     color: #000000;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 .menuLabel {
@@ -623,7 +679,6 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     float:left;
     display: inline-block;
-    clear:both;
 }
 
 .menuInput {
@@ -639,6 +694,38 @@ fieldset[disabled] .btn-link {
     cursor: hand;
 }
 
+.menuTooltip {
+    background-color: #F0F4FF;
+    position: absolute;
+    max-width: 180px;
+    border: 1px solid rgb(110, 110, 110);
+    z-index: 9;
+    padding: 5px;
+    font-size: 0.9em;
+    line-height: 1.2em;
+    display: none;
+}
+
+.menuTooltip.right {
+    top: 0.2em;
+    left: 250px;
+}
+.menuTooltip.under {
+    top: 2em;
+    left: 0px;
+    min-width: 100px;
+}
+.menuTooltip.above {
+    right: 0px;
+    bottom: 2em;
+    min-width: 80px;
+}
+.linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
+    min-width: 150px;
+    text-transform: none;
+    top: 1.5em;
+}
+
 .smallCaps {
     font-family: GudeaBold;
     text-transform: uppercase;
@@ -650,6 +737,10 @@ fieldset[disabled] .btn-link {
     font-family: DroidSansMono;
     font-size: 80%;
     vertical-align: baseline;
+}
+
+.droid {
+    font-family: DroidSansMono;
 }
 
 .linkTab {
@@ -664,6 +755,7 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     margin-left: 10px;
     background-color: #e8e8e8;
+    position: relative;
 }
 
 .linkTabHighlighted {
@@ -678,9 +770,11 @@ fieldset[disabled] .btn-link {
     padding-right: 5px;
     margin-left: 10px;
     background-color: #d6d6ff;
+    position: relative;
 }
 
 .menuSection {
+    /*background: #F7F7F7;*/
     border-top: 1px solid #d6d6ff;
     border-bottom: 1px solid #d6d6ff;
     padding-top: 10px;
@@ -688,15 +782,41 @@ fieldset[disabled] .btn-link {
     margin: 0px;
 }
 
-#closeDiv {
-    padding-top: 0px;
-    padding-left: 3px;
-    padding-right: 0px;
-    padding-bottom: 0;
-    margin-bottom: 3px;
-    text-align: right;
-    color: #1616A8;
-    font-size: 1.4em;
+.steps {
+    font-family: GudeaBold;
+    text-transform: uppercase;
+    font-size: 1em;
+}
+
+
+.filterNode {
+    display: inline-block;
+    background-color: #DADADA;
+    border-radius: 10px;
+    padding: 2px;
+    margin: 2px;
+}
+
+.contentField {
+    width: 100%;
+    height: 200px;
+    margin-top: 10px;
+    border: 1px solid #333;
+}
+
+
+#qrcode {
+    float: right;
+    cursor: pointer;
+}
+
+.flash {
+    -webkit-animation: flash 1s; /* Safari and Chrome */
+    -moz-animation: flash 1s; /* Firefox */
+    -ms-animation: flash 1s; /* Internet Explorer */
+    -o-animation: flash 1s; /* Opera */
+    animation: flash 1s;
+    background: #F0F0FF;
 }
 
 .private {
@@ -726,7 +846,6 @@ fieldset[disabled] .btn-link {
     -ms-transform: rotate(90deg);
     -o-transform: rotate(90deg);
     float:left;
-    background: rgba(255,255,255,.1);
     color: #303030;
     font-family: GudeaBold;
     font-size: .9em;
@@ -743,7 +862,6 @@ a.footerText {
 
 .animation, .animation .block{
     transition: all 1s;
-
 }
 
 #adminForm {
@@ -775,6 +893,17 @@ a.footerText {
     left: 500px;
     top: 50px;
     width: 400px;
+}
+
+.rot90 {
+    -webkit-transform-origin: 8px 11px;
+    -moz-transform-origin: 8px 11px;
+    -ms-transform-origin: 8px 11px;
+    -o-transform-origin: 8px 11px;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
 }
 
 .red {
@@ -824,4 +953,123 @@ a.footerText {
 @-ms-keyframes fadein {
      from { opacity: 0; }
      to   { opacity: 1; }
- }​
+}​
+
+
+@keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Firefox */
+@-moz-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Safari and Chrome */
+@-webkit-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Opera */
+@-o-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadeout {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+
+@-webkit-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-moz-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-o-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@-ms-keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+@keyframes slidein {
+    from { left: -360px; }
+    to { left: 60px; }
+}
+
+
+/* DOUBLE FLASH */
+/*
+@-webkit-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-moz-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-o-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@-ms-keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+@keyframes flash {
+    0%  { background: #fff; }
+    25% { background: #ccc; }
+    50% { background: #fff; }
+    75% { background: #ccc; }
+    100% { background: #F7F7F7;}
+}
+*/
+
+/* Single Flash */
+@-webkit-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-moz-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-o-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@-ms-keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}
+@keyframes flash {
+    0%  { background: #fff; }
+    50% { background: #ccc; }
+    100% { background: #F0F0FF;}
+}

@@ -8,7 +8,7 @@
     </script>
 
     <title>
-        FreeBeer.com: A sample forum running on the puffball platform.
+        EveryBit.com (pre-alpha): A sample forum running on the puffball platform.
     </title>
     <meta charset="UTF-8">
 
@@ -50,9 +50,9 @@
     <script src="scripts/bitcoinjs-min.js"></script>
     <script src="scripts/peer.js"></script>
 
-    <script src="scripts/react.js"></script>
-      <!-- script src="scripts/react-0.10.0/build/react-with-addons.js"></script>
-      Swap with above for debugging
+    <!-- script src="scripts/react.js"></script-->
+      <script src="scripts/react-0.10.0/build/react-with-addons.js"></script>
+      <!--Swap with above for debugging
     -->
 
     <!-- configuration file -->
@@ -70,23 +70,36 @@
     <script src="js/freeBeer/build/display.js"></script>
     <script src="js/freeBeer/build/menu.js"></script>
     <script src="js/freeBeer/build/puffbox.js"></script>
-    <script src="js/freeBeer/build/reply.js"></script>
+    <script src="js/freeBeer/build/replyExpand.js"></script>
+    <script src="js/freeBeer/build/publishEmbed.js"></script>
     <script src="js/freeBeer/build/tools.js"></script>
-    <script src="js/freeBeer/usernameimport.js"></script>
+    <script src="js/freeBeer/usernameImport.js"></script>
     
     <script src="js/freeBeer/main.js"></script>
     <!-- latex -->
 
     <script type="text/javascript"
       src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script> 
+    </script>
+
+    <!--
+    <script type="text/javascript"
+      src="scripts/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]}
+      });
+    </script>
     <script type="text/x-mathjax-config">
         var latexElem = document.getElementsByClassName('latex');
         if (latexElem.length == 0) latexElem =  ['footer'];
         MathJax.Hub.Config({
           elements: latexElem
         });
-    </script>
-	
+    </script-->
+
 </body>
 </html>

@@ -1,16 +1,32 @@
 // Bridge between visualization framework and js/forum files
 
 puffworldprops = {
+    filter: {
+        usernames: [],
+        routes: [],
+        tags: [],
+        types: []
+    },
+
+    clusters: {
+        filter: true,
+        publish: true,
+        view: true,
+        identity: true,
+        preferences: true,
+        about: false,
+        tools: false
+
+    },
+
     menu: {
         show: false,
         prefs: false,
         profile: false,
+        section: false, // the section user is currently working on
 
         user: {
             pick_one: false,
-            show_add: false,
-            add_one: false,
-            add_new: false,
             manage: false,
             show_bc: false,
             show_key: false
@@ -22,8 +38,8 @@ puffworldprops = {
         //     route: false,                           // a single route
         // },
         language   : 'en',
-        filterroute: false, // blargh
-        filteruser : false,
+        // filterroute: false, // blargh
+        // filteruser : false,
         style      : 'PuffRoots',
         puff       : false,                                // focused puff (not just sig)
         user       : false,                                // username // TODO: make this part of filter
@@ -39,7 +55,9 @@ puffworldprops = {
     reply: {
         parents: [],
         show: false,
-        preview: false,
+        expand: false,
+        content: '',
+        state: {},
         type: 'text'
     },
 
@@ -50,11 +68,6 @@ puffworldprops = {
     prefs: { },
     profile: { },
     tools: {
-        importuser: {
-            username: false,
-            token: false,
-            auth: false
-        },
         users: {
             resultstyle: 'raw',
             puffstyle: 'raw'
@@ -97,15 +110,15 @@ events.start_pub = function(path, data) {
     //// pub to * at each level and then to path itself
     var pathlist = events.scrub_path(path)
     var realpath = pathlist.join('/')
-    
+
     events.try_pub('*', data, realpath)                                         // global catchall
-    
+
     pathlist.reduce(function(acc, seg) {                                        // channel catchalls
         var newacc = acc + seg + '/'
         events.try_pub(newacc + '*', data, realpath)
         return newacc
     }, '')
-    
+
     events.try_pub(realpath, data, realpath)                                    // actual channel
 }
 
@@ -146,9 +159,9 @@ events.try_pub = function(path, data, realpath) {
 
 events.scrub_path = function(path) {
     return path.replace(/^[^\w*-]+/, '')                                        // trim leading slashes etc
-               .replace(/[^\w*-]+$/, '')                                        // trim trailing gunk
-               .split('/')                                                      // break out the path segments
-               .map(function(item) {return item.replace(/[^\w*-]/g, '')})       // scrub each segment
+        .replace(/[^\w*-]+$/, '')                                        // trim trailing gunk
+        .split('/')                                                      // break out the path segments
+        .map(function(item) {return item.replace(/[^\w*-]/g, '')})       // scrub each segment
 }
 
 
@@ -165,18 +178,18 @@ events.sub('*', function(data, path) {
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
     var new_state = !PuffWardrobe.getPref('storeKeychain')
     PuffWardrobe.setPref('storeKeychain', new_state)
-    
+
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
 events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
-    if(!nickname) 
+    if(!nickname)
         return Puffball.onError('Invalid nickname')  // THINK: do this in React? use Puffball.validations?
-    
+
     PuffWardrobe.setProfileItem('nickname', nickname)
-    
+
     events.pub('ui/menu/profile/nickname/set')
 })
 
@@ -279,37 +292,37 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
             .map(function() {return 0})}) // build 2D array
 
     return { get: function() {return grid}
-           , set_eq: function(new_eq) {eq = new_eq}
-           , add: function(width, height, miny, minx, maxy, maxx, pointer) {
-                      maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
-                      miny = min(miny||0, maxy), minx = min(minx||0, maxx)
-                      if(maxx<0 || maxy<0) return Puffball.onError('Block is too big for the grid')
-                  
-                      top: for(var y = miny; y <= maxy; y++) {
-                          bot: for(var x = minx; x <= maxx;  x++) {
-                              for(var dy = 0; dy < height; dy++) {
-                                  for(var dx = 0; dx < width; dx++) {
-                                      if(grid[y+dy][x+dx]) continue bot }}
-                              break top }}
-                      if(x == maxx+1 && y == maxy+1) return Puffball.onError('No room in the grid')
-                      if(x == null || y == null) return Puffball.onError('Block too big for the grid')
-                      for(var dy = 0; dy < height; dy++) {
-                          for(var dx = 0; dx < width; dx++) {
-                              grid[y+dy][x+dx] = pointer || 1 } }
-                      return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
-                  }
-           }
+        , set_eq: function(new_eq) {eq = new_eq}
+        , add: function(width, height, miny, minx, maxy, maxx, pointer) {
+            maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
+            miny = min(miny||0, maxy), minx = min(minx||0, maxx)
+            if(maxx<0 || maxy<0) return Puffball.onError('Block is too big for the grid')
+
+            top: for(var y = miny; y <= maxy; y++) {
+                bot: for(var x = minx; x <= maxx;  x++) {
+                    for(var dy = 0; dy < height; dy++) {
+                        for(var dx = 0; dx < width; dx++) {
+                            if(grid[y+dy][x+dx]) continue bot }}
+                    break top }}
+            if(x == maxx+1 && y == maxy+1) return Puffball.onError('No room in the grid')
+            if(x == null || y == null) return Puffball.onError('Block too big for the grid')
+            for(var dy = 0; dy < height; dy++) {
+                for(var dx = 0; dx < width; dx++) {
+                    grid[y+dy][x+dx] = pointer || 1 } }
+            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
+        }
+    }
 }
 
 function findNeighbor(grid, pointer, dir) {
     var boxCoords = findBoxInGrid(grid, pointer)
     if(!boxCoords) return false
-    
+
     // TODO: need to indicate if dirBox is outside of grid, versus pointer not found
 
     var dirBox = makeDirBox(boxCoords, dir)
     if(!dirBox) return false
-    
+
     return firstThingInBox(grid, dirBox[0], dirBox[1])
 }
 
@@ -318,19 +331,19 @@ function findBoxInGrid(grid, target, eq) {
     /// NOTE: this assumes rectilinear shapes
     eq = eq || function(a, b) {return a === b}
     eq = function(a, b) {return a.sig === b.sig} // TODO: encapsulate eq in gridBox // OPT: don't look inside
-    
+
     top: for(var y = 0, ly = grid.length; y < ly; y++)
         for(var x = 0, lx = grid[y].length; x < lx; x++)
             if(eq(grid[y][x], target)) break top                     // find top and left coords
-    
+
     if(y == grid.length && x == grid[0].length) return false        // target not in box
-    
+
     for(var dy = 0, ly = grid.length-y; dy < ly; dy++)
         if(!eq(grid[y+dy][x], target)) break                         // find bottom coord
-    
+
     for(var dx = 0, lx = grid[y].length-x; dx < lx; dx++)
         if(!eq(grid[y][x+dx], target)) break                         // find right coord
-    
+
     return [[x, y], [x+dx-1, y+dy-1]]                              // minus one because deltas always overshoot
 }
 
@@ -352,7 +365,7 @@ function makeDirBox(boxCoords, dir) {
     var left  = boxCoords[0][0]
     var bot   = boxCoords[1][1]
     var right = boxCoords[1][0]
-    
+
     if(dir == 'up')    return [[left, top-1],  [right, top-1]]
     if(dir == 'down')  return [[left, bot+1],  [right, bot+1]]
     if(dir == 'left')  return [[left-1, top],  [left-1, bot]]
@@ -365,41 +378,41 @@ function moveToNeighbour(currentId, dir, mode) {
     var x = parseFloat(current.style.left);
     var y = parseFloat(current.style.top);
     var offset = mode == "browse" ? 7 : 31;
-    
+
     switch (dir) {
         case 37: // left
             x -= offset;
             y += 1;
-        break;
-        
+            break;
+
         case 38: // up
             y -= offset;
             x += 1;
-        break;
-        
+            break;
+
         case 39: // right
             x += parseFloat(current.style.width) + offset + 1;
             y += 1;
-        break;
-        
+            break;
+
         case 40: // down
             y += parseFloat(current.style.height) + offset;
             x += 1;
-        break;
-        
+            break;
+
         default:
-        break;
+            break;
     }
-    
+
     var neighbour = document.elementFromPoint(x, y);
-    while (neighbour && 
-           (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
+    while (neighbour &&
+        (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
         neighbour = neighbour.parentNode;
     }
-    
+
     if(!neighbour)
         neighbour = document.querySelector('.block');
-    
+
     return neighbour;
 }
 
@@ -439,17 +452,17 @@ function draggableize(el) {
 
 function showPuff(sig) {
     //// show a puff and do other stuff
-    
+
     if(!sig)
         return false
-    
+
     var puff = PuffForum.getPuffBySig(sig)                           // get it?
-    
+
     if(puff)
         return showPuffDirectly(puff)                               // got it.
 
     var prom = PuffData.pending[sig]                                // say what?
-    if(!prom) 
+    if(!prom)
         return Puffball.onError('Bad sig in pushstate')
 
     prom.then(function(puffs) {                                     // okay got it.
@@ -478,14 +491,16 @@ function setURL(state, path) {
     var currentState = history.state || {}
     var flatCurrent = JSON.stringify(currentState)
     var flatState  = JSON.stringify(state)
-    
+
     if(flatState == flatCurrent)                                        // are they equivalent?
         return false
-    
-    var url = '?' + Object.keys(state).map( function(key) {
-                              return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
-                          .join('&')
-    
+
+    var url = Object.keys(state).map( function(key) {
+        return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
+        .join('&')
+    url = '?' + removeURLParameter(url);
+    // url = '?' + url;
+
     // saving in case we need this in the future
     //
     // var cloneCurrent = JSON.parse(flatCurrent)
@@ -495,10 +510,23 @@ function setURL(state, path) {
     //     
     // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))      // equiv up to cursor?
     //     return false
-    
-    
-    
+
+
+
     history.pushState(state, path || '', url)
+}
+
+function removeURLParameter(urlPart) {
+    // urlPart is the part after ? in a url i.e. a=3&b=4&...
+    var paramsToRemove = ['requestedUsername', 'network', 'token', 'requestedUserId'];
+    urlPart = urlPart.split('&');
+    for (var i=urlPart.length; i>0; i--) {
+        var prefix = urlPart[i-1].split('=')[0];
+        if (paramsToRemove.indexOf(prefix) != -1) {
+            urlPart.splice(i-1, 1);
+        }
+    }
+    return urlPart.join('&');
 }
 
 function setViewPropsFromURL() {
@@ -508,36 +536,36 @@ function setViewPropsFromURL() {
 
 function setViewPropsFromPushstate(pushstate) {
     var sig = pushstate.puff
-    
+
     if(sig)
         pushstate.puff = PuffForum.getPuffBySig(sig)
-    
+
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     events.update_puffworldprops(props)
-    
+
     if(!sig || props['view.puff']) { // we've got it
         return updateUI()
     }
-    
+
     // we ain't got it
     var prom = PuffData.pending[sig]
-    if(!prom) 
+    if(!prom)
         return Puffball.onError('Bad sig in pushstate')
-    
+
     // now we have it
     prom.then(function(puffs) {
         props['view.puff'] = puffs[0]
         events.update_puffworldprops(props)
-        updateUI()                                                 
+        updateUI()
     })
 }
 
 function getQuerystringObject() {
     return window.location.search.substring(1).split('&')
-                 .reduce(function(acc, chunk) {
-                     var pair = chunk.split('=')
-                     acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
-                     return acc}, {})
+        .reduce(function(acc, chunk) {
+            var pair = chunk.split('=')
+            acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
+            return acc}, {})
 }
 
 
@@ -546,8 +574,8 @@ extend = function() {
     var newobj = {}
     Array.prototype.slice.call(arguments).forEach(function(arg) {
         for(var prop in arg) {
-            newobj[prop] = arg[prop] } }) 
-    return newobj 
+            newobj[prop] = arg[prop] } })
+    return newobj
 }
 
 
@@ -557,6 +585,9 @@ humanizeUsernames = function(username) {
     return username
 }
 
+reduceUsernameToAlphanumeric = function(username) {
+    return username.split(/[^A-Za-z0-9]/).join('');
+}
 
 
 function renderPuffWorld() {
@@ -592,8 +623,8 @@ function formatForDisplay(obj, style) {
 // keep this down at the bottom -- it has to load after everything else
 
 window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
-                            || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
-                            || setTimeout
+    || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+    || setTimeout
 
 // only update once per rAF
 var updateUI = onceRAF.bind(this, renderPuffWorld)
@@ -601,7 +632,7 @@ var updateUI = onceRAF.bind(this, renderPuffWorld)
 // Register our update function
 var eatPuffs = function(puffs) {
     // call the display logic
-  
+
     if(!Array.isArray(puffs) || !puffs.length) {
         return false;
     }
@@ -627,8 +658,8 @@ window.addEventListener('load', function() {
     setTimeout(function() {
         window.addEventListener('popstate', function(event) {
             if(event.state)
-                return setViewPropsFromPushstate(event.state); 
-            
+                return setViewPropsFromPushstate(event.state);
+
             puffworldprops = puffworlddefaults;
             updateUI();
         });

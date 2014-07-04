@@ -62,13 +62,13 @@ Puffball.init = function(zone) {
  * @param  {object} userRecordsForWhomToEncrypt 
  * @return {puff object}                             the new puff object
  */
-Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt) {
-    puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
+Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+    var puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
 
     puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
 
     if(userRecordsForWhomToEncrypt) {
-        puff = Puffball.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt)
+        puff = Puffball.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
     }
     
     return puff
@@ -269,13 +269,19 @@ Puffball.onNewPuffs = function(callback) {
  * @param  {string} userRecords
  * @return {puff object}
  */
-Puffball.encryptPuff = function(letter, myPrivateWif, userRecords) {
+Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = Puffball.Crypto.getRandomKey()                                        // get a new random key
     
     var letterCipher = Puffball.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
+    var username = letter.username
     
-    var envelope = Puffball.packagePuffStructure(letter.username, letter.routes         // envelope is also a puff
+    if(envelopeUserKeys) {
+        myPrivateWif = envelopeUserKeys.default
+        username = envelopeUserKeys.username
+    }
+    
+    var envelope = Puffball.packagePuffStructure(username, letter.routes                // envelope is also a puff
                            , 'encryptedpuff', letterCipher, {}, letter.previous)        // it includes the letter
     
     envelope.keys = Puffball.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys

@@ -1,6 +1,9 @@
 /** @jsx React.DOM */
 
-var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
+var PuffReplyFormExp = React.createClass({displayName: 'PuffReplyFormExp',
+    getInitialState: function() {
+        return {imageSrc: '', showPreview: false};
+    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
@@ -35,9 +38,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         globalReplyFormSubmitArg = null;
         puffworldprops.reply.preview = false;
     },
-    getInitialState: function() {
-        return {imageSrc: '', showPreview: false};
-    },
+
     handleSubmit: function() {
         var content = '';
         var metadata = {};
@@ -137,6 +138,11 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         
         return false;
     },
+    handleCancel: function() {
+        // THINK: save the content in case they accidentally closed?
+        return events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
+    },
+
     handleImageLoad: function() {
         var self   = this;
         var reader = new FileReader();
@@ -150,10 +156,6 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
 
         return false;
     },
-    handleCancel: function() {
-        // THINK: save the content in case they accidentally closed?
-        return events.pub('ui/reply/cancel', {'reply': {show: false, parents: []}});
-    },
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
         return events.pub('ui/reply/set-type', {'reply.type': type});
@@ -166,27 +168,24 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },
+
+
     render: function() {
-        var username = PuffWardrobe.getCurrentUsername() // make this a prop or something
-        username = humanizeUsernames(username) || 'anonymous';
-        puffworldprops.reply.preview = this.state.showPreview;
-        
-        // var userList = ['dann', 'mattasher', 'freebeer'];
-
-        var contentTypeNames = Object.keys(PuffForum.contentTypes)
-
-        if (typeof this.props.reply.parents != 'undefined') {
-            var parents = this.props.reply.parents;
-        } else {
-            var parents = [];
-        }
-
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var contentTypeNames = Object.keys(PuffForum.contentTypes);
         var privacyDefault = "public";
+        var author = PuffWardrobe.getCurrentUsername();
+        author = humanizeUsernames(author) || "anonymous";
 
         var defaultContent = this.props.content || '';
+        var parents = [];
+        if (typeof this.props.reply.parents != 'undefined') {
+            parents = this.props.reply.parents;
+        }
+        var parentType = CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);
-            var parentType = parent.payload.type;
+            parentType = parent.payload.type;
 
             // figure out reply privacy
             var envelope = PuffData.getBonus(parent, 'envelope');
@@ -210,57 +209,72 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                         defaultContent = PuffForum.getPuffBySig(parents[0]).payload.content;
                 }
             }
-
-        } else {
-            var parentType = CONFIG.defaultContentType;
         }
         var type = this.props.reply.type || parentType;
+        var usernames = this.props.reply.usernames || parentUsernames || "";
 
-        var usernames = this.props.reply.usernames || parentUsernames || ""
-
-        var polyglot = Translate.language[puffworldprops.view.language];
-        var divStyle = {
-            width: '22em',
-            textAlign: 'left',
-            height: (type == 'PGN' && this.state.showPreview ? '100%' : '15em'),
-            margin: 'auto',
-            overflow: 'auto',
-            marginBottom: '5px',
-            background: '#fff'
+        var sendToSpanStyle = {
+            width: '28%',
+            marginRight: '2%',
+            display: 'inline-block',
         }
-        var typeFields = (
+        var sendToInputStyle = {
+            width: '70%',
+            display: 'inline-block',
+            border: 'none',
+            marginBottom: '10px',
+            padding: '5px',
+            borderRadius: '4px'
+        }
+        var sendToField = (
             React.DOM.div(null, 
-                React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", rows:"10", cols:"40", style:divStyle, placeholder:polyglot.t('replyForm.textarea'), defaultValue:defaultContent})
+                React.DOM.span( {style:sendToSpanStyle}, "Send to user: " ),React.DOM.input( {style:sendToInputStyle, type:"text", name:"usernames", ref:"usernames", value:usernames, onChange:this.handleChangeUsernames})
             )
+        );
+
+        var tyleStyle = {
+            width: '28%',
+            marginRight: '2%'
+        }
+        var typeOption = (
+            React.DOM.select( {style:tyleStyle, ref:"type", className:"btn", defaultValue:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
+                contentTypeNames.map(function(type) {
+                    return React.DOM.option( {key:type, value:type}, type)
+                })
             )
+        );
+        var privacyStyle = {
+            width: '70%'
+        };
+        var privacyOption = (
+            React.DOM.select( {style:privacyStyle, ref:"privacy", className:"btn", defaultValue:privacyDefault}, 
+                React.DOM.option( {key:"public", value:"public"}, polyglot.t("replyForm.pOptions.public")),
+                React.DOM.option( {key:"private", value:"private"}, polyglot.t("replyForm.pOptions.private")),
+                React.DOM.option( {key:"anonymous", value:"anonymous"}, polyglot.t("replyForm.pOptions.anon")),
+                React.DOM.option( {key:"paranoid", value:"paranoid"}, polyglot.t("replyForm.pOptions.paranoid"))
+            )
+        );
+
+        var contentStyle = {
+            width: '100%',
+            height: (type=="PGN" && this.state.showPreview) ? '100%' : '20em',
+            marginTop: '10px',
+            border: '1px solid #ccc'
+        }
+        var contentField = (
+            React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", placeholder:polyglot.t('replyForm.textarea'), defaultValue:defaultContent, style:contentStyle})
+        );
         if (this.state.showPreview) {
-            var type = this.props.reply.type || this.refs.type.getDOMNode().value;
-            var content = this.refs.content.getDOMNode().value.trim();
-            this.props.content = content;
-            content = PuffForum.processContent(type, content, {});
-            typeFields = (
-                React.DOM.div( {style:divStyle}, 
-                    React.DOM.div( {id:"preview", ref:"preview", name:"preview", dangerouslySetInnerHTML:{__html: content}})
+            var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
+            var currentContent = this.refs.content.getDOMNode().value.trim();
+            this.props.content = currentContent;
+            currentContent = PuffForum.processContent(currentType, currentContent, {});
+            contentField = (
+                React.DOM.div(null, 
+                    React.DOM.div( {style:contentStyle, id:"preview", ref:"preview", name:"preview", dangerouslySetInnerHTML:{__html: currentContent}})
                 )
             )
         }
-
-        // preview toggle
-        // CSS for checkbox
-        var cbClass = React.addons.classSet({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': this.state.showPreview,
-            'fa-square-o': !this.state.showPreview,
-            'green': this.state.showPreview
-        });
-        var previewToggle = (
-            React.DOM.span( {className:"replyPreview"}, 
-                React.DOM.i( {className:cbClass, onClick:this.handleTogglePreview} ),
-                React.DOM.a( {onClick:this.handleTogglePreview}, polyglot.t("replyForm.preview"))
-            )
-            );
-
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
         if(type == 'image') {
@@ -269,8 +283,7 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
             if (this.state.imageSrc) {
                 imageField = (React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} ));
             }
-
-            typeFields = (
+            contentField = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
                         polyglot.t("replyForm.format.imageFile"),":",
@@ -289,70 +302,73 @@ var PuffReplyForm = React.createClass({displayName: 'PuffReplyForm',
                     React.DOM.br(null ),
                     imageField
                 )
-
             );
-            previewToggle = (React.DOM.span(null));
-        }
-        else if(type == 'bbcode') {
-            typeFields = (
+        } else if(type == 'bbcode') {
+            contentField = (
                 React.DOM.div(null, 
-                    typeFields,
+                    contentField,
                     React.DOM.p(null, polyglot.t("replyForm.format.bbcodeMsg"))
                 )
-                )
-        }
-        else if(type=='PGN') {
-
+            )
         }
 
-        
+        // preview toggle
+        // CSS for checkbox
+        var cbClass = React.addons.classSet({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': this.state.showPreview,
+            'fa-square-o': !this.state.showPreview,
+            'green': this.state.showPreview
+        });
+        var toggleStyle = {
+            minWidth: '28%',
+            marginRight: '2%',
+            display: 'inline-block'
+        }
+        var previewToggle = (
+            React.DOM.span( {className:"replyPreview", style:toggleStyle}, 
+                React.DOM.i( {className:cbClass, onClick:this.handleTogglePreview} ),
+                React.DOM.a( {onClick:this.handleTogglePreview}, polyglot.t("replyForm.preview"))
+            )
+        );
+        if (type == 'image') {
+            previewToggle = (React.DOM.span(null)); // no preview toggle for image
+        }
+
+        var discardStyle = {
+            minWidth: '23%',
+            marginRight: '2%',
+            display: 'inline-block'
+        };
+        var discardButton = (
+            React.DOM.a( {href:"#", style:discardStyle, onClick:this.handleCancel}, React.DOM.i( {className:"fa fa-trash-o"}), " Discard")
+        );
+        var sendStyle = {
+            marginTop: '10px',
+            display: 'inline-block'
+        };
+        var sendButton = (
+            React.DOM.a( {href:"#", style:sendStyle,    onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane"}), " Send as ", author)
+        );
+
+        var formStyle = {
+            padding: "25px",
+            textAlign: 'left'
+        }
+        var boxStyle = {
+            position: 'relative'
+        }
+
         return (
-            React.DOM.div( {id:"replyForm"}, 
-                React.DOM.div( {id:"replyFormBox"}, 
-                    React.DOM.div( {id:"authorDiv"}, username),
-                    React.DOM.form( {id:"otherContentForm", onSubmit:this.handleSubmit}, 
-
-                        typeFields,
-                        React.DOM.a( {href:"#", onClick:this.handleCancel, className:"floatLeft"}, React.DOM.i( {className:"fa fa-trash-o"}), " ", polyglot.t("replyForm.cancel"),"!"),
-                        React.DOM.select( {disabled:this.state.showPreview, ref:"type", className:"btn", onChange:this.handlePickType, defaultValue:parentType}, 
-                            contentTypeNames.map(function(type) {
-                                return React.DOM.option( {key:type, value:type}, type)
-                            })
-                        ),previewToggle,
-                        ' ',React.DOM.a( {href:"#", onClick:this.handleSubmit, className:"floatRight"}, React.DOM.i( {className:"fa fa-paper-plane"}), " ", polyglot.t("replyForm.submit"),"!"),
-                        
-                        React.DOM.div(null, 
-                            React.DOM.p(null, 
-                                polyglot.t("replyForm.privacyOption"),":",
-                                React.DOM.select( {ref:"privacy", className:"btn", defaultValue:privacyDefault}, 
-                                    React.DOM.option( {key:"public", value:"public"}, polyglot.t("replyForm.pOptions.public")),
-                                    React.DOM.option( {key:"private", value:"private"}, polyglot.t("replyForm.pOptions.private")),
-                                    React.DOM.option( {key:"anonymous", value:"anonymous"}, polyglot.t("replyForm.pOptions.anon")),
-                                    React.DOM.option( {key:"paranoid", value:"paranoid"}, polyglot.t("replyForm.pOptions.paranoid"))
-                                )
-                            ),
-                            
-                            React.DOM.p(null, 
-                                React.DOM.label(null, 
-                                    polyglot.t("replyForm.sendTo"),":",
-                                    React.DOM.input( {type:"text", name:"usernames", ref:"usernames", value:usernames, onChange:this.handleChangeUsernames})
-                                )
-                            )
-                        )
-                    )
+            React.DOM.div( {id:"replyForm", style:formStyle}, 
+                React.DOM.div( {id:"replyFormBox", style:boxStyle}, 
+                    sendToField,
+                    typeOption,privacyOption,React.DOM.br(null ),
+                    contentField,React.DOM.br(null),
+                    previewToggle,discardButton,sendButton
                 )
             )
-            );
-    }
-    
-    /*
-    {userList.map(function(user) {
-        return (
-            <p><label>
-                <input type="checkbox" defaultChecked="checked" ref="users" name="users" id={'user-'+user} />
-                {user}
-            </label></p>
         )
-    })}
-    */
+    }
 });

@@ -6,7 +6,14 @@ var ViewKeybindingsMixin = {
         // n shows new puff form
         Mousetrap.bind('n', function() { 
             if (puffworldprops.reply.preview) return false;
-            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true}});
+            
+            var menu = puffworlddefaults.menu;
+            menu.show = true;
+            menu.section = 'publish';
+
+            return events.pub('ui/reply/open', {'clusters.publish': true,
+                                                'menu': menu, 
+                                                'reply': {show: true}});
         }.bind(this));
         
         // r replies to 'selected' puff
@@ -25,9 +32,19 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
-            
-            return events.pub('ui/reply/open', {'menu': puffworlddefaults.menu, 'reply': {show: true, parents: parents
-}});
+            if (parents.length == 0) 
+                return events.pub('ui/reply/open', {'reply': {parents: parents}});
+
+            var menu = puffworlddefaults.menu;
+            if (!puffworldprops.reply.expand) {
+                menu.show = true;
+                menu.section = 'publish';
+            }
+
+            return events.pub('ui/reply/open', {'clusters.publish': true,
+                                                'menu': menu, 
+                                                'reply': {show: true, parents: parents}
+                                                });
         }.bind(this));
 
         // a toggles animation
@@ -90,7 +107,7 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/menu/close', {'menu.show': false})
 
             if(puffworldprops.reply.show)
-                return events.pub('ui/menu/close', {'reply.show': false})
+                return events.pub('ui/menu/close', {'reply': {show: false, parents: []}})
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);
@@ -103,8 +120,9 @@ var ViewKeybindingsMixin = {
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!this.props.reply.show) 
+            if(!this.props.reply.show) {
                 return true
+            }
             
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
@@ -315,6 +333,12 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         var view;
         var viewprops = this.props.view || {};
 
+        if(this.props.menu.show) {
+            CONFIG.leftMargin = 465;
+        } else {
+            CONFIG.leftMargin = 60;
+        }
+
         if( viewprops.style == 'PuffTallTree' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
 
@@ -338,9 +362,17 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         else view = PuffTallTree(    {view:extend(this.props.view, defaultViewProps), reply:this.props.reply} )
 
-        var reply = this.props.reply.show ? PuffReplyForm( {reply:this.props.reply} ) : ''
+        var replyExpand = this.props.reply.expand ? PuffPublishFormExpand( {reply:this.props.reply} ) : ''
+        // TODO: Focus the reply box when arrow clicked
 
-        var menu = this.props.menu.show ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile} )) : ''
+        if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
+            this.props.menu.show = true;
+        }
+        if (viewprops.style == "MenuAdd") {
+            this.props.menu.section = "identity";
+        }
+
+        var menu = this.props.menu.show ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile} )) : '';
 
         var animateClass =  this.props.view.animation ? "animation" : '';
 
@@ -349,7 +381,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
-                reply,
+                replyExpand,
                 PuffFooter(null )
             )
             )
@@ -413,7 +445,8 @@ var PuffLatest = React.createClass({displayName: 'PuffLatest',
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
+        // var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
+        var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }
@@ -501,6 +534,7 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
         
         var offset = 30
         var xoffset = CONFIG.leftMargin
+        // Move over if menu open
         var yoffset = 0
         var baseShift = 12
 

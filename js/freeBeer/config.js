@@ -20,9 +20,11 @@ CONFIG.maxLatestRootsToShow = 26;
 
 CONFIG.sortOrder = 'recent';
 
-CONFIG.zone = 'freebeer';
-CONFIG.url = 'http://www.freebeer.com';
-CONFIG.defaultPuff = 'AN1rKooS7u7ZgGs6WG2yfrq77kPCocztNj21Av6wN9dKBYECgVUpU19pFjV33VHkJKv6WJZcAx9sbLcFMUahyV1FUWZfSsgtD';
+CONFIG.zone = 'everybit';
+
+CONFIG.url = 'http://www.everybit.com';
+CONFIG.logo = 'img/EveryBit.gif';
+CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
 
 CONFIG.text_threshold = 400;
 

@@ -95,41 +95,64 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 });
 
 var PuffBar = React.createClass({displayName: 'PuffBar',
+    mixins: [TooltipMixin],
     getInitialState: function() {
         return {showMain: true};
     },
     handleShowMore: function() {
         this.setState({showMain: !this.state.showMain});
     },
+    componentDidUpdate: function() {
+        this.componentDidMount();
+    },
     render: function() {
-        var puff = this.props.puff
-		var link = React.DOM.span( {className: "icon"}, React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus fa-fw"})));
-
+        var puff = this.props.puff;
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
-        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN'||puff.payload.type=='LaTex';
+        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
 
+        var polyglot = Translate.language[puffworldprops.view.language];
         if (!this.state.showMain) {
             return (
                 React.DOM.div( {className:className}, 
                     canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
-                    puff.payload.type == 'image' ? link : "",
+                    puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
                     PuffJson( {puff:puff} ),
                     PuffPermaLink( {sig:puff.sig} ),
+                    PuffExpand( {puff:puff} ),
                     
-                    React.DOM.span( {className: "icon", onClick:this.handleShowMore}, React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})))
+                    React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
+                        React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
+                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
+                    )
                 )
             );
         }
-
+        //
         return (
             React.DOM.div( {className:className}, 
                 PuffFlagLink( {sig:puff.sig} ),
+                PuffTipLink( {username:puff.username} ),
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
-                
-                React.DOM.span( {className: "icon", onClick:this.handleShowMore}, React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})))
+                React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
+                    React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
+                )
+            )
+        );
+    }
+});
+
+var PuffViewImage = React.createClass({displayName: 'PuffViewImage',
+    render: function() {
+        var puff = this.props.puff;
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.span( {className: "icon"}, 
+                React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus fa-fw"})),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.viewImage")})
             )
         );
     }
@@ -142,8 +165,12 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
         jswin.document.write(jsonstring);
     },
     render: function() {
-    return (
-            React.DOM.span( {className: "icon", onClick:this.handleClick}, React.DOM.a(null, React.DOM.i( {className:"fa fa-cubes fa-fw"})))
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.span( {className: "icon", onClick:this.handleClick}, 
+                React.DOM.a(null, React.DOM.i( {className:"fa fa-cubes fa-fw"})),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.json")})
+            )
         )
     }
  });
@@ -224,19 +251,22 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     render: function() {
         var puff = this.props.puff;
         var parents = PuffForum.getParents(puff)
+        var polyglot = Translate.language[puffworldprops.view.language];
         if (parents.length==0) {
             return (
-                React.DOM.span( {className:"click"}, 
-                    React.DOM.span( {className:"click"}, "0"),React.DOM.i( {className:"fa fa-male fa-fw"})
-                )
+                    React.DOM.span(null, 
+                        React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"} , "0"), " " ),
+                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")} )
+                    )
            );
-        } 
+        }
         else {
             return (
-                React.DOM.span( {className:"icon"}, 
+                React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        parents.length,React.DOM.i( {className:"fa fa-male fa-fw"})
-                    )
+                        React.DOM.span( {ref:"count droid"}, parents.length, " " )
+                    ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")})
                 )
             );
         }
@@ -275,8 +305,8 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
    //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
         return (
-            React.DOM.a(null, React.DOM.span( {className:"icon"}, 
-                React.DOM.span( {className:"infoLink"}, 
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a(null, React.DOM.span( {className:"infoLink"}, 
                     React.DOM.i( {className:"fa fa-info fa-fw"}),
                     React.DOM.span( {className:"detailInfo"}, 
                     formattedTime,
@@ -284,10 +314,120 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
                     lisc,
                     photographer
                     )
-                )
-            ))
+                ))
+            )
             );
     }
+});
+
+var PuffTipLink = React.createClass({displayName: 'PuffTipLink',
+    getInitialState: function() {
+        return {
+            showTipButtons: false
+        };
+    },
+
+    handleToggleTipInfo: function(){
+        var node = this.getDOMNode();
+        var walletInfo = node.getElementsByClassName('walletInfo')[0];
+
+        if(!this.state.showTipButtons) {
+            this.setState({showTipButtons: true});
+            walletInfo.style.display = 'block';
+
+        } else {
+            this.setState({showTipButtons: false});
+            walletInfo.style.display = 'none';
+        }
+        return false;
+    },
+
+    render: function() {
+        if(this.state.showTipButtons) {
+
+            var tipButtons = TipButton( {currency:"BTC", username:this.props.username} )
+        } else {
+            var tipButtons = ''
+        }
+
+        return (
+            React.DOM.span( {className:"icon"}, 
+            React.DOM.span( {className:"walletLink"}, 
+                React.DOM.a( {href:"#", onClick:this.handleToggleTipInfo}, 
+                    React.DOM.i( {className:"fa fa-gittip fa-fw"})
+                ),
+                React.DOM.span( {className:"walletInfo"}, 
+                    tipButtons
+                )
+            )
+            )
+            );
+    }
+});
+
+var TipButton = React.createClass({displayName: 'TipButton',
+    getInitialState: function() {
+        return {
+            publicKey: '',
+            btcAddy: '',
+            akShort: ''
+        };
+    },
+
+    componentDidMount: function(){
+        // Get the public key for this user, convert to wallet
+        // TODO: Get the link so have meta-data set, like "From puffball"
+
+
+
+        var self = this;
+        var prom = Puffball.getUserRecord(this.props.username);
+
+        prom.then(function(result) {
+
+            self.setState({publicKey: result.adminKey});
+            console.log(result.adminKey);
+
+            var btcAddy = Puffball.Crypto.wifToPubKey(result.adminKey);
+
+            console.log(btcAddy);
+
+            btcAddy = btcAddy.getAddress().toString();
+            self.setState({btcAddy: btcAddy});
+
+            console.log("HI");
+
+            var akShort = btcAddy.substr(0,5)+'...';
+            self.setState({akShort: akShort});
+
+
+
+            events.pub('ui/tipbutton/userlookup', {});
+
+            return false;
+        })
+            .catch(function(err) {
+                console.log("PROBLEM");
+
+                self.setState({publicKey: false});
+                this.setState({btcAddy: 'Unknown :-('});
+                this.setState({akShort: 'FAIL'});
+                events.pub('ui/tipbutton/userlookup/failed', {});
+                return false;
+            })
+    },
+
+    render: function() {
+        if(this.state.btcAddy)
+            return (
+                    React.DOM.div( {className:"tip"}, 
+                        "Tip user: ", React.DOM.a( {href:"wallet:" + this.state.btcAddy}, React.DOM.i( {className:"fa fa-bitcoin fa-fw"}))
+                    )
+            )
+
+        return React.DOM.i( {className:"fa fa-fw fa-spinner"})
+    }
+
 });
 
 
@@ -323,11 +463,13 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
             'green': isGreen
         });
 
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:newClass})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.viewRaw")})
             )
         );
     }
@@ -343,19 +485,22 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     render: function() {
         var puff = this.props.puff;
         var children = PuffForum.getChildren(puff)
+        var polyglot = Translate.language[puffworldprops.view.language];
         if (children.length==0) {
             return (
-                React.DOM.span( {className:"click"}, 
-                    React.DOM.span( {className:"click"}, "0"),React.DOM.i( {className:"fa fa-child fa-fw"})
+                React.DOM.span(null, 
+                    React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"}, "0"), " " ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )
             );
         }
         else {
             return (
-                React.DOM.span( {className:"icon"}, 
+                React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        children.length,React.DOM.i( {className:"fa fa-child fa-fw"})
-                    )
+                        React.DOM.span( {ref:"count droid"}, children.length, " " )
+                    ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )
             );
         }
@@ -369,11 +514,13 @@ var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
         showPuff(sig);
     },
     render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-link fa-fw"})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.permaLink")})
             )
         );
     }
@@ -398,7 +545,14 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             parents.splice(index, 1)
         }
 
-        return events.pub('ui/reply/add-parent', {'reply': {show: true, parents: parents}});
+        var menu = puffworldprops.menu;
+        if (!puffworldprops.reply.expand) {
+            menu.show = true;
+            menu.section = 'publish';
+        }
+        return events.pub('ui/reply/add-parent', 
+                         {'reply.show': true, 'reply.parents': parents,
+                          'menu': menu});
 
         // TODO: draw reply arrows. Maybe
     },
@@ -420,12 +574,34 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             'green': isGreen
         });
 
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:newClass})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.reply")})
             )
         );
     }
 });
+
+
+var PuffExpand = React.createClass({displayName: 'PuffExpand',
+    handleClick: function() {
+        var puff  = this.props.puff;
+        return events.pub("ui/expand-puff", {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-expand fa-fw"})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.expand")})
+            )
+        );
+    }
+});
+

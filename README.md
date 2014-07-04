@@ -62,7 +62,7 @@ The **payload** section of a puff contains the actual content, and meta-data abo
 
 The **content** field, unsurprisingly, contains the main content of the puff. On the back end, this is stored in JSON format as a string. 
 
-There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format). One optional field of note is **parents**, which used by the [FreeBeer!](http://www.freebeer.com) forum to store an array of the posts being replyed to.
+There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format). One optional field of note is **parents**, which used by the [EveryBit](http://www.everybit.com) forum to store an array of the posts being replyed to.
 
 In order to re-publish someone else's content, the entire puff is bundled up and put into into the **content** field of the new puff, with **type** specified as "puff".
 
@@ -118,8 +118,8 @@ Regardless of the final rollout scheme, once a username is registered it belongs
 ### What isn't puffball?
 puffball is a platform for publishing and distributing static documents of a single content type, along with unrestricted meta-data about that content. Although it has capabilities which overlap other technologies, and while it might be a good foundation for building these other tools, it is not a wiki, blogging software, or a social network. And while it makes sharing content easy, bandwidth and memory limitations inherent in any client-side peer-to-peer application mean that at present puffball is a bad choice for publishing videos or similarly large files. 
 
-### FreeBeer!
-What good is a platform without any applications? Not much, which is why we are building a sample application on top of the puffball platform to show off some of its capabilities. FreeBeer! is a multi-threaded forum where every post can have multiple parents, and multiple children. Have you ever been frustrated by the ratio of noise to signal in an online forum, discussion board, or comments section? Have you ever wanted to follow just one sub-discussion instead of wading through dozens of posts that don't interest you? FreeBeer! provides a unique interface to read and reply to posts that allows you to quickly identify threads and sub-threads that interest you, and ignore the rest. 
+### EveryBit
+What good is a platform without any applications? Not much, which is why we are building a sample application on top of the puffball platform to show off some of its capabilities. [EveryBit](http://www.everybit.com) is a multi-threaded forum where every post can have multiple parents, and multiple children. Have you ever been frustrated by the ratio of noise to signal in an online forum, discussion board, or comments section? Have you ever wanted to follow just one sub-discussion instead of wading through dozens of posts that don't interest you? EveryBit provides a unique interface to read and reply to posts that allows you to quickly identify threads and sub-threads that interest you, and ignore the rest. 
 
 <a name='mycelium'></a>
 ### Mycelium 
@@ -129,7 +129,7 @@ As a second sample application, and to show off the platform's power for creatin
 Still interested? puffball is an open source project. We welcome your involvement. You can:
 
 - Help code (as a volunteer, or [ask about paid positions](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=jobs))
-- Help us dog-food the platform by using the [test site at FreeBeer!](http://www.freebeer.com)
+- Help us dog-food the platform by using the [test site at EveryBit](http://www.everybit.com)
 - [Make suggestions](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=feedback)
 - Port over your username from another system
 - Build an application on top of the puffball platform. Have a good idea but need funding? [We can help](mailto:&#105;&#110;&#102;&#111;&#064;&#112;&#117;&#102;&#102;&#098;&#097;&#108;&#108;&#046;&#105;&#111;?subject=developers).

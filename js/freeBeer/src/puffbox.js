@@ -512,6 +512,7 @@ var PuffPermaLink = React.createClass({
         var sig  = this.props.sig;
         // var puff = PuffForum.getPuffBySig(sig);
         showPuff(sig);
+        return false;
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];

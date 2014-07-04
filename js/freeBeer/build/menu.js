@@ -962,7 +962,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
     handleContentImport: function() {
         var network = this.state.importInfo.network;
-        var prom = UsernameImport[network].importContent(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.id);
+        console.log(this.state.importInfo);
+        var prom = UsernameImport[network].importContent(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
         prom.then(function() {
             console.log('import finished');
             this.props.importUsername = "";

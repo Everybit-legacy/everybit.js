@@ -5,10 +5,6 @@
 
 PB = {} // TODO: make this a proper library and give it a real name
 
-PB.update_puffworldprops = function(data) {
-    puffworldprops = PB.persistent_merge(puffworldprops, data)
-}
-
 PB.persistent_merge = function(props, data) {
     /// merges a 'flattened' data array into props in a persistent fashion
     /// the new object reuses old data where possible, so requires ~log N additional space

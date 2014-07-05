@@ -205,8 +205,8 @@ var CursorBindingsMixin = {
         
         var newCursor = (defaultPuff||puffs[0]||{}).sig
         
-        if(newCursor) {    // do this manually so auto-cursoring doesn't gum up history
-            PB.update_puffworldprops({'view.cursor': newCursor})
+        if(newCursor) {  // do this manually so auto-cursoring doesn't gum up history
+            update_puffworldprops({'view.cursor': newCursor})
             updateUI()
         }
     }

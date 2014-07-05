@@ -990,7 +990,7 @@ var NewIdentity = React.createClass({
             }
             // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
-            setViewPropsInURL();
+            setURLfromViewProps();
         } else if (this.state.step == 1) {
             var valid = this.checkKeys();
             if (!valid) return;
@@ -1039,7 +1039,8 @@ var NewIdentity = React.createClass({
                 </div>);
 
             // check if there is requestedUsername parameter
-            var params = getQuerystringObject();
+            // var params = getQuerystringObject();
+            var params = getStashedKeysFromURL();
             if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
                 this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase();
                 var importInfo = {
@@ -1049,7 +1050,7 @@ var NewIdentity = React.createClass({
                     network: params['network']
                 };
                 this.setState({'importInfo': importInfo});
-                setViewPropsInURL();
+                setURLfromViewProps();
             }
             if (Object.keys(this.state.importInfo).length != 0) {
                 showNext = true;

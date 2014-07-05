@@ -34,9 +34,10 @@ puffworldprops = {
     },
 
     view: {
-        // filter: {
-        //     route: false,                           // a single route
-        // },
+        filter: {
+            route: false,                           // a single route
+            user: false
+        },
         language   : 'en',
         // filterroute: false, // blargh
         // filteruser : false,
@@ -108,19 +109,13 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    // change props in a persistent fashion
-    if(data)
-        if(Array.isArray(data))
-            puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
-        else
-            PB.update_puffworldprops(data)
+    update_puffworldprops(data)                             // change props in a persistent fashion
 
-    // set the props in the url and history
-    setViewPropsInURL()
+    setURLfromViewProps()                                     // set the props in the url and history
 
-    puffworldprops.reply.preview = false;
-    // then re-render PuffWorld w/ the new props
-    updateUI()
+    puffworldprops.reply.preview = false;                   // THINK: what is this?
+    
+    updateUI()                                              // then re-render PuffWorld w/ the new props
 })
 
 
@@ -211,28 +206,28 @@ function draggableize(el) {
 
 //// props and urls and pushstate oh my ////
 
-function setViewPropsInURL() {
+function setURLfromViewProps() {
     var viewprops = PB.shallow_copy(puffworldprops.view)
+    
     if(viewprops.puff)
         viewprops.puff = viewprops.puff.sig
     else
         delete viewprops.puff
+    
     setURL(viewprops)
 }
 
 function setURL(state, path) {
     var currentState = history.state || {}
-    var flatCurrent = JSON.stringify(currentState)
-    var flatState  = JSON.stringify(state)
+    var flatCurrent  = JSON.stringify(currentState)
+    var flatState    = JSON.stringify(state)
 
-    if(flatState == flatCurrent)                                        // are they equivalent?
+    if(flatState == flatCurrent)                                            // are they equivalent?
         return false
 
-    var url = Object.keys(state).map( function(key) {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
-        .join('&')
-    url = '?' + removeURLParameter(url);
-    // url = '?' + url;
+    var url = convertStateToURL(state)
+
+    history.pushState(state, path || '', url)
 
     // saving in case we need this in the future
     //
@@ -241,52 +236,50 @@ function setURL(state, path) {
     // delete cloneCurrent.cursor
     // delete cloneState.cursor
     //     
-    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))      // equiv up to cursor?
+    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))       // equiv up to cursor?
     //     return false
-
-    history.pushState(state, path || '', url)
 }
 
-function removeURLParameter(urlPart) {
-    // urlPart is the part after ? in a url i.e. a=3&b=4&...
-    var paramsToRemove = ['requestedUsername', 'network', 'token', 'requestedUserId'];
-    urlPart = urlPart.split('&');
-    for (var i=urlPart.length; i>0; i--) {
-        var prefix = urlPart[i-1].split('=')[0];
-        if (paramsToRemove.indexOf(prefix) != -1) {
-            urlPart.splice(i-1, 1);
-        }
-    }
-    return urlPart.join('&');
+function convertStateToURL(state) {
+    state = stashKeysFromURL(state)
+    state = PB.flatten(state)
+    
+    var url = Object.keys(state)
+                    .map(function(key) {
+                        return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
+                    .join('&')
+
+    return '?' + url
 }
 
-function setViewPropsFromURL() {
-    var pushstate = getQuerystringObject()
-    setViewPropsFromPushstate(pushstate)
+
+function setPropsFromURL() {
+    var qobj  = getQuerystringObject()
+    pushstate = PB.unflatten(qobj)
+    setPropsFromPushstate(pushstate)
 }
 
-function setViewPropsFromPushstate(pushstate) {
+function setPropsFromPushstate(pushstate) {
     var sig = pushstate.puff
 
     if(sig)
         pushstate.puff = PuffForum.getPuffBySig(sig)
 
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
-    PB.update_puffworldprops(props)
+    
+    update_puffworldprops(props)
 
-    if(!sig || props['view.puff']) { // we've got it
+    if(!sig || props['view.puff']) {                            // we've got it
         return updateUI()
     }
 
-    // we ain't got it
-    var prom = PuffData.pending[sig]
+    var prom = PuffData.pending[sig]                            // we ain't got it
     if(!prom)
         return Puffball.onError('Bad sig in pushstate')
 
-    // now we have it
-    prom.then(function(puffs) {
+    prom.then(function(puffs) {                                 // now we have it
         props['view.puff'] = puffs[0]
-        PB.update_puffworldprops(props)
+        update_puffworldprops(props)
         updateUI()
     })
 }
@@ -299,9 +292,33 @@ function getQuerystringObject() {
             return acc}, {})
 }
 
+// TODO: what we really want is to stash these *on first page load*, and to replace the history at that point 
+//       so we skip it when going back through time. if we do that then we don't need to look for these every 
+//       time we update the URL.
+
+stashedKeysFromURL = {}
+
+function stashKeysFromURL(state) {
+    state = PB.shallow_copy(state) // clone before delete
+    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
+    
+    for(var key in state) {
+        if(!~keysToStash.indexOf(key)) continue
+        stashKeysFromURL[key] = state[key]
+        delete state[key]
+    }
+    
+    return state
+}
+
+function getStashedKeysFromURL() {
+    return stashedKeysFromURL
+}
 
 
 
+
+///// Puff display helpers /////// 
 
 
 
@@ -323,17 +340,19 @@ function showPuff(sig) {
     prom.then(function(puffs) {                                     // okay got it.
         showPuffDirectly(puffs[0])
     })
-
 }
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
+    events.pub('ui/show/tree', { 'view.style': 'PuffTallTree'
+                               , 'view.puff' : puff
+                               , 'menu'      : puffworlddefaults.menu
+                               , 'reply'     : puffworlddefaults.reply})
 }
 
 
 function renderPuffWorld() {
-    var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
+    var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
 
     // puffworldprops has to contain some important things like prefs
     // THINK: this is probably not the right place for this...
@@ -343,37 +362,37 @@ function renderPuffWorld() {
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
+update_puffworldprops = function(data) {
+    puffworldprops = PB.persistent_merge(puffworldprops, data)
+}
+
+
 
 
 ///////// PuffForum Interface ////////////
 
-// keep this down at the bottom -- it has to load after everything else
+// NOTE: this has to load last, so keep it at the bottom
 
 window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
-    || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
-    || setTimeout
+                            || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+                            || setTimeout
 
-// only update once per rAF
-var updateUI = onceRAF.bind(this, renderPuffWorld)
+var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
-// Register our update function
 var eatPuffs = function(puffs) {
-    // call the display logic
-
-    if(!Array.isArray(puffs) || !puffs.length) {
+    if(!Array.isArray(puffs) || !puffs.length)
         return false;
-    }
 
     updateUI();
 }
 
-PuffForum.onNewPuffs(eatPuffs); // assign our callback
+PuffForum.onNewPuffs(eatPuffs);                     // register our update function
 
-PuffForum.init(); // initialize the forum module (and by extension the puffball network)
+PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
 
-PuffWardrobe.setPref('storeKeychain', true); // TODO: make this based on config, and changeable
+PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
 
-setViewPropsFromURL(); // handle pushstate hash
+setPropsFromURL();                                  // handle pushstate hash
 
 window.addEventListener('resize', function() {
     updateUI();
@@ -385,16 +404,13 @@ window.addEventListener('load', function() {
     setTimeout(function() {
         window.addEventListener('popstate', function(event) {
             if(event.state)
-                return setViewPropsFromPushstate(event.state);
+                return setPropsFromPushstate(event.state);
 
             puffworldprops = puffworlddefaults;
             updateUI();
         });
     }, 0);
 });
-
-// updateUI(); // bootstrap the GUI
-
 
 
 ////////// End PuffForum Interface ////////////

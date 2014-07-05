@@ -553,7 +553,6 @@ PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
-
     }
 }) */
 
@@ -566,7 +565,7 @@ PuffForum.addContentType('LaTex', {
 // PuffForum.addContentType('encryptedpuff', {
 //     toHtml: function(content, envelope) {                                                 // the envelope is a puff
 //         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
-//         if(!letter) return 'This is encrypted';                                                            // can't read the letter
+//         if(!letter) return 'This is encrypted';                                           // can't read the letter
 //         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
 //     }
 // })

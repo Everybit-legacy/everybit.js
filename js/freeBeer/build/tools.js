@@ -307,7 +307,8 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         ));
 
 
-        var params = getQuerystringObject();
+        // var params = getQuerystringObject();
+        var params = getStashedKeysFromURL();
         var importUser = false;
         var requestedUsername = username;
         if (params['requestedUsername']) {

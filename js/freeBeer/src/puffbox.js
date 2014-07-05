@@ -421,7 +421,7 @@ var TipButton = React.createClass({
         if(this.state.btcAddy)
             return (
                     <div className="tip">
-                        Tip user: <a href={"wallet:" + this.state.btcAddy}><i className="fa fa-bitcoin fa-fw"></i></a>
+                        Tip user: <a href={"bitcoin:" + this.state.btcAddy}><i className="fa fa-bitcoin fa-fw"></i></a>
                     </div>
             )
 
@@ -512,6 +512,7 @@ var PuffPermaLink = React.createClass({
         var sig  = this.props.sig;
         // var puff = PuffForum.getPuffBySig(sig);
         showPuff(sig);
+        return false;
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];

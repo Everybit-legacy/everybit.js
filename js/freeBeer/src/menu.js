@@ -962,14 +962,7 @@ var NewIdentity = React.createClass({
     },
     handleContentImport: function() {
         var network = this.state.importInfo.network;
-        var prom = UsernameImport[network].importContent(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.id);
-        prom.then(function() {
-            console.log('import finished');
-            this.props.importUsername = "";
-            this.setState({enableContentImport: false});
-        })  .catch(function(err) {
-            this.setState({usernameMessage: err.message})
-        });
+        UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
     },
     handleCancelImport: function() {
         this.setState({desiredUsername: '', importInfo: {}})
@@ -1121,7 +1114,7 @@ var NewIdentity = React.createClass({
             var importContentField = "";
             if (this.state.enableContentImport) {
                 importContentField = (
-                    <a href="#" onClick={this.handleContentImport}>Import Content</a>
+                    <span id="importContent"><a href="#" onClick={this.handleContentImport}>Import Content</a></span>
                 );
             }
 
@@ -1243,7 +1236,6 @@ var NewIdentity = React.createClass({
 
         // import
         var importInfo = this.state.importInfo;
-        console.log(importInfo);
         if (Object.keys(importInfo).length != 0) {
             payload.importNetwork = importInfo.network;
             payload.importToken = importInfo.token;
@@ -1258,7 +1250,7 @@ var NewIdentity = React.createClass({
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
-                    enableContentImport: true,
+                    enableContentImport: importInfo.network == "instagram",
                     usernameMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
@@ -1268,7 +1260,7 @@ var NewIdentity = React.createClass({
             function(err) {
                 console.log("ERR")
                 self.setState({step: 3,
-                    enableContentImport: true,
+                    enableContentImport: importInfo.network == "instagram",
                     usernameMessage: err.toString()});
                 events.pub('ui/event', {});
             });

@@ -9,37 +9,27 @@ var PuffPublishFormEmbed = React.createClass({
                 showAdvanced: false,
                 advancedOpt : {}};
     },
+    preventDragText: function() {
+        if (this.refs.content) {
+            var content = this.refs.content.getDOMNode();
+            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
+        }
+    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
-
-
-        var replyForm_el = this.getDOMNode();
-        draggableize(replyForm_el);
         
         if(this.refs.content) {
-            var content_el = this.refs.content.getDOMNode();
-            // if(content_el.focus)
-                // content_el.focus();
-        }
-
-        var content = document.getElementById("content");
-        if (content) {
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-            content.focus();
+            var content = this.refs.content.getDOMNode();
+            if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();
         this.setState(puffworldprops.reply.state);
+        this.preventDragText();
     },
     componentDidUpdate: function() {
-        var replyForm_el = this.getDOMNode();
-        draggableize(replyForm_el);
-
-        var content = document.getElementById("content");
-        if (content) {
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-        }
+        this.preventDragText();
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -292,12 +282,13 @@ var PuffPublishFormEmbed = React.createClass({
         var sendToInputStyle = {
             display: 'inline-block',
             width: '70%',
-            border: '1px solid #333333',
+            border: 'none',
+            textAlign: 'left',
             marginBottom: '5px'
         }
         var sendToField = (
             <div>
-                <span style={sendToSpanStyle}>Send to: </span><input style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>
+                <span style={sendToSpanStyle}>Send to: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>
             </div>
         );
 
@@ -306,7 +297,7 @@ var PuffPublishFormEmbed = React.createClass({
             marginRight: '2%'
         }
         var typeOption = (
-            <select style={typeStyle} ref="type" className="btn" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select className="btn" style={typeStyle} ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}

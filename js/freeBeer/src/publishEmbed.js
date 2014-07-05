@@ -465,7 +465,9 @@ var PuffPublishFormEmbed = React.createClass({
                     {privacyOption}<br />
                     {contentField}<br/>
                     {errorField}
-                    {expandButton}{previewToggle}{sendButton}
+                    {expandButton}
+                    {previewToggle}
+                    {sendButton}
                     {advancedField}
                 </div>
             </div>

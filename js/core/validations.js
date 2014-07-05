@@ -1,3 +1,10 @@
+/**
+ * Set of canonical validations for everything related to puffs and users.
+ *
+ */
+
+
+
 function isValidUsername(username) {
     if (!username.match(/^[A-Za-z0-9]+$/)) {
         return false;

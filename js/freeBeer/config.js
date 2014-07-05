@@ -24,15 +24,16 @@ CONFIG.zone = 'everybit';
 
 CONFIG.url = 'http://www.everybit.com';
 CONFIG.logo = 'img/EveryBit.gif';
+
+/* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
 
 CONFIG.text_threshold = 400;
 
 // List of supported
-// TODO, this is specified elsehere remove!
+// TODO: This is not hooked up.
 CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
 CONFIG.defaultContentType = 'markdown';
-
 
 CONFIG.anon = {};
 CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'; // public: 161s1zgTMSVLCp72SBphusQHzBzhjqtK5SSrCqKn17VfdvJPugz
@@ -60,6 +61,7 @@ CONFIG.users['chess'] = {adminKey: '5HuvxAxU1ER2riUjA6yhJ6uVHp8eCJFoqVuXHnG5Jw4Z
 // How much space to leave on left side of screen, in pixels
 CONFIG.leftMargin = 60;
 
+/* Puffs must be at least this many characters to be submitted */
 CONFIG.minimumPuffLength = 3;
 CONFIG.PGNTimeout = 5;
 

@@ -77,8 +77,6 @@ puffworldprops = {
 
 puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
-
-
 ///// event stuff. move this into either PuffForum or Puff itself.
 
 events = {}
@@ -165,12 +163,10 @@ events.scrub_path = function(path) {
 }
 
 
-eventlog = []
+eventlog = [];
 events.sub('*', function(data, path) {
     eventlog.push([path, data])
 })
-
-
 
 
 //// event bindings for controlling core behavior from the display
@@ -191,7 +187,7 @@ events.sub('profile/nickname/set', function(data, path) {
     PuffWardrobe.setProfileItem('nickname', nickname)
 
     events.pub('ui/menu/profile/nickname/set')
-})
+});
 
 
 ///// event bindings that are specific to the GUI //////
@@ -214,18 +210,18 @@ events.sub('ui/*', function(data, path) {
     puffworldprops.reply.preview = false;
     // then re-render PuffWorld w/ the new props
     updateUI()
-})
+});
 
 /// move these into their own lib
 events.update_puffworldprops = function(data) {
     puffworldprops = events.handle_merge_array(puffworldprops, data)
-}
+};
 
 events.handle_merge_array = function(props, data) {
     return Object.keys(data).reduce(function(props, key) {
         return events.merge_props(props, key, data[key])
     }, props)
-}
+};
 
 events.merge_props = function(props, path, value) {
     var segs = path.split('.')
@@ -239,16 +235,11 @@ events.merge_props = function(props, path, value) {
 
     next[last] = value
     return final
-}
+};
 
 events.shallow_copy = function(obj) {
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
-}
-
-
-
-
-
+};
 
 
 

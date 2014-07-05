@@ -102,11 +102,11 @@ var PuffPacker = React.createClass({
         var privateKeys = PuffWardrobe.getCurrentKeys();
 
         if(!privateKeys.username) {
-            this.state.result = {"FAIL": "You must set your identity before building registration requests."}
+            this.state.result = {"FAIL": "You must set your identity before building registration requests."};
             return events.pub('ui/puff-packer/user-registration/error', {});
         }
 
-        this.state.result = {}
+        this.state.result = {};
 
         var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
@@ -457,7 +457,6 @@ var PuffSwitchUser = React.createClass({
         var username = PuffWardrobe.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
-
         return (
             <div className="menuItem">
             Change user:

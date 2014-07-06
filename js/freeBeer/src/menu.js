@@ -228,7 +228,7 @@ var FilterMenu = React.createClass({
 var CurrentFilters = React.createClass({
     render: function() {
         var filterNodes = Object.keys(this.props.view.filter).map(function(key) {
-            return <Filter filterName={key} filterValue={this.props.view.filter[key]} />
+            return <FilterBubble filterName={key} filterValue={this.props.view.filter[key]} />
         }.bind(this))
 
         return (
@@ -239,7 +239,7 @@ var CurrentFilters = React.createClass({
     }
 });
 
-var Filter = React.createClass({
+var FilterBubble = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
          var filterPath  = 'view.filter.' + this.props.filterName;
@@ -251,9 +251,11 @@ var Filter = React.createClass({
          // if (viewStyle == 'PuffByUser') viewStyle = "PuffLatest";
 
          var index = filterValue.indexOf(toRemove);
-         if (index > -1) {
+         if(index >= 0) {
             filterValue.splice(index, 1);
-            return events.pub('ui/filter/remove', { filterPath: filterValue })
+            var propsMod = {};
+            propsMod[filterPath] = filterValue;
+            return events.pub('ui/filter/remove', propsMod);
          }
 
         return false;

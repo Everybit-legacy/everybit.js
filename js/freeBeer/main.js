@@ -361,7 +361,24 @@ function renderPuffWorld() {
 
 update_puffworldprops = function(data) {
     puffworldprops = PB.persistent_merge(puffworldprops, data)
+    
+    // THINK: this is not the right place for this...
+    // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
+    if(!Array.isArray(puffworldprops.view.filter.routes)) {
+        if(!puffworldprops.view.filter.routes)
+            puffworldprops.view.filter.routes = []
+        else 
+            puffworldprops.view.filter.routes = [puffworldprops.view.filter.routes]
+    }
+    if(!Array.isArray(puffworldprops.view.filter.users)) {
+        if(!puffworldprops.view.filter.users)
+            puffworldprops.view.filter.users = []
+        else 
+            puffworldprops.view.filter.users = [puffworldprops.view.filter.users]
+    }
 }
+
+
 
 
 

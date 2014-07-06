@@ -373,16 +373,19 @@ var PuffWorld = React.createClass({
         var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
         // TODO: Focus the reply box when arrow clicked
 
+        // THINK: why do we need this?
         if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
-            this.props.menu.show = true;
+            this.props.menu.show = true;            // TODO: don't mutate props!
         }
         if (viewprops.style == "MenuAdd") {
-            this.props.menu.section = "identity";
+            this.props.menu.section = "identity";   // TODO: don't mutate props!
         }
 
-        var menu = this.props.menu.show ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} /></div> : '';
+        var menu = this.props.menu.show 
+                 ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} view={this.props.view} /></div> 
+                 : '';
 
-        var animateClass =  this.props.view.animation ? "animation" : '';
+        var animateClass = this.props.view.animation ? "animation" : '';
 
         return (
             <div className={animateClass}>
@@ -392,7 +395,7 @@ var PuffWorld = React.createClass({
                 {replyExpand}
                 <PuffFooter />
             </div>
-            )
+        )
     }
 });
 

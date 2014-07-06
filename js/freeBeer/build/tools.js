@@ -318,6 +318,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
             this.handleSetIdentityToAnon();
             importUser  = true;
             requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
+            // TODO: don't mutate props!
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
             this.props.importNetwork = params['network'];

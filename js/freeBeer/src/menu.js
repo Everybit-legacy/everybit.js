@@ -60,7 +60,7 @@ var Menu = React.createClass({
                 <Logo />
 
                 <br />
-                <Cluster clusterName="filter" clusterPath='ui/clusters/filter' clusterPropPath='clusters.filter' 
+                <Cluster clusterName="filters" clusterPath='ui/clusters/filters' clusterPropPath='clusters.filters' 
                          clusterMenu='FilterMenu' clusterIcon='fa-search-plus' view={this.props.view} />
                 <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
                          clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
@@ -115,7 +115,7 @@ var Cluster = React.createClass({
 
         switch (this.props.clusterName) {
 
-        case "filter":
+        case "filters":
             clusterMenu = <div><CurrentFilters view={this.props.view} /><FilterMenu view={this.props.view} /></div>
             break;
         case "publish":
@@ -180,8 +180,8 @@ var FilterMenu = React.createClass({
         var user  = this.refs.pickuser .getDOMNode().value || false;
         var route = this.refs.pickroute.getDOMNode().value || false;
 
-        var filterRoutes = PB.shallow_copy(this.props.view.filter.routes);         // don't mutate the props!
-        var filterUsers  = PB.shallow_copy(this.props.view.filter.users);
+        var filterRoutes = PB.shallow_copy(this.props.view.filters.routes);         // don't mutate the props!
+        var filterUsers  = PB.shallow_copy(this.props.view.filters.users);
         
         if (route && filterRoutes.indexOf(route) == -1) filterRoutes.push(route);        
         if (user  && filterUsers .indexOf(user)  == -1) filterUsers .push(user);
@@ -189,8 +189,8 @@ var FilterMenu = React.createClass({
         this.refs.pickroute.getDOMNode().value = '';
         this.refs.pickuser .getDOMNode().value = '';
 
-        return events.pub('ui/view/route/set', { 'view.filter.users':  filterUsers
-                                               , 'view.filter.routes': filterRoutes
+        return events.pub('ui/view/route/set', { 'view.filters.users':  filterUsers
+                                               , 'view.filters.routes': filterRoutes
                                                , 'view.style': 'PuffLatest'});
     },
     
@@ -205,7 +205,7 @@ var FilterMenu = React.createClass({
         return (
             <div>
                 <div className="menuItem">
-                    {polyglot.t("menu.filter.route")}:
+                    {polyglot.t("menu.filters.routes")}:
                     <div className="menuInput">
                         <input type="text" name="pickroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
@@ -213,7 +213,7 @@ var FilterMenu = React.createClass({
                     </div><br/>
                 </div>
                 <div className="menuItem">
-                    {polyglot.t("menu.filter.user")}:
+                    {polyglot.t("menu.filters.users")}:
                     <div className="menuInput">
                         <input type="text" name="pickuser" ref="pickuser" size="12" onKeyDown={this.handleKeyDown}  />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
@@ -227,8 +227,8 @@ var FilterMenu = React.createClass({
 
 var CurrentFilters = React.createClass({
     render: function() {
-        var filterNodes = Object.keys(this.props.view.filter).map(function(key) {
-            return <FilterBubble filterName={key} filterValue={this.props.view.filter[key]} />
+        var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
+            return <FilterBubble filterName={key} filterValue={this.props.view.filters[key]} />
         }.bind(this))
 
         return (
@@ -242,7 +242,7 @@ var CurrentFilters = React.createClass({
 var FilterBubble = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
-         var filterPath  = 'view.filter.' + this.props.filterName;
+         var filterPath  = 'view.filters.' + this.props.filterName;
          var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
          // var propPiece = puffworldprops.filter[this.props.filterName]; 
 
@@ -307,7 +307,7 @@ var ViewMenu = React.createClass({
         return events.pub('ui/show/latest', { 'view.style': 'PuffLatest'
                                             , 'view.puff': false
                                             , 'menu': puffworlddefaults.menu
-                                            , 'view.filter': puffworlddefaults.view.filter});
+                                            , 'view.filters': puffworlddefaults.view.filters});
     },
 
     handleShowUserPuffs: function(username) {
@@ -331,7 +331,7 @@ var ViewMenu = React.createClass({
         }
         // console.log(username);
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filter.routes': username});
+        return events.pub('ui/view/route/set', {'view.filters.routes': username});
     },
 
     render: function() {
@@ -619,7 +619,7 @@ var AuthorPicker = React.createClass({
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
         // var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'filter.usernames': [username]})
+        return events.pub('ui/show/by-user', {'view.style': 'PuffList', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
     },
 
 

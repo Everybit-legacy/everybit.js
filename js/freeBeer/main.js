@@ -2,14 +2,13 @@
 
 puffworldprops = {
     clusters: {
-        filter: true,
+        filters: true,
         publish: true,
         view: true,
         identity: true,
         preferences: true,
         about: false,
         tools: false
-
     },
 
     menu: {
@@ -27,7 +26,7 @@ puffworldprops = {
     },
 
     view: {
-        filter: {
+        filters: {
             routes: [],
             users : []
         },
@@ -364,17 +363,17 @@ update_puffworldprops = function(data) {
     
     // THINK: this is not the right place for this...
     // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
-    if(!Array.isArray(puffworldprops.view.filter.routes)) {
-        if(!puffworldprops.view.filter.routes)
-            puffworldprops.view.filter.routes = []
+    if(!Array.isArray(puffworldprops.view.filters.routes)) {
+        if(!puffworldprops.view.filters.routes)
+            puffworldprops.view.filters.routes = []
         else 
-            puffworldprops.view.filter.routes = [puffworldprops.view.filter.routes]
+            puffworldprops.view.filters.routes = [puffworldprops.view.filters.routes]
     }
-    if(!Array.isArray(puffworldprops.view.filter.users)) {
-        if(!puffworldprops.view.filter.users)
-            puffworldprops.view.filter.users = []
+    if(!Array.isArray(puffworldprops.view.filters.users)) {
+        if(!puffworldprops.view.filters.users)
+            puffworldprops.view.filters.users = []
         else 
-            puffworldprops.view.filter.users = [puffworldprops.view.filter.users]
+            puffworldprops.view.filters.users = [puffworldprops.view.filters.users]
     }
 }
 

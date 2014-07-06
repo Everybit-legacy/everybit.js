@@ -365,6 +365,9 @@ var PuffWorld = React.createClass({
         else if( viewprops.style == 'PuffLatest' )
             view  = <PuffLatest      view={viewprops} reply={this.props.reply} />
 
+        else if( viewprops.style == 'PuffList' )
+            view  = <PuffList        view={viewprops} reply={this.props.reply} />
+
         else if( viewprops.style == 'PuffPacker' )
             view  = <PuffPacker      tools={this.props.tools} />
 
@@ -468,8 +471,8 @@ var PuffList = React.createClass({
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
-        var filters = this.props.filters
-        var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
+        var filters = this.props.view.filters
+        var puffs = PuffForum.getPuffList(limit, puffworldprops, filters);
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

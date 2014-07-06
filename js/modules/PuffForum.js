@@ -281,6 +281,62 @@ PuffForum.getLatestPuffs = function(limit, props) {
 } 
 
 /**
+ * returns a list of puffs
+ * @param  {number} limit
+ * @param  {props} props
+ * @param  {filters} filters
+ * @return {array of puffs}
+ */
+PuffForum.getPuffList = function(limit, props, filters) {
+    //// returns a list of puffs
+
+    limit = limit || Infinity
+
+    var shells = PuffForum.getShells()
+    
+    var filtered_shells = shells.filter(PuffForum.filterByFilters(filters))
+                                .sort(PuffForum.sortByPayload) // sort by filters
+                                
+    var puffs = filtered_shells.slice(0, limit)
+                               .map(Puffball.getPuffFromShell)
+                               .filter(Boolean);
+
+    var have = filtered_shells.length
+    if(have >= limit)
+        return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
+
+    PuffData.fillSomeSlotsPlease(limit, have, props, filters)
+    
+    return puffs;
+} 
+
+/**
+ * filter puffs by prop filters
+ * @param  {filters} filters
+ * @return {boolean}
+ */		
+PuffForum.filterByFilters = function(filters) {
+    /// filter puffs by prop filters
+    
+    if(!filters) return function() {return true}
+    
+    //// get a filtering function
+    return function(shell) {
+        if(filters.routes && filters.routes.length > 0) {
+            var routeMatch = false;
+            for (var i=0; i<filters.routes.length; i++) {
+                if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
+            }
+            if (!routeMatch) return false;
+        }
+        if(filters.users && filters.users.length > 0)
+            if (!~filters.users.indexOf(shell.username)) return false
+        return true
+    }
+}
+
+
+/**
  * returns all known puffs from given user, sorted by time
  * @param  {string} username
  * @param  {number} limit

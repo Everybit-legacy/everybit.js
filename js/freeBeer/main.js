@@ -1,13 +1,6 @@
 // Bridge between visualization framework and js/forum files
 
 puffworldprops = {
-    filter: {
-        usernames: [],
-        routes: [],
-        tags: [],
-        types: []
-    },
-
     clusters: {
         filter: true,
         publish: true,
@@ -35,20 +28,20 @@ puffworldprops = {
 
     view: {
         filter: {
-            routes: false,                              // a single route
-            users: false
+            routes: [],
+            users : []
         },
-        language   : 'en',
-        style      : 'PuffRoots',
-        puff       : false,                             // focused puff (not just sig)
-        user       : false,                             // username // TODO: make this part of filter
-        mode       : 'browse',                          // 'browse' or 'arrow'
-        rows       : 4,
-        cols       : 5,
-        boxRatio   : 1,
-        animation  : true,                              // true -> animate everything; false -> animate nothing
-        cursor     : false,                             // sig of selected puff
-        showinfo   : false                              // true -> always show info boxes; false -> only on hover
+        language  : 'en',
+        style     : 'PuffRoots',
+        puff      : false,                              // focused puff (not just sig)
+        user      : false,                              // username // TODO: make this part of filter
+        mode      : 'browse',                           // 'browse' or 'arrow'
+        rows      : 4,
+        cols      : 5,
+        boxRatio  : 1,
+        animation : true,                               // true -> animate everything; false -> animate nothing
+        cursor    : false,                              // sig of selected puff
+        showinfo  : false                               // true -> always show info boxes; false -> only on hover
     },
 
     reply: {
@@ -74,7 +67,7 @@ puffworldprops = {
     }
 }
 
-puffworlddefaults = puffworldprops                  // it's immutable so we don't care
+puffworlddefaults = puffworldprops                      // it's immutable so we don't care
 
 
 
@@ -207,6 +200,7 @@ function draggableize(el) {
 function setURLfromViewProps() {
     var viewprops = PB.shallow_copy(puffworldprops.view)
     
+    // TODO: fix this
     if(viewprops.puff)
         viewprops.puff = viewprops.puff.sig
     else
@@ -243,8 +237,10 @@ function convertStateToURL(state) {
     state = PB.flatten(state)
     
     var url = Object.keys(state)
+                    .filter(function(key) {return key && state[key] && state[key].length !== 0})
                     .map(function(key) {
-                        return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
+                        return encodeURIComponent(key) + "=" 
+                             + encodeURIComponent(state[key].join ? state[key].join('~') : state[key] || '') })
                     .join('&')
 
     return '?' + url
@@ -253,12 +249,15 @@ function convertStateToURL(state) {
 
 function setPropsFromURL() {
     var qobj  = getQuerystringObject()
-    pushstate = PB.unflatten(qobj)
+    Object.keys(qobj).forEach(function(key) {qobj[key] = !~qobj[key].indexOf('~') ? qobj[key] : qobj[key].split('~')})
+    var pushstate = PB.unflatten(qobj)
     setPropsFromPushstate(pushstate)
 }
 
 function setPropsFromPushstate(pushstate) {
     var sig = pushstate.puff
+    
+    // TODO: move most of this to convertURLToState and move the fancy stuff in to renderPuffWorld
 
     if(sig)
         pushstate.puff = PuffForum.getPuffBySig(sig)

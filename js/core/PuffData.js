@@ -198,19 +198,6 @@ PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
     getMeSomeShells()
 }
 
-PuffData.propsToFilterParams = function(props) {
-    var params = {}
-    
-    if(!props || !props.view) return params
-    
-    if(props.view.filterroute)
-        params.route = props.view.filterroute
-    if(props.view.filteruser)
-        params.user = props.view.filteruser
-        
-    return params
-}
-
 
 /*
     End shell collection intake equipment

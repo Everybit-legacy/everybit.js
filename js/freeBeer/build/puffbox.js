@@ -55,7 +55,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     handleClick: function() {
         var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+        return events.pub('ui/show/by-user', {'view.style': 'PuffList', 'view.puff': false, 'view.filters.users': [username]})
     },
     render: function() {
         var username = humanizeUsernames(this.props.username)

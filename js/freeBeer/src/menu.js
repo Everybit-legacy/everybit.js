@@ -191,7 +191,7 @@ var FilterMenu = React.createClass({
 
         return events.pub('ui/view/route/set', { 'view.filters.users':  filterUsers
                                                , 'view.filters.routes': filterRoutes
-                                               , 'view.style': 'PuffLatest'});
+                                               , 'view.style': 'PuffList'});
     },
     
     handleKeyDown: function(event) {
@@ -304,16 +304,16 @@ var ViewMenu = React.createClass({
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/latest', { 'view.style': 'PuffLatest'
+        return events.pub('ui/show/latest', { 'view.style': 'PuffList'
                                             , 'view.puff': false
                                             , 'menu': puffworlddefaults.menu
                                             , 'view.filters': puffworlddefaults.view.filters});
     },
 
     handleShowUserPuffs: function(username) {
-        return events.pub('ui/show/by-user', { 'view.style': 'PuffByUser'
+        return events.pub('ui/show/by-user', { 'view.style': 'PuffList'
                                              , 'view.puff': false
-                                             , 'view.user': username})
+                                             , 'view.filters.users': [username]})
     },
 
     handleShowShortcuts: function() {

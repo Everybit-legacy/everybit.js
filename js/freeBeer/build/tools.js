@@ -45,7 +45,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleClose: function() {
-        return events.pub('ui/puff-packer/close', {'view.style': 'PuffRoots'})
+        return events.pub('ui/puff-packer/close', {'view.mode': 'list'})
     },
 
     handleUsernameLookup: function() {
@@ -307,7 +307,8 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         ));
 
 
-        var params = getQuerystringObject();
+        // var params = getQuerystringObject();
+        var params = getStashedKeysFromURL();
         var importUser = false;
         var requestedUsername = username;
         if (params['requestedUsername']) {
@@ -317,6 +318,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
             this.handleSetIdentityToAnon();
             importUser  = true;
             requestedUsername = reduceUsernameToAlphanumeric(params['requestedUsername']);
+            // TODO: don't mutate props!
             this.props.importToken = params['token'];
             this.props.importId = params['requestedUserId'];
             this.props.importNetwork = params['network'];

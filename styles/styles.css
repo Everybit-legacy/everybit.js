@@ -525,6 +525,11 @@ fieldset[disabled] .btn-link {
     color: #555;
 }
 
+/* show grey when dropdown is disabled */
+select:disabled {
+    background-color: #ddd;
+}
+
 #text-zoom {
     width: 50px;
     border: 2px;
@@ -588,6 +593,10 @@ fieldset[disabled] .btn-link {
     margin-left: 15px;
     cursor: pointer;
     vertical-align: middle;
+}
+
+#imageLoader {
+    width: 100%;
 }
 
 .logo {
@@ -803,6 +812,13 @@ fieldset[disabled] .btn-link {
     height: 200px;
     margin-top: 10px;
     border: 1px solid #333;
+}
+
+.message {
+    color: #ff0000;
+    margin: 5px 0;
+    font-weight: bold;
+    line-height: 100%;
 }
 
 

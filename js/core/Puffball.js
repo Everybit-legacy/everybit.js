@@ -41,8 +41,7 @@ Puffball.newPuffCallbacks = [];
 Puffball.init = function(zone) {
     PuffData.depersistUserRecords()
     
-    PuffData.fetchLocalShells(Puffball.receiveNewPuffs)
-    PuffData.fetchNewShells() // THINK: this should take a set of zones
+    PuffData.importShells()
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
@@ -207,42 +206,27 @@ Puffball.getUserRecordNoCache = function(username) {
  * @param  {string or object} shell a string which is a signature of a puff; or an object contains partial information of a puff
  * @return {puff object} returns a puff based on the shell; returns false if the shell is empty
  */
-Puffball.getPuffFromShell = function(shell) {
-    if(!shell)
-        return false
+Puffball.getPuffFromShell = function(shell_or_sig) {
+    if(!shell_or_sig)
+        return false // false so we can filter empty shells out easily, while still loading them on demand
     
-    if(shell.payload) { // shell is not just a sig    
-        if(shell.payload.content !== undefined)
-            return shell
+    if(shell_or_sig.payload && shell_or_sig.payload.content !== undefined)
+        return shell_or_sig // it's actually a full blown puff
     
-        var puff = PuffData.puffs.filter(function(puff) { return puff.sig === shell.sig })[0]
-        
-        if(puff)
-            return puff
-    }
+    var sig = shell_or_sig.sig || shell_or_sig
     
-    var sig = shell.sig || shell
-    
-    if(PuffData.pending[sig])
-        return false
-    
-    PuffData.pending[sig] = PuffNet.getPuffBySig(sig) // THINK: need some GC here...
-    PuffData.pending[sig].then(Puffball.receiveNewPuffs)
-    
-    return false // so we can filter empty shells out easily, while still loading them on demand
+    return PuffData.getPuffBySig(sig) // returns a puff, or asks the network and returns false
 }
 
 /**
- * add a puff to our local cache and fire the callback for new content
+ * handle a newly created puff: add to our local cache and fire new content callbacks
  * @param {puff object} puff 
  */
 Puffball.addPuffToSystem = function(puff) {
     
     if(PuffData.getCachedShellBySig(puff.sig)) return false
     
-    PuffData.addNewShell(puff);
-    
-    Puffball.receiveNewPuffs([puff]);
+    PuffData.addShellsThenMakeAvailable(puff);
 
     PuffNet.distributePuff(puff);
     
@@ -257,13 +241,13 @@ Puffball.addPuffToSystem = function(puff) {
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
     
+    // TODO: this is only called from PuffData.makeShellsAvailable -- pull this down there or rethink it all
+    
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
     
     puffs = puffs.filter(function(puff) {
         return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
-  
-    puffs.forEach(function(puff) { PuffData.eatPuff(puff) });                       // cache all the puffs
-  
+    
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
     return puffs;
@@ -323,238 +307,6 @@ Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWi
     var letterString = Puffball.Crypto.decryptWithAES(letterCipher, puffkey)
     return Puffball.parseJSON(letterString)
 }
-
-
-
-
-// DATA LAYER
-
-PuffData = {};
-PuffData.puffs = [];
-PuffData.bonii = {};
-PuffData.shells = [];
-PuffData.shellSort = {};
-// PuffData.shelf = [];
-PuffData.pending = {};
-PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
-
-/**
- * get the current known shells
- * @return {array of objects}
- */
-PuffData.getShells = function() {
-    //// Get the currently known shells
-    // NOTE: always use this accessor instead of referencing PuffData.shells directly, as what this function does will change.
-    return PuffData.shells
-}
-
-PuffData.getPublicShells = function() {
-    //// Get all public shells
-    var shells = PuffData.getShells()
-    return shells.filter(function(shell) {return !shell.keys})
-}
-
-PuffData.getMyEncryptedShells = function(username) {
-    //// Get currently known private shells for a particular user
-    var shells = PuffData.getShells()
-    return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
-}
-
-PuffData.getCachedShellBySig = function(sig) {
-    return PuffData.shellSort[sig]
-    // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
-}
-
-PuffData.addBonus = function(puff, key, value) {
-    //// this simulates a WeakMap
-    // THINK: we'll need to provide some GC here
-    var id = puff.sig
-    
-    if(!PuffData.bonii[id])
-        PuffData.bonii[id] = {}
-    
-    PuffData.bonii[id][key] = value
-}
-
-PuffData.getBonus = function(puff, key) {
-    var id = puff.sig
-    var puffBonii = PuffData.bonii[id]
-    return puffBonii && puffBonii[key]
-}
-
-
-/**
- * to push the puff
- * @param  {puff object} puff
- * @return {boolean}
- */
-PuffData.eatPuff = function(puff) {
-    if(!!~PuffData.puffs
-                  .map(function(p) {return p.sig})     // OPT: check the sig index instead
-                  .indexOf(puff.sig)) 
-      return false;
-    PuffData.puffs.push(puff);  
-}
-
-/**
- * to persist shells
- * @param  {object} shells
- * @return {boolean}
- */
-PuffData.persistShells = function(shells) {
-    if(CONFIG.noLocalStorage) return false;                 // THINK: this is only for debugging and development
-    Puffball.Persist.save('shells', shells);
-}
-
-/**
- * to add new shell
- * @param {object} shell
- */
-PuffData.addNewShell = function(shell) {
-    
-    if(!PuffData.verifyShell(shell))
-        return false;
-    
-    if(PuffData.getCachedShellBySig(shell.sig)) return false;
-    
-    // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
-    
-    
-    // if(shell.payload.type == 'encryptedpuff') {
-    //     // THINK: later we'll need to GC shells on the shelf that aren't in my wardrobe
-    //     PuffData.shelf.push(shell);                                 // if a shell is private, put it on the shelf
-    //     PuffData.persistShells(PuffData.shells.concat([shell]));    // but go ahead and persist it anyway
-    //     return false
-    // }
-    
-    PuffData.shells.push(shell);                                    // otherwise, push it, sort it, persist it
-    PuffData.shellSort[shell.sig] = shell;
-    PuffData.persistShells(PuffData.shells);
-}
-
-PuffData.verifyShell = function(shell) {
-    //// this just checks for the existence of required fields
-    if(!shell.sig) return false
-    if(!shell.routes) return false
-    if(!shell.username) return false
-    if(typeof shell.payload != 'object') return false
-    if(!shell.payload.type) return false
-    // if(!shell.payload.content) return false
-    return true
-}
-
-/**
- * to fetch local shells
- * @param  {Function} callback
- */
-PuffData.fetchLocalShells = function(callback) {
-    // PuffData.shells = Puffball.Persist.get('shells') || [];
-    var localShells = Puffball.Persist.get('shells') || [];
-    localShells.forEach(PuffData.addNewShell);
-    
-    setImmediate(function() {callback(PuffData.shells)});
-    // we're doing this asynchronously in order to not interrupt the loading process
-    // should probably wrap this a bit better (use a promise, or setImmediate)
-    // return setTimeout(function() {callback(Puffball.Persist.get('puffs') || [])}, 888)
-}
-
-/**
- * to fetch new shells
- * @return {boolean}
- */
-PuffData.fetchNewShells = function() {
-    /// TODO: this should call PuffNet.fetchNewShells and then integrate that with our shells from local storage
-    ///       and then we'll get the missing content on demand
-    
-    var prom = PuffNet.getAllPuffShells();
-    
-    prom.then(function(shells) {
-        if(JSON.stringify(PuffData.shells) == JSON.stringify(shells)) 
-            return false;
-        // PuffData.shells = shells;
-        shells.forEach(PuffData.addNewShell)
-        Puffball.Persist.save('shells', shells);
-        shells.forEach(function(shell) {
-            if(shell.payload && shell.payload.content) {
-                Puffball.receiveNewPuffs(shell); 
-            }
-        }) 
-    })
-}
-
-/**
- * to verify a puff
- * @param  {object} puff
- * @return {string/boolean}
- */
-PuffData.verifyPuff = function(puff) {
-    // TODO: check previous sig, maybe
-    // TODO: check for well-formed-ness
-    // TODO: use this to verify incoming puffs
-    // TODO: if prom doesn't match, try again with getUserRecordNoCache
-    
-    var prom = Puffball.getUserRecord(puff.username);
-    
-    return prom.then(function(user) {
-        return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey);
-    });
-}
-
-/**
- * to get cached user record
- * @param  {string} username
- * @return {object}
- */
-PuffData.getCachedUserRecord = function(username) {
-    return PuffData.userRecords[username];
-}
-
-/**
- * to cache user record
- * @param  {object} userRecord
- * @return {object}
- */
-PuffData.cacheUserRecord = function(userRecord) {
-    //// This caches with no validation -- don't use it directly, use Puffball.processUserRecord instead
-    
-    PuffData.userRecords[userRecord.username] = userRecord;
-    
-    Puffball.Persist.save('userRecords', PuffData.userRecords); // OPT: this could get expensive
-    
-    return userRecord;
-    
-    // TODO: index by username
-    // TODO: if duplicate check update times for latest
-    // TODO: figure out how to handle malicious DHT records (sign new record? oh................... oh. oh. oh dear.)
-    // .............. ok but you could show the chain of commits starting with the root puffball creation key.........
-    // .......so to verify a DHT entry you need to check the key change chain going back to the initial entry signed  
-    // ....with puffball's public admin key, and then work your way through each signed key change commit,
-    // ..but to be verifiable you have to send that on every DHT request which is awful.......
-    // oh boy. 
-    // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
-}
-
-/**
- * to depersist user records
- */
-PuffData.depersistUserRecords = function() {
-    //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    PuffData.userRecords = Puffball.Persist.get('userRecords') || {};
-}
-
-/**
- * to get my puff chain
- * @param  {string} username 
- * @return {puff}
- */
-PuffData.getMyPuffChain = function(username) {
-    // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
-    // TODO: that collection should be updated automatically with new puffs created through other devices
-    // TODO: the puffchain should also be sorted in chain order, not general collection order
-    return PuffData.puffs.filter(function(puff) { return puff && puff.username == username })
-    // return PuffForum.getByUser(username) // TODO: test this
-}
-
 
 
 

@@ -311,7 +311,7 @@ PuffWardrobe.getAllPrefs = function() {
  */
 PuffWardrobe.setPref = function(key, value) {
     var prefs = PuffWardrobe.getAllPrefs()
-    var newprefs = events.merge_props(prefs, key, value); // allows dot-paths
+    var newprefs = PB.set_deep_value(prefs, key, value); // allows dot-paths
 
     PuffWardrobe.prefsarray = newprefs
 
@@ -407,7 +407,7 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
     var profile = PuffWardrobe.getAllUserProfileItems(username)
-    var newprofile = events.merge_props(profile, key, value); // allows dot-paths
+    var newprofile = PB.set_deep_value(profile, key, value); // allows dot-paths
 
     PuffWardrobe.profilearray[username] = newprofile
 

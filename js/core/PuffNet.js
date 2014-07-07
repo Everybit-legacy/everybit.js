@@ -40,7 +40,7 @@ PuffNet.getPuffBySig = function(sig) {
  * get the shells of all puff as an array
  * @return {array of objects}
  */
-PuffNet.getAllPuffShells = function() {
+PuffNet.getAllShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     
@@ -49,11 +49,31 @@ PuffNet.getAllPuffShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
+PuffNet.getSomeShells = function(query, filters, limit, offset) {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getPuffs'};
+
+    if(limit)  data.numb    = limit                         // defaults to 20 on the server
+    if(offset) data.offset  = offset                        // defaults to 0, which is latest
+    
+    if(query.sort)      data.sort       = query.sort        // ASC or DESC
+    if(filters.users)   data.username   = filters.users     // filter by username
+    if(filters.routes)  data.route      = filters.routes    // filter by route
+    if(query.ancestors) data.maxParents = query.ancestors   // defaults to all shells; 0 is roots, 1 is single parent, etc
+    // data.flagged = false
+    
+    if(CONFIG.noNetwork) return Puffball.falsePromise();    // THINK: this is only for debugging and development
+    
+    return PuffNet.getJSON(url, data);  
+}
+
 /**
  * get all puffs within the zone (default to CONFIG.zone)
  * @return {promise} on fulfilled passes lisst of puff objects
  */
 PuffNet.getAllPuffs = function() {
+    //// THIS FUNCTION IS DEPRECATED /////
+  
     // TODO: add zone parameter (default to CONFIG.zone)
     
     // TODO: instead of getting all puffs, this should only get all puff shells
@@ -270,7 +290,7 @@ PuffNet.getJSON = function(url, params) {
                   }
 
     var params = params || {}
-    var enc = encodeURIComponent
+    var enc = function(param) {return !param && param!==0 ? '' : encodeURIComponent(param)}
     var qstring = Object.keys(params).reduce(function(acc, key) {return acc + enc(key) +'='+ enc(params[key]) +'&'}, '?')
 
     return PuffNet.xhr(url + qstring, options) 
@@ -347,7 +367,7 @@ PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        Puffball.receiveNewPuffs(data);
+        PuffData.addShellsThenMakeAvailable(data);
     });
 };
 

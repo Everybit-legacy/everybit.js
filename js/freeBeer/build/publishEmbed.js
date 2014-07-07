@@ -53,16 +53,20 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     },
     handleSubmitSuccess: function(puff) {
         // clear the content
-        puffworldprops.reply.content = '';
+        // puffworldprops.reply.content = ''; // DON'T DO THIS
+        update_puffworldprops({'reply.content': ''})
+        
         // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        // FIXME not working with encrypted puff
-        events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+        // FIXME: not working with encrypted puff // THINK: is this still true?        
         if (typeof puff.payload.parents !== 'undefined') {
-            events.pub('ui/view-puff', {'view.style': 'PuffTallTree',
-                                        'view.puff': puff});
+            showPuff(puff.sig)
+            // events.pub('ui/show-puff', { 'view.mode': 'focus',
+            //                              'view.puff': puff});
+        } else {
+            events.pub('ui/submit', {'reply': puffworlddefaults.reply});
         }
 
         // set back to initial state
@@ -211,8 +215,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     handleExpand: function() {
         // save current content and state
         var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
-        puffworldprops.reply.content = content;
-        puffworldprops.reply.state = this.state;
+        // DON'T MUTATE PROPS!
+        // puffworldprops.reply.content = content;
+        // puffworldprops.reply.state = this.state;
+        update_puffworldprops({'reply.content': content, 'reply.state': this.state})
+        
         
         // publish events
         var expanded = this.props.reply.expand;
@@ -335,7 +342,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             var currentContent = puffworldprops.reply.content;
             if (this.refs.content) {
                 currentContent = this.refs.content.getDOMNode().value.trim();
-                puffworldprops.reply.content = currentContent;
+                update_puffworldprops({'reply.content': currentContent})
+                // DON'T MUTATE PROPS!
+                // puffworldprops.reply.content = currentContent;
             };
 
             currentContent = PuffForum.processContent(currentType, currentContent, {});

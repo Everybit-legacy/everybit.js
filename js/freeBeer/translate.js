@@ -12,15 +12,16 @@ Translate.language["en"].extend({
 	menu: {
 		view: {
 			title: 'View',
+			roots: "Root puffs",
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
             showpuffs:"Show puffs for me"
 		},
-		filter: {
+		filters: {
 			title: 'Filter',
-			route: 'Route',
-			user: 'Username'
+			routes: 'Route',
+			users: 'Username'
 		},
         preferences: {
             title: "Preferences",
@@ -80,6 +81,7 @@ Translate.language["en"].extend({
 			builder: "Puff builder"
 		},
         tooltip:{
+            roots:'View latest root puffs',
             latest:'View latest published puffs',
             collection:'View the Choices Collection',
             shortcut:'View a list of shortcuts for this website',
@@ -161,10 +163,10 @@ Translate.language["zh"].extend({
 			shortcut: "快捷键",
             showpuffs:"显示给我的puff"
 		},
-		filter: {
+		filters: {
 			title: '筛选',
-			route: '路径',
-			user: '用户名'
+			routes: '路径',
+			users: '用户名'
 		},
 		preferences: {
 			title: '偏好设置',

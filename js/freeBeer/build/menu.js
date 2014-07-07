@@ -310,7 +310,8 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         }
         // console.log(username);
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filterroute': username});
+        return events.pub('ui/view/route/set', {'view.style': 'PuffLatest', 
+                                                'filter.routes': [username]});
     },
 
     render: function() {

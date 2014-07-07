@@ -34,6 +34,7 @@ var PuffPublishFormEmbed = React.createClass({
     componentWillUnmount: function() {
         // remove silly global
         globalReplyFormSubmitArg = null;
+        return events.pub("", {'reply.content': ""})
     },
 
     handlePickPrivacy: function() {

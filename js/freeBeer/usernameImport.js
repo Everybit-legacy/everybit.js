@@ -15,12 +15,13 @@ UsernameImport.instagram.requestAuthentication = function() {
 	window.location = auth_url;
 };
 UsernameImport.instagram.contentURL = function(username, userid, access_token) {
-	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.importContent";
+	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.collectData";
 	if (PuffWardrobe.switchCurrent(username)) {
 		var newScript_el = document.createElement('script');
 		newScript_el.setAttribute("src", content_url);
-		newScript_el.setAttribute("id", "instagramContent");
+		newScript_el.setAttribute("class", "instagramContent");
 		try {
+			this.allResult = [];
 			document.getElementsByTagName('head')[0].appendChild(newScript_el);
 		} catch (err) {
 			throw err;
@@ -29,11 +30,85 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 		throw Error("Need keys for this identity to import.")
 	}
 }
+UsernameImport.instagram.collectData = function(result) {
+	if (result.meta.code == 200) {
+		var data = result.data.filter(function(d){return d.type == "image"});
+		var nextPage = result.pagination.nextURL;
+		this.allResult = this.allResult.concat(data);
+		if (nextPage && nextPage.length > 0) {
+			var newScript_el = document.createElement('script');
+			newScript_el.setAttribute("src", nextURL+'&callback=UsernameImport.instagram.collectData');
+			newScript_el.setAttribute("class", "instagramContent");
+			document.getElementsByTagName('head')[0].appendChild(newScript_el);
+		} else {
+			this.importAllContent();
+		}
+	}
+}
+UsernameImport.instagram.importAllContent = function() {
+	var contents = this.allResult;
+	var loadedCount = 0;
+	var createdCount = 0;
+	var total = contents.length;
+	UsernameImport.update(loadedCount, createdCount, total);
+	for (var i=0; i<total; i++) {
+		var entry = contents[i];
+
+		var img_el = document.createElement("img");
+		img_el.crossOrigin = '';
+		var src = entry.images['standard_resolution']['url'];
+		src = "http://162.219.162.56:8080/" + src.split('/').slice(2).join('/');
+		var width  = entry.images['standard_resolution']['width'];
+		var height = entry.images['standard_resolution']['height'];
+		img_el.setAttribute('src', src);
+		img_el.setAttribute('data-index', i)
+		img_el.setAttribute('width', width);
+		img_el.setAttribute('height', height);
+		img_el.onerror = function(err) {
+			throw Error("Error loading image");
+		}
+		img_el.onload = function(){
+			var entry = contents[this.attributes['data-index'].value];
+			loadedCount++;
+			UsernameImport.update(loadedCount, createdCount, total);
+			var img_el = this;
+		    var canvas = document.createElement("canvas");
+		    canvas.height = img_el.width;
+		    canvas.width = img_el.height;
+
+		    var ctx = canvas.getContext("2d");
+			ctx.drawImage(img_el, 0, 0);
+			var img = canvas.toDataURL('image/jpeg');
+
+			var metadata = {
+				time: entry.created_time * 1000,
+				tags: entry.tags,
+				caption: entry.caption.text
+			}
+			var post_prom = PuffForum.addPost('image', img, [], metadata);
+			post_prom.then(function(puff){
+				createdCount++;
+				UsernameImport.update(loadedCount, createdCount, total);
+				// if all are created, redirect all contents published by this user
+				if (createdCount == total) {
+					document.getElementById("importContent").innerHTML = "Import finished.<br>";
+					var username = PuffWardrobe.getCurrentUsername();
+					events.pub("ui/show-imported-puff", {'view.style': 'PuffLatest', 'view.puff': false, 'filter.usernames': [username]});
+				}
+			}).catch(function(err){
+				console.log(err.message);
+			})
+		};
+	}
+}
 UsernameImport.instagram.importContent = function(result) {
+	// collect all the results.data
+	// then process the results
 	var loadedCount = 0;
 	var createdCount = 0;
 	if (result.meta.code == 200) {
 		var data = result.data;
+		var nextPage = result.pagination.nextURL;
 		data = data.filter(function(d){return d.type == "image"});
 		total = data.length;
 		UsernameImport.update(0, 0, total);

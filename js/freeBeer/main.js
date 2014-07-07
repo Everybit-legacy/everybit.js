@@ -205,8 +205,9 @@ function draggableize(el) {
 function handleImportRedirect() {
     var params = getQuerystringObject();
     if (params['requestedUsername']) {
-        events.update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+        update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
     }
+    setURLfromViewProps();
 }
 
 function setURLfromViewProps() {
@@ -218,7 +219,6 @@ function setURL(state, path) {
     var currentState = history.state || {}
     var flatCurrent  = JSON.stringify(currentState)
     var flatState    = JSON.stringify(state)
-
     if(flatState == flatCurrent)                                            // are they equivalent?
         return false
 
@@ -286,8 +286,9 @@ function stashKeysFromURL(state) {
     var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
     
     for(var key in state) {
+        console.log(key);
         if(!~keysToStash.indexOf(key)) continue
-        stashKeysFromURL[key] = state[key]
+        stashedKeysFromURL[key] = state[key]
         delete state[key]
     }
     

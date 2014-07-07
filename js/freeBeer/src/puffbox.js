@@ -5,7 +5,7 @@ var PuffFancyBox = React.createClass({
         var   puff = this.props.puff
         var  style = {}
         var  stats = this.props.stats
-        var   mode = stats.mode
+        var arrows = stats.arrows
         var  width = stats.width
         var height = stats.height
         var    top = stats.y
@@ -23,7 +23,7 @@ var PuffFancyBox = React.createClass({
         var className = classArray.join(' ')
         
         var offset = 30
-        if(mode == 'arrows') {
+        if(arrows) {
             width  -= offset
             height -= offset
             top  += offset/2
@@ -31,7 +31,7 @@ var PuffFancyBox = React.createClass({
         }
 
         var spacing = 3
-        if(mode != 'arrows') {
+        if(!arrows) {
             width  -= spacing
             height -= spacing
             top  += spacing

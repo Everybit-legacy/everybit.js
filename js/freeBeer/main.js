@@ -30,18 +30,34 @@ puffworldprops = {
             routes: [],
             users : [],
             roots : false,                              // only show puffs with no parents
-            
         },
-        language  : 'en',
-        style     : 'PuffRoots',
+
+        query: {
+            focus: false,
+            ancestors: false,
+            descendants: false,
+        },
+        
+        
+
+        // focus : [],                                     // a set of puff sigs to focus on
+        // kids  : false,                                  // show only children of the focused puffs
         puff      : false,                              // focused puff (not just sig)
-        mode      : 'browse',                           // 'browse' or 'arrow'
+
+        style     : 'PuffList',
+        
+        // TODO: move these options into view.layout
+        arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
         cols      : 5,
         boxRatio  : 1,
+        
+        language  : 'en',
         animation : true,                               // true -> animate everything; false -> animate nothing
+        showinfo  : false,                              // true -> always show info boxes; false -> only on hover
+
+        // THINK: consider taking this out of view (or filtering it out of the url, at least)
         cursor    : false,                              // sig of selected puff
-        showinfo  : false                               // true -> always show info boxes; false -> only on hover
     },
 
     reply: {

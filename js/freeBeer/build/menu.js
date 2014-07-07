@@ -465,13 +465,15 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
 
 
 var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
+    
+     // OPT: reading puffworldprops prevents short circuiting rendering -- pass necessary props into here instead
+    
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
-
-        if(puffworldprops.view.mode == 'browse') {
-            return events.pub('ui/relationships/show', {'view.mode': 'arrows'});
+        if(puffworldprops.view.arrows) {
+            return events.pub('ui/relationships/hide', {'view.arrows': false});
         } else {
-            return events.pub('ui/relationships/hide', {'view.mode': 'browse'});
+            return events.pub('ui/relationships/show', {'view.arrows': true});
         }
     },
 
@@ -504,9 +506,9 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': (puffworldprops.view.mode == 'arrows'),
-            'fa-square-o': !(puffworldprops.view.mode == 'arrows'),
-            'green': (puffworldprops.view.mode == 'arrows')
+            'fa-check-square-o': (puffworldprops.view.arrows),
+            'fa-square-o': !(puffworldprops.view.arrows),
+            'green': (puffworldprops.view.arrows)
         });
 
         var cb2 = React.addons.classSet;

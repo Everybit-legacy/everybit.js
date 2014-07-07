@@ -97,10 +97,10 @@ var ViewKeybindingsMixin = {
             return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
         }.bind(this));
         
-        // spacebar toggles display mode
+        // spacebar toggles arrow display
         Mousetrap.bind('space', function(e) { 
-            return events.pub( 'ui/view-mode/change', 
-                             { 'view.mode': this.props.view.mode == 'browse' ? 'arrows' : 'browse'})
+            return events.pub( 'ui/relationships/toggle', 
+                             { 'view.arrows': !this.props.view.arrows })
         }.bind(this));
         
         // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
@@ -165,7 +165,7 @@ var CursorBindingsMixin = {
                 return false                           // be an active cursor, if we are in a cursorable mode)
             
             // current = document.getElementById(current);
-            // var next = moveToNeighbour(current.id, e.which, this.props.view.mode);
+            // var next = moveToNeighbour(current.id, e.which, this.props.view.arrows);
 
             var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
             
@@ -261,8 +261,8 @@ var GridLayoutMixin = {
     },
     getStandardBox: function(rows, cols) {
         var gridbox = this.getGridBox(rows)
-        var mode    = this.props.view.mode
-        return this.applySizes(1, 1, gridbox.add, {mode: mode})
+        var arrows  = this.props.view.arrows
+        return this.applySizes(1, 1, gridbox.add, {arrows: arrows})
     },
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
@@ -302,7 +302,7 @@ var GridLayoutMixin = {
         return this.manualGridify(puffBoxList)
     },
     manualGridify: function(puffBoxList) {
-        var arrowList = this.props.view.mode == 'arrows' ? this.makeArrowPairs(puffBoxList) : ''
+        var arrowList = this.props.view.arrows ? this.makeArrowPairs(puffBoxList) : ''
         var viewprops = this.props.view
         
         var fancyWrapper = (function() {
@@ -481,7 +481,7 @@ var PuffTallTree = React.createClass({
     render: function() {
 
         var puff   = this.props.view.puff
-        var mode   = this.props.view.mode
+        var arrows = this.props.view.arrows
         var sigfun = function(item) {return item.sig}
         var username = PuffWardrobe.getCurrentUsername()
         
@@ -495,10 +495,10 @@ var PuffTallTree = React.createClass({
         var rows    = dimensions.rows
         var gridbox = this.getGridBox(rows, cols)
         
-        var standardBox  = this.applySizes(1, 1, gridbox.add, {mode: mode})
-        var secondRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 1)
-        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {mode: mode}, 3)
-        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, rows > 1 ? 2 : 1, gridbox.add, {mode: mode}, 1, 0, 1, 0)
+        var standardBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
+        var secondRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 1)
+        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 3)
+        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, rows > 1 ? 2 : 1, gridbox.add, {arrows: arrows}, 1, 0, 1, 0)
         
         // gather puffs
         var parentPuffs   = PuffForum.getParents(puff) // pre-sorted

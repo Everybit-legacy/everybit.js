@@ -27,7 +27,7 @@ puffworldprops = {
     },
 
     view: {
-        mode: 'list',
+        // mode: 'list',
         
         filters: {
             routes: [],

@@ -343,17 +343,23 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         if( viewprops.mode == 'focus' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
 
-        else if( viewprops.mode == 'PuffAllChildren' )
-            view  = PuffAllChildren( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
+        // else if( viewprops.mode == 'PuffAllChildren' )
+        //     view  = <PuffAllChildren view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
 
-        else if( viewprops.mode == 'PuffAllParents' )
-            view  = PuffAllParents(  {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
+        // else if( viewprops.mode == 'PuffAllParents' )
+        //     view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
 
         // else if( viewprops.mode == 'PuffByUser' )
         //     view  = <PuffByUser      view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
         // else if( viewprops.mode == 'PuffByRoute' )
         //     view  = <PuffByRoute     view={viewprops} reply={this.props.reply} user={viewprops.user} />
+
+        else if( viewprops.mode == 'list' && viewprops.query.ancestors )
+            view  = PuffAllParents(  {view:viewprops, reply:this.props.reply, puff:viewprops.query.focus} )
+
+        else if( viewprops.mode == 'list' && viewprops.query.descendants )
+            view  = PuffAllChildren(  {view:viewprops, reply:this.props.reply, puff:viewprops.query.focus} )
 
         else if( viewprops.mode == 'list' )
             view  = PuffList(        {view:viewprops, reply:this.props.reply} )
@@ -475,8 +481,11 @@ var PuffList = React.createClass({displayName: 'PuffList',
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
+        
+        var query   = this.props.view.query
         var filters = this.props.view.filters
-        var puffs = PuffForum.getPuffList(limit, puffworldprops, filters);
+        var puffs   = PuffForum.getPuffList(query, filters, limit, puffworldprops);
+        
         this.cursorPower(puffs)
         return this.standardGridify(puffs);
     }

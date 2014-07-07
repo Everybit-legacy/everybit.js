@@ -257,45 +257,46 @@ PuffForum.getRootPuffs = function(limit, props) {
  * @param  {props} props
  * @return {array of puffs}
  */
-PuffForum.getLatestPuffs = function(limit, props) {
-    //// returns the most recent puffs, sorted by time
-
-    limit = limit || Infinity
-
-    var shells = PuffForum.getShells()
-    
-    var filtered_shells = shells.sort(PuffForum.sortByPayload)
-                                .filter(PuffForum.getPropsFilter(props));
-                                
-    var puffs = filtered_shells.slice(0, limit)
-                               .map(Puffball.getPuffFromShell)
-                               .filter(Boolean);
-
-    var have = filtered_shells.length
-    if(have >= limit)
-        return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
-
-    PuffData.fillSomeSlotsPlease(limit, have, props)
-    
-    return puffs;
-} 
+// PuffForum.getLatestPuffs = function(limit, props) {
+//     //// returns the most recent puffs, sorted by time
+//
+//     limit = limit || Infinity
+//
+//     var shells = PuffForum.getShells()
+//
+//     var filtered_shells = shells.sort(PuffForum.sortByPayload)
+//                                 .filter(PuffForum.getPropsFilter(props));
+//
+//     var puffs = filtered_shells.slice(0, limit)
+//                                .map(Puffball.getPuffFromShell)
+//                                .filter(Boolean);
+//
+//     var have = filtered_shells.length
+//     if(have >= limit)
+//         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
+//
+//     PuffData.fillSomeSlotsPlease(limit, have, props)
+//
+//     return puffs;
+// }
 
 /**
  * returns a list of puffs
+ * @param  {query} query
+ * @param  {filters} filters
  * @param  {number} limit
  * @param  {props} props
- * @param  {filters} filters
  * @return {array of puffs}
  */
-PuffForum.getPuffList = function(limit, props, filters) {
+PuffForum.getPuffList = function(query, filters, limit, props) {
     //// returns a list of puffs
 
     limit = limit || Infinity
 
-    var shells = PuffForum.getShells()
+    var shells = PuffForum.getShells(query)
     
-    var filtered_shells = shells.filter(PuffForum.filterByFilters(filters))
-                                .sort(PuffForum.sortByPayload) // sort by filters
+    var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+                                .sort(PuffForum.sortByPayload) // sort by query
                                 
     var puffs = filtered_shells.slice(0, limit)
                                .map(Puffball.getPuffFromShell)
@@ -305,7 +306,7 @@ PuffForum.getPuffList = function(limit, props, filters) {
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
-    PuffData.fillSomeSlotsPlease(limit, have, props, filters)
+    PuffData.fillSomeSlotsPlease(limit, have, query, filters)
     
     return puffs;
 } 

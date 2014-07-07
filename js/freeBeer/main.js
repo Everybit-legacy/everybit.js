@@ -31,20 +31,15 @@ puffworldprops = {
         filters: {
             routes: [],
             users : [],
-            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
         },
 
         query: {
+            sort: 'ASC',                                // direction of sort
             focus: false,                               // a puff sig to focus on
             ancestors: false,                           // number of ancestor levels to show (false for none)
             descendants: false,                         // number of descendant levels to show (false for none)
+            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
         },
-        
-
-
-        puff      : false,                              // focused puff (not just sig)
-
-        
         
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs

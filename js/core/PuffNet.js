@@ -49,16 +49,17 @@ PuffNet.getAllShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
-PuffNet.getSomeShells = function(params) { // TODO: this should take filters, not just params
+PuffNet.getSomeShells = function(query, filters, limit, offset) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs'};
+
+    if(limit)  data.numb    = limit                         // defaults to 20 on the server
+    if(offset) data.offset  = offset                        // defaults to 0, which is latest
     
-      if(params.sort) data.sort       = params.sort         // ASC or DESC
-     if(params.limit) data.numb       = params.limit        // defaults to 20 on the server
-    if(params.offset) data.offset     = params.offset       // defaults to 0, which is latest
-      if(params.user) data.username   = params.user         // filter by username
-     if(params.route) data.route      = params.route        // filter by route
-    if(params.parent) data.maxParents = params.parent       // defaults to all shells; 0 is roots, 1 is single parent, etc
+    if(query.sort)      data.sort       = query.sort        // ASC or DESC
+    if(filters.users)   data.username   = filters.users     // filter by username
+    if(filters.routes)  data.route      = filters.routes    // filter by route
+    if(query.ancestors) data.maxParents = query.ancestors   // defaults to all shells; 0 is roots, 1 is single parent, etc
     // data.flagged = false
     
     if(CONFIG.noNetwork) return Puffball.falsePromise();    // THINK: this is only for debugging and development

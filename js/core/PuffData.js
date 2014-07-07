@@ -164,14 +164,13 @@ PuffData.importLocalShells = function() {   // callback) {
 }
 
 PuffData.slotLock = false
-PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
+PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
     
-    var offset = 0
-    var params = PB.shallow_copy(props)
-    var giveup = 5000
-    
     if(PuffData.slotLock) return false
+    
+    var offset = 0
+    var giveup = 5000
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -185,13 +184,12 @@ PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
             return false
         }
         
-        var size = need - have + 10 // need to grab a few extras to help work through bare patches
-        params.offset = offset
-        params.limit = size
-        offset += size
+        var limit = need - have + 10 // grab a few extras to help work through bare patches
         
-        var prom = PuffNet.getSomeShells(params) // TODO: this needs to take filters, not just params
+        var prom = PuffNet.getSomeShells(query, filters, limit, offset)
         prom.then(getMeSomeShells)
+
+        offset += limit
     }
     
     PuffData.slotLock = true

@@ -298,7 +298,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     mixins: [TooltipMixin],
     handleViewRoots: function() {
         return events.pub('ui/show/roots', { 'view.mode': 'list'
-                                           , 'view.filters.roots': true
+                                           , 'view.query.roots': true
                                            , 'menu': puffworlddefaults.menu});
     },
 

@@ -251,7 +251,11 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', {'view.mode': 'PuffAllParents', 'view.puff': puff})
+        return events.pub('ui/show/parents', { 'view.mode': 'list'
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.query.focus': puff.sig
+                                             , 'view.query.ancestors': 1
+                                             })
     },
     render: function() {
         var puff = this.props.puff;
@@ -484,8 +488,11 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
 var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/children', {'view.mode': 'PuffAllChildren', 'view.puff': puff})
-        // viewAllChildren(puff)
+        return events.pub('ui/show/parents', { 'view.mode': 'list'
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.query.focus': puff.sig
+                                             , 'view.query.descendants': 1
+                                             })
     },
     render: function() {
         var puff = this.props.puff;

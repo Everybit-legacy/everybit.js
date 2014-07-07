@@ -946,7 +946,7 @@ var NewIdentity = React.createClass({
             importInfo: {},
             enableContentImport: false,
             usernameAvailable: 'unknown',
-            usernameMessage: '',
+            errorMessage: '',
             newUsername: ''
         }
     },
@@ -962,12 +962,12 @@ var NewIdentity = React.createClass({
         UsernameImport[network].requestAuthentication();
     },
     handleContentImport: function() {
-        this.setState({usernameMessage: ""});
+        this.setState({errorMessage: ""});
         var network = this.state.importInfo.network;
         try {
             UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
         } catch (err) {
-            this.setState({enableContentImport: false, usernameMessage: err.message});
+            this.setState({enableContentImport: false, errorMessage: err.message});
         }
     },
     handleCancelImport: function() {
@@ -976,7 +976,7 @@ var NewIdentity = React.createClass({
     handleBack: function() {
         this.state.keys = {};
         this.setState({step: (this.state.step+3)%4,
-            usernameMessage: ''});
+            errorMessage: ''});
     },
     handleNext: function() {
         if (this.state.step == 0) {
@@ -993,7 +993,7 @@ var NewIdentity = React.createClass({
         } else if (this.state.step == 1) {
             var valid = this.checkKeys();
             if (!valid) return;
-            this.setState({usernameMessage: ''});
+            this.setState({errorMessage: ''});
         }
         this.setState({step: (this.state.step+1)%4});
     },
@@ -1002,11 +1002,8 @@ var NewIdentity = React.createClass({
         var show = this.props.show;
         this.props = {};
         this.props.show = show;
-        this.setState({
-            step: 0,
-            desiredUsername: '',
-            usernameMessage: ''
-        });
+        var state = this.getInitialState();
+        this.setState(state);
         this.handleGenerateUsername();
     },
 
@@ -1047,8 +1044,28 @@ var NewIdentity = React.createClass({
                     id     : params['requestedUserId'],
                     network: params['network']
                 };
-                this.setState({'importInfo': importInfo});
-                setViewPropsInURL();
+
+                // check if username exist
+                var prom = Puffball.getUserRecordNoCache(importInfo.username);
+                var self = this;
+                prom.then(function(userRecord){
+                    if (userRecord['FAIL']) {
+                        self.setState({importInfo: importInfo});
+                    } else {
+                        var message = "Username already exist.";
+                        if (importInfo.network == "instagram") {
+                            message += " You may try to import your content."
+                        }
+                        self.setState({importInfo: importInfo, 
+                                       desiredUsername: importInfo.username,
+                                       enableContentImport: (importInfo.network == "instagram"),
+                                       step: 3, 
+                                       errorMessage: message});
+                    }
+                    setViewPropsInURL();
+                }).catch(function(err){
+                    console.log(err.message);
+                })
             }
             if (Object.keys(this.state.importInfo).length != 0) {
                 showNext = true;
@@ -1105,7 +1122,7 @@ var NewIdentity = React.createClass({
                 )
             var keyField = (
                 <div>
-                    <em>{polyglot.t("menu.identity.step.remember")}</em>
+                    <div className="message">{polyglot.t("menu.identity.step.remember")}</div>
                 {publicKeyField}
                     <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newKey.generate")}</a> {polyglot.t("menu.identity.newKey.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.newKey.convert.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.newKey.convert.public")}</a><br />
                 {privateKeyField}
@@ -1144,7 +1161,7 @@ var NewIdentity = React.createClass({
                 <a className="floatLeft steps" onClick={this.handleStartOver}><i className="fa fa-chevron-left fa-fw"></i>Start Over</a>
                 );
 
-            var messageField = this.state.usernameMessage ? (<div><em>{this.state.usernameMessage}</em></div>) : "";
+            var messageField = this.state.errorMessage ? (<div className="message">{this.state.errorMessage}</div>) : "";
 
             return (
                 <div className="menuSection">
@@ -1186,7 +1203,7 @@ var NewIdentity = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({usernameMessage: polyglot.t("menu.identity.newKey.error.missing")});
+            this.setState({errorMessage: polyglot.t("menu.identity.newKey.error.missing")});
             return false;
         }
 
@@ -1256,7 +1273,7 @@ var NewIdentity = React.createClass({
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
                     enableContentImport: importInfo.network == "instagram",
-                    usernameMessage: polyglot.t("menu.identity.newKey.success")});
+                    errorMessage: polyglot.t("menu.identity.newKey.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);
@@ -1266,7 +1283,7 @@ var NewIdentity = React.createClass({
                 console.log("ERR")
                 self.setState({step: 3,
                     enableContentImport: importInfo.network == "instagram",
-                    usernameMessage: err.toString()});
+                    errorMessage: err.toString()});
                 events.pub('ui/event', {});
             });
         return false;

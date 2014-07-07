@@ -1,6 +1,9 @@
 var UsernameImport = {};
 UsernameImport.update = function(loaded, created, total) {
-	document.getElementById("importContent").innerHTML = "Start import content...<br>" + "Loaded: " + loaded + "/" + total + "<br>Created: " + created + "/" + total;
+	document.getElementById("importContent").innerHTML = 
+			"Start import content...<br>" 
+			+ "Loaded: " + loaded + "/" + total + "<br>Created: " 
+			+ created + "/" + total + "<br>";
 }
 
 UsernameImport['instagram'] = {
@@ -17,21 +20,25 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 		var newScript_el = document.createElement('script');
 		newScript_el.setAttribute("src", content_url);
 		newScript_el.setAttribute("id", "instagramContent");
-		document.getElementsByTagName('head')[0].appendChild(newScript_el);
+		try {
+			document.getElementsByTagName('head')[0].appendChild(newScript_el);
+		} catch (err) {
+			throw err;
+		}
 	} else {
-		throw Error("Cannot switch identity.")
+		throw Error("Need keys for this identity to import.")
 	}
 }
-UsernameImport.instagram.importContent = function(result){
+UsernameImport.instagram.importContent = function(result) {
 	var loadedCount = 0;
 	var createdCount = 0;
 	if (result.meta.code == 200) {
 		var data = result.data;
+		data = data.filter(function(d){return d.type == "image"});
 		total = data.length;
 		UsernameImport.update(0, 0, total);
 		for (var i=0; i<data.length; i++) {
 			var entry = data[i];
-			if (entry.type != 'image') continue;
 
 			var img_el = document.createElement("img");
 			img_el.crossOrigin = '';
@@ -43,7 +50,6 @@ UsernameImport.instagram.importContent = function(result){
 			img_el.setAttribute('width', width);
 			img_el.setAttribute('height', height);
 			img_el.onerror = function(err) {
-				console.log("err loading image");
 				throw Error("Error loading image");
 			}
 			img_el.onload = function(){
@@ -67,8 +73,12 @@ UsernameImport.instagram.importContent = function(result){
 				post_prom.then(function(puff){
 					createdCount++;
 					UsernameImport.update(loadedCount, createdCount, total);
-					console.log(puff.sig);
-					published.push(puff.sig);
+					// if all are created, redirect all contents published by this user
+					if (createdCount == total) {
+						document.getElementById("importContent").innerHTML = "Import finished.<br>";
+						var username = PuffWardrobe.getCurrentUsername();
+						events.pub("ui/show-imported-puff", {'view.style': 'PuffLatest', 'view.puff': false, 'filter.usernames': [username]});
+					}
 				}).catch(function(err){
 					console.log(err.message);
 				})

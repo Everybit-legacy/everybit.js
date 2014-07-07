@@ -202,6 +202,13 @@ function draggableize(el) {
 
 //// props and urls and pushstate oh my ////
 
+function handleImportRedirect() {
+    var params = getQuerystringObject();
+    if (params['requestedUsername']) {
+        events.update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+    }
+}
+
 function setURLfromViewProps() {
     var viewprops = PB.shallow_copy(puffworldprops.view)    
     setURL(viewprops)

@@ -999,6 +999,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         } catch (err) {
             this.setState({enableContentImport: false, errorMessage: err.message});
         }
+        return false;
     },
     handleCancelImport: function() {
         this.setState({desiredUsername: '', importInfo: {}})

@@ -211,6 +211,7 @@ PuffForum.getSiblings = function(puff, props) {
 
     var shells = PuffForum.getShells()
 
+    // I know, I know, this is completely insane. But it's only here until the graph db moves in.
     return shells.filter(
         function(puff) {
 
@@ -256,24 +257,90 @@ PuffForum.getRootPuffs = function(limit, props) {
  * @param  {props} props
  * @return {array of puffs}
  */
-PuffForum.getLatestPuffs = function(limit, props, start) {
-    //// returns the most recent puffs, sorted by time
+// PuffForum.getLatestPuffs = function(limit, props) {
+//     //// returns the most recent puffs, sorted by time
+//
+//     limit = limit || Infinity
+//
+//     var shells = PuffForum.getShells()
+//
+//     var filtered_shells = shells.sort(PuffForum.sortByPayload)
+//                                 .filter(PuffForum.getPropsFilter(props));
+//
+//     var puffs = filtered_shells.slice(0, limit)
+//                                .map(Puffball.getPuffFromShell)
+//                                .filter(Boolean);
+//
+//     var have = filtered_shells.length
+//     if(have >= limit)
+//         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
+//
+//     PuffData.fillSomeSlotsPlease(limit, have, props)
+//
+//     return puffs;
+// }
+
+/**
+ * returns a list of puffs
+ * @param  {query} query
+ * @param  {filters} filters
+ * @param  {number} limit
+ * @param  {props} props
+ * @return {array of puffs}
+ */
+PuffForum.getPuffList = function(query, filters, limit, props) {
+    //// returns a list of puffs
 
     limit = limit || Infinity
-    start = start || 0
 
-    var shells = PuffForum.getShells()
-    var filtered_shells = shells.sort(PuffForum.sortByPayload)
-                                .filter(PuffForum.getPropsFilter(props));
-    var puffs = filtered_shells.slice(start, start + limit)
+    var shells = PuffForum.getShells(query)
+    
+    var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+                                .sort(PuffForum.sortByPayload) // sort by query
+                                
+    var puffs = filtered_shells.slice(0, limit)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean);
-    if (filtered_shells.length > start+limit && puffs.length < limit) {
-        // still need more puffs and there are some available
-        puffs = puffs.concat(PuffForum.getLatestPuffs(limit - puffs.length, props, start + limit));
-    } 
+
+    var have = filtered_shells.length
+    if(have >= limit)
+        return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
+
+    PuffData.fillSomeSlotsPlease(limit, have, query, filters)
+    
     return puffs;
 } 
+
+/**
+ * filter puffs by prop filters
+ * @param  {filters} filters
+ * @return {boolean}
+ */		
+PuffForum.filterByFilters = function(filters) {
+    /// filter puffs by prop filters
+    
+    if(!filters) return function() {return true}
+    
+    //// get a filtering function
+    return function(shell) {
+        if(filters.routes && filters.routes.length > 0) {
+            var routeMatch = false;
+            for (var i=0; i<filters.routes.length; i++) {
+                if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
+            }
+            if(!routeMatch) return false;
+        }
+        
+        if(filters.users && filters.users.length > 0)
+            if(!~filters.users.indexOf(shell.username)) return false
+
+        if(filters.roots)
+            if((shell.payload.parents||[]).length) return false
+
+        return true
+    }
+}
+
 
 /**
  * returns all known puffs from given user, sorted by time
@@ -548,7 +615,6 @@ PuffForum.addContentType('LaTex', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
-
     }
 }) */
 
@@ -561,7 +627,7 @@ PuffForum.addContentType('LaTex', {
 // PuffForum.addContentType('encryptedpuff', {
 //     toHtml: function(content, envelope) {                                                 // the envelope is a puff
 //         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
-//         if(!letter) return 'This is encrypted';                                                            // can't read the letter
+//         if(!letter) return 'This is encrypted';                                           // can't read the letter
 //         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
 //     }
 // })

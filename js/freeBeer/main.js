@@ -1,22 +1,14 @@
 // Bridge between visualization framework and js/forum files
 
 puffworldprops = {
-    filter: {
-        usernames: [],
-        routes: [],
-        tags: [],
-        types: []
-    },
-
     clusters: {
-        filter: true,
+        filters: true,
         publish: true,
         view: true,
         identity: true,
         preferences: true,
         about: false,
         tools: false
-
     },
 
     menu: {
@@ -35,22 +27,33 @@ puffworldprops = {
     },
 
     view: {
-        // filter: {
-        //     route: false,                           // a single route
-        // },
-        language   : 'en',
-        // filterroute: false, // blargh
-        // filteruser : false,
-        style      : 'PuffRoots',
-        puff       : false,                                // focused puff (not just sig)
-        user       : false,                                // username // TODO: make this part of filter
-        mode       : 'browse',                             // 'browse' or 'arrow'
-        rows       : 4,
-        cols       : 5,
-        boxRatio   : 1,
-        animation  : true,                            // true -> animate everything; false -> animate nothing
-        cursor     : false,                              // sig of selected puff
-        showinfo   : false                             // true -> always show info boxes; false -> only on hover
+        mode: 'list',
+        
+        filters: {
+            routes: [],
+            users : [],
+        },
+
+        query: {
+            sort: 'ASC',                                // direction of sort
+            focus: false,                               // a puff sig to focus on
+            ancestors: false,                           // number of ancestor levels to show (false for none)
+            descendants: false,                         // number of descendant levels to show (false for none)
+            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
+        },
+        
+        // TODO: move these options into view.layout
+        arrows    : false,                              // true -> show relationship arrows between puffs
+        rows      : 4,
+        cols      : 5,
+        boxRatio  : 1,
+        
+        language  : 'en',
+        animation : true,                               // true -> animate everything; false -> animate nothing
+        showinfo  : false,                              // true -> always show info boxes; false -> only on hover
+
+        // THINK: consider taking this out of view (or filtering it out of the url, at least)
+        cursor    : false,                              // sig of selected puff
     },
 
     reply: {
@@ -76,98 +79,7 @@ puffworldprops = {
     }
 }
 
-puffworlddefaults = puffworldprops                  // it's immutable so we don't care
-
-///// event stuff. move this into either PuffForum or Puff itself.
-
-events = {}
-events.subs = {}
-
-events.pub = function(path, data) {
-    return setImmediate(function() {events.start_pub(path, data)})              // do it next tick
-}
-
-events.sub = function(path, handler) {
-    path = events.scrub_path(path).join('/')
-    if(!events.subs[path]) events.subs[path] = []
-    events.subs[path].push(handler)
-}
-
-events.unsub = function(path, handler) {
-    path = events.scrub_path(path).join('/')
-
-    var subs = events.subs[path]
-    if(!subs) return false
-
-    var index = subs.indexOf(handler)
-    if(index == -1) return false
-
-    subs.splice(index, 1)
-}
-
-events.start_pub = function(path, data) {
-    //// pub to * at each level and then to path itself
-    var pathlist = events.scrub_path(path)
-    var realpath = pathlist.join('/')
-
-    events.try_pub('*', data, realpath)                                         // global catchall
-
-    pathlist.reduce(function(acc, seg) {                                        // channel catchalls
-        var newacc = acc + seg + '/'
-        events.try_pub(newacc + '*', data, realpath)
-        return newacc
-    }, '')
-
-    events.try_pub(realpath, data, realpath)                                    // actual channel
-}
-
-events.try_pub = function(path, data, realpath) {
-    var handlers = events.subs[path]
-    if(!handlers || !handlers.length) return false
-    handlers.forEach(function(handler) {handler(data, realpath)})
-    // THINK: use setImmediate here?
-}
-
-// event.sub = function(path, handler) {
-//     //// add the handler to the tree
-//     path = event.scrub_path(path)
-//     var tree = event.tree
-//     var last = path.length - 1
-//     for(var i = 0; i < last; i++) {                                            // walk down, but skip the last item
-//         if(!tree[path[i]]) 
-//             tree[path[i]] = {kids: {}, handlers: []}                            // build the tree as needed
-//         tree = tree[path[i]].kids                                               // step down one level
-//     }
-//     
-//     tree[path[last]] = tree[path[last]]
-//                      ? tree[path[last]].concat(handler)                         // add handler to existing list
-//                      : [handler]                                                // or create a new one
-// }
-
-// event.unsub = function(path, handler) {
-//     // remove the handler from the tree
-//     path = event.scrub_path(path)
-//     var tree = event.tree
-//     for(var i = 0; i < path.length; i++) {
-//         tree = tree[path[i]]
-//         if(!tree) return false
-//     }
-//     
-// }
-
-
-events.scrub_path = function(path) {
-    return path.replace(/^[^\w*-]+/, '')                                        // trim leading slashes etc
-        .replace(/[^\w*-]+$/, '')                                        // trim trailing gunk
-        .split('/')                                                      // break out the path segments
-        .map(function(item) {return item.replace(/[^\w*-]/g, '')})       // scrub each segment
-}
-
-
-eventlog = [];
-events.sub('*', function(data, path) {
-    eventlog.push([path, data])
-})
+puffworlddefaults = puffworldprops                      // it's immutable so we don't care
 
 
 //// event bindings for controlling core behavior from the display
@@ -198,50 +110,40 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    // change props in a persistent fashion
-    if(data)
-        if(Array.isArray(data))
-            puffworldprops = React.addons.update(puffworldprops, data[0]) // this is a bit weird
-        else
-            events.update_puffworldprops(data)
+    data['reply.preview'] = false                           // FIXME: this is not the right place for this
 
-    // set the props in the url and history
-    setViewPropsInURL()
+    update_puffworldprops(data)                             // change props in a persistent fashion
 
-    puffworldprops.reply.preview = false;
-    // then re-render PuffWorld w/ the new props
-    updateUI()
-});
+    setURLfromViewProps()                                   // set the props in the url and history
 
-/// move these into their own lib
-events.update_puffworldprops = function(data) {
-    puffworldprops = events.handle_merge_array(puffworldprops, data)
-};
+    // puffworldprops.reply.preview = false;                   // FIXME: DO NOT MUTATE PROPS!!!!
+    
+    updateUI()                                              // then re-render PuffWorld w/ the new props
+})
 
-events.handle_merge_array = function(props, data) {
-    return Object.keys(data).reduce(function(props, key) {
-        return events.merge_props(props, key, data[key])
-    }, props)
-};
+// TODO: move these somewhere nicer
 
-events.merge_props = function(props, path, value) {
-    var segs = path.split('.')
-    var last = segs.pop()
-    var final = next = events.shallow_copy(props)
+formatForDisplay = function(obj, style) {
+    if(style == 'formatted') {
+        return JSON.stringify(obj, null, 2)
+            .replace(/[{}",\[\]]/g, '')
+            .replace(/^\n/, '')
+            .replace(/\n$/, '');
+    }
 
-    segs.forEach(function(seg) {
-        next[seg] = events.shallow_copy(next[seg])
-        next = next[seg]
-    })
+    // style is raw
+    return JSON.stringify(obj).replace(/^\{\}$/, '');
+}
 
-    next[last] = value
-    return final
-};
+humanizeUsernames = function(username) {
+    if(/^[A-Za-z0-9]{32}$/.test(username))
+        return username.slice(0, 7) + '...'
+    return username
+}
 
-events.shallow_copy = function(obj) {
-    return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
-};
-
+reduceUsernameToAlphanumeric = function(username) {
+    return username.split(/[^A-Za-z0-9]/).join('');
+}
 
 
 /////// minimap ////////
@@ -251,7 +153,7 @@ events.shallow_copy = function(obj) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // PuffData.puffs.forEach(function(puff) {
+//   // PuffData.getShells().forEach(function(puff) {
 //   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
@@ -263,150 +165,6 @@ events.shallow_copy = function(obj) {
 
 
 
-
-
-
-
-
-
-
-///////////// display-related helper functions or something like that ///////////////////
-
-
-getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
-    var min = function(a, b) {return Math.min(a, b)}
-    var max = function(a, b) {return Math.max(a, b)}
-    var gridwidth  = outerwidth  / cols
-    var gridheight = outerheight / rows
-    var eq = function(a, b) {return a == b}
-    var grid = Array.apply(0, Array(rows))
-        .map(function() {return Array.apply(0, Array(cols))
-            .map(function() {return 0})}) // build 2D array
-
-    return { get: function() {return grid}
-        , set_eq: function(new_eq) {eq = new_eq}
-        , add: function(width, height, miny, minx, maxy, maxx, pointer) {
-            maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
-            miny = min(miny||0, maxy), minx = min(minx||0, maxx)
-            if(maxx<0 || maxy<0) return Puffball.onError('Block is too big for the grid')
-
-            top: for(var y = miny; y <= maxy; y++) {
-                bot: for(var x = minx; x <= maxx;  x++) {
-                    for(var dy = 0; dy < height; dy++) {
-                        for(var dx = 0; dx < width; dx++) {
-                            if(grid[y+dy][x+dx]) continue bot }}
-                    break top }}
-            if(x == maxx+1 && y == maxy+1) return Puffball.onError('No room in the grid')
-            if(x == null || y == null) return Puffball.onError('Block too big for the grid')
-            for(var dy = 0; dy < height; dy++) {
-                for(var dx = 0; dx < width; dx++) {
-                    grid[y+dy][x+dx] = pointer || 1 } }
-            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
-        }
-    }
-}
-
-function findNeighbor(grid, pointer, dir) {
-    var boxCoords = findBoxInGrid(grid, pointer)
-    if(!boxCoords) return false
-
-    // TODO: need to indicate if dirBox is outside of grid, versus pointer not found
-
-    var dirBox = makeDirBox(boxCoords, dir)
-    if(!dirBox) return false
-
-    return firstThingInBox(grid, dirBox[0], dirBox[1])
-}
-
-function findBoxInGrid(grid, target, eq) {
-    /// find something in a grid box and return coords
-    /// NOTE: this assumes rectilinear shapes
-    eq = eq || function(a, b) {return a === b}
-    eq = function(a, b) {return a.sig === b.sig} // TODO: encapsulate eq in gridBox // OPT: don't look inside
-
-    top: for(var y = 0, ly = grid.length; y < ly; y++)
-        for(var x = 0, lx = grid[y].length; x < lx; x++)
-            if(eq(grid[y][x], target)) break top                     // find top and left coords
-
-    if(y == grid.length && x == grid[0].length) return false        // target not in box
-
-    for(var dy = 0, ly = grid.length-y; dy < ly; dy++)
-        if(!eq(grid[y+dy][x], target)) break                         // find bottom coord
-
-    for(var dx = 0, lx = grid[y].length-x; dx < lx; dx++)
-        if(!eq(grid[y][x+dx], target)) break                         // find right coord
-
-    return [[x, y], [x+dx-1, y+dy-1]]                              // minus one because deltas always overshoot
-}
-
-function firstThingInBox(grid, topleft, botright) { // lteq because our boxes are inclusive; boundaries built in.
-    for(var y = Math.max(topleft[1], 0), ly = Math.min(botright[1], grid.length-1); y <= ly; y++)
-        for(var x = Math.max(topleft[0], 0), lx = Math.min(botright[0], grid[0].length-1); x <= lx; x++)
-            if(grid[y][x]) return grid[y][x]
-}
-
-function arrowToDir(char) {
-    if(char == 37) return 'left'
-    if(char == 38) return 'up'
-    if(char == 39) return 'right'
-    if(char == 40) return 'down'
-}
-
-function makeDirBox(boxCoords, dir) {
-    var top   = boxCoords[0][1]
-    var left  = boxCoords[0][0]
-    var bot   = boxCoords[1][1]
-    var right = boxCoords[1][0]
-
-    if(dir == 'up')    return [[left, top-1],  [right, top-1]]
-    if(dir == 'down')  return [[left, bot+1],  [right, bot+1]]
-    if(dir == 'left')  return [[left-1, top],  [left-1, bot]]
-    if(dir == 'right') return [[right+1, top], [right+1, bot]]
-}
-
-
-function moveToNeighbour(currentId, dir, mode) {
-    var current = document.getElementById(currentId);
-    var x = parseFloat(current.style.left);
-    var y = parseFloat(current.style.top);
-    var offset = mode == "browse" ? 7 : 31;
-
-    switch (dir) {
-        case 37: // left
-            x -= offset;
-            y += 1;
-            break;
-
-        case 38: // up
-            y -= offset;
-            x += 1;
-            break;
-
-        case 39: // right
-            x += parseFloat(current.style.width) + offset + 1;
-            y += 1;
-            break;
-
-        case 40: // down
-            y += parseFloat(current.style.height) + offset;
-            x += 1;
-            break;
-
-        default:
-            break;
-    }
-
-    var neighbour = document.elementFromPoint(x, y);
-    while (neighbour &&
-        (' '+ neighbour.className + ' ').indexOf(' block ') == -1) {
-        neighbour = neighbour.parentNode;
-    }
-
-    if(!neighbour)
-        neighbour = document.querySelector('.block');
-
-    return neighbour;
-}
 
 
 function draggableize(el) {
@@ -442,13 +200,111 @@ function draggableize(el) {
 
 
 
+//// props and urls and pushstate oh my ////
+
+function setURLfromViewProps() {
+    var viewprops = PB.shallow_copy(puffworldprops.view)    
+    setURL(viewprops)
+}
+
+function setURL(state, path) {
+    var currentState = history.state || {}
+    var flatCurrent  = JSON.stringify(currentState)
+    var flatState    = JSON.stringify(state)
+
+    if(flatState == flatCurrent)                                            // are they equivalent?
+        return false
+
+    var url = convertStateToURL(state)
+
+    history.pushState(state, path || '', url)
+
+    // saving in case we need this in the future
+    //
+    // var cloneCurrent = JSON.parse(flatCurrent)
+    // var cloneState = JSON.parse(flatState)
+    // delete cloneCurrent.cursor
+    // delete cloneState.cursor
+    //     
+    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))       // equiv up to cursor?
+    //     return false
+}
+
+function convertStateToURL(state) {
+    state = stashKeysFromURL(state)
+    state = PB.flatten(state)
+    
+    var url = Object.keys(state)
+                    .filter(function(key) {return key && state[key] && state[key].length !== 0})
+                    .map(function(key) {
+                        return encodeURIComponent(key) + "=" 
+                             + encodeURIComponent(state[key].join ? state[key].join('~') : state[key] || '') })
+                    .join('&')
+
+    return '?' + url
+}
+
+
+function setPropsFromURL() {
+    var qobj  = getQuerystringObject()
+    Object.keys(qobj).forEach(function(key) {qobj[key] = !~qobj[key].indexOf('~') ? qobj[key] : qobj[key].split('~')})
+    var pushstate = PB.unflatten(qobj)
+    setPropsFromPushstate(pushstate)
+}
+
+function setPropsFromPushstate(pushstate) {
+    var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
+    
+    update_puffworldprops(props)
+    
+    updateUI()
+}
+
+function getQuerystringObject() {
+    return window.location.search.substring(1).split('&')
+        .reduce(function(acc, chunk) {
+            var pair = chunk.split('=')
+            acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
+            return acc}, {})
+}
+
+// TODO: what we really want is to stash these *on first page load*, and to replace the history at that point 
+//       so we skip it when going back through time. if we do that then we don't need to look for these every 
+//       time we update the URL.
+
+stashedKeysFromURL = {}
+
+function stashKeysFromURL(state) {
+    state = PB.shallow_copy(state) // clone before delete
+    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
+    
+    for(var key in state) {
+        if(!~keysToStash.indexOf(key)) continue
+        stashKeysFromURL[key] = state[key]
+        delete state[key]
+    }
+    
+    return state
+}
+
+function getStashedKeysFromURL() {
+    return stashedKeysFromURL
+}
+
+
+
+
+///// Puff display helpers /////// 
+
+
+
 function showPuff(sig) {
     //// show a puff and do other stuff
 
     if(!sig)
         return false
 
-    var puff = PuffForum.getPuffBySig(sig)                           // get it?
+    var puff = PuffForum.getPuffBySig(sig)                          // get it?
 
     if(puff)
         return showPuffDirectly(puff)                               // got it.
@@ -460,195 +316,112 @@ function showPuff(sig) {
     prom.then(function(puffs) {                                     // okay got it.
         showPuffDirectly(puffs[0])
     })
-
 }
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply})
-}
-
-//// props and urls and pushstate oh my
-
-function handleImportRedirect() {
-    var params = getQuerystringObject();
-    if (params['requestedUsername']) {
-        events.update_puffworldprops({'menu.show': true, 'menu.section': 'identity', 'menu.import': true})
-    }
-}
-
-function setViewPropsInURL() {
-    var props = events.shallow_copy(puffworldprops.view)
-    if(props.puff)
-        props.puff = props.puff.sig
-    else
-        delete props.puff
-    setURL(props)
-}
-
-function setURL(state, path) {
-    var currentState = history.state || {}
-    var flatCurrent = JSON.stringify(currentState)
-    var flatState  = JSON.stringify(state)
-
-    if(flatState == flatCurrent)                                        // are they equivalent?
-        return false
-
-    var url = Object.keys(state).map( function(key) {
-        return encodeURIComponent(key) + "=" + encodeURIComponent(state[key] || '') })
-        .join('&')
-    url = '?' + removeURLParameter(url);
-    // url = '?' + url;
-
-    // saving in case we need this in the future
-    //
-    // var cloneCurrent = JSON.parse(flatCurrent)
-    // var cloneState = JSON.parse(flatState)
-    // delete cloneCurrent.cursor
-    // delete cloneState.cursor
-    //     
-    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))      // equiv up to cursor?
-    //     return false
-
-
-
-    history.pushState(state, path || '', url)
-}
-
-function removeURLParameter(urlPart) {
-    // urlPart is the part after ? in a url i.e. a=3&b=4&...
-    var paramsToRemove = ['requestedUsername', 'network', 'token', 'requestedUserId'];
-    urlPart = urlPart.split('&');
-    for (var i=urlPart.length; i>0; i--) {
-        var prefix = urlPart[i-1].split('=')[0];
-        if (paramsToRemove.indexOf(prefix) != -1) {
-            urlPart.splice(i-1, 1);
-        }
-    }
-    return urlPart.join('&');
-}
-
-function setViewPropsFromURL() {
-    var pushstate = getQuerystringObject()
-    setViewPropsFromPushstate(pushstate)
-}
-
-function setViewPropsFromPushstate(pushstate) {
-    var sig = pushstate.puff
-
-    if(sig)
-        pushstate.puff = PuffForum.getPuffBySig(sig)
-
-    var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
-    events.update_puffworldprops(props)
-
-    if(!sig || props['view.puff']) { // we've got it
-        return updateUI()
-    }
-
-    // we ain't got it
-    var prom = PuffData.pending[sig]
-    if(!prom)
-        return Puffball.onError('Bad sig in pushstate')
-
-    // now we have it
-    prom.then(function(puffs) {
-        props['view.puff'] = puffs[0]
-        events.update_puffworldprops(props)
-        updateUI()
-    })
-}
-
-function getQuerystringObject() {
-    return window.location.search.substring(1).split('&')
-        .reduce(function(acc, chunk) {
-            var pair = chunk.split('=')
-            acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
-            return acc}, {})
-}
-
-
-
-extend = function() {
-    var newobj = {}
-    Array.prototype.slice.call(arguments).forEach(function(arg) {
-        for(var prop in arg) {
-            newobj[prop] = arg[prop] } })
-    return newobj
-}
-
-
-humanizeUsernames = function(username) {
-    if(/^[A-Za-z0-9]{32}$/.test(username))
-        return username.slice(0, 7) + '...'
-    return username
-}
-
-reduceUsernameToAlphanumeric = function(username) {
-    return username.split(/[^A-Za-z0-9]/).join('');
+    events.pub('ui/show/tree', { 'view.mode' : 'focus'
+                               , 'view.filter' : puffworlddefaults.view.filter
+                               , 'view.query' : puffworlddefaults.view.query
+                               , 'view.query.focus' : puff.sig
+                               , 'menu'      : puffworlddefaults.menu
+                               , 'reply'     : puffworlddefaults.reply})
 }
 
 
 function renderPuffWorld() {
-    var puffworlddiv = document.getElementById('puffworld') // OPT: cache this for speed
+    var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
 
     // puffworldprops has to contain some important things like prefs
-    // THINK: this is probably not the right place for this...
-    puffworldprops.prefs = PuffWardrobe.getAllPrefs()
-    puffworldprops.profile = PuffWardrobe.getAllProfileItems()
+    // THINK: is this the right place for this? 
+    var data = { prefs: PuffWardrobe.getAllPrefs()
+               , profile: PuffWardrobe.getAllProfileItems()
+               }
+
+    
+    // puffworldprops = PB.persistent_merge(puffworldprops, data)
+    update_puffworldprops(PB.flatten(data))
+    
+    // puffworldprops.prefs = PuffWardrobe.getAllPrefs()
+    // puffworldprops.profile = PuffWardrobe.getAllProfileItems()
+
+    // fiddle with fiddles
+    // var sig = pushstate.puff
+    //
+    // if(sig)
+    //     pushstate.puff = PuffForum.getPuffBySig(sig)
+    //
+    // if(!sig || props['view.puff']) {                            // we've got it
+    //     return updateUI()
+    // }
+    //
+    // var prom = PuffData.pending[sig]                            // we ain't got it
+    // if(!prom)
+    //     return Puffball.onError('Bad sig in pushstate')
+    //
+    // prom.then(function(puffs) {                                 // now we have it
+    //     props['view.puff'] = puffs[0]
+    //     update_puffworldprops(props)
+    //     updateUI()
+    // })
+
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
-
-
-// TODO: move this somewhere nicer
-function formatForDisplay(obj, style) {
-    if(style == 'formatted') {
-        return JSON.stringify(obj, null, 2)
-            .replace(/[{}",\[\]]/g, '')
-            .replace(/^\n/, '')
-            .replace(/\n$/, '');
+update_puffworldprops = function(data) {
+    puffworldprops = PB.persistent_merge(puffworldprops, data)
+    
+    // THINK: this is not the right place for this...
+    // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
+    if(!Array.isArray(puffworldprops.view.filters.routes)) {
+        if(!puffworldprops.view.filters.routes)
+            puffworldprops.view.filters.routes = []
+        else 
+            puffworldprops.view.filters.routes = [puffworldprops.view.filters.routes]
     }
-
-    // style is raw
-    return JSON.stringify(obj).replace(/^\{\}$/, '');
+    
+    if(!Array.isArray(puffworldprops.view.filters.users)) {
+        if(!puffworldprops.view.filters.users)
+            puffworldprops.view.filters.users = []
+        else 
+            puffworldprops.view.filters.users = [puffworldprops.view.filters.users]
+    }
 }
+
+
+
 
 
 
 ///////// PuffForum Interface ////////////
 
-// keep this down at the bottom -- it has to load after everything else
+// NOTE: this has to load last, so keep it at the bottom
 
 window.requestAnimationFrame = window.requestAnimationFrame       || window.mozRequestAnimationFrame
-    || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
-    || setTimeout
+                            || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame
+                            || setTimeout
 
-// only update once per rAF
-var updateUI = onceRAF.bind(this, renderPuffWorld)
+var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
-// Register our update function
 var eatPuffs = function(puffs) {
-    // call the display logic
-
-    if(!Array.isArray(puffs) || !puffs.length) {
+    if(!Array.isArray(puffs) || !puffs.length)
         return false;
-    }
 
     updateUI();
 }
 
-PuffForum.onNewPuffs(eatPuffs); // assign our callback
+PuffForum.onNewPuffs(eatPuffs);                     // register our update function
 
-PuffForum.init(); // initialize the forum module (and by extension the puffball network)
+PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
 
-PuffWardrobe.setPref('storeKeychain', true); // TODO: make this based on config, and changeable
+PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
 
-handleImportRedirect(); // check if import
-setViewPropsFromURL(); // handle pushstate hash
+handleImportRedirect();                             // check if import
 
-window.addEventListener('resize', function(){
+setPropsFromURL();                                  // handle pushstate hash
+
+window.addEventListener('resize', function() {
     updateUI();
 });
 
@@ -658,16 +431,13 @@ window.addEventListener('load', function() {
     setTimeout(function() {
         window.addEventListener('popstate', function(event) {
             if(event.state)
-                return setViewPropsFromPushstate(event.state);
+                return setPropsFromPushstate(event.state);
 
             puffworldprops = puffworlddefaults;
             updateUI();
         });
     }, 0);
 });
-
-// updateUI(); // bootstrap the GUI
-
 
 
 ////////// End PuffForum Interface ////////////

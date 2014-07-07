@@ -5,7 +5,7 @@ var PuffFancyBox = React.createClass({
         var   puff = this.props.puff
         var  style = {}
         var  stats = this.props.stats
-        var   mode = stats.mode
+        var arrows = stats.arrows
         var  width = stats.width
         var height = stats.height
         var    top = stats.y
@@ -23,7 +23,7 @@ var PuffFancyBox = React.createClass({
         var className = classArray.join(' ')
         
         var offset = 30
-        if(mode == 'arrows') {
+        if(arrows) {
             width  -= offset
             height -= offset
             top  += offset/2
@@ -31,7 +31,7 @@ var PuffFancyBox = React.createClass({
         }
 
         var spacing = 3
-        if(mode != 'arrows') {
+        if(!arrows) {
             width  -= spacing
             height -= spacing
             top  += spacing
@@ -55,7 +55,12 @@ var PuffFancyBox = React.createClass({
 var PuffAuthor = React.createClass({
     handleClick: function() {
         var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffByUser', 'view.puff': false, 'view.user': username})
+        // TODO: consolidate with menu.js handleShowUserPuffs
+        return events.pub('ui/show/by-user', { 'view.mode': 'list'
+                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.filters.users': [username]
+                                             })
     },
     render: function() {
         var username = humanizeUsernames(this.props.username)
@@ -246,7 +251,11 @@ var PuffFlagLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
+        return events.pub('ui/show/parents', { 'view.mode': 'list'
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.query.focus': puff.sig
+                                             , 'view.query.ancestors': 1
+                                             })
     },
     render: function() {
         var puff = this.props.puff;
@@ -479,8 +488,11 @@ var PuffViewRaw = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
-        // viewAllChildren(puff)
+        return events.pub('ui/show/parents', { 'view.mode': 'list'
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.query.focus': puff.sig
+                                             , 'view.query.descendants': 1
+                                             })
     },
     render: function() {
         var puff = this.props.puff;
@@ -546,14 +558,15 @@ var PuffReplyLink = React.createClass({
             parents.splice(index, 1)
         }
 
-        var menu = puffworldprops.menu;
+        var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (!puffworldprops.reply.expand) {
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', 
-                         {'reply.show': true, 'reply.parents': parents,
-                          'menu': menu});
+        return events.pub('ui/reply/add-parent', { 'reply.show': true
+                                                 , 'reply.parents': parents
+                                                 , 'menu': menu
+                                                 });
 
         // TODO: draw reply arrows. Maybe
     },
@@ -590,8 +603,15 @@ var PuffReplyLink = React.createClass({
 
 var PuffExpand = React.createClass({
     handleClick: function() {
-        var puff  = this.props.puff;
-        return events.pub("ui/expand-puff", {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
+        var puff = this.props.puff;
+        return events.pub("ui/expand-puff", { 'view.mode': 'focus'
+                                            , 'view.filters': puffworlddefaults.view.filters
+                                            , 'view.query': puffworlddefaults.view.query
+                                            , 'view.query.focus': puff.sig
+                                            , 'menu': puffworlddefaults.menu
+                                            , 'reply': puffworlddefaults.reply
+                                            , 'view.rows': 1
+                                            })
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];

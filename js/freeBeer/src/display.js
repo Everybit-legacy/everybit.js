@@ -479,10 +479,13 @@ var PuffAllParents = React.createClass({
 var PuffList = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
-      return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
-      return nextProps !== this.props // TODO: this won't update when new items arrive
+        return JSON.stringify(puffworldprops) !== JSON.stringify(globalSillyPropsClone)
+        return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
+        return nextProps !== this.props // TODO: this won't update when new items arrive
     },
     render: function() {
+        globalSillyPropsClone = PB.shallow_copy(puffworldprops)
+        
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         

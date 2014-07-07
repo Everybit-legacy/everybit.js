@@ -961,8 +961,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         UsernameImport[network].requestAuthentication();
     },
     handleContentImport: function() {
+        this.setState({usernameMessage: ""});
         var network = this.state.importInfo.network;
-        UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
+        try {
+            UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
+        } catch (err) {
+            this.setState({enableContentImport: false, usernameMessage: err.message});
+        }
     },
     handleCancelImport: function() {
         this.setState({desiredUsername: '', importInfo: {}})

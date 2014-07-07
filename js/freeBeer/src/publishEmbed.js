@@ -197,7 +197,8 @@ var PuffPublishFormEmbed = React.createClass({
     },
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
-        return events.pub('ui/reply/set-type', {'reply.type': type});
+        var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
+        return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});

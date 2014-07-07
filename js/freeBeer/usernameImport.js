@@ -8,10 +8,20 @@ UsernameImport['instagram'] = {
 	'redirect_uri': 'http://www.everybit.com/r/ig'
 };
 UsernameImport.instagram.requestAuthentication = function() {
-	var auth_url = 'https://api.instagram.com/oauth/authorize/?client_id=' + UsernameImport.instagram.client_id + '&redirect_uri=' + UsernameImport.instagram.redirect_uri + '&response_type=code';
+	var auth_url = 'https://api.instagram.com/oauth/authorize/?client_id=' + this.client_id + '&redirect_uri=' + this.redirect_uri + '&response_type=code';
 	window.location = auth_url;
 };
-
+UsernameImport.instagram.contentURL = function(username, userid, access_token) {
+	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.importContent";
+	if (PuffWardrobe.switchCurrent(username)) {
+		var newScript_el = document.createElement('script');
+		newScript_el.setAttribute("src", content_url);
+		newScript_el.setAttribute("id", "instagramContent");
+		document.getElementsByTagName('head')[0].appendChild(newScript_el);
+	} else {
+		throw Error("Cannot switch identity.")
+	}
+}
 UsernameImport.instagram.importContent = function(result){
 	var loadedCount = 0;
 	var createdCount = 0;
@@ -32,6 +42,10 @@ UsernameImport.instagram.importContent = function(result){
 			img_el.setAttribute('src', src);
 			img_el.setAttribute('width', width);
 			img_el.setAttribute('height', height);
+			img_el.onerror = function(err) {
+				console.log("err loading image");
+				throw Error("Error loading image");
+			}
 			img_el.onload = function(){
 				loadedCount++;
 				UsernameImport.update(loadedCount, createdCount, total);
@@ -64,23 +78,11 @@ UsernameImport.instagram.importContent = function(result){
 		var clear = window.setTimeout(function(){
 			var script = document.getElementById('instagramContent');
 			script.parentElement.removeChild(script);
-			console.log('clear');
 		}, data.length * 100);
-		return true;
 	} else {
-		document.getElementById("importContent").innerHTML = "Trouble getting content."
+		// document.getElementById("importContent").innerHTML = "Trouble getting content."
+		throw Error("Touble getting content.");
 	}
-	return false;
-}
-UsernameImport.instagram.contentURL = function(username, userid, access_token) {
-	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.importContent";
-	if (PuffWardrobe.switchCurrent(username)) {
-		var newScript_el = document.createElement('script');
-		newScript_el.setAttribute("src", content_url);
-		newScript_el.setAttribute("id", "instagramContent");
-		return document.getElementsByTagName('head')[0].appendChild(newScript_el);
-	}
-	return false;
 }
 
 

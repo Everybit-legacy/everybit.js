@@ -28,12 +28,13 @@ puffworldprops = {
     view: {
         filters: {
             routes: [],
-            users : []
+            users : [],
+            roots : false,                              // only show puffs with no parents
+            
         },
         language  : 'en',
         style     : 'PuffRoots',
         puff      : false,                              // focused puff (not just sig)
-        user      : false,                              // username // TODO: make this part of filter
         mode      : 'browse',                           // 'browse' or 'arrow'
         rows      : 4,
         cols      : 5,

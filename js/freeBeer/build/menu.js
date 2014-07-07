@@ -297,10 +297,9 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
 var ViewMenu = React.createClass({displayName: 'ViewMenu',
     mixins: [TooltipMixin],
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', { 'view.style': 'PuffRoots'
-                                           , 'view.puff': false
-                                           , 'menu': puffworlddefaults.menu
-                                           , 'view.user': ''});
+        return events.pub('ui/show/roots', { 'view.style': 'PuffList'
+                                           , 'view.filters.roots': true
+                                           , 'menu': puffworlddefaults.menu});
     },
 
     handleViewLatest: function() {
@@ -329,7 +328,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
             alert(polyglot.t("alert.noUserSet"))
             return false;
         }
-        // console.log(username);
         // var route = this.refs.pickroute.getDOMNode().value;
         return events.pub('ui/view/route/set', {'view.filters.routes': username});
     },
@@ -342,6 +340,11 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
+                ),
+
+                React.DOM.div( {className:"menuItem"},  
+                    React.DOM.a( {href:"#", onClick:this.handleViewRoots}, polyglot.t("menu.view.roots")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.roots")} )
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 

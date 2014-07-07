@@ -400,16 +400,16 @@ var PuffWorld = React.createClass({
 });
 
 
-var PuffRoots = React.createClass({
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-    render: function() {
-        var dimensions = this.getDimensions();
-        var limit = dimensions.cols * dimensions.rows;
-        var puffs = PuffForum.getRootPuffs(limit, this.props); // pre-sorted
-        this.cursorPower(puffs)
-        return this.standardGridify(puffs);
-    }
-});
+// var PuffRoots = React.createClass({
+//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+//     render: function() {
+//         var dimensions = this.getDimensions();
+//         var limit = dimensions.cols * dimensions.rows;
+//         var puffs = PuffForum.getRootPuffs(limit, this.props); // pre-sorted
+//         this.cursorPower(puffs)
+//         return this.standardGridify(puffs);
+//     }
+// });
 
 var PuffAllChildren = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],

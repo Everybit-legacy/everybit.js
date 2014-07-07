@@ -327,10 +327,15 @@ PuffForum.filterByFilters = function(filters) {
             for (var i=0; i<filters.routes.length; i++) {
                 if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
             }
-            if (!routeMatch) return false;
+            if(!routeMatch) return false;
         }
+        
         if(filters.users && filters.users.length > 0)
-            if (!~filters.users.indexOf(shell.username)) return false
+            if(!~filters.users.indexOf(shell.username)) return false
+
+        if(filters.roots)
+            if((shell.payload.parents||[]).length) return false
+
         return true
     }
 }

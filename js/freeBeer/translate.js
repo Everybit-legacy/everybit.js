@@ -12,6 +12,7 @@ Translate.language["en"].extend({
 	menu: {
 		view: {
 			title: 'View',
+			roots: "Root puffs",
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
@@ -80,6 +81,7 @@ Translate.language["en"].extend({
 			builder: "Puff builder"
 		},
         tooltip:{
+            roots:'View latest root puffs',
             latest:'View latest published puffs',
             collection:'View the Choices Collection',
             shortcut:'View a list of shortcuts for this website',

@@ -49,7 +49,7 @@ PuffNet.getAllShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
-PuffNet.getSomeShells = function(params) {
+PuffNet.getSomeShells = function(params) { // TODO: this should take filters, not just params
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs'};
     

@@ -190,7 +190,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, props, filter) {
         params.limit = size
         offset += size
         
-        var prom = PuffNet.getSomeShells(params)
+        var prom = PuffNet.getSomeShells(params) // TODO: this needs to take filters, not just params
         prom.then(getMeSomeShells)
     }
     

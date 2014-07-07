@@ -926,6 +926,14 @@ a.footerText {
     color: #000;
 }
 
+.giant {
+    font-size: 10em;
+}
+
+.narrow {
+    width: 2em;
+}
+
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }

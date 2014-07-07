@@ -357,7 +357,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
             tabs: {
                 showSetIdentity: false,
                 showEditIdentity: false,
-                showNewIdentity: (puffworldprops.view.style == 'MenuAdd')
+                showNewIdentity: puffworldprops.menu.import
             }
         }
     },

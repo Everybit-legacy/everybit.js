@@ -363,14 +363,6 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         else view = PuffTallTree(    {view:extend(this.props.view, defaultViewProps), reply:this.props.reply} )
 
         var replyExpand = this.props.reply.expand ? PuffPublishFormExpand( {reply:this.props.reply} ) : ''
-        // TODO: Focus the reply box when arrow clicked
-
-        if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
-            this.props.menu.show = true;
-        }
-        if (viewprops.style == "MenuAdd") {
-            this.props.menu.section = "identity";
-        }
 
         var menu = this.props.menu.show ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile} )) : '';
 

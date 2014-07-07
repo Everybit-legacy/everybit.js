@@ -23,6 +23,7 @@ puffworldprops = {
         show: false,
         prefs: false,
         profile: false,
+        import: false, // import username
         section: false, // the section user is currently working on
 
         user: {
@@ -469,6 +470,13 @@ function showPuffDirectly(puff) {
 
 //// props and urls and pushstate oh my
 
+function handleImportRedirect() {
+    var params = getQuerystringObject();
+    if (params['requestedUsername']) {
+        events.update_puffworldprops({'menu.show': true, 'menu.section': 'identity', 'menu.import': true})
+    }
+}
+
 function setViewPropsInURL() {
     var props = events.shallow_copy(puffworldprops.view)
     if(props.puff)
@@ -637,6 +645,7 @@ PuffForum.init(); // initialize the forum module (and by extension the puffball 
 
 PuffWardrobe.setPref('storeKeychain', true); // TODO: make this based on config, and changeable
 
+handleImportRedirect(); // check if import
 setViewPropsFromURL(); // handle pushstate hash
 
 window.addEventListener('resize', function(){

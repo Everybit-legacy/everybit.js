@@ -31,19 +31,17 @@ puffworldprops = {
         filters: {
             routes: [],
             users : [],
-            roots : false,                              // only show puffs with no parents
+            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
         },
 
         query: {
-            focus: false,
-            ancestors: false,
-            descendants: false,
+            focus: false,                               // a puff sig to focus on
+            ancestors: false,                           // number of ancestor levels to show (false for none)
+            descendants: false,                         // number of descendant levels to show (false for none)
         },
         
-        
 
-        // focus : [],                                     // a set of puff sigs to focus on
-        // kids  : false,                                  // show only children of the focused puffs
+
         puff      : false,                              // focused puff (not just sig)
 
         
@@ -216,14 +214,7 @@ function draggableize(el) {
 //// props and urls and pushstate oh my ////
 
 function setURLfromViewProps() {
-    var viewprops = PB.shallow_copy(puffworldprops.view)
-    
-    // TODO: fix this
-    if(viewprops.puff)
-        viewprops.puff = viewprops.puff.sig
-    else
-        delete viewprops.puff
-    
+    var viewprops = PB.shallow_copy(puffworldprops.view)    
     setURL(viewprops)
 }
 
@@ -273,30 +264,11 @@ function setPropsFromURL() {
 }
 
 function setPropsFromPushstate(pushstate) {
-    var sig = pushstate.puff
-    
-    // TODO: move most of this to convertURLToState and move the fancy stuff in to renderPuffWorld
-
-    if(sig)
-        pushstate.puff = PuffForum.getPuffBySig(sig)
-
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
     
     update_puffworldprops(props)
-
-    if(!sig || props['view.puff']) {                            // we've got it
-        return updateUI()
-    }
-
-    var prom = PuffData.pending[sig]                            // we ain't got it
-    if(!prom)
-        return Puffball.onError('Bad sig in pushstate')
-
-    prom.then(function(puffs) {                                 // now we have it
-        props['view.puff'] = puffs[0]
-        update_puffworldprops(props)
-        updateUI()
-    })
+    
+    updateUI()
 }
 
 function getQuerystringObject() {
@@ -360,11 +332,9 @@ function showPuff(sig) {
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
     events.pub('ui/show/tree', { 'view.mode' : 'focus'
-                               // , 'view.filter' : puffworlddefaults.view.filter
-                               // , 'view.query' : puffworlddefaults.view.query
-                               // , 'view.query.focus' : puff.sig
-                               , 'view.puff' : puff
-                               
+                               , 'view.filter' : puffworlddefaults.view.filter
+                               , 'view.query' : puffworlddefaults.view.query
+                               , 'view.query.focus' : puff.sig
                                , 'menu'      : puffworlddefaults.menu
                                , 'reply'     : puffworlddefaults.reply})
 }
@@ -374,9 +344,30 @@ function renderPuffWorld() {
     var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
 
     // puffworldprops has to contain some important things like prefs
-    // THINK: this is probably not the right place for this...
+    // THINK: is this the right place for this?
     puffworldprops.prefs = PuffWardrobe.getAllPrefs()
     puffworldprops.profile = PuffWardrobe.getAllProfileItems()
+
+    // fiddle with fiddles
+    // var sig = pushstate.puff
+    //
+    // if(sig)
+    //     pushstate.puff = PuffForum.getPuffBySig(sig)
+    //
+    // if(!sig || props['view.puff']) {                            // we've got it
+    //     return updateUI()
+    // }
+    //
+    // var prom = PuffData.pending[sig]                            // we ain't got it
+    // if(!prom)
+    //     return Puffball.onError('Bad sig in pushstate')
+    //
+    // prom.then(function(puffs) {                                 // now we have it
+    //     props['view.puff'] = puffs[0]
+    //     update_puffworldprops(props)
+    //     updateUI()
+    // })
+
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }

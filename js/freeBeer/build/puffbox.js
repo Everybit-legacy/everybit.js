@@ -55,7 +55,12 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     handleClick: function() {
         var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.puff': false, 'view.filters.users': [username]})
+        // TODO: consolidate with menu.js handleShowUserPuffs
+        return events.pub('ui/show/by-user', { 'view.mode': 'list'
+                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.filters.users': [username]
+                                             })
     },
     render: function() {
         var username = humanizeUsernames(this.props.username)
@@ -590,8 +595,15 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
 
 var PuffExpand = React.createClass({displayName: 'PuffExpand',
     handleClick: function() {
-        var puff  = this.props.puff;
-        return events.pub("ui/expand-puff", {'view.mode': 'focus', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
+        var puff = this.props.puff;
+        return events.pub("ui/expand-puff", { 'view.mode': 'focus'
+                                            , 'view.filters': puffworlddefaults.view.filters
+                                            , 'view.query': puffworlddefaults.view.query
+                                            , 'view.query.focus': puff.sig
+                                            , 'menu': puffworlddefaults.menu
+                                            , 'reply': puffworlddefaults.reply
+                                            , 'view.rows': 1
+                                            })
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];

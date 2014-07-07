@@ -71,11 +71,10 @@ var ViewKeybindingsMixin = {
         // l shows latest puffs
         Mousetrap.bind('l', function() {
             return events.pub('ui/show/latest', { 'view.mode': 'list'
-                                                , 'view.puff': false
                                                 , 'view.filters': puffworlddefaults.view.filters
+                                                , 'view.query': puffworlddefaults.view.query
                                                 , 'menu': puffworlddefaults.menu});
         }.bind(this));
-
 
         // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
@@ -179,7 +178,7 @@ var CursorBindingsMixin = {
                 return false;
             
             // don't refocus if we're selecting the focused puff 
-            if (this.props.view.cursor == this.props.view.puff.sig)
+            if (this.props.view.cursor == this.props.view.query.focus)
                 return false;
             
             showPuff(this.props.view.cursor);
@@ -330,11 +329,7 @@ var GridLayoutMixin = {
 var PuffWorld = React.createClass({
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var defaultPuffId = polyglot.t("puff.default") || CONFIG.defaultPuff;
-        var defaultPuff = PuffForum.getPuffBySig(defaultPuffId);
-        var defaultViewProps = {};
-        defaultViewProps.puff = defaultPuff;
-
+        
         var view;
         var viewprops = this.props.view || {};
 
@@ -365,18 +360,32 @@ var PuffWorld = React.createClass({
         else if( viewprops.mode == 'PuffPacker' )
             view  = <PuffPacker      tools={this.props.tools} />
 
-        else view = <PuffTallTree    view={PB.extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
-
-        var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
-        // TODO: Focus the reply box when arrow clicked
-
         // THINK: why do we need this?
-        if (viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
+        else if ( viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
             this.props.menu.show = true;            // TODO: don't mutate props!
         }
-        if (viewprops.mode == "MenuAdd") {
-            this.props.menu.section = "identity";   // TODO: don't mutate props!
+        
+        // else if (viewprops.mode == "MenuAdd") {
+        //     this.props.menu.section = "identity";   // TODO: don't mutate props!
+        // }
+
+
+        else {
+            // no mode? smash cut to default puff.
+            var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
+            events.pub('ui/mode/default', { 'view': puffworlddefaults.view
+                                          , 'view.mode': 'focus'
+                                          , 'view.query.focus': defaultPuffSig })
+            return <div></div>;
+            
+            // var defaultPuffId = polyglot.t("puff.default") || CONFIG.defaultPuff;
+            // var defaultPuff = PuffForum.getPuffBySig(defaultPuffId);
+            // defaultViewProps.puff = defaultPuff;
+            // view = <PuffTallTree    view={PB.extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
         }
+        
+        var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
+        // TODO: Focus the reply box when arrow clicked
 
         var menu = this.props.menu.show 
                  ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} view={this.props.view} /></div> 
@@ -477,14 +486,15 @@ var PuffTallTree = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     render: function() {
 
-        var puff   = this.props.view.puff
+        var sig    = this.props.view.query.focus
+        var puff   = PuffForum.getPuffBySig(sig)
+
+        if(!puff) return <div></div>
+        
         var arrows = this.props.view.arrows
         var sigfun = function(item) {return item.sig}
         var username = PuffWardrobe.getCurrentUsername()
-        
-        if(!puff)
-            return <div></div>
-        
+                
         // gridCoord params
         var screencoords = this.getScreenCoords()
         var dimensions   = this.getDimensions()

@@ -304,15 +304,18 @@ var ViewMenu = React.createClass({
 
     handleViewLatest: function() {
         return events.pub('ui/show/latest', { 'view.mode': 'list'
-                                            , 'view.puff': false
                                             , 'menu': puffworlddefaults.menu
-                                            , 'view.filters': puffworlddefaults.view.filters});
+                                            , 'view.filters': puffworlddefaults.view.filters
+                                            , 'view.query': puffworlddefaults.view.query
+                                            });
     },
 
     handleShowUserPuffs: function(username) {
         return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.puff': false
-                                             , 'view.filters.users': [username]})
+                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.filters.users': [username]
+                                             })
     },
 
     handleShowShortcuts: function() {

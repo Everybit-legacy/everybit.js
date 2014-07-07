@@ -473,7 +473,7 @@ function showPuffDirectly(puff) {
 function handleImportRedirect() {
     var params = getQuerystringObject();
     if (params['requestedUsername']) {
-        events.update_puffworldprops({'menu.show': true, 'menu.section': 'identity', 'menu.import': true})
+        events.update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
     }
 }
 

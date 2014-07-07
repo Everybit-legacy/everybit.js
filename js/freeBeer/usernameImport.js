@@ -1,6 +1,7 @@
 var UsernameImport = {};
 UsernameImport.update = function(loaded, created, total) {
 	document.getElementById("importContent").innerHTML = 
+	//console.log(
 			"Start import content...<br>" 
 			+ "Loaded: " + loaded + "/" + total + "<br>Created: " 
 			+ created + "/" + total + "<br>";
@@ -22,6 +23,7 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 		newScript_el.setAttribute("id", "instagramContent");
 		try {
 			document.getElementsByTagName('head')[0].appendChild(newScript_el);
+			console.log(newScript_el);
 		} catch (err) {
 			throw err;
 		}
@@ -47,12 +49,14 @@ UsernameImport.instagram.importContent = function(result) {
 			var width  = entry.images['standard_resolution']['width'];
 			var height = entry.images['standard_resolution']['height'];
 			img_el.setAttribute('src', src);
+			img_el.setAttribute('data-index', i)
 			img_el.setAttribute('width', width);
 			img_el.setAttribute('height', height);
 			img_el.onerror = function(err) {
 				throw Error("Error loading image");
 			}
 			img_el.onload = function(){
+				var entry = data[this.attributes['data-index'].value];
 				loadedCount++;
 				UsernameImport.update(loadedCount, createdCount, total);
 				var img_el = this;

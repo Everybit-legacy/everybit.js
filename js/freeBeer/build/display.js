@@ -508,6 +508,10 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var arrows = this.props.view.arrows
         var sigfun = function(item) {return item.sig}
         var username = PuffWardrobe.getCurrentUsername()
+        
+        var filters = this.props.view.filters
+        var query = this.props.view.query
+        var queryfilter = PB.extend({}, query, filters)
 
         // gridCoord params
         var screencoords = this.getScreenCoords()
@@ -529,17 +533,20 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
   
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
+                                       .filter(PuffForum.filterByFilters(queryfilter))
                                        .slice(0, cols)
                                        
         var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
+                                     .filter(PuffForum.filterByFilters(queryfilter))
                                      .slice(0, cols > 1 ? (cols-2)*2 : 0)
                                      
         var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
+                                     .filter(PuffForum.filterByFilters(queryfilter))
                                      .slice(0, cols)
                                      .sort(function(a, b) {
                                          return a.username == username ? -1 : 0       // fancy sorting for current user puffs

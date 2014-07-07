@@ -1,5 +1,5 @@
 var UsernameImport = {};
-UsernameImport.update(loaded, created, total) {
+UsernameImport.update = function(loaded, created, total) {
 	document.getElementById("importContent").innerHTML = "Start import content...<br>" + "Loaded: " + loaded + "/" + total + "<br>Created: " + created + "/" + total;
 }
 

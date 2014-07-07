@@ -478,6 +478,10 @@ var PuffAllParents = React.createClass({displayName: 'PuffAllParents',
 
 var PuffList = React.createClass({displayName: 'PuffList',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    shouldComponentUpdate: function(nextProps, nextState) {
+      return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
+      return nextProps !== this.props // TODO: this won't update when new items arrive
+    },
     render: function() {
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
@@ -504,7 +508,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var arrows = this.props.view.arrows
         var sigfun = function(item) {return item.sig}
         var username = PuffWardrobe.getCurrentUsername()
-                
+
         // gridCoord params
         var screencoords = this.getScreenCoords()
         var dimensions   = this.getDimensions()

@@ -170,7 +170,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     if(PuffData.slotLock) return false
     
     var offset = 0
-    var giveup = 5000
+    var giveup = 1000
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -184,7 +184,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
             return false
         }
         
-        var limit = need - have + 10 // grab a few extras to help work through bare patches
+        var limit = need - have + 50 // grab a few extras to help work through bare patches
         
         var prom = PuffNet.getSomeShells(query, filters, limit, offset)
         prom.then(getMeSomeShells)

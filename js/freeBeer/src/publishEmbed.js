@@ -52,7 +52,9 @@ var PuffPublishFormEmbed = React.createClass({
     },
     handleSubmitSuccess: function(puff) {
         // clear the content
-        puffworldprops.reply.content = '';
+        // puffworldprops.reply.content = ''; // DON'T DO THIS
+        update_puffworldprops({'reply.content': ''})
+        
         // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
@@ -211,8 +213,11 @@ var PuffPublishFormEmbed = React.createClass({
     handleExpand: function() {
         // save current content and state
         var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
-        puffworldprops.reply.content = content;
-        puffworldprops.reply.state = this.state;
+        // DON'T MUTATE PROPS!
+        // puffworldprops.reply.content = content;
+        // puffworldprops.reply.state = this.state;
+        update_puffworldprops({'reply.content': content, 'reply.state': this.state})
+        
         
         // publish events
         var expanded = this.props.reply.expand;
@@ -334,7 +339,9 @@ var PuffPublishFormEmbed = React.createClass({
             var currentContent = puffworldprops.reply.content;
             if (this.refs.content) {
                 currentContent = this.refs.content.getDOMNode().value.trim();
-                puffworldprops.reply.content = currentContent;
+                update_puffworldprops({'reply.content': currentContent})
+                // DON'T MUTATE PROPS!
+                // puffworldprops.reply.content = currentContent;
             };
 
             currentContent = PuffForum.processContent(currentType, currentContent, {});

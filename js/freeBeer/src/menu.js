@@ -1023,8 +1023,8 @@ var NewIdentity = React.createClass({
 
     handleStartOver: function() {
         var show = this.props.show;
-        this.props = {};                                // THINK: why is this here?
-        this.props.show = show;
+        // this.props = {};                                // THINK: why is this here? don't mutate props.
+        // this.props.show = show;
         this.setState({
             step: 0,
             desiredUsername: '',

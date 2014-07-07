@@ -7,7 +7,7 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('n', function() { 
             if (puffworldprops.reply.preview) return false;
             
-            var menu = puffworlddefaults.menu;
+            var menu = PB.shallow_copy(puffworlddefaults.menu);
             menu.show = true;
             menu.section = 'publish';
 
@@ -19,6 +19,7 @@ var ViewKeybindingsMixin = {
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
             if (puffworldprops.reply.preview) return false;
+            
             var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
             parents = parents.slice()                        // don't mutate props directly
             var sig = this.props.view.cursor
@@ -35,7 +36,7 @@ var ViewKeybindingsMixin = {
             if (parents.length == 0) 
                 return events.pub('ui/reply/open', { 'reply': {parents: parents} });
 
-            var menu = puffworlddefaults.menu;
+            var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
                 menu.show = true;
                 menu.section = 'publish';
@@ -361,9 +362,9 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             view  = PuffPacker(      {tools:this.props.tools} )
 
         // THINK: why do we need this?
-        else if ( viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
-            this.props.menu.show = true;            // TODO: don't mutate props!
-        }
+        // else if ( viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
+        //     this.props.menu.show = true;            // TODO: don't mutate props!
+        // }
         
         // else if (viewprops.mode == "MenuAdd") {
         //     this.props.menu.section = "identity";   // TODO: don't mutate props!

@@ -116,11 +116,13 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
+    data['reply.preview'] = false                           // FIXME: this is not the right place for this
+
     update_puffworldprops(data)                             // change props in a persistent fashion
 
-    setURLfromViewProps()                                     // set the props in the url and history
+    setURLfromViewProps()                                   // set the props in the url and history
 
-    puffworldprops.reply.preview = false;                   // THINK: what is this?
+    // puffworldprops.reply.preview = false;                   // FIXME: DO NOT MUTATE PROPS!!!!
     
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
@@ -344,9 +346,17 @@ function renderPuffWorld() {
     var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
 
     // puffworldprops has to contain some important things like prefs
-    // THINK: is this the right place for this?
-    puffworldprops.prefs = PuffWardrobe.getAllPrefs()
-    puffworldprops.profile = PuffWardrobe.getAllProfileItems()
+    // THINK: is this the right place for this? 
+    var data = { prefs: PuffWardrobe.getAllPrefs()
+               , profile: PuffWardrobe.getAllProfileItems()
+               }
+
+    
+    // puffworldprops = PB.persistent_merge(puffworldprops, data)
+    update_puffworldprops(PB.flatten(data))
+    
+    // puffworldprops.prefs = PuffWardrobe.getAllPrefs()
+    // puffworldprops.profile = PuffWardrobe.getAllProfileItems()
 
     // fiddle with fiddles
     // var sig = pushstate.puff
@@ -383,6 +393,7 @@ update_puffworldprops = function(data) {
         else 
             puffworldprops.view.filters.routes = [puffworldprops.view.filters.routes]
     }
+    
     if(!Array.isArray(puffworldprops.view.filters.users)) {
         if(!puffworldprops.view.filters.users)
             puffworldprops.view.filters.users = []

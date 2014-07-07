@@ -551,14 +551,15 @@ var PuffReplyLink = React.createClass({
             parents.splice(index, 1)
         }
 
-        var menu = puffworldprops.menu;
+        var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (!puffworldprops.reply.expand) {
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', 
-                         {'reply.show': true, 'reply.parents': parents,
-                          'menu': menu});
+        return events.pub('ui/reply/add-parent', { 'reply.show': true
+                                                 , 'reply.parents': parents
+                                                 , 'menu': menu
+                                                 });
 
         // TODO: draw reply arrows. Maybe
     },

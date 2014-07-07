@@ -310,7 +310,8 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         }
         // console.log(username);
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', {'view.filterroute': username});
+        return events.pub('ui/view/route/set', {'view.style': 'PuffLatest', 
+                                                'filter.routes': [username]});
     },
 
     render: function() {
@@ -961,8 +962,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         UsernameImport[network].requestAuthentication();
     },
     handleContentImport: function() {
+        this.setState({usernameMessage: ""});
         var network = this.state.importInfo.network;
-        UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
+        try {
+            UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
+        } catch (err) {
+            this.setState({enableContentImport: false, usernameMessage: err.message});
+        }
     },
     handleCancelImport: function() {
         this.setState({desiredUsername: '', importInfo: {}})

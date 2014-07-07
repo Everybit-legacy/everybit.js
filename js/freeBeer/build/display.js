@@ -164,9 +164,6 @@ var CursorBindingsMixin = {
             if (!current)                              // default cursors handled elsewhere (there should always 
                 return false                           // be an active cursor, if we are in a cursorable mode)
             
-            // current = document.getElementById(current);
-            // var next = moveToNeighbour(current.id, e.which, this.props.view.arrows);
-
             var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
             
             if (next)

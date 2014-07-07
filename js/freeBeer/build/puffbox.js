@@ -55,7 +55,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     handleClick: function() {
         var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffList', 'view.puff': false, 'view.filters.users': [username]})
+        return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.puff': false, 'view.filters.users': [username]})
     },
     render: function() {
         var username = humanizeUsernames(this.props.username)
@@ -246,7 +246,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', {'view.style': 'PuffAllParents', 'view.puff': puff})
+        return events.pub('ui/show/parents', {'view.mode': 'PuffAllParents', 'view.puff': puff})
     },
     render: function() {
         var puff = this.props.puff;
@@ -479,7 +479,7 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
 var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/children', {'view.style': 'PuffAllChildren', 'view.puff': puff})
+        return events.pub('ui/show/children', {'view.mode': 'PuffAllChildren', 'view.puff': puff})
         // viewAllChildren(puff)
     },
     render: function() {
@@ -591,7 +591,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
 var PuffExpand = React.createClass({displayName: 'PuffExpand',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub("ui/expand-puff", {'view.style': 'PuffTallTree', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
+        return events.pub("ui/expand-puff", {'view.mode': 'focus', 'view.puff': puff, 'menu': puffworlddefaults.menu, 'reply': puffworlddefaults.reply, 'view.rows': 1})
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];

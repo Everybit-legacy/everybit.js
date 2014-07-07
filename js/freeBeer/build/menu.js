@@ -191,7 +191,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 
         return events.pub('ui/view/route/set', { 'view.filters.users':  filterUsers
                                                , 'view.filters.routes': filterRoutes
-                                               , 'view.style': 'PuffList'});
+                                               , 'view.mode': 'list'});
     },
     
     handleKeyDown: function(event) {
@@ -247,7 +247,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
          // var propPiece = puffworldprops.filter[this.props.filterName]; 
 
          // THINK: do we still need this?
-         // var viewStyle = puffworldprops.view.style;
+         // var viewStyle = puffworldprops.view.mode;
          // if (viewStyle == 'PuffByUser') viewStyle = "PuffLatest";
 
          var index = filterValue.indexOf(toRemove);
@@ -297,20 +297,20 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
 var ViewMenu = React.createClass({displayName: 'ViewMenu',
     mixins: [TooltipMixin],
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', { 'view.style': 'PuffList'
+        return events.pub('ui/show/roots', { 'view.mode': 'list'
                                            , 'view.filters.roots': true
                                            , 'menu': puffworlddefaults.menu});
     },
 
     handleViewLatest: function() {
-        return events.pub('ui/show/latest', { 'view.style': 'PuffList'
+        return events.pub('ui/show/latest', { 'view.mode': 'list'
                                             , 'view.puff': false
                                             , 'menu': puffworlddefaults.menu
                                             , 'view.filters': puffworlddefaults.view.filters});
     },
 
     handleShowUserPuffs: function(username) {
-        return events.pub('ui/show/by-user', { 'view.style': 'PuffList'
+        return events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.puff': false
                                              , 'view.filters.users': [username]})
     },
@@ -380,7 +380,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
             tabs: {
                 showSetIdentity: false,
                 showEditIdentity: false,
-                showNewIdentity: (puffworldprops.view.style == 'MenuAdd')
+                showNewIdentity: (puffworldprops.view.mode == 'MenuAdd')
             }
         }
     },
@@ -582,7 +582,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
     mixins: [TooltipMixin],
     handlePackPuffs: function() {
-        return events.pub('ui/show/puffpacker', {'view.style': 'PuffPacker', 'menu': puffworlddefaults.menu});
+        return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
 
     render: function() {
@@ -624,7 +624,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
         // var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.style': 'PuffList', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
+        return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
     },
 
 

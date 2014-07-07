@@ -60,7 +60,7 @@ var PuffPublishFormEmbed = React.createClass({
         // FIXME not working with encrypted puff
         events.pub('ui/submit', {'reply': puffworlddefaults.reply});
         if (typeof puff.payload.parents !== 'undefined') {
-            events.pub('ui/view-puff', {'view.style': 'PuffTallTree',
+            events.pub('ui/view-puff', {'view.mode': 'focus',
                                         'view.puff': puff});
         }
 

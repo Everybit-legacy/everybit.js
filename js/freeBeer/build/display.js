@@ -70,7 +70,7 @@ var ViewKeybindingsMixin = {
 
         // l shows latest puffs
         Mousetrap.bind('l', function() {
-            return events.pub('ui/show/latest', { 'view.style': 'PuffList'
+            return events.pub('ui/show/latest', { 'view.mode': 'list'
                                                 , 'view.puff': false
                                                 , 'view.filters': puffworlddefaults.view.filters
                                                 , 'menu': puffworlddefaults.menu});
@@ -344,25 +344,25 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             CONFIG.leftMargin = 60;
         }
 
-        if( viewprops.style == 'PuffTallTree' )
+        if( viewprops.mode == 'focus' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
 
-        else if( viewprops.style == 'PuffAllChildren' )
+        else if( viewprops.mode == 'PuffAllChildren' )
             view  = PuffAllChildren( {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
 
-        else if( viewprops.style == 'PuffAllParents' )
+        else if( viewprops.mode == 'PuffAllParents' )
             view  = PuffAllParents(  {view:viewprops, reply:this.props.reply, puff:viewprops.puff} )
 
-        // else if( viewprops.style == 'PuffByUser' )
+        // else if( viewprops.mode == 'PuffByUser' )
         //     view  = <PuffByUser      view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
-        // else if( viewprops.style == 'PuffByRoute' )
+        // else if( viewprops.mode == 'PuffByRoute' )
         //     view  = <PuffByRoute     view={viewprops} reply={this.props.reply} user={viewprops.user} />
 
-        else if( viewprops.style == 'PuffList' )
+        else if( viewprops.mode == 'list' )
             view  = PuffList(        {view:viewprops, reply:this.props.reply} )
 
-        else if( viewprops.style == 'PuffPacker' )
+        else if( viewprops.mode == 'PuffPacker' )
             view  = PuffPacker(      {tools:this.props.tools} )
 
         else view = PuffTallTree(    {view:PB.extend(this.props.view, defaultViewProps), reply:this.props.reply} )
@@ -371,10 +371,10 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         // TODO: Focus the reply box when arrow clicked
 
         // THINK: why do we need this?
-        if (viewprops.style == "Menu" || viewprops.style == "MenuAdd") {
+        if (viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
             this.props.menu.show = true;            // TODO: don't mutate props!
         }
-        if (viewprops.style == "MenuAdd") {
+        if (viewprops.mode == "MenuAdd") {
             this.props.menu.section = "identity";   // TODO: don't mutate props!
         }
 

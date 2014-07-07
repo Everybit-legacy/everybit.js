@@ -45,7 +45,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleClose: function() {
-        return events.pub('ui/puff-packer/close', {'view.style': 'PuffRoots'})
+        return events.pub('ui/puff-packer/close', {'view.mode': 'list'})
     },
 
     handleUsernameLookup: function() {

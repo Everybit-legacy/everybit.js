@@ -26,6 +26,8 @@ puffworldprops = {
     },
 
     view: {
+        mode: 'list',
+        
         filters: {
             routes: [],
             users : [],
@@ -44,7 +46,7 @@ puffworldprops = {
         // kids  : false,                                  // show only children of the focused puffs
         puff      : false,                              // focused puff (not just sig)
 
-        style     : 'PuffList',
+        
         
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs
@@ -357,8 +359,12 @@ function showPuff(sig) {
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', { 'view.style': 'PuffTallTree'
+    events.pub('ui/show/tree', { 'view.mode' : 'focus'
+                               // , 'view.filter' : puffworlddefaults.view.filter
+                               // , 'view.query' : puffworlddefaults.view.query
+                               // , 'view.query.focus' : puff.sig
                                , 'view.puff' : puff
+                               
                                , 'menu'      : puffworlddefaults.menu
                                , 'reply'     : puffworlddefaults.reply})
 }

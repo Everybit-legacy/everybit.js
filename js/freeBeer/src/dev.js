@@ -3,6 +3,7 @@ puffworldprops = {
     dev: {
         items:
             [
+
                 {
                     category: 'feature',
                     name: 'Staring of puffs added',
@@ -12,6 +13,7 @@ puffworldprops = {
                     default: 0 // Set to 'checked' when done
                 },
                 {
+                    category: 'metric',
                     name: 'Number of imported usernames',
                     field: 'importedUsernames',
                     type: 'number',
@@ -51,6 +53,7 @@ puffworldprops = {
                     default: 0 // Set to 'checked' when done
                 },
                 {
+                    category: 'metric',
                     name: 'Video views',
                     field: 'videoViews',
                     type: 'number',
@@ -527,11 +530,11 @@ var Items = React.createClass({
                 if(item.type == 'boolean') {
 
                     return (
-                        <tr><td><input type="checkbox" ref={item.field} key={item.field} onChange={self.handleCalculateScore} defaultChecked={item.default} /></td><td>{item.name}</td></tr>
+                        <tr><td>{item.category}</td><td><input type="checkbox" ref={item.field} key={item.field} onChange={self.handleCalculateScore} defaultChecked={item.default} /></td><td>{item.name}</td></tr>
                         );
                 } else {
                     return (
-                        <tr><td><input type="text" className="narrow" ref={item.field} key={item.field} onChange={self.handleCalculateScore} defaultValue={item.default} /></td><td>{item.name}</td></tr>
+                        <tr><td>{item.category}</td><td><input type="text" className="narrow" ref={item.field} key={item.field} onChange={self.handleCalculateScore} defaultValue={item.default} /></td><td>{item.name}</td></tr>
                         );
                 }
 

@@ -1,7 +1,6 @@
 var UsernameImport = {};
 UsernameImport.update = function(loaded, created, total) {
 	document.getElementById("importContent").innerHTML = 
-	//console.log(
 			"Start import content...<br>" 
 			+ "Loaded: " + loaded + "/" + total + "<br>Created: " 
 			+ created + "/" + total + "<br>";
@@ -23,7 +22,6 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 		newScript_el.setAttribute("id", "instagramContent");
 		try {
 			document.getElementsByTagName('head')[0].appendChild(newScript_el);
-			console.log(newScript_el);
 		} catch (err) {
 			throw err;
 		}

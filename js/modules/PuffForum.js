@@ -49,6 +49,7 @@ PuffForum.getShells = function() {
 }
 
 PuffForum.secretStash = {}
+PuffForum.horridStash = {}
 
 PuffForum.getStashedShellBySig = function(username, sig) {
     if(!PuffForum.secretStash[username])
@@ -58,17 +59,25 @@ PuffForum.getStashedShellBySig = function(username, sig) {
         return PuffForum.secretStash[username][sig]
 }
 
+PuffForum.badEnvelope = function(sig) {
+    return PuffForum.horridStash[sig]
+}
+
 PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
     var myUsername = PuffWardrobe.getCurrentUsername()
     var myKeys = PuffWardrobe.getCurrentKeys()
     var maybeShell = PuffForum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
     
-    if(maybeShell)
-        return maybeShell
+    if(maybeShell) return maybeShell
+        
+    if(PuffForum.badEnvelope(envelope.sig)) return false
     
     function doit(envelope, yourUserRecord) {
         var letter = Puffball.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
-        if(!letter) return false
+        if(!letter) {
+            PuffForum.horridStash[envelope.sig] = true
+            return false
+        }
         PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
         PuffForum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
         PuffData.addBonus(letter, 'envelope', envelope)                             // mark it for later

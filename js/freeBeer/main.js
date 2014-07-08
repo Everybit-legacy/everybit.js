@@ -31,15 +31,15 @@ puffworldprops = {
         
         filters: {
             routes: [],
-            users : []
+            users : [],
         },
 
         query: {
-            sort: 'DESC',                                // direction of sort
+            sort: 'ASC',                                // direction of sort
             focus: false,                               // a puff sig to focus on
             ancestors: false,                           // number of ancestor levels to show (false for none)
             descendants: false,                         // number of descendant levels to show (false for none)
-            roots : false                              // THINK: move this to filterToggles or filterNums or something?
+            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
         },
         
         // TODO: move these options into view.layout
@@ -53,7 +53,7 @@ puffworldprops = {
         showinfo  : false,                              // true -> always show info boxes; false -> only on hover
 
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
-        cursor    : false                              // sig of selected puff
+        cursor    : false,                              // sig of selected puff
     },
 
     reply: {
@@ -202,12 +202,27 @@ function draggableize(el) {
 
 //// props and urls and pushstate oh my ////
 
+stashedKeysFromURL = {}
+
+function getStashedKeysFromURL() {
+    return stashedKeysFromURL
+}
+
 function handleImportRedirect() {
-    var params = getQuerystringObject();
-    if (params['requestedUsername']) {
+    var state = getQuerystringObject();
+    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
+    if (state['requestedUsername']) {
         update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+
+        state = PB.shallow_copy(state) // clone before delete
+        
+        for(var key in state) {
+            if(!~keysToStash.indexOf(key)) continue
+            stashedKeysFromURL[key] = state[key]
+            delete state[key]
+        }
+        setURLfromViewProps();
     }
-    setURL(params);
     // setURLfromViewProps();
 }
 
@@ -239,7 +254,7 @@ function setURL(state, path) {
 }
 
 function convertStateToURL(state) {
-    state = stashKeysFromURL(state)
+    // state = stashKeysFromURL(state)
     state = PB.flatten(state)
     
     var url = Object.keys(state)
@@ -280,24 +295,6 @@ function getQuerystringObject() {
 //       so we skip it when going back through time. if we do that then we don't need to look for these every 
 //       time we update the URL.
 
-stashedKeysFromURL = {}
-
-function stashKeysFromURL(state) {
-    state = PB.shallow_copy(state) // clone before delete
-    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
-    
-    for(var key in state) {
-        if(!~keysToStash.indexOf(key)) continue
-        stashedKeysFromURL[key] = state[key]
-        delete state[key]
-    }
-    
-    return state
-}
-
-function getStashedKeysFromURL() {
-    return stashedKeysFromURL
-}
 
 
 

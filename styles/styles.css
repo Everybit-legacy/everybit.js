@@ -1015,11 +1015,11 @@ a.footerText {
     to   { opacity: 0; }
 } */
 
-/* not in use
+/* not in use */
 @-webkit-keyframes slidein {
     from { left: -360px; }
     to { left: 60px; }
-} */
+} 
 
 @-moz-keyframes slidein {
     from { left: -360px; }

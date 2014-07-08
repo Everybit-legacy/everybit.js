@@ -202,12 +202,26 @@ function draggableize(el) {
 
 //// props and urls and pushstate oh my ////
 
+stashedKeysFromURL = {}
+
+function getStashedKeysFromURL() {
+    return stashedKeysFromURL
+}
+
 function handleImportRedirect() {
-    var params = getQuerystringObject();
-    if (params['requestedUsername']) {
+    var state = getQuerystringObject();
+    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
+    if (state['requestedUsername']) {
         update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+
+        state = PB.shallow_copy(state) // clone before delete
+        
+        for(var key in state) {
+            if(!~keysToStash.indexOf(key)) continue
+            stashedKeysFromURL[key] = state[key]
+            delete state[key]
+        }
     }
-    setURL(params);
     // setURLfromViewProps();
 }
 
@@ -239,7 +253,7 @@ function setURL(state, path) {
 }
 
 function convertStateToURL(state) {
-    state = stashKeysFromURL(state)
+    // state = stashKeysFromURL(state)
     state = PB.flatten(state)
     
     var url = Object.keys(state)
@@ -280,24 +294,6 @@ function getQuerystringObject() {
 //       so we skip it when going back through time. if we do that then we don't need to look for these every 
 //       time we update the URL.
 
-stashedKeysFromURL = {}
-
-function stashKeysFromURL(state) {
-    state = PB.shallow_copy(state) // clone before delete
-    var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
-    
-    for(var key in state) {
-        if(!~keysToStash.indexOf(key)) continue
-        stashedKeysFromURL[key] = state[key]
-        delete state[key]
-    }
-    
-    return state
-}
-
-function getStashedKeysFromURL() {
-    return stashedKeysFromURL
-}
 
 
 

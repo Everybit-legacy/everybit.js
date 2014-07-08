@@ -60,7 +60,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        // FIXME: not working with encrypted puff // THINK: is this still true?        
+        // FIXME: not working with encrypted puff // THINK: is this still true?
+        console.log(puff.sig);
         if (typeof puff.payload.parents !== 'undefined') {
             showPuff(puff.sig)
             // events.pub('ui/show-puff', { 'view.mode': 'focus',

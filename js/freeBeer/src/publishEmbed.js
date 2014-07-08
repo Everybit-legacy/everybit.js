@@ -326,12 +326,12 @@ var PuffPublishFormEmbed = React.createClass({
         );
 
         var contentStyle = {
-            width: '100%',
+            width: (puffworldprops.reply.expand ? "400px" : '100%'),
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
-            // height: '200px',
             marginTop: '10px',
             marginBottom: '10px',
             border: '1px solid #333',
+            display: 'block',
             background: '#FFFFFF'
         }
         var contentField = (
@@ -372,14 +372,15 @@ var PuffPublishFormEmbed = React.createClass({
                     {imageField}
                 </div>
             );
-        } else if(type == 'bbcode') {
+        } 
+        /*else if(type == 'bbcode') {
             contentField = (
                 <div>
                     {contentField}
                     <p>{polyglot.t("replyForm.format.bbcodeMsg")}</p>
                 </div>
             )
-        }
+        }*/
 
         // preview toggle
         // CSS for checkbox
@@ -476,8 +477,9 @@ var PuffPublishFormEmbed = React.createClass({
                     {typeOption}
                     {privacyOption}<br />
                     {contentField}
-                    {errorField}
                     {expandButton}
+                    {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bbcodeMsg")}<br/></span>) : ""}
+                    {errorField}
                     {previewToggle}
                     {sendButton}
                     {advancedField}

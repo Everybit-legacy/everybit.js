@@ -95,6 +95,13 @@ UsernameImport.instagram.importAllContent = function() {
 					var username = PuffWardrobe.getCurrentUsername();
 					events.pub("ui/show-imported-puff", {'view.mode': 'list', 
 														 'view.filters.users': [username]});
+
+					// clean up
+					var head = document.getElementsByTagName("head")[0];
+					var contentScript = head.getElementsByClassName("instagramContent");
+					for (var i=0; i<contentScript.length; i++) {
+						head.removeChild(contentScript);
+					}
 				}
 			}).catch(function(err){
 				console.log(err.message);

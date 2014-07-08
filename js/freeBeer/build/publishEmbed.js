@@ -7,6 +7,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 showPreview : false, 
                 err         : false,
                 showAdvanced: false,
+                privacy     : false,
                 advancedOpt : {}};
     },
     preventDragText: function() {
@@ -44,6 +45,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         } else {
             this.getDOMNode().className = "";
         }
+        this.setState({privacy: privacy});
     },
     handlePickAdvancedOpt: function(e) {
         var key = e.target.name;
@@ -56,18 +58,14 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // puffworldprops.reply.content = ''; // DON'T DO THIS
         update_puffworldprops({'reply.content': ''})
         
-        // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        // FIXME: not working with encrypted puff // THINK: is this still true?
-        console.log(puff.sig);
         if (typeof puff.payload.parents !== 'undefined') {
             showPuff(puff.sig)
-            // events.pub('ui/show-puff', { 'view.mode': 'focus',
-            //                              'view.puff': puff});
         } else {
-            events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+            var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
+            showPuff(decrypted.sig);
         }
 
         // set back to initial state
@@ -316,6 +314,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var privacyStyle = {
             width: '70%'
         };
+        privacyDefault = this.state.privacy || privacyDefault;
         var privacyOption = (
             React.DOM.select( {style:privacyStyle, ref:"privacy", className:"btn", 
                 defaultValue:privacyDefault, onChange:this.handlePickPrivacy}, 

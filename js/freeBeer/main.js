@@ -206,8 +206,9 @@ function handleImportRedirect() {
     var params = getQuerystringObject();
     if (params['requestedUsername']) {
         update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+        setURL(params);
     }
-    setURLfromViewProps();
+    // setURLfromViewProps();
 }
 
 function setURLfromViewProps() {

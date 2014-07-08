@@ -1096,7 +1096,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                                        step: 3, 
                                        errorMessage: message});
                     }
-                    setURLfromViewProps();
                 }).catch(function(err){
                     console.log(err.message);
                 })

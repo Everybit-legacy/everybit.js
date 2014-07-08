@@ -93,82 +93,13 @@ UsernameImport.instagram.importAllContent = function() {
 				if (createdCount == total) {
 					document.getElementById("importContent").innerHTML = "Import finished.<br>";
 					var username = PuffWardrobe.getCurrentUsername();
-					events.pub("ui/show-imported-puff", {'view.query.focus': false, 'view.filters.users': [username]});
+					events.pub("ui/show-imported-puff", {'view.mode': 'list', 
+														 'view.filters.users': [username]});
 				}
 			}).catch(function(err){
 				console.log(err.message);
 			})
 		};
-	}
-}
-UsernameImport.instagram.importContent = function(result) {
-	// collect all the results.data
-	// then process the results
-	var loadedCount = 0;
-	var createdCount = 0;
-	if (result.meta.code == 200) {
-		var data = result.data;
-		var nextPage = result.pagination.nextURL;
-		data = data.filter(function(d){return d.type == "image"});
-		total = data.length;
-		UsernameImport.update(0, 0, total);
-		for (var i=0; i<data.length; i++) {
-			var entry = data[i];
-
-			var img_el = document.createElement("img");
-			img_el.crossOrigin = '';
-			var src = entry.images['standard_resolution']['url'];
-			src = "http://162.219.162.56:8080/" + src.split('/').slice(2).join('/');
-			var width  = entry.images['standard_resolution']['width'];
-			var height = entry.images['standard_resolution']['height'];
-			img_el.setAttribute('src', src);
-			img_el.setAttribute('data-index', i)
-			img_el.setAttribute('width', width);
-			img_el.setAttribute('height', height);
-			img_el.onerror = function(err) {
-				throw Error("Error loading image");
-			}
-			img_el.onload = function(){
-				var entry = data[this.attributes['data-index'].value];
-				loadedCount++;
-				UsernameImport.update(loadedCount, createdCount, total);
-				var img_el = this;
-			    var canvas = document.createElement("canvas");
-			    canvas.height = img_el.width;
-			    canvas.width = img_el.height;
-
-			    var ctx = canvas.getContext("2d");
-				ctx.drawImage(img_el, 0, 0);
-				var img = canvas.toDataURL('image/jpeg');
-
-				var metadata = {
-					time: entry.created_time * 1000,
-					tags: entry.tags,
-					caption: entry.caption.text
-				}
-				var post_prom = PuffForum.addPost('image', img, [], metadata);
-				post_prom.then(function(puff){
-					createdCount++;
-					UsernameImport.update(loadedCount, createdCount, total);
-					// if all are created, redirect all contents published by this user
-					if (createdCount == total) {
-						document.getElementById("importContent").innerHTML = "Import finished.<br>";
-						var username = PuffWardrobe.getCurrentUsername();
-						events.pub("ui/show-imported-puff", {'view.style': 'PuffLatest', 'view.puff': false, 'filter.usernames': [username]});
-					}
-				}).catch(function(err){
-					console.log(err.message);
-				})
-			};
-		}
-
-		var clear = window.setTimeout(function(){
-			var script = document.getElementById('instagramContent');
-			script.parentElement.removeChild(script);
-		}, data.length * 100);
-	} else {
-		// document.getElementById("importContent").innerHTML = "Trouble getting content."
-		throw Error("Touble getting content.");
 	}
 }
 

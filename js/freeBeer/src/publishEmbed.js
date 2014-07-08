@@ -7,7 +7,6 @@ var PuffPublishFormEmbed = React.createClass({
                 showPreview : false, 
                 err         : false,
                 showAdvanced: false,
-                privacy     : false,
                 advancedOpt : {}};
     },
     preventDragText: function() {
@@ -15,9 +14,6 @@ var PuffPublishFormEmbed = React.createClass({
             var content = this.refs.content.getDOMNode();
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
-    },
-    componentWillMount: function() {
-        this.setState(puffworldprops.reply.state);
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
@@ -29,6 +25,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();
+        this.setState(puffworldprops.reply.state);
         this.preventDragText();
     },
     componentDidUpdate: function() {
@@ -47,7 +44,6 @@ var PuffPublishFormEmbed = React.createClass({
         } else {
             this.getDOMNode().className = "";
         }
-        this.setState({privacy: privacy});
     },
     handlePickAdvancedOpt: function(e) {
         var key = e.target.name;
@@ -60,14 +56,17 @@ var PuffPublishFormEmbed = React.createClass({
         // puffworldprops.reply.content = ''; // DON'T DO THIS
         update_puffworldprops({'reply.content': ''})
         
+        // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
+        // FIXME: not working with encrypted puff // THINK: is this still true?        
         if (typeof puff.payload.parents !== 'undefined') {
             showPuff(puff.sig)
+            // events.pub('ui/show-puff', { 'view.mode': 'focus',
+            //                              'view.puff': puff});
         } else {
-            var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
-            showPuff(decrypted.sig);
+            events.pub('ui/submit', {'reply': puffworlddefaults.reply});
         }
 
         // set back to initial state
@@ -325,8 +324,6 @@ var PuffPublishFormEmbed = React.createClass({
         var privacyStyle = {
             width: '70%'
         };
-        privacyDefault = this.state.privacy || privacyDefault;
-        // privacyDefault = "private";
         var privacyOption = (
             <select style={privacyStyle} ref="privacy" className="btn" 
                 defaultValue={privacyDefault} onChange={this.handlePickPrivacy}>

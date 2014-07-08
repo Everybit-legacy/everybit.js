@@ -60,13 +60,11 @@ var PuffPublishFormEmbed = React.createClass({
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        // FIXME: not working with encrypted puff // THINK: is this still true?        
         if (typeof puff.payload.parents !== 'undefined') {
             showPuff(puff.sig)
-            // events.pub('ui/show-puff', { 'view.mode': 'focus',
-            //                              'view.puff': puff});
         } else {
-            events.pub('ui/submit', {'reply': puffworlddefaults.reply});
+            var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
+            showPuff(decrypted.sig);
         }
 
         // set back to initial state

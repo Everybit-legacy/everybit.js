@@ -93,7 +93,7 @@ UsernameImport.instagram.importAllContent = function() {
 				if (createdCount == total) {
 					document.getElementById("importContent").innerHTML = "Import finished.<br>";
 					var username = PuffWardrobe.getCurrentUsername();
-					events.pub("ui/show-imported-puff", {'view.style': 'PuffLatest', 'view.puff': false, 'filter.usernames': [username]});
+					events.pub("ui/show-imported-puff", {'view.query.focus': false, 'view.filters.users': [username]});
 				}
 			}).catch(function(err){
 				console.log(err.message);

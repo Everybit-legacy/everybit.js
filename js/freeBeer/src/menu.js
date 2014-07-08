@@ -332,9 +332,8 @@ var ViewMenu = React.createClass({
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-
         return events.pub('ui/view/route/set', { 'view.mode': 'list', 
-                                                 'view.filter.routes': [username] });
+                                                 'view.filters.routes': [username] });
     },
 
     render: function() {

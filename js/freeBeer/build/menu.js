@@ -937,7 +937,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
     },
 
     toggleShowRootKey: function() {
-        console.log(this.state.rootKey);
+        // console.log(this.state.rootKey);
         if(this.state.rootKey == 'hidden') {
             this.setState({rootKey: PuffWardrobe.getCurrentUserRecord().rootKey});
         } else {
@@ -1070,37 +1070,37 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             // var params = getQuerystringObject();
             var params = getStashedKeysFromURL();
             if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
-                // this.props.importUsername = reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase();
                 var importInfo = {
                     username: reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase(),
-                    // username: this.props.importUsername,
                     token  : params['token'],
                     id     : params['requestedUserId'],
                     network: params['network']
                 };
+                delete stashedKeysFromURL['requestedUsername'];
+                delete stashedKeysFromURL['token'];
+                delete stashedKeysFromURL['requestedUserId'];
+                delete stashedKeysFromURL['network'];
+
 
                 // check if username exist
-                var prom = Puffball.getUserRecordNoCache(importInfo.username);
+                var prom = Puffball.getUserRecord(importInfo.username);
                 var self = this;
                 prom.then(function(userRecord){
-                    if (userRecord['FAIL']) {
-                        self.setState({importInfo: importInfo});
-                    } else {
-                        var message = "Username already exist.";
-                        if (importInfo.network == "instagram") {
-                            message += " You may try to import your content."
-                        }
-                        self.setState({importInfo: importInfo, 
-                                       desiredUsername: importInfo.username,
-                                       enableContentImport: (importInfo.network == "instagram"),
-                                       step: 3, 
-                                       errorMessage: message});
+                    var message = "Username already exist.";
+                    if (importInfo.network == "instagram") {
+                        message += " You may try to import your content."
                     }
+                    self.setState({importInfo: importInfo, 
+                                   desiredUsername: importInfo.username,
+                                   enableContentImport: (importInfo.network == "instagram"),
+                                   step: 3, 
+                                   errorMessage: message});
                 }).catch(function(err){
-                    console.log(err.message);
+                    self.setState({importInfo: importInfo});
                 })
 
             }
+
             if (Object.keys(this.state.importInfo).length != 0) {
                 showNext = true;
                 usernameField = (
@@ -1108,6 +1108,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, "Imported Username")),' ',React.DOM.span(null, this.state.importInfo.username),' ',React.DOM.input( {className:"btn-link", type:"button", onClick:this.handleCancelImport, value:"Cancel"})
                     ));
             }
+
 
             var publicKeyField= (
                 React.DOM.div(null, 

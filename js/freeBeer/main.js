@@ -286,7 +286,6 @@ function stashKeysFromURL(state) {
     var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
     
     for(var key in state) {
-        console.log(key);
         if(!~keysToStash.indexOf(key)) continue
         stashedKeysFromURL[key] = state[key]
         delete state[key]

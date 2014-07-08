@@ -33,7 +33,7 @@ var TooltipMixin = {
         }
     }
 };
-
+/* not in use
 var FlashSectionMixin = {
     switchMenuSection: function() {
         var section = this.props.section || false;
@@ -42,7 +42,7 @@ var FlashSectionMixin = {
     componentDidMount: function() {
         this.getDOMNode().onclick = this.switchMenuSection;
     }
-};
+};*/
 
 
 var Menu = React.createClass({displayName: 'Menu',
@@ -976,8 +976,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             importInfo: {},
             enableContentImport: false,
             usernameAvailable: 'unknown',
-            errorMessage: '',
-            newUsername: ''
+            errorMessage: ''/*,
+            newUsername: ''*/
         }
     },
 
@@ -1046,6 +1046,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         } else {
             var showNext = true;
             var polyglot = Translate.language[puffworldprops.view.language];
+            var generatedName = PuffWardrobe.generateRandomUsername();
+
             var usernameField = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, polyglot.t("menu.identity.newKey.msg"),":")),React.DOM.br(null ),
@@ -1055,7 +1057,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                             return React.DOM.option( {key:u.username, value:u.username}, u.username)
                         })
                         ), " ", React.DOM.em(null, "."),' ',
-                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:this.state.newUsername, size:"12"} ), " ", React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}), " ", React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"})
+                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"}))
                     ),
                 polyglot.t("menu.identity.step.import"),
                 ' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
@@ -1213,12 +1215,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
     handleGenerateUsername: function() {
         var generatedName = PuffWardrobe.generateRandomUsername();
-        this.setState({newUsername: generatedName});
+        if (this.refs.newUsername) 
+            this.refs.newUsername.getDOMNode().value = generatedName;
         return false;
-    },
-
-    componentWillMount: function() {
-        this.handleGenerateUsername();
     },
     componentDidUpdate: function() {
         if (puffworldprops.menu.section == "identity") 

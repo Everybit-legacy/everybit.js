@@ -538,11 +538,16 @@ PuffForum.addContentType = function(name, type) {
  */
 PuffForum.processContent = function(type, content, puff) {
     var typeObj = PuffForum.contentTypes[type]
+    
     if(!typeObj)
         typeObj = PuffForum.contentTypes['text']
 
     return typeObj.toHtml(content, puff)
 }
+
+
+// THINK: this might get big, need some GC here
+PuffForum.puffContentStash = {}
 
 /**
  * to the the processed puff content
@@ -551,7 +556,13 @@ PuffForum.processContent = function(type, content, puff) {
  */
 PuffForum.getProcessedPuffContent = function(puff) {
     // THINK: we've already ensured these are proper puffs, so we don't have to check for payload... right?
-    return PuffForum.processContent(puff.payload.type, puff.payload.content, puff) // TODO: this is redundant now
+    if(PuffForum.puffContentStash[puff.sig])
+        return PuffForum.puffContentStash[puff.sig]
+    
+    var content = PuffForum.processContent(puff.payload.type, puff.payload.content, puff)
+    PuffForum.puffContentStash[puff.sig] = content
+    
+    return content
 }
 
 // DEFAULT CONTENT TYPES

@@ -16,6 +16,9 @@ var PuffPublishFormEmbed = React.createClass({
             content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
         }
     },
+    componentWillMount: function() {
+        this.setState(puffworldprops.reply.state);
+    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
@@ -26,7 +29,6 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         if (this.refs.privacy) this.handlePickPrivacy();
-        this.setState(puffworldprops.reply.state);
         this.preventDragText();
     },
     componentDidUpdate: function() {
@@ -315,6 +317,7 @@ var PuffPublishFormEmbed = React.createClass({
             width: '70%'
         };
         privacyDefault = this.state.privacy || privacyDefault;
+        // privacyDefault = "private";
         var privacyOption = (
             <select style={privacyStyle} ref="privacy" className="btn" 
                 defaultValue={privacyDefault} onChange={this.handlePickPrivacy}>

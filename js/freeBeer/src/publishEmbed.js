@@ -130,9 +130,18 @@ var PuffPublishFormEmbed = React.createClass({
         
         var prom = Promise.resolve() // a promise we use to string everything along 
         
-        // are we anonymous? make a new user.
+        // are we currently anonymous? make a new user and switch.
+        if(!PuffWardrobe.getCurrentUsername()) {
+            prom = prom.then(function() {
+                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
+                    PuffWardrobe.switchCurrent(userRecord.username)
+                })
+            })
+        }
+        
+        // would we like to be anonymous? make a new user.
         var envelopeUserKeys = ''
-        if(privacy == 'anonymous' || privacy == 'paranoid' || !PuffWardrobe.getCurrentUsername()) {
+        if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
                 return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
                     envelopeUserKeys = PuffWardrobe.keychain[userRecord.username]

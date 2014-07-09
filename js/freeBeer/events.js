@@ -1,5 +1,5 @@
 /*
-    PuffBall Forum FUI event system
+    PuffBall Forum GUI event system
 */
 
 

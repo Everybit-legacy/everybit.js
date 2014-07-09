@@ -343,23 +343,11 @@ var PuffWorld = React.createClass({
         if( viewprops.mode == 'focus' )
             view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
 
-        // else if( viewprops.mode == 'PuffAllChildren' )
-        //     view  = <PuffAllChildren view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
+        // else if( viewprops.mode == 'list' && viewprops.query.descendants )
+        //     view  = <PuffAllChildren  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
 
-        // else if( viewprops.mode == 'PuffAllParents' )
-        //     view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.puff} />
-
-        // else if( viewprops.mode == 'PuffByUser' )
-        //     view  = <PuffByUser      view={viewprops} reply={this.props.reply} user={viewprops.user} />
-
-        // else if( viewprops.mode == 'PuffByRoute' )
-        //     view  = <PuffByRoute     view={viewprops} reply={this.props.reply} user={viewprops.user} />
-
-        else if( viewprops.mode == 'list' && viewprops.query.ancestors )
-            view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
-
-        else if( viewprops.mode == 'list' && viewprops.query.descendants )
-            view  = <PuffAllChildren  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
+        // else if( viewprops.mode == 'list' && viewprops.query.ancestors )
+        //     view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
 
         else if( viewprops.mode == 'list' )
             view  = <PuffList        view={viewprops} reply={this.props.reply} />
@@ -367,32 +355,17 @@ var PuffWorld = React.createClass({
         else if( viewprops.mode == 'PuffPacker' )
             view  = <PuffPacker      tools={this.props.tools} />
 
-        // THINK: why do we need this?
-        // else if ( viewprops.mode == "Menu" || viewprops.mode == "MenuAdd") {
-        //     this.props.menu.show = true;            // TODO: don't mutate props!
-        // }
-        
-        // else if (viewprops.mode == "MenuAdd") {
-        //     this.props.menu.section = "identity";   // TODO: don't mutate props!
-        // }
-
-
-        else {
-            // no mode? smash cut to default puff.
+        else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
             events.pub('ui/mode/default', { 'view': puffworlddefaults.view
                                           , 'view.mode': 'focus'
                                           , 'view.query.focus': defaultPuffSig })
             return <div></div>;
-            
-            // var defaultPuffId = polyglot.t("puff.default") || CONFIG.defaultPuff;
-            // var defaultPuff = PuffForum.getPuffBySig(defaultPuffId);
-            // defaultViewProps.puff = defaultPuff;
-            // view = <PuffTallTree    view={PB.extend(this.props.view, defaultViewProps)} reply={this.props.reply} />
         }
         
-        var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
+        
         // TODO: Focus the reply box when arrow clicked
+        var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
 
         var menu = this.props.menu.show 
                  ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} view={this.props.view} /></div> 
@@ -412,73 +385,29 @@ var PuffWorld = React.createClass({
     }
 });
 
-
-// var PuffRoots = React.createClass({
+// var PuffAllChildren = React.createClass({
 //     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
 //     render: function() {
-//         var dimensions = this.getDimensions();
-//         var limit = dimensions.cols * dimensions.rows;
-//         var puffs = PuffForum.getRootPuffs(limit, this.props); // pre-sorted
+//         var puffs = PuffForum.getChildren(this.props.puff, this.props); // pre-sorted
 //         this.cursorPower(puffs)
 //         return this.standardGridify(puffs);
 //     }
 // });
 
-var PuffAllChildren = React.createClass({
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-    render: function() {
-        var puffs = PuffForum.getChildren(this.props.puff, this.props); // pre-sorted
-        this.cursorPower(puffs)
-        return this.standardGridify(puffs);
-    }
-});
-
-var PuffAllParents = React.createClass({
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-    render: function() {
-        var puffs = PuffForum.getParents(this.props.puff, this.props); // pre-sorted
-        this.cursorPower(puffs)
-        return this.standardGridify(puffs);
-    }
-});
-
-// var PuffByUser = React.createClass({
+// var PuffAllParents = React.createClass({
 //     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
 //     render: function() {
-//         var dimensions = this.getDimensions();
-//         var limit = dimensions.cols * dimensions.rows;
-//         var puffs = PuffForum.getByUser(this.props.user, limit, this.props); // pre-sorted
+//         var puffs = PuffForum.getParents(this.props.puff, this.props); // pre-sorted
 //         this.cursorPower(puffs)
 //         return this.standardGridify(puffs);
 //     }
 // });
 
-// var PuffByRoute = React.createClass({
-//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-//     render: function() {
-//         var dimensions = this.getDimensions();
-//         var limit = dimensions.cols * dimensions.rows;
-//         var puffs = PuffForum.getByRoute(this.props.view.route, limit); // pre-sorted
-//         this.cursorPower(puffs)
-//         return this.standardGridify(puffs);
-//     }
-// });
-
-// var PuffLatest = React.createClass({
-//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-//     render: function() {
-//         var dimensions = this.getDimensions();
-//         var limit = dimensions.cols * dimensions.rows;
-//         // var puffs = PuffForum.getLatestPuffs(limit, this.props); // pre-sorted
-//         var puffs = PuffForum.getLatestPuffs(limit, puffworldprops);
-//         this.cursorPower(puffs)
-//         return this.standardGridify(puffs);
-//     }
-// });
 
 var PuffList = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
+        // TODO: todo this
         return JSON.stringify(puffworldprops) !== JSON.stringify(globalSillyPropsClone)
         return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
         return nextProps !== this.props // TODO: this won't update when new items arrive
@@ -491,7 +420,7 @@ var PuffList = React.createClass({
         
         var query   = this.props.view.query
         var filters = this.props.view.filters
-        var puffs   = PuffForum.getPuffList(query, filters, limit, puffworldprops);
+        var puffs   = PuffForum.getPuffList(query, filters, limit);
         
         this.cursorPower(puffs)
         return this.standardGridify(puffs);

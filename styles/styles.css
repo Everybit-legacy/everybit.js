@@ -217,11 +217,13 @@ h4 {
 }
 
 .floatingCheckbox {
-    float: left;
+    /*float: left;*/
     cursor: pointer;
-    padding-left: 10px;
-    position: relative;
+    /*padding-left: 10px;
+    position: relative;*/
     top: .3em;
+    position: absolute;
+    left: 10px;
 }
 
 .clear {

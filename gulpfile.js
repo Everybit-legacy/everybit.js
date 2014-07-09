@@ -7,7 +7,7 @@ var concat = require('gulp-concat');
 var uglifyjs = require('gulp-uglifyjs');
 var sourcemaps = require('gulp-sourcemaps');
 var minifyCSS = require('gulp-minify-css');
-var jsdoc = require('gulp-jsdoc');
+// var jsdoc = require('gulp-jsdoc');
 
 // Tasks
 gulp.task('jsxFiles', function() {

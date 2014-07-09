@@ -11,7 +11,7 @@ PuffData.userRecords = {};                                  // these are DHT use
 
 /**
  * get the current known shells
- * @return {array of objects}
+ * @return Array
  */
 PuffData.getShells = function() {
     //// Get the currently known shells

@@ -124,11 +124,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         } 
         
         
-        // TODO: always get the user records before you send this out
-        // TODO: if anon or paranoid create a new anon user doing this
-        // TODO: by default include parent in the reply [add to ui box?]
-        // TODO: but respect the replyTo payload field: add it at the expense of parent [add to ui box?]
-        // TODO: if paranoid create a second new anon user as your replyTo
+        // we're definitely private at this point.
+        
         
         var prom = Promise.resolve() // a promise we use to string everything along 
         

@@ -15,8 +15,8 @@ puffworldprops = {
         show: false,
         prefs: false,
         profile: false,
-        import: false, // import username
-        section: false, // the section user is currently working on
+        import: false,                                  // import username
+        section: false,                                 // the section user is currently working on
 
         user: {
             pick_one: false,
@@ -27,21 +27,13 @@ puffworldprops = {
     },
 
     view: {
-        // mode: 'list',
+        mode: '',
         
         filters: {
             routes: [],
             users : [],
         },
 
-        query: {
-            sort: 'ASC',                                // direction of sort
-            focus: false,                               // a puff sig to focus on
-            ancestors: false,                           // number of ancestor levels to show (false for none)
-            descendants: false,                         // number of descendant levels to show (false for none)
-            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
-        },
-        
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
@@ -52,6 +44,14 @@ puffworldprops = {
         animation : true,                               // true -> animate everything; false -> animate nothing
         showinfo  : false,                              // true -> always show info boxes; false -> only on hover
 
+        query: {
+            sort: 'ASC',                                // direction of sort
+            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
+            ancestors: false,                           // number of ancestor levels to show (false for none)
+            descendants: false,                         // number of descendant levels to show (false for none)
+            focus: false,                               // a puff sig to focus on
+        },
+        
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
         cursor    : false,                              // sig of selected puff
     },

@@ -35,18 +35,76 @@ PuffForum.init = function() {
 }
 
 
-PuffForum.getShells = function() {
-    var myUsername = PuffWardrobe.getCurrentUsername()
-    var publicShells = PuffData.getPublicShells()
-    var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
-                                    .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
-                                    .filter(Boolean)
-
-    return publicShells.concat(encryptedShells)
+PuffForum.getShells = function(query, filters) {
+    /// get shells, filtered by a query and queried by filters
+    //  NOTE: we include query and filters here so this layer can grow more sophisticated over time
+    //  TODO: actually make this more sophisticated (probably via Dagoba)
     
-    // return shells.filter(function(shell) {return !shell.keys || shell.keys[myUsername]})
-    // return PuffData.shells.concat(encryptedShells)
+    var shells = PuffForum.getAllMyShells()
+    
+    return PuffForum.filterShells(shells, query, filters)   
 }
+
+PuffForum.filterShells = function(shells, query, filters) {
+    return shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+}
+
+PuffForum.getAllMyShells = function() {
+    var publicShells = PuffData.getPublicShells()
+    var encryptedShells = PuffForum.getEncryptedShells()
+    return publicShells.concat(encryptedShells)
+}
+
+PuffForum.getEncryptedShells = function() {
+    // TODO: check 'all or one' wardrobe toggle, if true get for all wardrobe users
+    var myUsername = PuffWardrobe.getCurrentUsername()
+    var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
+                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                  .filter(Boolean)
+    
+    return encryptedShells    
+}
+
+/**
+ * filter puffs by prop filters
+ * @param  {filters} filters
+ * @return {boolean}
+ */
+PuffForum.filterByFilters = function(filters) {
+    /// filter puffs by prop filters
+    
+    if(!filters) return function() {return true}
+    
+    //// get a filtering function
+    return function(shell) {
+        if(filters.routes && filters.routes.length > 0) {
+            var routeMatch = false;
+            for (var i=0; i<filters.routes.length; i++) {
+                if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
+            }
+            if(!routeMatch) return false;
+        }
+        
+        if(filters.users && filters.users.length > 0)
+            if(!~filters.users.indexOf(shell.username)) return false
+
+        if(filters.roots)
+            if((shell.payload.parents||[]).length) return false
+
+        if(filters.ancestors && filters.focus) {
+            var focus = PuffForum.getPuffBySig(filters.focus) // TODO: this is wrong
+            if(focus.payload && !~focus.payload.parents.indexOf(shell.sig)) return false
+        }
+
+        if(filters.descendants && filters.focus)
+            if(!~shell.payload.parents.indexOf(filters.focus)) return false
+
+        return true
+    }
+}
+
+
+
 
 PuffForum.secretStash = {}
 PuffForum.horridStash = {}
@@ -297,16 +355,16 @@ PuffForum.getRootPuffs = function(limit, props) {
  * @param  {props} props
  * @return {array of puffs}
  */
-PuffForum.getPuffList = function(query, filters, limit, props) {
+PuffForum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
 
     limit = limit || Infinity
 
-    var shells = PuffForum.getShells(query)
+    var shells = PuffForum.getShells(query, filters)
     
     var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
-                                .sort(PuffForum.sortByPayload) // sort by query
-                                
+                                .sort(PuffForum.sortByPayload) // TODO: sort by query
+
     var puffs = filtered_shells.slice(0, limit)
                                .map(Puffball.getPuffFromShell)
                                .filter(Boolean);
@@ -319,36 +377,6 @@ PuffForum.getPuffList = function(query, filters, limit, props) {
     
     return puffs;
 } 
-
-/**
- * filter puffs by prop filters
- * @param  {filters} filters
- * @return {boolean}
- */		
-PuffForum.filterByFilters = function(filters) {
-    /// filter puffs by prop filters
-    
-    if(!filters) return function() {return true}
-    
-    //// get a filtering function
-    return function(shell) {
-        if(filters.routes && filters.routes.length > 0) {
-            var routeMatch = false;
-            for (var i=0; i<filters.routes.length; i++) {
-                if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
-            }
-            if(!routeMatch) return false;
-        }
-        
-        if(filters.users && filters.users.length > 0)
-            if(!~filters.users.indexOf(shell.username)) return false
-
-        if(filters.roots)
-            if((shell.payload.parents||[]).length) return false
-
-        return true
-    }
-}
 
 
 /**

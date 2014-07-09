@@ -43,6 +43,9 @@ UsernameImport.instagram.collectData = function(result) {
 		} else {
 			this.importAllContent();
 		}
+	} else {
+		document.getElementById("importContent").innerHTML = "HTTP status code: " + result.meta.code;
+		console.log(result.meta);
 	}
 }
 UsernameImport.instagram.importAllContent = function() {

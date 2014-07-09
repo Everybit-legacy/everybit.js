@@ -97,6 +97,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             alert("Not enough content");
             return false;
         }
+        var routes = this.refs.usernames.getDOMNode().value;
+        routes = routes.split(', ');
+        metadata.routes = routes.filter(function(r){return r.length > 0});
+        // TODO validate each routes
         
         events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
 

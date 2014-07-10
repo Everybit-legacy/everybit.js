@@ -60,13 +60,12 @@ var PuffPublishFormEmbed = React.createClass({
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        if (typeof puff.payload.parents !== 'undefined') {
-            showPuff(puff.sig)
-        } else {
+        var sig = puff.sig;
+        if (typeof puff.payload.parents == 'undefined') {
             var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
-            showPuff(decrypted.sig);
+            sig = decrypted.sig;
         }
-
+        showPuff(sig);
         // set back to initial state
         this.setState(this.getInitialState());
     },

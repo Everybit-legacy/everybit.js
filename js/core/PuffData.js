@@ -63,7 +63,7 @@ PuffData.getBonus = function(puff, key) {
 
 PuffData.addShellsThenMakeAvailable = function(shells) {
     var delta = PuffData.hereHaveSomeNewShells(shells)
-    if(delta)
+    // if(delta) // FIXME: temp hack regression
         PuffData.makeShellsAvailable(shells)
     return delta
 }
@@ -163,12 +163,14 @@ PuffData.importLocalShells = function() {   // callback) {
     PuffData.addShellsThenMakeAvailable(localShells)
 }
 
-// PuffData.slotLock = false
+PuffData.slotLock = false // FIXME: temp hack regression
 PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
     
-    // if(PuffData.slotLock) return false
-    // PuffData.slotLock = true
+    return false
+    
+    if(PuffData.slotLock) return false
+    PuffData.slotLock = true
     
     var offset = 0
     var giveup = 1000

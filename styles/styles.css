@@ -111,6 +111,13 @@ section {
     /*   transition: all .5s;*/
     z-index: 200;
 }
+.animation .cursor.flash {
+    -webkit-animation: flash 1s; /* Safari and Chrome */
+    -moz-animation: flash 1s; /* Firefox */
+    -ms-animation: flash 1s; /* Internet Explorer */
+    -o-animation: flash 1s; /* Opera */
+    animation: flash 1s;
+}
 
 .block.focused .txt {
     overflow-x: auto;
@@ -828,7 +835,7 @@ select:disabled {
     cursor: pointer;
 }
 
-.flash {
+.menu > .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */

@@ -110,7 +110,7 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/menu/close', {'menu.show': false})
 
             if(puffworldprops.reply.expand)
-                return events.pub('ui/menu/close', {'reply': {show: false, parents: []}})
+                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);

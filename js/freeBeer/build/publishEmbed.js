@@ -18,7 +18,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
-        
+
         if(this.refs.content) {
             var content = this.refs.content.getDOMNode();
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
@@ -103,7 +103,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         metadata.routes = routes.filter(function(r){return r.length > 0});
         // TODO validate each routes
         
-        events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
+        events.pub('ui/reply/submit', {'reply': {parents: []}}); // get this out of the way early
 
         /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {

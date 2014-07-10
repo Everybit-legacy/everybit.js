@@ -654,6 +654,19 @@ select:disabled {
 .menuCluster {
     padding-bottom: 10px;
 }
+.slideup, .slidedown {
+    max-height: 0px;            
+    overflow-y: hidden;
+}
+.slidedown {
+    max-height: 800px;
+}
+.animation .slideup, .animation .slidedown {
+    -webkit-transition: max-height 1s ease-in-out;
+    -moz-transition: max-height 1s ease-in-out;
+    -o-transition: max-height 1s ease-in-out;
+    transition: max-height 1s ease-in-out;
+}
 
 .animation .menu {
     -webkit-animation: slidein 1s; /* Safari and Chrome */
@@ -795,9 +808,10 @@ select:disabled {
     /*background: #F7F7F7;*/
     border-top: 1px solid #d6d6ff;
     border-bottom: 1px solid #d6d6ff;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    /*padding-top: 10px;
+    padding-bottom: 10px;*/
     margin: 0px;
+    position: relative;
 }
 
 .steps {

@@ -111,6 +111,13 @@ section {
     /*   transition: all .5s;*/
     z-index: 200;
 }
+.animation .cursor.flashPuff {
+    -webkit-animation: flash 1s; /* Safari and Chrome */
+    -moz-animation: flash 1s; /* Firefox */
+    -ms-animation: flash 1s; /* Internet Explorer */
+    -o-animation: flash 1s; /* Opera */
+    animation: flash 1s;
+}
 
 .block.focused .txt {
     overflow-x: auto;
@@ -127,17 +134,16 @@ section {
 
 #talltree .parent .txt {
 }
-
-
 #talltree .sibling .txt {
     /*background-color: #fafaec;*/
 }
-
 #talltree .child .txt {
-    padding: 0px 12px 12px 12px;
     /*background-color: #fffafc;*/
 }
 
+#talltree .txt {
+    padding: 0px 12px 12px 12px;
+}
 
 .example-enter {
     opacity: 0.01;
@@ -217,11 +223,13 @@ h4 {
 }
 
 .floatingCheckbox {
-    float: left;
+    /*float: left;*/
     cursor: pointer;
-    padding-left: 10px;
-    position: relative;
+    /*padding-left: 10px;
+    position: relative;*/
     top: .3em;
+    position: absolute;
+    left:10px;
 }
 
 .clear {
@@ -646,6 +654,20 @@ select:disabled {
 .menuCluster {
     padding-bottom: 10px;
 }
+.slideup, .slidedown {
+    max-height: 0px;            
+    overflow-y: hidden;
+}
+.slidedown {
+    max-height: 800px;
+    overflow-y: visible;
+}
+.animation .slideup, .animation .slidedown {
+    -webkit-transition: max-height 1s ease-in-out;
+    -moz-transition: max-height 1s ease-in-out;
+    -o-transition: max-height 1s ease-in-out;
+    transition: max-height 1s ease-in-out;
+}
 
 .animation .menu {
     -webkit-animation: slidein 1s; /* Safari and Chrome */
@@ -695,7 +717,10 @@ select:disabled {
     float:left;
     display: inline-block;
     position: absolute;
-    left: 135px;
+    left: 132px;
+}
+.menuItem .menuSection .menuInput {
+    left: 100px;
 }
 
 .menuIcon {
@@ -787,9 +812,10 @@ select:disabled {
     /*background: #F7F7F7;*/
     border-top: 1px solid #d6d6ff;
     border-bottom: 1px solid #d6d6ff;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    /*padding-top: 10px;
+    padding-bottom: 10px;*/
     margin: 0px;
+    position: relative;
 }
 
 .steps {
@@ -827,7 +853,7 @@ select:disabled {
     cursor: pointer;
 }
 
-.flash {
+.menu .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */

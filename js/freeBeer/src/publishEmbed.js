@@ -18,7 +18,7 @@ var PuffPublishFormEmbed = React.createClass({
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
-        
+
         if(this.refs.content) {
             var content = this.refs.content.getDOMNode();
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
@@ -60,13 +60,14 @@ var PuffPublishFormEmbed = React.createClass({
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff
-        if (typeof puff.payload.parents !== 'undefined') {
-            showPuff(puff.sig)
-        } else {
+        var sig = puff.sig;
+        if (typeof puff.payload.parents == 'undefined') {
             var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
-            showPuff(decrypted.sig);
+            sig = decrypted.sig;
         }
-
+        showPuff(sig);
+        events.pub('ui/flash', {'view.cursor': sig, 
+                                'view.flash': true})
         // set back to initial state
         this.setState(this.getInitialState());
     },
@@ -102,7 +103,7 @@ var PuffPublishFormEmbed = React.createClass({
         metadata.routes = routes.filter(function(r){return r.length > 0});
         // TODO validate each routes
         
-        events.pub('ui/reply/submit', {'reply': {show: false, parents: []}}); // get this out of the way early
+        events.pub('ui/reply/submit', {'reply': {parents: []}}); // get this out of the way early
 
         /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {

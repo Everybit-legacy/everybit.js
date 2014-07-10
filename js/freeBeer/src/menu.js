@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 
+var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
    
 var Tooltip = React.createClass({
     render: function() {
@@ -141,14 +142,15 @@ var Cluster = React.createClass({
         }
 
 
-        if(!puffworldprops.clusters[this.props.clusterName]) {
+        /*if(!puffworldprops.clusters[this.props.clusterName]) {
             clusterMenu = '';
-        } 
+        } */
 
         var section = this.props.clusterName;
         var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
         // <span className="floatRight gray"><i className={setClass}></i></span>
-
+        
+        var slide = puffworldprops.clusters[this.props.clusterName] ? 'slidedown' : 'slideup';
         return (
             <div className="menuCluster">
                 <div className={className}>
@@ -158,7 +160,7 @@ var Cluster = React.createClass({
                             {polyglot.t(menuTitle)}
                         </div>
                     </a>
-                    {clusterMenu}
+                    <div className={slide}>{clusterMenu}</div>
                 </div>
             </div>
         )
@@ -381,10 +383,10 @@ var IdentityMenu = React.createClass({
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
-            tabs: {
-                showSetIdentity: false,
-                showEditIdentity: false,
-                showNewIdentity: puffworldprops.menu.import
+            section: {
+                setIdentity: false,
+                editIdentity: false,
+                newIdentity: puffworldprops.menu.import
             }
         }
     },
@@ -402,48 +404,54 @@ var IdentityMenu = React.createClass({
         }
     },
 
+    handleToggleShowSection: function(name) {
+        /*var newState = {
+            setIdentity: false,
+            editIdentity: false,
+            newIdentity: false
+        };
+        if (this.state.section[name] == false) {
+            newState[name] = true;
+        };*/
+        var newState = this.state.section;
+        newState[name] = !newState[name];
+        this.setState({section: newState});
+    },
     render: function() {
-
-        // CSS for tabs
-        var cx1 = React.addons.classSet;
-        var newClass = cx1({
-            'linkTabHighlighted': this.state.tabs.showNewIdentity,
-            'linkTab': !this.state.tabs.showNewIdentity
-        });
-
-        var cx2 = React.addons.classSet;
-        var setClass = cx2({
-            'linkTabHighlighted': this.state.tabs.showSetIdentity,
-            'linkTab': !this.state.tabs.showSetIdentity
-        });
-
-        var cx3 = React.addons.classSet;
-        var editClass = cx3({
-            'linkTabHighlighted': this.state.tabs.showEditIdentity,
-            'linkTab': !this.state.tabs.showEditIdentity
-        });
-
         var currUser = PuffWardrobe.getCurrentUsername();
 
         // TODO: Help icon takes you to tutorial related to this.
-
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <AuthorPicker />
-                <div className="leftIndent">
-                    <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')}><i className="fa fa-sign-in fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.setIdentity")} /></div>
-                    <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-eye fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.editIdentity")} /></div>
-                    <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.newIdentity")} /></div>
-                    <br />
-                    <SetIdentity show={this.state.tabs.showSetIdentity}  username={currUser}/>
-                    <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
-                    <NewIdentity  show={this.state.tabs.showNewIdentity}  />
+                <div>
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'newIdentity')}>
+                            <i className="fa fa-plus fa-fw"></i>New Identity
+                        </a>
+                        <Tooltip content={polyglot.t("menu.tooltip.newIdentity")} />
+                        <br/>
+                        <NewIdentity show={this.state.section.newIdentity} />
+                    </div>
+
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'setIdentity')}><i className="fa fa-sign-in fa-fw"></i>Set Identity</a><br/>
+                        <Tooltip content={polyglot.t("menu.tooltip.setIdentity")} />
+                        <SetIdentity show={this.state.section.setIdentity} username={currUser} />
+                    </div>
+                    
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>Edit Identity</a><br/>
+                        <Tooltip content={polyglot.t("menu.tooltip.editIdentity")} />
+                        <EditIdentity show={this.state.section.editIdentity} username={currUser} />
+                    </div>
                 </div>
 
             </div>
             )
-    },
+    }
+    /*not in use ,
 
     toggleShowTab: function(tabName) {
         var self = this;
@@ -464,7 +472,7 @@ var IdentityMenu = React.createClass({
         }
         });
 
-    }
+    }*/
 });
 
 
@@ -535,20 +543,20 @@ var PreferencesMenu = React.createClass({
         return(
             <div>
 
-                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass}  onClick={this.handleShowHideRelationships} ></i></span>
                     <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.relationship")} />
                 </div>
 
-                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>{' '}<span className="shortcut">[a]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.animation")} />
                 </div>
 
-                <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                     <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>{' '}<span className="shortcut">[i]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.infobar")} />
                 </div>
@@ -635,7 +643,7 @@ var AuthorPicker = React.createClass({
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
-        if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.none")}</div>
+        if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.current")}: {polyglot.t("menu.identity.none")}</div>
 
         // Force selection of the single user when just one
         if(all_usernames.length == 1) {
@@ -774,13 +782,15 @@ var SetIdentity = React.createClass({
     },
 
     render: function() {
-        if (!this.props.show) {
+        /*if (!this.props.show) {
             return <div></div>
-        } else {
+        } else {*/
             var currUser = this.props.username;
             var polyglot = Translate.language[puffworldprops.view.language];
+
+            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
             return (
-                <div className="menuSection">
+                <div className={slide}>
                     <div><em>{polyglot.t("menu.identity.storeKey.msg")}</em></div>
                     <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
                     <div className="menuInput">
@@ -815,7 +825,7 @@ var SetIdentity = React.createClass({
                     </div><br />
                 </div>
                 )
-        }
+       //}
     }
 });
 
@@ -869,9 +879,9 @@ var EditIdentity = React.createClass({
     },
 
     render: function() {
-        if (!this.props.show) {
+        /* (!this.props.show) {
             return <span></span>
-        } else {
+        } else {*/
 
             var currUser = this.props.username;
             var qrcodeField = "";
@@ -905,8 +915,9 @@ var EditIdentity = React.createClass({
             // TODO: make sure not None
             // TODO: Allow erase keys here?
             var polyglot = Translate.language[puffworldprops.view.language];
+            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
             return (
-                <div className="menuSection">
+                <div className={slide}>
                     <div><em>{polyglot.t("menu.identity.edit.msg")}: </em><span className="authorSpan">{currUser}</span>
                     </div>
 
@@ -933,7 +944,7 @@ var EditIdentity = React.createClass({
 
                 </div>
                 )
-        }
+        //}
     },
 
     toggleShowRootKey: function() {
@@ -1040,9 +1051,9 @@ var NewIdentity = React.createClass({
     // TODO: Add options for users to save keys
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
-        if (!this.props.show) {
+        /*if (!this.props.show) {
             return <span></span>
-        } else {
+        } else {*/
             var showNext = true;
             var polyglot = Translate.language[puffworldprops.view.language];
             var generatedName = PuffWardrobe.generateRandomUsername();
@@ -1198,8 +1209,9 @@ var NewIdentity = React.createClass({
 
             var messageField = this.state.errorMessage ? (<div className="message">{this.state.errorMessage}</div>) : "";
 
+            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
             return (
-                <div className="menuSection">
+                <div className={slide}>
                     <div className="menuLabel">Step {this.state.step+1}
                     {': '}
                     {stepMessage[this.state.step]}</div><br/>
@@ -1209,7 +1221,7 @@ var NewIdentity = React.createClass({
                     {nextField}<br/>
                 </div>
                 )
-        }
+       // }
     },
 
     handleGenerateUsername: function() {

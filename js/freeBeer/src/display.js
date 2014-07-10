@@ -13,7 +13,8 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                               , 'reply': {show: true} });
+                                             //  , 'reply': {show: true} 
+                                                });
         }.bind(this));
         
         // r replies to 'selected' puff
@@ -44,7 +45,7 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                               , 'reply': {show: true, parents: parents} });
+                                               , 'reply': {parents: parents} });
         }.bind(this));
 
         // a toggles animation
@@ -109,7 +110,7 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/menu/close', {'menu.show': false})
 
             if(puffworldprops.reply.expand)
-                return events.pub('ui/menu/close', {'reply': {show: false, parents: []}})
+                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);
@@ -122,7 +123,8 @@ var ViewKeybindingsMixin = {
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!this.props.reply.show) {
+            if(!(puffworldprops.reply.expand || 
+                (puffworldprops.menu.show && puffworldprops.menu.section == 'publish'))) {
                 return true
             }
             

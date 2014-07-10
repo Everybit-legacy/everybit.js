@@ -11,7 +11,7 @@ PuffData.userRecords = {};                                  // these are DHT use
 
 /**
  * get the current known shells
- * @return {array of objects}
+ * @return {Shell[]}
  */
 PuffData.getShells = function() {
     //// Get the currently known shells
@@ -19,23 +19,43 @@ PuffData.getShells = function() {
     return PuffData.shells
 }
 
+/**
+ * get all public shells
+ * @returns {Shell[]}
+ */
 PuffData.getPublicShells = function() {
     //// Get all public shells
     var shells = PuffData.getShells()
     return shells.filter(function(shell) {return !shell.keys})
 }
 
+/**
+ * get currently known private shells for a particular user
+ * @param {string} username
+ * @returns {Shell[]}
+ */
 PuffData.getMyEncryptedShells = function(username) {
     //// Get currently known private shells for a particular user
     var shells = PuffData.getShells()
     return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
 }
 
+/**
+ * Get cached shells by sig
+ * @param {string} sig
+ * @returns {shell[]}
+ */
 PuffData.getCachedShellBySig = function(sig) {
     return PuffData.shellSort[sig]
     // return PuffData.getShells().filter(function(shell) { return sig === shell.sig })[0]
 }
 
+/**
+ * adds bonus
+ * @param {object} puff
+ * @param {string} key
+ * @param {string} value
+ */
 PuffData.addBonus = function(puff, key, value) {
     //// this simulates a WeakMap
     // THINK: we'll need to provide some GC here
@@ -47,6 +67,12 @@ PuffData.addBonus = function(puff, key, value) {
     PuffData.bonii[id][key] = value
 }
 
+/**
+ * gets bonus
+ * @param puff
+ * @param key
+ * @returns {object}
+ */
 PuffData.getBonus = function(puff, key) {
     //// pull from our FauxWeakMap
     var id = puff.sig
@@ -60,7 +86,11 @@ PuffData.getBonus = function(puff, key) {
 /*
     Some new shell handling equipment. Need to integrate this more deeply and clean and test.
 */
-
+/**
+ * add shells then makr then available
+ * @param {Shell[]}
+ * @returns {*}
+ */
 PuffData.addShellsThenMakeAvailable = function(shells) {
     var delta = PuffData.hereHaveSomeNewShells(shells)
     // if(delta) // FIXME: temp hack regression
@@ -68,6 +98,11 @@ PuffData.addShellsThenMakeAvailable = function(shells) {
     return delta
 }
 
+/**
+ * handle incoming shells
+ * @param {Shell[]}
+ * @returns {*}
+ */
 PuffData.hereHaveSomeNewShells = function(shells) {
     //// handle incoming shells
     
@@ -87,6 +122,9 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     return delta
 }
 
+/**
+ * to make shells available
+ */
 PuffData.makeShellsAvailable = function() {
     //// alert everyone: new shells have arrived!
     
@@ -95,6 +133,11 @@ PuffData.makeShellsAvailable = function() {
     
 }
 
+/**
+ * tries to add a shell, or update the content of an existing shell
+ * @param {Shell[]}
+ * @returns {(false|Shell[])}
+ */
 PuffData.tryAddingShell = function(shell) {
     //// try adding a shell, or updating the content of an existing shell
     
@@ -114,6 +157,11 @@ PuffData.tryAddingShell = function(shell) {
     return shell
 }
 
+/**
+ * to persist shells
+ * @param {Shell[]}
+ * @returns {(boolean|*)}
+ */
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
@@ -129,6 +177,11 @@ PuffData.persistShells = function(shells) {
     Puffball.Persist.save('shells', shells)
 }
 
+/**
+ * determine if it is a good shell, checks for the existence of required fields
+ * @param {Shell[]}
+ * @returns {boolean}
+ */
 PuffData.isGoodShell = function(shell) {
     //// this just checks for the existence of required fields
     if(!shell.sig) return false
@@ -139,6 +192,9 @@ PuffData.isGoodShell = function(shell) {
     return true
 }
 
+/**
+ * to import shells from local and remote sources
+ */
 PuffData.importShells = function() {
     //// fetch shells from local and remote sources
     
@@ -156,6 +212,9 @@ PuffData.importShells = function() {
     // PuffData.importRemoteShells()
 }
 
+/**
+ * to import local shells
+ */
 PuffData.importLocalShells = function() {   // callback) {
     // PuffData.shells = Puffball.Persist.get('shells') || []
     var localShells = Puffball.Persist.get('shells') || []
@@ -164,6 +223,15 @@ PuffData.importLocalShells = function() {   // callback) {
 }
 
 PuffData.slotLock = false // FIXME: temp hack regression
+
+/**
+ * to fill some slots
+ * @param {number} need
+ * @param {number} have
+ * @param {string} query
+ * @param {string} filters
+ * @returns {boolean}
+ */
 PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
     
@@ -203,7 +271,11 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     End shell collection intake equipment
 */
 
-
+/**
+ * to get puff by its sig
+ * @param {string} sig
+ * @returns {(object|false)}
+ */
 PuffData.getPuffBySig = function(sig) {
     var shell = PuffData.getCachedShellBySig(sig)
     
@@ -225,7 +297,7 @@ PuffData.getPuffBySig = function(sig) {
 /**
  * to verify a puff
  * @param  {object} puff
- * @return {string/boolean}
+ * @return {(string|boolean)}
  */
 PuffData.isGoodPuff = function(puff) {
     // TODO: check previous sig, maybe
@@ -285,7 +357,7 @@ PuffData.depersistUserRecords = function() {
 /**
  * to get my puff chain
  * @param  {string} username 
- * @return {puff}
+ * @return {object}
  */
 PuffData.getMyPuffChain = function(username) {
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored

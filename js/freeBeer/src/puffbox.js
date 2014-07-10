@@ -16,10 +16,16 @@ var PuffFancyBox = React.createClass({
         var classArray = ['block']
         if(this.props.extraClassy)
             classArray.push(this.props.extraClassy)
-        if(this.props.view.cursor == puff.sig)
-            classArray.push('cursor')
+        if(this.props.view.cursor == puff.sig) {
+            classArray.push('cursor')            
+        }
         if(PuffData.getBonus(puff, 'envelope'))
             classArray.push('encrypted')
+        
+        if (this.props.view.flash) {
+            classArray.push('flashPuff');
+            update_puffworldprops({'view.flash': false});
+        }
         var className = classArray.join(' ')
         
         var offset = 30
@@ -40,7 +46,6 @@ var PuffFancyBox = React.createClass({
         
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
-        
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
                 <PuffAuthor username={puff.username} hidden={hidden} />
@@ -563,8 +568,7 @@ var PuffReplyLink = React.createClass({
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', { 'reply.show': true
-                                                 , 'reply.parents': parents
+        return events.pub('ui/reply/add-parent', { 'reply.parents': parents
                                                  , 'menu': menu
                                                  });
 

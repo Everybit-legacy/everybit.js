@@ -53,12 +53,13 @@ puffworldprops = {
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
+        flash     : false, // flash the cursor
         cursor    : false,                              // sig of selected puff
     },
 
     reply: {
         parents: [],
-        show: false,
+        // show: false,
         expand: false,
         content: '',
         state: {},

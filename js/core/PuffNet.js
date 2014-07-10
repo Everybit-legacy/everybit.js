@@ -27,7 +27,7 @@ PuffNet.init = function() {
 /**
  * given a signature, return puff with that signature
  * @param  {string} sig signature of a puff
- * @return {puff object}     puff corresponds to the specified signature
+ * @return {object}     puff corresponds to the specified signature
  */
 PuffNet.getPuffBySig = function(sig) {
     var url  = CONFIG.puffApi;
@@ -38,7 +38,7 @@ PuffNet.getPuffBySig = function(sig) {
 
 /**
  * get the shells of all puff as an array
- * @return {array of objects}
+ * @return {Puff[]}
  */
 PuffNet.getAllShells = function() {
     var url  = CONFIG.puffApi;
@@ -49,6 +49,14 @@ PuffNet.getAllShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
+/**
+ * to get some shells
+ * @param {string} query
+ * @param {string} filters
+ * @param {number} limit
+ * @param {number} offset
+ * @returns {Shell[]}
+ */
 PuffNet.getSomeShells = function(query, filters, limit, offset) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs'};
@@ -113,7 +121,7 @@ PuffNet.getAllPuffs = function() {
 
 /**
  * add puff to the server and broadcast to peers
- * @param  {puff object} puff the puff to be added to the server
+ * @param  {object} puff the puff to be added to the server
  */
 PuffNet.distributePuff = function(puff) {
     //// distribute a puff to the network
@@ -127,8 +135,8 @@ PuffNet.distributePuff = function(puff) {
 
 /**
  * add a puff to the server's pufflist
- * @param  {puff object} puff 
- * @return {promise}      
+ * @param  {object} puff
+ * @return {object}
  */
 PuffNet.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
@@ -145,7 +153,7 @@ PuffNet.sendPuffToServer = function(puff) {
 /**
  * get the user record for a given username
  * @param  {string} username 
- * @return {promise}          on fullfilled passes the user record as object, otherwise re-throw error
+ * @return {object}          on fullfilled passes the user record as object, otherwise re-throw error
  */
 PuffNet.getUserRecord = function(username) {
     // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
@@ -163,6 +171,11 @@ PuffNet.getUserRecord = function(username) {
                 , Puffball.promiseError('Unable to access user information from the DHT'));
 }
 
+/**
+ * to get the user record file
+ * @param {string} username
+ * @returns {*}
+ */
 PuffNet.getUserRecordFile = function(username) {
     var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
@@ -184,7 +197,7 @@ PuffNet.getUserRecordFile = function(username) {
  * @param  {string} rootKey         public root key for the new subuser
  * @param  {string} adminKey        public admin key for the new subuser
  * @param  {string} defaultKey      public default key for the new subuser
- * @return {promise}                user record for the newly created subuser
+ * @return {object}                user record for the newly created subuser
  */
 PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
     var payload = {};
@@ -209,7 +222,7 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
 /**
  * modify a user record
  * @param  {puff} puff a signed puff containing information of modified user record
- * @return {promise}      throw error when the update fails
+ * @return {object}      throw error when the update fails
  */
 PuffNet.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
@@ -240,7 +253,7 @@ PuffNet.updateUserRecord = function(puff) {
  * @param  {string} url     requested url
  * @param  {object} options 
  * @param  {object} data    
- * @return {promise} 
+ * @return {object}
  */
 PuffNet.xhr = function(url, options, data) {
     //// very simple promise-based XHR implementation
@@ -281,7 +294,7 @@ PuffNet.xhr = function(url, options, data) {
  * request an url, get result in JSON
  * @param  {string} url    
  * @param  {object} params 
- * @return {promise}        
+ * @return {object}
  */
 PuffNet.getJSON = function(url, params) {
     var options = { headers: { 'Accept': 'application/json' }
@@ -300,7 +313,7 @@ PuffNet.getJSON = function(url, params) {
  * send a post request
  * @param  {string} url  requested url
  * @param  {object} data 
- * @return {promise}    
+ * @return {object}
  */
 PuffNet.post = function(url, data) {
     var options = { headers: {   
@@ -354,7 +367,7 @@ PuffNet.P2P.reloadPeers = function() {
 /**
  * open peer connection
  * @param  {string} id 
- * @return {array of object}    
+ * @return {object[]}
  */
 PuffNet.P2P.openPeerConnection = function(id) {
     // OPT: do we really need this? 
@@ -362,7 +375,11 @@ PuffNet.P2P.openPeerConnection = function(id) {
     return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
 };
 
-
+/**
+ * connection
+ * @param connection
+ * @returns {*}
+ */
 PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
 

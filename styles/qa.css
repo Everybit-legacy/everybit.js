@@ -1,0 +1,44 @@
+@charset "utf-8";
+
+@font-face {
+    font-family: Gudea;
+    src: url("fonts/Gudea-Regular.otf");
+}
+
+@font-face {
+    font-family: GudeaBold;
+    src: url("fonts/Gudea-Bold.otf");
+}
+
+@font-face {
+    font-family: 'FontAwesome';
+    src: url("fonts/FontAwesome.otf");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'DroidSansMono';
+    src: url("fonts/DroidSansMono.ttf");
+}
+
+.question {
+    font-family: GudeaBold;
+    font-size: 1.3em;
+    padding-top: 1.1em;
+}
+
+.answer {
+    font-family: Gudea;
+    font-size: 1.1em;
+    line-height: 1.4em;
+}
+
+.qa {
+    padding-left: 25px;
+    padding-right: 30px;
+}
+
+ul {
+    list-style: none
+}

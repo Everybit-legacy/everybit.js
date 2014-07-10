@@ -54,13 +54,14 @@ Puffball.init = function(zone) {
  * does not hit the network, hence does no real verification whatsoever
  * @param  {string} username                    user who sign the puff
  * @param  {string} privatekey                  private default key for the user
- * @param  {array of string} routes                      routes of the puff
+ * @param  {string} routes                      routes of the puff
  * @param  {string} type                        type of the puff
  * @param  {string} content                     content of the puff
  * @param  {object} payload                     other payload information for the puff
  * @param  {string} previous                    most recently published content by the user
- * @param  {object} userRecordsForWhomToEncrypt 
- * @return {puff object}                             the new puff object
+ * @param  {object} userRecordsForWhomToEncrypt
+ * @param  {object} envelopeUserKeys
+ * @return {object}                             the new puff object
  */
 Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     var puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
@@ -77,7 +78,7 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
 /**
  * pack all the parameters into an object with puff structure (without signature)
  * @param  {string} username 
- * @param  {array of string} routes   
+ * @param  {string[]} routes
  * @param  {string} type     
  * @param  {string} content  
  * @param  {object} payload  
@@ -173,9 +174,9 @@ Puffball.processUserRecord = function(userRecord) {
 }
 
 /**
- *
- * @param username
- * @returns Promise for a user record
+ * checks the cache, and always returns a promise
+ * @param {string} username
+ * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
 Puffball.getUserRecord = function(username) {
@@ -190,10 +191,9 @@ Puffball.getUserRecord = function(username) {
 }
 
 /**
- *
- * @param username
- * @returns Promise for a user record
  * Forces a request to the network, ignores cached
+ * @param {string} username
+ * @returns {object} Promise for a user record
  */
 Puffball.getUserRecordNoCache = function(username) {
     //// This never checks the cache
@@ -203,8 +203,8 @@ Puffball.getUserRecordNoCache = function(username) {
 
 /**
  * returns a puff from a shell
- * @param  {string or object} shell a string which is a signature of a puff; or an object contains partial information of a puff
- * @return {puff object} returns a puff based on the shell; returns false if the shell is empty
+ * @param  {(string|object)} shell a string which is a signature of a puff; or an object contains partial information of a puff
+ * @return {object} returns a puff based on the shell; returns false if the shell is empty
  */
 Puffball.getPuffFromShell = function(shell_or_sig) {
     if(!shell_or_sig)
@@ -220,7 +220,7 @@ Puffball.getPuffFromShell = function(shell_or_sig) {
 
 /**
  * handle a newly created puff: add to our local cache and fire new content callbacks
- * @param {puff object} puff 
+ * @param {object} puff
  */
 Puffball.addPuffToSystem = function(puff) {
     
@@ -235,8 +235,8 @@ Puffball.addPuffToSystem = function(puff) {
 
 /**
  * it is called by core Puff library any time puffs are added to the system
- * @param  {array of puffs} puffs
- * @return {array of puffs}
+ * @param  {Puff[]} puffs
+ * @return {Puff[]}
  */
 Puffball.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
@@ -264,10 +264,10 @@ Puffball.onNewPuffs = function(callback) {
 
 /**
  * return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
- * @param  {puff} puff
+ * @param  {object} puff
  * @param  {string} myPrivateWif
  * @param  {string} userRecords
- * @return {puff object}
+ * @return {object}
  */
 Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
@@ -292,11 +292,11 @@ Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserK
 
 /**
  * to decrypt a puff
- * @param  {puff object} puff
+ * @param  {object} puff
  * @param  {string} yourPublicWif
  * @param  {string} myUsername
  * @param  {string} myPrivateWif
- * @return {puff object}
+ * @return {object}
  */
 Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
     //// pull a letter out of the envelope
@@ -360,7 +360,7 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
  * sign the hash of some data with a private key and return the sig in base 58
  * @param  {object} unsignedPuff
  * @param  {string} privateKeyWIF
- * @return {boolean/error}
+ * @return {(boolean|error)}
  */
 Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     //// sign the hash of some data with a private key and return the sig in base 58
@@ -610,7 +610,7 @@ Puffball.Persist.save = function(key, value) {
 /**
  * to get the parsed JSON info from the given key
  * @param  {string} key
- * @return {false/boolean}
+ * @return {(false|string)}
  */
 Puffball.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
@@ -634,7 +634,7 @@ Puffball.Persist.remove = function(key) {
  * on error funtion
  * @param  {string} msg 
  * @param  {object} obj 
- * @return {boolean}     
+ * @return {false}
  */
 Puffball.onError = function(msg, obj) {
     console.log(msg, obj)
@@ -668,7 +668,7 @@ Puffball.throwError = function(msg, errmsg) {
 /**
  * check if the string is a valid JSON string
  * @param  {string} str 
- * @return {false}
+ * @return {boolean}
  */
 Puffball.parseJSON = function(str) {
     try {

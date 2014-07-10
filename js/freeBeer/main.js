@@ -59,7 +59,7 @@ puffworldprops = {
 
     reply: {
         parents: [],
-        show: false,
+        // show: false,
         expand: false,
         content: '',
         state: {},

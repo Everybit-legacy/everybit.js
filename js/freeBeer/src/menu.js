@@ -438,7 +438,8 @@ var IdentityMenu = React.createClass({
 
             </div>
             )
-    },
+    }
+    /*not in use ,
 
     toggleShowTab: function(tabName) {
         var self = this;
@@ -459,7 +460,7 @@ var IdentityMenu = React.createClass({
         }
         });
 
-    }
+    }*/
 });
 
 
@@ -630,7 +631,7 @@ var AuthorPicker = React.createClass({
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
-        if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.none")}</div>
+        if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.current")}: {polyglot.t("menu.identity.none")}</div>
 
         // Force selection of the single user when just one
         if(all_usernames.length == 1) {

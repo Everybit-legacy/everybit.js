@@ -66,6 +66,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             sig = decrypted.sig;
         }
         showPuff(sig);
+        events.pub('ui/flash', {'view.cursor': sig, 
+                                'view.flash': true})
         // set back to initial state
         this.setState(this.getInitialState());
     },

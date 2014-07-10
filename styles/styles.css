@@ -111,7 +111,7 @@ section {
     /*   transition: all .5s;*/
     z-index: 200;
 }
-.animation .cursor.flash {
+.animation .cursor.flashPuff {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */
@@ -835,7 +835,7 @@ select:disabled {
     cursor: pointer;
 }
 
-.menu > .flash {
+.menu .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */

@@ -23,7 +23,7 @@ var PuffFancyBox = React.createClass({
             classArray.push('encrypted')
         
         if (this.props.view.flash) {
-            classArray.push('flash');
+            classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
         }
         var className = classArray.join(' ')

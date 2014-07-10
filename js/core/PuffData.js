@@ -163,11 +163,12 @@ PuffData.importLocalShells = function() {   // callback) {
     PuffData.addShellsThenMakeAvailable(localShells)
 }
 
-PuffData.slotLock = false
+// PuffData.slotLock = false
 PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
     
-    if(PuffData.slotLock) return false
+    // if(PuffData.slotLock) return false
+    // PuffData.slotLock = true
     
     var offset = 0
     var giveup = 1000
@@ -179,7 +180,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
         }
         
         if(have >= need || offset > giveup) {
-            PuffData.slotLock = false
+            // PuffData.slotLock = false
             PuffData.makeShellsAvailable()
             return false
         }
@@ -187,12 +188,11 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
         var limit = need - have + 50 // grab a few extras to help work through bare patches
         
         var prom = PuffNet.getSomeShells(query, filters, limit, offset)
-        prom.then(getMeSomeShells)
+        // prom.then(getMeSomeShells)
 
         offset += limit
     }
     
-    PuffData.slotLock = true
     getMeSomeShells()
 }
 

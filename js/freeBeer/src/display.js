@@ -408,6 +408,7 @@ var PuffList = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
         // TODO: todo this
+        return true
         return JSON.stringify(puffworldprops) !== JSON.stringify(globalSillyPropsClone)
         return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
         return nextProps !== this.props // TODO: this won't update when new items arrive

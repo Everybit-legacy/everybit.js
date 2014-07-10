@@ -45,7 +45,7 @@ puffworldprops = {
         showinfo  : false,                              // true -> always show info boxes; false -> only on hover
 
         query: {
-            sort: 'ASC',                                // direction of sort
+            sort: 'DESC',                               // direction of sort
             roots : false,                              // THINK: move this to filterToggles or filterNums or something?
             ancestors: false,                           // number of ancestor levels to show (false for none)
             descendants: false,                         // number of descendant levels to show (false for none)

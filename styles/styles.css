@@ -127,17 +127,16 @@ section {
 
 #talltree .parent .txt {
 }
-
-
 #talltree .sibling .txt {
     /*background-color: #fafaec;*/
 }
-
 #talltree .child .txt {
-    padding: 0px 12px 12px 12px;
     /*background-color: #fffafc;*/
 }
 
+#talltree .txt {
+    padding: 0px 12px 12px 12px;
+}
 
 .example-enter {
     opacity: 0.01;
@@ -217,11 +216,13 @@ h4 {
 }
 
 .floatingCheckbox {
-    float: left;
+    /*float: left;*/
     cursor: pointer;
-    padding-left: 10px;
-    position: relative;
+    /*padding-left: 10px;
+    position: relative;*/
     top: .3em;
+    position: absolute;
+    left:10px;
 }
 
 .clear {

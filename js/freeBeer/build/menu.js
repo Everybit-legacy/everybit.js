@@ -535,20 +535,20 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
         return(
             React.DOM.div(null, 
 
-                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass, onClick:this.handleShowHideRelationships} )),
                 React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass,  onClick:this.handleShowHideRelationships} )),
                     React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship")),' ',React.DOM.span( {className:"shortcut"}, "[space]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.relationship")} )
                 ),
 
-                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                 React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
                     React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation")),' ',React.DOM.span( {className:"shortcut"}, "[a]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.animation")} )
                 ),
 
-                React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass3, onClick:this.handleShowHideInfobar} )),
                 React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass3, onClick:this.handleShowHideInfobar} )),
                     React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.infobar")} )
                 ),

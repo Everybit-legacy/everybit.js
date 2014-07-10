@@ -535,20 +535,20 @@ var PreferencesMenu = React.createClass({
         return(
             <div>
 
-                <span className="floatingCheckbox"><i className={cbClass} onClick={this.handleShowHideRelationships} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass}  onClick={this.handleShowHideRelationships} ></i></span>
                     <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.relationship")} />
                 </div>
 
-                <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass2} onClick={this.handleShowHideAnimations} ></i></span>
                     <a href="#" onClick={this.handleShowHideAnimations}>{polyglot.t("menu.preferences.animation")}</a>{' '}<span className="shortcut">[a]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.animation")} />
                 </div>
 
-                <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                 <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass3} onClick={this.handleShowHideInfobar} ></i></span>
                     <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>{' '}<span className="shortcut">[i]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.infobar")} />
                 </div>

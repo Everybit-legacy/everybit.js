@@ -660,6 +660,7 @@ select:disabled {
 }
 .slidedown {
     max-height: 800px;
+    overflow-y: visible;
 }
 .animation .slideup, .animation .slidedown {
     -webkit-transition: max-height 1s ease-in-out;
@@ -716,7 +717,10 @@ select:disabled {
     float:left;
     display: inline-block;
     position: absolute;
-    left: 135px;
+    left: 132px;
+}
+.menuItem .menuSection .menuInput {
+    left: 100px;
 }
 
 .menuIcon {

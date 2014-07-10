@@ -568,8 +568,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', { 'reply.show': true
-                                                 , 'reply.parents': parents
+        return events.pub('ui/reply/add-parent', { 'reply.parents': parents
                                                  , 'menu': menu
                                                  });
 

@@ -381,11 +381,9 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
-            tabs: {
-                showSetIdentity: false,
-                showEditIdentity: false,
-                showNewIdentity: puffworldprops.menu.import
-            }
+            setIdentity: false,
+            editIdentity: false,
+            newIdentity: puffworldprops.menu.import
         }
     },
 
@@ -402,43 +400,40 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         }
     },
 
+    handleToggleShowSection: function(section) {
+        var newState = {};
+        newState[section] = !this.state[section];
+        this.setState(newState);
+    },
     render: function() {
-
-        // CSS for tabs
-        var cx1 = React.addons.classSet;
-        var newClass = cx1({
-            'linkTabHighlighted': this.state.tabs.showNewIdentity,
-            'linkTab': !this.state.tabs.showNewIdentity
-        });
-
-        var cx2 = React.addons.classSet;
-        var setClass = cx2({
-            'linkTabHighlighted': this.state.tabs.showSetIdentity,
-            'linkTab': !this.state.tabs.showSetIdentity
-        });
-
-        var cx3 = React.addons.classSet;
-        var editClass = cx3({
-            'linkTabHighlighted': this.state.tabs.showEditIdentity,
-            'linkTab': !this.state.tabs.showEditIdentity
-        });
-
         var currUser = PuffWardrobe.getCurrentUsername();
 
         // TODO: Help icon takes you to tutorial related to this.
-
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
                 AuthorPicker(null ),
-                React.DOM.div( {className:"leftIndent"}, 
-                    React.DOM.div( {className:setClass,  onClick:this.toggleShowTab.bind(this,'showSetIdentity')}, React.DOM.i( {className:"fa fa-sign-in fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.setIdentity")} )),
-                    React.DOM.div( {className:editClass, onClick:this.toggleShowTab.bind(this,'showEditIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.editIdentity")} )),
-                    React.DOM.div( {className:newClass,  onClick:this.toggleShowTab.bind(this,'showNewIdentity')} , React.DOM.i( {className:"fa fa-plus fa-fw"}),Tooltip( {position:"under", content:polyglot.t("menu.tooltip.newIdentity")} )),
-                    React.DOM.br(null ),
-                    SetIdentity( {show:this.state.tabs.showSetIdentity,  username:currUser}),
-                    EditIdentity( {show:this.state.tabs.showEditIdentity, username:currUser}),
-                    NewIdentity(  {show:this.state.tabs.showNewIdentity}  )
+                React.DOM.div(null, 
+                    React.DOM.div( {className:"menuItem"} , 
+                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'newIdentity')}, 
+                            React.DOM.i( {className:"fa fa-plus fa-fw"}),"New Identity"
+                        ),
+                        Tooltip( {content:polyglot.t("menu.tooltip.newIdentity")} ),
+                        React.DOM.br(null),
+                        NewIdentity( {show:this.state.newIdentity} )
+                    ),
+
+                    React.DOM.div( {className:"menuItem"} , 
+                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'setIdentity')}, React.DOM.i( {className:"fa fa-sign-in fa-fw"}),"Set Identity"),React.DOM.br(null),
+                        Tooltip( {content:polyglot.t("menu.tooltip.setIdentity")} ),
+                        SetIdentity( {show:this.state.setIdentity, username:currUser} )
+                    ),
+                    
+                    React.DOM.div( {className:"menuItem"} , 
+                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'editIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),"Edit Identity"),React.DOM.br(null),
+                        Tooltip( {content:polyglot.t("menu.tooltip.editIdentity")} ),
+                        EditIdentity( {show:this.state.editIdentity, username:currUser} )
+                    )
                 )
 
             )

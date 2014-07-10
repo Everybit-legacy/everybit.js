@@ -381,11 +381,9 @@ var IdentityMenu = React.createClass({
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
-            tabs: {
-                showSetIdentity: false,
-                showEditIdentity: false,
-                showNewIdentity: puffworldprops.menu.import
-            }
+            setIdentity: false,
+            editIdentity: false,
+            newIdentity: puffworldprops.menu.import
         }
     },
 
@@ -402,43 +400,40 @@ var IdentityMenu = React.createClass({
         }
     },
 
+    handleToggleShowSection: function(section) {
+        var newState = {};
+        newState[section] = !this.state[section];
+        this.setState(newState);
+    },
     render: function() {
-
-        // CSS for tabs
-        var cx1 = React.addons.classSet;
-        var newClass = cx1({
-            'linkTabHighlighted': this.state.tabs.showNewIdentity,
-            'linkTab': !this.state.tabs.showNewIdentity
-        });
-
-        var cx2 = React.addons.classSet;
-        var setClass = cx2({
-            'linkTabHighlighted': this.state.tabs.showSetIdentity,
-            'linkTab': !this.state.tabs.showSetIdentity
-        });
-
-        var cx3 = React.addons.classSet;
-        var editClass = cx3({
-            'linkTabHighlighted': this.state.tabs.showEditIdentity,
-            'linkTab': !this.state.tabs.showEditIdentity
-        });
-
         var currUser = PuffWardrobe.getCurrentUsername();
 
         // TODO: Help icon takes you to tutorial related to this.
-
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
                 <AuthorPicker />
-                <div className="leftIndent">
-                    <div className={setClass}  onClick={this.toggleShowTab.bind(this,'showSetIdentity')}><i className="fa fa-sign-in fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.setIdentity")} /></div>
-                    <div className={editClass} onClick={this.toggleShowTab.bind(this,'showEditIdentity')}><i className="fa fa-eye fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.editIdentity")} /></div>
-                    <div className={newClass}  onClick={this.toggleShowTab.bind(this,'showNewIdentity')} ><i className="fa fa-plus fa-fw"></i><Tooltip position="under" content={polyglot.t("menu.tooltip.newIdentity")} /></div>
-                    <br />
-                    <SetIdentity show={this.state.tabs.showSetIdentity}  username={currUser}/>
-                    <EditIdentity show={this.state.tabs.showEditIdentity} username={currUser}/>
-                    <NewIdentity  show={this.state.tabs.showNewIdentity}  />
+                <div>
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'newIdentity')}>
+                            <i className="fa fa-plus fa-fw"></i>New Identity
+                        </a>
+                        <Tooltip content={polyglot.t("menu.tooltip.newIdentity")} />
+                        <br/>
+                        <NewIdentity show={this.state.newIdentity} />
+                    </div>
+
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'setIdentity')}><i className="fa fa-sign-in fa-fw"></i>Set Identity</a><br/>
+                        <Tooltip content={polyglot.t("menu.tooltip.setIdentity")} />
+                        <SetIdentity show={this.state.setIdentity} username={currUser} />
+                    </div>
+                    
+                    <div className="menuItem" >
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>Edit Identity</a><br/>
+                        <Tooltip content={polyglot.t("menu.tooltip.editIdentity")} />
+                        <EditIdentity show={this.state.editIdentity} username={currUser} />
+                    </div>
                 </div>
 
             </div>

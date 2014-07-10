@@ -58,7 +58,7 @@ PuffWardrobe.getCurrentUsername = function() {
 
 /**
  * get the current user record
- * @return {string/error}
+ * @return {string}
  */
 PuffWardrobe.getCurrentUserRecord = function() {
     var username = PuffWardrobe.getCurrentUsername()
@@ -78,7 +78,7 @@ PuffWardrobe.getCurrentUserRecord = function() {
 
 /**
  * get all the username and keys
- * @return {array of objects}
+ * @return {Object[]}
  */
 PuffWardrobe.getAll = function() {
     if(!PuffWardrobe.keychain)
@@ -90,7 +90,7 @@ PuffWardrobe.getAll = function() {
 /**
  * Change current keyset. also used for clearing the current keyset (call with '')
  * @param  {string} username
- * @return {array of strings}
+ * @return {string[]}
  */
 PuffWardrobe.switchCurrent = function(username) {
     //// Change current keyset. also used for clearing the current keyset (call with '')
@@ -286,7 +286,7 @@ PuffWardrobe.prefsarray = false  // put this somewhere else
 /**
  * to get the preference 
  * @param  {string} key
- * @return {prefs(string/boolean)}
+ * @return {Prefs(String|Boolean)}
  */
 PuffWardrobe.getPref = function(key) {
     var prefs = PuffWardrobe.getAllPrefs()
@@ -295,7 +295,7 @@ PuffWardrobe.getPref = function(key) {
 
 /**
  * to get all the preferences
- * @return {array of prefs(string/boolean)}
+ * @return {Prefs(string|boolean)[]}
  */
 PuffWardrobe.getAllPrefs = function() {
     if(!PuffWardrobe.prefsarray)
@@ -382,8 +382,8 @@ PuffWardrobe.getUserProfileItem = function(username, key) {
 
 /**
  * to get all of the user's profile items
- * @param  {[type]} username
- * @return {[object]}
+ * @param  {string} username
+ * @return {object}
  */
 PuffWardrobe.getAllUserProfileItems = function(username) {
     if(!username) return {} // erm derp derp
@@ -420,7 +420,7 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
 /**
  * to remove the user's profile
  * @param  {string} username
- * @return {void/false}
+ * @return {(void|false)}
  */
 PuffWardrobe.removeUserProfile = function(username) {
     if(!username) return false

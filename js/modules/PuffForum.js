@@ -34,7 +34,12 @@ PuffForum.init = function() {
     Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
 
-
+/**
+ * get shells, filtered by a query and queried by filters
+ * @param {string} query
+ * @param {string} filters
+ * @returns {Shell[]}
+ */
 PuffForum.getShells = function(query, filters) {
     /// get shells, filtered by a query and queried by filters
     //  NOTE: we include query and filters here so this layer can grow more sophisticated over time
@@ -45,16 +50,31 @@ PuffForum.getShells = function(query, filters) {
     return PuffForum.filterShells(shells, query, filters)   
 }
 
+/**
+ * filter shells from provided query and filters
+ * @param {Array} shells
+ * @param {string} query
+ * @param {string} filters
+ * @returns {Shell[]}
+ */
 PuffForum.filterShells = function(shells, query, filters) {
     return shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
 }
 
+/**
+ * to get all my shells
+ * @returns {Shell[]}
+ */
 PuffForum.getAllMyShells = function() {
     var publicShells = PuffData.getPublicShells()
     var encryptedShells = PuffForum.getEncryptedShells()
     return publicShells.concat(encryptedShells)
 }
 
+/**
+ * to get encrypted shells
+ * @returns {Shell[]}
+ */
 PuffForum.getEncryptedShells = function() {
     // TODO: check 'all or one' wardrobe toggle, if true get for all wardrobe users
     var myUsername = PuffWardrobe.getCurrentUsername()
@@ -67,7 +87,7 @@ PuffForum.getEncryptedShells = function() {
 
 /**
  * filter puffs by prop filters
- * @param  {filters} filters
+ * @param  {string} filters
  * @return {boolean}
  */
 PuffForum.filterByFilters = function(filters) {
@@ -109,6 +129,12 @@ PuffForum.filterByFilters = function(filters) {
 PuffForum.secretStash = {}
 PuffForum.horridStash = {}
 
+/**
+ * get stashed shells by sig
+ * @param {string} username
+ * @param {string} sig
+ * @returns {Shell[]}
+ */
 PuffForum.getStashedShellBySig = function(username, sig) {
     if(!PuffForum.secretStash[username])
         PuffForum.secretStash[username] = {}
@@ -117,10 +143,20 @@ PuffForum.getStashedShellBySig = function(username, sig) {
         return PuffForum.secretStash[username][sig]
 }
 
+/**
+ * determine if it is bad envelope
+ * @param {string} sig
+ * @returns {Object}
+ */
 PuffForum.badEnvelope = function(sig) {
     return PuffForum.horridStash[sig]
 }
 
+/**
+ * extract letter from envelope by virtue of decryption
+ * @param {Object} envelope
+ * @returns {Boolean|Shell[]}
+ */
 PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
     var myUsername = PuffWardrobe.getCurrentUsername()
     var myKeys = PuffWardrobe.getCurrentKeys()
@@ -155,11 +191,10 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     })
 }
 
-
 /**
  * get a particular puff by its sig
  * @param  {String} sig
- * @return {puff}
+ * @return {Object}
  */
 PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
@@ -175,8 +210,8 @@ PuffForum.getPuffBySig = function(sig) {
 
 /**
  * helper for sorting by payload.time
- * @param  {puff} a
- * @param  {puff} b
+ * @param  {Object} a
+ * @param  {object} b
  * @return {number}
  */
 PuffForum.sortByPayload = function(a,b) {
@@ -186,7 +221,7 @@ PuffForum.sortByPayload = function(a,b) {
 
 /**
  * filter if it is not props
- * @param  {props} props
+ * @param  {Object} props
  * @return {boolean}
  */		
 PuffForum.getPropsFilter = function(props) {
@@ -213,9 +248,9 @@ PuffForum.getPropsFilter = function(props) {
 
 /**
  * get the current puff's parents
- * @param  {puff} puff
- * @param  {props} props
- * @return {array of puffs}
+ * @param  {Object} puff
+ * @param  {Object} props
+ * @return {Puff[]}
  */
 PuffForum.getParents = function(puff, props) {
     //// get parents from a puff
@@ -235,9 +270,9 @@ PuffForum.getParents = function(puff, props) {
 
 /**
  * get the current puff's children
- * @param  {puff} puff
- * @param  {props} props
- * @return {array of puffs}
+ * @param  {Object} puff
+ * @param  {Object} props
+ * @return {Puff[]}
  */
 PuffForum.getChildren = function(puff, props) {
     //// get children from a puff
@@ -264,7 +299,7 @@ PuffForum.getChildren = function(puff, props) {
  * get the current puff's sibling
  * @param  {puff} puff
  * @param  {props} props
- * @return {array of puffs}
+ * @return {Puff[]}
  */
 PuffForum.getSiblings = function(puff, props) {
     //// get siblings from a puff
@@ -298,8 +333,8 @@ PuffForum.getSiblings = function(puff, props) {
 /**
  * returns the most recent parentless puffs, sorted by time
  * @param  {number} limit
- * @param  {props} props
- * @return {array of puffs}
+ * @param  {object} props
+ * @return {Puff[]}
  */
 PuffForum.getRootPuffs = function(limit, props) {
     //// returns the most recent parentless puffs, sorted by time
@@ -322,7 +357,7 @@ PuffForum.getRootPuffs = function(limit, props) {
  * returns the most recent puffs, sorted by time
  * @param  {number} limit
  * @param  {props} props
- * @return {array of puffs}
+ * @return {Puff[]}
  */
 // PuffForum.getLatestPuffs = function(limit, props) {
 //     //// returns the most recent puffs, sorted by time
@@ -349,11 +384,11 @@ PuffForum.getRootPuffs = function(limit, props) {
 
 /**
  * returns a list of puffs
- * @param  {query} query
- * @param  {filters} filters
+ * @param  {string} query
+ * @param  {string} filters
  * @param  {number} limit
- * @param  {props} props
- * @return {array of puffs}
+ * @param  {object} props
+ * @return {array}
  */
 PuffForum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
@@ -383,8 +418,8 @@ PuffForum.getPuffList = function(query, filters, limit) {
  * returns all known puffs from given user, sorted by time
  * @param  {string} username
  * @param  {number} limit
- * @param  {props} props
- * @return {array of puffs}
+ * @param  {object} props
+ * @return {Puff[]}
  */
 PuffForum.getByUser = function(username, limit, props) {
     //// returns all known puffs from given user, sorted by time
@@ -405,7 +440,7 @@ PuffForum.getByUser = function(username, limit, props) {
  * returns all known puffs containing a particular route
  * @param  {string} route
  * @param  {number} limit
- * @return {array of puffs}
+ * @return {Puff[]}
  */
 PuffForum.getByRoute = function(route, limit) {
     //// returns all known puffs containing a particular route
@@ -423,12 +458,14 @@ PuffForum.getByRoute = function(route, limit) {
 
 
 /**
- * Given a string of content, create a puff and push it into the system
+ * takes a string of content, create a puff and push it into the system
  * @param {string} type
  * @param {string} content
- * @param {array of puffs} parents
- * @param {object} metadata
- * @param {array of userRecords} encrypt if present
+ * @param {Puff[]} parents
+ * @param {Object} metadata
+ * @param {string[]} userRecordsForWhomToEncrypt
+ * @param {string[]} envelopeUserKeys
+ * @returns {*}
  */
 PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Given a string of content, create a puff and push it into the system
@@ -468,15 +505,17 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     // TODO: make an official interface fulfillment thing
 }
 
+
 /**
  * Make a puff... except the parts that require a user
- * @param  {string} type
- * @param  {string} content
- * @param  {array of puffs} parents
- * @param  {object} metadata
- * @param  {array of strings} routes
- * @param {array of userRecords} encrypt if present
- * @return {puff}
+ * @param {string} type
+ * @param {string} content
+ * @param {Puff[]} parents
+ * @param {object} metadata
+ * @param {string[]} routes
+ * @param {string[]} userRecordsForWhomToEncrypt
+ * @param {string[]} envelopeUserKeys
+ * @returns {Function}
  */
 PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Make a puff... except the parts that require a user
@@ -520,7 +559,7 @@ PuffForum.onNewPuffs = function(callback) {
 
 /**
  * called by core Puff library any time puffs are added to the system
- * @param  {array of puffs} puffs
+ * @param  {Puff[]} puffs
  */
 PuffForum.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
@@ -531,7 +570,7 @@ PuffForum.receiveNewPuffs = function(puffs) {
 
 /**
  * add a set of puffs to our internal graph
- * @param  {array of puffs} puffs
+ * @param  {Puff[]} puffs
  */
 PuffForum.addToGraph = function(puffs) {
     //// add a set of puffs to our internal graph

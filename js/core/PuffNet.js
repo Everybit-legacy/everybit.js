@@ -27,7 +27,7 @@ PuffNet.init = function() {
 /**
  * given a signature, return puff with that signature
  * @param  {string} sig signature of a puff
- * @return {puff object}     puff corresponds to the specified signature
+ * @return {object}     puff corresponds to the specified signature
  */
 PuffNet.getPuffBySig = function(sig) {
     var url  = CONFIG.puffApi;
@@ -38,7 +38,7 @@ PuffNet.getPuffBySig = function(sig) {
 
 /**
  * get the shells of all puff as an array
- * @return {array of objects}
+ * @return {Puff[]}
  */
 PuffNet.getAllShells = function() {
     var url  = CONFIG.puffApi;
@@ -49,6 +49,14 @@ PuffNet.getAllShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
+/**
+ * to get some shells
+ * @param {string} query
+ * @param {string} filters
+ * @param limit
+ * @param offset
+ * @returns {*}
+ */
 PuffNet.getSomeShells = function(query, filters, limit, offset) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs'};

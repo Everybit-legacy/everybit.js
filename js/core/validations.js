@@ -4,16 +4,24 @@
  */
 
 
-
+/**
+ * check if it is a valid username
+ * @param {string} username
+ * @returns {boolean}
+ */
 function isValidUsername(username) {
     if (!username.match(/^[A-Za-z0-9]+$/)) {
         return false;
     } else {
-
         return true;
     }
 }
 
+/**
+ * check if it is a valid public key
+ * @param {string} publicKey
+ * @returns {boolean}
+ */
 function isValidPublicKey(publicKey) {
     if(!isset(publicKey)) {
         return false;
@@ -23,6 +31,11 @@ function isValidPublicKey(publicKey) {
 
 }
 
+/**
+ * check if it is a valid private key
+ * @param {string} privateKey
+ * @returns {boolean}
+ */
 function isValidPrivateKey(privateKey) {
     if(!isset(privateKey)) {
         return false;

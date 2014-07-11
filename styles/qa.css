@@ -31,7 +31,7 @@
 .answer {
     font-family: Gudea;
     font-size: 1.1em;
-    line-height: 1.4em;
+    line-height: 1.6em;
 }
 
 .qa {
@@ -39,6 +39,15 @@
     padding-right: 30px;
 }
 
+.qaheader {
+    font-size: 2.5em;
+    padding-top: 1em;
+    padding-bottom: 0;
+    line-height: 1em;
+    font-family: Gudea;
+    text-transform: uppercase;
+}
+
 ul {
-    list-style: none
+   
 }

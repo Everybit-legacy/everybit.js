@@ -394,15 +394,16 @@ PuffForum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
 
     limit = limit || Infinity
+    var offset = +query.offset||0
 
     var shells = PuffForum.getShells(query, filters)
     
     var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
                                 .sort(PuffForum.sortByPayload) // TODO: sort by query
+                                .slice(offset, offset+limit)
 
-    var puffs = filtered_shells.slice(0, limit)
-                               .map(Puffball.getPuffFromShell)
-                               .filter(Boolean);
+    var puffs = filtered_shells.map(Puffball.getPuffFromShell)
+                               .filter(Boolean)
 
     var have = filtered_shells.length
     if(have >= limit)

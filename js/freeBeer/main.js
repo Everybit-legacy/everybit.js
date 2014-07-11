@@ -50,6 +50,7 @@ puffworldprops = {
             ancestors: false,                           // number of ancestor levels to show (false for none)
             descendants: false,                         // number of descendant levels to show (false for none)
             focus: false,                               // a puff sig to focus on
+            offset: 0,
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)

@@ -907,7 +907,6 @@ a.footerText {
     position: absolute;
     z-index: 275;
     height: 10px;
-    width: 100%;
     background-color: #ccc;
     text-align: center;
     opacity: 0;
@@ -920,12 +919,8 @@ a.footerText {
 }
 .scroller.down {
     bottom: 0;
-    left: 0;
-    right: 0;
 }
 .scroller.up {
-    left: 0;
-    right: 0;
     top: 0;
 }
 .scroller a {

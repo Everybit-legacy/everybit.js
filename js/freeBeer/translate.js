@@ -100,6 +100,7 @@ Translate.language["en"].extend({
             userSearch: 'Show puffs from this user',
             userErase: 'Unselect the user',
             currentDelete:'To delete this user from the browser',
+            removeFlag: 'Flag for removal',
             viewImage: 'View large',
             parent:'Show the parents of this puff',
             children:'Show the children of this puff',

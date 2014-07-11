@@ -702,7 +702,7 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
 var PuffScroller = React.createClass({displayName: 'PuffScroller',
     mixins: [GridLayoutMixin],
     handleScroll: function() {
-        var col = this.getCols(this.props.view.rows);
+        var col   = this.getDimensions().cols;
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;
         offset = Math.max(offset, 0);
@@ -712,10 +712,22 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
         if (!this.props.show) {
             return (React.DOM.span(null))
         }
+
+        var left = CONFIG.leftMargin;
+
+        var col   = this.getDimensions().cols;
+        var screencoords = this.getScreenCoords();
+        var boxHeight = screencoords.height / this.getDimensions().rows;
+        var w = col * this.props.view.boxRatio* boxHeight;
+        if(w > screencoords.width) {
+            w = screencoords.width;
+        }
+
+        var style = {left: left, width: w};
         var className = "scroller gray " + this.props.position;
         var iconClass = "fa fa-fw fa-chevron-"+this.props.position;
         return (
-            React.DOM.div( {className:className}, 
+            React.DOM.div( {className:className, style:style}, 
                 React.DOM.a( {href:"#", onClick:this.handleScroll}, 
                     React.DOM.i( {className:iconClass}),React.DOM.br(null),
                     React.DOM.i( {className:iconClass}),React.DOM.br(null),

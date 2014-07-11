@@ -380,6 +380,8 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
+                PuffScroller( {position:"up",view:this.props.view, show:viewprops.query.offset != 0 && viewprops.mode == 'list'} ),
+                PuffScroller( {position:"down", view:this.props.view, show:viewprops.mode == 'list'} ),
                 replyExpand,
                 PuffFooter(null )
             )
@@ -693,5 +695,33 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
                 )
             )
         );
+    }
+});
+
+
+var PuffScroller = React.createClass({displayName: 'PuffScroller',
+    mixins: [GridLayoutMixin],
+    handleScroll: function() {
+        var col = this.getCols(this.props.view.rows);
+        var offset = parseInt(this.props.view.query.offset) || 0;
+        offset = this.props.position == "up" ? offset - col : offset + col;
+        offset = Math.max(offset, 0);
+        return events.pub("ui/scroll/down", {'view.query.offset': offset});
+    },
+    render: function() {
+        if (!this.props.show) {
+            return (React.DOM.span(null))
+        }
+        var className = "scroller gray " + this.props.position;
+        var iconClass = "fa fa-fw fa-chevron-"+this.props.position;
+        return (
+            React.DOM.div( {className:className}, 
+                React.DOM.a( {href:"#", onClick:this.handleScroll}, 
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null)
+                )
+            )
+        )
     }
 });

@@ -903,6 +903,37 @@ a.footerText {
     font-size: .9em;
 }
 
+.scroller {
+    position: absolute;
+    height: 50px;
+    width: 100%;
+    background-color: #ccc;
+    text-align: center;
+    opacity: 0;
+    display: block;
+}
+.scroller:hover {
+    z-index: 275;
+    opacity: 0.75;
+}
+.scroller.down {
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.scroller.up {
+    left: 0;
+    right: 0;
+    top: 0;
+}
+.scroller a {
+    color: #888888;
+}
+.scroller a:hover {
+    color: #00AA00;
+}
+
+
 .animation, .animation .block{
     transition: all 1s;
 }

@@ -1230,13 +1230,20 @@ var NewIdentity = React.createClass({
             this.refs.newUsername.getDOMNode().value = generatedName;
         return false;
     },
+    scrollToShow: function() {
+        var node = this.getDOMNode().parentNode;
+        var top = node.offsetTop;
+        document.getElementsByClassName('menu')[0].scrollTop = top;
+    },
     componentDidUpdate: function() {
-        if (puffworldprops.menu.section == "identity") 
-            this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.menu.section == "identity") {
+            this.scrollToShow();           
+        }
     },
     componentDidMount: function() {
-        if (puffworldprops.menu.section == "identity")
-            this.getDOMNode().scrollIntoView(true);
+        if (puffworldprops.menu.section == "identity") {
+            this.scrollToShow();           
+        }
     },
 
     checkKeys: function() {

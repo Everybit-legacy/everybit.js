@@ -240,10 +240,16 @@ var PuffFlagLink = React.createClass({
             'gray': this.state.flagged,
             'red': !this.state.flagged
         });
+        var polyglot = Translate.language[puffworldprops.view.language];
 
         // Does this user have right to flag?
         if(PuffWardrobe.getCurrentUsername() == this.props.username) {
-            return <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
+            return (
+                <span>
+                    <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
+                    <Tooltip position="above" content={polyglot.t("menu.tooltip.flagLink")} />
+                </span>
+            )
         } else {
             return <i></i>
         }

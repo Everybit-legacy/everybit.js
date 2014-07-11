@@ -1,7 +1,5 @@
 /** @jsx React.DOM */
 
-var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
-   
 var Tooltip = React.createClass({
     render: function() {
         var className = "menuTooltip";

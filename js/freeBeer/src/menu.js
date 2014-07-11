@@ -560,7 +560,7 @@ var PreferencesMenu = React.createClass({
                 </div>
 
                 <div className="menuItem">
-                {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} value={language}>
+                {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} defaultValue={language}>
                     {all_languages.map(function(lang) {
                         return <option key={lang} value={lang}>{Translate.language[lang].t("dropdownDisplay")}</option>
                     })}
@@ -655,7 +655,7 @@ var AuthorPicker = React.createClass({
         var relativeStyle = {position: 'relative'};
         return (
             <div className="menuItem">
-                {polyglot.t("menu.identity.current")}: <select ref="switcher" onChange={this.handleUserPick} value={username}>
+                {polyglot.t("menu.identity.current")}: <select ref="switcher" onChange={this.handleUserPick} defaultValue={username}>
                     {all_usernames.map(function(username) {
                         return <option key={username} value={username}>{username}</option>
                     })}

@@ -151,6 +151,14 @@ var ViewKeybindingsMixin = {
 };
 
 var CursorBindingsMixin = {
+    gotoNext: function(current, dir) {
+        var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
+        if (next) {
+            events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            return true;
+        }
+        return false;
+    },
     componentDidMount: function() {
         
         var arrowToDir = { 37: 'left'
@@ -162,20 +170,34 @@ var CursorBindingsMixin = {
         // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
             var current = this.props.view.cursor;
+            var dir = arrowToDir[e.which];
             
             if (!current)                              // default cursors handled elsewhere (there should always 
                 return false                           // be an active cursor, if we are in a cursorable mode)
             
-            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
-            
-            if (next) {
-                events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
-            } else {
+            var nextFn = this.gotoNext.bind(this, current, dir);
+            var success = nextFn();
+            if (!success){
                 if (e.which == 38 && this.refs.scrollup) {
                     this.refs.scrollup.handleScroll();
+                    var success = false;
+                    var readyStateCheckInterval = setInterval(function() {
+                        success = nextFn();
+                        if (success) {
+                            clearInterval(readyStateCheckInterval);
+                        }
+                    }, 25);
                 }
                 if (e.which == 40 && this.refs.scrolldown) {
                     this.refs.scrolldown.handleScroll();
+                    // may need a limit on this
+                    var success = false;
+                    var readyStateCheckInterval = setInterval(function() {
+                        success = nextFn();
+                        if (success) {
+                            clearInterval(readyStateCheckInterval);
+                        }
+                    }, 25);
                 }
             }
             
@@ -434,6 +456,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
         this.cursorPower(puffs)
+        // todo do not have scroller down when there's no more puff
         return (
             React.DOM.div(null, 
                 this.standardGridify(puffs),

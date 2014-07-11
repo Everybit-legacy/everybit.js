@@ -1,10 +1,330 @@
-<!DOCTYPE html>
+<!doctype>
 <html>
-<head lang="en">
+<head>
+    <title>
+        Puffball development chart.
+    </title>
     <meta charset="UTF-8">
-    <title></title>
+    <link rel="stylesheet" href="styles/normalize.css" />
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/styles.css" />
+    <link rel="stylesheet" href="styles/font-awesome.css" />
+    <link rel="stylesheet" href="styles/qa.css" />
+
+
 </head>
-<body>
+
+<body style="overflow-y: auto; overflow-x: hidden;">
+
+
+<table style="width: 70%; margin-left: auto; margin-right: auto">
+    <tr>
+        <td bgcolor="white" class="qa">
+
+
+    <div class="qaheader">The puffball platform</div>
+
+    <a name="what_is_puffball"></a>
+    <div class="question">
+        What is puffball?
+    </div>
+    <div class="answer">
+        A platform for decentralized content sharing. It's a way to structure public and private content, and to share this content directly with other internet users, right over your web browser. 
+    </div>
+
+
+    <a name="why_puffball"></a>
+    <div class="question">
+        Why do we need it?
+    </div>
+    <div class="answer">
+        To solve the gatekeeper problem. 
+    </div>
+
+
+    <a name="what_is_gatekeeper"></a>
+    <div class="question">
+        What is a gatekeeper? 
+    </div>
+    <div class="answer">
+        It's anyone who comes in-between the content you want to share, and people you want to share it with. Or, conversely, anyone who comes between the content you want to view and yourself. Gatekeepers also insert themselves as middlemen between you and your contacts generally.
+    </div>
+
+
+    <a name="who_are_gatekeepers"></a>
+    <div class="question">
+        Who are the gatekeepers right now?
+    </div>
+    <div class="answer">
+        Facebook is a gatekeeper. Twitter is a gatekeeper. LinkedIn is a gatekeeper. These companies manage your content and connections on your behalf. They decide what you can and can't publish, who you can and can't connect with and under what conditions you can interact. They control the contents of your newsfeed and decide how it will be sorted.
+    </div>
+
+
+    <a name="why_gatekeepers_bad"></a>
+    <div class="question">
+        What's so bad about the gatekeepers? 
+    </div>
+    <div class="answer">
+        On the surface, it may not look like there's much of a problem. The gatekeepers appear to be generally tolerant of the things we want to share and who we connect with. This is an intentional strategy on their part. Look deeper, and you can see that the cracks and discontents run deep. The dynamic between us and our social networks has begun to turn nasty: the more we use these networks, the more leverage they have over us, and they know it.
+        <br /><br />
+
+        Maybe you heard about how Facebook ran (undisclosed) experiments on its users involving emotionally charged status updates. That's just one example of how social networks can abuse their power. The basic problem is that our interests as <i>users</i>, and the corporate interests of Facebook, Instagram (also owned by Facebook), Twitter, and LinkedIn, line up only in very general ways.
+        <br /><br />
+        There's an old adage: if you aren't paying for the product, you are the product. In other words, if a service is free, then you're being "sold" to advertisers who want to reach you. In reality, the relationship between you and the existing social networks is much more complicated, and in some ways much worse.
+         <br /><br />
+        <em>Consider the following:</em>
+
+        <ul>
+
+        <li> You want privacy settings that are easy to find and change, but the more complicated, hard to use, and ever changing companies make them, the more they can be structured to maximize the amount of data they can share with paying customers, or use to target ads to you.</li>
+
+        <li>Gatekeepers centralize the storage of information and make lovely targets for political repression and spying (Turkey doesn't hate Twitter, it hates the idea of a <i>decentralized</i> twitter.)</li>
+
+        <li>Websites want to foster a sense that your username, profile, and connections are yours too keep and use forever and without cost. That encourages you to invest time and energy into building these things out, just like "tax free" zones attract entrepreneurs. However, you have no guarantee whatsoever that you can keep using your identity or their services for, or even at all. If you want to leave, it may be extremely difficult or impossible to take your content and connection with you. </li>
+
+        <li>All of the major social networking sites have people who understand this dynamic. They know that the more time you invest adding content and friends, the more locked in you become to their system, and the more dependent you become on it. <em>The more you do FOR them, the more they can do TO you</em>. This is not just theoretical speculation! Facebook has already begun tweaking their newsfeed in a ways that makes it much harder for power users to have their posts seen, unless they "pay to promote."</li>
+         
+        </ul>
+
+        As things stand right now, you are a digital sharecropper! And while it may make sense to plow someone else's land in exchange for the benefits you get right away, don't build your house there.
+        <br /><br />
+        The goal of the puffball platform is to make it easy for user to build on your own land. More precisely, we are creating tools for developers to build websites targeted at different publishing and networking needs, but which all share a common framework that gives users ultimate control and portability for their content, gives them universality and security in their usernames, and portability for their connections.
+        <br /><br />
+        Right now, the websites built on top of the puffball platform (like our demonstration website, <a href="http://www.everybit.com" target="_blank">EveryBit.com</a> are much more limited in features than Facebook or LinkedIn (though we already offer some features no one else does, like fully encrypted messaging and multi-threaded conversations that make it easy to follow the signal and ignore the noise).
+        The key thing we offer, right now, is the opportunity to be a pioneer and homestead your own property, with an identity that's yours to keep forever, uncontrolled (and uncontrollable) by any third party. That's not for everybody, and there will be some rough parts to being out on the frontier.
+        <br /><br />
+        As an open source project open to collaboration from everyone, we also offer the opportunity to actively participate in making this frontier, and the community that settles there, better for all homesteaders.
+
+    </div>
+
+    <a name="dont_we_need"></a>
+    <div class="question">
+        Don't we need gatekeepers?
+    </div>
+    <div class="answer">
+        It turns out we don't. At least, not anymore. The long arc of publishing history shows an unmistakable trend towards disintermediation. We've gone from libraries of expensive manuscripts, written by a select handful of literate scribes and rationed out carefully to the unscrubbed masses, to free webhosts like Tumblr who offer a (mostly) unrestricted and easy to use service for anyone to publish their thoughts in a way that everybody can access.
+        <br /><br />
+        Some of the problem that gatekeepers existed to solve were only problems from the perspective of people and organizations whose power depended on restricting access to information. Other gatekeepers, like the 20<sup>th</sup> century newspapers, solved the problem of curating content of broad interest and distributing it in the context of scarce and expensive tools for production, and giant economies of scale.
+        <br /><br />
+        In the early days of the Internet and right up until today, gatekeepers help us manage the signal to noise ratio. They help us find relevant information, limit the amount of spam we receive, and present us with news customized ot our liking.
+       <br /><br />
+        Once you divide up the legitimate problems that gatekeepers solve into small enough pieces, it's clear that <em>what we need isn't gatekeepers at all, it's filters and tools for publishing</em>. There's no reason why that should come with the side-effects of locking us in, or artificially restricting what we can see or publish.
+       <br /><br />
+        The basic thesis behind puffball is that the value of content can be inferred from how we interact and relate to it. In an open system, anyone will be able to read and interpret the relationships between (public) content. Google was the first organization to figure this out in a big way. Their innovative page rank system lets every page "vote" with links on how valuable it thinks other webpages are.
+        <br /><br />
+        What Google does at the page level, puffball could help others do at the level of individual pieces of content and at the level of identifiers (usernames) in general. Anyone who wants can layer a set of rules on top of puffs (the basic unit of shared content in the puffball platform) and relationships between them, establishing the value of content in different contexts. These rules themselves could be proprietary, as part of a secret sauce that powers the next generation of search engines. Or they could be open and free to fork and improve upon, like a Wikipedia for filtering algorithms.
+        <br /><br />
+        The key here is that we can, individually and collectively, in a <em>decentralized</em> way, solve the problems that justified the existence of monopolistic gatekeepers.
+    </div>
+
+
+    <a name="why_trust_puffball"></a>  
+    <div class="question">Why should we trust the developers of puffball anymore than we trust Facebook or Twitter?
+    </div>
+    <div class="answer">
+        Don't trust us. <a href="https://github.com/puffball/freebeer/" taget="_blank">Our code</a> is open source. Go check it out. Our platform is based on an <a href="https://github.com/puffball/freebeer/blob/master/README.md#puff" target="_blank">open standard</a>. We can no more lock you in with puffball, than Apple can lock you in with MP3 downloads (unlike their proprietary ACC music files, which <a href="http://en.wikipedia.org/wiki/FairPlay" target="_blank">lock you in to iTunes</a>.)
+    </div>
+
+
+    <a name="i_dont_speak_code"></a>  
+    <div class="question">
+        What should I know if don't speak code?
+    </div>
+    <div class="answer">
+       You should know that we've aligned our <a href="#revenue_model">business model</a> with one and only one thing: adoption of the platform. If it grows, if people like using it, we win. We're building a system from the ground up to make users content and their connections as portable as possible.
+        <br /><br />
+        Imagine a future where your entire social network can be packed into a single url. Imagine this url contains a full list of the people you want to follow, along with detailed instructions as to what types of content you want to view from each one (images from Tom, MP3's from Karen), and the the order in which you want it sorted.
+        <br /><br />
+        Now imagine you could generate ad hock social networks and groups at will, and bring those network with you to any one of dozens or hundreds of different websites, each one providing a different interface or set of tools for accessing your information.
+        <br /><br />
+        This is what we are dedicated to building. 
+    </div>
+
+
+    <a name="get_involved"></a>
+    <div class="question">
+        Fantastic! How can I get involved?
+    </div>
+    <div class="answer">
+        Help us develop the <a href="https://github.com/puffball/freebeer/" target=_new">core codebase</a>, or build an application on top of the puffball platform.
+        <br /><br />
+        If you don't have any programming skills, there are a variety of non-technical things you can do to help. Spread the word! Tell you friends. Copy over your username and content from one of the existing social networking sites.
+        <br /><br />
+        Use puffball for all of your communication. We may not have as many features as gMail or outlook, but you don't have to worry that anyone is spying on your communication, or mining your personal data to sell to advertisers.
+    </div>
+
+
+    <div class="question">
+        How can I be sure that messages sent privately on the puffball network are truly private?
+    </div>
+    <div class="answer">
+        Math. All private messages are encrypted right on your computer, <em>before</em> they are sent over the network. We are using the same highly trusted encryption used by crypto-currencies like bitcoin. There's a billion dollars available for any thief who can defeat this algorithm, and a longstanding <a href="http://en.wikipedia.org/wiki/P_versus_NP_problem" target="_new">million dollar bounty</a> for any academic who proves it can (or can't) be done.
+    </div>
+
+
+    <a name="revenue_model"></a>
+    <div class="question">
+        If everything is free and open source, how do the developers of puffball intend to make money?
+    </div>
+    <div class="answer">
+        On usernames. We're holding back all usernames of 4 characters or less, and we've reserved another 1000 or so names of interest to us. Every other username is still available. To prevent any one user from grabbing as many other valuable usernames as they can, right now the only way to register a top level username is to import it from an existing website or system. Currently you can bring over your usernames from Reddit or from Instagram (and you can now import your Instagram content!). Over the next couple months, we plan to add support for usernames from OpenID, Facebook, LinkedIn, Diaspora, Namecoin, Tumblr and others.
+        <br /><br />
+        We are working to decentralize the username database itself. Our original roadmap called for this to happen by mid 2015, and so far we are still  are on-target. In addition to providing a sense of security for users about their names, a robust, decentralized system for usernames is in our best financial interests. It means we are no longer responsible (liable!) for maintaining, updating and making available every single record, and it removes the last "single point of failure" from the puffball system, encouraging wider adoption.
+    </div>
+
+
+    <a name="why_usernames"></a>
+    <div class="question">
+        Why did you decide to monetize usernames?
+    </div>
+    <div class="answer">
+        We chose this revenue model because it's minimally intrusive for the vast majority of users of the system. We don't need to depend on ads, or selling user data, or paid subscriptions of any kind. Unless your username is very short or one of a tiny percentage of names we've already claimed, you should have no trouble getting it for free.... unless someone else has already claimed it. See the section above about our revenue model for how names can be registered.
+    </div>
+
+
+    <a name="will_it_work"></a>
+    <div class="question">
+        Will the usernames you've reserved be enough pay back investors?
+    </div>
+    <div class="answer">
+        Only if the platform becomes widely adoped. But of course if it doesn't, no revenue model could generate much income. A single large tract of land in the heart of a thriving city could be worth as much as a large corporation; a million acre claim on the moon isn't worth $10.
+    </div>
+                
+
+    <a name="alternative_sources"></a>        
+    <div class="question">
+        What if you've miscalculated and username sales aren't enough?
+    </div>
+    <div class="answer">
+        One alternate source of revenue may be an internal currency called <a href="#embedded_currency">Mycelium</a>.
+    </div>
+
+
+    <div class="question">
+        How often will I have to renew my username? Can it ever be taken away from me?
+    </div>
+    <div class="answer">
+        Never. It's yours for life, with zero fees, for so long as users are willing to collectively maintain the table of usernames, something that every user of the system has an incentive to do.
+        <br /><br />
+        The only requirement is a technical one: to remain active, the record must be updated at least once per year. Since username records are updated every time you publish content,  a single puff that says "I'm alive," or nothing at all, is enough to make sure your username doesn't expire.
+        <br /><br />
+        This requirement means that abandoned usernames, or ones with with lost or unrecoverable private keys, will eventually be released back to the general public.
+        <br /><br />
+        We want to be as clear as possible that usernames in the puffball system are not company names, trademarks, or domain names, and there are no mechanisms to forcibly transfer from one party to another. The <em>only</em> way to change ownership of an existing username is to update the record using a message signed by the current owner, using their private key. Any redress of grievances related to the use of a particular username would have to be done extrinsically to puffball.
+    </div>
+
+
+
+    <a name="embedded_currency"></a>
+    <div class="question">
+        I've heard rumors that there will be a digital currency related to puffball. Is that true?
+    </div>
+    <div class="answer">
+        Perhaps. Right now we are in the early stages of developing a currency called <em>Mycelium</em>, with individual currency units called <em>Spores</em>.
+    </div>
+
+    <a name="why_mycelium_different"></a>
+    <div class="question">
+        What makes Mycelium different from other crypto-currencies.
+    </div>
+    <div class="answer">
+        With digital currencies like bitcoin, there isn't really a "unit" of currency that gets passed around. Instead, all transactions appear in a shared ledger which tracks the sender, receiver, and amount being sent. With Mycelium, there are a fixed number of individual units of currency. Each "Spore," or unit, has its own ledger that's maintained separately from the other Spores, but which contains a certain amount of crossover information about other Spores as well. This system allows us to build the the very first digital currency to use <em>Proof of Presence</em> as its mechanism for achieving consensus.
+    </div>
+
+
+    <a name="proof_of_presence"></a>
+    <div class="question">
+        What's so special about Proof of Presence (PoP)?
+    </div>
+    <div class="answer">
+        As you may know, the current digital currencies rely on mining in order to maintain their systems. Mining provides an incentive for users to verify that new transactions are accurate. It's a very clever system. However, it requires a huge amount of energy and resources to be spent doing otherwise useless calculations on specialized computers. With the PoP system being developed for Mycelium, no mining is required. Each participant is responsible for maintaining the records for their own units of currency (which they have a natural incentive to do). All of the resources needed to keep Mycelium working go directly into maintaining the individual records and making them available to others.
+    </div>
+
+
+    <a name="currency_masquerade"></a>
+    <div class="question">
+        How about a non-technical explanation of how this currency would work?
+    </div>
+    <div class="answer">
+        Imagine a group of people want to throw an ongoing series of parties. For the first one, there is a large list of invited guests. In order to keep the parties from getting too big, no one <i>new</i> will be invited to future parties. Also, if you miss a party, you're out and can no longer join in the fun.
+        <br /><br />
+        Unlike most parties that have an authoritative host who decides who does (and doesn't) belong at each party, we want to find a way for the guests to police each other. Here's how we do that:
+        <br /><br />
+        At each party, the guests have to find everyone who shares a birth month with them, and take a photo of that person. They bring their photos to the next party. If someone shows up who was born in May, but none of the other May's have a photo of them, then they are kicked out of the party. If only one of the May's has a photo of this mystery guest, then the person who took this photo is treated like a cheater who is trying to sneak a friend into the parties, and they themselves are barred from coming to any more parties.
+        <br /><br />
+        This is the core idea behind PoP. In this basic form it's not very secure or robust, so let's <i>enhance!</i>
+        <br /><br />
+        As you might imagine, over time the group of May's might get chummy and begin to collude with each other to miss parties or sneak in additional guests. To minimize this risk, we use a new set of rules for every new party. For one party you might be taking photos of people who were born on the same day of the month as yourself, the next party it might be people with the same number of brothers and sisters.
+        <br /><br />
+        In order to mix things up even more, we can begin to pick the groups in a way that is random. For example, we could ask every guest to write down a number on a piece of paper and put it into a fish bowl at the beginning of the party. Then we add up all those numbers to get a total sum. If we have 100 possible rules for forming groups, we divide our sum by 100 and look at the remainder. If our remainder is 25, then we use the 25th (starting our count at 0) rule to split up groups at that party.
+        <br /><br />
+        Everyone knows the rules for every party, so before I include a person in my photos, I make sure that everyone who should have taken a photo of this person at the previous party really did (ie that this person attended the last party). I also look at the photos this person took at the last party, to make sure they didn't take any photos of otherwise unknown guests.
+        <br /><br />
+        To make things even more secure, we can come up with a different rule of who to photograph for every single guest, then randomly shuffle those rules for each new party. At this point colluding to sneak in a new guest, or skipping a party, becomes almost impossible, because you are always taking photos of a different group of people, because you don't know in advance who they will be, and because these people might or might not be photographing you back.
+        <br /><br />
+        We've now eliminated almost all chances to cheat, but our party has started to feel less fun. Let's make it a masquerade ball!
+        <br /><br />
+        We no longer require that the same person show up at every event, now we're only concerned that the same set of masks shows up every night. To do this, we start off with a fresh list of invited guests, and give each one a special  mask that can only be unlocked if the wearer has the right key. Let's also assume that we have a way for guests to prove that they have the key without showing it off, just like I can demonstrate my ability to open a padlock while keeping the key hidden under a piece of cloth.
+        <br /><br />
+        At this point each guest is taking snapshots of some of the masks, based on a randomly chosen rule that is unique to the mask they themselves are wearing. To ensure that the other masks haven't been skipping parties, each guest looks up the photo-taking rules for the previous party, then makes sure that the mask they are about to photograph appears in all of the the records it was supposed to. If not, they flag it as "invalid".
+        <br /><br />
+        We no longer have to worry about someone sneaking in with a new mask, since everyone has a photo of each of the original masks. However, we have a new problem to watch out for: duplicate masks. It turns out that copying someone else's mask is easy. Fortunately, only the person with access to the original key can open the lock. So we ask everyone we're photographing to prove they can open the lock (though to keep things interesting we don't make them actually take off the mask). Anyone who can't open the lock is thrown out of the party, counterfeit mask and all. If both of the identical masks can be opened, then the owner of the key is the culprit. The masks are flagged as invalid, and they are never allowed to show up at the party again.
+        <br /><br />
+        At this point our party has gotten so entertaining that some guests are staying straight through from one party to the next. We don't want to be rude and kick people out, but at the same time if the same person always wears the same mask, the masquerade becomes more of a <i>charade</i>. To keep that from happening, we set aside a window of time every day when everyone has to leave, so when they come back we no longer know if the same person is wearing the same mask.
+        <br /><br />
+        Turns out that every lock looks different depending on its key, though we can't tell what the key looks like just from the shape of the lock. So we are able to add one more requirement: during the transition period, every mask has to have the old lock taken off, and a new one put on. Why? We've noticed that masks have become a hot commodity, and people are buying and selling them on a regular basis. Usually, the only time a new lock appears on a mask is when it shows up on a new guest; returning guests don't bother changing the locks. This gives us a hint as to which people keep wearing the same mask, over and over. By forcing every mask to have a new lock every day, the history of every (valid) mask is similar, and we no longer have a way tell something about the guest based on when and how often their mask changed locks.
+        <br /><br />
+        Suppose we want our party to grow over time, or at least not shrink as our guests occasionally lose the keys to their mask, or get buried by a falling chandelier. In that case, we could come up with a lottery system that permits a few randomly chosen masks to duplicate during the transition period between parties. Or we might allow every mask to clone itself once every thousand parties.
+        <br /><br />
+        At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
+    </div>
+
+
+    <a name="join_the_party"></a>
+    <div class="question">
+        Sounds great! How soon can I join the party?
+    </div>
+    <div class="answer">
+        We're not sure. Mycelium represents a <em>highly experimental</em> approach within the already highly experimental field of crypto-currency. We have reasons (and simulations) that make us think it will work, but there are still many challenges ahead. Here are some of the questions we've yet to answer:<br /><br />
+        <ul>
+        <li>What's the right level of consensus needed to declare a Spore (an individual unit of currency) dead? Or alive?</li>
+            <li>How far back in a Spore chain should we look for irregularities?</li>
+
+        <li>How do we deal with network partitions? In general, each node on the network will need to be able to access up-to-date records of a random sub-set of spores. What happens to Chinese spore-holders if Beijing pulls the plug for a couple days?</li>
+
+        <li>How often should the transition periods come? If the periods are too long then Mycelium becomes useless as a currency, if the periods are too short then a temporary network outage could destroy Spores that were unable to announce their new keys.</li>
+            <li>Is there a way to adjust the level of allowed Spore splitting on the fly, based on the current number of active (living) Spores? If so, this would give us the first crypto-currency to actively circumvent the issue of lost keys and abandoned stakes.</li>
+         </ul>
+    </div>
+
+
+    <a name="why_this_structure"></a>
+    <div class="question">
+        Is there a link between the structure of currency and the puffball platform?
+    </div>
+    <div class="answer">
+        Absolutely! Each individual unit of content in our system is called a puff. Our platform makes it almost trivial to create a special "Spore" type of puff, since every piece of content is cryptographically signed, and puffs can be linked together to form a single unbroken chain.
+        <br /><br />
+        The currency could also serve as an important testing ground for the consensus mechanisms which will be needed before the username system can be completely decentralized.
+    </div>
+
+
+    <a name="what_about_the_wallet"></a>
+    <div class="question">
+        Does Mycelium have any connection with the bitcoin wallet of the same name?
+    </div>
+    <div class="answer">
+        No. We chose the name <em>Mycelium</em> long before we knew about the wallet. Mycelium is the connective tissue that serves as a kind of root structure for mushrooms, including puffballs! It's interlaced in complex, overlapping ways that remind us of the Proof of Presence scheme we intend to use.
+    </div>
+
+    
+
+<br />
+<br />
+        </td>
+    </tr>
+
+</table>
 
 </body>
 </html>

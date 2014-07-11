@@ -140,7 +140,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         //
         return (
             React.DOM.div( {className:className}, 
-                PuffFlagLink( {sig:puff.sig} ),
+                PuffFlagLink( {sig:puff.sig, username:puff.username} ),
                 PuffTipLink( {username:puff.username} ),
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
@@ -242,7 +242,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         });
 
         // Does this user have right to flag?
-        if(PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
+        if(PuffWardrobe.getCurrentUsername() == this.props.username) {
             return React.DOM.a( {href:"#", onClick:this.handleFlagRequest}, React.DOM.i( {className:newClass} ))
         } else {
             return React.DOM.i(null)

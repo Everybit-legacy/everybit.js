@@ -915,6 +915,8 @@ a.footerText {
 .scroller:hover {
     height: 50px;
     opacity: 0.75;
+}
+.animation .scroller:hover {
     transition: opacity 0.5s ease-in-out;
 }
 .scroller.down {

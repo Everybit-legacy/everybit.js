@@ -168,8 +168,16 @@ var CursorBindingsMixin = {
             
             var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
             
-            if (next)
+            if (next) {
                 events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            } else {
+                if (e.which == 38 && this.refs.scrollup) {
+                    this.refs.scrollup.handleScroll();
+                }
+                if (e.which == 40 && this.refs.scrolldown) {
+                    this.refs.scrolldown.handleScroll();
+                }
+            }
             
             return false
         }.bind(this));
@@ -380,8 +388,6 @@ var PuffWorld = React.createClass({
                 <PuffHeader menu={this.props.menu} />
                 {menu}
                 {view}
-                <PuffScroller position="up"view={this.props.view} show={viewprops.query.offset != 0 && viewprops.mode == 'list'} />
-                <PuffScroller position="down" view={this.props.view} show={viewprops.mode == 'list'} />
                 {replyExpand}
                 <PuffFooter />
             </div>
@@ -428,7 +434,13 @@ var PuffList = React.createClass({
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
         this.cursorPower(puffs)
-        return this.standardGridify(puffs);
+        return (
+            <div>
+                {this.standardGridify(puffs)}
+                <PuffScroller ref="scrollup" position="up"view={this.props.view} show={this.props.view.query.offset != 0 && this.props.view.mode == 'list'} />
+                <PuffScroller ref="scrolldown" position="down" view={this.props.view} show={this.props.view.mode == 'list'} />
+            </div>
+        );
     }
 });
 

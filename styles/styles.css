@@ -905,7 +905,8 @@ a.footerText {
 
 .scroller {
     position: absolute;
-    height: 50px;
+    z-index: 275;
+    height: 10px;
     width: 100%;
     background-color: #ccc;
     text-align: center;
@@ -913,8 +914,9 @@ a.footerText {
     display: block;
 }
 .scroller:hover {
-    z-index: 275;
+    height: 50px;
     opacity: 0.75;
+    transition: opacity 0.5s ease-in-out;
 }
 .scroller.down {
     bottom: 0;

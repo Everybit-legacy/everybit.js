@@ -46,7 +46,7 @@ gulp.task('ourOthers', function() {
 
 
 gulp.task('theirOthers', function() {
-    gulp.src(['scripts/[!rJ]*.js','scripts/react-0.10.0/build/react-with-addons.js'])
+    gulp.src(['scripts/[!rJ]*.js','scripts/react/build/react-with-addons.js'])
         // .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(uglify())

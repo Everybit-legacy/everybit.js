@@ -100,7 +100,7 @@ Translate.language["en"].extend({
             userSearch: 'Show puffs from this user',
             userErase: 'Unselect the user',
             currentDelete:'To delete this user from the browser',
-            flagLink: 'Flag for removal',
+            flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
             viewImage: 'View large',
             parent:'Show the parents of this puff',
             children:'Show the children of this puff',

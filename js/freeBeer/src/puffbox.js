@@ -196,11 +196,11 @@ var PuffFlagLink = React.createClass({
         var privateKeys = PuffWardrobe.getCurrentKeys();
 
         if(!privateKeys.username) {
-            // TODO handle fail
+            alert("You must first set your username before you can flag content");
         }
 
         if(!privateKeys.admin) {
-            // TODO handle fail
+            alert("You must first set your private admin key before you can flag content");
         }
 
         // Stuff to register. These are public keys
@@ -237,13 +237,13 @@ var PuffFlagLink = React.createClass({
         var cx1 = React.addons.classSet;
         var newClass = cx1({
             'fa fa-bomb fa-fw': true,
-            'gray': this.state.flagged,
-            'red': !this.state.flagged
+            'red': this.state.flagged,
+            'black': !this.state.flagged
         });
         var polyglot = Translate.language[puffworldprops.view.language];
 
         // Does this user have right to flag?
-        if(PuffWardrobe.getCurrentUsername() == this.props.username) {
+        if(PuffWardrobe.getCurrentUsername() == this.props.username || PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
             return (
                 <span>
                     <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>

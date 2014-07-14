@@ -440,7 +440,7 @@ var IdentityMenu = React.createClass({
                     </div>
                     
                     <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>Edit Identity</a><br/>
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>View Identity</a><br/>
                         <Tooltip content={polyglot.t("menu.tooltip.editIdentity")} />
                         <EditIdentity show={this.state.section.editIdentity} username={currUser} />
                     </div>

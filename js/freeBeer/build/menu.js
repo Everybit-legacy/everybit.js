@@ -577,6 +577,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 
 var AboutMenu = React.createClass({displayName: 'AboutMenu',
     mixins: [TooltipMixin],
+
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -594,7 +595,13 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
     handlePackPuffs: function() {
         return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
-
+    clearLocalStorage: function(){
+        var allKeys = Object.keys(localStorage);
+        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0});
+        for (var i=0; i<allKeys; i++)
+            localStorage.removeItem(allKeys[i]);
+        document.location.reload(true);
+    },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -1184,11 +1191,12 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 );
             }
 
-            var mainField = [usernameField, keyField, submitField, importContentField];
+            var desiredUsernameField = React.DOM.div(null, this.state.desiredUsername)
+            var mainField = [usernameField, keyField, desiredUsernameField, importContentField];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
-                    polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
-                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.request"),
                 this.state.desiredUsername
             ];
 
@@ -1196,6 +1204,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 React.DOM.a( {className:"floatRight steps", onClick:this.handleNext}, "Next",React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 );
             if (!showNext || this.state.step > 1) nextField = "";
+            if (this.state.step == 2) nextField = submitField;
 
             var backField = (
                 React.DOM.a( {className:"floatLeft steps", onClick:this.handleBack}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Back")
@@ -1898,7 +1907,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"} , 
                         React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'newIdentity')}, 
-                            React.DOM.i( {className:"fa fa-plus fa-fw"}),"New Identity"
+                            React.DOM.i( {className:"fa fa-plus fa-fw"}),polyglot.t("menu.identity.newIdentity.title")
                         ),
                         Tooltip( {content:polyglot.t("menu.tooltip.newIdentity")} ),
                         React.DOM.br(null),
@@ -1906,14 +1915,13 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
                     ),
 
                     React.DOM.div( {className:"menuItem"} , 
-                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'setIdentity')}, React.DOM.i( {className:"fa fa-sign-in fa-fw"}),"Set Identity"),React.DOM.br(null),
+                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'setIdentity')}, React.DOM.i( {className:"fa fa-sign-in fa-fw"}),polyglot.t("menu.identity.setIdentity.title")),React.DOM.br(null),
                         Tooltip( {content:polyglot.t("menu.tooltip.setIdentity")} ),
                         SetIdentity( {show:this.state.section.setIdentity, username:currUser} )
                     ),
                     
                     React.DOM.div( {className:"menuItem"} , 
-                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'editIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),"Edit Identity"),React.DOM.br(null),
-">>>>>>> 7e20a8c5279120a4d763e0cc024dc90bcd744977",
+                        React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'editIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),polyglot.t("menu.identity.editIdentity.title")),React.DOM.br(null),
                         Tooltip( {content:polyglot.t("menu.tooltip.editIdentity")} ),
                         EditIdentity( {show:this.state.section.editIdentity, username:currUser} )
                     )

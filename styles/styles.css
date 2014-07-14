@@ -860,12 +860,14 @@ select:disabled {
 }
 
 .menu .flash {
+    background: #F0F0FF;
+}
+.animation .menu .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */
     -o-animation: flash 1s; /* Opera */
     animation: flash 1s;
-    background: #F0F0FF;
 }
 
 .private {

@@ -1063,6 +1063,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var polyglot = Translate.language[puffworldprops.view.language];
             var generatedName = PuffWardrobe.generateRandomUsername();
 
+            var relativeStyle = {position: 'relative'};
             var usernameField = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, polyglot.t("menu.identity.newKey.msg"),":")),React.DOM.br(null ),
@@ -1072,7 +1073,11 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                             return React.DOM.option( {key:u.username, value:u.username}, u.username)
                         })
                         ), " ", React.DOM.em(null, "."),' ',
-                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip", title:"Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"}))
+                        React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),
+                        React.DOM.span( {style:relativeStyle}, 
+                            React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip"})),
+                            Tooltip( {position:"under", content:polyglot.t("menu.tooltip.generate")})
+                        )
                     ),
                 polyglot.t("menu.identity.step.import"),
                 ' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
@@ -1083,7 +1088,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 ));
 
             // check if there is requestedUsername parameter
-            // var params = getQuerystringObject();
             var params = getStashedKeysFromURL();
             if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
                 var importInfo = {

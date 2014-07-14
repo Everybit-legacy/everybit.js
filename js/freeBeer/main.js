@@ -64,7 +64,8 @@ puffworldprops = {
         expand: false,
         content: '',
         state: {},
-        type: 'text'
+        privacy: false,
+        type: false
     },
 
     raw: {

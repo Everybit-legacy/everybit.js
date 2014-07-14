@@ -24,7 +24,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
-        if (this.refs.privacy) this.handlePickPrivacy();
         this.setState(puffworldprops.reply.state);
         this.preventDragText();
     },
@@ -35,21 +34,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // remove silly global
         globalReplyFormSubmitArg = null;
         return events.pub("", {'reply.content': ""})
-    },
-
-    handlePickPrivacy: function() {
-        var privacy = this.refs.privacy.getDOMNode().value;
-        if (privacy != "public") {
-            this.getDOMNode().className = "encrypted";
-        } else {
-            this.getDOMNode().className = "";
-        }
-    },
-    handlePickAdvancedOpt: function(e) {
-        var key = e.target.name;
-        var advancedOpt = this.state.advancedOpt;
-        advancedOpt[key] = e.target.value;
-        this.setState({advancedOpt: advancedOpt});
     },
     handleSubmitSuccess: function(puff) {
         // clear the content
@@ -214,6 +198,21 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
         return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
+    handlePickPrivacy: function() {
+        var privacy = this.refs.privacy.getDOMNode().value;
+        /*if (privacy != "public") {
+            this.getDOMNode().className = "encrypted";
+        } else {
+            this.getDOMNode().className = "";
+        }*/
+        return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
+    },
+    handlePickAdvancedOpt: function(e) {
+        var key = e.target.name;
+        var advancedOpt = this.state.advancedOpt;
+        advancedOpt[key] = e.target.value;
+        this.setState({advancedOpt: advancedOpt});
+    },
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
     },
@@ -290,6 +289,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             }
         }
         var type = this.props.reply.type || parentType;
+        var privacy = this.props.reply.privacy || privacyDefault;
         var usernames = this.props.reply.usernames || parentUsernames || "";
 
         var sendToSpanStyle = {
@@ -325,8 +325,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             width: '70%'
         };
         var privacyOption = (
-            React.DOM.select( {style:privacyStyle, ref:"privacy", className:"btn", 
-                defaultValue:privacyDefault, onChange:this.handlePickPrivacy}, 
+            React.DOM.select( {className:"btn", style:privacyStyle, ref:"privacy", 
+                value:privacy, onChange:this.handlePickPrivacy}, 
                 React.DOM.option( {key:"public", value:"public"}, polyglot.t("replyForm.pOptions.public")),
                 React.DOM.option( {key:"private", value:"private"}, polyglot.t("replyForm.pOptions.private")),
                 React.DOM.option( {key:"anonymous", value:"anonymous"}, polyglot.t("replyForm.pOptions.anon")),
@@ -479,8 +479,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 )
             );
         }
+
+        var className = privacy == 'public' ? "" : "encrypted"
         return (
-            React.DOM.div( {id:"replyFormEmbed"}, 
+            React.DOM.div( {id:"replyFormEmbed", className:className}, 
                 React.DOM.div( {id:"replyFormBox", style:boxStyle}, 
                     sendToField,
                     typeOption,

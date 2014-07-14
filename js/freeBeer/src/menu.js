@@ -1063,6 +1063,7 @@ var NewIdentity = React.createClass({
             var polyglot = Translate.language[puffworldprops.view.language];
             var generatedName = PuffWardrobe.generateRandomUsername();
 
+            var relativeStyle = {position: 'relative'};
             var usernameField = (
                 <div>
                     <div className="menuLabel"><em>{polyglot.t("menu.identity.newKey.msg")}:</em></div><br />
@@ -1072,7 +1073,11 @@ var NewIdentity = React.createClass({
                             return <option key={u.username} value={u.username}>{u.username}</option>
                         })}
                         </select> <em>.</em>{' '}
-                        <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" /><a href="#" onClick={this.handleGenerateUsername}><i className="fa fa-question-circle fa-fw" rel="tooltip" title="Right now, only anonymous usernames can be registered. To be notified when regular usernames become available, send a puff with .puffball in your zones"></i></a>
+                        <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" />
+                        <span style={relativeStyle}>
+                            <a href="#" onClick={this.handleGenerateUsername}><i className="fa fa-question-circle fa-fw" rel="tooltip"></i></a>
+                            <Tooltip position="under" content={polyglot.t("menu.tooltip.generate")}/>
+                        </span>
                     </div>
                 {polyglot.t("menu.identity.step.import")}
                 {' '}<select id="import" ref="import" onChange={this.handleImport}>
@@ -1083,7 +1088,6 @@ var NewIdentity = React.createClass({
                 </div>);
 
             // check if there is requestedUsername parameter
-            // var params = getQuerystringObject();
             var params = getStashedKeysFromURL();
             if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
                 var importInfo = {

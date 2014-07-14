@@ -92,6 +92,7 @@ Translate.language["en"].extend({
             setIdentity: 'Store your private keys',
             editIdentity: 'View stored keys for current identity',
             newIdentity: 'Create a new identity', 
+			generate: 'randomly generate new username',
             newPuff:'Create a new puff',
             code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',

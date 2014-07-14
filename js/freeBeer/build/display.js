@@ -34,8 +34,8 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
-            if (parents.length == 0) 
-                return events.pub('ui/reply/open', { 'reply': {parents: parents} });
+            /*if (parents.length == 0) 
+                return events.pub('ui/reply/open', { 'reply.parents': parents });*/
 
             var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
@@ -45,7 +45,7 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                               , 'reply': {parents: parents} });
+                                               , 'reply.parents': parents });
         }.bind(this));
 
         // a toggles animation

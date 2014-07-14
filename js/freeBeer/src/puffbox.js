@@ -614,23 +614,26 @@ var PuffReplyLink = React.createClass({
 var PuffExpand = React.createClass({
     handleClick: function() {
         var puff = this.props.puff;
+        var row = puffworldprops.view.rows == 1 ? puffworlddefaults.view.rows : 1;
         return events.pub("ui/expand-puff", { 'view.mode': 'focus'
                                             , 'view.filters': puffworlddefaults.view.filters
                                             , 'view.query': puffworlddefaults.view.query
                                             , 'view.query.focus': puff.sig
                                             , 'menu': puffworlddefaults.menu
                                             , 'reply': puffworlddefaults.reply
-                                            , 'view.rows': 1
+                                            , 'view.rows': row
                                             })
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        var expand = puffworldprops.view.rows == 1 ? "compress" : "expand";
+        // var iconClass = puffworldprops.view.rows == 1 ? "fa fa-compress fa-fw" : "fa fa-expand fa-fw";
         return (
             <span className="icon">
                 <a href="#" onClick={this.handleClick}>
-                    <i className="fa fa-expand fa-fw"></i>
+                    <i className={"fa fa-fw fa-"+expand}></i>
                 </a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.expand")}/>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip."+expand)}/>
             </span>
         );
     }

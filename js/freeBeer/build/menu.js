@@ -793,7 +793,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             var currUser = this.props.username;
             var polyglot = Translate.language[puffworldprops.view.language];
 
-            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
+            var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 React.DOM.div( {className:slide}, 
                     React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.storeKey.msg"))),
@@ -920,7 +920,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
             // TODO: make sure not None
             // TODO: Allow erase keys here?
             var polyglot = Translate.language[puffworldprops.view.language];
-            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
+            var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 React.DOM.div( {className:slide}, 
                     React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.edit.msg"),": " ),React.DOM.span( {className:"authorSpan"}, currUser)
@@ -1218,7 +1218,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
             var messageField = this.state.errorMessage ? (React.DOM.div( {className:"message"}, this.state.errorMessage)) : "";
 
-            var slide = this.props.show ? 'menuSection slidedown' : 'menuSection slideup';
+            var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 React.DOM.div( {className:slide}, 
                     React.DOM.div( {className:"menuLabel"}, "Step ", this.state.step+1,

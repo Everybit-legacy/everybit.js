@@ -824,6 +824,10 @@ select:disabled {
     position: relative;
 }
 
+.identitySection {
+    background: #d6d6ff;
+}
+
 .steps {
     font-family: GudeaBold;
     text-transform: uppercase;

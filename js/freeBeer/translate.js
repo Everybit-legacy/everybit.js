@@ -110,7 +110,8 @@ Translate.language["en"].extend({
             viewRaw:'Show the raw code of this puff',
             json:'Show the JSON string of this puff',
             permaLink:'Permalink to this puff',
-            expand: 'Expand puff to one row'
+            expand: 'Expand puff to one row',
+            compress: 'Compress puff to default setting'
         }
 	},
 	replyForm: {

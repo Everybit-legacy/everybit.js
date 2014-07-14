@@ -741,6 +741,8 @@ var PuffFooter = React.createClass({
 var PuffScroller = React.createClass({
     mixins: [GridLayoutMixin],
     handleScroll: function() {
+        if (!this.props.show) return false;
+        
         var col   = this.getDimensions().cols;
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;

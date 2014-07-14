@@ -337,6 +337,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var contentStyle = {
             width: (puffworldprops.reply.expand ? "400px" : '100%'),
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
+            overflowY: this.state.showPreview ? "scroll" : "hidden",
+            cursor: this.state.showPreview ? "default" : "auto", 
             marginTop: '10px',
             marginBottom: '10px',
             border: '1px solid #333',

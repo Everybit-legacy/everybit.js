@@ -426,7 +426,7 @@ var IdentityMenu = React.createClass({
                 <div>
                     <div className="menuItem" >
                         <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'newIdentity')}>
-                            <i className="fa fa-plus fa-fw"></i>New Identity
+                            <i className="fa fa-plus fa-fw"></i>{polyglot.t("menu.identity.newIdentity.title")}
                         </a>
                         <Tooltip content={polyglot.t("menu.tooltip.newIdentity")} />
                         <br/>
@@ -434,13 +434,13 @@ var IdentityMenu = React.createClass({
                     </div>
 
                     <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'setIdentity')}><i className="fa fa-sign-in fa-fw"></i>Set Identity</a><br/>
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'setIdentity')}><i className="fa fa-sign-in fa-fw"></i>{polyglot.t("menu.identity.setIdentity.title")}</a><br/>
                         <Tooltip content={polyglot.t("menu.tooltip.setIdentity")} />
                         <SetIdentity show={this.state.section.setIdentity} username={currUser} />
                     </div>
                     
                     <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>Edit Identity</a><br/>
+                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>{polyglot.t("menu.identity.editIdentity.title")}</a><br/>
                         <Tooltip content={polyglot.t("menu.tooltip.editIdentity")} />
                         <EditIdentity show={this.state.section.editIdentity} username={currUser} />
                     </div>
@@ -796,7 +796,7 @@ var SetIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div><em>{polyglot.t("menu.identity.storeKey.msg")}</em></div>
+                    <div><em>{polyglot.t("menu.identity.setIdentity.msg")}</em></div>
                     <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
                     <div className="menuInput">
                         <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
@@ -923,7 +923,7 @@ var EditIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div><em>{polyglot.t("menu.identity.edit.msg")}: </em><span className="authorSpan">{currUser}</span>
+                    <div><em>{polyglot.t("menu.identity.editIdentity.msg")}: </em><span className="authorSpan">{currUser}</span>
                     </div>
 
                     <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
@@ -1066,7 +1066,7 @@ var NewIdentity = React.createClass({
             var relativeStyle = {position: 'relative'};
             var usernameField = (
                 <div>
-                    <div className="menuLabel"><em>{polyglot.t("menu.identity.newKey.msg")}:</em></div><br />
+                    <div className="menuLabel"><em>{polyglot.t("menu.identity.newIdentity.msg")}:</em></div><br />
                     <div className = "menuItem">
                         <select ref="prefix">
                         {CONFIG.users.map(function(u) {
@@ -1179,13 +1179,13 @@ var NewIdentity = React.createClass({
                 <div>
                     <div className="message">{polyglot.t("menu.identity.step.remember")}</div>
                 {publicKeyField}
-                    <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newKey.generate")}</a> {polyglot.t("menu.identity.newKey.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.newKey.convert.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.newKey.convert.public")}</a><br />
+                    <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newIdentity.generate")}</a> {polyglot.t("menu.identity.newIdentity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
                 {privateKeyField}
                 </div>
                 );
 
             var submitField = (
-                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newKey.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
+                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newIdentity.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 );
 
             var importContentField = "";
@@ -1198,18 +1198,18 @@ var NewIdentity = React.createClass({
             var mainField = [usernameField, keyField, submitField, importContentField];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
-                    polyglot.t("menu.identity.step.generate") + this.state.desiredUsername,
+                    polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
                     polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
                 this.state.desiredUsername
             ];
 
             var nextField = (
-                <a className="floatRight steps" onClick={this.handleNext}>Next<i className="fa fa-chevron-right fa-fw"></i></a>
+                <a className="floatRight steps" onClick={this.handleNext}>{polyglot.t("menu.identity.step.next")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 );
             if (!showNext || this.state.step > 1) nextField = "";
 
             var backField = (
-                <a className="floatLeft steps" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>Back</a>
+                <a className="floatLeft steps" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>{polyglot.t("menu.identity.step.back")}</a>
                 );
             if (this.state.step == 0) backField="";
             if (this.state.step == 3) backField=(
@@ -1221,9 +1221,11 @@ var NewIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div className="menuLabel">Step {this.state.step+1}
-                    {': '}
-                    {stepMessage[this.state.step]}</div><br/>
+                    <div className="menuLabel">
+                        {polyglot.t("menu.identity.step.title", {n:this.state.step+1})}
+                        {': '}
+                        {stepMessage[this.state.step]}
+                    </div><br/>
                     {mainField[this.state.step]}
                     {messageField}
                     {backField}
@@ -1263,7 +1265,7 @@ var NewIdentity = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({errorMessage: polyglot.t("menu.identity.newKey.error.missing")});
+            this.setState({errorMessage: polyglot.t("menu.identity.newIdentity.errorMissing")});
             return false;
         }
 

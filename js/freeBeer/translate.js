@@ -44,33 +44,34 @@ Translate.language["en"].extend({
 			default: 'default',
 			admin: 'admin',
 			root: 'root',
-			storeKey: {
-				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
-			},
-			edit: {
-				msg: 'Stored keys for'
-			},
-            step: {
-                select:'Select a new username ',
-                import:'Or, import from ',
-                generate:'Generate keys for ',
-                remember:'Remember to save your keys!',
-                request:'Requested username '
-            },
-			newKey: {
+			newIdentity: {
+				title: 'New Identity',
 				msg: 'Desired username',
 				generate: 'Generate',
 				or: 'or',
-				convert: {
-					private: 'Private',
-					public: 'Public'
-				},
-				error: {
-					missing: 'You must set all of your public keys before making a registration request.'
-				},
+				errorMissing: 'You must set all of your public keys before making a registration request.',
 				success: 'Success!',
-				submit: 'Submit request'
-			}
+				submit: 'Submit request',
+				importContent: 'Import Content'
+			},
+			editIdentity: {
+				title: 'Edit Identity',
+				msg: 'Stored keys for'
+			},
+			setIdentity: {
+				title: 'Set Identity',
+				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
+			},
+            step: {
+                title: 'Step %{n}',
+                next: 'next',
+                back: 'back',
+                select:'Select a new username ',
+                import:'Or, import from ',
+                generate:'Generate keys for %{username}',
+                remember:'Remember to save your keys!',
+                request:'Requested username '
+            }
 		},
 		about: {
 			title: 'ABOUT',
@@ -111,14 +112,14 @@ Translate.language["en"].extend({
             json:'Show the JSON string of this puff',
             permaLink:'Permalink to this puff',
             expand: 'Expand puff to one row',
-            compress: 'Compress puff to default setting'
+            compress: 'Compress puff size to default setting'
         }
 	},
 	replyForm: {
-		advanced: 'Advanced Options',
-		textarea: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
-		submit: 'GO',
-		cancel: 'NO',
+        sendTo: 'Send to',
+		sendToPh: 'everyone', /*placeholder*/
+		textareaPh: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
+		send: 'Send as %{author}',
 		preview: 'preview',
 		format: {
 			text: 'text',
@@ -126,7 +127,6 @@ Translate.language["en"].extend({
 			bbcodeMsg: 'You can use BBCode-style tags',
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
-			contentLicense: 'Content License'
 		},
         privacyOption: 'Privacy options',
         pOptions: {
@@ -135,8 +135,11 @@ Translate.language["en"].extend({
             anon: 'Anonymous (encrypted and anonymous)',
             paranoid: 'Invisible (double anon, experimental!)'
         },
-        sendTo: 'Send to user'
-
+        advanced: {
+			title: 'Advanced Options',
+			contentLicense: 'Content License',
+			replyPrivacy: 'Reply privacy level'
+        }
 	},
 	footer: {
 		powered: 'Powered by',
@@ -149,149 +152,6 @@ Translate.language["en"].extend({
 		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
 	}
 });
-
-Translate.language["zh"] = new Polyglot({locale:"zh"});
-Translate.language["zh"].extend({
-	dropdownDisplay: '中文'
-});
-Translate.language["zh"].extend({
-	alert: {
-		noUserSet: "需要先设置身份!"
-	},
-	menu: {
-		view: {
-			title: '查看',
-			latest: "最近",
-			collection: '特别收藏',
-			shortcut: "快捷键",
-            showpuffs:"显示给我的puff"
-		},
-		filters: {
-			title: '筛选',
-			routes: '路径',
-			users: '用户名'
-		},
-		preferences: {
-			title: '偏好设置',
-			relationship: "显示关联",
-			animation: "显示动画",
-			infobar: "显示信息栏",
-			language: "语言"
-		},
-		publish: {
-			title: '发布',
-			newPuff: "新建"
-		},
-		identity: {
-			title: '身份',
-			current: '当前身份',
-			none: '无',
-			username: '用户名',
-			private: '密钥',
-			public: '公钥',
-			default: '默认',
-			admin: '管理',
-			root: '根',
-			storeKey: {
-				msg: '将密匙储存在当前浏览器里。若想发布信息只需要设置默认密钥。'
-			},
-			edit: {
-				msg: '已储存的用户密钥'
-			},
-            step: {
-                select:'选择一个新用户名 ',
-                import:'或者，从这里引入 ',
-                generate:'为本用户名生成密匙 ',
-                remember:'记得保存密匙！',
-                request:'申请用户名 '
-            },
-			newKey: {
-				msg: '新用户名',
-				generate: '生成',
-				or: '或者',
-				convert: {
-					private: '密钥',
-					public: '公钥'
-				},
-				error: {
-					missing: '在提交之前必须设定好所有的公钥。'
-				},
-				success: '成功!',
-				submit: '提交新用户名'
-			}
-		},
-		about: {
-			title: '关于',
-			code: '源代码'
-		},
-		tools: {
-			title: '高级工具',
-			builder: "生成"
-		},
-        tooltip:{
-            latest:'显示最新的puff',
-            collection:'显示特别收藏',
-            shortcut:'查看FreeBeer的所有快捷鍵',
-            showPuffs:'显示发送给我的puff',
-            relationship:'显示/隐藏puff之间的关联',
-            animation:'启用/禁止动画',
-            infobar:'显示/隐藏所有puff的信息栏',
-            setIdentity: '贮存密钥',
-            editIdentity: '查看当前密钥',
-            newIdentity: '创建新身份', 
-            newPuff:'发布一个新的puff',
-            code:'在GitHub查看源代码',
-            puffBuilder:'显示puff生成器',
-            routeSearch: '显示此路径的puff',
-            routeErase: '取消选择本路径',
-            userSearch: '显示此用户的所有puff',
-            userErase: '取消选择本用户名',
-            currentDelete:'在本浏览器中删除此用户',
-            viewImage: '显示大图',
-            parent:'显示本puff的上级',
-            children:'显示本puff的下级',
-            reply:'回复本puff',
-            seeMore:'显示更多选项',
-            viewRaw:'显示未加工前的代码',
-            json:'显示本puff的JSON代码',
-            permaLink:'本puff的文本链接'
-        }
-	},
-	replyForm: {
-		advanced: '高级选项',
-		textarea: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
-		submit: '提交',
-		cancel: '取消',
-		preview: '预览',
-		format: {
-			text: '文字',
-			image: '图片',
-			bbcodeMsg: '你可以使用BBCode格式的标签',
-			imageFile: '图片文件',
-			imageChosen: '没有选中文件',
-			contentLicense: '内容许可'
-		},
-        privacyOption: '隐私选项',
-        pOptions: {
-            public: '公开 (所有人可见)',
-            private: '隐私 (内容是加密的)',
-            anon: '匿名 (加密及匿名的)',
-            paranoid: '偏执狂 (每次都会重新生成用户名)'
-        },
-        sendTo: '发给用户'
-	},
-	footer: {
-		powered: '基于',
-		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
-	}
-});
-Translate.language["zh"].extend({
-	puff: {
-		default: 'AN1rKp8pNT4HSMwCW7nnL3YWHDeWbgAEsyrsPkQAorwVSFANkBDxzhTyPHjSEppCeRXsjK87RuEzjrTHyCFkYFTu8dAoY66BC',
-		shortcut: 'iKx1CJMRR5t3i8gJDkL6JLM3AEqKSDfLuek3XoD4TupbkPCvRLpnH7gkscU8LGd2yCyKJZEqEGpUao3BJM3wQdwR2bRC992LmC'
-	}
-})
-
 
 
 // check if any keys are missing
@@ -320,5 +180,7 @@ Translate.checkMissingKey = function() {
 			}
 		}
 	}
-}
-Translate.checkMissingKey();
+};
+window.addEventListener('load', function() {
+	Translate.checkMissingKey();	
+});

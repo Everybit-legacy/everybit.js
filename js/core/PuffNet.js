@@ -67,6 +67,7 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     if(query.sort)      data.sort       = query.sort        // ASC or DESC
     if(filters.users)   data.username   = filters.users     // filter by username
     if(filters.routes)  data.route      = filters.routes    // filter by route
+    if(filters.tags)    data.tags       = filters.tags    // filter by tags
     if(query.ancestors) data.maxParents = query.ancestors   // defaults to all shells; 0 is roots, 1 is single parent, etc
     // data.flagged = false
     

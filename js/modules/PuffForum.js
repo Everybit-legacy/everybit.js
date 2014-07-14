@@ -104,9 +104,23 @@ PuffForum.filterByFilters = function(filters) {
             }
             if(!routeMatch) return false;
         }
+
+        if(filters.tags && filters.tags.length > 0) {
+            if(!shell.payload.tags || !shell.payload.tags.length) {
+                return false;
+            }
+            var tagMatch = false;
+            for (var i=0; i<filters.tags.length; i++) {
+                if (shell.payload.tags.indexOf(filters.tags[i]) > -1) tagMatch = true;
+            }
+            if(!tagMatch) return false;
+        }
+
+
         
         if(filters.users && filters.users.length > 0)
             if(!~filters.users.indexOf(shell.username)) return false
+
 
         if(filters.roots)
             if((shell.payload.parents||[]).length) return false

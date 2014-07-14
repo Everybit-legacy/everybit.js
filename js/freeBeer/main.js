@@ -32,6 +32,7 @@ puffworldprops = {
         filters: {
             routes: [],
             users : [],
+            tags: [],
         },
 
         // TODO: move these options into view.layout
@@ -384,18 +385,29 @@ update_puffworldprops = function(data) {
     
     // THINK: this is not the right place for this...
     // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
+
+    // ROUTES
     if(!Array.isArray(puffworldprops.view.filters.routes)) {
         if(!puffworldprops.view.filters.routes)
             puffworldprops.view.filters.routes = []
         else 
             puffworldprops.view.filters.routes = [puffworldprops.view.filters.routes]
     }
-    
+
+    // USERS
     if(!Array.isArray(puffworldprops.view.filters.users)) {
         if(!puffworldprops.view.filters.users)
             puffworldprops.view.filters.users = []
-        else 
+        else
             puffworldprops.view.filters.users = [puffworldprops.view.filters.users]
+    }
+
+    // TAGS
+    if(!Array.isArray(puffworldprops.view.filters.tags)) {
+        if(!puffworldprops.view.filters.tags)
+            puffworldprops.view.filters.tags = []
+        else
+            puffworldprops.view.filters.tags = [puffworldprops.view.filters.tags]
     }
 }
 

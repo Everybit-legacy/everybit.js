@@ -779,6 +779,13 @@ var SetIdentity = React.createClass({
 
     },
 
+    verifyUsername: function() {
+        var username = this.refs.username.getDOMNode().value;
+        username = reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+                    .toLowerCase();
+        this.refs.username.getDOMNode().value = username;
+    },
+
     render: function() {
         /*if (!this.props.show) {
             return <div></div>
@@ -792,7 +799,7 @@ var SetIdentity = React.createClass({
                     <div><em>{polyglot.t("menu.identity.storeKey.msg")}</em></div>
                     <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
                     <div className="menuInput">
-                        <input type="text" name="username" ref="username" defaultValue={currUser} size="12" />
+                        <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
                         {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                         <em>{this.state.usernameStatus}</em>
                     </div><br />

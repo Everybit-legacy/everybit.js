@@ -779,6 +779,13 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 
     },
 
+    verifyUsername: function() {
+        var username = this.refs.username.getDOMNode().value;
+        username = reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+                    .toLowerCase();
+        this.refs.username.getDOMNode().value = username;
+    },
+
     render: function() {
         /*if (!this.props.show) {
             return <div></div>
@@ -792,7 +799,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                     React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.storeKey.msg"))),
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.username"),":"),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"username", ref:"username", defaultValue:currUser, size:"12"} ),
+                        React.DOM.input( {type:"text", name:"username", ref:"username", defaultValue:currUser, onBlur:this.verifyUsername, size:"12"} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} )),
                         React.DOM.em(null, this.state.usernameStatus)
                     ),React.DOM.br(null ),

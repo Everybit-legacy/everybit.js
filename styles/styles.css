@@ -621,6 +621,11 @@ select:disabled {
     z-index: 1;
     top: 12px;
     left: 12px;
+    -webkit-animation: iconFadeIn 1s; /* Safari and Chrome */
+    -moz-animation: iconFadeIn 1s; /* Firefox */
+    -ms-animation: iconFadeIn 1s; /* Internet Explorer */
+    -o-animation: iconFadeIn 1s; /* Opera */
+    animation: iconFadeIn 1s;    
 }
 
 #puffballIcon:hover {
@@ -1160,4 +1165,30 @@ a.footerText {
     0%  { background: #fff; }
     50% { background: #ccc; }
     100% { background: #F0F0FF;}
+}
+
+@-webkit-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-moz-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-o-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-ms-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
 }

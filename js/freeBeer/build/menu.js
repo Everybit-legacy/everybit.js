@@ -796,12 +796,12 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 React.DOM.div( {className:slide}, 
-                    React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.setIdentity.msg"))),
+                    React.DOM.div( {className:"message red"}, polyglot.t("menu.identity.setIdentity.msg")),
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.username"),":"),
                     React.DOM.div( {className:"menuInput"}, 
                         React.DOM.input( {type:"text", name:"username", ref:"username", defaultValue:currUser, onBlur:this.verifyUsername, size:"12"} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} )),
-                        React.DOM.em(null, this.state.usernameStatus)
+                        React.DOM.span( {className:"message"}, this.state.usernameStatus)
                     ),React.DOM.br(null ),
                     React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
 
@@ -810,7 +810,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                         React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12"} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'defaultKey')}, 
                         Checkmark( {show:this.state.defaultKey} )),
-                        React.DOM.em(null, this.state.defaultKey)
+                        React.DOM.span( {className:"message"}, this.state.defaultKey)
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.admin"),": " ),
@@ -818,7 +818,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                         React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12"} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'adminKey')}, 
                         Checkmark( {show:this.state.adminKey} )),
-                        React.DOM.em(null, this.state.adminKey)
+                        React.DOM.span( {className:"message"}, this.state.adminKey)
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.root"),": " ),
@@ -826,7 +826,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
                         React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12"} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'rootKey')}, 
                         Checkmark( {show:this.state.rootKey} )),
-                        React.DOM.em(null, this.state.rootKey)
+                        React.DOM.span( {className:"message"}, this.state.rootKey)
                     ),React.DOM.br(null )
                 )
                 )
@@ -923,7 +923,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 React.DOM.div( {className:slide}, 
-                    React.DOM.div(null, React.DOM.em(null, polyglot.t("menu.identity.editIdentity.msg"),": " ),React.DOM.span( {className:"authorSpan"}, currUser)
+                    React.DOM.div( {className:"message"}, polyglot.t("menu.identity.editIdentity.msg"),": ", React.DOM.span( {className:"authorSpan"}, currUser)
                     ),
 
                     React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
@@ -1042,6 +1042,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             this.setState({errorMessage: ''});
         }
         this.setState({step: (this.state.step+1)%4});
+        return false;
     },
 
     handleStartOver: function() {
@@ -1066,7 +1067,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var relativeStyle = {position: 'relative'};
             var usernameField = (
                 React.DOM.div(null, 
-                    React.DOM.div( {className:"menuLabel"}, React.DOM.em(null, polyglot.t("menu.identity.newIdentity.msg"),":")),React.DOM.br(null ),
+                    React.DOM.div( {className:"menuLabel"}, React.DOM.span( {className:"message"}, polyglot.t("menu.identity.newIdentity.msg"),":")),React.DOM.br(null),
                     React.DOM.div( {className:  "menuItem"}, 
                         React.DOM.select( {ref:"prefix"}, 
                         CONFIG.users.map(function(u) {
@@ -1177,15 +1178,11 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 )
             var keyField = (
                 React.DOM.div(null, 
-                    React.DOM.div( {className:"message"}, polyglot.t("menu.identity.step.remember")),
+                    React.DOM.div( {className:"message red"}, polyglot.t("menu.identity.step.remember")),
                 publicKeyField,
                     React.DOM.a( {href:"#", onClick:this.handleGeneratePrivateKeys} , polyglot.t("menu.identity.newIdentity.generate")), " ", polyglot.t("menu.identity.newIdentity.or"), " ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , polyglot.t("menu.identity.private"),React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),polyglot.t("menu.identity.public")),React.DOM.br(null ),
                 privateKeyField
                 )
-                );
-
-            var submitField = (
-                React.DOM.a( {href:"#", className:"floatRight steps", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.newIdentity.submit"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 );
 
             var importContentField = "";
@@ -1194,12 +1191,15 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     React.DOM.span( {id:"importContent"}, React.DOM.a( {href:"#", onClick:this.handleContentImport}, "Import Content"))
                 );
             }
+            var requestedUsernameField = (
+                React.DOM.div(null, this.state.desiredUsername)
+            );
 
-            var mainField = [usernameField, keyField, submitField, importContentField];
+            var mainField = [usernameField, keyField, requestedUsernameField, importContentField];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
-                    polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
-                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
+                polyglot.t("menu.identity.step.request"),
                 this.state.desiredUsername
             ];
 
@@ -1207,6 +1207,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 React.DOM.a( {className:"floatRight steps", onClick:this.handleNext}, polyglot.t("menu.identity.step.next"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 );
             if (!showNext || this.state.step > 1) nextField = "";
+            if (this.state.step == 2) nextField = (
+                React.DOM.a( {href:"#", className:"floatRight steps", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.newIdentity.submit"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
+                );
 
             var backField = (
                 React.DOM.a( {className:"floatLeft steps", onClick:this.handleBack}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),polyglot.t("menu.identity.step.back"))
@@ -1216,7 +1219,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 React.DOM.a( {className:"floatLeft steps", onClick:this.handleStartOver}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Start Over")
                 );
 
-            var messageField = this.state.errorMessage ? (React.DOM.div( {className:"message"}, this.state.errorMessage)) : "";
+            var messageField = this.state.errorMessage ? (React.DOM.div( {className:"message red"}, this.state.errorMessage)) : "";
 
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
@@ -1229,7 +1232,8 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     mainField[this.state.step],
                     messageField,
                     backField,
-                    nextField,React.DOM.br(null)
+                    nextField,
+                    React.DOM.div( {className:"clear"}),React.DOM.br(null)
                 )
                 )
        // }
@@ -1335,7 +1339,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
                     enableContentImport: importInfo.network == "instagram",
-                    errorMessage: polyglot.t("menu.identity.newKey.success")});
+                    errorMessage: polyglot.t("menu.identity.newIdentity.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);

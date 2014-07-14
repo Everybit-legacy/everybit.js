@@ -235,6 +235,7 @@ h4 {
 
 .clear {
     clear: both;
+    display: inline;
 }
 
 .txt {
@@ -715,18 +716,18 @@ select:disabled {
 .menuLabel {
     font-family: Gudea;
     padding-right: 5px;
-    float:left;
+    float: left;
     display: inline-block;
 }
 
 .menuInput {
-    float:left;
+    float: left;
     display: inline-block;
     position: absolute;
-    left: 132px;
+    left: 112px;
 }
 .menuItem .menuSection .menuInput {
-    left: 100px;
+    left: 80px;
 }
 
 .menuIcon {
@@ -851,7 +852,7 @@ select:disabled {
 }
 
 .message {
-    color: #ff0000;
+    /*color: #ff0000;*/
     margin: 5px 0;
     font-weight: bold;
     line-height: 100%;

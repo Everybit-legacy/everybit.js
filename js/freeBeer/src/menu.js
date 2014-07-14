@@ -796,12 +796,12 @@ var SetIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div><em>{polyglot.t("menu.identity.setIdentity.msg")}</em></div>
+                    <div className="message red">{polyglot.t("menu.identity.setIdentity.msg")}</div>
                     <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
                     <div className="menuInput">
                         <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
                         {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                        <em>{this.state.usernameStatus}</em>
+                        <span className="message">{this.state.usernameStatus}</span>
                     </div><br />
                     <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
 
@@ -810,7 +810,7 @@ var SetIdentity = React.createClass({
                         <input type="text" name="defaultKey" ref="defaultKey" size="12" />
                         {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'defaultKey')}>
                         <Checkmark show={this.state.defaultKey} /></a>
-                        <em>{this.state.defaultKey}</em>
+                        <span className="message">{this.state.defaultKey}</span>
                     </div><br />
 
                     <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
@@ -818,7 +818,7 @@ var SetIdentity = React.createClass({
                         <input type="text" name="adminKey" ref="adminKey" size="12" />
                         {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
                         <Checkmark show={this.state.adminKey} /></a>
-                        <em>{this.state.adminKey}</em>
+                        <span className="message">{this.state.adminKey}</span>
                     </div><br />
 
                     <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
@@ -826,7 +826,7 @@ var SetIdentity = React.createClass({
                         <input type="text" name="rootKey" ref="rootKey" size="12" />
                         {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'rootKey')}>
                         <Checkmark show={this.state.rootKey} /></a>
-                        <em>{this.state.rootKey}</em>
+                        <span className="message">{this.state.rootKey}</span>
                     </div><br />
                 </div>
                 )
@@ -923,7 +923,7 @@ var EditIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div><em>{polyglot.t("menu.identity.editIdentity.msg")}: </em><span className="authorSpan">{currUser}</span>
+                    <div className="message">{polyglot.t("menu.identity.editIdentity.msg")}: <span className="authorSpan">{currUser}</span>
                     </div>
 
                     <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
@@ -1042,6 +1042,7 @@ var NewIdentity = React.createClass({
             this.setState({errorMessage: ''});
         }
         this.setState({step: (this.state.step+1)%4});
+        return false;
     },
 
     handleStartOver: function() {
@@ -1066,7 +1067,7 @@ var NewIdentity = React.createClass({
             var relativeStyle = {position: 'relative'};
             var usernameField = (
                 <div>
-                    <div className="menuLabel"><em>{polyglot.t("menu.identity.newIdentity.msg")}:</em></div><br />
+                    <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.newIdentity.msg")}:</span></div><br/>
                     <div className = "menuItem">
                         <select ref="prefix">
                         {CONFIG.users.map(function(u) {
@@ -1177,15 +1178,11 @@ var NewIdentity = React.createClass({
                 )
             var keyField = (
                 <div>
-                    <div className="message">{polyglot.t("menu.identity.step.remember")}</div>
+                    <div className="message red">{polyglot.t("menu.identity.step.remember")}</div>
                 {publicKeyField}
                     <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newIdentity.generate")}</a> {polyglot.t("menu.identity.newIdentity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
                 {privateKeyField}
                 </div>
-                );
-
-            var submitField = (
-                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newIdentity.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 );
 
             var importContentField = "";
@@ -1194,12 +1191,15 @@ var NewIdentity = React.createClass({
                     <span id="importContent"><a href="#" onClick={this.handleContentImport}>Import Content</a></span>
                 );
             }
+            var requestedUsernameField = (
+                <div>{this.state.desiredUsername}</div>
+            );
 
-            var mainField = [usernameField, keyField, submitField, importContentField];
+            var mainField = [usernameField, keyField, requestedUsernameField, importContentField];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
-                    polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
-                    polyglot.t("menu.identity.step.request") + this.state.desiredUsername,
+                polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
+                polyglot.t("menu.identity.step.request"),
                 this.state.desiredUsername
             ];
 
@@ -1207,6 +1207,9 @@ var NewIdentity = React.createClass({
                 <a className="floatRight steps" onClick={this.handleNext}>{polyglot.t("menu.identity.step.next")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 );
             if (!showNext || this.state.step > 1) nextField = "";
+            if (this.state.step == 2) nextField = (
+                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newIdentity.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
+                );
 
             var backField = (
                 <a className="floatLeft steps" onClick={this.handleBack}><i className="fa fa-chevron-left fa-fw"></i>{polyglot.t("menu.identity.step.back")}</a>
@@ -1216,7 +1219,7 @@ var NewIdentity = React.createClass({
                 <a className="floatLeft steps" onClick={this.handleStartOver}><i className="fa fa-chevron-left fa-fw"></i>Start Over</a>
                 );
 
-            var messageField = this.state.errorMessage ? (<div className="message">{this.state.errorMessage}</div>) : "";
+            var messageField = this.state.errorMessage ? (<div className="message red">{this.state.errorMessage}</div>) : "";
 
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
@@ -1229,7 +1232,8 @@ var NewIdentity = React.createClass({
                     {mainField[this.state.step]}
                     {messageField}
                     {backField}
-                    {nextField}<br/>
+                    {nextField}
+                    <div className="clear"></div><br/>
                 </div>
                 )
        // }
@@ -1335,7 +1339,7 @@ var NewIdentity = React.createClass({
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
                     enableContentImport: importInfo.network == "instagram",
-                    errorMessage: polyglot.t("menu.identity.newKey.success")});
+                    errorMessage: polyglot.t("menu.identity.newIdentity.success")});
 
                 // Set this person as the current user
                 PuffWardrobe.switchCurrent(requestedUsername);

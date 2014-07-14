@@ -34,8 +34,8 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
-            if (parents.length == 0) 
-                return events.pub('ui/reply/open', { 'reply': {parents: parents} });
+            /*if (parents.length == 0) 
+                return events.pub('ui/reply/open', { 'reply.parents': parents });*/
 
             var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
@@ -45,7 +45,7 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                               , 'reply': {parents: parents} });
+                                               , 'reply.parents': parents });
         }.bind(this));
 
         // a toggles animation
@@ -191,10 +191,12 @@ var CursorBindingsMixin = {
                 if (e.which == 40 && this.refs.scrolldown) {
                     this.refs.scrolldown.handleScroll();
                     // may need a limit on this
+                    var limit = 40;
                     var success = false;
                     var readyStateCheckInterval = setInterval(function() {
                         success = nextFn();
-                        if (success) {
+                        limit--;
+                        if (success || limit < 0) {
                             clearInterval(readyStateCheckInterval);
                         }
                     }, 25);
@@ -456,12 +458,14 @@ var PuffList = React.createClass({displayName: 'PuffList',
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
         this.cursorPower(puffs)
-        // todo do not have scroller down when there's no more puff
+
+        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset != 0;
+        var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
         return (
             React.DOM.div(null, 
                 this.standardGridify(puffs),
-                PuffScroller( {ref:"scrollup", position:"up",view:this.props.view, show:this.props.view.query.offset != 0 && this.props.view.mode == 'list'} ),
-                PuffScroller( {ref:"scrolldown", position:"down", view:this.props.view, show:this.props.view.mode == 'list'} )
+                PuffScroller( {ref:"scrollup", position:"up", view:this.props.view, show:showScrollUp} ),
+                PuffScroller( {ref:"scrolldown", position:"down", view:this.props.view, show:showScrollDown} )
             )
         );
     }
@@ -737,6 +741,8 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
 var PuffScroller = React.createClass({displayName: 'PuffScroller',
     mixins: [GridLayoutMixin],
     handleScroll: function() {
+        if (!this.props.show) return false;
+        
         var col   = this.getDimensions().cols;
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;

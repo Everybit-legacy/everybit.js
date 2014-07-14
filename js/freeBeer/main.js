@@ -65,7 +65,8 @@ puffworldprops = {
         expand: false,
         content: '',
         state: {},
-        type: 'text'
+        privacy: false,
+        type: false
     },
 
     raw: {
@@ -144,8 +145,10 @@ humanizeUsernames = function(username) {
     return username
 }
 
-reduceUsernameToAlphanumeric = function(username) {
-    return username.split(/[^A-Za-z0-9]/).join('');
+reduceUsernameToAlphanumeric = function(username, allowDot) {
+    allowDot = allowDot || false;
+    var pattern = allowDot ? /[^.A-Za-z0-9]/ : /[^A-Za-z0-9]/;
+    return username.split(pattern).join('');
 }
 
 
@@ -448,6 +451,12 @@ window.addEventListener('load', function() {
     /// this is cumbersome, but it gets around browser inconsistencies (some fire popstate on page load, others don't)
     //  via https://code.google.com/p/chromium/issues/detail?id=63040
     setTimeout(function() {
+        // set current identity
+        var lastUsername = localStorage['PUFF::identity'];
+        if (lastUsername) {
+            lastUsername = JSON.parse(lastUsername);
+            PuffWardrobe.switchCurrent(lastUsername);
+        }
         window.addEventListener('popstate', function(event) {
             if(event.state)
                 return setPropsFromPushstate(event.state);

@@ -34,7 +34,7 @@ var ourOthersList = [
               'js/freeBeer/events.js',
               'js/freeBeer/gridbox.js',
               'js/freeBeer/immutable.js',
-              'js/freeBeer/main.js']; // don't think we need this
+              'js/freeBeer/main.js']; 
 gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)
         //.pipe(sourcemaps.init())

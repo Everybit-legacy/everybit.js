@@ -214,7 +214,7 @@ var FilterMenu = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var all_filter = Object.keys(this.props.view.filters);
+        var all_filter = ['tags', 'users', 'routes'];
         
         return (
             <div>
@@ -323,18 +323,6 @@ var ViewMenu = React.createClass({
         return false;
     },
 
-    handleShowPuffsForMe: function(){
-        var polyglot = Translate.language[puffworldprops.view.language];
-        var username = PuffWardrobe.getCurrentUsername();
-        if(!username.length) {
-            alert(polyglot.t("alert.noUserSet"))
-            return false;
-        }
-        // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', { 'view.mode': 'list', 
-                                                 'view.filters.routes': [username] });
-    },
-
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
 
@@ -358,11 +346,6 @@ var ViewMenu = React.createClass({
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.shortcut")} />
-                </div>
-
-                <div className="menuItem">
-                    <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
-                    <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />
                 </div>
 
             </div>
@@ -414,6 +397,7 @@ var IdentityMenu = React.createClass({
         newState[name] = !newState[name];
         this.setState({section: newState});
     },
+
     render: function() {
         var currUser = PuffWardrobe.getCurrentUsername();
 
@@ -422,6 +406,7 @@ var IdentityMenu = React.createClass({
         return (
             <div>
                 <AuthorPicker />
+
                 <div>
                     <div className="menuItem" >
                         <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'newIdentity')}>
@@ -647,6 +632,17 @@ var AuthorPicker = React.createClass({
         return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
     },
 
+    handleShowPuffsForMe: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var username = PuffWardrobe.getCurrentUsername();
+        if(!username.length) {
+            alert(polyglot.t("alert.noUserSet"))
+            return false;
+        }
+        // var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', { 'view.mode': 'list', 
+                                                 'view.filters.routes': [username] });
+    },
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
@@ -664,14 +660,21 @@ var AuthorPicker = React.createClass({
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
         var relativeStyle = {position: 'relative'};
         return (
-            <div className="menuItem">
-                {polyglot.t("menu.identity.current")}: <select ref="switcher" onChange={this.handleUserPick} defaultValue={username}>
-                    {all_usernames.map(function(username) {
-                        return <option key={username} value={username}>{username}</option>
-                    })}
-            </select>
-                {' '}<span style={relativeStyle}><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.currentDelete')} /></span>
-                {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.userSearch')} /></span>
+            <div>
+                <div className="menuItem">
+                    {polyglot.t("menu.identity.current")}: <select ref="switcher" onChange={this.handleUserPick} defaultValue={username}>
+                        {all_usernames.map(function(username) {
+                            return <option key={username} value={username}>{username}</option>
+                        })}
+                </select>
+                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.currentDelete')} /></span>
+                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
+                </div>
+
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />
+                </div>
             </div>
             );
     }

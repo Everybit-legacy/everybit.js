@@ -214,7 +214,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var all_filter = Object.keys(this.props.view.filters);
+        var all_filter = ['tags', 'users', 'routes'];
         
         return (
             React.DOM.div(null, 
@@ -323,18 +323,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         return false;
     },
 
-    handleShowPuffsForMe: function(){
-        var polyglot = Translate.language[puffworldprops.view.language];
-        var username = PuffWardrobe.getCurrentUsername();
-        if(!username.length) {
-            alert(polyglot.t("alert.noUserSet"))
-            return false;
-        }
-        // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', { 'view.mode': 'list', 
-                                                 'view.filters.routes': [username] });
-    },
-
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
 
@@ -358,11 +346,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")),
                     Tooltip( {content:polyglot.t("menu.tooltip.shortcut")} )
-                ),
-
-                React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")),
-                    Tooltip( {content:polyglot.t("menu.tooltip.showPuffs")} )
                 )
 
             )
@@ -414,6 +397,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         newState[name] = !newState[name];
         this.setState({section: newState});
     },
+
     render: function() {
         var currUser = PuffWardrobe.getCurrentUsername();
 
@@ -422,6 +406,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         return (
             React.DOM.div(null, 
                 AuthorPicker(null ),
+
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"} , 
                         React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'newIdentity')}, 
@@ -647,6 +632,17 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
     },
 
+    handleShowPuffsForMe: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var username = PuffWardrobe.getCurrentUsername();
+        if(!username.length) {
+            alert(polyglot.t("alert.noUserSet"))
+            return false;
+        }
+        // var route = this.refs.pickroute.getDOMNode().value;
+        return events.pub('ui/view/route/set', { 'view.mode': 'list', 
+                                                 'view.filters.routes': [username] });
+    },
 
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
@@ -664,14 +660,21 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
         var relativeStyle = {position: 'relative'};
         return (
-            React.DOM.div( {className:"menuItem"}, 
-                polyglot.t("menu.identity.current"),": ", React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, defaultValue:username}, 
-                    all_usernames.map(function(username) {
-                        return React.DOM.option( {key:username, value:username}, username)
-                    })
-            ),
-                ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} )),
-                ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleViewUser}, React.DOM.i( {className:"fa fa-search fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.userSearch')} ))
+            React.DOM.div(null, 
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.identity.current"),": ", React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, defaultValue:username}, 
+                        all_usernames.map(function(username) {
+                            return React.DOM.option( {key:username, value:username}, username)
+                        })
+                ),
+                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} )),
+                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleViewUser}, React.DOM.i( {className:"fa fa-search fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.usersFilter')} ))
+                ),
+
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.showPuffs")} )
+                )
             )
             );
     }

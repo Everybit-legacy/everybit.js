@@ -711,7 +711,14 @@ var PuffClone = React.createClass({
         var reply = PB.shallow_copy(puffworldprops.reply);
         reply.content = puff.payload.content;
         reply.type = puff.payload.type;
+        
         reply.showPreview = false;
+        reply.state = {};
+        reply.state.showAdvanced = true;
+        reply.state.advancedOpt =  {
+            replyPrivacy: puff.payload.replyPrivacy,
+            contentLicense: puff.payload.license
+        };
 
         reply.privacy = 'public';
         var envelope = PuffData.getBonus(puff, 'envelope');

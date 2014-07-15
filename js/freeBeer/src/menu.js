@@ -581,12 +581,14 @@ var ToolsMenu = React.createClass({
     handlePackPuffs: function() {
         return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
-    clearLocalStorage: function(){
-        var allKeys = Object.keys(window.localStorage);
-        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0});
+    clearPuffShells: function(){
+        /*var allKeys = Object.keys(window.localStorage);
+        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0})
         for (var i=0; i<allKeys.length; i++) 
-            window.localStorage.removeItem(allKeys[i]);
+            window.localStorage.removeItem(allKeys[i]);*/
+        window.localStorage.removeItem('PUFF::shells');
         document.location.reload(true);
+        return false;
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -597,7 +599,7 @@ var ToolsMenu = React.createClass({
                     <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.clearLocalStorage}>Clear local storage</a>
+                    <a href="#" onClick={this.clearPuffShells}>Clear cached shells</a>
                 </div>
             </div>
         )

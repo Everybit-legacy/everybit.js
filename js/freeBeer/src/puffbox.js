@@ -661,30 +661,9 @@ var PuffStar = React.createClass({
             // this is (almost) duplicate with handleFlagRequest
             // may want remove this...
             var self = this;
-            var privateKeys = PuffWardrobe.getCurrentKeys();
+            var sig = this.state.starPuff;
+            var prom = PuffForum.flagPuff(sig);
 
-            if(!privateKeys.username) {
-                alert("You must first set your username before you can flag content");
-            }
-            if(!privateKeys.admin) {
-                alert("You must first set your private admin key before you can flag content");
-            }
-
-            // Stuff to register. These are public keys
-            var payload = {};
-            var routes = [];
-            var type = 'flagPuff';
-            var content = this.state.starPuff;
-
-            payload.time = Date.now();
-
-            var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
-
-            var data = { type: 'flagPuff'
-                       , puff: puff
-                       };
-
-            var prom = PuffNet.post(CONFIG.puffApi, data);
             prom.then(function(result) {
                     self.setState({starPuff: false,
                                    color: 'black'});

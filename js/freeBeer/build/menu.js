@@ -205,10 +205,10 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
-                    polyglot.t("menu.filters.routes"),":",
+                    polyglot.t("menu.filters.tags"),":",
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"pickroute", ref:"pickroute", size:"12", defaultValue:"", onKeyDown:this.handleKeyDown} ),
-                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.routeSearch")} ),
+                        React.DOM.input( {type:"text", name:"picktag", ref:"picktag", size:"12", defaultValue:"", onKeyDown:this.handleKeyDown} ),
+                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.tagSearch")} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search-plus fa-fw"}))
                     ),React.DOM.br(null)
                 ),
@@ -218,6 +218,14 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
                         React.DOM.input( {type:"text", name:"pickuser", ref:"pickuser", size:"12", onKeyDown:this.handleKeyDown}  ),
                         Tooltip( {position:"under", content:polyglot.t("menu.tooltip.userSearch")} ),
                         ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter} , React.DOM.i( {className:"fa fa-search-plus fa-fw"}))
+                    ),React.DOM.br(null)
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.filters.routes"),":",
+                    React.DOM.div( {className:"menuInput"}, 
+                        React.DOM.input( {type:"text", name:"pickroute", ref:"pickroute", size:"12", defaultValue:"", onKeyDown:this.handleKeyDown} ),
+                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.routeSearch")} ),
+                        ' ',React.DOM.a( {href:"#", onClick:this.handlePickFilter}, React.DOM.i( {className:"fa fa-search-plus fa-fw"}))
                     ),React.DOM.br(null)
                 )
             )

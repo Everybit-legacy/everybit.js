@@ -24,6 +24,7 @@ gulp.task('jsxFiles', function() {
 
 var ourOthersList = [
               'js/freeBeer/translate.js',
+              'js/freeBeer/translate-zh.js',
               'js/core/PuffData.js',
               'js/core/Puffball.js',
               'js/core/PuffNet.js',
@@ -35,7 +36,7 @@ var ourOthersList = [
               'js/freeBeer/immutable.js',
               'js/freeBeer/main.js']; // don't think we need this
 gulp.task('ourOthers', function() {
-    gulp.src(['js/core/*.js', 'js/modules/*.js', 'js/freeBeer/*.js'])
+    gulp.src(ourOthersList)
         //.pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
             .pipe(uglify())

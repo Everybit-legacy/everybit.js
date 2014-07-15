@@ -205,10 +205,10 @@ var FilterMenu = React.createClass({
         return (
             <div>
                 <div className="menuItem">
-                    {polyglot.t("menu.filters.routes")}:
+                    {polyglot.t("menu.filters.tags")}:
                     <div className="menuInput">
-                        <input type="text" name="pickroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
-                        <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
+                        <input type="text" name="picktag" ref="picktag" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
+                        <Tooltip position="under" content={polyglot.t("menu.tooltip.tagSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
                 </div>
@@ -218,6 +218,14 @@ var FilterMenu = React.createClass({
                         <input type="text" name="pickuser" ref="pickuser" size="12" onKeyDown={this.handleKeyDown}  />
                         <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
                         {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search-plus fa-fw"></i></a>
+                    </div><br/>
+                </div>
+                <div className="menuItem">
+                    {polyglot.t("menu.filters.routes")}:
+                    <div className="menuInput">
+                        <input type="text" name="pickroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
+                        <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
+                        {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
                     </div><br/>
                 </div>
             </div>

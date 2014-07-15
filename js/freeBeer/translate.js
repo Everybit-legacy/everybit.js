@@ -20,6 +20,7 @@ Translate.language["en"].extend({
 		},
 		filters: {
 			title: 'Filter',
+			tags: 'Tag',
 			routes: 'Route',
 			users: 'Username'
 		},
@@ -97,6 +98,7 @@ Translate.language["en"].extend({
             newPuff:'Create a new puff',
             code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',
+            tagSearch: 'Show puffs with this tag',
             routeSearch: 'Show puffs for this user',
             routeErase: 'Unselect the route',
             userSearch: 'Show puffs from this user',

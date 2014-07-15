@@ -53,6 +53,12 @@ puffworldprops = {
             focus: false,                               // a puff sig to focus on
             offset: 0,
         },
+
+        score: {
+            anonValue: 0.1,
+            tluValue: 1,
+            maxAnonValue: 1
+        },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
         flash     : false, // flash the cursor

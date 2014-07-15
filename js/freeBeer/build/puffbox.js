@@ -620,10 +620,22 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return s.username == username;
     },
     updateScore: function() {
+        var starShells = this.state.starShells;
+        var tluScore = 0;
+        var anonScore = 0;
+        var scorePref = puffworldprops.view.score;
+        for (var i=0; i<starShells.length; i++) {
+            var username = starShells[i].username;
+            if (username.indexOf('.') == -1) {
+                tluScore += parseFloat(scorePref.tluValue);
+            } else {
+                anonScore += parseFloat(scorePref.anonValue);
+            }
+        }
         var topLevelUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') == -1}).length;
         var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
-        var scorePref = puffworldprops.view.score;
-        var score = topLevelUser * scorePref.tluValue + Math.min(scorePref.maxAnonValue, scorePref.anonValue * anonUser);
+        var score = tluScore + Math.min(scorePref.maxAnonValue, anonScore);
+        score = score.toFixed(1);
         return this.setState({score: score});
     },
     getInitialState: function(){
@@ -652,12 +664,13 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var self = this;
             var sig = starred[0].sig;
             var prom = PuffForum.flagPuff(sig);
-            var starShells = this.state.starShells
-                                       .filter(function(s){return s.sig != sig;});
             prom.then(function(result) {
+                    var starShells = self.state.starShells
+                                         .filter(function(s){return s.sig != sig;});
                     self.setState({starShells: starShells,
                                    color: 'black'});
                     self.updateScore();
+
                 })
                 .catch(function(err) {
                    alert(err);
@@ -687,12 +700,11 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var score = this.state.score;
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
-                ),score
+                ),this.state.score
             )
         );
     }
@@ -711,7 +723,7 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         var reply = PB.shallow_copy(puffworldprops.reply);
         reply.content = puff.payload.content;
         reply.type = puff.payload.type;
-        
+
         reply.showPreview = false;
         reply.state = {};
         reply.state.showAdvanced = true;

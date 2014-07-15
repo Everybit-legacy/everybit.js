@@ -770,5 +770,13 @@ PuffForum.flagPuff = function (sig) {
                };
 
     var prom = PuffNet.post(CONFIG.puffApi, data);
+    prom = prom.then(function(){
+        // clear localstorage
+        var storedShells = Puffball.Persist.get('shells');
+        var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+        Puffball.Persist.save('shells', filteredShells);
+        // reload?
+        document.location.reload();
+    })
     return prom;
 }

@@ -586,7 +586,7 @@ var ToolsMenu = React.createClass({
         allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0})
         for (var i=0; i<allKeys.length; i++) 
             window.localStorage.removeItem(allKeys[i]);*/
-        window.localStorage.removeItem('PUFF::shells');
+        Puffball.Persist.remove('shells');
         document.location.reload(true);
         return false;
     },
@@ -1484,7 +1484,7 @@ var UsernameCheckbox = React.createClass({
             var usernameNotice = 'Sorry! Not available.';
         } else if(this.props.usernameAvailable === 'available') {
             checkboxClass = 'menuIcon fa fa-check blue';
-            var usernameNotice = 'Yes! Username unavailable.';
+            var usernameNotice = 'Yes! Username available.';
         } else if(this.props.usernameAvailable === 'checking') {
             checkboxClass = 'menuIcon fa fa-spinner';
             var usernameNotice = '';

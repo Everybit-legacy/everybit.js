@@ -1,7 +1,7 @@
+/*
+    boron: some utilities for immutability
+*/
 
-//
-//  Immutability and friends
-//
 
 PB = {} // TODO: make this a proper library and give it a real name
 

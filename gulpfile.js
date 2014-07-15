@@ -31,6 +31,7 @@ var ourOthersList = [
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',
               'js/freeBeer/usernameImport.js',
+              'js/libs/dagoba.js',
               'js/libs/events.js',
               'js/libs/gridbox.js',
               'js/libs/immutable.js',

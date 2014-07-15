@@ -1,3 +1,8 @@
+/*
+    gridbox: a simple system for putting things in places
+*/
+
+
 
 getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     var min = function(a, b) {return Math.min(a, b)}

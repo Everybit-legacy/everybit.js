@@ -1,5 +1,5 @@
 /*
-    PuffBall Forum GUI event system
+    events: a pub/sub system with wildcard paths
 */
 
 

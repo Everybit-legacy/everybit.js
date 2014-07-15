@@ -177,21 +177,21 @@ var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
     
     handlePickFilter: function() {
-        var user  = this.refs.pickuser .getDOMNode().value || false;
-        var route = this.refs.pickroute.getDOMNode().value || false;
+        var filterType = ['tags', 'users', 'routes'];
+        var filters = PB.shallow_copy(this.props.view.filters);
 
-        var filterRoutes = PB.shallow_copy(this.props.view.filters.routes);         // don't mutate the props!
-        var filterUsers  = PB.shallow_copy(this.props.view.filters.users);
-        
-        if (route && filterRoutes.indexOf(route) == -1) filterRoutes.push(route);        
-        if (user  && filterUsers .indexOf(user)  == -1) filterUsers .push(user);
-        
-        this.refs.pickroute.getDOMNode().value = '';
-        this.refs.pickuser .getDOMNode().value = '';
+        for (var i=0; i<filterType.length; i++) {
+            var type = filterType[i];
+            var newFilter = this.refs[type].getDOMNode().value || false;
+            var currFilter = PB.shallow_copy(this.props.view.filters[type]);
+            if (newFilter && currFilter.indexOf(newFilter) == -1) 
+                currFilter.push(newFilter);
+            filters[type] = currFilter;
+            this.refs[type].getDOMNode().value = '';
+        }
 
-        return events.pub('ui/view/route/set', { 'view.filters.users':  filterUsers
-                                               , 'view.filters.routes': filterRoutes
-                                               , 'view.mode': 'list'});
+        return events.pub('ui/view/filter/set', {'view.filters': filters
+                                                ,'view.mode': 'list'});
     },
     
     handleKeyDown: function(event) {
@@ -199,37 +199,28 @@ var FilterMenu = React.createClass({
             this.handlePickFilter();
         }
     },
+    createEachFilter: function(type) {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <div className="menuItem">
+                {polyglot.t("menu.filters."+type)}:
+                <div className="menuInput">
+                    <input type="text" name={type} ref={type} size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
+                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+                    {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
+                </div><br/>
+            </div>
+        )
+    },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        var all_filter = Object.keys(this.props.view.filters);
         
         return (
             <div>
-                <div className="menuItem">
-                    {polyglot.t("menu.filters.tags")}:
-                    <div className="menuInput">
-                        <input type="text" name="picktag" ref="picktag" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
-                        <Tooltip position="under" content={polyglot.t("menu.tooltip.tagSearch")} />
-                        {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
-                    </div><br/>
-                </div>
-                <div className="menuItem">
-                    {polyglot.t("menu.filters.users")}:
-                    <div className="menuInput">
-                        <input type="text" name="pickuser" ref="pickuser" size="12" onKeyDown={this.handleKeyDown}  />
-                        <Tooltip position="under" content={polyglot.t("menu.tooltip.userSearch")} />
-                        {' '}<a href="#" onClick={this.handlePickFilter} ><i className="fa fa-search-plus fa-fw"></i></a>
-                    </div><br/>
-                </div>
-                <div className="menuItem">
-                    {polyglot.t("menu.filters.routes")}:
-                    <div className="menuInput">
-                        <input type="text" name="pickroute" ref="pickroute" size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
-                        <Tooltip position="under" content={polyglot.t("menu.tooltip.routeSearch")} />
-                        {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
-                    </div><br/>
-                </div>
+                {all_filter.map(this.createEachFilter)}
             </div>
-            )
+        );
     }
 });
 

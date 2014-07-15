@@ -30,9 +30,9 @@ puffworldprops = {
         mode: '',
         
         filters: {
-            routes: [],
-            users : [],
             tags: [],
+            users : [],
+            routes: [],
         },
 
         // TODO: move these options into view.layout

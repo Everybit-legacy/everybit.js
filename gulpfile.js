@@ -14,10 +14,10 @@ var jsdoc = require('gulp-jsdoc');
 gulp.task('jsxFiles', function() {
     gulp.src('js/freeBeer/src/*.js')
         .pipe(react())
-        //.pipe(sourcemaps.init())
+        .pipe(sourcemaps.init())
              .pipe(concat('fbr.js'))
              .pipe(uglify())
-        //.pipe(sourcemaps.write())
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 });
 
@@ -36,10 +36,10 @@ var ourOthersList = [
               'js/freeBeer/main.js']; // don't think we need this
 gulp.task('ourOthers', function() {
     gulp.src(['js/core/*.js', 'js/modules/*.js', 'js/freeBeer/*.js'])
-        //.pipe(sourcemaps.init())
+        .pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
             .pipe(uglify())
-        //.pipe(sourcemaps.write())
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 
 });
@@ -47,10 +47,10 @@ gulp.task('ourOthers', function() {
 
 gulp.task('theirOthers', function() {
     gulp.src(['scripts/[!rJ]*.js','scripts/react/build/react-with-addons.js'])
-        // .pipe(sourcemaps.init())
+        .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(uglify())
-        //.pipe(sourcemaps.write())
+        .pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 
 });

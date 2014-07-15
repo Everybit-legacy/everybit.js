@@ -14,7 +14,8 @@ Translate.language["zh"].extend({
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
-            showpuffs:"显示给我的puff"
+			showMine: '我发送的puff',
+            showpuffs:"发送给我的puff"
 		},
 		filters: {
 			title: '筛选',
@@ -85,6 +86,7 @@ Translate.language["zh"].extend({
             collection:'显示特别收藏',
             shortcut:'查看FreeBeer的所有快捷鍵',
             showPuffs:'显示发送给我的puff',
+            showMine: '显示我发送的puff',
             relationship:'显示/隐藏puff之间的关联',
             animation:'启用/禁止动画',
             infobar:'显示/隐藏所有puff的信息栏',

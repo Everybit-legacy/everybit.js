@@ -659,6 +659,10 @@ var AuthorPicker = React.createClass({
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
         var relativeStyle = {position: 'relative'};
+        /*
+        
+                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
+         */
         return (
             <div>
                 <div className="menuItem">
@@ -668,9 +672,12 @@ var AuthorPicker = React.createClass({
                         })}
                 </select>
                     {' '}<span style={relativeStyle}><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.currentDelete')} /></span>
-                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
                 </div>
 
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleViewUser}>{polyglot.t("menu.view.showMine")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.showMine")} />
+                </div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />

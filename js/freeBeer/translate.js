@@ -16,6 +16,7 @@ Translate.language["en"].extend({
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
+			showMine: 'Show my puffs',
             showpuffs:"Show puffs for me"
 		},
 		filters: {
@@ -88,6 +89,7 @@ Translate.language["en"].extend({
             collection:'View the Choices Collection',
             shortcut:'View a list of shortcuts for this website',
             showPuffs:'View puffs that were sent to me',
+            showMine: 'View puffs that were sent by me',
             relationship:'Display/hide relationships between puffs',
             animation:'Enable/disable animations',
             infobar:'Display/hide the information bars for each puff',

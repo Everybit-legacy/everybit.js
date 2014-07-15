@@ -659,6 +659,10 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
         var relativeStyle = {position: 'relative'};
+        /*
+        
+                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
+         */
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
@@ -667,10 +671,13 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                             return React.DOM.option( {key:username, value:username}, username)
                         })
                 ),
-                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} )),
-                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleViewUser}, React.DOM.i( {className:"fa fa-search fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.usersFilter')} ))
+                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
                 ),
 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewUser}, polyglot.t("menu.view.showMine")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.showMine")} )
+                ),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.showpuffs")),
                     Tooltip( {content:polyglot.t("menu.tooltip.showPuffs")} )

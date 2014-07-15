@@ -614,29 +614,50 @@ var PuffExpand = React.createClass({
 
 
 var PuffStar = React.createClass({
+    filterCurrentUserStar: function(s){
+        var username = PuffWardrobe.getCurrentUsername();
+        return s.username == username;
+    },
+    updateScore: function() {
+        var topLevelUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') == -1}).length;
+        var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
+        var scorePref = puffworldprops.view.score;
+        var score = topLevelUser * scorePref.tluValue + Math.min(scorePref.maxAnonValue, scorePref.anonValue * anonUser);
+        console.log(score, 'score', topLevelUser, anonUser);
+        return this.setState({score: score});
+    },
     getInitialState: function(){
         var sig = this.props.sig;
-        var starred = false; // TODO
         var username = PuffWardrobe.getCurrentUsername();
-        var shells = PuffForum.getShells({}, {'users': [username]})
-                              .filter(function(s){
-                                    return s.payload.type == 'star' && 
-                                           s.payload.content == sig});
-        starred = shells.length != 0;
+        var allStarShells = PuffForum.getShells()
+                                     .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                      });
+        var userStar = allStarShells.filter(this.filterCurrentUserStar);
+        var starred = userStar.length != 0;
         return {
-            starPuff: starred ? shells[0].sig : false,
+            score: 0,
+            starShells: allStarShells,
             color: starred ? 'yellow': 'black'
         }
     },
+    componentDidMount: function(){
+        this.updateScore();
+    },
     handleClick: function() {
-        if (this.state.starPuff) {
+        var username = PuffWardrobe.getCurrentUsername();
+        var starred = this.state.starShells.filter(this.filterCurrentUserStar);
+        if (starred.length != 0) {
             var self = this;
-            var sig = this.state.starPuff;
+            var sig = starred[0].sig;
             var prom = PuffForum.flagPuff(sig);
-
+            var starShells = this.state.starShells
+                                       .filter(function(s){return s.sig != sig;});
             prom.then(function(result) {
-                    self.setState({starPuff: false,
+                    self.setState({starShells: starShells,
                                    color: 'black'});
+                    self.updateScore();
                 })
                 .catch(function(err) {
                    alert(err);
@@ -651,8 +672,14 @@ var PuffStar = React.createClass({
             var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
-                .then(function(){
-                    self.setState({color: 'yellow'});
+                .then(function(puff){
+                    var starShells = self.state.starShells;
+                    starShells.push(puff);
+                    self.setState({
+                        starShells: starShells,
+                        color: 'yellow'
+                    });
+                    self.updateScore();
                 })
                 .catch(Puffball.promiseError('Posting failed'));
         }
@@ -660,11 +687,12 @@ var PuffStar = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        var score = this.state.score;
         return (
             <span className="icon">
                 <a href="#" onClick={this.handleClick}>
                     <i className={"fa fa-fw fa-star "+this.state.color}></i>
-                </a>
+                </a>{score}
             </span>
         );
     }

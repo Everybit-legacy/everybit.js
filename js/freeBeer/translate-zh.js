@@ -53,7 +53,7 @@ Translate.language["zh"].extend({
 				importContent: '导入内容'
 			},
 			editIdentity: {
-				title: '编辑身份',
+				title: '查看身份',
 				msg: '已储存的用户密钥'
 			},
 			setIdentity: {

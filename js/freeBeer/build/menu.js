@@ -329,6 +329,9 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"http://everybit.com/qa.html", target:"_blank"}, polyglot.t("menu.view.faq"))
+                ),
+                React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
                 ),

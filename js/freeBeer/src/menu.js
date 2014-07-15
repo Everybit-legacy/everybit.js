@@ -329,6 +329,9 @@ var ViewMenu = React.createClass({
         return (
             <div>
                 <div className="menuItem">
+                    <a href="http://everybit.com/qa.html" target="_blank">{polyglot.t("menu.view.faq")}</a>
+                </div>
+                <div className="menuItem">
                     <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />
                 </div>

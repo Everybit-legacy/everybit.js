@@ -146,6 +146,7 @@ var PuffBar = React.createClass({
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
                 <PuffReplyLink sig={puff.sig} />
+                <PuffStar sig={puff.sig} />
                 <span className ="icon" onClick={this.handleShowMore}>
                     <a><i className="fa fa-ellipsis-h fa-fw"></i></a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />
@@ -639,3 +640,83 @@ var PuffExpand = React.createClass({
     }
 });
 
+
+var PuffStar = React.createClass({
+    getInitialState: function(){
+        var sig = this.props.sig;
+        var starred = false; // TODO
+        var username = PuffWardrobe.getCurrentUsername();
+        var shells = PuffForum.getShells({}, {'users': [username]})
+                              .filter(function(s){
+                                    return s.payload.type == 'star' && 
+                                           s.payload.content == sig});
+        starred = shells.length != 0;
+        return {
+            starPuff: starred ? shells[0].sig : false,
+            color: starred ? 'yellow': 'black'
+        }
+    },
+    handleClick: function() {
+        if (this.state.starPuff) {
+            // this is (almost) duplicate with handleFlagRequest
+            // may want remove this...
+            var self = this;
+            var privateKeys = PuffWardrobe.getCurrentKeys();
+
+            if(!privateKeys.username) {
+                alert("You must first set your username before you can flag content");
+            }
+            if(!privateKeys.admin) {
+                alert("You must first set your private admin key before you can flag content");
+            }
+
+            // Stuff to register. These are public keys
+            var payload = {};
+            var routes = [];
+            var type = 'flagPuff';
+            var content = this.state.starPuff;
+
+            payload.time = Date.now();
+
+            var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+
+            var data = { type: 'flagPuff'
+                       , puff: puff
+                       };
+
+            var prom = PuffNet.post(CONFIG.puffApi, data);
+            prom.then(function(result) {
+                    self.setState({starPuff: false,
+                                   color: 'black'});
+                })
+                .catch(function(err) {
+                   alert(err);
+                });
+        } else {
+            this.setState({color: 'gray'});
+            var self = this;
+            var content = this.props.sig;
+            var type = 'star';
+
+            var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
+            var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
+            var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
+            prom.then(takeUserMakePuff)
+                .then(function(){
+                    self.setState({color: 'yellow'});
+                })
+                .catch(Puffball.promiseError('Posting failed'));
+        }
+        return false;
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <span className="icon">
+                <a href="#" onClick={this.handleClick}>
+                    <i className={"fa fa-fw fa-star "+this.state.color}></i>
+                </a>
+            </span>
+        );
+    }
+})

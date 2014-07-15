@@ -194,33 +194,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
     handleFlagRequest: function() {
         var self = this;
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-
-        if(!privateKeys.username) {
-            alert("You must first set your username before you can flag content");
-        }
-
-        if(!privateKeys.admin) {
-            alert("You must first set your private admin key before you can flag content");
-        }
-
-        // Stuff to register. These are public keys
-        var payload = {};
-        var routes = [];
-        var type = 'flagPuff';
-        var content = this.props.sig;
-
-        payload.time = Date.now();
-
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
-
-        var data = { type: 'flagPuff'
-                   , puff: puff
-                   };
-
-        var prom = PuffNet.post(CONFIG.puffApi, data);
-
-        // console.log(puff);
+        var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
                 self.setState({flagged: true});
@@ -231,8 +205,6 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
         return false;
     },
-
-
 
     render: function() {
         var cx1 = React.addons.classSet;
@@ -658,8 +630,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     },
     handleClick: function() {
         if (this.state.starPuff) {
-            // this is (almost) duplicate with handleFlagRequest
-            // may want remove this...
             var self = this;
             var sig = this.state.starPuff;
             var prom = PuffForum.flagPuff(sig);

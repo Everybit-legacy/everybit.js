@@ -129,6 +129,7 @@ var PuffBar = React.createClass({
                     <PuffJson puff={puff} />
                     <PuffPermaLink sig={puff.sig} />
                     <PuffExpand puff={puff} />
+                    <PuffClone puff={puff} />
                     
                     <span className ="icon" onClick={this.handleShowMore}>
                         <a><i className="fa fa-ellipsis-h fa-fw"></i></a>
@@ -623,7 +624,6 @@ var PuffStar = React.createClass({
         var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
         var scorePref = puffworldprops.view.score;
         var score = topLevelUser * scorePref.tluValue + Math.min(scorePref.maxAnonValue, scorePref.anonValue * anonUser);
-        console.log(score, 'score', topLevelUser, anonUser);
         return this.setState({score: score});
     },
     getInitialState: function(){
@@ -695,5 +695,47 @@ var PuffStar = React.createClass({
                 </a>{score}
             </span>
         );
+    }
+})
+
+var PuffClone = React.createClass({
+    handleClick: function(){
+        var puff = this.props.puff;
+
+        var menu = PB.shallow_copy(puffworlddefaults.menu);
+        if (!puffworldprops.reply.expand) {
+            menu.show = true;
+            menu.section = 'publish';
+        }
+
+        var reply = PB.shallow_copy(puffworldprops.reply);
+        reply.content = puff.payload.content;
+        reply.type = puff.payload.type;
+        reply.showPreview = false;
+
+        reply.privacy = 'public';
+        var envelope = PuffData.getBonus(puff, 'envelope');
+        if(envelope && envelope.keys)
+            reply.privacy = "private";
+
+        events.pub('ui/reply/open', { 'clusters.publish': true
+                                    , 'menu': menu
+                                    , 'reply': reply });
+        
+        // may want a different way...
+        var contentNode = document.getElementById('content');
+        if (contentNode)
+            contentNode.value = puff.payload.content;
+
+        return false;
+    },
+    render: function(){
+        return (
+            <span className="icon">
+                <a href="#" onClick={this.handleClick}>
+                    <i className="fa fa-fw fa-copy"></i>
+                </a>
+            </span>
+        )
     }
 })

@@ -255,7 +255,7 @@ var PuffPublishFormEmbed = React.createClass({
         var author = PuffWardrobe.getCurrentUsername();
         author = humanizeUsernames(author) || "anonymous";
 
-        var defaultContent = puffworldprops.reply.content || '';
+        var defaultContent = this.props.reply.content || '';
         var parents = [];
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
@@ -355,7 +355,7 @@ var PuffPublishFormEmbed = React.createClass({
 
         
         var contentField = (
-            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle}></textarea>
+            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle} onChange={this.updateContent}></textarea>
         );
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
@@ -363,8 +363,6 @@ var PuffPublishFormEmbed = React.createClass({
             if (this.refs.content) {
                 currentContent = this.refs.content.getDOMNode().value.trim();
                 update_puffworldprops({'reply.content': currentContent})
-                // DON'T MUTATE PROPS!
-                // puffworldprops.reply.content = currentContent;
             };
 
             currentContent = PuffForum.processContent(currentType, currentContent, {});

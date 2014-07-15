@@ -31,9 +31,9 @@ var ourOthersList = [
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',
               'js/freeBeer/usernameImport.js',
-              'js/freeBeer/events.js',
-              'js/freeBeer/gridbox.js',
-              'js/freeBeer/immutable.js',
+              'js/libs/events.js',
+              'js/libs/gridbox.js',
+              'js/libs/immutable.js',
               'js/freeBeer/main.js']; 
 gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)

@@ -6,7 +6,7 @@
 
 CONFIG = {};
 
-CONFIG.version = '0.2a';
+CONFIG.version = '0.3';
 
 // Array of versions of Puff supported
 // Not yet implemented

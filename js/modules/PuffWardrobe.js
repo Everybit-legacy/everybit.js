@@ -103,7 +103,8 @@ PuffWardrobe.switchCurrent = function(username) {
 
     if(!keys)
         return Puffball.onError('There are no keys in the wardrobe for that identity -- try adding it first')
-    
+
+    Puffball.Persist.save('identity', username); //save to localstorage
     return PuffWardrobe.currentKeys = keys
 }
 

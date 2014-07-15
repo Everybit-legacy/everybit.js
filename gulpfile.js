@@ -14,16 +14,17 @@ var jsdoc = require('gulp-jsdoc');
 gulp.task('jsxFiles', function() {
     gulp.src('js/freeBeer/src/*.js')
         .pipe(react())
-        .pipe(sourcemaps.init())
+        //.pipe(sourcemaps.init())
              .pipe(concat('fbr.js'))
              .pipe(uglify())
-        .pipe(sourcemaps.write())
+        //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 });
 
 
 var ourOthersList = [
               'js/freeBeer/translate.js',
+              'js/freeBeer/translate-zh.js',
               'js/core/PuffData.js',
               'js/core/Puffball.js',
               'js/core/PuffNet.js',
@@ -33,24 +34,24 @@ var ourOthersList = [
               'js/freeBeer/events.js',
               'js/freeBeer/gridbox.js',
               'js/freeBeer/immutable.js',
-              'js/freeBeer/main.js']; // don't think we need this
+              'js/freeBeer/main.js']; 
 gulp.task('ourOthers', function() {
-    gulp.src(['js/core/*.js', 'js/modules/*.js', 'js/freeBeer/*.js'])
-        .pipe(sourcemaps.init())
+    gulp.src(ourOthersList)
+        //.pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
             .pipe(uglify())
-        .pipe(sourcemaps.write())
+        //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 
 });
 
 
 gulp.task('theirOthers', function() {
-    gulp.src(['scripts/[!rJ]*.js','scripts/react-0.10.0/build/react-with-addons.js'])
-        .pipe(sourcemaps.init())
+    gulp.src(['scripts/[!rJ]*.js','scripts/react/build/react-with-addons.js'])
+        // .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(uglify())
-        .pipe(sourcemaps.write())
+        //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 
 });
@@ -89,4 +90,3 @@ gulp.task('doDocs', function() {
 
 
 gulp.task('default', ['jsxFiles','css','ourOthers','theirOthers','copyBinaries']);
-

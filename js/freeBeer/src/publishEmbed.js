@@ -24,7 +24,6 @@ var PuffPublishFormEmbed = React.createClass({
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
-        if (this.refs.privacy) this.handlePickPrivacy();
         this.setState(puffworldprops.reply.state);
         this.preventDragText();
     },
@@ -35,21 +34,6 @@ var PuffPublishFormEmbed = React.createClass({
         // remove silly global
         globalReplyFormSubmitArg = null;
         return events.pub("", {'reply.content': ""})
-    },
-
-    handlePickPrivacy: function() {
-        var privacy = this.refs.privacy.getDOMNode().value;
-        if (privacy != "public") {
-            this.getDOMNode().className = "encrypted";
-        } else {
-            this.getDOMNode().className = "";
-        }
-    },
-    handlePickAdvancedOpt: function(e) {
-        var key = e.target.name;
-        var advancedOpt = this.state.advancedOpt;
-        advancedOpt[key] = e.target.value;
-        this.setState({advancedOpt: advancedOpt});
     },
     handleSubmitSuccess: function(puff) {
         // clear the content
@@ -214,6 +198,21 @@ var PuffPublishFormEmbed = React.createClass({
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
         return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
+    handlePickPrivacy: function() {
+        var privacy = this.refs.privacy.getDOMNode().value;
+        /*if (privacy != "public") {
+            this.getDOMNode().className = "encrypted";
+        } else {
+            this.getDOMNode().className = "";
+        }*/
+        return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
+    },
+    handlePickAdvancedOpt: function(e) {
+        var key = e.target.name;
+        var advancedOpt = this.state.advancedOpt;
+        advancedOpt[key] = e.target.value;
+        this.setState({advancedOpt: advancedOpt});
+    },
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
     },
@@ -290,12 +289,21 @@ var PuffPublishFormEmbed = React.createClass({
             }
         }
         var type = this.props.reply.type || parentType;
+        var privacy = this.props.reply.privacy || privacyDefault;
         var usernames = this.props.reply.usernames || parentUsernames || "";
 
-        var sendToSpanStyle = {
-            width: '28%',
+        /* styles */
+        var leftColStyle = {
+            minWidth: '28%',
             marginRight: '2%',
+            textAlign: 'left',
             display: 'inline-block'
+        }
+        var rightColStyle = {
+            display: 'inline-block',
+            textAlign: 'left',
+            marginBottom: '5px',
+            width: '70%'
         }
         var sendToInputStyle = {
             display: 'inline-block',
@@ -304,16 +312,30 @@ var PuffPublishFormEmbed = React.createClass({
             textAlign: 'left',
             marginBottom: '5px'
         }
+        var typeStyle = {
+            width: '28%',
+            marginRight: '2%',
+            textAlign: 'left',
+            display: 'inline-block'
+        }
+        var contentStyle = {
+            width: (puffworldprops.reply.expand ? "400px" : '100%'),
+            height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
+            overflowY: this.state.showPreview ? "scroll" : "hidden",
+            cursor: this.state.showPreview ? "default" : "auto", 
+            marginTop: '10px',
+            marginBottom: '10px',
+            border: '1px solid #333',
+            display: 'block',
+            background: '#FFFFFF'
+        }
+
         var sendToField = (
             <div>
-                <span style={sendToSpanStyle}>Send to: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder="everyone"></input>
+                <span style={leftColStyle}>{polyglot.t("replyForm.sendTo")}: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder={polyglot.t("replyForm.sendToPh")}></input>
             </div>
         );
 
-        var typeStyle = {
-            width: '28%',
-            marginRight: '2%'
-        }
         var typeOption = (
             <select className="btn" style={typeStyle} ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
@@ -321,12 +343,9 @@ var PuffPublishFormEmbed = React.createClass({
                 })}
             </select>
         );
-        var privacyStyle = {
-            width: '70%'
-        };
         var privacyOption = (
-            <select style={privacyStyle} ref="privacy" className="btn" 
-                defaultValue={privacyDefault} onChange={this.handlePickPrivacy}>
+            <select className="btn" style={rightColStyle} ref="privacy" 
+                value={privacy} onChange={this.handlePickPrivacy}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -334,17 +353,9 @@ var PuffPublishFormEmbed = React.createClass({
             </select>
         );
 
-        var contentStyle = {
-            width: (puffworldprops.reply.expand ? "400px" : '100%'),
-            height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
-            marginTop: '10px',
-            marginBottom: '10px',
-            border: '1px solid #333',
-            display: 'block',
-            background: '#FFFFFF'
-        }
+        
         var contentField = (
-            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textarea')} defaultValue={defaultContent} style={contentStyle}></textarea>
+            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle}></textarea>
         );
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
@@ -421,7 +432,7 @@ var PuffPublishFormEmbed = React.createClass({
             display: 'inline-block'
         };
         var sendButton = (
-            <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> Send as {author}</a>
+            <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> {polyglot.t("replyForm.send", {author: author})}</a>
         );
 
         var expandStyle = {
@@ -443,8 +454,8 @@ var PuffPublishFormEmbed = React.createClass({
         var replyPrivacyDefault = this.state.advancedOpt.replyPrivacy || privacyDefault; 
         var replyPrivacyOption = (
             <div>
-                Reply privacy level: <br />
-                <select ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={replyPrivacyDefault} onChange={this.handlePickAdvancedOpt}>
+                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.replyPrivacy")}</span>
+                <select style={rightColStyle} ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={replyPrivacyDefault} onChange={this.handlePickAdvancedOpt}>
                 <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
                 <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
                 <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
@@ -455,8 +466,8 @@ var PuffPublishFormEmbed = React.createClass({
         var licenseDefault = this.state.advancedOpt.contentLicense || "";
         var licenseOption = (
             <div>
-                {polyglot.t("replyForm.format.contentLicense")}:
-                <select ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
+                <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
                     <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
                     <option value="GNUPublicLicense">GNU Public License</option>
                     <option value="Publicdomain">Public domain</option>
@@ -467,20 +478,22 @@ var PuffPublishFormEmbed = React.createClass({
             );
         var advancedField = (
             <div>
-                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
+                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
             </div>
         );
         if (this.state.showAdvanced) {
             advancedField = (
                 <div>
-                <span>{polyglot.t("replyForm.advanced")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
+                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
                 {replyPrivacyOption}
                 {licenseOption}
                 </div>
             );
         }
+
+        var className = privacy == 'public' ? "" : "encrypted"
         return (
-            <div id="replyFormEmbed">
+            <div id="replyFormEmbed" className={className}>
                 <div id="replyFormBox" style={boxStyle}>
                     {sendToField}
                     {typeOption}

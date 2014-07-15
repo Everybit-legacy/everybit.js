@@ -140,7 +140,7 @@ var PuffBar = React.createClass({
         //
         return (
             <div className={className}>
-                <PuffFlagLink sig={puff.sig} />
+                <PuffFlagLink sig={puff.sig} username={puff.username} />
                 <PuffTipLink username={puff.username} />
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
@@ -196,11 +196,11 @@ var PuffFlagLink = React.createClass({
         var privateKeys = PuffWardrobe.getCurrentKeys();
 
         if(!privateKeys.username) {
-            // TODO handle fail
+            alert("You must first set your username before you can flag content");
         }
 
         if(!privateKeys.admin) {
-            // TODO handle fail
+            alert("You must first set your private admin key before you can flag content");
         }
 
         // Stuff to register. These are public keys
@@ -237,13 +237,19 @@ var PuffFlagLink = React.createClass({
         var cx1 = React.addons.classSet;
         var newClass = cx1({
             'fa fa-bomb fa-fw': true,
-            'gray': this.state.flagged,
-            'red': !this.state.flagged
+            'red': this.state.flagged,
+            'black': !this.state.flagged
         });
+        var polyglot = Translate.language[puffworldprops.view.language];
 
         // Does this user have right to flag?
-        if(PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
-            return <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
+        if(PuffWardrobe.getCurrentUsername() == this.props.username || PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
+            return (
+                <span>
+                    <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
+                    <Tooltip position="above" content={polyglot.t("menu.tooltip.flagLink")} />
+                </span>
+            )
         } else {
             return <i></i>
         }
@@ -608,23 +614,26 @@ var PuffReplyLink = React.createClass({
 var PuffExpand = React.createClass({
     handleClick: function() {
         var puff = this.props.puff;
+        var row = puffworldprops.view.rows == 1 ? puffworlddefaults.view.rows : 1;
         return events.pub("ui/expand-puff", { 'view.mode': 'focus'
                                             , 'view.filters': puffworlddefaults.view.filters
                                             , 'view.query': puffworlddefaults.view.query
                                             , 'view.query.focus': puff.sig
                                             , 'menu': puffworlddefaults.menu
                                             , 'reply': puffworlddefaults.reply
-                                            , 'view.rows': 1
+                                            , 'view.rows': row
                                             })
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        var expand = puffworldprops.view.rows == 1 ? "compress" : "expand";
+        // var iconClass = puffworldprops.view.rows == 1 ? "fa fa-compress fa-fw" : "fa fa-expand fa-fw";
         return (
             <span className="icon">
                 <a href="#" onClick={this.handleClick}>
-                    <i className="fa fa-expand fa-fw"></i>
+                    <i className={"fa fa-fw fa-"+expand}></i>
                 </a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.expand")}/>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip."+expand)}/>
             </span>
         );
     }

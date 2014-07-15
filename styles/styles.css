@@ -6,6 +6,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 100: regular puff block 
 200: selected puff block
 250: author and info bar
+275: scroll up/down;
 300: menu
 400: reply form
 
@@ -194,6 +195,13 @@ em {
     font-family: GudeaBold, sans-serif;
 }
 
+h2 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 h3 {
     font-family: GudeaBold, sans-serif;
     font-size: 1.5em;
@@ -234,6 +242,7 @@ h4 {
 
 .clear {
     clear: both;
+    display: inline;
 }
 
 .txt {
@@ -620,6 +629,11 @@ select:disabled {
     z-index: 1;
     top: 12px;
     left: 12px;
+    -webkit-animation: iconFadeIn 1s; /* Safari and Chrome */
+    -moz-animation: iconFadeIn 1s; /* Firefox */
+    -ms-animation: iconFadeIn 1s; /* Internet Explorer */
+    -o-animation: iconFadeIn 1s; /* Opera */
+    animation: iconFadeIn 1s;    
 }
 
 #puffballIcon:hover {
@@ -709,18 +723,18 @@ select:disabled {
 .menuLabel {
     font-family: Gudea;
     padding-right: 5px;
-    float:left;
+    float: left;
     display: inline-block;
 }
 
 .menuInput {
-    float:left;
+    float: left;
     display: inline-block;
     position: absolute;
-    left: 132px;
+    left: 112px;
 }
 .menuItem .menuSection .menuInput {
-    left: 100px;
+    left: 80px;
 }
 
 .menuIcon {
@@ -818,6 +832,10 @@ select:disabled {
     position: relative;
 }
 
+.identitySection {
+    background: #d6d6ff;
+}
+
 .steps {
     font-family: GudeaBold;
     text-transform: uppercase;
@@ -841,7 +859,7 @@ select:disabled {
 }
 
 .message {
-    color: #ff0000;
+    /*color: #ff0000;*/
     margin: 5px 0;
     font-weight: bold;
     line-height: 100%;
@@ -854,12 +872,14 @@ select:disabled {
 }
 
 .menu .flash {
+    background: #F0F0FF;
+}
+.animation .menu .flash {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
     -ms-animation: flash 1s; /* Internet Explorer */
     -o-animation: flash 1s; /* Opera */
     animation: flash 1s;
-    background: #F0F0FF;
 }
 
 .private {
@@ -902,6 +922,36 @@ a.footerText {
     text-decoration: none;
     font-size: .9em;
 }
+
+.scroller {
+    position: absolute;
+    z-index: 275;
+    height: 10px;
+    background-color: #ccc;
+    text-align: center;
+    opacity: 0;
+    display: block;
+}
+.scroller:hover {
+    height: 50px;
+    opacity: 0.75;
+}
+.animation .scroller:hover {
+    transition: opacity 0.5s ease-in-out;
+}
+.scroller.down {
+    bottom: 0;
+}
+.scroller.up {
+    top: 0;
+}
+.scroller a {
+    color: #888888;
+}
+.scroller a:hover {
+    color: #00AA00;
+}
+
 
 .animation, .animation .block{
     transition: all 1s;
@@ -1129,4 +1179,30 @@ a.footerText {
     0%  { background: #fff; }
     50% { background: #ccc; }
     100% { background: #F0F0FF;}
+}
+
+@-webkit-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-moz-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-o-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@-ms-keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
+}
+@keyframes iconFadeIn {
+    0%  { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1;}
 }

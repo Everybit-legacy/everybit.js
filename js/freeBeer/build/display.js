@@ -34,8 +34,8 @@ var ViewKeybindingsMixin = {
             } else {
                 parents.splice(index, 1)
             }
-            if (parents.length == 0) 
-                return events.pub('ui/reply/open', { 'reply': {parents: parents} });
+            /*if (parents.length == 0) 
+                return events.pub('ui/reply/open', { 'reply.parents': parents });*/
 
             var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
@@ -45,7 +45,7 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                               , 'reply': {parents: parents} });
+                                               , 'reply.parents': parents });
         }.bind(this));
 
         // a toggles animation
@@ -151,6 +151,14 @@ var ViewKeybindingsMixin = {
 };
 
 var CursorBindingsMixin = {
+    gotoNext: function(current, dir) {
+        var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
+        if (next) {
+            events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            return true;
+        }
+        return false;
+    },
     componentDidMount: function() {
         
         var arrowToDir = { 37: 'left'
@@ -162,14 +170,38 @@ var CursorBindingsMixin = {
         // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
             var current = this.props.view.cursor;
+            var dir = arrowToDir[e.which];
             
             if (!current)                              // default cursors handled elsewhere (there should always 
                 return false                           // be an active cursor, if we are in a cursorable mode)
             
-            var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), arrowToDir[e.which])
-            
-            if (next)
-                events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            var nextFn = this.gotoNext.bind(this, current, dir);
+            var success = nextFn();
+            if (!success){
+                if (e.which == 38 && this.refs.scrollup) {
+                    this.refs.scrollup.handleScroll();
+                    var success = false;
+                    var readyStateCheckInterval = setInterval(function() {
+                        success = nextFn();
+                        if (success) {
+                            clearInterval(readyStateCheckInterval);
+                        }
+                    }, 25);
+                }
+                if (e.which == 40 && this.refs.scrolldown) {
+                    this.refs.scrolldown.handleScroll();
+                    // may need a limit on this
+                    var limit = 40;
+                    var success = false;
+                    var readyStateCheckInterval = setInterval(function() {
+                        success = nextFn();
+                        limit--;
+                        if (success || limit < 0) {
+                            clearInterval(readyStateCheckInterval);
+                        }
+                    }, 25);
+                }
+            }
             
             return false
         }.bind(this));
@@ -426,7 +458,16 @@ var PuffList = React.createClass({displayName: 'PuffList',
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
         this.cursorPower(puffs)
-        return this.standardGridify(puffs);
+
+        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset != 0;
+        var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
+        return (
+            React.DOM.div(null, 
+                this.standardGridify(puffs),
+                PuffScroller( {ref:"scrollup", position:"up", view:this.props.view, show:showScrollUp} ),
+                PuffScroller( {ref:"scrolldown", position:"down", view:this.props.view, show:showScrollDown} )
+            )
+        );
     }
 });
 
@@ -693,5 +734,47 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
                 )
             )
         );
+    }
+});
+
+
+var PuffScroller = React.createClass({displayName: 'PuffScroller',
+    mixins: [GridLayoutMixin],
+    handleScroll: function() {
+        if (!this.props.show) return false;
+        
+        var col   = this.getDimensions().cols;
+        var offset = parseInt(this.props.view.query.offset) || 0;
+        offset = this.props.position == "up" ? offset - col : offset + col;
+        offset = Math.max(offset, 0);
+        return events.pub("ui/scroll/down", {'view.query.offset': offset});
+    },
+    render: function() {
+        if (!this.props.show) {
+            return (React.DOM.span(null))
+        }
+
+        var left = CONFIG.leftMargin;
+
+        var col   = this.getDimensions().cols;
+        var screencoords = this.getScreenCoords();
+        var boxHeight = screencoords.height / this.getDimensions().rows;
+        var w = col * this.props.view.boxRatio* boxHeight;
+        if(w > screencoords.width) {
+            w = screencoords.width;
+        }
+
+        var style = {left: left, width: w};
+        var className = "scroller gray " + this.props.position;
+        var iconClass = "fa fa-fw fa-chevron-"+this.props.position;
+        return (
+            React.DOM.div( {className:className, style:style}, 
+                React.DOM.a( {href:"#", onClick:this.handleScroll}, 
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
+                    React.DOM.i( {className:iconClass}),React.DOM.br(null)
+                )
+            )
+        )
     }
 });

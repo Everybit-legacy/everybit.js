@@ -30,8 +30,9 @@ puffworldprops = {
         mode: '',
         
         filters: {
-            routes: [],
+            tags: [],
             users : [],
+            routes: [],
         },
 
         // TODO: move these options into view.layout
@@ -64,7 +65,8 @@ puffworldprops = {
         expand: false,
         content: '',
         state: {},
-        type: 'text'
+        privacy: false,
+        type: false
     },
 
     raw: {
@@ -143,8 +145,10 @@ humanizeUsernames = function(username) {
     return username
 }
 
-reduceUsernameToAlphanumeric = function(username) {
-    return username.split(/[^A-Za-z0-9]/).join('');
+reduceUsernameToAlphanumeric = function(username, allowDot) {
+    allowDot = allowDot || false;
+    var pattern = allowDot ? /[^.A-Za-z0-9]/ : /[^A-Za-z0-9]/;
+    return username.split(pattern).join('');
 }
 
 
@@ -381,18 +385,29 @@ update_puffworldprops = function(data) {
     
     // THINK: this is not the right place for this...
     // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
+
+    // ROUTES
     if(!Array.isArray(puffworldprops.view.filters.routes)) {
         if(!puffworldprops.view.filters.routes)
             puffworldprops.view.filters.routes = []
         else 
             puffworldprops.view.filters.routes = [puffworldprops.view.filters.routes]
     }
-    
+
+    // USERS
     if(!Array.isArray(puffworldprops.view.filters.users)) {
         if(!puffworldprops.view.filters.users)
             puffworldprops.view.filters.users = []
-        else 
+        else
             puffworldprops.view.filters.users = [puffworldprops.view.filters.users]
+    }
+
+    // TAGS
+    if(!Array.isArray(puffworldprops.view.filters.tags)) {
+        if(!puffworldprops.view.filters.tags)
+            puffworldprops.view.filters.tags = []
+        else
+            puffworldprops.view.filters.tags = [puffworldprops.view.filters.tags]
     }
 }
 
@@ -436,6 +451,12 @@ window.addEventListener('load', function() {
     /// this is cumbersome, but it gets around browser inconsistencies (some fire popstate on page load, others don't)
     //  via https://code.google.com/p/chromium/issues/detail?id=63040
     setTimeout(function() {
+        // set current identity
+        var lastUsername = localStorage['PUFF::identity'];
+        if (lastUsername) {
+            lastUsername = JSON.parse(lastUsername);
+            PuffWardrobe.switchCurrent(lastUsername);
+        }
         window.addEventListener('popstate', function(event) {
             if(event.state)
                 return setPropsFromPushstate(event.state);

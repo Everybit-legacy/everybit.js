@@ -55,7 +55,7 @@ Translate.language["en"].extend({
 				importContent: 'Import Content'
 			},
 			editIdentity: {
-				title: 'Edit Identity',
+				title: 'View Identity',
 				msg: 'Stored keys for'
 			},
 			setIdentity: {

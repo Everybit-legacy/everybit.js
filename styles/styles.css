@@ -195,6 +195,13 @@ em {
     font-family: GudeaBold, sans-serif;
 }
 
+h2 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 h3 {
     font-family: GudeaBold, sans-serif;
     font-size: 1.5em;

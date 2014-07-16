@@ -68,12 +68,6 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     handleClick: function() {
         var username = this.props.puff.username;
         return this.clickUsername(username);
-        // TODO: consolidate with menu.js handleShowUserPuffs
-        /*return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.filters': puffworlddefaults.view.filters
-                                             , 'view.query': puffworlddefaults.view.query
-                                             , 'view.filters.users': [username]
-                                             })*/
     },
     render: function() {
         var username = humanizeUsernames(this.props.puff.username)
@@ -146,6 +140,10 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         var puff = this.props.puff;
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
+        var showStar = true;
+        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        if(envelope && envelope.keys)
+            showStar = false;
 
         var polyglot = Translate.language[puffworldprops.view.language];
         if (!this.state.showMain) {
@@ -174,7 +172,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
-                PuffStar( {sig:puff.sig} ),
+                PuffStar( {show:showStar, sig:puff.sig} ),
                 React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
                     React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
@@ -655,20 +653,23 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     updateScore: function() {
         var starShells = this.state.starShells;
         var tluScore = 0;
-        var anonScore = 0;
+        var suScore = 0;
         var scorePref = puffworldprops.view.score;
+        for (var k in scorePref) {
+            if (scorePref[k])
+                scorePref[k] = parseFloat(scorePref[k]) || 0;
+        }
         for (var i=0; i<starShells.length; i++) {
             var username = starShells[i].username;
             if (username.indexOf('.') == -1) {
-                tluScore += parseFloat(scorePref.tluValue);
+                tluScore += scorePref.tluValue;
             } else {
-                anonScore += parseFloat(scorePref.anonValue);
+                suScore += scorePref.suValue;
             }
         }
-        var topLevelUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') == -1}).length;
-        var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
-        var score = tluScore + Math.min(scorePref.maxAnonValue, anonScore);
+        var score = tluScore + Math.min(scorePref.maxSuValue, suScore);
         score = score.toFixed(1);
+        if (score == parseInt(score)) score = parseInt(score);
         return this.setState({score: score});
     },
     getInitialState: function(){
@@ -679,12 +680,11 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
                                       });
-        var userStar = allStarShells.filter(this.filterCurrentUserStar);
-        var starred = userStar.length != 0;
+        var userStar = allStarShells.filter(function(s){return s.username == username});
         return {
             score: 0,
             starShells: allStarShells,
-            color: starred ? 'yellow': 'black'
+            color: (userStar.length == 0) ? 'black' : 'yellow'
         }
     },
     componentDidMount: function(){
@@ -692,6 +692,8 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
+        if (username == PuffForum.getPuffBySig(this.props.sig).username)
+            return false;
         var starred = this.state.starShells.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
@@ -732,12 +734,24 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return false;
     },
     render: function() {
+        if (!this.props.show) {
+            return React.DOM.span(null);
+        }
+        var link = (
+            React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
+            )
+        );
+        var pointerStyle = {};
+        var self = this;
+        if (PuffWardrobe.getCurrentUsername() == PuffForum.getPuffBySig(this.props.sig).username) {
+            pointerStyle = {cursor: 'default'};
+            link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star "+self.state.color}));
+        }
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                    React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
-                ),this.state.score
+                link,React.DOM.span( {style:pointerStyle}, this.state.score)
             )
         );
     }

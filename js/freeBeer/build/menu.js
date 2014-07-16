@@ -329,6 +329,9 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"http://everybit.com/qa.html", target:"_blank"}, polyglot.t("menu.view.faq"))
+                ),
+                React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
                 ),
@@ -578,12 +581,14 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
     handlePackPuffs: function() {
         return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
-    clearLocalStorage: function(){
-        var allKeys = Object.keys(window.localStorage);
-        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0});
+    clearPuffShells: function(){
+        /*var allKeys = Object.keys(window.localStorage);
+        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0})
         for (var i=0; i<allKeys.length; i++) 
-            window.localStorage.removeItem(allKeys[i]);
+            window.localStorage.removeItem(allKeys[i]);*/
+        Puffball.Persist.remove('shells');
         document.location.reload(true);
+        return false;
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -594,7 +599,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
                 ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.clearLocalStorage}, "Clear local storage")
+                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, "Clear cached puffs")
                 )
             )
         )
@@ -1479,7 +1484,7 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
             var usernameNotice = 'Sorry! Not available.';
         } else if(this.props.usernameAvailable === 'available') {
             checkboxClass = 'menuIcon fa fa-check blue';
-            var usernameNotice = 'Yes! Username unavailable.';
+            var usernameNotice = 'Yes! Username available.';
         } else if(this.props.usernameAvailable === 'checking') {
             checkboxClass = 'menuIcon fa fa-spinner';
             var usernameNotice = '';

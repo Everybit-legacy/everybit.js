@@ -129,6 +129,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                     PuffJson( {puff:puff} ),
                     PuffPermaLink( {sig:puff.sig} ),
                     PuffExpand( {puff:puff} ),
+                    PuffClone( {puff:puff} ),
                     
                     React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
                         React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
@@ -146,6 +147,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
+                PuffStar( {sig:puff.sig} ),
                 React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
                     React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
@@ -193,33 +195,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
     handleFlagRequest: function() {
         var self = this;
-        var privateKeys = PuffWardrobe.getCurrentKeys();
-
-        if(!privateKeys.username) {
-            alert("You must first set your username before you can flag content");
-        }
-
-        if(!privateKeys.admin) {
-            alert("You must first set your private admin key before you can flag content");
-        }
-
-        // Stuff to register. These are public keys
-        var payload = {};
-        var routes = [];
-        var type = 'flagPuff';
-        var content = this.props.sig;
-
-        payload.time = Date.now();
-
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
-
-        var data = { type: 'flagPuff'
-                   , puff: puff
-                   };
-
-        var prom = PuffNet.post(CONFIG.puffApi, data);
-
-        // console.log(puff);
+        var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
                 self.setState({flagged: true});
@@ -230,8 +206,6 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
         return false;
     },
-
-
 
     render: function() {
         var cx1 = React.addons.classSet;
@@ -574,7 +548,13 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', { 'reply.parents': parents
+
+        var contentEle = document.getElementById('content');
+        if (contentEle) {
+            contentEle.focus();
+        }
+        return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
+                                                   'reply.parents': parents
                                                  , 'menu': menu
                                                  });
 
@@ -639,3 +619,148 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
     }
 });
 
+
+var PuffStar = React.createClass({displayName: 'PuffStar',
+    filterCurrentUserStar: function(s){
+        var username = PuffWardrobe.getCurrentUsername();
+        return s.username == username;
+    },
+    updateScore: function() {
+        var starShells = this.state.starShells;
+        var tluScore = 0;
+        var anonScore = 0;
+        var scorePref = puffworldprops.view.score;
+        for (var i=0; i<starShells.length; i++) {
+            var username = starShells[i].username;
+            if (username.indexOf('.') == -1) {
+                tluScore += parseFloat(scorePref.tluValue);
+            } else {
+                anonScore += parseFloat(scorePref.anonValue);
+            }
+        }
+        var topLevelUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') == -1}).length;
+        var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
+        var score = tluScore + Math.min(scorePref.maxAnonValue, anonScore);
+        score = score.toFixed(1);
+        return this.setState({score: score});
+    },
+    getInitialState: function(){
+        var sig = this.props.sig;
+        var username = PuffWardrobe.getCurrentUsername();
+        var allStarShells = PuffForum.getShells()
+                                     .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                      });
+        var userStar = allStarShells.filter(this.filterCurrentUserStar);
+        var starred = userStar.length != 0;
+        return {
+            score: 0,
+            starShells: allStarShells,
+            color: starred ? 'yellow': 'black'
+        }
+    },
+    componentDidMount: function(){
+        this.updateScore();
+    },
+    handleClick: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        var starred = this.state.starShells.filter(this.filterCurrentUserStar);
+        if (starred.length != 0) {
+            var self = this;
+            var sig = starred[0].sig;
+            var prom = PuffForum.flagPuff(sig);
+            prom.then(function(result) {
+                    var starShells = self.state.starShells
+                                         .filter(function(s){return s.sig != sig;});
+                    self.setState({starShells: starShells,
+                                   color: 'black'});
+                    self.updateScore();
+
+                })
+                .catch(function(err) {
+                   alert(err);
+                });
+        } else {
+            this.setState({color: 'gray'});
+            var self = this;
+            var content = this.props.sig;
+            var type = 'star';
+
+            var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
+            var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
+            var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
+            prom.then(takeUserMakePuff)
+                .then(function(puff){
+                    var starShells = self.state.starShells;
+                    starShells.push(puff);
+                    self.setState({
+                        starShells: starShells,
+                        color: 'yellow'
+                    });
+                    self.updateScore();
+                })
+                .catch(Puffball.promiseError('Posting failed'));
+        }
+        return false;
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
+                ),this.state.score
+            )
+        );
+    }
+})
+
+var PuffClone = React.createClass({displayName: 'PuffClone',
+    handleClick: function(){
+        var puff = this.props.puff;
+
+        var menu = PB.shallow_copy(puffworlddefaults.menu);
+        if (!puffworldprops.reply.expand) {
+            menu.show = true;
+            menu.section = 'publish';
+        }
+
+        var reply = PB.shallow_copy(puffworldprops.reply);
+        reply.content = puff.payload.content;
+        reply.type = puff.payload.type;
+
+        reply.showPreview = false;
+        reply.state = {};
+        reply.state.showAdvanced = true;
+        reply.state.advancedOpt =  {
+            replyPrivacy: puff.payload.replyPrivacy,
+            contentLicense: puff.payload.license
+        };
+
+        reply.privacy = 'public';
+        var envelope = PuffData.getBonus(puff, 'envelope');
+        if(envelope && envelope.keys)
+            reply.privacy = "private";
+
+        events.pub('ui/reply/open', { 'clusters.publish': true
+                                    , 'menu': menu
+                                    , 'reply': reply });
+        
+        // may want a different way...
+        var contentNode = document.getElementById('content');
+        if (contentNode)
+            contentNode.value = puff.payload.content;
+
+        return false;
+    },
+    render: function(){
+        return (
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-fw fa-copy"})
+                )
+            )
+        )
+    }
+})

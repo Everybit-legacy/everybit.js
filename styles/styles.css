@@ -80,7 +80,7 @@ section {
 #talltree .block {
     background: rgba(255,254,253,.97);
     /* background-color: #faf8f3; */
-    border: 0px solid #eee7d0;
+    border: 0px;
     padding: 12px 0 0 0;
     margin: 0;
     display: inline-block;
@@ -108,7 +108,7 @@ section {
 
 /* cursor */
 #talltree .block.cursor {
-    outline: 4px solid rgba(0, 0, 0, 0.25);
+    outline: 2px dashed rgba(0, 0, 0, 0.45);
     /*   transition: all .5s;*/
     z-index: 200;
 }
@@ -123,13 +123,19 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
-
-#talltree .block.encrypted,
-#replyFormEmbed.encrypted{
+#replyFormEmbed.encrypted {
     background-image:url('../img/lock.gif');
     background-repeat:repeat;
     background-size: 36px 36px;
     background-color: #eeeeee;
+
+}
+#talltree .block.encrypted {
+    background-image:url('../img/lock2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+    border: 2px solid #333;
 }
 
 
@@ -1005,6 +1011,10 @@ a.footerText {
 
 .blue {
     color: #0000FF;
+}
+
+.yellow {
+    color: #FFFF00;
 }
 
 .gray {

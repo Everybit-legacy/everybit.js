@@ -13,6 +13,7 @@ Translate.language["en"].extend({
 		view: {
 			title: 'View',
 			roots: "Conversation starters",
+			faq: "Puffball FAQ",
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",

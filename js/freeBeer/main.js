@@ -36,7 +36,7 @@ puffworldprops = {
         },
 
         // TODO: move these options into view.layout
-        arrows    : false,                              // true -> show relationship arrows between puffs
+        arrows    : true,                              // true -> show relationship arrows between puffs
         rows      : 4,
         cols      : 5,
         boxRatio  : 1,
@@ -52,6 +52,12 @@ puffworldprops = {
             descendants: false,                         // number of descendant levels to show (false for none)
             focus: false,                               // a puff sig to focus on
             offset: 0,
+        },
+
+        score: {
+            anonValue: 0.1,
+            tluValue: 1,
+            maxAnonValue: 1
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)

@@ -48,7 +48,7 @@ var PuffFancyBox = React.createClass({
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
-                <PuffAuthor username={puff.username} hidden={hidden} />
+                <PuffAuthor puff={puff} hidden={hidden} />
                 <PuffContent puff={puff} height={height} />
                 <PuffBar puff={puff} hidden={hidden} />
             </div>
@@ -58,21 +58,48 @@ var PuffFancyBox = React.createClass({
 
 
 var PuffAuthor = React.createClass({
-    handleClick: function() {
-        var username = this.props.username;
-        // TODO: consolidate with menu.js handleShowUserPuffs
+    clickUsername: function(username) {
         return events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.filters': puffworlddefaults.view.filters
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
                                              })
     },
+    handleClick: function() {
+        var username = this.props.puff.username;
+        return this.clickUsername(username);
+        // TODO: consolidate with menu.js handleShowUserPuffs
+        /*return events.pub('ui/show/by-user', { 'view.mode': 'list'
+                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.query': puffworlddefaults.view.query
+                                             , 'view.filters.users': [username]
+                                             })*/
+    },
     render: function() {
-        var username = humanizeUsernames(this.props.username)
+        var username = humanizeUsernames(this.props.puff.username)
         var className = 'author' + (this.props.hidden ? ' hidden' : '')
 
+        var routes = this.props.puff.routes || [];
+        if (routes.length == 0)
+            routes = this.props.puff.payload.routes || [];
+        routes = routes.filter(function(r){return r!='everybit' && r!=username});
+        var sendTo = "";
+        var self = this;
+        var total = routes ? routes.length : 0;
+        if (total != 0) 
+            sendTo = (
+                <span>
+                    {" > "}
+                    {routes.map(function(value, index){
+                        var link = <a href="" onClick={self.clickUsername.bind(self, value)}>{value}</a>
+                        var ret = <span>{link}{(index != total-1) ? ', ' : ''}</span>
+                        return ret;
+                    })}
+                </span>
+            );
+
         return (
-            <div className={className}><a href="" onClick={this.handleClick}>{username}</a></div>
+            <div className={className}><a href="" onClick={this.handleClick}>{username}</a>{sendTo}</div>
         );
     }
 });

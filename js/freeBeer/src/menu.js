@@ -269,7 +269,7 @@ var FilterBubble = React.createClass({
         
         var toReturn = filterArray.map(function(value) {
             return (
-                <span className='filterNode'>
+                <span className='bubbleNode'>
                     {value}
                     <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
                         <i className="fa fa-times-circle-o fa-fw"></i>

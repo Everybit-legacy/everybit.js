@@ -337,7 +337,7 @@ h4 {
     top:0;
     left: 0;
     padding-bottom:5px;
-    padding-left: 0;
+    /*padding-left: 0;*/
     padding-top: 2px;
     width:100%;
     color: #1616A8;
@@ -346,6 +346,12 @@ h4 {
     /*    z-index:15; */
     /*    display: none;*/
     background-color: rgba(242, 242, 242, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.author:hover{
+    white-space: normal;
 }
 
 .authorDiv {
@@ -511,6 +517,7 @@ header h1 {
 
 input[type='text'].btn {
     text-align: left;
+    border: 1px solid;
 }
 
 .btn-link {
@@ -853,7 +860,7 @@ select:disabled {
 }
 
 
-.filterNode {
+.bubbleNode {
     display: inline-block;
     background-color: #DADADA;
     border-radius: 10px;

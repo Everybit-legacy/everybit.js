@@ -55,6 +55,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
         showPuff(sig);
         events.pub('ui/flash', {'reply.parents': [],
+                                'reply.privacy': false,
                                 'view.cursor': sig, 
                                 'view.flash': true})
         // set back to initial state
@@ -387,26 +388,25 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             background: '#FFFFFF'
         }
 
-        /* Send to: username bubbles
-         * newusername input
+        /* Recipient: username bubbles
+         * Send to: newusername input + 
          */
-        var sendtoInputStype = {
-            width: '100%',
-            display: 'inline-block',
-            float: 'left'
+        var sendtoInputStyle = {
+            width: '60%',
+            display: 'inline-block'
         }
         var sendtoInput = (
             React.DOM.span(null, 
-                React.DOM.input( {type:"text", className:"btn", style:sendtoInputStype, name:"username", ref:"username", placeholder:polyglot.t("replyForm.sendToPh"), onKeyDown:this.handleSendtoInput})
+                React.DOM.input( {type:"text", className:"btn", style:sendtoInputStyle, name:"username", ref:"username", placeholder:polyglot.t("replyForm.sendToPh"), onKeyDown:this.handleSendtoInput})
             )
         );
         var self = this;
         var sendToField = (
             React.DOM.div(null, 
-                React.DOM.span(null, polyglot.t("replyForm.sendTo"),": " ),
+                React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.recipient"),": " ),
                 self.state.usernames.map(function(value){
                     return (
-                        React.DOM.span( {className:"filterNode"}, 
+                        React.DOM.span( {className:"bubbleNode"}, 
                             value,
                             React.DOM.a( {href:"#", onClick:self.removeUsername.bind(self, value)}, 
                                 React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -414,7 +414,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                         )
                     )
                 }),React.DOM.br(null),
-                sendtoInput,React.DOM.div( {className:"message red"}, this.state.usernameError)
+                React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.sendTo"),": " ),
+                sendtoInput,
+                React.DOM.a( {href:"#", onClick:this.addUsername}, React.DOM.i( {className:"fa fa-fw fa-plus-circle"})),
+                React.DOM.div( {className:"message red"}, this.state.usernameError)
             )
         );
 

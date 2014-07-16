@@ -269,7 +269,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
         
         var toReturn = filterArray.map(function(value) {
             return (
-                React.DOM.span( {className:"filterNode"}, 
+                React.DOM.span( {className:"bubbleNode"}, 
                     value,
                     React.DOM.a( {href:"#", onClick:this.handleRemoveFilter.bind(this, value)}, 
                         React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})

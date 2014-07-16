@@ -121,6 +121,7 @@ Translate.language["en"].extend({
         }
 	},
 	replyForm: {
+		recipient: 'Recipients',
         sendTo: 'Send to',
 		sendToPh: 'Add new user to receive', /*placeholder*/
 		textareaPh: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',

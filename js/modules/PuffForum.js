@@ -501,10 +501,9 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     var routes = parents.map(function(id) {
         return PuffForum.getPuffBySig(id).username;
     });
-    // TODO validate usernames in routes
     if (metadata.routes) {
-        routes = routes.concat(metadata.routes);
-        delete metadata[routes];
+        routes = metadata.routes;
+        delete metadata['routes'];
     }
     
     // ensure all routes are unique

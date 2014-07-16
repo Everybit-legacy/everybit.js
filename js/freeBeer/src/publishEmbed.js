@@ -4,6 +4,9 @@
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
         return {imageSrc    : '', 
+                usernames   : [],
+                parentUsernames: [],
+                usernameErr : '',
                 showPreview : false, 
                 err         : false,
                 showAdvanced: false,
@@ -25,10 +28,12 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         this.setState(puffworldprops.reply.state);
+        this.getUsernames();
         this.preventDragText();
     },
     componentDidUpdate: function() {
         this.preventDragText();
+        this.getUsernames();
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -49,7 +54,8 @@ var PuffPublishFormEmbed = React.createClass({
             sig = decrypted.sig;
         }
         showPuff(sig);
-        events.pub('ui/flash', {'view.cursor': sig, 
+        events.pub('ui/flash', {'reply.parents': [],
+                                'view.cursor': sig, 
                                 'view.flash': true})
         // set back to initial state
         this.setState(this.getInitialState());
@@ -58,6 +64,7 @@ var PuffPublishFormEmbed = React.createClass({
         var self = this;
         var content = '';
         var metadata = {};
+        var parents = this.props.reply.parents;
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
@@ -76,18 +83,8 @@ var PuffPublishFormEmbed = React.createClass({
             metadata.quote = true;
         }
 
-        var parents = this.props.reply.parents;
-        if (content.length<CONFIG.minimumPuffLength) {
-            alert("Not enough content");
-            return false;
-        }
-        var routes = this.refs.usernames.getDOMNode().value;
-        routes = routes.split(', ');
-        metadata.routes = routes.filter(function(r){return r.length > 0});
-        // TODO validate each routes
+        metadata.routes = this.state.usernames;
         
-        events.pub('ui/reply/submit', {'reply': {parents: []}}); // get this out of the way early
-
         /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {
             metadata.replyPrivacy = replyPrivacy;
@@ -141,9 +138,7 @@ var PuffPublishFormEmbed = React.createClass({
             })
         }
                 
-        var usernames = this.refs.usernames.getDOMNode().value.split(',')
-                                                        .map(function(str) {return str.trim()})
-                                                        .filter(Boolean)
+        var usernames = this.state.usernames;
         
         var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
@@ -174,6 +169,7 @@ var PuffPublishFormEmbed = React.createClass({
             return post_prom;
         }) .catch(function(err) {
             self.setState({err: err.message});
+            console.log(err);
         })
 
         return false;
@@ -191,6 +187,37 @@ var PuffPublishFormEmbed = React.createClass({
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
 
         return false;
+    },
+    addUsername: function() {
+        var self = this;
+        var usernameNode = this.refs.username.getDOMNode();
+        var newUsername = usernameNode.value.toLowerCase();
+        var usernames = this.state.usernames;
+        var prom = Puffball.getUserRecord(newUsername);
+        prom.then(function(){
+            self.setState({usernameError: ''});
+            if (usernames.indexOf(newUsername) == -1 && newUsername != 'everybit') {
+                usernames.push(newUsername);
+                self.setState({username: usernames});
+            }
+            usernameNode.value = '';
+        })  .catch(function(err){
+            self.setState({usernameError: 'Username invalid'});
+        })
+        return false;
+    },
+    removeUsername: function(value) {
+        var currentUsernames = this.state.usernames;
+        currentUsernames = currentUsernames.filter(function(u){return u != value});
+        this.setState({usernames: currentUsernames});
+        return false;
+    },
+    handleSendtoInput: function() {
+        if (event.keyCode == 13) {
+            this.addUsername();
+        } else {
+            this.setState({usernameError: ''});
+        }
     },
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
@@ -245,8 +272,47 @@ var PuffPublishFormEmbed = React.createClass({
         this.setState({showAdvanced: !this.state.showAdvanced});
         return false;
     },
+    getUsernames: function() {
+        var parents = [];
+        if (typeof this.props.reply.parents != 'undefined') {
+            parents = this.props.reply.parents;
+        };
+        var parentUsernames = [];
+        if (parents.length) {
+            parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+                                     .map(function(puff) { return puff.payload.replyTo || puff.username })
+                                     .filter(function(item, index, array) { return array.indexOf(item) == index })
+                                     .filter(Boolean)
+                                     .filter(function(value){return value!='everybit'});
+        }
+        var currentParentUsernames = this.state.parentUsernames;
+        if (currentParentUsernames.length != parentUsernames.length) {
+            // look for the usernames that are added/removed by reply
+            var usernameAdded = parentUsernames.filter(function(u){
+                return currentParentUsernames.indexOf(u) == -1;
+            })
+            var usernameDeleted = currentParentUsernames.filter(function(u){
+                return parentUsernames.indexOf(u) == -1;
+            })
 
+            // add/remove those username from this.state.usernames
+            var usernames = PB.shallow_copy(this.state.usernames);
+            for (var i=0; i<usernameAdded.length; i++) {
+                if (usernames.indexOf(usernameAdded[i]) == -1)
+                    usernames.push(usernameAdded[i])
+            }
+            for (var i=0; i<usernameDeleted.length; i++) {
+                var index = usernames.indexOf(usernameDeleted[i]);
+                if (index != -1)
+                    usernames.splice(index, 1);
+            }
 
+            // set the state
+            this.setState({parentUsernames: parentUsernames, 
+                           usernames: usernames});
+        }
+        return false;
+    },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
@@ -273,11 +339,11 @@ var PuffPublishFormEmbed = React.createClass({
                 privacyDefault = parent.payload.replyPrivacy;
 
             // by default we include all parent users in the reply
-            var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+            /*var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
                                          .map(function(puff) { return puff.payload.replyTo || puff.username })
                                          .filter(function(item, index, array) { return array.indexOf(item) == index })
                                          .filter(Boolean)
-                                         .join(', ')
+                                         // .join(', ')*/
 
             // Should we quote the parent
             if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
@@ -289,7 +355,6 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var type = this.props.reply.type || parentType;
         var privacy = this.props.reply.privacy || privacyDefault;
-        var usernames = this.props.reply.usernames || parentUsernames || "";
 
         /* styles */
         var leftColStyle = {
@@ -303,13 +368,6 @@ var PuffPublishFormEmbed = React.createClass({
             textAlign: 'left',
             marginBottom: '5px',
             width: '70%'
-        }
-        var sendToInputStyle = {
-            display: 'inline-block',
-            width: '70%',
-            border: 'none',
-            textAlign: 'left',
-            marginBottom: '5px'
         }
         var typeStyle = {
             width: '28%',
@@ -329,12 +387,39 @@ var PuffPublishFormEmbed = React.createClass({
             background: '#FFFFFF'
         }
 
+        /* Send to: username bubbles
+         * newusername input
+         */
+        var sendtoInputStype = {
+            width: '100%',
+            display: 'inline-block',
+            float: 'left'
+        }
+        var sendtoInput = (
+            <span>
+                <input type="text" className="btn" style={sendtoInputStype} name="username" ref="username" placeholder={polyglot.t("replyForm.sendToPh")} onKeyDown={this.handleSendtoInput}></input>
+            </span>
+        );
+        var self = this;
         var sendToField = (
             <div>
-                <span style={leftColStyle}>{polyglot.t("replyForm.sendTo")}: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder={polyglot.t("replyForm.sendToPh")}></input>
+                <span>{polyglot.t("replyForm.sendTo")}: </span>
+                {self.state.usernames.map(function(value){
+                    return (
+                        <span className='filterNode'>
+                            {value}
+                            <a href="#" onClick={self.removeUsername.bind(self, value)}>
+                                <i className="fa fa-times-circle-o fa-fw"></i>
+                            </a>
+                        </span>
+                    )
+                })}<br/>
+                {sendtoInput}<div className="message red">{this.state.usernameError}</div>
             </div>
         );
 
+
+        /* type | privacy */
         var typeOption = (
             <select className="btn" style={typeStyle} ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {

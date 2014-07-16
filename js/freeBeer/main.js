@@ -36,7 +36,7 @@ puffworldprops = {
         },
 
         // TODO: move these options into view.layout
-        arrows    : false,                              // true -> show relationship arrows between puffs
+        arrows    : true,                              // true -> show relationship arrows between puffs
         rows      : 4,
         cols      : 5,
         boxRatio  : 1,

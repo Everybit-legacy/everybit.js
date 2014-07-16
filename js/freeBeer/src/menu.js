@@ -599,7 +599,7 @@ var ToolsMenu = React.createClass({
                     <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.clearPuffShells}>Clear cached shells</a>
+                    <a href="#" onClick={this.clearPuffShells}>Clear cached puffs</a>
                 </div>
             </div>
         )

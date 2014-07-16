@@ -37,7 +37,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     },
     handleSubmitSuccess: function(puff) {
         // clear the content
-        // puffworldprops.reply.content = ''; // DON'T DO THIS
         update_puffworldprops({'reply.content': ''})
         
         // console.log(this);

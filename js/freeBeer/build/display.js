@@ -43,6 +43,11 @@ var ViewKeybindingsMixin = {
                 menu.section = 'publish';
             }
 
+            var contentEle = document.getElementById('content');
+            if (contentEle) {
+                contentEle.focus();
+            }
+
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
                                                , 'reply.parents': parents });
@@ -742,7 +747,7 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
     mixins: [GridLayoutMixin],
     handleScroll: function() {
         if (!this.props.show) return false;
-        
+
         var col   = this.getDimensions().cols;
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;

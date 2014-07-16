@@ -548,7 +548,13 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             menu.show = true;
             menu.section = 'publish';
         }
-        return events.pub('ui/reply/add-parent', { 'reply.parents': parents
+
+        var contentEle = document.getElementById('content');
+        if (contentEle) {
+            contentEle.focus();
+        }
+        return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
+                                                   'reply.parents': parents
                                                  , 'menu': menu
                                                  });
 

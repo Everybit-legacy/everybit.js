@@ -83,7 +83,7 @@ puffworldprops = {
     }
 }
 
-puffworlddefaults = puffworldprops                      // it's immutable so we don't care
+puffworlddefaults = puffworldprops                          // it's immutable so we don't care
 
 
 //// event bindings for controlling core behavior from the display
@@ -99,7 +99,7 @@ events.sub('prefs/storeKeychain/toggle', function(data, path) {
 events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
-        return Puffball.onError('Invalid nickname')  // THINK: do this in React? use Puffball.validations?
+        return Puffball.onError('Invalid nickname')         // THINK: do this in React? use Puffball.validations?
 
     PuffWardrobe.setProfileItem('nickname', nickname)
 
@@ -174,22 +174,22 @@ reduceUsernameToAlphanumeric = function(username, allowDot) {
 
 
 function draggableize(el) {
-    // modified from http://jsfiddle.net/tovic/Xcb8d/light/
-    var x_pos = 0,  y_pos = 0,  // Stores x & y coordinates of the mouse pointer
-        x_elem = 0, y_elem = 0; // Stores top, left values (edge) of the element
+    /// modified from http://jsfiddle.net/tovic/Xcb8d/light/
+    
+    var x_pos = 0,  y_pos = 0,                              // mouse coordinates
+        x_elem = 0, y_elem = 0;                             // top and left element coords
 
-    // Will be called when user starts dragging an element
+    // called when user starts dragging an element
     function drag_init(e) {
-        // Store the object of the element which needs to be moved
-        x_pos = e.pageX;
+        x_pos = e.pageX;                                    // store coords
         y_pos = e.pageY;
         x_elem = x_pos - el.offsetLeft;
         y_elem = y_pos - el.offsetTop;
-        document.addEventListener('mousemove', move_el);
+        document.addEventListener('mousemove', move_el);    // start moving
         return false
     }
 
-    // Will be called when user dragging an element
+    // called each time the mouse moves
     function move_el(e) {
         x_pos = e.pageX;
         y_pos = e.pageY;
@@ -197,7 +197,7 @@ function draggableize(el) {
         el.style.top  = (y_pos - y_elem) + 'px';
     }
 
-    // Bind the functions...
+    // bind the functions
     el.addEventListener('mousedown', drag_init);
     el.addEventListener('mouseup', function() {
         document.removeEventListener('mousemove', move_el);
@@ -220,7 +220,7 @@ function handleImportRedirect() {
     if (state['requestedUsername']) {
         update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
 
-        state = PB.shallow_copy(state) // clone before delete
+        state = PB.shallow_copy(state)                                      // clone before delete
         
         for(var key in state) {
             if(!~keysToStash.indexOf(key)) continue
@@ -473,4 +473,41 @@ window.addEventListener('load', function() {
 
 var prom = PuffNet.getAllShells()               // FIXME: temp hack regression
 prom.then(PuffData.addShellsThenMakeAvailable)  // FIXME: temp hack regression
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////// graph tests ////////////////////
+
+function build_graph() {
+    g = Dagoba.graph() // global for tests
+
+    PuffData.shells.forEach(function(shell) {
+        g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
+    })
+
+    PuffData.shells.forEach(function(shell) {
+        (shell.payload.parents||[]).forEach(function(parent) {
+            g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
+            g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
+        })
+    })
+}
+
+
+
+
+
+
+
+
+
 

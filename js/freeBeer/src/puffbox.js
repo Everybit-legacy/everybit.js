@@ -652,14 +652,18 @@ var PuffStar = React.createClass({
         var username = PuffWardrobe.getCurrentUsername();
         return s.username == username;
     },
-    updateScore: function() {
-        var starShells = this.state.starShells;
+    updateScore: function(starShells) {
+        // var starShells = PB.shallow_copy(this.state.starShells);
         var tluScore = 0;
         var suScore = 0;
-        var scorePref = puffworldprops.view.score;
+        var scorePref = PB.shallow_copy(puffworldprops.view.score);
         for (var k in scorePref) {
-            if (scorePref[k])
-                scorePref[k] = parseFloat(scorePref[k]) || 0;
+            if (scorePref[k]) {
+                var s = parseFloat(scorePref[k]);
+                if (isNaN(s))
+                    s = parseFloat(puffworlddefaults.view.score[k]);
+                scorePref[k] = s;
+            }
         }
         for (var i=0; i<starShells.length; i++) {
             var username = starShells[i].username;
@@ -675,6 +679,12 @@ var PuffStar = React.createClass({
         return this.setState({score: score});
     },
     getInitialState: function(){
+        return {
+            score: 0,
+            color: 'black'
+        }
+    },
+    componentDidMount: function(){
         var sig = this.props.sig;
         var username = PuffWardrobe.getCurrentUsername();
         var allStarShells = PuffForum.getShells()
@@ -682,31 +692,27 @@ var PuffStar = React.createClass({
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
                                       });
-        var userStar = allStarShells.filter(function(s){return s.username == username});
-        return {
-            score: 0,
-            starShells: allStarShells,
+        var userStar = PB.shallow_copy(allStarShells);
+        userStar = userStar.filter(function(s){return s.username == username});
+        this.setState({
             color: (userStar.length == 0) ? 'black' : 'yellow'
-        }
-    },
-    componentDidMount: function(){
-        this.updateScore();
+        })
+        this.updateScore(allStarShells);
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
         if (username == PuffForum.getPuffBySig(this.props.sig).username)
             return false;
-        var starred = this.state.starShells.filter(this.filterCurrentUserStar);
+        var starred = PB.shallow_copy(this.state.starShells).filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
             var sig = starred[0].sig;
             var prom = PuffForum.flagPuff(sig);
             prom.then(function(result) {
-                    var starShells = self.state.starShells
-                                         .filter(function(s){return s.sig != sig;});
-                    self.setState({starShells: starShells,
-                                   color: 'black'});
-                    self.updateScore();
+                    var starShells = PB.shallow_copy(self.state.starShells);
+                    starShells = starShells.filter(function(s){return s.sig != sig;});
+                    self.setState({color: 'black'});
+                    self.updateScore(starShells);
 
                 })
                 .catch(function(err) {
@@ -723,13 +729,12 @@ var PuffStar = React.createClass({
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
-                    var starShells = self.state.starShells;
+                    var starShells = PB.shallow_copy(self.state.starShells);
                     starShells.push(puff);
                     self.setState({
-                        starShells: starShells,
                         color: 'yellow'
                     });
-                    self.updateScore();
+                    self.updateScore(starShells);
                 })
                 .catch(Puffball.promiseError('Posting failed'));
         }

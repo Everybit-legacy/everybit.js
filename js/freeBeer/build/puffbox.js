@@ -666,6 +666,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         }
         for (var i=0; i<starShells.length; i++) {
             var username = starShells[i].username;
+            // username = username.filter(function(item, index, array) {return Array.indexOf(item) == index});
             if (username.indexOf('.') == -1) {
                 tluScore += scorePref.tluValue;
             } else {
@@ -742,7 +743,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
                                       });
-                    starShells.push(puff);
                     self.setState({
                         color: 'yellow'
                     });

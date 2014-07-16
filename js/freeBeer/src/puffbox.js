@@ -653,7 +653,6 @@ var PuffStar = React.createClass({
         return s.username == username;
     },
     updateScore: function(starShells) {
-        // var starShells = PB.shallow_copy(this.state.starShells);
         var tluScore = 0;
         var suScore = 0;
         var scorePref = PB.shallow_copy(puffworldprops.view.score);
@@ -703,14 +702,23 @@ var PuffStar = React.createClass({
         var username = PuffWardrobe.getCurrentUsername();
         if (username == PuffForum.getPuffBySig(this.props.sig).username)
             return false;
-        var starred = PB.shallow_copy(this.state.starShells).filter(this.filterCurrentUserStar);
+        var sig = this.props.sig;
+        var starred = PuffForum.getShells()
+                                 .filter(function(s){
+                                    return s.payload.type == 'star' && 
+                                           s.payload.content == sig;
+                                  })
+        starred = starred.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
-            var sig = starred[0].sig;
-            var prom = PuffForum.flagPuff(sig);
+            var starSig = starred[0].sig;
+            var prom = PuffForum.flagPuff(starSig);
             prom.then(function(result) {
-                    var starShells = PB.shallow_copy(self.state.starShells);
-                    starShells = starShells.filter(function(s){return s.sig != sig;});
+                    var starShells = PuffForum.getShells()
+                                     .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                      });
                     self.setState({color: 'black'});
                     self.updateScore(starShells);
 
@@ -729,7 +737,11 @@ var PuffStar = React.createClass({
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
-                    var starShells = PB.shallow_copy(self.state.starShells);
+                    var starShells = PuffForum.getShells()
+                                     .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                      });
                     starShells.push(puff);
                     self.setState({
                         color: 'yellow'

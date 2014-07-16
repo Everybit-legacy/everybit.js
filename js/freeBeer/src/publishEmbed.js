@@ -193,6 +193,8 @@ var PuffPublishFormEmbed = React.createClass({
         var self = this;
         var usernameNode = this.refs.username.getDOMNode();
         var newUsername = usernameNode.value.toLowerCase();
+        newUsername = newUsername.replace(/\s+/g, '');
+        if (newUsername.length == 0) return false;
         var usernames = this.state.usernames;
         var prom = Puffball.getUserRecord(newUsername);
         prom.then(function(){
@@ -397,7 +399,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var sendtoInput = (
             <span>
-                <input type="text" className="btn" style={sendtoInputStyle} name="username" ref="username" placeholder={polyglot.t("replyForm.sendToPh")} onKeyDown={this.handleSendtoInput}></input>
+                <input type="text" className="btn" style={sendtoInputStyle} name="username" ref="username" placeholder={polyglot.t("replyForm.sendToPh")} onKeyDown={this.handleSendtoInput} onBlur={this.addUsername}></input>
             </span>
         );
         var self = this;

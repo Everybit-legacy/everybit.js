@@ -149,6 +149,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         if (!this.state.showMain) {
             return (
                 React.DOM.div( {className:className}, 
+                    PuffTipLink( {username:puff.username} ),
                     canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                     puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
                     PuffJson( {puff:puff} ),
@@ -167,12 +168,11 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         return (
             React.DOM.div( {className:className}, 
                 PuffFlagLink( {sig:puff.sig, username:puff.username} ),
-                PuffTipLink( {username:puff.username} ),
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
-                PuffStar( {show:showStar, sig:puff.sig} ),
+                showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
                 React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
                     React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
@@ -219,6 +219,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
+
         var self = this;
         var prom = PuffForum.flagPuff(self.props.sig);
 
@@ -734,9 +736,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return false;
     },
     render: function() {
-        if (!this.props.show) {
-            return React.DOM.span(null);
-        }
         var link = (
             React.DOM.a( {href:"#", onClick:this.handleClick}, 
                 React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})

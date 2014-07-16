@@ -149,6 +149,7 @@ var PuffBar = React.createClass({
         if (!this.state.showMain) {
             return (
                 <div className={className}>
+                    <PuffTipLink username={puff.username} />
                     {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                     {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
                     <PuffJson puff={puff} />
@@ -167,12 +168,11 @@ var PuffBar = React.createClass({
         return (
             <div className={className}>
                 <PuffFlagLink sig={puff.sig} username={puff.username} />
-                <PuffTipLink username={puff.username} />
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
                 <PuffReplyLink sig={puff.sig} />
-                <PuffStar show={showStar} sig={puff.sig} />
+                {showStar ? <PuffStar show={showStar} sig={puff.sig} /> : ''}
                 <span className ="icon" onClick={this.handleShowMore}>
                     <a><i className="fa fa-ellipsis-h fa-fw"></i></a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />
@@ -219,6 +219,8 @@ var PuffFlagLink = React.createClass({
     },
 
     handleFlagRequest: function() {
+        alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
+
         var self = this;
         var prom = PuffForum.flagPuff(self.props.sig);
 
@@ -734,9 +736,6 @@ var PuffStar = React.createClass({
         return false;
     },
     render: function() {
-        if (!this.props.show) {
-            return <span></span>;
-        }
         var link = (
             <a href="#" onClick={this.handleClick}>
                 <i className={"fa fa-fw fa-star "+this.state.color}></i>

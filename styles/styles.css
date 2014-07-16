@@ -131,7 +131,7 @@ section {
 
 }
 #talltree .block.encrypted {
-    background-image:url('../img/lock-2.png');
+    background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
     background-position: left bottom;
     background-size: 36px 36px;

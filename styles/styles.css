@@ -236,6 +236,10 @@ h4 {
 .closeBox {
     float: right;
     font-size: 1.1em;
+    z-index: 750;
+    position: absolute;
+    right: 5px;
+    top: 5px;
 }
 
 .floatingCheckbox {
@@ -686,6 +690,47 @@ select:disabled {
 .menuCluster {
     padding-bottom: 10px;
 }
+
+.slider {
+    position: relative;
+    top: 30px;
+    z-index: 600;
+    border: 2px solid #303030;
+    margin: auto;
+    overflow: hidden;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+}
+
+.slide {
+
+}
+
+.sliderFooter {
+    float: right;
+    font-size: 1.1em;
+    z-index: 850;
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    border: 0px solid #000;
+    text-align: center;
+    font-size: 1.5em;
+    font-family: GudeaBold, sans-serif;
+}
+
+.full {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.invisible {
+    display: none;
+}
+
 .slideup, .slidedown {
     max-height: 0px;            
     overflow-y: hidden;
@@ -933,7 +978,7 @@ select:disabled {
     padding-top: 0px;
     border: 0px solid #000;
     color: #303030;
-    font-family: GudeaBold;
+    font-family: GudeaBold, Arial, sans-serif;
     float: right;
     font-size: .9em;
     -moz-transform: scale(-1, -1);
@@ -1044,7 +1089,7 @@ a.footerText {
 }
 
 .green {
-    color: #00AA00;
+    color: #008800;
 }
 
 .black {

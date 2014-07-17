@@ -230,7 +230,10 @@ PuffForum.getPuffBySig = function(sig) {
  */
 PuffForum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
-    return b.payload.time - a.payload.time;
+    if(puffworldprops.view.query.sort == 'DESC')
+        return b.payload.time - a.payload.time;
+    else
+        return a.payload.time - b.payload.time;
 }
 
 /**

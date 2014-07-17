@@ -146,7 +146,10 @@ Translate.language["zh"].extend({
 	footer: {
 		powered: '基于',
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
-	}
+	},
+    alert:{
+        flag: '警告：这样将会立即将此puff在你的浏览器和网络里移除，一旦操作将不可恢复！'
+    }
 });
 Translate.language["zh"].extend({
 	puff: {

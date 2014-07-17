@@ -492,13 +492,18 @@ var PuffTallTree = React.createClass({
         //                                  .sort(PuffForum.sortByPayload)
         
         
+        // collisions between ancestor generations: 
+        // - either get them all at once (outN()) or accumulate in query (as('parents')) and uniquify, or filter by value
+        // not filtering by filters
+        // not getting just available puffs
+        
         
         // gather puffs, graph style
-        var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .prop('shell').run()
-        var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .prop('shell').run()
-        var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .prop('shell').run()
-        var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .prop('shell').run()
-        var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .prop('shell').run()
+        var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .property('shell').run()
+        var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .property('shell').run()
+        var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .property('shell').run()
+        var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .property('shell').run()
+        var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .property('shell').run()
         
         
         // gather puffs

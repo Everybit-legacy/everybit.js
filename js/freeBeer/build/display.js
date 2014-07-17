@@ -419,25 +419,6 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
     }
 });
 
-// var PuffAllChildren = React.createClass({
-//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-//     render: function() {
-//         var puffs = PuffForum.getChildren(this.props.puff, this.props); // pre-sorted
-//         this.cursorPower(puffs)
-//         return this.standardGridify(puffs);
-//     }
-// });
-
-// var PuffAllParents = React.createClass({
-//     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
-//     render: function() {
-//         var puffs = PuffForum.getParents(this.props.puff, this.props); // pre-sorted
-//         this.cursorPower(puffs)
-//         return this.standardGridify(puffs);
-//     }
-// });
-
-
 var PuffList = React.createClass({displayName: 'PuffList',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
@@ -448,19 +429,20 @@ var PuffList = React.createClass({displayName: 'PuffList',
         return nextProps !== this.props // TODO: this won't update when new items arrive
     },
     render: function() {
-        globalSillyPropsClone = PB.shallow_copy(puffworldprops)
+        globalSillyPropsClone = PB.shallow_copy(puffworldprops);
         
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         
-        var query   = this.props.view.query
-        var filters = this.props.view.filters
+        var query   = this.props.view.query;
+        var filters = this.props.view.filters;
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
-        this.cursorPower(puffs)
+        this.cursorPower(puffs);
 
         var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset != 0;
         var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
+        
         return (
             React.DOM.div(null, 
                 this.standardGridify(puffs),
@@ -496,29 +478,49 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var rows    = dimensions.rows
         var gridbox = this.getGridBox(rows, cols)
         
+        // TODO: partial application
         var standardBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
         var secondRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 1)
         var fourthRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 3)
         var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, rows > 1 ? 2 : 1, gridbox.add, {arrows: arrows}, 1, 0, 1, 0)
         
+        
+        //// need a filtery thing:
+        // return (puff.payload.parents||[]).map(PuffForum.getPuffBySig)
+        //                                  .filter(Boolean)
+        //                                  .filter(PuffForum.getPropsFilter(props))
+        //                                  .sort(PuffForum.sortByPayload)
+        
+        
+        
+        // gather puffs, graph style
+        var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .prop('shell').run()
+        var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .prop('shell').run()
+        var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .prop('shell').run()
+        var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .prop('shell').run()
+        var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .prop('shell').run()
+        
+        
         // gather puffs
-        var parentPuffs   = PuffForum.getParents(puff) // pre-sorted
-
-        var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
-        var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+        // var parentPuffs   = PuffForum.getParents(puff) // pre-sorted
+        //
+        // var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
+        // var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
   
             parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .filter(PuffForum.filterByFilters(queryfilter))
                                        .slice(0, cols)
                                        
-        var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
+        // var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
+        var siblingPuffs  = siblingPuffs // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
                                      .filter(PuffForum.filterByFilters(queryfilter))
                                      .slice(0, cols > 1 ? (cols-2)*2 : 0)
                                      
-        var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
+        // var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
+        var childrenPuffs = childrenPuffs // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})

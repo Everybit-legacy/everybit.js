@@ -141,8 +141,7 @@ section {
 }
 #talltree .block.flagged, #talltree .block.encrypted.flagged {
     background-image:url('../img/flagged.png');
-    background-repeat:no-repeat;
-    background-position: left bottom;
+    background-repeat:repeat;
     background-size: 36px 36px;
 }
 

@@ -11,6 +11,9 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var    top = stats.y
         var   left = stats.x + CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
+
+
+
         
         // set up classes
         var classArray = ['block']
@@ -25,6 +28,12 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         if (this.props.view.flash) {
             classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
+        }
+        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flagged = false;
+        if (flaggedPuff.indexOf(puff.sig)!= -1) {
+            classArray.push('flagged');
+            flagged = true;
         }
         var className = classArray.join(' ')
         
@@ -50,7 +59,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {puff:puff, hidden:hidden} ),
                 PuffContent( {puff:puff, height:height} ),
-                PuffBar( {puff:puff, hidden:hidden} )
+                PuffBar( {puff:puff, hidden:hidden, flagged:flagged})
             )
         );
     }
@@ -128,10 +137,10 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 var PuffBar = React.createClass({displayName: 'PuffBar',
     mixins: [TooltipMixin],
     getInitialState: function() {
-        return {showMain: true};
+        return {iconSet: 0};
     },
     handleShowMore: function() {
-        this.setState({showMain: !this.state.showMain});
+        this.setState({iconSet: (this.state.iconSet+1)%3});
     },
     componentDidUpdate: function() {
         this.componentDidMount();
@@ -146,39 +155,59 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
             showStar = false;
 
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (!this.state.showMain) {
-            return (
-                React.DOM.div( {className:className}, 
-                    PuffTipLink( {username:puff.username} ),
-                    canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
-                    puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
-                    PuffJson( {puff:puff} ),
-                    PuffPermaLink( {sig:puff.sig} ),
-                    PuffExpand( {puff:puff} ),
-                    PuffClone( {puff:puff} ),
-                    
-                    React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
-                        React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
-                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
-                    )
-                )
-            );
-        }
-        //
-        return (
+        var iconSet = this.state.iconSet;
+        var boldStyle = {
+            fontWeight: 'bold'
+        };
+        var selectedStyle = {
+            color: '#00aa00'
+        };
+        var moreButton = (
+            React.DOM.span( {className: "icon"}, 
+                React.DOM.a( {style:boldStyle, onClick:this.handleShowMore}, 
+                    [0,1,2].map(function(i){
+                        if (i == iconSet) return React.DOM.span( {style:selectedStyle}, "•")
+                        else return React.DOM.span(null, "•")
+                    })
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
+            )
+        )
+        /***
+         * flag info reply clone star?
+         * parent children viewRaw|image expand
+         * tip json permalink
+         ***/
+        var iconSetOne = (
             React.DOM.div( {className:className}, 
-                PuffFlagLink( {sig:puff.sig, username:puff.username} ),
+                PuffFlagLink( {sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
                 PuffInfoLink( {puff:puff} ),
-                PuffParentCount( {puff:puff} ),
-                PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
+                PuffClone( {puff:puff} ),
                 showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
-                React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
-                    React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
-                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
-                )
+                moreButton
             )
         );
+        var iconSetTwo = (
+            React.DOM.div( {className:className}, 
+                PuffParentCount( {puff:puff} ),
+                PuffChildrenCount( {puff:puff} ),
+                canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
+                puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
+                PuffExpand( {puff:puff} ),
+                moreButton
+            )
+        )
+        var iconSetThree = (
+            React.DOM.div( {className:className}, 
+                PuffTipLink( {username:puff.username} ),
+                PuffJson( {puff:puff} ),
+                PuffPermaLink( {sig:puff.sig} ),
+                moreButton
+            )
+        );
+        var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
+        return iconSetArray[iconSet];
     }
 });
 
@@ -219,6 +248,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        if (this.props.flagged) return false;
         var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
 
         if(!doIt)
@@ -241,8 +271,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var cx1 = React.addons.classSet;
         var newClass = cx1({
             'fa fa-bomb fa-fw': true,
-            'red': this.state.flagged,
-            'black': !this.state.flagged
+            'red': this.props.flagged,
+            'black': !this.props.flagged
         });
         var polyglot = Translate.language[puffworldprops.view.language];
 
@@ -815,11 +845,13 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         return false;
     },
     render: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-fw fa-copy"})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.copy")})
             )
         )
     }

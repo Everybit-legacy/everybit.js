@@ -638,6 +638,8 @@ Puffball.Persist.remove = function(key) {
  */
 Puffball.onError = function(msg, obj) {
     console.log(msg, obj)
+
+    // TODO: if reporing, fire XHR report
     return false
 }
 

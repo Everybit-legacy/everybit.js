@@ -139,6 +139,11 @@ section {
     background-size: 36px 36px;
     border: 2px solid #333;
 }
+#talltree .block.flagged, #talltree .block.encrypted.flagged {
+    background-image:url('../img/flagged.png');
+    background-repeat:repeat;
+    background-size: 36px 36px;
+}
 
 
 #talltree .parent .txt {
@@ -563,6 +568,17 @@ fieldset[disabled] .btn-link {
     background: #ddd;
     cursor: pointer;
     color: #555;
+}
+
+button.btn {
+    background: none;
+}
+button.btn:hover {
+    color: #00AA00;
+    background: #ddd;
+}
+button.btn:focus {
+    outline: 0;
 }
 
 /* show grey when dropdown is disabled */
@@ -1072,6 +1088,10 @@ a.footerText {
     -o-transform: rotate(90deg);
 }
 
+a.deactive, a.deactive:hover {
+    color: #888888;
+}
+
 .red {
     color: #FF0000;
 }
@@ -1170,25 +1190,25 @@ a.footerText {
 
 /* not in use */
 @-webkit-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 } 
 
 @-moz-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @-o-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @-ms-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 
 

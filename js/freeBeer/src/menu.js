@@ -32,16 +32,6 @@ var TooltipMixin = {
         }
     }
 };
-/* not in use
-var FlashSectionMixin = {
-    switchMenuSection: function() {
-        var section = this.props.section || false;
-        events.pub("ui/menu-section", {'menu.section': section});
-    },
-    componentDidMount: function() {
-        this.getDOMNode().onclick = this.switchMenuSection;
-    }
-};*/
 
 
 var Menu = React.createClass({
@@ -51,12 +41,10 @@ var Menu = React.createClass({
             <div className="menu">
 
                 <br />
-                <Cluster clusterName="filters" clusterPath='ui/clusters/filters' clusterPropPath='clusters.filters' 
-                         clusterMenu='FilterMenu' clusterIcon='fa-search-plus' view={this.props.view} />
-                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
-                         clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
                          clusterMenu='ViewMenu' clusterIcon='fa-sitemap' view={this.props.view} />
+                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
+                         clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
                 <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' 
                          clusterMenu='IdentityMenu' clusterIcon='fa-user' view={this.props.view} />
                 <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' 
@@ -105,15 +93,11 @@ var Cluster = React.createClass({
         var clusterMenu;
 
         switch (this.props.clusterName) {
-
-        case "filters":
-            clusterMenu = <div><CurrentFilters view={this.props.view} /><FilterMenu view={this.props.view} /></div>
-            break;
         case "publish":
             clusterMenu = puffworldprops.reply.expand ? '' : <PuffPublishFormEmbed reply={puffworldprops.reply} />
             break;
         case "view":
-            clusterMenu = <ViewMenu />
+            clusterMenu = <ViewMenu view={this.props.view}/>
             break;
         case "identity":
             clusterMenu = <IdentityMenu />
@@ -168,22 +152,21 @@ var Logo = React.createClass({
 var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
     
-    handlePickFilter: function() {
-        var filterType = ['tags', 'users', 'routes'];
-        var filters = PB.shallow_copy(this.props.view.filters);
-
-        for (var i=0; i<filterType.length; i++) {
-            var type = filterType[i];
-            var newFilter = this.refs[type].getDOMNode().value || false;
-            var currFilter = PB.shallow_copy(this.props.view.filters[type]);
-            if (newFilter && currFilter.indexOf(newFilter) == -1) 
-                currFilter.push(newFilter);
-            filters[type] = currFilter;
-            this.refs[type].getDOMNode().value = '';
+    handlePickFilter: function(type) {
+        var type = type || 'tags';
+        var currFilter = PB.shallow_copy(this.props.view.filters[type]);
+        var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
+        if (!newFilter){
+            alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
+            this.refs.filter.getDOMNode().value = '';
+            return false;
         }
-
-        return events.pub('ui/view/filter/set', {'view.filters': filters
-                                                ,'view.mode': 'list'});
+        if (newFilter && currFilter.indexOf(newFilter) == -1) 
+            currFilter.push(newFilter);
+        var jsonToSet = {'view.mode': 'list'};
+        jsonToSet['view.filters.'+type] = currFilter;
+        this.refs.filter.getDOMNode().value = '';
+        return events.pub('ui/view/filter/set', jsonToSet);
     },
     
     handleKeyDown: function(event) {
@@ -193,15 +176,19 @@ var FilterMenu = React.createClass({
     },
     createEachFilter: function(type) {
         var polyglot = Translate.language[puffworldprops.view.language];
+        var filterStyle = {
+            position: 'relative',
+            display: 'inline-block',
+            marginRight: '5px'
+        }
         return (
-            <div className="menuItem">
-                {polyglot.t("menu.filters."+type)}:
-                <div className="menuInput">
-                    <input type="text" name={type} ref={type} size="12" defaultValue="" onKeyDown={this.handleKeyDown} />
-                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
-                    {' '}<a href="#" onClick={this.handlePickFilter}><i className="fa fa-search-plus fa-fw"></i></a>
-                </div><br/>
-            </div>
+            <span style={filterStyle}>
+                <a onClick={this.handlePickFilter.bind(this, type)}>
+                    {polyglot.t("menu.filters."+type)}
+                    <i className="fa fa-search-plus fa-fw"></i>
+                </a>
+                <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+            </span>
         )
     },
     render: function() {
@@ -209,7 +196,8 @@ var FilterMenu = React.createClass({
         var all_filter = ['tags', 'users', 'routes'];
         
         return (
-            <div>
+            <div className="menuItem">
+                Filter: <input ref="filter" type="text" className="btn"onKeyDown={this.handleKeyDown} /><br/>
                 {all_filter.map(this.createEachFilter)}
             </div>
         );
@@ -320,6 +308,7 @@ var ViewMenu = React.createClass({
 
         return (
             <div>
+                <div><CurrentFilters view={this.props.view} /><FilterMenu view={this.props.view} /></div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />
@@ -587,6 +576,7 @@ var ToolsMenu = React.createClass({
         for (var i=0; i<allKeys.length; i++) 
             window.localStorage.removeItem(allKeys[i]);*/
         Puffball.Persist.remove('shells');
+        Puffball.Persist.remove('flagged');
         document.location.reload(true);
         return false;
     },

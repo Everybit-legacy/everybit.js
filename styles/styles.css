@@ -566,6 +566,17 @@ fieldset[disabled] .btn-link {
     color: #555;
 }
 
+button.btn {
+    background: none;
+}
+button.btn:hover {
+    color: #00AA00;
+    background: #ddd;
+}
+button.btn:focus {
+    outline: 0;
+}
+
 /* show grey when dropdown is disabled */
 select:disabled {
     background-color: #ddd;
@@ -1130,25 +1141,25 @@ a.footerText {
 
 /* not in use */
 @-webkit-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 } 
 
 @-moz-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @-o-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @-ms-keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 @keyframes slidein {
-    from { left: -360px; }
-    to { left: 60px; }
+    from { right: -300px; }
+    to { right: 0px; }
 }
 
 

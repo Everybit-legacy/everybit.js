@@ -134,7 +134,7 @@ Translate.language["zh"].extend({
         pOptions: {
             public: '公开 (所有人可见)',
             private: '隐私 (内容是加密的)',
-            anon: '匿名 (加密及匿名的)',
+            anonymous: '匿名 (加密及匿名的)',
             paranoid: '偏执狂 (每次都会重新生成用户名)'
         },
         advanced: {

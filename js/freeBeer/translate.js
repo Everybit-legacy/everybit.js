@@ -138,7 +138,7 @@ Translate.language["en"].extend({
         pOptions: {
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
-            anon: 'Anonymous (encrypted and anonymous)',
+            anonymous: 'Anonymous (encrypted and anonymous)',
             paranoid: 'Invisible (double anon, experimental!)'
         },
         advanced: {

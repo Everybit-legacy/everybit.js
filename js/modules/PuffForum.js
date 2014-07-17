@@ -773,7 +773,11 @@ PuffForum.flagPuff = function (sig) {
         // clear localstorage
         var storedShells = Puffball.Persist.get('shells');
         var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+        var flaggedSig = Puffball.Persist.get('flagged') || [];
+        flaggedSig.push(content);
+
         Puffball.Persist.save('shells', filteredShells);
+        Puffball.Persist.save('flagged', flaggedSig);
         // reload?
         document.location.reload();
     })

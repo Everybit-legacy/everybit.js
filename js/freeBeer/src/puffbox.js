@@ -11,6 +11,9 @@ var PuffFancyBox = React.createClass({
         var    top = stats.y
         var   left = stats.x + CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
+
+
+
         
         // set up classes
         var classArray = ['block']
@@ -25,6 +28,10 @@ var PuffFancyBox = React.createClass({
         if (this.props.view.flash) {
             classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
+        }
+        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        if (flaggedPuff.indexOf(puff.sig)!= -1) {
+            classArray.push('flagged');
         }
         var className = classArray.join(' ')
         

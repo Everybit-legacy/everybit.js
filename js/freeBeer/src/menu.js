@@ -587,6 +587,7 @@ var ToolsMenu = React.createClass({
         for (var i=0; i<allKeys.length; i++) 
             window.localStorage.removeItem(allKeys[i]);*/
         Puffball.Persist.remove('shells');
+        Puffball.Persist.remove('flagged');
         document.location.reload(true);
         return false;
     },

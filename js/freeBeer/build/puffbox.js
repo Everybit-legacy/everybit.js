@@ -248,9 +248,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
         if (this.props.flagged) return false;
-        var doIt = confirm(polyglot.t("alert.flag"));
+        var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
 
         if(!doIt)
             return false
@@ -846,11 +845,13 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         return false;
     },
     render: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-fw fa-copy"})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.copy")})
             )
         )
     }

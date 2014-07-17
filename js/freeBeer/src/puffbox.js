@@ -845,11 +845,13 @@ var PuffClone = React.createClass({
         return false;
     },
     render: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <span className="icon">
                 <a href="#" onClick={this.handleClick}>
                     <i className="fa fa-fw fa-copy"></i>
                 </a>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.copy")}/>
             </span>
         )
     }

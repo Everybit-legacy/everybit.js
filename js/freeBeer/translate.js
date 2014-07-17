@@ -117,7 +117,8 @@ Translate.language["en"].extend({
             json:'Show the JSON string of this puff',
             permaLink:'Permalink to this puff',
             expand: 'Expand puff to one row',
-            compress: 'Compress puff size to default setting'
+            compress: 'Compress puff size to default setting',
+            copy:'Copy the raw content of this puff to the reply box'
         }
 	},
 	replyForm: {

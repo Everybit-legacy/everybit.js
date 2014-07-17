@@ -113,7 +113,8 @@ Translate.language["zh"].extend({
             permaLink:'本puff的文本链接',
             flagLink: '标记为移除。如果你生成了这个puff，这将发送移除申请。',
             expand: '扩大puff以单行显示',
-            compress: '将puff缩回默认大小'
+            compress: '将puff缩回默认大小',
+            copy:'将此puff加工前的内容拷贝到回复框'
         }
 	},
 	replyForm: {

@@ -24,7 +24,7 @@ Translate.language["en"].extend({
 			title: 'Filter',
 			tags: 'Tag',
 			routes: 'Route',
-			users: 'Username'
+			users: 'User'
 		},
         preferences: {
             title: "Preferences",

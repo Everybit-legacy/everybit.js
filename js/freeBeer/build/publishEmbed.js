@@ -4,6 +4,7 @@
 var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed',
     getInitialState: function() {
         return {imageSrc    : '', 
+                state: false,
                 usernames   : [],
                 parentUsernames: [],
                 usernameErr : '',
@@ -54,7 +55,13 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         globalReplyFormSubmitArg = null;
         return events.pub("", {'reply.content': ""})
     },
+    cleanUpSubmit: function(){
+        var className = this.refs.send.getDOMNode().className;
+        className = className.replace(' deactive', '');
+        this.refs.send.getDOMNode().className = className
+    },
     handleSubmitSuccess: function(puff) {
+        this.cleanUpSubmit();
         // clear the content
         update_puffworldprops({'reply.content': ''})
         
@@ -76,6 +83,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         this.setState(this.getInitialState());
     },
     handleSubmit: function() {
+        if (this.refs.send.getDOMNode().className.indexOf('deactive') != -1)
+            return false;
+        this.refs.send.getDOMNode().className += " deactive";
+
         var self = this;
         var content = '';
         var metadata = {};
@@ -105,7 +116,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             metadata.replyPrivacy = replyPrivacy;
         }*/
         
-        var privacy = this.refs.privacy.getDOMNode().value;
+        var privacy = this.refs.privacy.getDOMNode().querySelector("button.green").value;
         
         if(privacy == 'public') {
             var self=this;
@@ -114,6 +125,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             post_prom
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {
+                    self.cleanUpSubmit();
                     self.setState({err: err.message});
                 })
             return false;
@@ -183,6 +195,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom;
         }) .catch(function(err) {
+            self.cleanUpSubmit();
             self.setState({err: err.message});
             console.log(err);
         })
@@ -408,7 +421,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             display: 'inline-block'
         };
         var sendButton = (
-            React.DOM.a( {href:"#", style:sendStyle,    onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send", {author: author}))
+            React.DOM.a( {href:"#", style:sendStyle, ref:"send", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send", {author: author}))
         );
         var expandStyle = {
             position: 'relative',
@@ -471,7 +484,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             'paranoid': 'fa-circle-thin'
         }
         var privacyOption = (
-            React.DOM.span( {ref:"privacy", className:"icon", style:relativeStyle}, 
+            React.DOM.span( {ref:"privacy", id:"privacyDiv", className:"icon", style:relativeStyle}, 
                 "Privacy:", 
                 Object.keys(privacyToIcon).map(function(p){
                     var color = privacy == p ? 'green' : 'black';

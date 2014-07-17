@@ -155,7 +155,12 @@ var FilterMenu = React.createClass({
     handlePickFilter: function(type) {
         var type = type || 'tags';
         var currFilter = PB.shallow_copy(this.props.view.filters[type]);
-        var newFilter = this.refs.filter.getDOMNode().value || false;
+        var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
+        if (!newFilter){
+            alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
+            this.refs.filter.getDOMNode().value = '';
+            return false;
+        }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
         var jsonToSet = {'view.mode': 'list'};

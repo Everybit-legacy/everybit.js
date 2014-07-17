@@ -1043,6 +1043,10 @@ a.footerText {
     -o-transform: rotate(90deg);
 }
 
+a.deactive, a.deactive:hover {
+    color: #888888;
+}
+
 .red {
     color: #FF0000;
 }

@@ -649,10 +649,27 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
 
 var PuffStar = React.createClass({displayName: 'PuffStar',
     filterCurrentUserStar: function(s){
-        var username = PuffWardrobe.getCurrentUsername();
+        var username =  PuffWardrobe.getCurrentKeys().username || Puffball.Persist.get('identity');
         return s.username == username;
     },
-    updateScore: function(starShells) {
+    getStarShells: function() {
+        var sig = this.props.sig;
+        var starShells = PuffForum.getShells()
+                                   .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                    });
+        return starShells;
+    },
+    getCurrentUserStar: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        var starShells = this.getStarShells();
+        var self = this;
+        starShells = starShells.filter(self.filterCurrentUserStar);
+        return starShells;
+    },
+    updateScore: function() {
+        var starShells = this.getStarShells();
         var tluScore = 0;
         var suScore = 0;
         var scorePref = PB.shallow_copy(puffworldprops.view.score);
@@ -685,19 +702,12 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         }
     },
     componentDidMount: function(){
-        var sig = this.props.sig;
-        var username = PuffWardrobe.getCurrentUsername();
-        var allStarShells = PuffForum.getShells()
-                                     .filter(function(s){
-                                        return s.payload.type == 'star' && 
-                                               s.payload.content == sig;
-                                      });
-        var userStar = PB.shallow_copy(allStarShells);
-        userStar = userStar.filter(function(s){return s.username == username});
+        var starShells = this.getStarShells();
+        var userStar = this.getCurrentUserStar();
         this.setState({
             color: (userStar.length == 0) ? 'black' : 'yellow'
         })
-        this.updateScore(allStarShells);
+        this.updateScore();
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
@@ -715,13 +725,8 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var starSig = starred[0].sig;
             var prom = PuffForum.flagPuff(starSig);
             prom.then(function(result) {
-                    var starShells = PuffForum.getShells()
-                                     .filter(function(s){
-                                        return s.payload.type == 'star' && 
-                                               s.payload.content == sig;
-                                      });
                     self.setState({color: 'black'});
-                    self.updateScore(starShells);
+                    self.updateScore();
 
                 })
                 .catch(function(err) {
@@ -738,15 +743,10 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
-                    var starShells = PuffForum.getShells()
-                                     .filter(function(s){
-                                        return s.payload.type == 'star' && 
-                                               s.payload.content == sig;
-                                      });
                     self.setState({
                         color: 'yellow'
                     });
-                    self.updateScore(starShells);
+                    self.updateScore();
                 })
                 .catch(Puffball.promiseError('Posting failed'));
         }

@@ -113,7 +113,8 @@ Translate.language["zh"].extend({
             permaLink:'本puff的文本链接',
             flagLink: '标记为移除。如果你生成了这个puff，这将发送移除申请。',
             expand: '扩大puff以单行显示',
-            compress: '将puff缩回默认大小'
+            compress: '将puff缩回默认大小',
+            copy:'将此puff加工前的内容拷贝到回复框'
         }
 	},
 	replyForm: {
@@ -146,7 +147,10 @@ Translate.language["zh"].extend({
 	footer: {
 		powered: '基于',
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
-	}
+	},
+    alert:{
+        flag: '警告：这样将会立即将此puff在你的浏览器和网络里移除，一旦操作将不可恢复！'
+    }
 });
 Translate.language["zh"].extend({
 	puff: {

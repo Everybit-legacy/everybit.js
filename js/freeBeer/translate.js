@@ -117,7 +117,8 @@ Translate.language["en"].extend({
             json:'Show the JSON string of this puff',
             permaLink:'Permalink to this puff',
             expand: 'Expand puff to one row',
-            compress: 'Compress puff size to default setting'
+            compress: 'Compress puff size to default setting',
+            copy:'Copy the raw content of this puff to the reply box'
         }
 	},
 	replyForm: {
@@ -150,7 +151,10 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	}
+	},
+    alert:{
+        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
+    }
 });
 Translate.language["en"].extend({
 	puff: {

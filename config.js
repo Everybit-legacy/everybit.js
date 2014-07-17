@@ -48,7 +48,16 @@ CONFIG.users['anon'] = {adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8i
 CONFIG.users['forum'] = {adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'}
 
 // How much space to leave on left side of screen, in pixels
-CONFIG.leftMargin = 60;
+CONFIG.leftMargin = 20;
+
+CONFIG.rightMargin = 20;
+
+CONFIG.verticalPadding = 20;
+
+// Side of the page you want the menu to go on
+CONFIG.menuRight = true;
+
+CONFIG.menuWidth = '400';
 
 /* Puffs must be at least this many characters to be submitted */
 CONFIG.minimumPuffLength = 3;

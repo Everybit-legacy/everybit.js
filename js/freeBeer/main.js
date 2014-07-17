@@ -474,6 +474,17 @@ window.addEventListener('load', function() {
 });
 
 
+
+ACTIVITY = [];
+events.sub('ui/*', function(data) {
+    ACTIVITY.push(data);
+
+    // XHR this bad boy!
+    PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
+
+});
+
+
 ////////// End PuffForum Interface ////////////
 
 

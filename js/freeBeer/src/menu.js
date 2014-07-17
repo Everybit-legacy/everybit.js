@@ -45,18 +45,10 @@ var FlashSectionMixin = {
 
 
 var Menu = React.createClass({
-    handleClose: function() {
-        return events.pub('ui/menu/close', {'menu.show': false})
-    },
 
     render: function() {
         return (
             <div className="menu">
-                <a href="#" onClick={this.handleClose}>
-                    <i className="fa fa-times-circle-o fa-fw closeBox"></i>
-                </a>
-
-                <Logo />
 
                 <br />
                 <Cluster clusterName="filters" clusterPath='ui/clusters/filters' clusterPropPath='clusters.filters' 

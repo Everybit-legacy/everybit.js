@@ -265,8 +265,14 @@ var CursorBindingsMixin = {
 
 var GridLayoutMixin = {
     getScreenCoords: function() {
-        return { width:  window.innerWidth - CONFIG.leftMargin
-               , height: window.innerHeight
+        if(CONFIG.menuRight) {
+            var margin = CONFIG.rightMargin
+        } else {
+            var margin = CONFIG.leftMargin
+        }
+
+        return { width:  window.innerWidth - margin
+               , height: window.innerHeight - CONFIG.verticalPadding
                }
     },
     getDimensions: function() {
@@ -389,10 +395,28 @@ var PuffWorld = React.createClass({
         var viewprops = this.props.view || {};
 
         if(this.props.menu.show) {
-            CONFIG.leftMargin = 465;
+            CONFIG.rightMargin = 420;
         } else {
-            CONFIG.leftMargin = 60;
+            CONFIG.rightMargin = 60;
         }
+
+        /*
+        if(CONFIG.menuRight) {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        } else {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        }
+        */
+
+
 
         if( viewprops.mode == 'focus' )
             view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
@@ -746,12 +770,16 @@ var PuffFooter = React.createClass({
     render: function() {
         var width = (window.innerHeight-66)+'px';
         var polyglot = Translate.language[puffworldprops.view.language];
+        // TODO: Is this a very bad idea?
+
         return (
-            <div className="footer" style={{width: width}}>
+            <div className="footerWrapper">
+            <div className="footer" style={{maxWidth: width, right: 0}}>
                 <div className="footerText">
                 {polyglot.t("footer.powered")} <a href="http://www.puffball.io" className="footerText">puffball</a>.
                 {polyglot.t("footer.rest")}
                 </div>
+            </div>
             </div>
         );
     }

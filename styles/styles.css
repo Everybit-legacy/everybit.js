@@ -2,13 +2,14 @@
 
 Official z-index guide to all z-indices in the GUI so check here before you z-index anything ok?
 
-001: puffball icon
+
 100: regular puff block 
 200: selected puff block
 250: author and info bar
 275: scroll up/down;
 300: menu
 400: reply form
+500: puffball icon
 
 */
 
@@ -637,15 +638,14 @@ select:disabled {
     position: relative;
     top: 10px;
     margin-bottom: 1em;
-    height: 50px;
 
 }
 
 #puffballIcon {
     position: absolute;
-    z-index: 1;
+    z-index: 500;
     top: 12px;
-    left: 12px;
+    right: 12px;
     -webkit-animation: iconFadeIn 1s; /* Safari and Chrome */
     -moz-animation: iconFadeIn 1s; /* Firefox */
     -ms-animation: iconFadeIn 1s; /* Internet Explorer */
@@ -670,11 +670,11 @@ select:disabled {
     */
     border-right: 2px solid #a1a1a1;
     position: absolute;
-    left:60px;
+    right:0px;
     top: 0px;
+    width: 400px;
     background-color: rgba(255, 255, 255, 0.98);
     z-index: 300;
-    width: 400px;
     font-size: 1em;
     line-height: 1.7em;
     text-decoration:none;
@@ -914,25 +914,32 @@ select:disabled {
     margin-right: 8px;
 }
 
+.footerWrapper {
+    -webkit-transform-origin: 100% 61;
+    -moz-transform-origin: 100% 61;
+    -ms-transform-origin: 100% 61;
+    -o-transform-origin: 100% 61;
+
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+}
+
 .footer {
-    left: 42px;
-    top: 66px;
-    -webkit-transform-origin: 0px 0px;
-    -moz-transform-origin: 0 0;
-    -ms-transform-origin: 0 0;
-    -o-transform-origin: 0 0;
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    float:left;
+    position: absolute;
+    padding-left: 20px;
+    padding-top: 0px;
+    border: 0px solid #000;
     color: #303030;
     font-family: GudeaBold;
+    float: right;
     font-size: .9em;
-    bottom: 0;
-    position: fixed;
-    right:0;
-    white-space: pre-wrap;
+    -moz-transform: scale(-1, -1);
+    -webkit-transform: scale(-1, -1);
+    -o-transform: scale(-1, -1);
+    -ms-transform: scale(-1, -1);
+    transform: scale(-1, -1);
 }
 
 a.footerText {

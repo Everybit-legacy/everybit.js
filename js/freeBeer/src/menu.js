@@ -329,9 +329,6 @@ var ViewMenu = React.createClass({
         return (
             <div>
                 <div className="menuItem">
-                    <a href="http://everybit.com/qa.html" target="_blank">{polyglot.t("menu.view.faq")}</a>
-                </div>
-                <div className="menuItem">
                     <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />
                 </div>
@@ -565,11 +562,22 @@ var PreferencesMenu = React.createClass({
 var AboutMenu = React.createClass({
     mixins: [TooltipMixin],
 
+    handleShowFaq: function() {
+        showPuff('AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di');
+        return false;
+    },
+
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
-                <Tooltip content={polyglot.t("menu.tooltip.code")} />
+            <div>
+                <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.code")} />
+                </div>
+
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleShowFaq}>{polyglot.t("menu.view.faq")}</a>
+                </div>
             </div>
         )
     }

@@ -5,9 +5,9 @@ puffworldprops = {
         filters: true,
         publish: true,
         view: true,
-        identity: true,
-        preferences: true,
-        about: false,
+        identity: false,
+        preferences: false,
+        about: true,
         tools: false
     },
 

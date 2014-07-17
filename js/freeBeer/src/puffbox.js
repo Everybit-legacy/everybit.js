@@ -28,7 +28,7 @@ var PuffFancyBox = React.createClass({
         }
         var className = classArray.join(' ')
         
-        var offset = 30
+        var offset = CONFIG.extraSpacing;
         if(arrows) {
             width  -= offset
             height -= offset
@@ -36,7 +36,7 @@ var PuffFancyBox = React.createClass({
             left += offset/2
         }
 
-        var spacing = 3
+        var spacing = CONFIG.minSpacing;
         if(!arrows) {
             width  -= spacing
             height -= spacing
@@ -76,7 +76,7 @@ var PuffAuthor = React.createClass({
         var routes = this.props.puff.routes || [];
         if (routes.length == 0)
             routes = this.props.puff.payload.routes || [];
-        routes = routes.filter(function(r){return r!='everybit' && r!=username});
+        routes = routes.filter(function(r){return r!=CONFIG.zone && r!=username});
         var sendTo = "";
         var self = this;
         var total = routes ? routes.length : 0;
@@ -219,7 +219,10 @@ var PuffFlagLink = React.createClass({
     },
 
     handleFlagRequest: function() {
-        alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
+        var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
+
+        if(!doIt)
+            return false
 
         var self = this;
         var prom = PuffForum.flagPuff(self.props.sig);

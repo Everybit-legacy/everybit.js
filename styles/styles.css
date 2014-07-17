@@ -676,7 +676,7 @@ select:disabled {
     z-index: 300;
     width: 400px;
     font-size: 1em;
-    line-height: 1.6em;
+    line-height: 1.7em;
     text-decoration:none;
     bottom: 0px;
     overflow: auto;
@@ -694,10 +694,10 @@ select:disabled {
     overflow-y: visible;
 }
 .animation .slideup, .animation .slidedown {
-    -webkit-transition: max-height 1s ease-in-out;
-    -moz-transition: max-height 1s ease-in-out;
-    -o-transition: max-height 1s ease-in-out;
-    transition: max-height 1s ease-in-out;
+    -webkit-transition: max-height .3s ease-in-out;
+    -moz-transition: max-height .3s ease-in-out;
+    -o-transition: max-height .3s ease-in-out;
+    transition: max-height .3s ease-in-out;
 }
 
 .animation .menu {
@@ -727,7 +727,6 @@ select:disabled {
 
 .menuHeader {
     font-family: Gudea;
-    border-bottom: 1px solid #333333;
     text-transform: uppercase;
     display: block;
     padding-top: .0;
@@ -735,6 +734,7 @@ select:disabled {
     margin: 0;
     color: #000000;
     font-size: 1.1em;
+    border-bottom: solid 1px rgba(200,200,255,.6);
 }
 
 .menuLabel {
@@ -948,10 +948,13 @@ a.footerText {
     text-align: center;
     opacity: 0;
     display: block;
+    width: 100%;
+
 }
 .scroller:hover {
     height: 50px;
     opacity: 0.75;
+    width: 100%;
 }
 .animation .scroller:hover {
     transition: opacity 0.5s ease-in-out;

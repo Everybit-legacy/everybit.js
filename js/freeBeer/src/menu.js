@@ -22,9 +22,9 @@ var TooltipMixin = {
         var tooltip = this.getElementsByClassName('menuTooltip')[0];
         tooltip.style.display = "none";
     },
-    componentDidMount: function() {
+    componenttDidMount: function() {
         var current = this.getDOMNode();
-        var tooltips = current.getElementsByClassName('menuTooltip');
+        var toolips = current.getElementsByClassName('menuTooltip');
         for (var i=0; i<tooltips.length; i++) {
             var parent = tooltips[i].parentNode;
             parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);

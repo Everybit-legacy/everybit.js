@@ -50,7 +50,7 @@ Translate.language["en"].extend({
 			newIdentity: {
 				title: 'New Identity',
 				msg: 'Desired username',
-				generate: 'Generate',
+				generate: 'Regenerate',
 				or: 'or',
 				errorMissing: 'You must set all of your public keys before making a registration request.',
 				success: 'Success!',

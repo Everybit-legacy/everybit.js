@@ -967,7 +967,7 @@ a.footerText {
 .scroller {
     position: absolute;
     z-index: 275;
-    height: 10px;
+    height: 25px;
     background-color: #ccc;
     text-align: center;
     opacity: 0;

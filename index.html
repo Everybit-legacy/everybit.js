@@ -96,9 +96,9 @@
 
         // Start out all the same
         for(i=0;i<(bgW*bgH);i++) {
-            a[i]=60;
-            b[i]=30;
-            c[i]=20;
+            a[i]=120;
+            b[i]=60;
+            c[i]=40;
         }
 
         setInterval(function() {
@@ -119,13 +119,13 @@
                 b[i] = keepBetween(b[i],0,255);
                 c[i] = keepBetween(c[i],0,255);
 
-                context.fillStyle = "rgba(" + a[i] + "," + b[i] + "," + c[i] + ",.1)";
+                context.fillStyle = "rgba(" + a[i] + "," + b[i] + "," + c[i] + ",.05)";
                 context.fillRect(Math.floor(i/w), i%w, 1, 1);
             }
 
             document.body.style.backgroundImage =  "url("+canvas.toDataURL()+")";
 
-        },25000)
+        },2500)
 
     </script>
     <canvas id="forBG" style="display: none"></canvas>

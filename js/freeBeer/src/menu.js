@@ -40,7 +40,7 @@ var Menu = React.createClass({
             <div className="menu">
                 <br />
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
-                         clusterMenu='ViewMenu' clusterIcon='fa-sitemap' view={this.props.view} />
+                         clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
                 <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
                          clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
                 <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' 

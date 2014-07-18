@@ -571,10 +571,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var errorField = "";
         if (this.state.err) errorField =  React.DOM.span(null, React.DOM.em(null, this.state.err),React.DOM.br(null ));
 
-        var replyPrivacy = this.state.advancedOpt.replyPrivacy || privacyDefault; 
+        var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
         var replyPrivacyOption = (
-            React.DOM.span( {ref:"replyPrivacy", className:"icon", style:relativeStyle}, 
+            React.DOM.span( {ref:"replyPrivacy", className:"icon"}, 
                 polyglot.t("replyForm.advanced.replyPrivacy"),":", 
+                React.DOM.span(  {style:relativeStyle}, 
                 Object.keys(privacyToIcon).map(function(p){
                     var color = replyPrivacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
@@ -584,6 +585,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                             Tooltip( {position:"under", content:polyglot.t("replyForm.pOptions."+p)} )
                         ))
                 })
+                )
             )
             );
         var licenseDefault = this.state.advancedOpt.contentLicense || "";
@@ -591,6 +593,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             React.DOM.div(null, 
                 React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.advanced.contentLicense")),
                 React.DOM.select( {style:rightColStyle, ref:"contentLicense", className:"btn", name:"contentLicense", defaultValue:licenseDefault, onChange:this.handlePickAdvancedOpt}, 
+                    React.DOM.option( {value:""}),
                     React.DOM.option( {value:"CreativeCommonsAttribution"}, "Creative Commons Attribution"),
                     React.DOM.option( {value:"GNUPublicLicense"}, "GNU Public License"),
                     React.DOM.option( {value:"Publicdomain"}, "Public domain"),
@@ -599,20 +602,19 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 )
             )
             );
+        var advancedStyle = {
+            display: this.state.showAdvanced ? 'block' : 'none'
+        }
+        var chevronIcon = this.state.showAdvanced ? 'fa-chevron-circle-down' : 'fa-chevron-circle-left';
         var advancedField = (
             React.DOM.div(null, 
-                React.DOM.span(null, polyglot.t("replyForm.advanced.title"),React.DOM.a( {href:"#", onClick:this.handleShowAdvanced}, React.DOM.i( {className:"fa fa-fw fa-chevron-circle-left"})))
+                React.DOM.span(null, polyglot.t("replyForm.advanced.title"),React.DOM.a( {href:"#", onClick:this.handleShowAdvanced}, React.DOM.i( {className:"fa fa-fw "+chevronIcon}))),React.DOM.br(null),
+                React.DOM.div( {style:advancedStyle}, 
+                    replyPrivacyOption,
+                    licenseOption
+                )
             )
         );
-        if (this.state.showAdvanced) {
-            advancedField = (
-                React.DOM.div(null, 
-                React.DOM.span(null, polyglot.t("replyForm.advanced.title"),React.DOM.a( {href:"#", onClick:this.handleShowAdvanced}, React.DOM.i( {className:"fa fa-fw fa-chevron-circle-down"}))),React.DOM.br(null),
-                replyPrivacyOption,
-                licenseOption
-                )
-            );
-        }
 
         var className = privacy == 'public' ? "" : "encrypted"
         return (

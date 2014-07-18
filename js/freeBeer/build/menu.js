@@ -156,10 +156,10 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
-        var jsonToSet = {'view.mode': 'list', 'view.query': puffworlddefaults.view.query};
+        var jsonToSet = {'view.mode': 'list'};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('ui/view/filter/set', jsonToSet);
+        return events.pub('ui/filter/add', jsonToSet);
     },
     
     handleKeyDown: function(event) {
@@ -239,7 +239,6 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
             filterValue.splice(index, 1);
             var propsMod = {};
             propsMod[filterPath] = filterValue;
-            propsMod['view.query'] = puffworlddefaults.view.query;
             return events.pub('ui/filter/remove', propsMod);
          }
 
@@ -693,7 +692,6 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
-        var relativeStyle = {position: 'relative'};
         /*
         
                     {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
@@ -706,7 +704,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                             return React.DOM.option( {key:username, value:username}, username)
                         })
                 ),
-                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
+                    ' ',React.DOM.span( {className:"relative"}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
@@ -1335,7 +1333,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var polyglot = Translate.language[puffworldprops.view.language];
             var generatedName = PuffWardrobe.generateRandomUsername();
 
-            var relativeStyle = {position: 'relative'};
             var usernameField = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.span( {className:"message"}, polyglot.t("menu.identity.newIdentity.msg"),":")),React.DOM.br(null),
@@ -1346,7 +1343,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         })
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),
-                        React.DOM.span( {style:relativeStyle}, 
+                        React.DOM.span( {className:"relative"}, 
                             React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip"})),
                             Tooltip( {position:"under", content:polyglot.t("menu.tooltip.generate")})
                         )

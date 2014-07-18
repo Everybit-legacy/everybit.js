@@ -675,7 +675,7 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
                 if (boxSlope > lineSlope) {
 
                     // Limited by bottom edge
-                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    x2 += ((c.height / 2) - offset / 2) / lineSlope
                     y2 += ((c.height / 2) - offset / 2)
 
                     y2 += Math.abs(Math.sin(theta)) * 5
@@ -722,7 +722,6 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
         colNumber = colNumber % CONFIG.arrowColors.length;
 
         var stroke = CONFIG.arrowColors[colNumber]
-        
         return Arrow( {x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke, fill:stroke} )
     }
 })

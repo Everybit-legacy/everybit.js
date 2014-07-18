@@ -22,9 +22,9 @@ var TooltipMixin = {
         var tooltip = this.getElementsByClassName('menuTooltip')[0];
         tooltip.style.display = "none";
     },
-    componenttDidMount: function() {
+    componentDidMount: function() {
         var current = this.getDOMNode();
-        var toolips = current.getElementsByClassName('menuTooltip');
+        var tooltips = current.getElementsByClassName('menuTooltip');
         for (var i=0; i<tooltips.length; i++) {
             var parent = tooltips[i].parentNode;
             parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent);
@@ -35,11 +35,9 @@ var TooltipMixin = {
 
 
 var Menu = React.createClass({displayName: 'Menu',
-
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-
                 React.DOM.br(null ),
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view",
                          clusterMenu:"ViewMenu", clusterIcon:"fa-sitemap", view:this.props.view} ),
@@ -138,14 +136,6 @@ var Cluster = React.createClass({displayName: 'Cluster',
                 )
             )
         )
-    }
-});
-
-var Logo = React.createClass({displayName: 'Logo',
-    render: function() {
-        return (
-            React.DOM.a( {href:CONFIG.url}, React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} ))
-            )
     }
 });
 
@@ -461,6 +451,15 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
         }
     },
 
+
+    handleToggleReporting: function() {
+        if(puffworldprops.prefs.reporting) {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
+        } else {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
+        }
+    },
+
     handleShowHideInfobar: function() {
         return events.pub( 'ui/view/showinfo/toggle',
             { 'view.showinfo': !puffworldprops.view.showinfo})
@@ -507,7 +506,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
             'fa': true,
             'fa-fw': true,
             'fa-check-square-o': !puffworldprops.prefs.reporting,
-            'fa-square-o': !puffworldprops.prefs.reporting,
+            'fa-square-o': puffworldprops.prefs.reporting,
             'green': !puffworldprops.prefs.reporting
         });
 
@@ -535,7 +534,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass4, onClick:this.handleToggleReporting} )),
-                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
+                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),
                     Tooltip( {content:polyglot.t("menu.tooltip.disable_reporting")} )
                 ),
 
@@ -712,11 +711,228 @@ var Checkmark = React.createClass({displayName: 'Checkmark',
         } else if(this.props.show === true) {
             return React.DOM.i( {className:"fa fa-check-circle fa-fw green"})
         } else {
-            return React.DOM.i( {className:"fa fa-check-circle fa-fw red"})
+            return React.DOM.span(null, React.DOM.i( {className:"fa fa-check-circle fa-fw red"}))
         }
 
     }
 });
+
+/* not in use 
+var QRCode = React.createClass({
+    render: function() {
+        if (!this.props.show) return <span></span>;
+        if (!this.props.status) return <span><i className="fa fa-qrcode fa-fw gray"></i></span>
+        return <span><i className="fa fa-qrcode fa-fw green"></i></span>
+    }
+});
+var ManageIdentity = React.createClass({
+    getInitialState: function() {
+        var username = this.props.username;
+        var keys = PuffWardrobe.getAll()[username] || {root: false, default: false, admin: false};
+        var keyStatus = {root: false, default: false, admin: false};
+        var qrCodeStatus = false;
+
+        return {
+            username: username,
+            usernameStatus: false,
+            needUpdate: false,
+            keys: keys,
+            keyStatus: keyStatus,
+            qrCodeStatus: qrCodeStatus
+        }
+    },
+    handleUsernameLookup: function() {
+        var username = this.refs.username.getDOMNode().value;
+        this.setState({username: username, needUpdate: (username != PuffWardrobe.getCurrentUsername())});
+        var self = this;
+
+        // Check for zero length
+        if(!username.length) {
+            this.state.usernameStatus = 'Missing';
+            events.pub('ui/event', {});
+            return false;
+        }
+
+        var prom = Puffball.getUserRecord(username);
+        prom.then(function(result) {
+            self.setState({usernameStatus: true});
+            self.updateKeys();
+            events.pub('ui/puff-packer/userlookup', {});
+        })
+            .catch(function(err) {
+                console.log(err);
+                self.setState({usernameStatus: 'Not found'});
+                events.pub('ui/puff-packer/userlookup/failed', {});
+            })
+        return false;
+    },
+    handleUsernameChange: function() {
+        var status = {root: false, default: false, admin: false};
+        this.setState({usernameStatus: false, 
+                       keyStatus: status,
+                       needUpdate: true,
+                       qrCodeStatus: false});
+        return false;
+    },
+    updateUsername: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        this.setState({username: username});
+        this.refs.username.getDOMNode().value = username;
+
+        this.handleUsernameLookup();
+        this.updateKeys();
+        return false;
+    },
+
+    updateKeys: function() {
+        var username = this.state.username;
+        var keys = PuffWardrobe.getAll()[username] || {root: false, default: false, admin: false};
+        this.setState({keys: keys});
+
+        var types = ['root', 'admin', 'default'];
+        for (var i=0; i<3; i++){
+            var type = types[i];
+            var key = keys[type];
+            this.refs[type].getDOMNode().value = key || '';
+            this.state.keyStatus[type] = Boolean(key);
+        }
+        this.state.qrCodeStatus = false;
+        return false;            
+    },
+    handleKeyCheck: function(type) {
+        var self = this;
+        var username = this.state.username;
+        var privateKey = this.refs[type].getDOMNode().value;
+        // Check for zero length
+        if(!privateKey.length) {
+            this.state.keyStatus[type] = 'Key missing';
+            events.pub('ui/event', {});
+            return false;
+        }
+        // Convert to public key
+        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
+        if(!publicKey) {
+            this.state.keyStatus[type] = 'Bad key';
+            events.pub('ui/event', {});
+            return false;
+        }
+
+        var prom = Puffball.getUserRecord(username);
+        prom.then(function(userInfo) {
+            if(publicKey != userInfo[type+'Key']) {
+                self.state.keyStatus[type] = 'Incorrect key';
+                events.pub('ui/event', {});
+                return false;
+            } else {
+                self.state.keys[type] = privateKey;
+                self.state.keyStatus[type] = true;
+                self.setState({qrCodeStatus: false});
+
+                // Add this to wardrobe, set username to current
+                if(type == 'default') {
+                    PuffWardrobe.storeDefaultKey(username, privateKey);
+                }
+                if(type == 'admin') {
+                    PuffWardrobe.storeAdminKey(username, privateKey);
+                }
+                if(type == 'root') {
+                    PuffWardrobe.storeRootKey(username, privateKey);
+                }
+
+                // At least one good key, set this to current user
+                PuffWardrobe.switchCurrent(username);
+                events.pub('ui/event', {});
+                return false;
+            }
+        })
+            .catch(function(err) {
+                self.state.keyStatus[type] = 'Not found';
+                events.pub('ui/event', {});
+                return false;
+            })
+        return false;
+    },
+    handleKeyChange: function(type) {
+        var status = this.state.keyStatus;
+        status[type] = false;
+        this.setState({keyStatus: status});
+        if (this.state.qrCodeStatus == type)
+            this.setState({qrCodeStatus: false});
+    },
+    handlePickQRCode: function(type) {
+        if (this.state.qrCodeStatus == type) {
+            this.setState({qrCodeStatus: false});
+        } else {
+            this.setState({qrCodeStatus: type});
+        }
+        return false;
+    },
+    handleClickQRCode: function(){
+        // create the qr code
+        var key = PuffWardrobe.getCurrentKeys()[this.state.qrCodeStatus];
+        var qr = qrcode(4, 'M');
+        qr.addData(key);
+        qr.make();
+        var image_data = qr.createImgTag(10);
+        var data = 'data:image/gif;base64,' + image_data.base64;
+        window.open(data, 'Image')
+    },
+
+    componentDidMount: function() {
+        var self = this;
+        this.handleUsernameLookup();
+        ['root', 'admin', 'default'].map(self.handleKeyCheck.bind(self));
+    },
+
+    render: function() {
+        var username = this.state.username;
+        var self = this;
+        
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var qrCodeField = "";
+        if (this.state.qrCodeStatus) {
+            var type = this.state.qrCodeStatus;
+            var key = this.state.keys[type];
+            if (key) {
+                var qr = qrcode(4, 'M');
+                qr.addData(key);
+                qr.make();
+                var image_data = qr.createImgTag() || {};
+                var data = 'data:image/gif;base64,' + image_data.base64;
+                qrCodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
+            }
+        }
+        var updateBtn = <a href="#" onClick={this.updateUsername}><i className="fa fa-refresh fa-fw"></i></a>
+        return (
+            <div className="identitySection menuSection">
+                <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
+                <div className="menuInput">
+                    <input type="text" ref="username" defaultValue={username} onChange={this.handleUsernameChange} onBlur={this.handleUsernameLookup} size="10"/>
+                    <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                    {updateBtn}
+                </div><br/>
+                {qrCodeField}
+
+                {['root', 'admin', 'default'].map(function(type){
+                    var key = self.state.keys[type];
+                    var keyStatus = self.state.keyStatus[type];
+                    var showQRCode = self.state.qrCodeStatus == type;
+                    return (
+                        <div>
+                            {type}:
+                            <div className="menuInput">
+                                <input type="text" ref={type} defaultValue={key} onChange={self.handleKeyChange.bind(self, type)} size="10"/>
+                                <a href="#" onClick={self.handleKeyCheck.bind(self,type)}><Checkmark show={keyStatus} /></a>
+                                <a href="#" onClick={self.handlePickQRCode.bind(self, type)}><QRCode show={keyStatus === true} status={showQRCode} value={key} /></a>
+                            </div><br/>
+                        </div>
+                    )})
+                }
+            </div>
+        )
+    }
+})*/
+
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
     getInitialState: function() {
@@ -937,12 +1153,10 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                     var qr = qrcode(4, 'M');
                     qr.addData(key);
                     qr.make();
-
                     var image_data = qr.createImgTag() || {};
                     var data = 'data:image/gif;base64,' + image_data.base64;
                     qrcodeField = (React.DOM.img( {id:"qrcode", src:data, width:image_data.width, height:image_data.height, onClick:this.handleClickQRCode}));
                 }
-
             }
 
             var qrcodeBaseStyle = "fa fa-qrcode fa-fw";

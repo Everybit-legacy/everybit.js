@@ -637,9 +637,12 @@ Puffball.Persist.remove = function(key) {
  * @return {false}
  */
 Puffball.onError = function(msg, obj) {
-    console.log(msg, obj)
+    toSend = {msg: msg, obj: obj};
 
-    // TODO: if reporing, fire XHR report
+    if(puffworldprops.prefs.reporting)
+        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, toSend)
+
+        // console.log(msg, obj)
     return false
 }
 

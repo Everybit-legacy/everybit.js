@@ -507,9 +507,9 @@ var PuffTallTree = React.createClass({
 
         if(!puff) return <div></div>
         
+        // sundry miscellany
         var arrows = this.props.view.arrows
         var username = PuffWardrobe.getCurrentUsername()
-        
         var filters = this.props.view.filters
         var query = this.props.view.query
         var queryfilter = PB.extend({}, query, filters)
@@ -537,42 +537,48 @@ var PuffTallTree = React.createClass({
         var childrenTotal = childrenStartRow * cols
         var siblingTotal  = (cols - bigcols) * bigrows
 
+        // box building
         // TODO: partial application
         var ancestorBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
         var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow)
         var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow)
         var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
-  
-                                       
-        //// need a filtery thing:
-        // return (puff.payload.parents||[]).map(PuffForum.getPuffBySig)
-        //                                  .filter(Boolean)
-        //                                  .filter(PuffForum.getPropsFilter(props))
-        //                                  .sort(PuffForum.sortByPayload)
-        
-        
-        // collisions between ancestor generations: 
-        // -- either get them all at once (outN()) or accumulate in query (as('parents')) and uniquify, or filter by value
-        // not filtering by filters
-        // not getting just available puffs
-        
-        var shellfilter = PuffForum.filterByFilters(queryfilter)
-        var graphfilter = function(vertex) { return shellfilter(vertex.shell) } 
+
+        // filters
+        var graphize    = function(f) { return function(x) { return f(x.shell) } } // TODO: pipe(prop('shell'), f)
+        var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
+        var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
         
         
         // gather puffs, graph style
         var genLimit = 10
+        var notSelf  = graphize(difffilter([puff]))
         var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
-                                    .unique().filter(graphfilter)
+                                    .unique().filter(propsfilter).filter(notSelf)
                                     .take(ancestorTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
         
+        var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
+        
+        var childrenPuffs = PuffData.graph.v(sig).inAllN('parent', genLimit)
+                                    .unique().filter(propsfilter).filter(notAncestor)
+                                    .take(childrenTotal).property('shell').run()
+                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+        
+        var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
+        
+        var siblingPuffs  = PuffData.graph.v(sig).out('parent').out('child') // THINK: second cousins?
+                                    .unique().filter(propsfilter).filter(notRelated)
+                                    .take(childrenTotal).property('shell').run()
+                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+        
+        
+        // var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .property('shell').run()
         
         // var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .property('shell').run()
         // var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .property('shell').run()
         // var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .property('shell').run()
-        var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .property('shell').run()
-        var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .property('shell').run()
+        // var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .property('shell').run()
         
         
         // gather puffs
@@ -588,21 +594,21 @@ var PuffTallTree = React.createClass({
                                        // .slice(0, cols)
                                        
         // var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
-        var siblingPuffs  = siblingPuffs // pre-sorted
-                                     .filter(function(item) {
-                                         return !~[puff.sig].concat(ancestorPuffs.map(R.prop('sig'))).indexOf(item.sig)})
-                                     .filter(PuffForum.filterByFilters(queryfilter))
-                                     .slice(0, siblingTotal)
+        // var siblingPuffs  = siblingPuffs // pre-sorted
+        //                              .filter(function(item) {
+        //                                  return !~[puff.sig].concat(ancestorPuffs.map(R.prop('sig'))).indexOf(item.sig)})
+        //                              .filter(PuffForum.filterByFilters(queryfilter))
+        //                              .slice(0, siblingTotal)
                                      // .slice(0, cols > 1 ? (cols-2)*2 : 0)
                                      
         // var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
         var childrenPuffs = childrenPuffs // pre-sorted
-                                     .filter(function(item) {
-                                         return !~[puff.sig].concat(ancestorPuffs .map(R.prop('sig')), 
-                                                                    siblingPuffs.map(R.prop('sig')))
-                                                            .indexOf(item.sig)})
-                                     .filter(PuffForum.filterByFilters(queryfilter))
-                                     .slice(0, childrenTotal)
+                                     // .filter(function(item) {
+                                     //     return !~[puff.sig].concat(ancestorPuffs .map(R.prop('sig')),
+                                     //                                siblingPuffs.map(R.prop('sig')))
+                                     //                        .indexOf(item.sig)})
+                                     // .filter(PuffForum.filterByFilters(queryfilter))
+                                     // .slice(0, childrenTotal)
                                      // .slice(0, cols)
                                      .sort(function(a, b) {
                                          return a.username == username ? -1 : 0       // fancy sorting for current user puffs
@@ -612,22 +618,20 @@ var PuffTallTree = React.createClass({
                                              || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
                                              })
         
-        var allPuffs = [].concat( [puff].map(stuckBigBox('focused'))
-                                , ancestorPuffs.map(ancestorBox('parent'))
-                                , siblingPuffs.map(siblingBox('sibling'))
-                                , childrenPuffs.map(childrenBox('child'))
-                                )
-                         .filter(function(x) {return x.width})                  // remove nodes that don't fit in the grid 
-                         .sort(function(a, b) {                                 // sort required so React doesn't have to 
-                             if(a.puff.sig+'' < b.puff.sig+'') return -1;       // remove and re-add DOM nodes in order to
-                             if(a.puff.sig+'' > b.puff.sig+'') return 1;        // order them properly
-                             return 0; })
-                             // return a.puff.sig+'' < b.puff.sig+'' ? 1 : a.puff.sig+'' == b.puff.sig+'' ? 0 : -1})
+        var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
+                                 , ancestorPuffs.map(ancestorBox('parent'))
+                                 , siblingPuffs.map(siblingBox('sibling'))
+                                 , childrenPuffs.map(childrenBox('child'))
+                                 )
+                          .filter(function(x) {return x.width})                 // remove nodes that don't fit in the grid 
+                          .sort(function(a, b) {                                // sort required so React doesn't have  
+                              if(a.puff.sig+'' < b.puff.sig+'') return -1;      //   to remove and re-add DOM nodes   
+                              if(a.puff.sig+'' > b.puff.sig+'') return 1;       //   in order to order them properly
+                              return 0; })
         
+        this.cursorPower(puffBoxes.map(function(pbox) {return pbox.puff}), puff)
         
-        this.cursorPower(allPuffs.map(function(pbox) {return pbox.puff}), puff)
-        
-        return this.manualGridify(allPuffs)
+        return this.manualGridify(puffBoxes)
     }
 })
 

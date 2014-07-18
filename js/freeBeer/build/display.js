@@ -551,6 +551,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         
         
         // gather puffs, graph style
+        // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
         var genLimit = 10
         var notSelf  = graphize(difffilter([puff]))
         var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
@@ -567,70 +568,37 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
-        var siblingPuffs  = PuffData.graph.v(sig).out('parent').out('child') // THINK: second cousins?
+        var siblingPuffs  = PuffData.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
                                     .unique().filter(propsfilter).filter(notRelated)
-                                    .take(childrenTotal).property('shell').run()
+                                    .take(siblingTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
         
+        // special sorting for children puffs
+        var childrenPuffs = 
+            childrenPuffs.sort(function(a, b) {
+                            return a.username == username ? -1 : 0            // fancy sorting for current user puffs
+                                || b.username == username ?  1 : 0            
+                                || a.username == puff.username ? -1 : 0       // fancy sorting for author puffs
+                                || b.username == puff.username ?  1 : 0       
+                                || PuffForum.sortByPayload(b, a) * -1         // regular temporal sort
+                                })
         
-        // var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .property('shell').run()
-        
-        // var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .property('shell').run()
-        // var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .property('shell').run()
-        // var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .property('shell').run()
-        // var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .property('shell').run()
-        
-        
-        // gather puffs
-        // var parentPuffs   = PuffForum.getParents(puff) // pre-sorted
-        //
-        // var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
-        // var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
-  
-            // parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
-            // parentPuffs   = ancestorPuffs
-            //                            .filter(function(item, index, array) {return array.indexOf(item) == index})
-                                       // .filter(PuffForum.filterByFilters(queryfilter))
-                                       // .slice(0, cols)
-                                       
-        // var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
-        // var siblingPuffs  = siblingPuffs // pre-sorted
-        //                              .filter(function(item) {
-        //                                  return !~[puff.sig].concat(ancestorPuffs.map(R.prop('sig'))).indexOf(item.sig)})
-        //                              .filter(PuffForum.filterByFilters(queryfilter))
-        //                              .slice(0, siblingTotal)
-                                     // .slice(0, cols > 1 ? (cols-2)*2 : 0)
-                                     
-        // var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
-        var childrenPuffs = childrenPuffs // pre-sorted
-                                     // .filter(function(item) {
-                                     //     return !~[puff.sig].concat(ancestorPuffs .map(R.prop('sig')),
-                                     //                                siblingPuffs.map(R.prop('sig')))
-                                     //                        .indexOf(item.sig)})
-                                     // .filter(PuffForum.filterByFilters(queryfilter))
-                                     // .slice(0, childrenTotal)
-                                     // .slice(0, cols)
-                                     .sort(function(a, b) {
-                                         return a.username == username ? -1 : 0       // fancy sorting for current user puffs
-                                             || b.username == username ?  1 : 0
-                                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
-                                             || b.username == puff.username ?  1 : 0
-                                             || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
-                                             })
-        
+        // box the puffs 
         var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
                                  , ancestorPuffs.map(ancestorBox('parent'))
                                  , siblingPuffs.map(siblingBox('sibling'))
                                  , childrenPuffs.map(childrenBox('child'))
                                  )
-                          .filter(function(x) {return x.width})                 // remove nodes that don't fit in the grid 
-                          .sort(function(a, b) {                                // sort required so React doesn't have  
-                              if(a.puff.sig+'' < b.puff.sig+'') return -1;      //   to remove and re-add DOM nodes   
-                              if(a.puff.sig+'' > b.puff.sig+'') return 1;       //   in order to order them properly
+                          .filter(function(x) {return x.width})               // remove nodes that don't fit in the grid 
+                          .sort(function(a, b) {                              // sort required so React doesn't have  
+                              if(a.puff.sig+'' < b.puff.sig+'') return -1;    //   to remove and re-add DOM nodes   
+                              if(a.puff.sig+'' > b.puff.sig+'') return 1;     //   in order to order them properly
                               return 0; })
         
+        // ensure cursor is set
         this.cursorPower(puffBoxes.map(function(pbox) {return pbox.puff}), puff)
         
+        // lay out the boxes
         return this.manualGridify(puffBoxes)
     }
 })

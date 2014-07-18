@@ -478,11 +478,21 @@ var PuffTallTree = React.createClass({
         var rows    = dimensions.rows
         var gridbox = this.getGridBox(rows, cols)
         
+        // big box
+        var bigrows = +this.props.view.bigrows || 2
+        var bigcols = +this.props.view.bigcols || 2
+        if(bigrows < 0) bigrows = Math.max(rows + bigrows, 1)
+        if(bigcols < 0) bigcols = Math.max(cols + bigcols, 1)
+        if(rows < bigrows) bigrows = rows
+        if(cols < bigcols) bigcols = cols
+        
+        
+        
         // TODO: partial application
-        var standardBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
-        var secondRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 1)
-        var fourthRowBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 3)
-        var stuckBigBox  = this.applySizes(cols > 1 ? 2 : 1, rows > 1 ? 2 : 1, gridbox.add, {arrows: arrows}, 1, 0, 1, 0)
+        var ancestorBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
+        var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 1)
+        var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 3)
+        var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, 1, 0, 1, 0)
         
         
         //// need a filtery thing:
@@ -499,8 +509,8 @@ var PuffTallTree = React.createClass({
         
         
         // gather puffs, graph style
-        var genLimit = 5
-        var ancestorTotal = 20
+        var genLimit = 10
+        var ancestorTotal = cols 
         var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit) 
                                     .unique().take(ancestorTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
@@ -548,9 +558,9 @@ var PuffTallTree = React.createClass({
                                              })
         
         var allPuffs = [].concat( [puff].map(stuckBigBox('focused'))
-                                , parentPuffs.map(standardBox('parent'))
-                                , siblingPuffs.map(secondRowBox('sibling'))
-                                , childrenPuffs.map(fourthRowBox('child'))
+                                , parentPuffs.map(ancestorBox('parent'))
+                                , siblingPuffs.map(siblingBox('sibling'))
+                                , childrenPuffs.map(childrenBox('child'))
                                 )
                          .filter(function(x) {return x.width})                  // remove nodes that don't fit in the grid 
                          .sort(function(a, b) {                                 // sort required so React doesn't have to 

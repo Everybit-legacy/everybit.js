@@ -407,10 +407,6 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
                         React.DOM.a( {className:"menuLabel", onClick:this.handleToggleShowSection.bind(this, 'editIdentity')}, React.DOM.i( {className:"fa fa-eye fa-fw"}),polyglot.t("menu.identity.editIdentity.title")),React.DOM.br(null),
                         Tooltip( {content:polyglot.t("menu.tooltip.editIdentity")} ),
                         EditIdentity( {show:this.state.section.editIdentity, username:currUser} )
-                    ),
-
-                    React.DOM.div( {className:"menuItem"}, 
-                        ManageIdentity( {username:currUser} )
                     )
                 )
 
@@ -698,53 +694,39 @@ var Checkmark = React.createClass({displayName: 'Checkmark',
         } else if(this.props.show === true) {
             return React.DOM.i( {className:"fa fa-check-circle fa-fw green"})
         } else {
-            return React.DOM.span(null, React.DOM.i( {className:"fa fa-check-circle fa-fw red"}),this.props.show)
+            return React.DOM.span(null, React.DOM.i( {className:"fa fa-check-circle fa-fw red"}))
         }
 
     }
 });
-var QRCode = React.createClass({displayName: 'QRCode',
+
+/* not in use 
+var QRCode = React.createClass({
     render: function() {
-        if (!this.props.show) return React.DOM.span(null);
-        if (!this.props.status) return React.DOM.span(null, React.DOM.i( {className:"fa fa-qrcode fa-fw gray"}))
-        return React.DOM.span(null, React.DOM.i( {className:"fa fa-qrcode fa-fw green"}))
+        if (!this.props.show) return <span></span>;
+        if (!this.props.status) return <span><i className="fa fa-qrcode fa-fw gray"></i></span>
+        return <span><i className="fa fa-qrcode fa-fw green"></i></span>
     }
 });
-
-
-var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
+var ManageIdentity = React.createClass({
     getInitialState: function() {
         var username = this.props.username;
         var keys = PuffWardrobe.getAll()[username] || {root: false, default: false, admin: false};
-        var keyStatus = {};
-        var qrCodeStatus = {};
-        Object.keys(keys).map(function(type){
-            keyStatus[type] = Boolean(keys[type]); 
-            return keys[type];
-        });
-        Object.keys(keyStatus).map(function(type){
-            qrCodeStatus[type] = (keyStatus[type] === true); 
-            return keyStatus[type]
-        });
+        var keyStatus = {root: false, default: false, admin: false};
+        var qrCodeStatus = false;
 
-        /*
-            keyStatus === true: show qrcode icon
-            otherwise: hide qrcode icon
-            qrCodeStatus == true: show qrcode
-            qrCodeStatus == false: do not show qrcode
-         */
         return {
             username: username,
             usernameStatus: false,
+            needUpdate: false,
             keys: keys,
             keyStatus: keyStatus,
             qrCodeStatus: qrCodeStatus
         }
     },
-
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value;
-        this.setState({username: username});
+        this.setState({username: username, needUpdate: (username != PuffWardrobe.getCurrentUsername())});
         var self = this;
 
         // Check for zero length
@@ -771,7 +753,17 @@ var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
         var status = {root: false, default: false, admin: false};
         this.setState({usernameStatus: false, 
                        keyStatus: status,
-                       qrCodeStatus: status});
+                       needUpdate: true,
+                       qrCodeStatus: false});
+        return false;
+    },
+    updateUsername: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        this.setState({username: username});
+        this.refs.username.getDOMNode().value = username;
+
+        this.handleUsernameLookup();
+        this.updateKeys();
         return false;
     },
 
@@ -784,10 +776,10 @@ var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
         for (var i=0; i<3; i++){
             var type = types[i];
             var key = keys[type];
-            if (key)
-                this.refs[type].getDOMNode().value = key;
+            this.refs[type].getDOMNode().value = key || '';
             this.state.keyStatus[type] = Boolean(key);
         }
+        this.state.qrCodeStatus = false;
         return false;            
     },
     handleKeyCheck: function(type) {
@@ -815,7 +807,9 @@ var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
                 events.pub('ui/event', {});
                 return false;
             } else {
+                self.state.keys[type] = privateKey;
                 self.state.keyStatus[type] = true;
+                self.setState({qrCodeStatus: false});
 
                 // Add this to wardrobe, set username to current
                 if(type == 'default') {
@@ -841,9 +835,36 @@ var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
             })
         return false;
     },
+    handleKeyChange: function(type) {
+        var status = this.state.keyStatus;
+        status[type] = false;
+        this.setState({keyStatus: status});
+        if (this.state.qrCodeStatus == type)
+            this.setState({qrCodeStatus: false});
+    },
+    handlePickQRCode: function(type) {
+        if (this.state.qrCodeStatus == type) {
+            this.setState({qrCodeStatus: false});
+        } else {
+            this.setState({qrCodeStatus: type});
+        }
+        return false;
+    },
+    handleClickQRCode: function(){
+        // create the qr code
+        var key = PuffWardrobe.getCurrentKeys()[this.state.qrCodeStatus];
+        var qr = qrcode(4, 'M');
+        qr.addData(key);
+        qr.make();
+        var image_data = qr.createImgTag(10);
+        var data = 'data:image/gif;base64,' + image_data.base64;
+        window.open(data, 'Image')
+    },
 
     componentDidMount: function() {
+        var self = this;
         this.handleUsernameLookup();
+        ['root', 'admin', 'default'].map(self.handleKeyCheck.bind(self));
     },
 
     render: function() {
@@ -851,31 +872,49 @@ var ManageIdentity = React.createClass({displayName: 'ManageIdentity',
         var self = this;
         
         var polyglot = Translate.language[puffworldprops.view.language];
+        var qrCodeField = "";
+        if (this.state.qrCodeStatus) {
+            var type = this.state.qrCodeStatus;
+            var key = this.state.keys[type];
+            if (key) {
+                var qr = qrcode(4, 'M');
+                qr.addData(key);
+                qr.make();
+                var image_data = qr.createImgTag() || {};
+                var data = 'data:image/gif;base64,' + image_data.base64;
+                qrCodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
+            }
+        }
+        var updateBtn = <a href="#" onClick={this.updateUsername}><i className="fa fa-refresh fa-fw"></i></a>
         return (
-            React.DOM.div( {className:"identitySection menuSection"}, 
-                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.username"),":"),
-                React.DOM.div( {className:"menuInput"}, 
-                    React.DOM.input( {type:"text", ref:"username", defaultValue:username, onChange:this.handleUsernameChange, size:"12"}),
-                    React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} ))
-                ),React.DOM.br(null),
-                ['root', 'admin', 'default'].map(function(type){
+            <div className="identitySection menuSection">
+                <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
+                <div className="menuInput">
+                    <input type="text" ref="username" defaultValue={username} onChange={this.handleUsernameChange} onBlur={this.handleUsernameLookup} size="10"/>
+                    <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                    {updateBtn}
+                </div><br/>
+                {qrCodeField}
+
+                {['root', 'admin', 'default'].map(function(type){
                     var key = self.state.keys[type];
                     var keyStatus = self.state.keyStatus[type];
-                    var qrCodeStatus = self.state.qrCodeStatus[type];
+                    var showQRCode = self.state.qrCodeStatus == type;
                     return (
-                        React.DOM.div(null, 
-                            type,":",
-                            React.DOM.div( {className:"menuInput"}, 
-                                React.DOM.input( {type:"text", ref:type, defaultValue:key, size:"12"}),
-                                React.DOM.a( {href:"#", onClick:self.handleKeyCheck.bind(self,type)}, Checkmark( {show:keyStatus} )),
-                                QRCode( {show:keyStatus === true, status:qrCodeStatus, value:key} )
-                            ),React.DOM.br(null)
-                        )
+                        <div>
+                            {type}:
+                            <div className="menuInput">
+                                <input type="text" ref={type} defaultValue={key} onChange={self.handleKeyChange.bind(self, type)} size="10"/>
+                                <a href="#" onClick={self.handleKeyCheck.bind(self,type)}><Checkmark show={keyStatus} /></a>
+                                <a href="#" onClick={self.handlePickQRCode.bind(self, type)}><QRCode show={keyStatus === true} status={showQRCode} value={key} /></a>
+                            </div><br/>
+                        </div>
                     )})
-            )
+                }
+            </div>
         )
     }
-})
+})*/
 
 
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
@@ -1097,12 +1136,10 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                     var qr = qrcode(4, 'M');
                     qr.addData(key);
                     qr.make();
-
                     var image_data = qr.createImgTag() || {};
                     var data = 'data:image/gif;base64,' + image_data.base64;
                     qrcodeField = (React.DOM.img( {id:"qrcode", src:data, width:image_data.width, height:image_data.height, onClick:this.handleClickQRCode}));
                 }
-
             }
 
             var qrcodeBaseStyle = "fa fa-qrcode fa-fw";

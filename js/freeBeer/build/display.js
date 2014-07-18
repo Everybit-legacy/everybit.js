@@ -1,5 +1,16 @@
 /** @jsx React.DOM */
 
+var PuffBarShortcutMixin = {
+    componentDidMount: function() {
+        Mousetrap.bind(['shift+f'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            if (bar.refs.flag)
+                bar.refs.flag.handleFlagRequest();
+        }.bind(this));
+    }
+};
+
 var ViewKeybindingsMixin = {
     componentDidMount: function() {
         
@@ -239,7 +250,8 @@ var CursorBindingsMixin = {
             showPuff(this.props.view.cursor);
             return false;
         }.bind(this));
-        
+
+
     },
     componentWillUnmount: function() {
         Mousetrap.reset();
@@ -368,7 +380,7 @@ var GridLayoutMixin = {
                 var stats = puffplus
                 var puff  = puffplus.puff
                 var view  = viewprops
-                return PuffFancyBox( {puff:puff, key:puff.sig, extraClassy:className, stats:stats, view:view} )
+                return PuffFancyBox( {puff:puff, key:puff.sig, extraClassy:className, stats:stats, view:view, ref:puff.sig} )
             }
         })()
         
@@ -484,7 +496,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
 
 var PuffList = React.createClass({displayName: 'PuffList',
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
         // TODO: todo this
         return true
@@ -518,7 +530,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
 
 
 var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
     render: function() {
 
         var sig    = this.props.view.query.focus

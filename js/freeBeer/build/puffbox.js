@@ -1,5 +1,16 @@
 /** @jsx React.DOM */
 
+var PuffBarShortcutMixin = {
+    componentDidMount: function() {
+        Mousetrap.bind(['shift+f'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            console.log(bar);
+            return false;
+        }.bind(this));
+    }
+};
+
 var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
     render: function() {
         var   puff = this.props.puff
@@ -59,7 +70,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {puff:puff, hidden:hidden} ),
                 PuffContent( {puff:puff, height:height} ),
-                PuffBar( {puff:puff, hidden:hidden, flagged:flagged})
+                PuffBar( {ref:"bar", puff:puff, hidden:hidden, flagged:flagged})
             )
         );
     }
@@ -180,7 +191,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
          ***/
         var iconSetOne = (
             React.DOM.div( {className:className}, 
-                PuffFlagLink( {sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
+                PuffFlagLink( {ref:"flag", sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
                 PuffInfoLink( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
                 PuffClone( {puff:puff} ),

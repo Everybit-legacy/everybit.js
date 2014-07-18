@@ -122,7 +122,7 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    data['reply.preview'] = false                           // FIXME: this is not the right place for this
+    // data['reply.preview'] = false                           // FIXME: this is not the right place for this
 
     update_puffworldprops(data)                             // change props in a persistent fashion
 
@@ -132,8 +132,11 @@ events.sub('ui/*', function(data, path) {
     
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
-events.sub("ui/filter/*", function(data, path) {
-    events.pub('ui/query/default', {'view.query': puffworlddefaults.view.query})
+
+events.sub("filter/*", function(data, path) {
+    data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
+    data['view.mode'] = 'list';
+    events.pub('ui/query/default', data);
 })
 
 // TODO: move these somewhere nicer

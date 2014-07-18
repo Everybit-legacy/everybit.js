@@ -156,10 +156,10 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
-        var jsonToSet = {'view.mode': 'list'};
+        var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('ui/filter/add', jsonToSet);
+        return events.pub('filter/add', jsonToSet);
     },
     
     handleKeyDown: function(event) {
@@ -239,7 +239,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
             filterValue.splice(index, 1);
             var propsMod = {};
             propsMod[filterPath] = filterValue;
-            return events.pub('ui/filter/remove', propsMod);
+            return events.pub('filter/remove', propsMod);
          }
 
         return false;
@@ -295,11 +295,9 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     },
 
     handleShowUserPuffs: function(username) {
-        return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.filters': puffworlddefaults.view.filters
-                                             , 'view.query': puffworlddefaults.view.query
-                                             , 'view.filters.users': [username]
-                                             })
+        return events.pub('filter/show/by-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.filters.users': [username] })
     },
 
     handleShowShortcuts: function() {
@@ -658,11 +656,9 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
-        return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.filters': puffworlddefaults.view.filters
-                                             , 'view.query': puffworlddefaults.view.query
-                                             , 'view.filters.users': [username]
-                                             })
+        return events.pub('filter/show/by-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.filters.users': [username] } )
     },
 
     handleShowPuffsForMe: function(){
@@ -673,9 +669,9 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', { 'view.mode': 'list',
-                                                 'view.query': puffworlddefaults.view.query, 
-                                                 'view.filters.routes': [username] });
+        return events.pub('filter/show/for-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.filters.routes': [username] });
     },
 
     render: function() {

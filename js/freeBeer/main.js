@@ -79,7 +79,9 @@ puffworldprops = {
         puffs: []
     },
 
-    prefs: { },
+    prefs: {
+        reporting: true
+    },
     profile: { },
     tools: {
         users: {
@@ -474,13 +476,14 @@ window.addEventListener('load', function() {
 });
 
 
-
+// TODO: pull out of global, more fineness
 ACTIVITY = [];
 events.sub('ui/*', function(data) {
     ACTIVITY.push(data);
 
     // XHR this bad boy!
-    PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
+    if(puffworldprops.prefs.reporting)
+        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 
 });
 

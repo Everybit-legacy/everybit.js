@@ -457,6 +457,7 @@ var PuffWorld = React.createClass({
                 {menu}
                 {view}
                 {replyExpand}
+                <Slider />
                 <PuffFooter />
             </div>
         )

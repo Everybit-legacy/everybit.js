@@ -11,6 +11,9 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var    top = stats.y
         var   left = stats.x + CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
+
+
+
         
         // set up classes
         var classArray = ['block']
@@ -26,9 +29,15 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
         }
+        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flagged = false;
+        if (flaggedPuff.indexOf(puff.sig)!= -1) {
+            classArray.push('flagged');
+            flagged = true;
+        }
         var className = classArray.join(' ')
         
-        var offset = 30
+        var offset = CONFIG.extraSpacing;
         if(arrows) {
             width  -= offset
             height -= offset
@@ -36,7 +45,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             left += offset/2
         }
 
-        var spacing = 3
+        var spacing = CONFIG.minSpacing;
         if(!arrows) {
             width  -= spacing
             height -= spacing
@@ -48,9 +57,9 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
-                PuffAuthor( {username:puff.username, hidden:hidden} ),
+                PuffAuthor( {puff:puff, hidden:hidden} ),
                 PuffContent( {puff:puff, height:height} ),
-                PuffBar( {puff:puff, hidden:hidden} )
+                PuffBar( {puff:puff, hidden:hidden, flagged:flagged})
             )
         );
     }
@@ -58,21 +67,42 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 
 
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
-    handleClick: function() {
-        var username = this.props.username;
-        // TODO: consolidate with menu.js handleShowUserPuffs
+    clickUsername: function(username) {
         return events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.filters': puffworlddefaults.view.filters
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
                                              })
     },
+    handleClick: function() {
+        var username = this.props.puff.username;
+        return this.clickUsername(username);
+    },
     render: function() {
-        var username = humanizeUsernames(this.props.username)
+        var username = humanizeUsernames(this.props.puff.username)
         var className = 'author' + (this.props.hidden ? ' hidden' : '')
 
+        var routes = this.props.puff.routes || [];
+        if (routes.length == 0)
+            routes = this.props.puff.payload.routes || [];
+        routes = routes.filter(function(r){return r!=CONFIG.zone && r!=username});
+        var sendTo = "";
+        var self = this;
+        var total = routes ? routes.length : 0;
+        if (total != 0) 
+            sendTo = (
+                React.DOM.span(null, 
+                    " > ",
+                    routes.map(function(value, index){
+                        var link = React.DOM.a( {href:"", onClick:self.clickUsername.bind(self, value)}, value)
+                        var ret = React.DOM.span(null, link,(index != total-1) ? ', ' : '')
+                        return ret;
+                    })
+                )
+            );
+
         return (
-            React.DOM.div( {className:className}, React.DOM.a( {href:"", onClick:this.handleClick}, username))
+            React.DOM.div( {className:className}, React.DOM.a( {href:"", onClick:this.handleClick}, username),sendTo)
         );
     }
 });
@@ -107,53 +137,77 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
 var PuffBar = React.createClass({displayName: 'PuffBar',
     mixins: [TooltipMixin],
     getInitialState: function() {
-        return {showMain: true};
+        return {iconSet: 0};
     },
     handleShowMore: function() {
-        this.setState({showMain: !this.state.showMain});
+        this.setState({iconSet: (this.state.iconSet+1)%3});
     },
-    componentDidUpdate: function() {
+    /*componentDidUpdate: function() {
         this.componentDidMount();
-    },
+    },*/
     render: function() {
         var puff = this.props.puff;
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
+        var showStar = true;
+        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        if(envelope && envelope.keys)
+            showStar = false;
 
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (!this.state.showMain) {
-            return (
-                React.DOM.div( {className:className}, 
-                    canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
-                    puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
-                    PuffJson( {puff:puff} ),
-                    PuffPermaLink( {sig:puff.sig} ),
-                    PuffExpand( {puff:puff} ),
-                    PuffClone( {puff:puff} ),
-                    
-                    React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
-                        React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
-                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
-                    )
-                )
-            );
-        }
-        //
-        return (
+        var iconSet = this.state.iconSet;
+        var boldStyle = {
+            fontWeight: 'bold'
+        };
+        var selectedStyle = {
+            color: '#00aa00'
+        };
+        var moreButton = (
+            React.DOM.span( {className: "icon"}, 
+                React.DOM.a( {style:boldStyle, onClick:this.handleShowMore}, 
+                    [0,1,2].map(function(i){
+                        if (i == iconSet) return React.DOM.span( {style:selectedStyle}, "•")
+                        else return React.DOM.span(null, "•")
+                    })
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
+            )
+        )
+        /***
+         * flag info reply clone star?
+         * parent children viewRaw|image expand
+         * tip json permalink
+         ***/
+        var iconSetOne = (
             React.DOM.div( {className:className}, 
-                PuffFlagLink( {sig:puff.sig, username:puff.username} ),
-                PuffTipLink( {username:puff.username} ),
+                PuffFlagLink( {sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
                 PuffInfoLink( {puff:puff} ),
-                PuffParentCount( {puff:puff} ),
-                PuffChildrenCount( {puff:puff} ),
                 PuffReplyLink( {sig:puff.sig} ),
-                PuffStar( {sig:puff.sig} ),
-                React.DOM.span( {className: "icon", onClick:this.handleShowMore}, 
-                    React.DOM.a(null, React.DOM.i( {className:"fa fa-ellipsis-h fa-fw"})),
-                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
-                )
+                PuffClone( {puff:puff} ),
+                showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
+                moreButton
             )
         );
+        var iconSetTwo = (
+            React.DOM.div( {className:className}, 
+                PuffParentCount( {puff:puff} ),
+                PuffChildrenCount( {puff:puff} ),
+                canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
+                puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
+                PuffExpand( {puff:puff} ),
+                moreButton
+            )
+        )
+        var iconSetThree = (
+            React.DOM.div( {className:className}, 
+                PuffTipLink( {username:puff.username} ),
+                PuffJson( {puff:puff} ),
+                PuffPermaLink( {sig:puff.sig} ),
+                moreButton
+            )
+        );
+        var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
+        return iconSetArray[iconSet];
     }
 });
 
@@ -194,6 +248,12 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        if (this.props.flagged) return false;
+        var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
+
+        if(!doIt)
+            return false
+
         var self = this;
         var prom = PuffForum.flagPuff(self.props.sig);
 
@@ -211,8 +271,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var cx1 = React.addons.classSet;
         var newClass = cx1({
             'fa fa-bomb fa-fw': true,
-            'red': this.state.flagged,
-            'black': !this.state.flagged
+            'red': this.props.flagged,
+            'black': !this.props.flagged
         });
         var polyglot = Translate.language[puffworldprops.view.language];
 
@@ -622,59 +682,83 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
 
 var PuffStar = React.createClass({displayName: 'PuffStar',
     filterCurrentUserStar: function(s){
-        var username = PuffWardrobe.getCurrentUsername();
+        var username =  PuffWardrobe.getCurrentKeys().username || Puffball.Persist.get('identity');
         return s.username == username;
     },
+    getStarShells: function() {
+        var sig = this.props.sig;
+        var starShells = PuffForum.getShells()
+                                   .filter(function(s){
+                                        return s.payload.type == 'star' && 
+                                               s.payload.content == sig;
+                                    });
+        return starShells;
+    },
+    getCurrentUserStar: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        var starShells = this.getStarShells();
+        var self = this;
+        starShells = starShells.filter(self.filterCurrentUserStar);
+        return starShells;
+    },
     updateScore: function() {
-        var starShells = this.state.starShells;
+        var starShells = this.getStarShells();
         var tluScore = 0;
-        var anonScore = 0;
-        var scorePref = puffworldprops.view.score;
-        for (var i=0; i<starShells.length; i++) {
-            var username = starShells[i].username;
-            if (username.indexOf('.') == -1) {
-                tluScore += parseFloat(scorePref.tluValue);
-            } else {
-                anonScore += parseFloat(scorePref.anonValue);
+        var suScore = 0;
+        var scorePref = PB.shallow_copy(puffworldprops.view.score);
+        for (var k in scorePref) {
+            if (scorePref[k]) {
+                var s = parseFloat(scorePref[k]);
+                if (isNaN(s))
+                    s = parseFloat(puffworlddefaults.view.score[k]);
+                scorePref[k] = s;
             }
         }
-        var topLevelUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') == -1}).length;
-        var anonUser = this.state.starShells.filter(function(s){return s.username.indexOf('.') != -1}).length;
-        var score = tluScore + Math.min(scorePref.maxAnonValue, anonScore);
+        for (var i=0; i<starShells.length; i++) {
+            var username = starShells[i].username;
+            // username = username.filter(function(item, index, array) {return Array.indexOf(item) == index});
+            if (username.indexOf('.') == -1) {
+                tluScore += scorePref.tluValue;
+            } else {
+                suScore += scorePref.suValue;
+            }
+        }
+        var score = tluScore + Math.min(scorePref.maxSuValue, suScore);
         score = score.toFixed(1);
+        if (score == parseInt(score)) score = parseInt(score);
         return this.setState({score: score});
     },
     getInitialState: function(){
-        var sig = this.props.sig;
-        var username = PuffWardrobe.getCurrentUsername();
-        var allStarShells = PuffForum.getShells()
-                                     .filter(function(s){
-                                        return s.payload.type == 'star' && 
-                                               s.payload.content == sig;
-                                      });
-        var userStar = allStarShells.filter(this.filterCurrentUserStar);
-        var starred = userStar.length != 0;
         return {
             score: 0,
-            starShells: allStarShells,
-            color: starred ? 'yellow': 'black'
+            color: 'black'
         }
     },
     componentDidMount: function(){
+        var starShells = this.getStarShells();
+        var userStar = this.getCurrentUserStar();
+        this.setState({
+            color: (userStar.length == 0) ? 'black' : 'yellow'
+        })
         this.updateScore();
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
-        var starred = this.state.starShells.filter(this.filterCurrentUserStar);
+        if (username == PuffForum.getPuffBySig(this.props.sig).username)
+            return false;
+        var sig = this.props.sig;
+        var starred = PuffForum.getShells()
+                                 .filter(function(s){
+                                    return s.payload.type == 'star' && 
+                                           s.payload.content == sig;
+                                  })
+        starred = starred.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
-            var sig = starred[0].sig;
-            var prom = PuffForum.flagPuff(sig);
+            var starSig = starred[0].sig;
+            var prom = PuffForum.flagPuff(starSig);
             prom.then(function(result) {
-                    var starShells = self.state.starShells
-                                         .filter(function(s){return s.sig != sig;});
-                    self.setState({starShells: starShells,
-                                   color: 'black'});
+                    self.setState({color: 'black'});
                     self.updateScore();
 
                 })
@@ -692,10 +776,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
-                    var starShells = self.state.starShells;
-                    starShells.push(puff);
                     self.setState({
-                        starShells: starShells,
                         color: 'yellow'
                     });
                     self.updateScore();
@@ -705,12 +786,21 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return false;
     },
     render: function() {
+        var link = (
+            React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
+            )
+        );
+        var pointerStyle = {};
+        var self = this;
+        if (PuffWardrobe.getCurrentUsername() == PuffForum.getPuffBySig(this.props.sig).username) {
+            pointerStyle = {cursor: 'default'};
+            link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star "+self.state.color}));
+        }
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
-                React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                    React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
-                ),this.state.score
+                link,React.DOM.span( {style:pointerStyle}, this.state.score)
             )
         );
     }
@@ -755,11 +845,13 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         return false;
     },
     render: function(){
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
                 React.DOM.a( {href:"#", onClick:this.handleClick}, 
                     React.DOM.i( {className:"fa fa-fw fa-copy"})
-                )
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.copy")})
             )
         )
     }

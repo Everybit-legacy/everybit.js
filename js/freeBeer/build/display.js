@@ -136,6 +136,21 @@ var ViewKeybindingsMixin = {
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
         }.bind(this));
+
+        // shift-f flag a puff
+        /*
+        TODO: Need to have just one function for this (see puffbox.js
+        Mousetrap.bind(['shift+f'], function(e){
+            var cursorPuff = puffworldprops.view.cursor;
+            if (!cursorPuff) return false;
+            if (PuffForum.getPuffBySig(cursorPuff).username != 
+                PuffWardrobe.getCurrentUsername()) {
+                return false;
+            }
+            alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
+            return PuffForum.flagPuff(cursorPuff);
+        }.bind(this));
+        */
         
         
         // we have to customize stopCallback to make cmd-enter work inside reply boxes
@@ -250,8 +265,14 @@ var CursorBindingsMixin = {
 
 var GridLayoutMixin = {
     getScreenCoords: function() {
-        return { width:  window.innerWidth - CONFIG.leftMargin
-               , height: window.innerHeight
+        if(CONFIG.menuRight) {
+            var margin = CONFIG.rightMargin
+        } else {
+            var margin = CONFIG.leftMargin
+        }
+
+        return { width:  window.innerWidth - margin
+               , height: window.innerHeight - CONFIG.verticalPadding
                }
     },
     getDimensions: function() {
@@ -374,10 +395,28 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         var viewprops = this.props.view || {};
 
         if(this.props.menu.show) {
-            CONFIG.leftMargin = 465;
+            CONFIG.rightMargin = 420;
         } else {
-            CONFIG.leftMargin = 60;
+            CONFIG.rightMargin = 60;
         }
+
+        /*
+        if(CONFIG.menuRight) {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        } else {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        }
+        */
+
+
 
         if( viewprops.mode == 'focus' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
@@ -414,6 +453,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
+                Logo(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
@@ -721,7 +761,7 @@ var PuffHeader = React.createClass({displayName: 'PuffHeader',
     render: function() {
         return (
             React.DOM.div(null, 
-                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconBigger.png", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
+                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconAnimated.gif", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
             )
         );
     }
@@ -731,14 +771,26 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
         var width = (window.innerHeight-66)+'px';
         var polyglot = Translate.language[puffworldprops.view.language];
+        // TODO: Is this a very bad idea?
+
         return (
-            React.DOM.div( {className:"footer", style:{width: width}}, 
+            React.DOM.div( {className:"footerWrapper"}, 
+            React.DOM.div( {className:"footer", style:{maxWidth: width, right: 0}}, 
                 React.DOM.div( {className:"footerText"}, 
                 polyglot.t("footer.powered"), " ", React.DOM.a( {href:"http://www.puffball.io", className:"footerText"}, "puffball"),".",
                 polyglot.t("footer.rest")
                 )
             )
+            )
         );
+    }
+});
+
+var Logo = React.createClass({displayName: 'Logo',
+    render: function() {
+        return (
+            React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            )
     }
 });
 

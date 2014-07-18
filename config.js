@@ -6,7 +6,7 @@
 
 CONFIG = {};
 
-CONFIG.version = '0.3';
+CONFIG.version = '0.4';
 
 // Array of versions of Puff supported
 // Not yet implemented
@@ -15,20 +15,14 @@ CONFIG.puffVersions = [];
 CONFIG.userApi = 'http://162.219.162.56/c/users/api.php';
 CONFIG.puffApi = 'http://162.219.162.56/c/puffs/api.php';
 
-CONFIG.maxChildrenToShow = 3;
-CONFIG.maxLatestRootsToShow = 26;
-
-CONFIG.sortOrder = 'recent';
-
+// Zone is added in route of every puff publishing using this code
 CONFIG.zone = 'everybit';
 
 CONFIG.url = 'http://www.everybit.com';
-CONFIG.logo = 'img/EveryBit.gif';
+CONFIG.logo = 'img/EveryBitLogo.svg';
 
 /* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
-
-CONFIG.text_threshold = 400;
 
 // List of supported
 // TODO: This is not hooked up.
@@ -46,24 +40,34 @@ CONFIG.users = [
     {
         username: 'forum',
         adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'
-    },
-    {
-        username: 'chess',
-        adminKey: '5HuvxAxU1ER2riUjA6yhJ6uVHp8eCJFoqVuXHnG5Jw4ZDZUrN62'
     }
 ];
 
 
 CONFIG.users['anon'] = {adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'}
 CONFIG.users['forum'] = {adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'}
-CONFIG.users['chess'] = {adminKey: '5HuvxAxU1ER2riUjA6yhJ6uVHp8eCJFoqVuXHnG5Jw4ZDZUrN62'}
 
 // How much space to leave on left side of screen, in pixels
-CONFIG.leftMargin = 60;
+CONFIG.leftMargin = 20;
+
+CONFIG.rightMargin = 20;
+
+CONFIG.verticalPadding = 20;
+
+// Side of the page you want the menu to go on
+CONFIG.menuRight = true;
+
+CONFIG.menuWidth = '400';
 
 /* Puffs must be at least this many characters to be submitted */
 CONFIG.minimumPuffLength = 3;
 CONFIG.PGNTimeout = 5;
+
+// Space between puffs in regular view
+CONFIG.minSpacing = 3;
+
+// Extra space between puffs in relationship view
+CONFIG.extraSpacing = 25;
 
 CONFIG.arrowColors = [
      '#737CA1',

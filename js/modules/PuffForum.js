@@ -230,7 +230,10 @@ PuffForum.getPuffBySig = function(sig) {
  */
 PuffForum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
-    return b.payload.time - a.payload.time;
+    if(puffworldprops.view.query.sort == 'DESC')
+        return b.payload.time - a.payload.time;
+    else
+        return a.payload.time - b.payload.time;
 }
 
 /**
@@ -501,10 +504,9 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     var routes = parents.map(function(id) {
         return PuffForum.getPuffBySig(id).username;
     });
-    // TODO validate usernames in routes
     if (metadata.routes) {
-        routes = routes.concat(metadata.routes);
-        delete metadata[routes];
+        routes = metadata.routes;
+        delete metadata['routes'];
     }
     
     // ensure all routes are unique
@@ -774,7 +776,11 @@ PuffForum.flagPuff = function (sig) {
         // clear localstorage
         var storedShells = Puffball.Persist.get('shells');
         var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+        var flaggedSig = Puffball.Persist.get('flagged') || [];
+        flaggedSig.push(content);
+
         Puffball.Persist.save('shells', filteredShells);
+        Puffball.Persist.save('flagged', flaggedSig);
         // reload?
         document.location.reload();
     })

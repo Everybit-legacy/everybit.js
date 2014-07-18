@@ -5,9 +5,9 @@ puffworldprops = {
         filters: true,
         publish: true,
         view: true,
-        identity: true,
-        preferences: true,
-        about: false,
+        identity: false,
+        preferences: false,
+        about: true,
         tools: false
     },
 
@@ -55,9 +55,9 @@ puffworldprops = {
         },
 
         score: {
-            anonValue: 0.1,
+            suValue: 0.1,
             tluValue: 1,
-            maxAnonValue: 1
+            maxSuValue: 1
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
@@ -79,7 +79,9 @@ puffworldprops = {
         puffs: []
     },
 
-    prefs: { },
+    prefs: {
+        reporting: true
+    },
     profile: { },
     tools: {
         users: {
@@ -471,6 +473,18 @@ window.addEventListener('load', function() {
             updateUI();
         });
     }, 0);
+});
+
+
+// TODO: pull out of global, more fineness
+ACTIVITY = [];
+events.sub('ui/*', function(data) {
+    ACTIVITY.push(data);
+
+    // XHR this bad boy!
+    if(puffworldprops.prefs.reporting)
+        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
+
 });
 
 

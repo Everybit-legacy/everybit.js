@@ -24,13 +24,14 @@ Translate.language["en"].extend({
 			title: 'Filter',
 			tags: 'Tag',
 			routes: 'Route',
-			users: 'Username'
+			users: 'User'
 		},
         preferences: {
             title: "Preferences",
 			relationship: "Show relationships",
 			animation: "Show animations",
 			infobar: "Show information bars",
+            disable_reporting: "Disable reporting",
 			language: "Language"
         },
 		publish: {
@@ -50,7 +51,7 @@ Translate.language["en"].extend({
 			newIdentity: {
 				title: 'New Identity',
 				msg: 'Desired username',
-				generate: 'Generate',
+				generate: 'Regenerate',
 				or: 'or',
 				errorMissing: 'You must set all of your public keys before making a registration request.',
 				success: 'Success!',
@@ -117,12 +118,16 @@ Translate.language["en"].extend({
             json:'Show the JSON string of this puff',
             permaLink:'Permalink to this puff',
             expand: 'Expand puff to one row',
-            compress: 'Compress puff size to default setting'
+            compress: 'Compress puff size to default setting',
+            copy:'Copy the raw content of this puff to the reply box',
+            disable_reporting: "We track how you use our website. Click to disable.",
+
         }
 	},
 	replyForm: {
+		recipient: 'Recipients',
         sendTo: 'Send to',
-		sendToPh: 'everyone', /*placeholder*/
+		sendToPh: 'Add new user to receive', /*placeholder*/
 		textareaPh: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
 		send: 'Send as %{author}',
 		preview: 'preview',
@@ -137,7 +142,7 @@ Translate.language["en"].extend({
         pOptions: {
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
-            anon: 'Anonymous (encrypted and anonymous)',
+            anonymous: 'Anonymous (encrypted and anonymous)',
             paranoid: 'Invisible (double anon, experimental!)'
         },
         advanced: {
@@ -149,7 +154,10 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	}
+	},
+    alert:{
+        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
+    }
 });
 Translate.language["en"].extend({
 	puff: {

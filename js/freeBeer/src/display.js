@@ -464,7 +464,6 @@ var PuffTallTree = React.createClass({
         if(!puff) return <div></div>
         
         var arrows = this.props.view.arrows
-        var sigfun = function(item) {return item.sig}
         var username = PuffWardrobe.getCurrentUsername()
         
         var filters = this.props.view.filters
@@ -487,7 +486,7 @@ var PuffTallTree = React.createClass({
         if(cols < bigcols) bigcols = cols
         
         // determine start row for big box, and totals for relatives
-        // THINK: should we allow column offset also?
+        // THINK: should we allow columnar offset also?
         var bigBoxStartRow = Math.floor((rows - bigrows) / 2)
         var childrenStartRow = bigBoxStartRow + bigrows
         var ancestorTotal = bigBoxStartRow * cols
@@ -513,11 +512,15 @@ var PuffTallTree = React.createClass({
         // not filtering by filters
         // not getting just available puffs
         
+        var shellfilter = PuffForum.filterByFilters(queryfilter)
+        var graphfilter = function(vertex) { return shellfilter(vertex.shell) } 
+        
         
         // gather puffs, graph style
         var genLimit = 10
-        var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit) 
-                                    .unique().take(ancestorTotal).property('shell').run()
+        var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
+                                    .unique().filter(graphfilter)
+                                    .take(ancestorTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
         
         
@@ -535,15 +538,15 @@ var PuffTallTree = React.createClass({
         // var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
   
             // parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
-            parentPuffs   = ancestorPuffs
-                                       .filter(function(item, index, array) {return array.indexOf(item) == index}) 
-                                       .filter(PuffForum.filterByFilters(queryfilter))
+            // parentPuffs   = ancestorPuffs
+            //                            .filter(function(item, index, array) {return array.indexOf(item) == index})
+                                       // .filter(PuffForum.filterByFilters(queryfilter))
                                        // .slice(0, cols)
                                        
         // var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
         var siblingPuffs  = siblingPuffs // pre-sorted
                                      .filter(function(item) {
-                                         return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
+                                         return !~[puff.sig].concat(ancestorPuffs.map(R.prop('sig'))).indexOf(item.sig)})
                                      .filter(PuffForum.filterByFilters(queryfilter))
                                      .slice(0, siblingTotal)
                                      // .slice(0, cols > 1 ? (cols-2)*2 : 0)
@@ -551,7 +554,8 @@ var PuffTallTree = React.createClass({
         // var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
         var childrenPuffs = childrenPuffs // pre-sorted
                                      .filter(function(item) {
-                                         return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
+                                         return !~[puff.sig].concat(ancestorPuffs .map(R.prop('sig')), 
+                                                                    siblingPuffs.map(R.prop('sig')))
                                                             .indexOf(item.sig)})
                                      .filter(PuffForum.filterByFilters(queryfilter))
                                      .slice(0, childrenTotal)
@@ -565,7 +569,7 @@ var PuffTallTree = React.createClass({
                                              })
         
         var allPuffs = [].concat( [puff].map(stuckBigBox('focused'))
-                                , parentPuffs.map(ancestorBox('parent'))
+                                , ancestorPuffs.map(ancestorBox('parent'))
                                 , siblingPuffs.map(siblingBox('sibling'))
                                 , childrenPuffs.map(childrenBox('child'))
                                 )

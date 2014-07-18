@@ -1055,7 +1055,7 @@ var NewIdentity = React.createClass({
             }
             // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
-            // setURLfromViewProps();
+            this.handleGenerateKeys();
         } else if (this.state.step == 1) {
             var valid = this.checkKeys();
             if (!valid) return;
@@ -1192,7 +1192,7 @@ var NewIdentity = React.createClass({
                 <div>
                     <div className="message red">{polyglot.t("menu.identity.step.remember")}</div>
                 {publicKeyField}
-                    <a href="#" onClick={this.handleGeneratePrivateKeys} >{polyglot.t("menu.identity.newIdentity.generate")}</a> {polyglot.t("menu.identity.newIdentity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
+                    <a href="#" onClick={this.handleRegenerateKeys} >{polyglot.t("menu.identity.newIdentity.generate")}</a> {polyglot.t("menu.identity.newIdentity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
                 {privateKeyField}
                 </div>
                 );
@@ -1271,7 +1271,6 @@ var NewIdentity = React.createClass({
         if (puffworldprops.menu.section == "identity") {
             this.scrollToShow();           
         }
-        this.handleGeneratePrivateKeys();
     },
 
     checkKeys: function() {
@@ -1369,7 +1368,21 @@ var NewIdentity = React.createClass({
         return false;
     },
 
-    handleGeneratePrivateKeys: function() {
+    handleRegenerateKeys: function() {
+        var rootKey = Puffball.Crypto.generatePrivateKey();
+        var adminKey = Puffball.Crypto.generatePrivateKey();
+        var defaultKey = Puffball.Crypto.generatePrivateKey();
+
+        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
+        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
+        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
+
+        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);   
+        return false;
+    },
+    handleGenerateKeys: function() {
         // Get private keys
         var rootKey = Puffball.Crypto.generatePrivateKey();
         var adminKey = Puffball.Crypto.generatePrivateKey();
@@ -1383,15 +1396,7 @@ var NewIdentity = React.createClass({
             defaultKeyPublic : Puffball.Crypto.privateToPublic(defaultKey)
         };
         this.setState({keys: keys});
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
-
-        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
-
-        // Clear out any error messages
+        
         return false;
     },
 

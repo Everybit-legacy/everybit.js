@@ -142,9 +142,9 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
     handleShowMore: function() {
         this.setState({iconSet: (this.state.iconSet+1)%3});
     },
-    componentDidUpdate: function() {
+    /*componentDidUpdate: function() {
         this.componentDidMount();
-    },
+    },*/
     render: function() {
         var puff = this.props.puff;
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')

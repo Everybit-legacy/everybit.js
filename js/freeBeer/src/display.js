@@ -493,15 +493,22 @@ var PuffTallTree = React.createClass({
         
         
         // collisions between ancestor generations: 
-        // - either get them all at once (outN()) or accumulate in query (as('parents')) and uniquify, or filter by value
+        // -- either get them all at once (outN()) or accumulate in query (as('parents')) and uniquify, or filter by value
         // not filtering by filters
         // not getting just available puffs
         
         
         // gather puffs, graph style
-        var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .property('shell').run()
-        var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .property('shell').run()
-        var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .property('shell').run()
+        var genLimit = 5
+        var ancestorTotal = 20
+        var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit) 
+                                    .unique().take(ancestorTotal).property('shell').run()
+                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+        
+        
+        // var   parentPuffs = PuffData.graph.v(sig) .out('parent')                             .property('shell').run()
+        // var    grandPuffs = PuffData.graph.v(sig) .out('parent').out('parent')               .property('shell').run()
+        // var    greatPuffs = PuffData.graph.v(sig) .out('parent').out('parent').out('parent') .property('shell').run()
         var  siblingPuffs = PuffData.graph.v(sig) .out('parent').out('child')                .property('shell').run()
         var childrenPuffs = PuffData.graph.v(sig) .out('child')                              .property('shell').run()
         
@@ -512,7 +519,8 @@ var PuffTallTree = React.createClass({
         // var grandPuffs    = parentPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
         // var greatPuffs    =  grandPuffs.reduce(function(acc, puff) {return acc.concat(PuffForum.getParents(puff))}, [])
   
-            parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
+            // parentPuffs   = parentPuffs.concat(grandPuffs, greatPuffs)
+            parentPuffs   = ancestorPuffs
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .filter(PuffForum.filterByFilters(queryfilter))
                                        .slice(0, cols)

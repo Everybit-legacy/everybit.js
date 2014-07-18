@@ -140,6 +140,23 @@ section {
     background-size: 36px 36px;
     border: 2px solid #333;
 }
+
+#talltree .block.encrypted.anon {
+    background-image:url('../img/barcode2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+    border: 2px solid #333;
+}
+
+#talltree .block.encrypted.ivisible {
+    background-image:url('../img/circle2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+    border: 2px solid #333;
+}
+
 #talltree .block.flagged, #talltree .block.encrypted.flagged {
     background-image:url('../img/flagged.png');
     background-repeat:repeat;
@@ -982,13 +999,13 @@ select:disabled {
 }
 
 .footerWrapper {
-    -webkit-transform-origin: 100% 61;
-    -moz-transform-origin: 100% 61;
-    -ms-transform-origin: 100% 61;
-    -o-transform-origin: 100% 61;
+    -webkit-transform-origin: 100% 61px;
+    -moz-transform-origin: 100% 61px;
+    -ms-transform-origin: 100% 61px;
+    -o-transform-origin: 100% 61px;
 
     -webkit-transform: rotate(-90deg);
-    -moz-transform: rotate(270deg);
+    -moz-transform: rotate(-90deg);
     -ms-transform: rotate(270deg);
     -o-transform: rotate(270deg);
 }

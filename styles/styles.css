@@ -785,11 +785,11 @@ select:disabled {
 }
 
 .animation .menu {
-    -webkit-animation: slidein 1s; /* Safari and Chrome */
-    -moz-animation: slidein 1s; /* Firefox */
-    -ms-animation: slidein 1s; /* Internet Explorer */
-    -o-animation: slidein 1s; /* Opera */
-    animation: slidein 1s;
+    -webkit-animation: slidein .5s; /* Safari and Chrome */
+    -moz-animation: slidein .5s; /* Firefox */
+    -ms-animation: slidein .5s; /* Internet Explorer */
+    -o-animation: slidein .5s; /* Opera */
+    animation: slidein .5s;
 }
 
 #replyForm {

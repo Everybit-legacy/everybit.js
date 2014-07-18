@@ -1,10 +1,6 @@
 <!doctype>
 <html>
 <head>
-    <script type="text/javascript">
-        window.qbaka||function(e,t){var n=[];var r=e.qbaka=function(){n.push(arguments)};e.__qbaka_eh=e.onerror;e.onerror=function(){r("onerror",arguments);if(e.__qbaka_eh)try{e.__qbaka_eh.apply(e,arguments)}catch(t){}};e.onerror.qbaka=1;r.sv=2;r._=n;r.log=function(){r("log",arguments)};r.report=function(){r("report",arguments,new Error)};var i=t.createElement("script"),s=t.getElementsByTagName("script")[0],o=function(){s.parentNode.insertBefore(i,s)};i.type="text/javascript";i.async=!0;i.src=("https:"==t.location.protocol?"https:":"http:")+"//cdn.qbaka.net/reporting.js";typeof i.async=="undefined"&&t.addEventListener?t.addEventListener("DOMContentLoaded",o):o();r.key="deeabd28ce4964f4e68bcc04ebf39709"}(window,document);qbaka.options={autoStacktrace:1,trackEvents:1};
-    </script>
-
     <title>
         EveryBit.com (pre-alpha): A sample forum running on the puffball platform.
     </title>
@@ -43,6 +39,8 @@
     <script src="scripts/bitcoinjs-min.js"></script>
     <script src="scripts/peer.js"></script>
 
+
+
     <!-- script src="scripts/react.js"></script-->
       <script src="scripts/react/build/react-with-addons.js"></script>
       <!--Swap with above for debugging
@@ -61,6 +59,7 @@
 
     <!-- everyBit -->
     <script src="js/freeBeer/build/display.js"></script>
+    <script src="js/freeBeer/build/slider.js"></script>
     <script src="js/freeBeer/build/menu.js"></script>
     <script src="js/freeBeer/build/puffbox.js"></script>
     <script src="js/freeBeer/build/replyExpand.js"></script>
@@ -75,6 +74,63 @@
     <script src="js/libs/immutable.js"></script>
     
     <script src="js/freeBeer/main.js"></script>
+
+
+    <!-- This is what happens when you code through the night -->
+    <!-- TODO: Clean up and put somewhere or abandon -->
+    <script>
+        function keepBetween(x,min, max) {
+            if(x>max)
+                x=max
+
+            if(x<min)
+                x=min
+
+            return x
+        }
+
+        // TODO instantiate with _underscore
+        var bgW = 64;
+        var bgH = 64;
+        a = new Array(bgW*bgH)
+        b = new Array(bgW*bgH)
+        c = new Array(bgW*bgH)
+
+        // Start out all the same
+        for(i=0;i<(bgW*bgH);i++) {
+            a[i]=120;
+            b[i]=60;
+            c[i]=40;
+        }
+
+        setInterval(function() {
+            var canvas = document.getElementById("forBG");
+
+            var w = canvas.width = bgW;
+            var h = canvas.height = bgH;
+
+            var context = canvas.getContext("2d");
+
+            // Mutate
+            for(i=0;i<(w*h);i++) {
+                a[i] += Math.random() < 0.5 ? -1 : 1;
+                b[i] += Math.random() < 0.5 ? -1 : 1;
+                c[i] += Math.random() < 0.5 ? -1 : 1;
+
+                a[i] = keepBetween(a[i],0,255);
+                b[i] = keepBetween(b[i],0,255);
+                c[i] = keepBetween(c[i],0,255);
+
+                context.fillStyle = "rgba(" + a[i] + "," + b[i] + "," + c[i] + ",.05)";
+                context.fillRect(Math.floor(i/w), i%w, 1, 1);
+            }
+
+            document.body.style.backgroundImage =  "url("+canvas.toDataURL()+")";
+
+        },2500)
+
+    </script>
+    <canvas id="forBG" style="display: none"></canvas>
 
 </body>
 </html>

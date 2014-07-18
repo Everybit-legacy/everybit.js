@@ -43,6 +43,11 @@ var ViewKeybindingsMixin = {
                 menu.section = 'publish';
             }
 
+            var contentEle = document.getElementById('content');
+            if (contentEle) {
+                contentEle.focus();
+            }
+
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
                                                , 'reply.parents': parents });
@@ -131,6 +136,21 @@ var ViewKeybindingsMixin = {
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
         }.bind(this));
+
+        // shift-f flag a puff
+        /*
+        TODO: Need to have just one function for this (see puffbox.js
+        Mousetrap.bind(['shift+f'], function(e){
+            var cursorPuff = puffworldprops.view.cursor;
+            if (!cursorPuff) return false;
+            if (PuffForum.getPuffBySig(cursorPuff).username != 
+                PuffWardrobe.getCurrentUsername()) {
+                return false;
+            }
+            alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
+            return PuffForum.flagPuff(cursorPuff);
+        }.bind(this));
+        */
         
         
         // we have to customize stopCallback to make cmd-enter work inside reply boxes
@@ -245,8 +265,14 @@ var CursorBindingsMixin = {
 
 var GridLayoutMixin = {
     getScreenCoords: function() {
-        return { width:  window.innerWidth - CONFIG.leftMargin
-               , height: window.innerHeight
+        if(CONFIG.menuRight) {
+            var margin = CONFIG.rightMargin
+        } else {
+            var margin = CONFIG.leftMargin
+        }
+
+        return { width:  window.innerWidth - margin
+               , height: window.innerHeight - CONFIG.verticalPadding
                }
     },
     getDimensions: function() {
@@ -369,10 +395,28 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         var viewprops = this.props.view || {};
 
         if(this.props.menu.show) {
-            CONFIG.leftMargin = 465;
+            CONFIG.rightMargin = 420;
         } else {
-            CONFIG.leftMargin = 60;
+            CONFIG.rightMargin = 60;
         }
+
+        /*
+        if(CONFIG.menuRight) {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        } else {
+            if(this.props.menu.show) {
+                CONFIG.leftMargin = 460;
+            } else {
+                CONFIG.leftMargin = 60;
+            }
+        }
+        */
+
+
 
         if( viewprops.mode == 'focus' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
@@ -409,6 +453,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
+                Logo(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
@@ -429,20 +474,19 @@ var PuffList = React.createClass({displayName: 'PuffList',
         return nextProps !== this.props // TODO: this won't update when new items arrive
     },
     render: function() {
-        globalSillyPropsClone = PB.shallow_copy(puffworldprops);
+        globalSillyPropsClone = PB.shallow_copy(puffworldprops)
         
         var dimensions = this.getDimensions();
         var limit = dimensions.cols * dimensions.rows;
         
-        var query   = this.props.view.query;
-        var filters = this.props.view.filters;
+        var query   = this.props.view.query
+        var filters = this.props.view.filters
         var puffs   = PuffForum.getPuffList(query, filters, limit);
         
-        this.cursorPower(puffs);
+        this.cursorPower(puffs)
 
         var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset != 0;
         var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
-        
         return (
             React.DOM.div(null, 
                 this.standardGridify(puffs),
@@ -492,14 +536,14 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var ancestorTotal = bigBoxStartRow * cols
         var childrenTotal = childrenStartRow * cols
         var siblingTotal  = (cols - bigcols) * bigrows
-        
+
         // TODO: partial application
         var ancestorBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
         var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow)
         var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow)
         var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
-        
-        
+  
+                                       
         //// need a filtery thing:
         // return (puff.payload.parents||[]).map(PuffForum.getPuffBySig)
         //                                  .filter(Boolean)
@@ -741,7 +785,6 @@ var Arrow = React.createClass({displayName: 'Arrow',
 })
  
 
-
 var PuffHeader = React.createClass({displayName: 'PuffHeader',
     handleClick: function() {
         if(this.props.menu.show)
@@ -752,7 +795,7 @@ var PuffHeader = React.createClass({displayName: 'PuffHeader',
     render: function() {
         return (
             React.DOM.div(null, 
-                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconBigger.png", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
+                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconAnimated.gif", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
             )
         );
     }
@@ -762,14 +805,26 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
         var width = (window.innerHeight-66)+'px';
         var polyglot = Translate.language[puffworldprops.view.language];
+        // TODO: Is this a very bad idea?
+
         return (
-            React.DOM.div( {className:"footer", style:{width: width}}, 
+            React.DOM.div( {className:"footerWrapper"}, 
+            React.DOM.div( {className:"footer", style:{maxWidth: width, right: 0}}, 
                 React.DOM.div( {className:"footerText"}, 
                 polyglot.t("footer.powered"), " ", React.DOM.a( {href:"http://www.puffball.io", className:"footerText"}, "puffball"),".",
                 polyglot.t("footer.rest")
                 )
             )
+            )
         );
+    }
+});
+
+var Logo = React.createClass({displayName: 'Logo',
+    render: function() {
+        return (
+            React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            )
     }
 });
 
@@ -778,7 +833,7 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
     mixins: [GridLayoutMixin],
     handleScroll: function() {
         if (!this.props.show) return false;
-        
+
         var col   = this.getDimensions().cols;
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;

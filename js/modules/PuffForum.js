@@ -230,7 +230,10 @@ PuffForum.getPuffBySig = function(sig) {
  */
 PuffForum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
-    return b.payload.time - a.payload.time;
+    if(puffworldprops.view.query.sort == 'DESC')
+        return b.payload.time - a.payload.time;
+    else
+        return a.payload.time - b.payload.time;
 }
 
 /**
@@ -413,6 +416,7 @@ PuffForum.getPuffList = function(query, filters, limit) {
     var shells = PuffForum.getShells(query, filters)
     
     var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+                               .filter(function(s){return s.payload.type != 'star'}) // ?move this to somewhere else?
                                 .sort(PuffForum.sortByPayload) // TODO: sort by query
                                 .slice(offset, offset+limit)
 
@@ -500,10 +504,9 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     var routes = parents.map(function(id) {
         return PuffForum.getPuffBySig(id).username;
     });
-    // TODO validate usernames in routes
     if (metadata.routes) {
-        routes = routes.concat(metadata.routes);
-        delete metadata[routes];
+        routes = metadata.routes;
+        delete metadata['routes'];
     }
     
     // ensure all routes are unique
@@ -738,3 +741,48 @@ PuffForum.addContentType('LaTex', {
 //         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
 //     }
 // })
+
+
+// flag a puff
+PuffForum.flagPuff = function (sig) {
+    var privateKeys = PuffWardrobe.getCurrentKeys();
+
+    if(!privateKeys.username) {
+        alert("You must first set your username before you can flag content");
+    }
+    /*if(!privateKeys.username == PuffForum.getPuffBySig(sig).username) {
+        alert("You must set your identity to the author of the puff you want to flag");
+    }*/
+    if(!privateKeys.admin) {
+        alert("You must first set your private admin key before you can flag content");
+    }
+
+    // Stuff to register. These are public keys
+    var payload = {};
+    var routes = [];
+    var type = 'flagPuff';
+    var content = sig;
+
+    payload.time = Date.now();
+
+    var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+
+    var data = { type: 'flagPuff'
+               , puff: puff
+               };
+
+    var prom = PuffNet.post(CONFIG.puffApi, data);
+    prom = prom.then(function(){
+        // clear localstorage
+        var storedShells = Puffball.Persist.get('shells');
+        var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+        var flaggedSig = Puffball.Persist.get('flagged') || [];
+        flaggedSig.push(content);
+
+        Puffball.Persist.save('shells', filteredShells);
+        Puffball.Persist.save('flagged', flaggedSig);
+        // reload?
+        document.location.reload();
+    })
+    return prom;
+}

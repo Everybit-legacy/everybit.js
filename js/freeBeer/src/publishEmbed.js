@@ -4,6 +4,10 @@
 var PuffPublishFormEmbed = React.createClass({
     getInitialState: function() {
         return {imageSrc    : '', 
+                state: false,
+                usernames   : [],
+                parentUsernames: [],
+                usernameErr : '',
                 showPreview : false, 
                 err         : false,
                 showAdvanced: false,
@@ -25,19 +29,40 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         this.setState(puffworldprops.reply.state);
+        this.getUsernames();
         this.preventDragText();
+
+        var privacyNode = this.refs.privacy.getDOMNode();
+        var buttons = privacyNode.getElementsByTagName('button');
+        for (var i=0; i<buttons.length; i++) {
+            var button = buttons[i];
+            button.onclick = this.handlePickPrivacy.bind(this, button.value);
+        }
+
+        /*var replyPrivacyNode = this.refs.replyPrivacy.getDOMNode();
+        buttons = privacyNode.getElementsByTagName('button');
+        for (var i=0; i<buttons.length; i++) {
+            var button = buttons[i];
+            button.onclick = this.handlePickReplyPrivacy.bind(this, button.value);
+        }*/
     },
     componentDidUpdate: function() {
         this.preventDragText();
+        this.getUsernames();
     },
     componentWillUnmount: function() {
         // remove silly global
         globalReplyFormSubmitArg = null;
         return events.pub("", {'reply.content': ""})
     },
+    cleanUpSubmit: function(){
+        var className = this.refs.send.getDOMNode().className;
+        className = className.replace(' deactive', '');
+        this.refs.send.getDOMNode().className = className
+    },
     handleSubmitSuccess: function(puff) {
+        this.cleanUpSubmit();
         // clear the content
-        // puffworldprops.reply.content = ''; // DON'T DO THIS
         update_puffworldprops({'reply.content': ''})
         
         // console.log(this);
@@ -50,15 +75,22 @@ var PuffPublishFormEmbed = React.createClass({
             sig = decrypted.sig;
         }
         showPuff(sig);
-        events.pub('ui/flash', {'view.cursor': sig, 
+        events.pub('ui/flash', {'reply.parents': [],
+                                'reply.privacy': false,
+                                'view.cursor': sig, 
                                 'view.flash': true})
         // set back to initial state
         this.setState(this.getInitialState());
     },
     handleSubmit: function() {
+        if (this.refs.send.getDOMNode().className.indexOf('deactive') != -1)
+            return false;
+        this.refs.send.getDOMNode().className += " deactive";
+
         var self = this;
         var content = '';
         var metadata = {};
+        var parents = this.props.reply.parents;
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) return false
@@ -77,24 +109,14 @@ var PuffPublishFormEmbed = React.createClass({
             metadata.quote = true;
         }
 
-        var parents = this.props.reply.parents;
-        if (content.length<CONFIG.minimumPuffLength) {
-            alert("Not enough content");
-            return false;
-        }
-        var routes = this.refs.usernames.getDOMNode().value;
-        routes = routes.split(', ');
-        metadata.routes = routes.filter(function(r){return r.length > 0});
-        // TODO validate each routes
+        metadata.routes = this.state.usernames;
         
-        events.pub('ui/reply/submit', {'reply': {parents: []}}); // get this out of the way early
-
         /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
         if(replyPrivacy) {
             metadata.replyPrivacy = replyPrivacy;
         }*/
         
-        var privacy = this.refs.privacy.getDOMNode().value;
+        var privacy = this.refs.privacy.getDOMNode().querySelector("button.green").value;
         
         if(privacy == 'public') {
             var self=this;
@@ -103,6 +125,7 @@ var PuffPublishFormEmbed = React.createClass({
             post_prom
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {
+                    self.cleanUpSubmit();
                     self.setState({err: err.message});
                 })
             return false;
@@ -142,9 +165,7 @@ var PuffPublishFormEmbed = React.createClass({
             })
         }
                 
-        var usernames = this.refs.usernames.getDOMNode().value.split(',')
-                                                        .map(function(str) {return str.trim()})
-                                                        .filter(Boolean)
+        var usernames = this.state.usernames;
         
         var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
@@ -174,7 +195,9 @@ var PuffPublishFormEmbed = React.createClass({
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom;
         }) .catch(function(err) {
+            self.cleanUpSubmit();
             self.setState({err: err.message});
+            console.log(err);
         })
 
         return false;
@@ -193,19 +216,51 @@ var PuffPublishFormEmbed = React.createClass({
 
         return false;
     },
+    addUsername: function() {
+        var self = this;
+        var usernameNode = this.refs.username.getDOMNode();
+        var newUsername = usernameNode.value.toLowerCase();
+        newUsername = newUsername.replace(/\s+/g, '');
+        if (newUsername.length == 0) return false;
+        var usernames = this.state.usernames;
+        var prom = Puffball.getUserRecord(newUsername);
+        prom.then(function(){
+            self.setState({usernameError: ''});
+            if (usernames.indexOf(newUsername) == -1 && newUsername != 'everybit') {
+                usernames.push(newUsername);
+                self.setState({username: usernames});
+            }
+            usernameNode.value = '';
+        })  .catch(function(err){
+            self.setState({usernameError: 'Username invalid'});
+        })
+        return false;
+    },
+    removeUsername: function(value) {
+        var currentUsernames = this.state.usernames;
+        currentUsernames = currentUsernames.filter(function(u){return u != value});
+        this.setState({usernames: currentUsernames});
+        return false;
+    },
+    handleSendtoInput: function() {
+        if (event.keyCode == 13) {
+            this.addUsername();
+        } else {
+            this.setState({usernameError: ''});
+        }
+    },
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
         return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
-    handlePickPrivacy: function() {
-        var privacy = this.refs.privacy.getDOMNode().value;
-        /*if (privacy != "public") {
-            this.getDOMNode().className = "encrypted";
-        } else {
-            this.getDOMNode().className = "";
-        }*/
+    handlePickPrivacy: function(privacy) {
         return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
+    },
+    handlePickReplyPrivacy: function(privacy) {
+        var advancedOpt = this.state.advancedOpt;
+        advancedOpt.replyPrivacy = privacy
+        return this.setState({advancedOpt: advancedOpt});
     },
     handlePickAdvancedOpt: function(e) {
         var key = e.target.name;
@@ -246,8 +301,47 @@ var PuffPublishFormEmbed = React.createClass({
         this.setState({showAdvanced: !this.state.showAdvanced});
         return false;
     },
+    getUsernames: function() {
+        var parents = [];
+        if (typeof this.props.reply.parents != 'undefined') {
+            parents = this.props.reply.parents;
+        };
+        var parentUsernames = [];
+        if (parents.length) {
+            parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+                                     .map(function(puff) { return puff.payload.replyTo || puff.username })
+                                     .filter(function(item, index, array) { return array.indexOf(item) == index })
+                                     .filter(Boolean)
+                                     .filter(function(value){return value!='everybit'});
+        }
+        var currentParentUsernames = this.state.parentUsernames;
+        if (currentParentUsernames.length != parentUsernames.length) {
+            // look for the usernames that are added/removed by reply
+            var usernameAdded = parentUsernames.filter(function(u){
+                return currentParentUsernames.indexOf(u) == -1;
+            })
+            var usernameDeleted = currentParentUsernames.filter(function(u){
+                return parentUsernames.indexOf(u) == -1;
+            })
 
+            // add/remove those username from this.state.usernames
+            var usernames = PB.shallow_copy(this.state.usernames);
+            for (var i=0; i<usernameAdded.length; i++) {
+                if (usernames.indexOf(usernameAdded[i]) == -1)
+                    usernames.push(usernameAdded[i])
+            }
+            for (var i=0; i<usernameDeleted.length; i++) {
+                var index = usernames.indexOf(usernameDeleted[i]);
+                if (index != -1)
+                    usernames.splice(index, 1);
+            }
 
+            // set the state
+            this.setState({parentUsernames: parentUsernames, 
+                           usernames: usernames});
+        }
+        return false;
+    },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
@@ -255,7 +349,7 @@ var PuffPublishFormEmbed = React.createClass({
         var author = PuffWardrobe.getCurrentUsername();
         author = humanizeUsernames(author) || "anonymous";
 
-        var defaultContent = puffworldprops.reply.content || '';
+        var defaultContent = this.props.reply.content || '';
         var parents = [];
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
@@ -274,11 +368,11 @@ var PuffPublishFormEmbed = React.createClass({
                 privacyDefault = parent.payload.replyPrivacy;
 
             // by default we include all parent users in the reply
-            var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+            /*var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
                                          .map(function(puff) { return puff.payload.replyTo || puff.username })
                                          .filter(function(item, index, array) { return array.indexOf(item) == index })
                                          .filter(Boolean)
-                                         .join(', ')
+                                         // .join(', ')*/
 
             // Should we quote the parent
             if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
@@ -290,7 +384,6 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var type = this.props.reply.type || parentType;
         var privacy = this.props.reply.privacy || privacyDefault;
-        var usernames = this.props.reply.usernames || parentUsernames || "";
 
         /* styles */
         var leftColStyle = {
@@ -304,13 +397,6 @@ var PuffPublishFormEmbed = React.createClass({
             textAlign: 'left',
             marginBottom: '5px',
             width: '70%'
-        }
-        var sendToInputStyle = {
-            display: 'inline-block',
-            width: '70%',
-            border: 'none',
-            textAlign: 'left',
-            marginBottom: '5px'
         }
         var typeStyle = {
             width: '28%',
@@ -329,13 +415,61 @@ var PuffPublishFormEmbed = React.createClass({
             display: 'block',
             background: '#FFFFFF'
         }
+        var sendStyle = {
+            minWidth: '60%',
+            marginRight: '2%',
+            display: 'inline-block'
+        };
+        var sendButton = (
+            <a href="#" style={sendStyle} ref="send" onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> {polyglot.t("replyForm.send", {author: author})}</a>
+        );
+        var expandStyle = {
+            position: 'relative',
+            top: '-2em',
+            float: 'right'
+        };
+        var expandButton = (
+            <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>
+        );
+        var relativeStyle = {
+            position: 'relative'
+        }
 
+        /* Recipient: username bubbles
+         * Send to: newusername input + 
+         */
+        var sendtoInputStyle = {
+            width: '60%',
+            display: 'inline-block'
+        }
+        var sendtoInput = (
+            <span>
+                <input type="text" className="btn" style={sendtoInputStyle} name="username" ref="username" placeholder={polyglot.t("replyForm.sendToPh")} onKeyDown={this.handleSendtoInput} onBlur={this.addUsername}></input>
+            </span>
+        );
+        var self = this;
         var sendToField = (
             <div>
-                <span style={leftColStyle}>{polyglot.t("replyForm.sendTo")}: </span><input className="btn" style={sendToInputStyle} type="text" name="usernames" ref="usernames" value={usernames} onChange={this.handleChangeUsernames} placeholder={polyglot.t("replyForm.sendToPh")}></input>
+                <span style={leftColStyle}>{polyglot.t("replyForm.recipient")}: </span>
+                {self.state.usernames.map(function(value){
+                    return (
+                        <span className='bubbleNode'>
+                            {value}
+                            <a href="#" onClick={self.removeUsername.bind(self, value)}>
+                                <i className="fa fa-times-circle-o fa-fw"></i>
+                            </a>
+                        </span>
+                    )
+                })}<br/>
+                <span style={leftColStyle}>{polyglot.t("replyForm.sendTo")}: </span>
+                {sendtoInput}
+                <a href="#" onClick={this.addUsername}><i className="fa fa-fw fa-plus-circle"></i></a>
+                <div className="message red">{this.state.usernameError}</div>
             </div>
         );
 
+
+        /* type | privacy */
         var typeOption = (
             <select className="btn" style={typeStyle} ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
@@ -343,19 +477,29 @@ var PuffPublishFormEmbed = React.createClass({
                 })}
             </select>
         );
+        var privacyToIcon = {
+            'public': 'fa-bullhorn',
+            'private': 'fa-lock',
+            'anonymous': 'fa-barcode',
+            'paranoid': 'fa-circle-thin'
+        }
         var privacyOption = (
-            <select className="btn" style={rightColStyle} ref="privacy" 
-                value={privacy} onChange={this.handlePickPrivacy}>
-                <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
-                <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
-                <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
-                <option key="paranoid" value="paranoid">{polyglot.t("replyForm.pOptions.paranoid")}</option>
-            </select>
+            <span ref="privacy" id="privacyDiv" className="icon" style={relativeStyle}>
+                Privacy: 
+                {Object.keys(privacyToIcon).map(function(p){
+                    var color = privacy == p ? 'green' : 'black';
+                    return (
+                        <span>
+                            <button className={'btn ' + color} value={p}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
+                            <Tooltip position="under" content={polyglot.t("replyForm.pOptions."+p)} />
+                        </span>)
+                })}
+            </span>
         );
 
         
         var contentField = (
-            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle}></textarea>
+            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle} onChange={this.updateContent}></textarea>
         );
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
@@ -363,8 +507,6 @@ var PuffPublishFormEmbed = React.createClass({
             if (this.refs.content) {
                 currentContent = this.refs.content.getDOMNode().value.trim();
                 update_puffworldprops({'reply.content': currentContent})
-                // DON'T MUTATE PROPS!
-                // puffworldprops.reply.content = currentContent;
             };
 
             currentContent = PuffForum.processContent(currentType, currentContent, {});
@@ -426,48 +568,32 @@ var PuffPublishFormEmbed = React.createClass({
             previewToggle = (<span></span>); // no preview toggle for image
         }
 
-        var sendStyle = {
-            minWidth: '60%',
-            marginRight: '2%',
-            display: 'inline-block'
-        };
-        var sendButton = (
-            <a href="#" style={sendStyle}    onClick={this.handleSubmit}><i className="fa fa-paper-plane fa-fw"></i> {polyglot.t("replyForm.send", {author: author})}</a>
-        );
-
-        var expandStyle = {
-            position: 'relative',
-            top: '-2em',
-            float: 'right'
-        };
-        var expandButton = (
-            <a href="#" style={expandStyle} onClick={this.handleExpand}><i className="fa fa-fw fa-expand"></i></a>
-        );
-
-        var boxStyle = {
-            position: 'relative'
-        }
-
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
-        var replyPrivacyDefault = this.state.advancedOpt.replyPrivacy || privacyDefault; 
+        var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
         var replyPrivacyOption = (
-            <div>
-                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.replyPrivacy")}</span>
-                <select style={rightColStyle} ref="replyPrivacy" className="btn" name="replyPrivacy" defaultValue={replyPrivacyDefault} onChange={this.handlePickAdvancedOpt}>
-                <option key="public" value="public">{polyglot.t("replyForm.pOptions.public")}</option>
-                <option key="private" value="private">{polyglot.t("replyForm.pOptions.private")}</option>
-                <option key="anonymous" value="anonymous">{polyglot.t("replyForm.pOptions.anon")}</option>
-                <option key="paranoid" value="paranoid">{polyglot.t("replyForm.pOptions.paranoid")}</option>
-            </select>
-                </div>
+            <span ref="replyPrivacy" className="icon">
+                {polyglot.t("replyForm.advanced.replyPrivacy")}: 
+                <span  style={relativeStyle}>
+                {Object.keys(privacyToIcon).map(function(p){
+                    var color = replyPrivacy == p ? 'green' : 'black';
+                    var handleClick = self.handlePickReplyPrivacy.bind(self, p);
+                    return (
+                        <span>
+                            <button className={'btn ' + color} value={p} onClick={handleClick}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
+                            <Tooltip position="under" content={polyglot.t("replyForm.pOptions."+p)} />
+                        </span>)
+                })}
+                </span>
+            </span>
             );
         var licenseDefault = this.state.advancedOpt.contentLicense || "";
         var licenseOption = (
             <div>
                 <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
                 <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                    <option value=""></option>
                     <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
                     <option value="GNUPublicLicense">GNU Public License</option>
                     <option value="Publicdomain">Public domain</option>
@@ -476,25 +602,24 @@ var PuffPublishFormEmbed = React.createClass({
                 </select>
             </div>
             );
+        var advancedStyle = {
+            display: this.state.showAdvanced ? 'block' : 'none'
+        }
+        var chevronIcon = this.state.showAdvanced ? 'fa-chevron-circle-down' : 'fa-chevron-circle-left';
         var advancedField = (
             <div>
-                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
+                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className={"fa fa-fw "+chevronIcon}></i></a></span><br/>
+                <div style={advancedStyle}>
+                    {replyPrivacyOption}
+                    {licenseOption}
+                </div>
             </div>
         );
-        if (this.state.showAdvanced) {
-            advancedField = (
-                <div>
-                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
-                {replyPrivacyOption}
-                {licenseOption}
-                </div>
-            );
-        }
 
         var className = privacy == 'public' ? "" : "encrypted"
         return (
             <div id="replyFormEmbed" className={className}>
-                <div id="replyFormBox" style={boxStyle}>
+                <div id="replyFormBox" style={relativeStyle}>
                     {sendToField}
                     {typeOption}
                     {privacyOption}<br />

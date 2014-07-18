@@ -760,7 +760,7 @@ var PuffHeader = React.createClass({displayName: 'PuffHeader',
     render: function() {
         return (
             React.DOM.div(null, 
-                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconBigger.png", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
+                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconAnimated.gif", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
             )
         );
     }

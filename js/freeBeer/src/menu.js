@@ -502,6 +502,14 @@ var PreferencesMenu = React.createClass({
             'green': puffworldprops.view.showinfo
         });
 
+        var cbClass4 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': !puffworldprops.prefs.reporting,
+            'fa-square-o': !puffworldprops.prefs.reporting,
+            'green': !puffworldprops.prefs.reporting
+        });
+
         return(
             <div>
 
@@ -522,6 +530,15 @@ var PreferencesMenu = React.createClass({
                     <a href="#" onClick={this.handleShowHideInfobar}>{polyglot.t("menu.preferences.infobar")}</a>{' '}<span className="shortcut">[i]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.infobar")} />
                 </div>
+
+
+                <div className="menuItem">
+                    <span className="floatingCheckbox"><i className={cbClass4} onClick={this.handleToggleReporting} ></i></span>
+                    <a href="#" onClick={this.handleToggleReporting}>{polyglot.t("menu.preferences.disable_reporting")}</a>{' '}<span className="shortcut">[i]</span>
+                    <Tooltip content={polyglot.t("menu.tooltip.disable_reporting")} />
+                </div>
+
+
 
                 <div className="menuItem">
                 {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} defaultValue={language}>

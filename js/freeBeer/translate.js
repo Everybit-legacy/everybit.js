@@ -31,6 +31,7 @@ Translate.language["en"].extend({
 			relationship: "Show relationships",
 			animation: "Show animations",
 			infobar: "Show information bars",
+            disable_reporting: "Disable reporting",
 			language: "Language"
         },
 		publish: {
@@ -118,7 +119,9 @@ Translate.language["en"].extend({
             permaLink:'Permalink to this puff',
             expand: 'Expand puff to one row',
             compress: 'Compress puff size to default setting',
-            copy:'Copy the raw content of this puff to the reply box'
+            copy:'Copy the raw content of this puff to the reply box',
+            disable_reporting: "We track how you use our website. Click to disable.",
+
         }
 	},
 	replyForm: {

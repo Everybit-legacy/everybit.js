@@ -502,6 +502,14 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
             'green': puffworldprops.view.showinfo
         });
 
+        var cbClass4 = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': !puffworldprops.prefs.reporting,
+            'fa-square-o': !puffworldprops.prefs.reporting,
+            'green': !puffworldprops.prefs.reporting
+        });
+
         return(
             React.DOM.div(null, 
 
@@ -522,6 +530,15 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
                     React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.infobar")} )
                 ),
+
+
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass4, onClick:this.handleToggleReporting} )),
+                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.disable_reporting")} )
+                ),
+
+
 
                 React.DOM.div( {className:"menuItem"}, 
                 polyglot.t("menu.preferences.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, defaultValue:language}, 

@@ -571,10 +571,11 @@ var PuffPublishFormEmbed = React.createClass({
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
 
-        var replyPrivacy = this.state.advancedOpt.replyPrivacy || privacyDefault; 
+        var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
         var replyPrivacyOption = (
-            <span ref="replyPrivacy" className="icon" style={relativeStyle}>
+            <span ref="replyPrivacy" className="icon">
                 {polyglot.t("replyForm.advanced.replyPrivacy")}: 
+                <span  style={relativeStyle}>
                 {Object.keys(privacyToIcon).map(function(p){
                     var color = replyPrivacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
@@ -584,6 +585,7 @@ var PuffPublishFormEmbed = React.createClass({
                             <Tooltip position="under" content={polyglot.t("replyForm.pOptions."+p)} />
                         </span>)
                 })}
+                </span>
             </span>
             );
         var licenseDefault = this.state.advancedOpt.contentLicense || "";
@@ -591,6 +593,7 @@ var PuffPublishFormEmbed = React.createClass({
             <div>
                 <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
                 <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                    <option value=""></option>
                     <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
                     <option value="GNUPublicLicense">GNU Public License</option>
                     <option value="Publicdomain">Public domain</option>
@@ -599,20 +602,19 @@ var PuffPublishFormEmbed = React.createClass({
                 </select>
             </div>
             );
+        var advancedStyle = {
+            display: this.state.showAdvanced ? 'block' : 'none'
+        }
+        var chevronIcon = this.state.showAdvanced ? 'fa-chevron-circle-down' : 'fa-chevron-circle-left';
         var advancedField = (
             <div>
-                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-left"></i></a></span>
+                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className={"fa fa-fw "+chevronIcon}></i></a></span><br/>
+                <div style={advancedStyle}>
+                    {replyPrivacyOption}
+                    {licenseOption}
+                </div>
             </div>
         );
-        if (this.state.showAdvanced) {
-            advancedField = (
-                <div>
-                <span>{polyglot.t("replyForm.advanced.title")}<a href="#" onClick={this.handleShowAdvanced}><i className="fa fa-fw fa-chevron-circle-down"></i></a></span><br/>
-                {replyPrivacyOption}
-                {licenseOption}
-                </div>
-            );
-        }
 
         var className = privacy == 'public' ? "" : "encrypted"
         return (

@@ -486,13 +486,19 @@ var PuffTallTree = React.createClass({
         if(rows < bigrows) bigrows = rows
         if(cols < bigcols) bigcols = cols
         
-        
+        // determine start row for big box, and totals for relatives
+        // THINK: should we allow column offset also?
+        var bigBoxStartRow = Math.floor((rows - bigrows) / 2)
+        var childrenStartRow = bigBoxStartRow + bigrows
+        var ancestorTotal = bigBoxStartRow * cols
+        var childrenTotal = childrenStartRow * cols
+        var siblingTotal  = (cols - bigcols) * bigrows
         
         // TODO: partial application
         var ancestorBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
-        var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 1)
-        var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, 3)
-        var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, 1, 0, 1, 0)
+        var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow)
+        var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow)
+        var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
         
         
         //// need a filtery thing:
@@ -510,7 +516,6 @@ var PuffTallTree = React.createClass({
         
         // gather puffs, graph style
         var genLimit = 10
-        var ancestorTotal = cols 
         var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit) 
                                     .unique().take(ancestorTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
@@ -533,14 +538,15 @@ var PuffTallTree = React.createClass({
             parentPuffs   = ancestorPuffs
                                        .filter(function(item, index, array) {return array.indexOf(item) == index}) 
                                        .filter(PuffForum.filterByFilters(queryfilter))
-                                       .slice(0, cols)
+                                       // .slice(0, cols)
                                        
         // var siblingPuffs  = PuffForum.getSiblings(puff) // pre-sorted
         var siblingPuffs  = siblingPuffs // pre-sorted
                                      .filter(function(item) {
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun)).indexOf(item.sig)})
                                      .filter(PuffForum.filterByFilters(queryfilter))
-                                     .slice(0, cols > 1 ? (cols-2)*2 : 0)
+                                     .slice(0, siblingTotal)
+                                     // .slice(0, cols > 1 ? (cols-2)*2 : 0)
                                      
         // var childrenPuffs = PuffForum.getChildren(puff) // pre-sorted
         var childrenPuffs = childrenPuffs // pre-sorted
@@ -548,7 +554,8 @@ var PuffTallTree = React.createClass({
                                          return !~[puff.sig].concat(parentPuffs.map(sigfun), siblingPuffs.map(sigfun))
                                                             .indexOf(item.sig)})
                                      .filter(PuffForum.filterByFilters(queryfilter))
-                                     .slice(0, cols)
+                                     .slice(0, childrenTotal)
+                                     // .slice(0, cols)
                                      .sort(function(a, b) {
                                          return a.username == username ? -1 : 0       // fancy sorting for current user puffs
                                              || b.username == username ?  1 : 0

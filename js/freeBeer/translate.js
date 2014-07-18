@@ -22,6 +22,7 @@ Translate.language["en"].extend({
 		},
 		filters: {
 			title: 'Filter',
+			by: 'By',
 			tags: 'Tag',
 			routes: 'Route',
 			users: 'User'
@@ -102,11 +103,9 @@ Translate.language["en"].extend({
             newPuff:'Create a new puff',
             code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',
-            tagsFilter: 'Show puffs with this tag',
-            routesFilter: 'Show puffs for this user',
-            routeErase: 'Unselect the route',
-            usersFilter: 'Show puffs from this user',
-            userErase: 'Unselect the user',
+            tagsFilter: 'Add a tag to filters',
+            routesFilter: 'Add a route to filters',
+            usersFilter: 'Add a user to filters',
             currentDelete:'To delete this user from the browser',
             flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
             viewImage: 'View large',

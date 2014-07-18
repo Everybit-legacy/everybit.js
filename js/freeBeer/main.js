@@ -132,6 +132,9 @@ events.sub('ui/*', function(data, path) {
     
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
+events.sub("ui/filter/*", function(data, path) {
+    events.pub('ui/query/default', {'view.query': puffworlddefaults.view.query})
+})
 
 // TODO: move these somewhere nicer
 

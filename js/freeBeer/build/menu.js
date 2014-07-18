@@ -141,9 +141,12 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
 var FilterMenu = React.createClass({displayName: 'FilterMenu',
     mixins: [TooltipMixin],
+    getInitialState: function() {
+        return {type:'tags'}
+    },
     
-    handlePickFilter: function(type) {
-        var type = type || 'tags';
+    handleAddFilter: function() {
+        var type = this.state.type;
         var currFilter = PB.shallow_copy(this.props.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
@@ -161,22 +164,26 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
-            this.handlePickFilter();
+            this.handleAddFilter();
         }
+    },
+    handlePickFilter: function(type) {
+        this.setState({type: type});
+        return false;
     },
     createEachFilter: function(type) {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var filterStyle = {
-            position: 'relative',
-            display: 'inline-block',
-            marginRight: '5px'
+        var filterToIcon = {
+            tags: '#',
+            users:'fa-user',
+            routes:'fa-sitemap'
         }
+        var icon = filterToIcon[type];
+
+        var color = this.state.type == type ? 'green' : 'black';
         return (
-            React.DOM.span( {style:filterStyle}, 
-                React.DOM.a( {onClick:this.handlePickFilter.bind(this, type)}, 
-                    polyglot.t("menu.filters."+type),
-                    React.DOM.i( {className:"fa fa-search-plus fa-fw"})
-                ),
+            React.DOM.span(null, 
+                React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa fa-fw '+icon})),
                 Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"Filter")} )
             )
         )
@@ -184,11 +191,19 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var all_filter = ['tags', 'users', 'routes'];
+        var leftColStyle = {
+            width: '80px',
+            display: 'inline-block'
+        }
         
         return (
             React.DOM.div( {className:"menuItem"}, 
-                "Filter: ", React.DOM.input( {ref:"filter", type:"text", className:"btn",onKeyDown:this.handleKeyDown} ),React.DOM.br(null),
-                all_filter.map(this.createEachFilter)
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.title"),":"),
+                React.DOM.input( {ref:"filter", type:"text", className:"btn", onKeyDown:this.handleKeyDown} ),React.DOM.a( {href:"#", onClick:this.handleAddFilter}, ' ',React.DOM.i( {className:"fa fa-search-plus fa-fw"})),React.DOM.br(null),
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.by"),":"),
+                React.DOM.span( {className:"relative"}, 
+                    all_filter.map(this.createEachFilter)
+                )
             )
         );
     }

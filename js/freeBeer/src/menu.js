@@ -141,9 +141,12 @@ var Cluster = React.createClass({
 
 var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
+    getInitialState: function() {
+        return {type:'tags'}
+    },
     
-    handlePickFilter: function(type) {
-        var type = type || 'tags';
+    handleAddFilter: function() {
+        var type = this.state.type;
         var currFilter = PB.shallow_copy(this.props.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
@@ -161,22 +164,26 @@ var FilterMenu = React.createClass({
     
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
-            this.handlePickFilter();
+            this.handleAddFilter();
         }
+    },
+    handlePickFilter: function(type) {
+        this.setState({type: type});
+        return false;
     },
     createEachFilter: function(type) {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var filterStyle = {
-            position: 'relative',
-            display: 'inline-block',
-            marginRight: '5px'
+        var filterToIcon = {
+            tags: '#',
+            users:'fa-user',
+            routes:'fa-sitemap'
         }
+        var icon = filterToIcon[type];
+
+        var color = this.state.type == type ? 'green' : 'black';
         return (
-            <span style={filterStyle}>
-                <a onClick={this.handlePickFilter.bind(this, type)}>
-                    {polyglot.t("menu.filters."+type)}
-                    <i className="fa fa-search-plus fa-fw"></i>
-                </a>
+            <span>
+                <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa fa-fw '+icon}></i>}</button>
                 <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
             </span>
         )
@@ -184,11 +191,19 @@ var FilterMenu = React.createClass({
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var all_filter = ['tags', 'users', 'routes'];
+        var leftColStyle = {
+            width: '80px',
+            display: 'inline-block'
+        }
         
         return (
             <div className="menuItem">
-                Filter: <input ref="filter" type="text" className="btn"onKeyDown={this.handleKeyDown} /><br/>
-                {all_filter.map(this.createEachFilter)}
+                <span style={leftColStyle}>{polyglot.t("menu.filters.title")}:</span>
+                <input ref="filter" type="text" className="btn" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-search-plus fa-fw"></i></a><br/>
+                <span style={leftColStyle}>{polyglot.t("menu.filters.by")}:</span>
+                <span className="relative">
+                    {all_filter.map(this.createEachFilter)}
+                </span>
             </div>
         );
     }

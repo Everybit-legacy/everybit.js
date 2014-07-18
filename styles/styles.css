@@ -139,6 +139,23 @@ section {
     background-size: 36px 36px;
     border: 2px solid #333;
 }
+
+#talltree .block.encrypted.anon {
+    background-image:url('../img/barcode2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+    border: 2px solid #333;
+}
+
+#talltree .block.encrypted.ivisible {
+    background-image:url('../img/circle2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+    border: 2px solid #333;
+}
+
 #talltree .block.flagged, #talltree .block.encrypted.flagged {
     background-image:url('../img/flagged.png');
     background-repeat:repeat;

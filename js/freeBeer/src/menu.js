@@ -38,7 +38,6 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div className="menu">
-
                 <br />
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
                          clusterMenu='ViewMenu' clusterIcon='fa-sitemap' view={this.props.view} />
@@ -137,14 +136,6 @@ var Cluster = React.createClass({
                 </div>
             </div>
         )
-    }
-});
-
-var Logo = React.createClass({
-    render: function() {
-        return (
-            <a href={CONFIG.url}><img src={CONFIG.logo} alt="Logo" className="logo" /></a>
-            )
     }
 });
 
@@ -460,6 +451,15 @@ var PreferencesMenu = React.createClass({
         }
     },
 
+
+    handleToggleReporting: function() {
+        if(puffworldprops.prefs.reporting) {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
+        } else {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
+        }
+    },
+
     handleShowHideInfobar: function() {
         return events.pub( 'ui/view/showinfo/toggle',
             { 'view.showinfo': !puffworldprops.view.showinfo})
@@ -506,7 +506,7 @@ var PreferencesMenu = React.createClass({
             'fa': true,
             'fa-fw': true,
             'fa-check-square-o': !puffworldprops.prefs.reporting,
-            'fa-square-o': !puffworldprops.prefs.reporting,
+            'fa-square-o': puffworldprops.prefs.reporting,
             'green': !puffworldprops.prefs.reporting
         });
 
@@ -534,7 +534,7 @@ var PreferencesMenu = React.createClass({
 
                 <div className="menuItem">
                     <span className="floatingCheckbox"><i className={cbClass4} onClick={this.handleToggleReporting} ></i></span>
-                    <a href="#" onClick={this.handleToggleReporting}>{polyglot.t("menu.preferences.disable_reporting")}</a>{' '}<span className="shortcut">[i]</span>
+                    <a href="#" onClick={this.handleToggleReporting}>{polyglot.t("menu.preferences.disable_reporting")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.disable_reporting")} />
                 </div>
 

@@ -38,7 +38,6 @@ var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-
                 React.DOM.br(null ),
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view",
                          clusterMenu:"ViewMenu", clusterIcon:"fa-sitemap", view:this.props.view} ),
@@ -137,14 +136,6 @@ var Cluster = React.createClass({displayName: 'Cluster',
                 )
             )
         )
-    }
-});
-
-var Logo = React.createClass({displayName: 'Logo',
-    render: function() {
-        return (
-            React.DOM.a( {href:CONFIG.url}, React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} ))
-            )
     }
 });
 
@@ -460,6 +451,15 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
         }
     },
 
+
+    handleToggleReporting: function() {
+        if(puffworldprops.prefs.reporting) {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
+        } else {
+            return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
+        }
+    },
+
     handleShowHideInfobar: function() {
         return events.pub( 'ui/view/showinfo/toggle',
             { 'view.showinfo': !puffworldprops.view.showinfo})
@@ -506,7 +506,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
             'fa': true,
             'fa-fw': true,
             'fa-check-square-o': !puffworldprops.prefs.reporting,
-            'fa-square-o': !puffworldprops.prefs.reporting,
+            'fa-square-o': puffworldprops.prefs.reporting,
             'green': !puffworldprops.prefs.reporting
         });
 
@@ -534,7 +534,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass4, onClick:this.handleToggleReporting} )),
-                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
+                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),
                     Tooltip( {content:polyglot.t("menu.tooltip.disable_reporting")} )
                 ),
 

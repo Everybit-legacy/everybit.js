@@ -453,6 +453,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
+                Logo(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
@@ -782,6 +783,14 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
             )
             )
         );
+    }
+});
+
+var Logo = React.createClass({displayName: 'Logo',
+    render: function() {
+        return (
+            React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            )
     }
 });
 

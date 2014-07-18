@@ -19,7 +19,7 @@ CONFIG.puffApi = 'http://162.219.162.56/c/puffs/api.php';
 CONFIG.zone = 'everybit';
 
 CONFIG.url = 'http://www.everybit.com';
-CONFIG.logo = 'img/EveryBit.gif';
+CONFIG.logo = 'img/EveryBitLogo.svg';
 
 /* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';

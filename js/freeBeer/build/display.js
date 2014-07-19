@@ -752,8 +752,8 @@ var Arrow = React.createClass({displayName: 'Arrow',
 
 var PuffHeader = React.createClass({displayName: 'PuffHeader',
     handleClick: function() {
-        if(this.props.menu.show)
-            return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
+        if(puffworldprops.menu.show)
+            return events.pub('ui/menu/close', {'menu.show': false})
         else
             return events.pub('ui/menu/open', {'menu.show': true})
     },

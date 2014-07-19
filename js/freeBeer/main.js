@@ -12,7 +12,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: false,
+        show: true,
         prefs: false,
         profile: false,
         import: false,                                  // import username
@@ -27,10 +27,10 @@ puffworldprops = {
     },
 
     view: {
-        mode: '',
+        mode: 'list',
         
         filters: {
-            tags: [],
+            tags: ['cats'],
             users : [],
             routes: [],
         },

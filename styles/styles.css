@@ -3,12 +3,12 @@
 Official z-index guide to all z-indices in the GUI so check here before you z-index anything ok?
 
 
+050: website logo
 100: regular puff block 
 200: selected puff block
 250: author and info bar
 275: scroll up/down;
 300: menu
-350: website logo
 400: reply form
 500: puffball icon
 
@@ -677,7 +677,7 @@ select:disabled {
 }
 
 .logo {
-    position: fixed;
+    position: absolute;
     top: 13px;
     right: 66px;
     margin-bottom: 1em;
@@ -873,6 +873,11 @@ select:disabled {
     bottom: 2em;
     min-width: 80px;
 }
+
+.narrowInputField {
+    width: 10em;
+}
+
 .linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
     min-width: 150px;
     text-transform: none;

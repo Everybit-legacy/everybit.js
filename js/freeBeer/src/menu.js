@@ -38,7 +38,8 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div className="menu">
-                <br />
+                <Logo />
+                <br /><br />
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
                          clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
                 <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
@@ -57,6 +58,7 @@ var Menu = React.createClass({
     }
 
 });
+
 
 
 
@@ -174,7 +176,7 @@ var FilterMenu = React.createClass({
     createEachFilter: function(type) {
         var polyglot = Translate.language[puffworldprops.view.language];
         var filterToIcon = {
-            tags: '#',
+            tags: 'fa-tag',
             users:'fa-user',
             routes:'fa-sitemap'
         }
@@ -193,13 +195,13 @@ var FilterMenu = React.createClass({
         var all_filter = ['tags', 'users', 'routes'];
         var leftColStyle = {
             width: '80px',
-            display: 'inline-block'
+            display: 'inline-block',
         }
         
         return (
             <div className="menuItem">
                 <span style={leftColStyle}>{polyglot.t("menu.filters.title")}:</span>
-                <input ref="filter" type="text" className="btn" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-search-plus fa-fw"></i></a><br/>
+                <input ref="filter" type="text" className="btn narrowInputField" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-plus-circle fa-fw"></i></a><br/>
                 <span style={leftColStyle}>{polyglot.t("menu.filters.by")}:</span>
                 <span className="relative">
                     {all_filter.map(this.createEachFilter)}
@@ -289,7 +291,7 @@ var ViewMenu = React.createClass({
     handleViewLatest: function() {
         return events.pub('ui/show/latest', { 'view.mode': 'list'
                                             , 'menu': puffworlddefaults.menu
-                                            , 'view.filters': puffworlddefaults.view.filters
+                                            , 'view.filters': []
                                             , 'view.query': puffworlddefaults.view.query
                                             });
     },

@@ -453,7 +453,6 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
-                Logo(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,

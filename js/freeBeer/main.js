@@ -27,7 +27,7 @@ puffworldprops = {
     },
 
     slider: {
-        show: true,
+        show: false,
         currentSlide: 1,
         totalSlides: 7
     },

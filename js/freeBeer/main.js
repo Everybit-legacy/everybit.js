@@ -26,6 +26,13 @@ puffworldprops = {
         }
     },
 
+    slider: {
+        show: true,
+        currentSlide: 1,
+        totalSlides: 7
+    },
+
+
     view: {
         mode: 'list',
         
@@ -78,6 +85,8 @@ puffworldprops = {
     raw: {
         puffs: []
     },
+
+
 
     prefs: {
         reporting: true

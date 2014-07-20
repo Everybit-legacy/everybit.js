@@ -453,6 +453,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
+
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
@@ -480,6 +481,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 //         return this.standardGridify(puffs);
 //     }
 // });
+
 
 
 var PuffList = React.createClass({displayName: 'PuffList',

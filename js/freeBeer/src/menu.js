@@ -581,10 +581,21 @@ var AboutMenu = React.createClass({
         return false;
     },
 
+    handleToggleShowIntro: function() {
+        if(puffworldprops.slider.show)
+            return events.pub( 'ui/slider/open',{ 'slider.show': false});
+
+        return events.pub( 'ui/slider/open',{ 'slider.show': true});
+    },
+
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleToggleShowIntro}>Introduction</a>
+                </div>
+
                 <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.code")} />
                 </div>
@@ -592,6 +603,8 @@ var AboutMenu = React.createClass({
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowFaq}>{polyglot.t("menu.view.faq")}</a>
                 </div>
+
+
             </div>
         )
     }

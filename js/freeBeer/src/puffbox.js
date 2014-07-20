@@ -304,9 +304,9 @@ var PuffParentCount = React.createClass({
     },
     render: function() {
         var puff = this.props.puff;
-        var parents = PuffForum.getParents(puff)
+        var parentCount = PuffForum.getParentCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (parents.length==0) {
+        if (!parentCount) {
             return (
                     <span>
                         <span className="click droid"><span ref="count" >0</span> </span>
@@ -318,7 +318,7 @@ var PuffParentCount = React.createClass({
             return (
                 <span>
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                        <span ref="count droid">{parents.length} </span>
+                        <span ref="count droid">{parentCount} </span>
                     </a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.parent")}/>
                 </span>
@@ -541,9 +541,9 @@ var PuffChildrenCount = React.createClass({
     },
     render: function() {
         var puff = this.props.puff;
-        var children = PuffForum.getChildren(puff)
+        var childCount = PuffForum.getChildCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (children.length==0) {
+        if (!childCount) {
             return (
                 <span>
                     <span className="click droid"><span ref="count">0</span> </span>
@@ -555,7 +555,7 @@ var PuffChildrenCount = React.createClass({
             return (
                 <span>
                     <a href={'#' + this.props.sig} onClick={this.handleClick}>
-                        <span ref="count droid">{children.length} </span>
+                        <span ref="count droid">{childCount} </span>
                     </a>
                     <Tooltip position="above" content={polyglot.t("menu.tooltip.children")}/>
                 </span>

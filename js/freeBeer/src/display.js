@@ -421,17 +421,12 @@ var PuffWorld = React.createClass({
         if( viewprops.mode == 'focus' )
             view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
 
-        // else if( viewprops.mode == 'list' && viewprops.query.descendants )
-        //     view  = <PuffAllChildren  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
-
-        // else if( viewprops.mode == 'list' && viewprops.query.ancestors )
-        //     view  = <PuffAllParents  view={viewprops} reply={this.props.reply} puff={viewprops.query.focus} />
-
         else if( viewprops.mode == 'list' )
             view  = <PuffList        view={viewprops} reply={this.props.reply} />
 
         else if( viewprops.mode == 'PuffPacker' )
             view  = <PuffPacker      tools={this.props.tools} />
+
 
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;

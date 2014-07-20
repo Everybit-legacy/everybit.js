@@ -366,8 +366,8 @@ PuffData.getMyPuffChain = function(username) {
     
     var shells = PuffData.getShells()
     
-    return shells.filter(function(puff) { return puff && puff.username == username })
-    // return PuffForum.getByUser(username) // TODO: test this
+    return shells.filter(function(puff) { return puff && puff.username == username }) // TODO: use the graph
+    // return PuffForum.getByUser(username) // TODO: test this 
 }
 
 

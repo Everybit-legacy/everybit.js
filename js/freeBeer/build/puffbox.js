@@ -304,9 +304,9 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     },
     render: function() {
         var puff = this.props.puff;
-        var parents = PuffForum.getParents(puff)
+        var parentCount = PuffForum.getParentCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (parents.length==0) {
+        if (!parentCount) {
             return (
                     React.DOM.span(null, 
                         React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"} , "0"), " " ),
@@ -318,7 +318,7 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
             return (
                 React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        React.DOM.span( {ref:"count droid"}, parents.length, " " )
+                        React.DOM.span( {ref:"count droid"}, parentCount, " " )
                     ),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")})
                 )
@@ -541,9 +541,9 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     },
     render: function() {
         var puff = this.props.puff;
-        var children = PuffForum.getChildren(puff)
+        var childCount = PuffForum.getChildCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
-        if (children.length==0) {
+        if (!childCount) {
             return (
                 React.DOM.span(null, 
                     React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"}, "0"), " " ),
@@ -555,7 +555,7 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
             return (
                 React.DOM.span(null, 
                     React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
-                        React.DOM.span( {ref:"count droid"}, children.length, " " )
+                        React.DOM.span( {ref:"count droid"}, childCount, " " )
                     ),
                     Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )

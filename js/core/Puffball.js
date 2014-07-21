@@ -693,7 +693,7 @@ Puffball.parseJSON = function(str) {
  * @param  {string} msg     
  * @return {boolean}     
  */
-Puffball.falsePromise = function(msg) {
+Puffball.emptyPromise = function(msg) {
     if(msg) Puffball.onError(msg)
     return Promise.reject(msg)
 }

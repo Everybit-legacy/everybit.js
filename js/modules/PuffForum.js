@@ -351,7 +351,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     
     // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
-        return Puffball.falsePromise('Those are not good parents')
+        return Puffball.emptyPromise('Those are not good parents')
     
     // ensure parents are unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 

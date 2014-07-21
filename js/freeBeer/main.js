@@ -494,24 +494,3 @@ events.sub('ui/*', function(data) {
 var prom = PuffNet.getAllShells()               // FIXME: temp hack regression
 prom.then(PuffData.addShellsThenMakeAvailable)  // FIXME: temp hack regression
 
-
-
-
-
-
-
-
-
-
-////////////// stealing a few items from Ramda (consider importing whole lib) ///////////////
-
-R = {}
-
-R.prop = function (p, obj) {
-    return arguments.length < 2 ? function (obj) { return obj[p]; } : obj[p]
-}
-
-
-
-
-

@@ -90,3 +90,24 @@ PB.extend = function() {
             newobj[prop] = arg[prop] } })
     return newobj
 }
+
+
+
+
+
+
+
+
+
+////////////// stealing a few items from Ramda (consider importing whole lib) ///////////////
+
+R = {}
+
+R.prop = function (p, obj) {
+    return arguments.length < 2 ? function (obj) { return obj[p]; } : obj[p]
+}
+
+
+
+
+

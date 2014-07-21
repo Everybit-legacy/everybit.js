@@ -702,7 +702,7 @@ PuffForum.addContentType('image', {
 PuffForum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
-        console.log(content);
+        // console.log(content);
         // content = decodeURIComponent(escape(content));
         return converter.makeHtml(content);
     }

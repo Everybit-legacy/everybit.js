@@ -690,7 +690,12 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
                                    .filter(function(s){
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
-                                    });
+                                    })
+                                   .filter(function(s){
+                                        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+                                        var found = flaggedPuff.indexOf(s.sig);
+                                        return found == -1;
+                                   });
         return starShells;
     },
     getCurrentUserStar: function() {
@@ -746,11 +751,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         if (username == PuffForum.getPuffBySig(this.props.sig).username)
             return false;
         var sig = this.props.sig;
-        var starred = PuffForum.getShells()
-                                 .filter(function(s){
-                                    return s.payload.type == 'star' && 
-                                           s.payload.content == sig;
-                                  })
+        var starred = this.getStarShells();
         starred = starred.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
@@ -759,7 +760,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             prom.then(function(result) {
                     self.setState({color: 'black'});
                     self.updateScore();
-
                 })
                 .catch(function(err) {
                    alert(err);

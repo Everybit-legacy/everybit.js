@@ -423,7 +423,8 @@ PuffForum.getPuffList = function(query, filters, limit) {
     var puffs = filtered_shells.map(Puffball.getPuffFromShell)
                                .filter(Boolean)
 
-    var have = filtered_shells.length
+    // var have = filtered_shells.length
+    var have = puffs.length
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
@@ -782,7 +783,8 @@ PuffForum.flagPuff = function (sig) {
         // Puffball.Persist.save('shells', filteredShells);
         Puffball.Persist.save('flagged', flaggedSig);
         // reload?
-        document.location.reload();
+        // document.location.reload();
+        events.pub('ui/flag', {})
         return result;
     })
     return prom;

@@ -39,7 +39,7 @@ puffworldprops = {
         filters: {
             tags: ['cats'],
             users : [],
-            routes: [],
+            routes: []
         },
 
         // TODO: move these options into view.layout

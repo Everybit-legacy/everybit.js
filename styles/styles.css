@@ -746,11 +746,21 @@ select:disabled {
 }
 
 .slide {
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 5%;
+    margin-right: 5%;
     margin-top: 0%;
     font-size: 1.5em;
+    padding: .5em 1em .5em 1em;
     line-height: 2em;
+    background-color: #F2EFEB;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.slideHeader {
+    font-size: 1.3em;
+    font-family: GudeaBold;
+
 }
 
 

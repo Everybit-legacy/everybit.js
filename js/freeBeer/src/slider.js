@@ -16,6 +16,24 @@ var Slider = React.createClass({
         return events.pub( 'ui/slider/close',{ 'slider.show': false});
     },
 
+    handleGetStarted: function() {
+        // Close slider, focus publish
+        events.pub( 'ui/slider/close',{ 'slider.show': false});
+
+        // TODO: Yikes!
+        var contentEle = document.getElementById('content');
+        if (contentEle) {
+            contentEle.focus();
+        }
+
+        return events.pub('ui/reply/open', { 'clusters.publish': true
+            , 'menu.show': true
+            , 'menu.publish': true
+            //  , 'reply': {show: true}
+        });
+
+    },
+
 
     render: function() {
         var slidesArr = new Array();
@@ -71,7 +89,7 @@ var Slider = React.createClass({
                 slideName = <IdentitySlide />
                 break;
             case 7:
-                slideName = <InteroperableSlide />
+                slideName = <DecentralizedSlide />
                 break;
             default:
                 break;
@@ -89,7 +107,7 @@ var Slider = React.createClass({
                 <div className="sliderFooter">
                         {slidesArr.map(function(i) {
                             return <SliderBullet active={i == puffworldprops.slider.currentSlide} numb={i} />
-                        })} <a href="#"><em>Get started!</em></a>
+                        })} <a href="#" onClick={this.handleGetStarted}><em>Get started!</em></a>
                 </div>
             </div>
             );
@@ -129,13 +147,13 @@ var WelcomeSlide = React.createClass({
 
                     <a href="#" onClick={this.handleGotoSlide.bind(this,3)} className="black"><i className="blue fa fa-fw fa-lock"></i> Fully <em className="blue">secure</em> communications</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-plane"></i> Keyboard <em className="blue">Multi-threaded</em> conversations.</a><br />
+                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-plane"></i><em className="blue">Multi-threaded</em> conversations.</a><br />
 
                     <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-search-plus"></i> Advanced <em className="blue">filtering</em> tools.</a><br />
 
                     <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-user"></i> Full <em className="blue">identity</em> management.</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-beer"></i> Open source. Decentralized. <em className="blue">Interoperable</em>.</a><br />
+                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-beer"></i> Open source. <em className="blue">Decentralized</em>. Interoperable.</a><br />
                     </div>
 
             )
@@ -168,10 +186,24 @@ var ShortcutsSlide = React.createClass({
 })
 
 var SecureSlide = React.createClass({
+    handleGotoSlide: function(goTo) {
+        return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo});
+    },
+
     render: function() {
         return (
             <div>
-                SECURE<br />
+                <div className="slideHeader blue">Secure communications</div>
+                <i className="gray fa fa-fw fa-arrow-right"></i>Fully encrypted private messages<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>All encryption happens <em>client side</em><br />
+                    (passwords are never sent over the network)<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>No single point of failure <br />
+                    (posts are stored on a server and <a href="#" onClick={this.handleGotoSlide.bind(this,7)}>distributed over a P2P network</a>)<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Complete control over privacy level <br />
+                    (Public, Private, Anonymous, and Invisible)<br />
             </div>
 
             )
@@ -183,7 +215,7 @@ var MultiThreadedSlide = React.createClass({
     render: function() {
         return (
             <div>
-            Multi-threaded<br />
+                <div className="slideHeader blue">Multi-threaded</div>
             </div>
 
             )
@@ -195,7 +227,7 @@ var FilteringSlide = React.createClass({
     render: function() {
         return (
             <div>
-            Filtering<br />
+                <div className="slideHeader blue">Filtering</div>
             </div>
 
             )
@@ -207,7 +239,7 @@ var IdentitySlide = React.createClass({
     render: function() {
         return (
             <div>
-            Indentity<br />
+                <div className="slideHeader blue">Indentity</div>
             </div>
 
             )
@@ -216,11 +248,11 @@ var IdentitySlide = React.createClass({
 })
 
 
-var InteroperableSlide = React.createClass({
+var DecentralizedSlide = React.createClass({
     render: function() {
         return (
             <div>
-            Interoperable<br />
+                <div className="slideHeader blue">Decentralized</div>
             </div>
 
             )

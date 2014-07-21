@@ -258,7 +258,14 @@ var PuffFlagLink = React.createClass({
         var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
+                console.log(result);
                 self.setState({flagged: true});
+                var sig = getQuerystringObject().cursor;
+                PuffNet.getPuffBySig(sig).then(function(result){
+                    console.log(result);
+                }).catch(function(err){
+                    console.log(err);
+                })
             })
             .catch(function(err) {
                alert(err);

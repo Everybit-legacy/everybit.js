@@ -665,7 +665,7 @@ PuffForum.getProcessedPuffContent = function(puff) {
 PuffForum.addContentType('text', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
-        // safe_content.html = decodeURIComponent(escape(safe_content.html));
+        safe_content.html = decodeURIComponent(escape(safe_content.html));
         return '<p>' + safe_content.html + '</p>'               // THINK: is this really safe?
     }
 })
@@ -702,6 +702,7 @@ PuffForum.addContentType('image', {
 PuffForum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
+        console.log(content);
         // content = decodeURIComponent(escape(content));
         return converter.makeHtml(content);
     }

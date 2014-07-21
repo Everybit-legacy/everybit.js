@@ -289,7 +289,13 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     },
 
     handleViewLatest: function() {
+        if(puffworldprops.view.rows < 2)
+            var showRows = 4
+        else
+            showRows = puffworldprops.view.rows
+
         return events.pub('ui/show/latest', { 'view.mode': 'list'
+                                            , 'view.rows': showRows
                                             , 'menu': puffworlddefaults.menu
                                             , 'view.filters': []
                                             , 'view.query': puffworlddefaults.view.query
@@ -297,7 +303,14 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     },
 
     handleShowUserPuffs: function(username) {
+        if(puffworldprops.view.rows < 2)
+            var showRows = 4
+        else
+            showRows = puffworldprops.view.rows
+
+
         return events.pub('ui/show/by-user', { 'view.mode': 'list'
+                                             , 'view.rows': showRows
                                              , 'view.filters': puffworlddefaults.view.filters
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
@@ -306,9 +319,18 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
     handleShowShortcuts: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        events.pub('ui/view/rows/1', {'view.rows': 1})
         showPuff(polyglot.t("puff.shortcut"));
         return false;
     },
+
+    /*
+
+     <div className="menuItem">
+     <a href="#" onClick={this.handleViewRoots}>{polyglot.t("menu.view.roots")}</a>
+     <Tooltip content={polyglot.t("menu.tooltip.roots")} />
+     </div>
+     */
 
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -321,10 +343,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
                 ),
 
-                React.DOM.div( {className:"menuItem"},  
-                    React.DOM.a( {href:"#", onClick:this.handleViewRoots}, polyglot.t("menu.view.roots")),
-                    Tooltip( {content:polyglot.t("menu.tooltip.roots")} )
-                ),
 
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection")),

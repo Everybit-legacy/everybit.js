@@ -179,7 +179,7 @@ var ShortcutsSlide = React.createClass({
 
                 <span className="blue" bold>←↑↓→</span>: Navigate between posts<br />
 
-                <span className="blue" bold>I</span>: Toggle show informaiton about posts<br />
+                <span className="blue" bold>I</span>: Toggle show information about posts<br />
 
                 <span className="blue" bold>SPACE</span>: Toggle show relationships<br />
 
@@ -274,9 +274,9 @@ var IdentitySlide = React.createClass({
             <div className="slideContent">
                 <i className="fa fa-user slideBackground"></i>
 
-                <div className="slideHeader blue">Indentity management</div>
+                <div className="slideHeader blue">Identity management</div>
 
-                <i className="gray fa fa-fw fa-arrow-right"></i>Users own and control their own identies.<br />
+                <i className="gray fa fa-fw fa-arrow-right"></i>Users own and control their own identities.<br />
 
                 <i className="gray fa fa-fw fa-arrow-right"></i>Identities are portable across all websites using the same framework.<br />
 
@@ -284,7 +284,7 @@ var IdentitySlide = React.createClass({
 
                 <i className="gray fa fa-fw fa-arrow-right"></i>Users can create and manage sub-usernames as needed.<br />
 
-                <i className="gray fa fa-fw fa-arrow-right"></i>Create ad-hoc connections with other users that are website-independant.<br />
+                <i className="gray fa fa-fw fa-arrow-right"></i>Create ad-hoc connections with other users that are website-independent.<br />
 
             </div>
 

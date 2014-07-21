@@ -34,6 +34,8 @@ var Slider = React.createClass({
     },
 
 
+
+
     render: function() {
         var slidesArr = new Array();
         for(i=1;i<=puffworldprops.slider.totalSlides;i++) {
@@ -166,7 +168,16 @@ var WelcomeSlide = React.createClass({
 })
 
 var ShortcutsSlide = React.createClass({
+    handleShowShortcuts: function() {
+
+        var polyglot = Translate.language[puffworldprops.view.language];
+        events.pub('ui/view/rows/1', {'view.rows': 1})
+        showPuff(polyglot.t("puff.shortcut"));
+        return events.pub( 'ui/slider/close',{ 'slider.show': false});
+    },
+
     render: function() {
+
         return (
             <div className="slideContent">
                 <i className="fa fa-plane slideBackground"></i>
@@ -185,7 +196,7 @@ var ShortcutsSlide = React.createClass({
 
                 <span className="blue" bold>ESC</span>: Close a dialogue box (including this one!)<br />
 
-                <em>See full list</em><br />
+                <a href="#" onClick={this.handleShowShortcuts}><em>See full list</em></a>
             </div>
 
             )
@@ -294,6 +305,13 @@ var IdentitySlide = React.createClass({
 
 
 var DecentralizedSlide = React.createClass({
+    handleShowFaq: function() {
+        events.pub( 'ui/slider/close',{ 'slider.show': false});
+        showPuff('AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di');
+        return false;
+    },
+
+
     render: function() {
         return (
             <div className="slideContent">
@@ -307,7 +325,7 @@ var DecentralizedSlide = React.createClass({
 
                 <i className="gray fa fa-fw fa-arrow-right"></i>Open standard for publishing content.<br />
 
-                <i className="gray fa fa-fw fa-arrow-right"></i>Goals: zero lock in, full portability, <a href="index.html?mode=list&filters.users=dev.puffball&arrows=true&slider.show=false&rows=4&cols=5&boxRatio=1&language=en&animation=true&query.sort=ASC&score.suValue=0.1&score.tluValue=1&score.maxSuValue=1%2F&cursor=iKx1CJNNLUMdChBCrJe4DbnstoVAfpENW9FLpR9ER4puPqZ38mJVJxYUnggHq5iWau2U5MVcHKd1yGe7HZHdHEa49Zc32R832K/">solve the gatekeeper problem</a>.<br />
+                <i className="gray fa fa-fw fa-arrow-right"></i>Goals: zero lock in, full portability, <a href="#" onClick={this.handleShowFaq}>solve the gatekeeper problem</a>.<br />
 
             </div>
 

@@ -290,9 +290,9 @@ var ViewMenu = React.createClass({
 
     handleViewLatest: function() {
         if(puffworldprops.view.rows < 2)
-            var showRows = 4
+            var showRows = puffworlddefaults.view.rows
         else
-            showRows = puffworldprops.view.rows
+            var showRows = puffworldprops.view.rows
 
         return events.pub('ui/show/latest', { 'view.mode': 'list'
                                             , 'view.rows': showRows
@@ -304,9 +304,9 @@ var ViewMenu = React.createClass({
 
     handleShowUserPuffs: function(username) {
         if(puffworldprops.view.rows < 2)
-            var showRows = 4
+            var showRows = puffworlddefaults.view.rows
         else
-            showRows = puffworldprops.view.rows
+            var showRows = puffworldprops.view.rows
 
 
         return events.pub('ui/show/by-user', { 'view.mode': 'list'

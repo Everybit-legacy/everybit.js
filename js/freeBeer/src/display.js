@@ -77,7 +77,13 @@ var ViewKeybindingsMixin = {
 
         // l shows latest puffs
         Mousetrap.bind('l', function() {
+            if(puffworldprops.view.rows < 2)
+                var showRows = puffworlddefaults.view.rows
+            else
+                var showRows = puffworldprops.view.rows
+
             return events.pub('ui/show/latest', { 'view.mode': 'list'
+                                                , 'view.rows': showRows
                                                 , 'view.filters': puffworlddefaults.view.filters
                                                 , 'view.query': puffworlddefaults.view.query
                                                 , 'menu': puffworlddefaults.menu});
@@ -110,7 +116,10 @@ var ViewKeybindingsMixin = {
         }.bind(this));
         
         // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
-        Mousetrap.bind('esc', function(e) { 
+        Mousetrap.bind('esc', function(e) {
+            if(puffworldprops.slider.show)
+                return events.pub('ui/slider/close', {'slider.show': false})
+
             if(puffworldprops.menu.show)
                 return events.pub('ui/menu/close', {'menu.show': false})
 

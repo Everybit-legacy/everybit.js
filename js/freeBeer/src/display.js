@@ -570,7 +570,7 @@ var PuffTallTree = React.createClass({
         
         // fill remaining slots
         PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, PB.extend({}, query, {mode: 'ancestors'}), filters)
-        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, PB.extend({}, query, {mode: 'descendents'}), filters)
+        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, PB.extend({}, query, {mode: 'descendants'}), filters)
         PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, PB.extend({}, query, {mode: 'siblings'}), filters)
         
         // special sorting for children puffs

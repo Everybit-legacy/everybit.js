@@ -491,6 +491,6 @@ events.sub('ui/*', function(data) {
 ////////// End PuffForum Interface ////////////
 
 
-var prom = PuffNet.getAllShells()               // FIXME: temp hack regression
-prom.then(PuffData.addShellsThenMakeAvailable)  // FIXME: temp hack regression
+// var prom = PuffNet.getAllShells()               // FIXME: temp hack regression
+// prom.then(PuffData.addShellsThenMakeAvailable)  // FIXME: temp hack regression
 

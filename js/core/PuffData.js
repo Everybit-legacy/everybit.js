@@ -168,7 +168,7 @@ PuffData.getBonus = function(puff, key) {
  */
 PuffData.addShellsThenMakeAvailable = function(shells) {
     var delta = PuffData.hereHaveSomeNewShells(shells)
-    // if(delta) // FIXME: temp hack regression
+    if(delta) // FIXME: temp hack regression
         PuffData.makeShellsAvailable(shells)
     return delta
 }
@@ -185,28 +185,28 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     
     shells = shells.filter(PuffData.isGoodShell)
     
-    var old_length = PuffData.shells.length
-    shells.forEach(PuffData.tryAddingShell)
-    
-    var delta = PuffData.shells.length - old_length
-    if(!delta) return false
+    var useful_shells = shells.filter(PuffData.tryAddingShell) // note that we're filtering effectfully,
+                                                               // and that useful shells may be new or just new content
+    if(!useful_shells.length) return false
     
     PuffData.addToGraph(shells)
     
     PuffData.persistShells()
     // PuffData.makeShellsAvailable()
     
-    return delta
+    return useful_shells.length
 }
 
 /**
  * to make shells available
  */
-PuffData.makeShellsAvailable = function() {
+PuffData.makeShellsAvailable = function(shells) {
     //// alert everyone: new shells have arrived!
     
     // TODO: this isn't right -- fix this upper layer too
-    Puffball.receiveNewPuffs(PuffData.shells) // may have to pass delta here
+    // Puffball.receiveNewPuffs(PuffData.shells) // may have to pass delta here
+    
+    Puffball.receiveNewPuffs(shells) // may have to pass delta here
     
 }
 
@@ -223,15 +223,15 @@ PuffData.tryAddingShell = function(shell) {
     var existing = PuffData.getCachedShellBySig(shell.sig)
     
     if(existing) {
-        if(!existing.payload.content)
-            existing.payload.content = shell.payload.content    // maybe add the missing content
-        return false
+        if(existing.payload.content) return false
+        existing.payload.content = shell.payload.content    // maybe add the missing content
+        return true // true because we changed it
     }
     
     PuffData.shells.push(shell)
     PuffData.shellSort[shell.sig] = shell
 
-    return shell
+    return true // true because we added it
 }
 
 /**
@@ -312,13 +312,21 @@ PuffData.slotLock = false // FIXME: temp hack regression
 PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
     
-    return false
+    // -- redraw screen on new puffs being ingested (w/o looping)
+    // -- cycle all new puffs through graph stuff
+    // - call fillSomeSlotsPlease every time we have slots to fill
+    
+    // - perform GC on in-memory puffs (can remove content also)
+    // - use GC funs for persisting shells
+    // - store size of each shell/puff for GC
+    // - manage empty vertices better (different type?)
+    // - get focused puff immediately
     
     if(PuffData.slotLock) return false
     PuffData.slotLock = true
     
     var offset = 0
-    var giveup = 1000
+    var giveup = 500
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -335,7 +343,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
         var limit = need - have + 50 // grab a few extras to help work through bare patches
         
         var prom = PuffNet.getSomeShells(query, filters, limit, offset)
-        // prom.then(getMeSomeShells)
+        prom.then(getMeSomeShells)
 
         offset += limit
     }

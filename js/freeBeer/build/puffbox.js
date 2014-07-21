@@ -259,6 +259,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
+                console.log(result);
                 self.setState({flagged: true});
             })
             .catch(function(err) {

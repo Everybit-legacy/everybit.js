@@ -773,17 +773,17 @@ PuffForum.flagPuff = function (sig) {
                };
 
     var prom = PuffNet.post(CONFIG.puffApi, data);
-    prom = prom.then(function(){
-        // clear localstorage
-        var storedShells = Puffball.Persist.get('shells');
-        var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+    prom = prom.then(function(result){
+        // var storedShells = Puffball.Persist.get('shells');
+        // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
         var flaggedSig = Puffball.Persist.get('flagged') || [];
         flaggedSig.push(content);
 
-        Puffball.Persist.save('shells', filteredShells);
+        // Puffball.Persist.save('shells', filteredShells);
         Puffball.Persist.save('flagged', flaggedSig);
         // reload?
         document.location.reload();
+        return result;
     })
     return prom;
 }

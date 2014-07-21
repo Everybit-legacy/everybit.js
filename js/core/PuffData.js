@@ -378,14 +378,46 @@ PuffData.getPuffBySig = function(sig) {
     
     if(PuffData.pending[sig])
         return false
+        
+    // locally cached shells that are missing content on the network prevent slotfills from resolving,
+    // so we clear it from our cache if we can't find it.
+    var badShellClearCache = function(shells) {
+        if(!shells.length) {
+            PuffData.removeShellFromCache(sig)
+            return Puffball.throwError("Content can not be found for shell '" + sig + "'")
+            // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
+        }
+    }
     
     PuffData.pending[sig] = PuffNet.getPuffBySig(sig)
-    PuffData.pending[sig].then(PuffData.addShellsThenMakeAvailable)
-                         .then(function() { setTimeout(function() { delete PuffData.pending[sig] }, 10000) }) // delay GC
+    PuffData.pending[sig].then(badShellClearCache)
+                         .then(PuffData.addShellsThenMakeAvailable)
+                         .then(function() {                                                    // delay GC to prevent
+                             setTimeout(function() { delete PuffData.pending[sig] }, 10000) }) // runaway network requests
     
     return false
 }
 
+PuffData.removeShellFromCache = function(sig) {
+    // remove from PuffData.shells
+    var shell = PuffData.getCachedShellBySig(sig)
+    PuffData.shells.splice( PuffData.shells.indexOf(shell), 1 )
+    
+    // remove from PuffData.shellSort
+    delete PuffData.shellSort[sig]
+    
+    // remove shell's bonii
+    delete PuffData.bonii[sig]
+    
+    // change graph vertex to 'pseudo-shell' type (or 'purged' type?)
+    //   and remove the content of the 'shell' property
+    // TODO: this is icky make it better
+    var vertex = PuffData.graph.v(sig).run()[0]
+    vertex.type = 'purged'
+    vertex.shell = undefined
+    
+    updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
+}
 
 
 /**

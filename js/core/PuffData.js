@@ -387,6 +387,7 @@ PuffData.getPuffBySig = function(sig) {
             return Puffball.throwError("Content can not be found for shell '" + sig + "'")
             // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
         }
+        return shells
     }
     
     PuffData.pending[sig] = PuffNet.getPuffBySig(sig)

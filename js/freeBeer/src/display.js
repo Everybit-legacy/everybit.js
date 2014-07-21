@@ -540,7 +540,7 @@ var PuffTallTree = React.createClass({
         var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
 
         // filters
-        var graphize    = function(f) { return function(x) { return f(x.shell) } } // TODO: pipe(prop('shell'), f)
+        var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
         var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
         var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
         

@@ -184,7 +184,7 @@ var FilterMenu = React.createClass({
 
         var color = this.state.type == type ? 'green' : 'black';
         return (
-            <span>
+            <span key={type}>
                 <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa fa-fw '+icon}></i>}</button>
                 <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
             </span>
@@ -214,7 +214,7 @@ var FilterMenu = React.createClass({
 var CurrentFilters = React.createClass({
     render: function() {
         var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
-            return <FilterBubble filterName={key} filterValue={this.props.view.filters[key]} />
+            return <FilterBubble key={key} filterName={key} filterValue={this.props.view.filters[key]} />
         }.bind(this))
 
         return (
@@ -1237,19 +1237,19 @@ var EditIdentity = React.createClass({
 
                     <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="defaultKey" ref="defaultKey" size="12" value={defaultKey} onFocus={this.handleFocus} />
+                        <input type="text" name="defaultKey" ref="defaultKey" size="12" value={defaultKey} onFocus={this.handleFocus} readOnly />
                         <i className={defaultKeyQRStyle} name="default" onClick={this.handleShowQRCode} ></i>
                     </div><br />
 
                     <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="adminKey" ref="adminKey" size="12" value={adminKey} onFocus={this.handleFocus} />
+                        <input type="text" name="adminKey" ref="adminKey" size="12" value={adminKey} onFocus={this.handleFocus} readOnly />
                         <i className={adminKeyQRStyle} name="admin" onClick={this.handleShowQRCode}></i>
                     </div><br />
 
                     <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
                     <div className="menuInput">
-                        <input type="text" name="rootKey" ref="rootKey" size="12" value={rootKey} onFocus={this.handleFocus} />
+                        <input type="text" name="rootKey" ref="rootKey" size="12" value={rootKey} onFocus={this.handleFocus} readOnly />
                         <i className={rootKeyQRStyle} name="root" onClick={this.handleShowQRCode}></i>
                     </div><br />
 

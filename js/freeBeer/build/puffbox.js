@@ -184,7 +184,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
-                PuffReplyLink( {sig:puff.sig} ),
+                PuffReplyLink( {ref:"reply", sig:puff.sig} ),
                 moreButton
             )
         );

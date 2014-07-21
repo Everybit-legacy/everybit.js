@@ -28,7 +28,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
-        this.setState(puffworldprops.reply.state);
+        if (puffworldprops.reply.state)
+            this.setState(puffworldprops.reply.state);
         this.getUsernames();
         this.preventDragText();
 
@@ -453,7 +454,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.recipient"),": " ),
                 self.state.usernames.map(function(value){
                     return (
-                        React.DOM.span( {className:"bubbleNode"}, 
+                        React.DOM.span( {key:value, className:"bubbleNode"}, 
                             value,
                             React.DOM.a( {href:"#", onClick:self.removeUsername.bind(self, value)}, 
                                 React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -489,7 +490,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 Object.keys(privacyToIcon).map(function(p){
                     var color = privacy == p ? 'green' : 'black';
                     return (
-                        React.DOM.span(null, 
+                        React.DOM.span( {key:p}, 
                             React.DOM.button( {className:'btn ' + color, value:p}, React.DOM.i( {className:"fa fa-fw "+privacyToIcon[p]})),
                             Tooltip( {position:"above", content:polyglot.t("replyForm.pOptions."+p)} )
                         ))

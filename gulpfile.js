@@ -67,6 +67,9 @@ gulp.task('copyBinaries', function() {
     gulp.src('img/chess/*',{base: '.'})
         .pipe(gulp.dest('build'));
 
+    gulp.src('img/slides/*',{base: '.'})
+        .pipe(gulp.dest('build'));
+
     gulp.src('config.js',{base: '.'})
         .pipe(gulp.dest('build'));
 

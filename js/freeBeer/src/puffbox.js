@@ -95,7 +95,8 @@ var PuffAuthor = React.createClass({
                     {" > "}
                     {routes.map(function(value, index){
                         var link = <a href="" onClick={self.clickUsername.bind(self, value)}>{value}</a>
-                        var ret = <span>{link}{(index != total-1) ? ', ' : ''}</span>
+                        var ret = <span>{link}
+                                    {(index != total-1) ? ', ' : ''}</span>
                         return ret;
                     })}
                 </span>
@@ -173,36 +174,35 @@ var PuffBar = React.createClass({
                 <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />
             </span>
         )
-        /***
-         * flag info reply clone star?
-         * parent children viewRaw|image expand
-         * tip json permalink
-         ***/
+
+
+        // ICON SETS
         var iconSetOne = (
             <div className={className}>
                 <PuffFlagLink ref="flag" sig={puff.sig} username={puff.username} flagged={this.props.flagged}/>
                 <PuffInfoLink puff={puff} />
-                <PuffReplyLink sig={puff.sig} />
-                <PuffClone puff={puff} />
+                <PuffParentCount puff={puff} />
+                <PuffChildrenCount puff={puff} />
                 {showStar ? <PuffStar show={showStar} sig={puff.sig} /> : ''}
+                <PuffReplyLink sig={puff.sig} />
                 {moreButton}
             </div>
         );
         var iconSetTwo = (
             <div className={className}>
-                <PuffParentCount puff={puff} />
-                <PuffChildrenCount puff={puff} />
                 {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                 {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
                 <PuffExpand puff={puff} />
+                <PuffTipLink username={puff.username} />
                 {moreButton}
             </div>
         )
         var iconSetThree = (
             <div className={className}>
-                <PuffTipLink username={puff.username} />
+
                 <PuffJson puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
+                <PuffClone puff={puff} />
                 {moreButton}
             </div>
         );
@@ -431,8 +431,6 @@ var TipButton = React.createClass({
     componentDidMount: function(){
         // Get the public key for this user, convert to wallet
         // TODO: Get the link so have meta-data set, like "From puffball"
-
-
 
         var self = this;
         var prom = Puffball.getUserRecord(this.props.username);

@@ -12,7 +12,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: false,
+        show: true,
         prefs: false,
         profile: false,
         import: false,                                  // import username
@@ -26,13 +26,20 @@ puffworldprops = {
         }
     },
 
+    slider: {
+        show: true,
+        currentSlide: 1,
+        totalSlides: 7
+    },
+
+
     view: {
-        mode: '',
+        mode: 'list',
         
         filters: {
             tags: [],
             users : [],
-            routes: [],
+            routes: []
         },
 
         // TODO: move these options into view.layout
@@ -78,6 +85,8 @@ puffworldprops = {
     raw: {
         puffs: []
     },
+
+
 
     prefs: {
         reporting: true
@@ -153,6 +162,11 @@ formatForDisplay = function(obj, style) {
     return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
+/**
+ * Truncate long usernames. May be depricated
+ * @param username string
+ * @returns string
+ */
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
         return username.slice(0, 7) + '...'

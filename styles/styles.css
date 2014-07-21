@@ -3,12 +3,12 @@
 Official z-index guide to all z-indices in the GUI so check here before you z-index anything ok?
 
 
+050: website logo
 100: regular puff block 
 200: selected puff block
 250: author and info bar
 275: scroll up/down;
 300: menu
-350: website logo
 400: reply form
 500: puffball icon
 
@@ -53,7 +53,7 @@ html {
 
 body {
     /* background-image:url('../img/background.gif'); */
-    background-color: #ebe6e6;
+    background-color: #E0E0E0;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
@@ -677,7 +677,7 @@ select:disabled {
 }
 
 .logo {
-    position: fixed;
+    position: absolute;
     top: 13px;
     right: 66px;
     margin-bottom: 1em;
@@ -738,27 +738,56 @@ select:disabled {
     z-index: 600;
     border: 2px solid #303030;
     margin: auto;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
 }
 
 .slide {
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: auto;
+    font-size: 1.5em;
+    padding: .5em 1em .5em 1em;
+    line-height: 2em;
+    background-color: #F2EFEB;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+.slideContent {
+    overflow-y: auto;
+}
+
+.slideHeader {
+    font-size: 1.3em;
+    font-family: GudeaBold;
 
 }
 
-.sliderFooter {
-    float: right;
-    font-size: 1.1em;
-    z-index: 850;
+.slideBackground {
+    font-size: 8em;
+    font-family: GudeaBold;
     position: absolute;
-    bottom: 10px;
+    z-index: 25;
+    color: rgba(100,100,100,.4);
+    bottom: .1em;
+    right: .1em;
+}
+
+
+.sliderDots {
+    z-index: 850;
+    margin: auto;
+    padding-bottom: 1em;
     width: 100%;
-    border: 0px solid #000;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-family: GudeaBold, sans-serif;
+    position: absolute;
+    bottom: 0;
 }
 
 .full {
@@ -788,11 +817,11 @@ select:disabled {
 }
 
 .animation .menu {
-    -webkit-animation: slidein 1s; /* Safari and Chrome */
-    -moz-animation: slidein 1s; /* Firefox */
-    -ms-animation: slidein 1s; /* Internet Explorer */
-    -o-animation: slidein 1s; /* Opera */
-    animation: slidein 1s;
+    -webkit-animation: slidein .5s; /* Safari and Chrome */
+    -moz-animation: slidein .5s; /* Firefox */
+    -ms-animation: slidein .5s; /* Internet Explorer */
+    -o-animation: slidein .5s; /* Opera */
+    animation: slidein .5s;
 }
 
 #replyForm {
@@ -873,6 +902,11 @@ select:disabled {
     bottom: 2em;
     min-width: 80px;
 }
+
+.narrowInputField {
+    width: 10em;
+}
+
 .linkTab .menuTooltip, .linkTabHighlighted .menuTooltip {
     min-width: 150px;
     text-transform: none;
@@ -953,6 +987,10 @@ select:disabled {
     border-radius: 10px;
     padding: 2px;
     margin: 2px;
+}
+
+.bold {
+    font-weight: bold;
 }
 
 .contentField {
@@ -1122,7 +1160,7 @@ a.deactive, a.deactive:hover {
 }
 
 .blue {
-    color: #0000FF;
+    color: #1616A8;
 }
 
 .yellow {

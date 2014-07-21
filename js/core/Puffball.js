@@ -262,6 +262,11 @@ Puffball.onNewPuffs = function(callback) {
     Puffball.newPuffCallbacks.push(callback);
 }
 
+Puffball.addRelationship = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    Puffball.newPuffCallbacks.push(callback);
+}
+
 /**
  * return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
  * @param  {object} puff

@@ -30,6 +30,8 @@ PuffForum.init = function() {
     // THINK: maybe take a zone arg, but default to config
   
     Puffball.onNewPuffs(PuffForum.receiveNewPuffs);
+    
+    Puffball.addRelationship(PuffForum.addFamilialEdgesToGraph);
   
     Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
@@ -305,6 +307,8 @@ PuffForum.getChildCount = function(puff) {
 PuffForum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
 
+    // THINK: the graph can help us here, but only if we're more clever about forming relationships and using those in our filters.
+
     limit = limit || Infinity
     var offset = +query.offset||0
 
@@ -437,26 +441,23 @@ PuffForum.onNewPuffs = function(callback) {
 PuffForum.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
-    PuffForum.addToGraph(puffs)
     PuffForum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
 }
 
-/**
- * add a set of puffs to our internal graph
- * @param  {Puff[]} puffs
- */
-PuffForum.addToGraph = function(puffs) {
-    //// add a set of puffs to our internal graph
-  
-    puffs.forEach(function(puff) {
-    
-        // if puff.username isn't in the graph, add it
-        // add parent references to puff
-        // add child references to puff
-        // add puff to graph
-        // add parent & child & user edges to graph
+
+PuffForum.addFamilialEdgesToGraph = function(shells) {
+    shells.forEach(function(shell) {
+        (shell.payload.parents||[]).forEach(function(sig) {
+            if(!PuffData.graph.v(sig).run().length)
+                PuffData.graph.addVertex({_id: sig})
+            PuffData.graph.addEdge({_label: 'parent', _in: sig, _out: shell.sig})
+            PuffData.graph.addEdge({_label: 'child', _out: sig,  _in: shell.sig})
+        })
     })
 }
+
+
+
 
 /**
  * to add content type

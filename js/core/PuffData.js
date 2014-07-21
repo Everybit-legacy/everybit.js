@@ -13,29 +13,71 @@ PuffData.userRecords = {};                                  // these are DHT use
 
 ///////////////// new graph stuff ////////////////////
 
-function build_graph() {
-    g = Dagoba.graph()
+PuffData.addSigAsVertex = function(sig) {
+    var matches = PuffData.graph.v(sig).run()
+    
+    if(matches.length) return false         // returns false if nothing happens
+    
+    return PuffData.graph.addVertex({_id: sig, name: sig, type: 'shell'}) || true
+}
 
-    PuffData.shells.forEach(function(shell) {
-        g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
-    })
+PuffData.addShellAsVertex = function(shell) {
+    var matches = PuffData.graph.v(shell.sig).run()
+    
+    if(!matches.length)
+        return PuffData.graph.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' }) || true
+    
+    var vertex = matches[0]
+    if(vertex.shell) return false           // NOTE: returns false if it does nothing
+    
+    return vertex.shell = shell             // NOTE: mutation & pointer setting
+}
 
-    PuffData.shells.forEach(function(shell) {
-        (shell.payload.parents||[]).forEach(function(parent) {
-            g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
-            g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
-        })
-    })
+PuffData.addShellUsernameAsVertex = function(shell) {
+    //// add shell.username to graph and connect them up
     
-    // if puff.username isn't in the graph, add it
-    // add puff to graph
-    // add parent & child & user edges to graph
+    var username = shell.username
+    var matches = PuffData.graph.v(username).run()
+    var vertex = matches[0]
     
-    
-    PuffData.graph = g
+    if(!vertex) // THINK: make usernames unique like USERNAME::<username> or something
+        vertex = PuffData.graph.addVertex({ _id: username, name: username, type: 'username' })
+    else
+        if(PuffData.graph.v(shell.sig).out('author').property('name').run()[0] == username)
+            return false
+        
+    // TODO: add easy filtering by vertex type for both 'v' and also outV etc
+    PuffData.graph.addEdge({ _out: shell.sig, _in: shell.username, _label: 'author'})
 }
 
 PuffData.graph = Dagoba.graph()
+
+PuffData.addToGraph = function(shells) {
+    shells.forEach(PuffData.addShellAsVertex)
+    shells.forEach(PuffData.addShellUsernameAsVertex)
+}
+
+// TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
+
+
+// function build_graph() {
+//     g = Dagoba.graph()
+//
+//     PuffData.shells.forEach(function(shell) {
+//         g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
+//     })
+//
+//     PuffData.shells.forEach(function(shell) {
+//         (shell.payload.parents||[]).forEach(function(parent) {
+//             g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
+//             g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
+//         })
+//     })
+//
+//
+//
+//     PuffData.graph = g
+// }
 
 ///////////////// end graph stuff ////////////////////
 
@@ -148,6 +190,8 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     
     var delta = PuffData.shells.length - old_length
     if(!delta) return false
+    
+    PuffData.addToGraph(shells)
     
     PuffData.persistShells()
     // PuffData.makeShellsAvailable()

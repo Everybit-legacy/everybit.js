@@ -31,7 +31,7 @@ PuffForum.init = function() {
   
     Puffball.onNewPuffs(PuffForum.receiveNewPuffs);
     
-    Puffball.addRelationship(PuffForum.addFamilialEdgesToGraph);
+    Puffball.addRelationship(PuffForum.addFamilialEdges);
   
     Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
 }
@@ -445,15 +445,24 @@ PuffForum.receiveNewPuffs = function(puffs) {
 }
 
 
-PuffForum.addFamilialEdgesToGraph = function(shells) {
-    shells.forEach(function(shell) {
-        (shell.payload.parents||[]).forEach(function(sig) {
-            if(!PuffData.graph.v(sig).run().length)
-                PuffData.graph.addVertex({_id: sig})
-            PuffData.graph.addEdge({_label: 'parent', _in: sig, _out: shell.sig})
-            PuffData.graph.addEdge({_label: 'child', _out: sig,  _in: shell.sig})
-        })
-    })
+PuffForum.addFamilialEdges = function(shells) {
+    shells.forEach(PuffForum.addFamilialEdgesForShell)
+}
+
+PuffForum.addFamilialEdgesForShell = function(child) {
+    var addParentEdges = PuffForum.addFamilialEdgesForParent(child);
+    (child.payload.parents||[]).forEach(addParentEdges);
+}
+
+PuffForum.addFamilialEdgesForParent = function(child) {
+    var existingParents = PuffData.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
+    
+    return function(parentSig) {
+        if(~existingParents.indexOf(parentSig)) return false                        // done?
+        PuffData.addSigAsVertex(parentSig)                                          // idempotent
+        PuffData.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
+        PuffData.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
+    }
 }
 
 

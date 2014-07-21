@@ -503,34 +503,6 @@ prom.then(PuffData.addShellsThenMakeAvailable)  // FIXME: temp hack regression
 
 
 
-
-
-///////////////// new graph stuff [move this elsewhere] ////////////////////
-
-function build_graph() {
-    g = Dagoba.graph()
-
-    PuffData.shells.forEach(function(shell) {
-        g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
-    })
-
-    PuffData.shells.forEach(function(shell) {
-        (shell.payload.parents||[]).forEach(function(parent) {
-            g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
-            g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
-        })
-    })
-    
-    PuffData.graph = g
-}
-
-build_graph()
-
-
-
-
-
-
 ////////////// stealing a few items from Ramda (consider importing whole lib) ///////////////
 
 R = {}

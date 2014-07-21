@@ -9,6 +9,39 @@ PuffData.shellSort = {};
 PuffData.pending = {};
 PuffData.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
 
+
+
+///////////////// new graph stuff ////////////////////
+
+function build_graph() {
+    g = Dagoba.graph()
+
+    PuffData.shells.forEach(function(shell) {
+        g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
+    })
+
+    PuffData.shells.forEach(function(shell) {
+        (shell.payload.parents||[]).forEach(function(parent) {
+            g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
+            g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
+        })
+    })
+    
+    // if puff.username isn't in the graph, add it
+    // add puff to graph
+    // add parent & child & user edges to graph
+    
+    
+    PuffData.graph = g
+}
+
+PuffData.graph = Dagoba.graph()
+
+///////////////// end graph stuff ////////////////////
+
+
+
+
 /**
  * get the current known shells
  * @return {Shell[]}

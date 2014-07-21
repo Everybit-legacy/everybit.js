@@ -596,16 +596,17 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             : []
 
         var index = parents.indexOf(sig)
-
+        var openMenu = true;
         if(index == -1) {
             parents.push(sig)
         } else {
-            parents.splice(index, 1)
+            parents.splice(index, 1);
+            openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
         var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (!puffworldprops.reply.expand) {
-            menu.show = true;
+            menu.show = openMenu;
             menu.section = 'publish';
         }
 

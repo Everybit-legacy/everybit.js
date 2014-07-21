@@ -617,7 +617,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, "Introduction")
+                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, polyglot.t("menu.about.introduction"))
                 ),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")),
@@ -625,7 +625,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.view.faq"))
+                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.about.faq"))
                 )
 
 
@@ -659,7 +659,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
                 ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, "Clear cached puffs")
+                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, polyglot.t("menu.tools.clearCache"))
                 )
             )
         )

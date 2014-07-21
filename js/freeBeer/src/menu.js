@@ -617,7 +617,7 @@ var AboutMenu = React.createClass({
         return (
             <div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleToggleShowIntro}>Introduction</a>
+                    <a href="#" onClick={this.handleToggleShowIntro}>{polyglot.t("menu.about.introduction")}</a>
                 </div>
 
                 <div className="menuItem"><a href="https://github.com/puffball/freebeer/" target="_new">{polyglot.t("menu.about.code")}</a>
@@ -625,7 +625,7 @@ var AboutMenu = React.createClass({
                 </div>
 
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowFaq}>{polyglot.t("menu.view.faq")}</a>
+                    <a href="#" onClick={this.handleShowFaq}>{polyglot.t("menu.about.faq")}</a>
                 </div>
 
 
@@ -659,7 +659,7 @@ var ToolsMenu = React.createClass({
                     <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.clearPuffShells}>Clear cached puffs</a>
+                    <a href="#" onClick={this.clearPuffShells}>{polyglot.t("menu.tools.clearCache")}</a>
                 </div>
             </div>
         )

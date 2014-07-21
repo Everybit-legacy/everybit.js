@@ -227,7 +227,7 @@ var PuffPublishFormEmbed = React.createClass({
         var prom = Puffball.getUserRecord(newUsername);
         prom.then(function(){
             self.setState({usernameError: ''});
-            if (usernames.indexOf(newUsername) == -1 && newUsername != 'everybit') {
+            if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
                 usernames.push(newUsername);
                 self.setState({username: usernames});
             }
@@ -313,7 +313,7 @@ var PuffPublishFormEmbed = React.createClass({
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(function(item, index, array) { return array.indexOf(item) == index })
                                      .filter(Boolean)
-                                     .filter(function(value){return value!='everybit'});
+                                     .filter(function(value){return value!=CONFIG.zone});
         }
         var currentParentUsernames = this.state.parentUsernames;
         if (currentParentUsernames.length != parentUsernames.length) {
@@ -486,7 +486,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var privacyOption = (
             <span ref="privacy" id="privacyDiv" className="icon">
-                Privacy: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
+                {polyglot.t("replyForm.privacyOption")}: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
                     var color = privacy == p ? 'green' : 'black';
                     return (

@@ -20,6 +20,8 @@ Translate.language["zh"].extend({
 		},
 		filters: {
 			title: '筛选',
+			by: '根据',
+			tags: '标签',
 			routes: '路径',
 			users: '用户名'
 		},
@@ -28,6 +30,7 @@ Translate.language["zh"].extend({
 			relationship: "显示关联",
 			animation: "显示动画",
 			infobar: "显示信息栏",
+			disable_reporting: "禁止提交報告",
 			language: "语言"
 		},
 		publish: {
@@ -75,11 +78,14 @@ Translate.language["zh"].extend({
 		},
 		about: {
 			title: '关于',
+			introduction: '介绍',
+			faq: "Puffball问与答",
 			code: '源代码'
 		},
 		tools: {
 			title: '高级工具',
-			builder: "生成"
+			builder: "生成",
+			clearCache: '清除已缓存的puff'
 		},
         tooltip:{
             roots:'显示最新的根puff',
@@ -115,10 +121,12 @@ Translate.language["zh"].extend({
             flagLink: '标记为移除。如果你生成了这个puff，这将发送移除申请。',
             expand: '扩大puff以单行显示',
             compress: '将puff缩回默认大小',
-            copy:'将此puff加工前的内容拷贝到回复框'
+            copy:'将此puff加工前的内容拷贝到回复框',
+            disable_reporting: "我们追踪您对本网站的使用。选中禁止追踪。",
         }
 	},
 	replyForm: {
+		recipient: '收件人',
         sendTo: '发送给',
         sendToPh: '所有人',
 		textareaPh: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
@@ -132,10 +140,10 @@ Translate.language["zh"].extend({
 			imageChosen: '没有选中文件',
 			contentLicense: '内容许可'
 		},
-        privacyOption: '隐私选项',
+        privacyOption: '隐私',
         pOptions: {
             public: '公开 (所有人可见)',
-            private: '隐私 (内容是加密的)',
+            private: '私密 (内容是加密的)',
             anonymous: '匿名 (加密及匿名的)',
             paranoid: '偏执狂 (每次都会重新生成用户名)'
         },

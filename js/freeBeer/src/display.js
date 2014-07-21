@@ -8,6 +8,20 @@ var PuffBarShortcutMixin = {
             if (bar.refs.flag)
                 bar.refs.flag.handleFlagRequest();
         }.bind(this));
+        Mousetrap.bind(['shift+i'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            var author = this.refs[cursor].refs['author'];
+            var className = ' ' + bar.getDOMNode().className + ' ';
+            if (className.indexOf(' hidden ') == -1) {
+                bar.getDOMNode().className += ' hidden';
+                author.getDOMNode().className += ' hidden';
+            } else {
+                bar.getDOMNode().className = className.replace(' hidden ', '');
+                var authorClassName = ' ' + author.getDOMNode().className + ' ';
+                author.getDOMNode().className = authorClassName.replace(' hidden ', '');
+            }
+        }.bind(this));
     }
 };
 

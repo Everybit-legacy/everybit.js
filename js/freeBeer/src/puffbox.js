@@ -57,7 +57,7 @@ var PuffFancyBox = React.createClass({
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
-                <PuffAuthor puff={puff} hidden={hidden} />
+                <PuffAuthor ref="author" puff={puff} hidden={hidden} />
                 <PuffContent puff={puff} height={height} />
                 <PuffBar ref="bar" puff={puff} hidden={hidden} flagged={flagged}/>
             </div>

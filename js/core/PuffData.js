@@ -167,9 +167,10 @@ PuffData.getBonus = function(puff, key) {
  * @returns {*}
  */
 PuffData.addShellsThenMakeAvailable = function(shells) {
-    var delta = PuffData.hereHaveSomeNewShells(shells)
-    if(delta) // FIXME: temp hack regression
-        PuffData.makeShellsAvailable(shells)
+    var new_shells = PuffData.hereHaveSomeNewShells(shells)
+    var delta = new_shells.length
+    if(delta) 
+        PuffData.makeShellsAvailable(new_shells)
     return delta
 }
 
@@ -187,14 +188,14 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     
     var useful_shells = shells.filter(PuffData.tryAddingShell) // note that we're filtering effectfully,
                                                                // and that useful shells may be new or just new content
-    if(!useful_shells.length) return false
+    if(!useful_shells.length) return []
     
     PuffData.addToGraph(shells)
     
     PuffData.persistShells()
     // PuffData.makeShellsAvailable()
     
-    return useful_shells.length
+    return useful_shells
 }
 
 /**
@@ -224,7 +225,8 @@ PuffData.tryAddingShell = function(shell) {
     
     if(existing) {
         if(existing.payload.content) return false
-        existing.payload.content = shell.payload.content    // maybe add the missing content
+        if(shell.payload.content === undefined) return false
+        existing.payload.content = shell.payload.content        // add the missing content
         return true // true because we changed it
     }
     
@@ -299,7 +301,7 @@ PuffData.importLocalShells = function() {   // callback) {
     PuffData.addShellsThenMakeAvailable(localShells)
 }
 
-PuffData.slotLock = false // FIXME: temp hack regression
+PuffData.slotLock = false 
 
 /**
  * to fill some slots
@@ -311,6 +313,8 @@ PuffData.slotLock = false // FIXME: temp hack regression
  */
 PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     //// we have empty slots on screen. fill them with puffs.
+    
+    if(have >= need) return false
     
     // -- redraw screen on new puffs being ingested (w/o looping)
     // -- cycle all new puffs through graph stuff
@@ -326,17 +330,22 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     PuffData.slotLock = true
     
     var offset = 0
-    var giveup = 500
+    var giveup = 2000
+    var new_shells = []
     
     function getMeSomeShells(puffs) {
         if(puffs) {
-            var delta = PuffData.hereHaveSomeNewShells(puffs)
+            var my_new_shells = PuffData.hereHaveSomeNewShells(puffs)
+            new_shells = new_shells.concat(my_new_shells)
+            var delta = my_new_shells.length
             have += delta || 0
         }
         
         if(have >= need || offset > giveup) {
             // PuffData.slotLock = false
-            PuffData.makeShellsAvailable()
+            // THINK: prevent this function from being called repeatedly with the same query (memoize?)
+            //        while still allowing multiple different calls to occur simultaneously
+            PuffData.makeShellsAvailable(new_shells)
             return false
         }
         

@@ -27,7 +27,7 @@ puffworldprops = {
     },
 
     slider: {
-        show: true,
+        show: false,
         currentSlide: 1,
         totalSlides: 7
     },
@@ -506,6 +506,11 @@ events.sub('ui/*', function(data) {
         PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 
 });
+
+// Hide slideshow from people with more than one identity
+// Make sure not problem if empty
+if(Object.keys(PuffWardrobe.getAll()).length < 2)
+    events.pub( 'ui/slider/close',{ 'slider.show': true});
 
 
 ////////// End PuffForum Interface ////////////

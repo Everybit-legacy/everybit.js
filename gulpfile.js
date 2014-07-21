@@ -9,6 +9,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var minifyCSS = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var jsdoc = require('gulp-jsdoc');
+var filesize = require('gulp-filesize');
 
 // Tasks
 gulp.task('jsxFiles', function() {
@@ -39,7 +40,9 @@ gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)
         //.pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
+            .pipe(filesize())
             .pipe(uglify())
+            .pipe(filesize())
         //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 
@@ -50,7 +53,9 @@ gulp.task('theirOthers', function() {
     gulp.src(['scripts/[!rJ]*.js','scripts/react/build/react-with-addons.js'])
         // .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
+            .pipe(filesize())
             .pipe(uglify())
+            .pipe(filesize())
         //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build'));
 

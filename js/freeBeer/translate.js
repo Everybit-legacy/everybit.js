@@ -161,7 +161,7 @@ Translate.language["en"].extend({
 Translate.language["en"].extend({
 	puff: {
 		default: '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf',
-		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
+		shortcut: 'AN1rKpsWFJXfacgBZG9dVtsuJ2vLH89nwbTTJcoBQXSQQEF2m7XqEXrd1pmd8VZ16p5FPkLtKPt4oY2MytEhFU3MsZEsFZf1A'
 	}
 });
 

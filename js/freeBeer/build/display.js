@@ -147,21 +147,6 @@ var ViewKeybindingsMixin = {
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
         }.bind(this));
-
-        // shift-f flag a puff
-        /*
-        TODO: Need to have just one function for this (see puffbox.js
-        Mousetrap.bind(['shift+f'], function(e){
-            var cursorPuff = puffworldprops.view.cursor;
-            if (!cursorPuff) return false;
-            if (PuffForum.getPuffBySig(cursorPuff).username != 
-                PuffWardrobe.getCurrentUsername()) {
-                return false;
-            }
-            alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
-            return PuffForum.flagPuff(cursorPuff);
-        }.bind(this));
-        */
         
         
         // we have to customize stopCallback to make cmd-enter work inside reply boxes

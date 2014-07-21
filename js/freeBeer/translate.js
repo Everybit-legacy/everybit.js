@@ -7,7 +7,8 @@ Translate.language["en"].extend({
 });
 Translate.language["en"].extend({
 	alert: {
-		noUserSet: "You will need to set your identity first"
+		noUserSet: "You will need to set your identity first",
+        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
 	},
 	menu: {
 		view: {
@@ -153,10 +154,7 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	},
-    alert:{
-        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
-    }
+	}
 });
 Translate.language["en"].extend({
 	puff: {

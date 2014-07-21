@@ -5,7 +5,8 @@ Translate.language["zh"].extend({
 });
 Translate.language["zh"].extend({
 	alert: {
-		noUserSet: "需要先设置身份!"
+		noUserSet: "需要先设置身份!",
+        flag: '警告：这样将会立即将此puff在你的浏览器和网络里移除，一旦操作将不可恢复！'
 	},
 	menu: {
 		view: {
@@ -84,7 +85,7 @@ Translate.language["zh"].extend({
             roots:'显示最新的根puff',
             latest:'显示最新的puff',
             collection:'显示特别收藏',
-            shortcut:'查看FreeBeer的所有快捷鍵',
+            shortcut:'查看本站的所有快捷鍵',
             showPuffs:'显示发送给我的puff',
             showMine: '显示我发送的puff',
             relationship:'显示/隐藏puff之间的关联',
@@ -147,10 +148,7 @@ Translate.language["zh"].extend({
 	footer: {
 		powered: '基于',
 		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
-	},
-    alert:{
-        flag: '警告：这样将会立即将此puff在你的浏览器和网络里移除，一旦操作将不可恢复！'
-    }
+	}
 });
 Translate.language["zh"].extend({
 	puff: {

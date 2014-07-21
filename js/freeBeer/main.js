@@ -27,7 +27,7 @@ puffworldprops = {
     },
 
     slider: {
-        show: false,
+        show: true,
         currentSlide: 1,
         totalSlides: 7
     },
@@ -37,7 +37,7 @@ puffworldprops = {
         mode: 'list',
         
         filters: {
-            tags: ['cats'],
+            tags: [],
             users : [],
             routes: []
         },
@@ -159,6 +159,11 @@ formatForDisplay = function(obj, style) {
     return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
+/**
+ * Truncate long usernames. May be depricated
+ * @param username string
+ * @returns string
+ */
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
         return username.slice(0, 7) + '...'

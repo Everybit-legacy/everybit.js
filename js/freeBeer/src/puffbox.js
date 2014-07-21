@@ -174,11 +174,9 @@ var PuffBar = React.createClass({
                 <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />
             </span>
         )
-        /***
-         * flag info reply clone star?
-         * parent children viewRaw|image expand
-         * tip json permalink
-         ***/
+
+
+        // ICON SETS
         var iconSetOne = (
             <div className={className}>
                 <PuffFlagLink sig={puff.sig} username={puff.username} flagged={this.props.flagged}/>
@@ -433,8 +431,6 @@ var TipButton = React.createClass({
     componentDidMount: function(){
         // Get the public key for this user, convert to wallet
         // TODO: Get the link so have meta-data set, like "From puffball"
-
-
 
         var self = this;
         var prom = Puffball.getUserRecord(this.props.username);

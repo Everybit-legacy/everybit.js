@@ -31,7 +31,6 @@ var Slider = React.createClass({
             , 'menu.publish': true
             //  , 'reply': {show: true}
         });
-
     },
 
 
@@ -97,23 +96,28 @@ var Slider = React.createClass({
 
         return (
             <div className={cn} style={sliderStyle}>
-                <img src="img/slides/SlideHeader.gif" style={{width: '100%'}} />
+                <img src="img/slides/SlideHeader.gif" style={{width: '100%', position: 'relative', top: '0'}} />
                 <a href="#" onClick={this.handleHideSlider}>
                     <i className="fa fa-times-circle-o fa-fw closeBox"></i>
                 </a>
+
                 <div className="slide">
                     {slideName}
                 </div>
-                <div className="sliderFooter">
+
+                <div className="sliderDots">
                         {slidesArr.map(function(i) {
                             return <SliderBullet active={i == puffworldprops.slider.currentSlide} numb={i} />
                         })} <a href="#" onClick={this.handleGetStarted}><em>Get started!</em></a>
                 </div>
+
+
             </div>
             );
     }
 });
 
+// , position: 'absolute', bottom: '0'
 
 var SliderBullet = React.createClass({
     handleGotoSlide: function() {
@@ -142,18 +146,18 @@ var WelcomeSlide = React.createClass({
 
     render: function() {
         return (
-                <div>
+                <div className="slideContent">
                 	<a href="#" onClick={this.handleGotoSlide.bind(this,2)} className="black"><i className="blue fa fa-fw fa-plane"></i> Keyboard <em className="blue">shortcuts</em> for everything.</a><br />
 
                     <a href="#" onClick={this.handleGotoSlide.bind(this,3)} className="black"><i className="blue fa fa-fw fa-lock"></i> Fully <em className="blue">secure</em> communications</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-plane"></i><em className="blue">Multi-threaded</em> conversations.</a><br />
+                    <a href="#" onClick={this.handleGotoSlide.bind(this,4)} className="black"><i className="blue fa fa-fw fa-sitemap"></i> <em className="blue">Multi-threaded</em> conversations.</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-search-plus"></i> Advanced <em className="blue">filtering</em> tools.</a><br />
+                    <a href="#" onClick={this.handleGotoSlide.bind(this,5)} className="black"><i className="blue fa fa-fw fa-search-plus"></i> Advanced <em className="blue">filtering</em> tools.</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-user"></i> Full <em className="blue">identity</em> management.</a><br />
+                    <a href="#" onClick={this.handleGotoSlide.bind(this,6)} className="black"><i className="blue fa fa-fw fa-user"></i> Full <em className="blue">identity</em> management.</a><br />
 
-                    <a href="#" onClick={this.handleShowSlide} className="black"><i className="blue fa fa-fw fa-beer"></i> Open source. <em className="blue">Decentralized</em>. Interoperable.</a><br />
+                    <a href="#" onClick={this.handleGotoSlide.bind(this,7)} className="black"><i className="blue fa fa-fw fa-beer"></i> Open source. <em className="blue">Decentralized</em>. Interoperable.</a><br />
                     </div>
 
             )
@@ -164,7 +168,11 @@ var WelcomeSlide = React.createClass({
 var ShortcutsSlide = React.createClass({
     render: function() {
         return (
-            <div>
+            <div className="slideContent">
+                <i className="fa fa-plane slideBackground"></i>
+
+                <div className="slideHeader blue">Keyboard shortcuts</div>
+
                 <span className="blue bold">N</span>: Begin a new post<br />
 
                 <span className="blue" bold>CMD-ENTER</span>: Publish your post<br />
@@ -192,7 +200,9 @@ var SecureSlide = React.createClass({
 
     render: function() {
         return (
-            <div>
+            <div className="slideContent">
+                <i className="fa fa-lock slideBackground"></i>
+
                 <div className="slideHeader blue">Secure communications</div>
                 <i className="gray fa fa-fw fa-arrow-right"></i>Fully encrypted private messages<br />
 
@@ -214,8 +224,20 @@ var SecureSlide = React.createClass({
 var MultiThreadedSlide = React.createClass({
     render: function() {
         return (
-            <div>
-                <div className="slideHeader blue">Multi-threaded</div>
+            <div className="slideContent">
+                <div className="slideHeader blue">Multi-threaded conversations</div>
+
+                <div style={{float: 'left', width: '50%', display: 'inline-block'}}>
+                <i className="gray fa fa-fw fa-arrow-right"></i>Reply to multiple posts at once.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Follow just those branches of the conversation that interest you, ignore the rest.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Send and view private messages right in the main thread view.<br />
+                </div>
+                <div style={{float: 'right', width: '50%', display: 'inline-block'}}>
+                  <img src="img/slides/GEB.gif" style={{width: '100%'}} />
+                </div>
+
             </div>
 
             )
@@ -226,8 +248,19 @@ var MultiThreadedSlide = React.createClass({
 var FilteringSlide = React.createClass({
     render: function() {
         return (
-            <div>
-                <div className="slideHeader blue">Filtering</div>
+            <div className="slideContent">
+                <i className="fa fa-search-plus slideBackground"></i>
+
+                <div className="slideHeader blue">Advanced filtering</div>
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Filter by username, tag, or score.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Sort by most recent or oldest.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Choose how many rows of results you want at a time.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Apply boolean logic to your filters (coming soon).<br />
+
             </div>
 
             )
@@ -238,12 +271,24 @@ var FilteringSlide = React.createClass({
 var IdentitySlide = React.createClass({
     render: function() {
         return (
-            <div>
-                <div className="slideHeader blue">Indentity</div>
+            <div className="slideContent">
+                <i className="fa fa-user slideBackground"></i>
+
+                <div className="slideHeader blue">Indentity management</div>
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Users own and control their own identies.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Identities are portable across all websites using the same framework.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Three built-in levels of access control.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Users can create and manage sub-usernames as needed.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Create ad-hoc connections with other users that are website-independant.<br />
+
             </div>
 
             )
-
     }
 })
 
@@ -251,26 +296,22 @@ var IdentitySlide = React.createClass({
 var DecentralizedSlide = React.createClass({
     render: function() {
         return (
-            <div>
-                <div className="slideHeader blue">Decentralized</div>
+            <div className="slideContent">
+                <i className="fa fa-beer slideBackground"></i>
+
+                <div className="slideHeader blue">Open source. Decentralized. Interoperable.</div>
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Open source: <a href="https://github.com/puffball/freebeer" target="_new">fork us on github</a>.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Decentralized using JavaScript P2P libraries.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Open standard for publishing content.<br />
+
+                <i className="gray fa fa-fw fa-arrow-right"></i>Goals: zero lock in, full portability, <a href="index.html?mode=list&filters.users=dev.puffball&arrows=true&slider.show=false&rows=4&cols=5&boxRatio=1&language=en&animation=true&query.sort=ASC&score.suValue=0.1&score.tluValue=1&score.maxSuValue=1%2F&cursor=iKx1CJNNLUMdChBCrJe4DbnstoVAfpENW9FLpR9ER4puPqZ38mJVJxYUnggHq5iWau2U5MVcHKd1yGe7HZHdHEa49Zc32R832K/">solve the gatekeeper problem</a>.<br />
+
             </div>
 
             )
 
     }
 })
-
-
-// Needed
-// (X) Initial state
-// (X) Function to change to next image
-// Hover to click to next one
-// Hover left and right to go backwards and forwards (if on right half, show chevron right, if on left half, show chevron left)
-// Sliding of images
-// (P) Array of slides, needs to have alt-text for each one
-// Bind to changeSlide +1 or -1
-// (X) Way to hide slider with click in upper right
-// Hide this from registered viewers
-// Have way to see it explicitly from menu
-// Mouse over tooltips on images to preview or get the alt tag for that slide
-

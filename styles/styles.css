@@ -748,12 +748,16 @@ select:disabled {
 .slide {
     margin-left: 5%;
     margin-right: 5%;
-    margin-top: 0%;
+    margin-top: auto;
     font-size: 1.5em;
     padding: .5em 1em .5em 1em;
     line-height: 2em;
     background-color: #F2EFEB;
     max-height: 80%;
+    overflow-y: auto;
+}
+
+.slideContent {
     overflow-y: auto;
 }
 
@@ -763,18 +767,27 @@ select:disabled {
 
 }
 
-
-.sliderFooter {
-    float: right;
-    font-size: 1.1em;
-    z-index: 850;
+.slideBackground {
+    font-size: 8em;
+    font-family: GudeaBold;
     position: absolute;
-    bottom: 10px;
+    z-index: 25;
+    color: rgba(100,100,100,.4);
+    bottom: .1em;
+    right: .1em;
+}
+
+
+.sliderDots {
+    z-index: 850;
+    margin: auto;
+    padding-bottom: 1em;
     width: 100%;
-    border: 0px solid #000;
     text-align: center;
-    font-size: 1.5em;
+    font-size: 1.3em;
     font-family: GudeaBold, sans-serif;
+    position: absolute;
+    bottom: 0;
 }
 
 .full {

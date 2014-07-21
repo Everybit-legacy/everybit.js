@@ -61,9 +61,9 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     // TODO: switching by query 'mode' is kind of a hack. we're doing it for now until the network api matches our local api (i.e. once we use browser p2p &headless clients to service requests)
     
     var mode = query.mode
-    if(mode = 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit, [])
-    if(mode = 'descendants') return PuffNet.getDescendants([query.focus], limit, [])
-    if(mode = 'siblings')    return PuffNet.getSiblings   ([query.focus], limit, [])
+    if(mode == 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit, [])
+    if(mode == 'descendants') return PuffNet.getDescendants([query.focus], limit, [])
+    if(mode == 'siblings')    return PuffNet.getSiblings   ([query.focus], limit, [])
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
@@ -138,8 +138,8 @@ PuffNet.getAncestors = function(todo, limit, results) {
     // }, Promise.resolve([]))
 }
 
-PuffNet.getDescendants = function() {}
-PuffNet.getSiblings = function() {}
+PuffNet.getDescendants = function() {return Puffball.emptyPromise() }
+PuffNet.getSiblings = function() {return Puffball.emptyPromise() }
 
 /**
  * get all puffs within the zone (default to CONFIG.zone)

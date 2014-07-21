@@ -44,7 +44,7 @@ PuffNet.getAllShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     
-    if(CONFIG.noNetwork) return Puffball.falsePromise();    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return Puffball.emptyPromise();    // THINK: this is only for debugging and development
     
     return PuffNet.getJSON(url, data);
 }
@@ -58,6 +58,14 @@ PuffNet.getAllShells = function() {
  * @returns {Shell[]}
  */
 PuffNet.getSomeShells = function(query, filters, limit, offset) {
+    // TODO: switching by query 'mode' is kind of a hack. we're doing it for now until the network api matches our local api (i.e. once we use browser p2p &headless clients to service requests)
+    
+    var mode = query.mode
+    if(mode = 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit, [])
+    if(mode = 'descendants') return PuffNet.getDescendants([query.focus], limit, [])
+    if(mode = 'siblings')    return PuffNet.getSiblings   ([query.focus], limit, [])
+
+    // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs'};
 
@@ -73,12 +81,65 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     
     // data.focus
     // data.ancestors
-    // data.descendents
+    // data.descendants
     
-    if(CONFIG.noNetwork) return Puffball.falsePromise();    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return Puffball.emptyPromise();    // THINK: this is only for debugging and development
     
     return PuffNet.getJSON(url, data);  
 }
+
+PuffNet.getAncestors = function(todo, limit, results) {
+    if(!todo.length) 
+        return Promise.resolve(results)             // all done
+    if(results.length >= limit) 
+        return Promise.resolve(results)             // all done
+    
+    var sig = todo[0]
+    var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
+             || results.filter(function(result) {return result.sig == sig})[0]
+    
+    // if we already have a puff for sig, then we just need to put its parents on the todo stack
+    if(shell) {
+        todo.shift() // take off the shell we just worked on
+        return PuffNet.getAncestors(todo.concat(shell.payload.parents), limit, results)
+    }
+    
+    // otherwise, get a promise for the shell, then add it to results
+    var prom = PuffNet.getPuffBySig(sig)
+    return prom.then(function(puffs) {
+        return PuffNet.getAncestors(todo, limit, results.concat(puffs))
+    })
+    
+    
+    if(!shell) return Puffball.emptyPromise             // try again later
+
+    if(!todo) todo = []
+    
+    var parents = shell.payload.parents
+    if(!parents.length) return Puffball.emptyPromise    // nothing left to do
+    
+    var len = parents.length
+    
+    parents.map(PuffData.getPuffBySig)                  // TODO: CF re: callback // THINK: we might have these already
+    limit -= parents.length
+    if(limit <= 0) return Puffball.emptyPromise         // all done
+    if(!todo.length) return Puffball.emptyPromise       // all done
+    
+    next = todo.pop()
+    // return Promise.resolve(function() {
+    //     shell =
+    //     return
+    // })
+    //
+    // return parents.reduce(function(prom, sig) {         // promise ring
+    //     return prom.then(function(puffs) {
+    //         return PuffData.getCachedShellBySig(sig).parents..then(function(morepuffs) {
+    //             return puffs.concat(morepuffs) })})
+    // }, Promise.resolve([]))
+}
+
+PuffNet.getDescendants = function() {}
+PuffNet.getSiblings = function() {}
 
 /**
  * get all puffs within the zone (default to CONFIG.zone)
@@ -96,7 +157,7 @@ PuffNet.getAllPuffs = function() {
     
     
     if(CONFIG.noNetwork) 
-        return Puffball.falsePromise();             // NOTE: this is only for debugging and development
+        return Puffball.emptyPromise();             // NOTE: this is only for debugging and development
     
     var url  = CONFIG.puffApi;
     // var data = {type: 'getPuffGeneration', gen: 0};
@@ -389,7 +450,7 @@ PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        PuffData.addShellsThenMakeAvailable(data);
+        PuffData.addShellsThenMakeAvailable(data); // TODO: pass a callback in to PuffNet instead of calling this directly
     });
 };
 

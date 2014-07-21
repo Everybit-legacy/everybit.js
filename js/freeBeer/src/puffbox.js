@@ -1,16 +1,5 @@
 /** @jsx React.DOM */
 
-var PuffBarShortcutMixin = {
-    componentDidMount: function() {
-        Mousetrap.bind(['shift+f'], function(){
-            var cursor = puffworldprops.view.cursor;
-            var bar = this.refs[cursor].refs['bar'];
-            console.log(bar);
-            return false;
-        }.bind(this));
-    }
-};
-
 var PuffFancyBox = React.createClass({
     render: function() {
         var   puff = this.props.puff

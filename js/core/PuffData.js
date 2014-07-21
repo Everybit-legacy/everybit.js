@@ -301,7 +301,7 @@ PuffData.importLocalShells = function() {   // callback) {
     PuffData.addShellsThenMakeAvailable(localShells)
 }
 
-PuffData.slotLock = false 
+PuffData.slotLock = {}
 
 /**
  * to fill some slots
@@ -326,11 +326,12 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     // - manage empty vertices better (different type?)
     // - get focused puff immediately
     
-    if(PuffData.slotLock) return false
-    PuffData.slotLock = true
+    var key = JSON.stringify([query, filters, need, have])
+    if(PuffData.slotLock[key]) return false
+    PuffData.slotLock[key] = true
     
     var offset = 0
-    var giveup = 2000
+    var giveup = 300
     var new_shells = []
     
     function getMeSomeShells(puffs) {
@@ -342,9 +343,6 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
         }
         
         if(have >= need || offset > giveup) {
-            // PuffData.slotLock = false
-            // THINK: prevent this function from being called repeatedly with the same query (memoize?)
-            //        while still allowing multiple different calls to occur simultaneously
             PuffData.makeShellsAvailable(new_shells)
             return false
         }
@@ -390,7 +388,7 @@ PuffData.getPuffBySig = function(sig) {
         return shells
     }
     
-    PuffData.pending[sig] = PuffNet.getPuffBySig(sig)
+    PuffData.pending[sig] = PuffNet.getPuffBySig(sig)      // TODO: drop this down in to PuffNet instead
     PuffData.pending[sig].then(badShellClearCache)
                          .then(PuffData.addShellsThenMakeAvailable)
                          .then(function() {                                                    // delay GC to prevent

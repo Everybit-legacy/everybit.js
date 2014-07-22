@@ -38,12 +38,12 @@ var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-                Logo(null ),
-                React.DOM.br(null ),React.DOM.br(null ),
+                Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish",
+                clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view} ),
+
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view",
                          clusterMenu:"ViewMenu", clusterIcon:"fa-search", view:this.props.view} ),
-                Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish", 
-                         clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view} ),
+
                 Cluster( {clusterName:"identity", clusterPath:"ui/clusters/identity", clusterPropPath:"clusters.identity", 
                          clusterMenu:"IdentityMenu", clusterIcon:"fa-user", view:this.props.view} ),
                 Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", 
@@ -52,14 +52,14 @@ var Menu = React.createClass({displayName: 'Menu',
                 Cluster( {clusterName:"about", clusterPath:"ui/clusters/about", clusterPropPath:"clusters.about",  
                          clusterMenu:"AboutMenu", clusterIcon:"fa-info-circle", view:this.props.view} ),
                 Cluster( {clusterName:"tools", clusterPath:"ui/clusters/tools", clusterPropPath:"clusters.tools", 
-                         clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench", view:this.props.view} )
+                         clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench", view:this.props.view} ),
+
+                Logo(null )
             )
         )
     }
 
 });
-
-
 
 
 var Cluster = React.createClass({displayName: 'Cluster',
@@ -78,6 +78,21 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
         return events.pub(this.props.clusterPath, eventJSON);
     },
+    handlePopoutMenu:function() {
+        var eventJSON = {};
+        eventJSON[this.props.clusterPropPath] = true;
+
+        var popout = this.props.clusterName;
+        var showMenu = false;
+        if (puffworldprops.menu.popout == popout) {
+            popout = false;
+            showMenu = true;
+        }
+
+        eventJSON['menu.show'] = showMenu;
+        eventJSON['menu.popout'] = popout;
+        return events.pub('ui/expand/menu', eventJSON);
+    },
 
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -94,7 +109,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
         switch (this.props.clusterName) {
         case "publish":
-            clusterMenu = puffworldprops.reply.expand ? '' : PuffPublishFormEmbed( {reply:puffworldprops.reply} )
+            clusterMenu = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
             break;
         case "view":
             clusterMenu = ViewMenu( {view:this.props.view})
@@ -115,25 +130,29 @@ var Cluster = React.createClass({displayName: 'Cluster',
             break;
         }
 
-
-        /*if(!puffworldprops.clusters[this.props.clusterName]) {
+        if (puffworldprops.menu.popout == this.props.clusterName &&
+            !this.props.isPopout)
             clusterMenu = '';
-        } */
 
         var section = this.props.clusterName;
         var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
         // <span className="floatRight gray"><i className={setClass}></i></span>
         
         var slide = puffworldprops.clusters[this.props.clusterName] ? 'slidedown' : 'slideup';
+        var popoutClassName = this.props.isPopout ? "fa fa-fw fa-compress" : "fa fa-fw fa-expand";
         return (
             React.DOM.div( {className:"menuCluster"}, 
                 React.DOM.div( {className:className}, 
-                    React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
-                        React.DOM.div( {className:"menuHeader"}, 
+                    React.DOM.div( {className:"menuHeader"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
                             React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}),
                             polyglot.t(menuTitle)
+                        ),
+                        React.DOM.a( {className:"floatRight", href:"#", onClick:this.handlePopoutMenu}, 
+                            React.DOM.i( {className:popoutClassName})
                         )
                     ),
+                    
                     React.DOM.div( {className:slide}, clusterMenu)
                 )
             )

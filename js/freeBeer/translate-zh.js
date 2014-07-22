@@ -130,7 +130,7 @@ Translate.language["zh"].extend({
         sendTo: '发送给',
         sendToPh: '所有人',
 		textareaPh: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
-		send: '以%{author}身份发送',
+		send: '发送',
 		preview: '预览',
 		format: {
 			text: '文字',

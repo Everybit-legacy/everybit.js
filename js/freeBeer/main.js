@@ -12,17 +12,31 @@ puffworldprops = {
     },
 
     menu: {
-        show: true,
+        show: false,
         prefs: false,
         profile: false,
         import: false,                                  // import username
         section: false,                                 // the section user is currently working on
+        popout: false,
 
         user: {
             pick_one: false,
             manage: false,
             show_bc: false,
             show_key: false
+        }
+    },
+
+    header: {
+        show: true,
+        publish: {
+            show: false
+        },
+        identity: {
+            show: false
+        },
+        score: {
+            show: false
         }
     },
 
@@ -43,7 +57,7 @@ puffworldprops = {
         },
 
         // TODO: move these options into view.layout
-        arrows    : true,                              // true -> show relationship arrows between puffs
+        arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
         cols      : 5,
         boxRatio  : 1,

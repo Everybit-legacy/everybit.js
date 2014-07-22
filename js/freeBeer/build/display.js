@@ -51,7 +51,6 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                             //  , 'reply': {show: true} 
                                                 });
         }.bind(this));
         /*
@@ -316,7 +315,7 @@ var GridLayoutMixin = {
     },
     getCols: function(rows) {
         var screencoords = this.getScreenCoords();
-        var boxHeight = screencoords.height / rows;
+        var boxHeight = (screencoords.height / rows);
 
 
         var boxWidth = this.props.view.boxRatio * boxHeight;
@@ -428,8 +427,10 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         if(this.props.menu.show) {
             CONFIG.rightMargin = 420;
+            CONFIG.leftMargin = 420;
         } else {
             CONFIG.rightMargin = 60;
+            CONFIG.leftMargin = 40;
         }
 
         /*
@@ -469,21 +470,26 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         
         
         // TODO: Focus the reply box when arrow clicked
-        var replyExpand = this.props.reply.expand ? PuffPublishFormExpand( {reply:this.props.reply} ) : ''
-
+        // var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
+        var popout = PopoutCluster( {section:this.props.menu.popout, view:this.props.view})
         var menu = this.props.menu.show 
                  ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile, view:this.props.view} )) 
                  : '';
 
         var animateClass = this.props.view.animation ? "animation" : '';
 
+        // <PuffHeader menu={this.props.menu} />
+
+        var hb = puffworldprops.header.show ? HeaderBar( {view:this.props.view} ) : '';
+
         return (
             React.DOM.div( {className:animateClass}, 
                 Slider(null ),
-                PuffHeader( {menu:this.props.menu} ),
+                HeaderHider(null ),
+                hb,
                 menu,
                 view,
-                replyExpand,
+                popout,
                 PuffFooter(null )
             )
         )
@@ -607,12 +613,12 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         // special sorting for children puffs
         var childrenPuffs = 
             childrenPuffs.sort(function(a, b) {
-                                 return a.username == username ? -1 : 0       // fancy sorting for current user puffs
-                                     || b.username == username ?  1 : 0
-                                     || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
-                                     || b.username == puff.username ?  1 : 0
-                                     || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
-                                     })
+                                return a.username == username ? -1 : 0       // fancy sorting for current user puffs
+                                    || b.username == username ?  1 : 0
+                                    || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
+                                    || b.username == puff.username ?  1 : 0
+                                    || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+                                    })
         
         // box the puffs 
         var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
@@ -788,21 +794,7 @@ var Arrow = React.createClass({displayName: 'Arrow',
  
 
 
-var PuffHeader = React.createClass({displayName: 'PuffHeader',
-    handleClick: function() {
-        if(puffworldprops.menu.show)
-            return events.pub('ui/menu/close', {'menu.show': false})
-        else
-            return events.pub('ui/menu/open', {'menu.show': true})
-    },
-    render: function() {
-        return (
-            React.DOM.div(null, 
-                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconAnimated.gif", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
-            )
-        );
-    }
-});
+
 
 var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
@@ -811,22 +803,25 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
         // TODO: Is this a very bad idea?
 
         return (
-            React.DOM.div( {className:"footerWrapper"}, 
-            React.DOM.div( {className:"footer", style:{maxWidth: width, right: 0}}, 
+
+            React.DOM.div( {className:"footer", style:{maxWidth: width}}, 
                 React.DOM.div( {className:"footerText"}, 
                 polyglot.t("footer.powered"), " ", React.DOM.a( {href:"http://www.puffball.io", className:"footerText"}, "puffball"),".",
                 polyglot.t("footer.rest")
                 )
             )
-            )
         );
     }
 });
 
+
+
 var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
-            React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            React.DOM.div(null, 
+                React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            )
             )
     }
 });

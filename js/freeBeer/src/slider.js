@@ -17,6 +17,13 @@ var Slider = React.createClass({
     },
 
     handleGetStarted: function() {
+
+        events.pub( 'ui/slider/close',{ 'slider.show': false});
+        return events.pub('ui/publish-expand', {'reply.expand': true,
+            'menu.section': false,
+            'menu.show': false});
+
+        /*
         // Close slider, focus publish
         events.pub( 'ui/slider/close',{ 'slider.show': false});
 
@@ -31,6 +38,7 @@ var Slider = React.createClass({
             , 'menu.publish': true
             //  , 'reply': {show: true}
         });
+        */
     },
 
 
@@ -65,7 +73,7 @@ var Slider = React.createClass({
             var slideW = Math.round(slideH*1.5);
         }
 
-        var sliderStyle = {width: slideW+'px',height: slideH+'px', backgroundColor: '#FFFFFF'};
+        var sliderStyle = {width: slideW+'px',height: slideH+'px'};
         var self = this;
 
         var slideName;
@@ -98,7 +106,7 @@ var Slider = React.createClass({
 
         return (
             <div className={cn} style={sliderStyle}>
-                <img src="img/slides/SlideHeader.gif" style={{width: '100%', position: 'relative', top: '0'}} />
+                <img src="img/EveryBitLogo.svg" className="sliderLogo" />
                 <a href="#" onClick={this.handleHideSlider}>
                     <i className="fa fa-times-circle-o fa-fw closeBox"></i>
                 </a>

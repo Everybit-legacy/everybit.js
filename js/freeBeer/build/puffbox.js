@@ -605,7 +605,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         }
 
         var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
-        if (!puffworldprops.reply.expand) {
+        if (puffworldprops.menu.popout != 'publish') {
             menu.show = openMenu;
             menu.section = 'publish';
         }
@@ -812,7 +812,7 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         var puff = this.props.puff;
 
         var menu = PB.shallow_copy(puffworlddefaults.menu);
-        if (!puffworldprops.reply.expand) {
+        if (puffworldprops.menu.popout == "publish") {
             menu.show = true;
             menu.section = 'publish';
         }

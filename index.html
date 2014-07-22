@@ -67,6 +67,7 @@
     <script src="js/freeBeer/build/display.js"></script>
     <script src="js/freeBeer/build/slider.js"></script>
     <script src="js/freeBeer/build/menu.js"></script>
+    <script src="js/freeBeer/build/headerBar.js"></script>
     <script src="js/freeBeer/build/puffbox.js"></script>
     <script src="js/freeBeer/build/replyExpand.js"></script>
     <script src="js/freeBeer/build/publishEmbed.js"></script>
@@ -77,63 +78,6 @@
     <script src="js/freeBeer/main.js"></script>
 
 
-    <!-- This is what happens when you code through the night -->
-    <!-- TODO: Clean up and put somewhere or abandon -->
-    <script>
-        /*
-        function keepBetween(x,min, max) {
-            if(x>max)
-                x=max
-
-            if(x<min)
-                x=min
-
-            return x
-        }
-
-        // TODO instantiate with _underscore
-        var bgW = 64;
-        var bgH = 64;
-        a = new Array(bgW*bgH)
-        b = new Array(bgW*bgH)
-        c = new Array(bgW*bgH)
-
-        // Start out all the same
-        for(i=0;i<(bgW*bgH);i++) {
-            a[i]=120;
-            b[i]=60;
-            c[i]=40;
-        }
-
-        setInterval(function() {
-            var canvas = document.getElementById("forBG");
-
-            var w = canvas.width = bgW;
-            var h = canvas.height = bgH;
-
-            var context = canvas.getContext("2d");
-
-            // Mutate
-            for(i=0;i<(w*h);i++) {
-                a[i] += Math.random() < 0.5 ? -1 : 1;
-                b[i] += Math.random() < 0.5 ? -1 : 1;
-                c[i] += Math.random() < 0.5 ? -1 : 1;
-
-                a[i] = keepBetween(a[i],0,255);
-                b[i] = keepBetween(b[i],0,255);
-                c[i] = keepBetween(c[i],0,255);
-
-                context.fillStyle = "rgba(" + a[i] + "," + b[i] + "," + c[i] + ",.05)";
-                context.fillRect(Math.floor(i/w), i%w, 1, 1);
-            }
-
-            document.body.style.backgroundImage =  "url("+canvas.toDataURL()+")";
-
-        },2500)
-        */
-
-    </script>
-    <!-- <canvas id="forBG" style="display: none"></canvas> -->
 
 </body>
 </html>

@@ -812,9 +812,11 @@ var PuffClone = React.createClass({
         var puff = this.props.puff;
 
         var menu = PB.shallow_copy(puffworlddefaults.menu);
-        if (puffworldprops.menu.popout == "publish") {
+        if (puffworldprops.menu.popout != "publish") {
             menu.show = true;
             menu.section = 'publish';
+        } else {
+            menu.popout = 'publish';
         }
 
         var reply = PB.shallow_copy(puffworldprops.reply);

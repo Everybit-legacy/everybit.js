@@ -48,12 +48,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // remove silly global
         globalReplyFormSubmitArg = null;
 
-        var content = "";
-        if (this.refs.content) {
-            content = this.refs.content.getDOMNode().value;
-            events.pub("ui/set-content", {'reply.content': content});
-        }
-
+        var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
+        var state = this.state;
+        update_puffworldprops({'reply.content': content, 'reply.state': state});
         return false;
     },
     cleanUpSubmit: function(){
@@ -126,7 +123,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }*/
         
         var privacy = this.refs.privacy.getDOMNode().querySelector("button.green").value;
-        
+
         if(privacy == 'public') {
             var self=this;
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
@@ -343,7 +340,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var author = PuffWardrobe.getCurrentUsername();
         author = humanizeUsernames(author) || "anonymous";
 
-        var defaultContent = this.props.reply.content || '';
+        var defaultContent = puffworldprops.reply.content || '';
         var parents = [];
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;

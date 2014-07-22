@@ -393,7 +393,7 @@ var GridLayoutMixin = {
                                                 .filter(function(pair) {return pair[0]})
 
         return (
-            React.DOM.svg( {width:screencoords.width, height:screencoords.height, style:{position:'absolute', top:'0px', left:'0px'}}, 
+            React.DOM.svg( {width:screencoords.width, height:screencoords.height, style:{position:'absolute', top:'0px', left:CONFIG.leftMargin}}, 
                 React.DOM.defs( {dangerouslySetInnerHTML:{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ),
                 arrows.map(function(arrow) {
                     return PuffArrow( {key:'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig, arrow:arrow} )
@@ -665,14 +665,13 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
         var c = arrow[1]
         
         var offset = 30
-        var xoffset = CONFIG.leftMargin
         // Move over if menu open
         var yoffset = 0
         var baseShift = 12
 
-        var x1 = p.x + p.width/2 + xoffset
+        var x1 = p.x + p.width/2
         var y1 = p.y + p.height/2
-        var x2 = c.x + c.width/2 + xoffset
+        var x2 = c.x + c.width/2
         var y2 = c.y + c.height/2
 
         /*

@@ -38,7 +38,8 @@ var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-                React.DOM.br(null ),
+                Logo(null ),
+                React.DOM.br(null ),React.DOM.br(null ),
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view",
                          clusterMenu:"ViewMenu", clusterIcon:"fa-search", view:this.props.view} ),
                 Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish", 
@@ -57,6 +58,7 @@ var Menu = React.createClass({displayName: 'Menu',
     }
 
 });
+
 
 
 
@@ -141,9 +143,12 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
 var FilterMenu = React.createClass({displayName: 'FilterMenu',
     mixins: [TooltipMixin],
+    getInitialState: function() {
+        return {type:'tags'}
+    },
     
-    handlePickFilter: function(type) {
-        var type = type || 'tags';
+    handleAddFilter: function() {
+        var type = this.state.type;
         var currFilter = PB.shallow_copy(this.props.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
@@ -153,30 +158,34 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
-        var jsonToSet = {'view.mode': 'list'};
+        var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('ui/view/filter/set', jsonToSet);
+        return events.pub('filter/add', jsonToSet);
     },
     
     handleKeyDown: function(event) {
         if (event.keyCode == 13) {
-            this.handlePickFilter();
+            this.handleAddFilter();
         }
+    },
+    handlePickFilter: function(type) {
+        this.setState({type: type});
+        return false;
     },
     createEachFilter: function(type) {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var filterStyle = {
-            position: 'relative',
-            display: 'inline-block',
-            marginRight: '5px'
+        var filterToIcon = {
+            tags: 'fa-tag',
+            users:'fa-user',
+            routes:'fa-sitemap'
         }
+        var icon = filterToIcon[type];
+
+        var color = this.state.type == type ? 'green' : 'black';
         return (
-            React.DOM.span( {style:filterStyle}, 
-                React.DOM.a( {onClick:this.handlePickFilter.bind(this, type)}, 
-                    polyglot.t("menu.filters."+type),
-                    React.DOM.i( {className:"fa fa-search-plus fa-fw"})
-                ),
+            React.DOM.span( {key:type}, 
+                React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa fa-fw '+icon})),
                 Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"Filter")} )
             )
         )
@@ -184,11 +193,19 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var all_filter = ['tags', 'users', 'routes'];
+        var leftColStyle = {
+            width: '80px',
+            display: 'inline-block',
+        }
         
         return (
             React.DOM.div( {className:"menuItem"}, 
-                "Filter: ", React.DOM.input( {ref:"filter", type:"text", className:"btn",onKeyDown:this.handleKeyDown} ),React.DOM.br(null),
-                all_filter.map(this.createEachFilter)
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.title"),":"),
+                React.DOM.input( {ref:"filter", type:"text", className:"btn narrowInputField", onKeyDown:this.handleKeyDown} ),React.DOM.a( {href:"#", onClick:this.handleAddFilter}, ' ',React.DOM.i( {className:"fa fa-plus-circle fa-fw"})),React.DOM.br(null),
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.by"),":"),
+                React.DOM.span( {className:"relative"}, 
+                    all_filter.map(this.createEachFilter)
+                )
             )
         );
     }
@@ -197,7 +214,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 var CurrentFilters = React.createClass({displayName: 'CurrentFilters',
     render: function() {
         var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
-            return FilterBubble( {filterName:key, filterValue:this.props.view.filters[key]} )
+            return FilterBubble( {key:key, filterName:key, filterValue:this.props.view.filters[key]} )
         }.bind(this))
 
         return (
@@ -224,7 +241,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
             filterValue.splice(index, 1);
             var propsMod = {};
             propsMod[filterPath] = filterValue;
-            return events.pub('ui/filter/remove', propsMod);
+            return events.pub('filter/remove', propsMod);
          }
 
         return false;
@@ -272,26 +289,54 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
     },
 
     handleViewLatest: function() {
+        if(puffworldprops.view.rows < 2)
+            var showRows = puffworlddefaults.view.rows
+        else
+            var showRows = puffworldprops.view.rows
+
         return events.pub('ui/show/latest', { 'view.mode': 'list'
+                                            , 'view.rows': showRows
                                             , 'menu': puffworlddefaults.menu
-                                            , 'view.filters': puffworlddefaults.view.filters
+                                            , 'view.filters': []
                                             , 'view.query': puffworlddefaults.view.query
                                             });
     },
 
     handleShowUserPuffs: function(username) {
-        return events.pub('ui/show/by-user', { 'view.mode': 'list'
+        if(puffworldprops.view.rows < 2)
+            var showRows = puffworlddefaults.view.rows
+        else
+            var showRows = puffworldprops.view.rows
+
+
+        return events.pub('filter/show/by-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.rows': showRows,
+                              'view.filters.users': [username] })
+
+
+        /*return events.pub('ui/show/by-user', { 'view.mode': 'list'
+                                             , 'view.rows': showRows
                                              , 'view.filters': puffworlddefaults.view.filters
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
-                                             })
+                                             })*/
     },
 
     handleShowShortcuts: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
+        events.pub('ui/view/rows/1', {'view.rows': 1})
         showPuff(polyglot.t("puff.shortcut"));
         return false;
     },
+
+    /*
+
+     <div className="menuItem">
+     <a href="#" onClick={this.handleViewRoots}>{polyglot.t("menu.view.roots")}</a>
+     <Tooltip content={polyglot.t("menu.tooltip.roots")} />
+     </div>
+     */
 
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -304,10 +349,6 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
                 ),
 
-                React.DOM.div( {className:"menuItem"},  
-                    React.DOM.a( {href:"#", onClick:this.handleViewRoots}, polyglot.t("menu.view.roots")),
-                    Tooltip( {content:polyglot.t("menu.tooltip.roots")} )
-                ),
 
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection")),
@@ -564,17 +605,30 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
         return false;
     },
 
+    handleToggleShowIntro: function() {
+        if(puffworldprops.slider.show)
+            return events.pub( 'ui/slider/open',{ 'slider.show': false});
+
+        return events.pub( 'ui/slider/open',{ 'slider.show': true});
+    },
+
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.div(null, 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, polyglot.t("menu.about.introduction"))
+                ),
+
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")),
                     Tooltip( {content:polyglot.t("menu.tooltip.code")} )
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.view.faq"))
+                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.about.faq"))
                 )
+
+
             )
         )
     }
@@ -605,7 +659,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
                 ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, "Clear cached puffs")
+                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, polyglot.t("menu.tools.clearCache"))
                 )
             )
         )
@@ -643,8 +697,9 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
-        // var username = this.props.username;
-        return events.pub('ui/show/by-user', {'view.mode': 'list', 'view.filters': puffworlddefaults.view.filters, 'view.filters.users': [username]})
+        return events.pub('filter/show/by-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.filters.users': [username] } )
     },
 
     handleShowPuffsForMe: function(){
@@ -655,8 +710,9 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('ui/view/route/set', { 'view.mode': 'list', 
-                                                 'view.filters.routes': [username] });
+        return events.pub('filter/show/for-user', 
+                            { 'view.filters': puffworlddefaults.view.filters, 
+                              'view.filters.routes': [username] });
     },
 
     render: function() {
@@ -673,7 +729,6 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
-        var relativeStyle = {position: 'relative'};
         /*
         
                     {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
@@ -686,7 +741,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                             return React.DOM.option( {key:username, value:username}, username)
                         })
                 ),
-                    ' ',React.DOM.span( {style:relativeStyle}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
+                    ' ',React.DOM.span( {className:"relative"}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
@@ -1182,19 +1237,19 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.default"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:defaultKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:defaultKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:defaultKeyQRStyle, name:"default", onClick:this.handleShowQRCode} )
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.admin"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:adminKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:adminKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:adminKeyQRStyle, name:"admin", onClick:this.handleShowQRCode})
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.root"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:rootKeyQRStyle, name:"root", onClick:this.handleShowQRCode})
                     ),React.DOM.br(null )
 
@@ -1315,7 +1370,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var polyglot = Translate.language[puffworldprops.view.language];
             var generatedName = PuffWardrobe.generateRandomUsername();
 
-            var relativeStyle = {position: 'relative'};
             var usernameField = (
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuLabel"}, React.DOM.span( {className:"message"}, polyglot.t("menu.identity.newIdentity.msg"),":")),React.DOM.br(null),
@@ -1326,7 +1380,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                         })
                         ), " ", React.DOM.em(null, "."),' ',
                         React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),
-                        React.DOM.span( {style:relativeStyle}, 
+                        React.DOM.span( {className:"relative"}, 
                             React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip"})),
                             Tooltip( {position:"under", content:polyglot.t("menu.tooltip.generate")})
                         )

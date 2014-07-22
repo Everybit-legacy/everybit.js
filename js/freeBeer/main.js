@@ -12,7 +12,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: false,
+        show: true,
         prefs: false,
         profile: false,
         import: false,                                  // import username
@@ -26,13 +26,20 @@ puffworldprops = {
         }
     },
 
+    slider: {
+        show: false,
+        currentSlide: 1,
+        totalSlides: 7
+    },
+
+
     view: {
-        mode: '',
+        mode: 'list',
         
         filters: {
             tags: [],
             users : [],
-            routes: [],
+            routes: []
         },
 
         // TODO: move these options into view.layout
@@ -79,6 +86,8 @@ puffworldprops = {
         puffs: []
     },
 
+
+
     prefs: {
         reporting: true
     },
@@ -122,7 +131,7 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    data['reply.preview'] = false                           // FIXME: this is not the right place for this
+    // data['reply.preview'] = false                           // FIXME: this is not the right place for this
 
     update_puffworldprops(data)                             // change props in a persistent fashion
 
@@ -131,6 +140,12 @@ events.sub('ui/*', function(data, path) {
     // puffworldprops.reply.preview = false;                   // FIXME: DO NOT MUTATE PROPS!!!!
     
     updateUI()                                              // then re-render PuffWorld w/ the new props
+})
+
+events.sub("filter/*", function(data, path) {
+    data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
+    data['view.mode'] = 'list';
+    events.pub('ui/query/default', data);
 })
 
 // TODO: move these somewhere nicer
@@ -147,6 +162,11 @@ formatForDisplay = function(obj, style) {
     return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
+/**
+ * Truncate long usernames. May be depricated
+ * @param username string
+ * @returns string
+ */
 humanizeUsernames = function(username) {
     if(/^[A-Za-z0-9]{32}$/.test(username))
         return username.slice(0, 7) + '...'
@@ -486,6 +506,11 @@ events.sub('ui/*', function(data) {
         PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 
 });
+
+// Hide slideshow from people with more than one identity
+// Make sure not problem if empty
+if(Object.keys(PuffWardrobe.getAll()).length < 2)
+    events.pub( 'ui/slider/close',{ 'slider.show': true});
 
 
 ////////// End PuffForum Interface ////////////

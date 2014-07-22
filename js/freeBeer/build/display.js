@@ -1,5 +1,43 @@
 /** @jsx React.DOM */
 
+var PuffBarShortcutMixin = {
+    // call methods from PuffBar of cursor puff directly for shortcuts
+    componentDidMount: function() {
+        Mousetrap.bind(['shift+f'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            if (bar.refs.flag)
+                bar.refs.flag.handleFlagRequest();
+        }.bind(this));
+
+        Mousetrap.bind(['shift+i'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            var author = this.refs[cursor].refs['author'];
+            var className = ' ' + bar.getDOMNode().className + ' ';
+            if (className.indexOf(' hidden ') == -1) {
+                bar.getDOMNode().className += ' hidden';
+                author.getDOMNode().className += ' hidden';
+            } else {
+                bar.getDOMNode().className = className.replace(' hidden ', '');
+                var authorClassName = ' ' + author.getDOMNode().className + ' ';
+                author.getDOMNode().className = authorClassName.replace(' hidden ', '');
+            }
+        }.bind(this));
+
+        Mousetrap.bind('r', function() {
+            if (puffworldprops.reply.preview) return false;
+            
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            if (bar.refs.reply) {
+                bar.refs.reply.handleClick();
+            }
+            return false;
+        }.bind(this));
+    }
+};
+
 var ViewKeybindingsMixin = {
     componentDidMount: function() {
         
@@ -16,7 +54,7 @@ var ViewKeybindingsMixin = {
                                              //  , 'reply': {show: true} 
                                                 });
         }.bind(this));
-        
+        /*
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
             if (puffworldprops.reply.preview) return false;
@@ -28,18 +66,17 @@ var ViewKeybindingsMixin = {
             if (!sig) return;                                // no cursor? do nothing
             
             var index = parents.indexOf(sig)
-            
+            var openMenu = true;
             if(index == -1) {
                 parents.push(sig)
             } else {
                 parents.splice(index, 1)
+                openMenu = puffworldprops.menu.show;
             }
-            /*if (parents.length == 0) 
-                return events.pub('ui/reply/open', { 'reply.parents': parents });*/
 
             var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
-                menu.show = true;
+                menu.show = openMenu;
                 menu.section = 'publish';
             }
 
@@ -52,7 +89,7 @@ var ViewKeybindingsMixin = {
                                                , 'menu': menu
                                                , 'reply.parents': parents });
         }.bind(this));
-
+*/
         // a toggles animation
         Mousetrap.bind('a', function() {
             return events.pub( 'ui/animation/toggle',
@@ -77,7 +114,13 @@ var ViewKeybindingsMixin = {
 
         // l shows latest puffs
         Mousetrap.bind('l', function() {
+            if(puffworldprops.view.rows < 2)
+                var showRows = puffworlddefaults.view.rows
+            else
+                var showRows = puffworldprops.view.rows
+
             return events.pub('ui/show/latest', { 'view.mode': 'list'
+                                                , 'view.rows': showRows
                                                 , 'view.filters': puffworlddefaults.view.filters
                                                 , 'view.query': puffworlddefaults.view.query
                                                 , 'menu': puffworlddefaults.menu});
@@ -110,7 +153,10 @@ var ViewKeybindingsMixin = {
         }.bind(this));
         
         // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
-        Mousetrap.bind('esc', function(e) { 
+        Mousetrap.bind('esc', function(e) {
+            if(puffworldprops.slider.show)
+                return events.pub('ui/slider/close', {'slider.show': false})
+
             if(puffworldprops.menu.show)
                 return events.pub('ui/menu/close', {'menu.show': false})
 
@@ -136,21 +182,6 @@ var ViewKeybindingsMixin = {
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
         }.bind(this));
-
-        // shift-f flag a puff
-        /*
-        TODO: Need to have just one function for this (see puffbox.js
-        Mousetrap.bind(['shift+f'], function(e){
-            var cursorPuff = puffworldprops.view.cursor;
-            if (!cursorPuff) return false;
-            if (PuffForum.getPuffBySig(cursorPuff).username != 
-                PuffWardrobe.getCurrentUsername()) {
-                return false;
-            }
-            alert("This will immediately and unreversibly remove this puff from your browser and request that others on the network do the same");
-            return PuffForum.flagPuff(cursorPuff);
-        }.bind(this));
-        */
         
         
         // we have to customize stopCallback to make cmd-enter work inside reply boxes
@@ -239,7 +270,8 @@ var CursorBindingsMixin = {
             showPuff(this.props.view.cursor);
             return false;
         }.bind(this));
-        
+
+
     },
     componentWillUnmount: function() {
         Mousetrap.reset();
@@ -368,7 +400,7 @@ var GridLayoutMixin = {
                 var stats = puffplus
                 var puff  = puffplus.puff
                 var view  = viewprops
-                return PuffFancyBox( {puff:puff, key:puff.sig, extraClassy:className, stats:stats, view:view} )
+                return PuffFancyBox( {puff:puff, key:puff.sig, extraClassy:className, stats:stats, view:view, ref:puff.sig} )
             }
         })()
         
@@ -427,7 +459,6 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         else if( viewprops.mode == 'PuffPacker' )
             view  = PuffPacker(      {tools:this.props.tools} )
 
-
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
             events.pub('ui/mode/default', { 'view': puffworlddefaults.view
@@ -448,7 +479,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
-                Logo(null ),
+                Slider(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,
@@ -460,7 +491,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 });
 
 var PuffList = React.createClass({displayName: 'PuffList',
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
     shouldComponentUpdate: function(nextProps, nextState) {
         // TODO: todo this
         return true
@@ -494,7 +525,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
 
 
 var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin],
+    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
     render: function() {
 
         var sig    = this.props.view.query.focus
@@ -538,13 +569,13 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow)
         var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow)
         var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
-
+  
         // filters
         var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
         var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
         var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
-        
-        
+                                       
+                                     
         // gather puffs, graph style
         // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
         var genLimit = 10
@@ -576,24 +607,24 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         // special sorting for children puffs
         var childrenPuffs = 
             childrenPuffs.sort(function(a, b) {
-                            return a.username == username ? -1 : 0            // fancy sorting for current user puffs
-                                || b.username == username ?  1 : 0            
-                                || a.username == puff.username ? -1 : 0       // fancy sorting for author puffs
-                                || b.username == puff.username ?  1 : 0       
-                                || PuffForum.sortByPayload(b, a) * -1         // regular temporal sort
-                                })
+                                 return a.username == username ? -1 : 0       // fancy sorting for current user puffs
+                                     || b.username == username ?  1 : 0
+                                     || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
+                                     || b.username == puff.username ?  1 : 0
+                                     || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+                                     })
         
         // box the puffs 
         var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
                                  , ancestorPuffs.map(ancestorBox('parent'))
                                  , siblingPuffs.map(siblingBox('sibling'))
                                  , childrenPuffs.map(childrenBox('child'))
-                                 )
+                                )
                           .filter(function(x) {return x.width})               // remove nodes that don't fit in the grid 
                           .sort(function(a, b) {                              // sort required so React doesn't have  
                               if(a.puff.sig+'' < b.puff.sig+'') return -1;    //   to remove and re-add DOM nodes   
                               if(a.puff.sig+'' > b.puff.sig+'') return 1;     //   in order to order them properly
-                              return 0; })
+                             return 0; })
         
         // ensure cursor is set
         this.cursorPower(puffBoxes.map(function(pbox) {return pbox.puff}), puff)
@@ -682,7 +713,7 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
                 if (boxSlope > lineSlope) {
 
                     // Limited by bottom edge
-                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
+                    x2 += ((c.height / 2) - offset / 2) / lineSlope
                     y2 += ((c.height / 2) - offset / 2)
 
                     y2 += Math.abs(Math.sin(theta)) * 5
@@ -729,7 +760,6 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
         colNumber = colNumber % CONFIG.arrowColors.length;
 
         var stroke = CONFIG.arrowColors[colNumber]
-        
         return Arrow( {x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke, fill:stroke} )
     }
 })
@@ -757,10 +787,11 @@ var Arrow = React.createClass({displayName: 'Arrow',
 })
  
 
+
 var PuffHeader = React.createClass({displayName: 'PuffHeader',
     handleClick: function() {
-        if(this.props.menu.show)
-            return events.pub('ui/menu/close', {'menu': puffworlddefaults.menu})
+        if(puffworldprops.menu.show)
+            return events.pub('ui/menu/close', {'menu.show': false})
         else
             return events.pub('ui/menu/open', {'menu.show': true})
     },

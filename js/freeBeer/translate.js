@@ -7,13 +7,13 @@ Translate.language["en"].extend({
 });
 Translate.language["en"].extend({
 	alert: {
-		noUserSet: "You will need to set your identity first"
+		noUserSet: "You will need to set your identity first",
+        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
 	},
 	menu: {
 		view: {
 			title: 'View',
 			roots: "Conversation starters",
-			faq: "Puffball FAQ",
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
@@ -22,6 +22,7 @@ Translate.language["en"].extend({
 		},
 		filters: {
 			title: 'Filter',
+			by: 'By',
 			tags: 'Tag',
 			routes: 'Route',
 			users: 'User'
@@ -79,11 +80,14 @@ Translate.language["en"].extend({
 		},
 		about: {
 			title: 'ABOUT',
+			introduction: 'Introduction',
+			faq: "Puffball FAQ",
 			code: 'Source code'
 		},
 		tools: {
 			title: 'ADVANCED TOOLS',
-			builder: "Puff builder"
+			builder: "Puff builder",
+			clearCache: 'Clear cached puffs'
 		},
         tooltip:{
             roots:'View latest conversation starters',
@@ -102,11 +106,9 @@ Translate.language["en"].extend({
             newPuff:'Create a new puff',
             code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',
-            tagsFilter: 'Show puffs with this tag',
-            routesFilter: 'Show puffs for this user',
-            routeErase: 'Unselect the route',
-            usersFilter: 'Show puffs from this user',
-            userErase: 'Unselect the user',
+            tagsFilter: 'Add a tag to filters',
+            routesFilter: 'Add a route to filters',
+            usersFilter: 'Add a user to filters',
             currentDelete:'To delete this user from the browser',
             flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
             viewImage: 'View large',
@@ -138,7 +140,7 @@ Translate.language["en"].extend({
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
 		},
-        privacyOption: 'Privacy options',
+        privacyOption: 'Privacy',
         pOptions: {
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
@@ -154,15 +156,12 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	},
-    alert:{
-        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
-    }
+	}
 });
 Translate.language["en"].extend({
 	puff: {
 		default: '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf',
-		shortcut: '381yXYnCBc9ARmPWSYLH3kUYThksyfntQeFiDvBvZAoLN9bf2LbaG3GLsE6amcuLSKhs5d3qERXnTU3BFA2vP957SY18nRkM'
+		shortcut: 'AN1rKpsWFJXfacgBZG9dVtsuJ2vLH89nwbTTJcoBQXSQQEF2m7XqEXrd1pmd8VZ16p5FPkLtKPt4oY2MytEhFU3MsZEsFZf1A'
 	}
 });
 

@@ -57,9 +57,9 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
-                PuffAuthor( {puff:puff, hidden:hidden} ),
+                PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),
                 PuffContent( {puff:puff, height:height} ),
-                PuffBar( {puff:puff, hidden:hidden, flagged:flagged})
+                PuffBar( {ref:"bar", puff:puff, hidden:hidden, flagged:flagged})
             )
         );
     }
@@ -95,7 +95,8 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
                     " > ",
                     routes.map(function(value, index){
                         var link = React.DOM.a( {href:"", onClick:self.clickUsername.bind(self, value)}, value)
-                        var ret = React.DOM.span(null, link,(index != total-1) ? ', ' : '')
+                        var ret = React.DOM.span(null, link,
+                                    (index != total-1) ? ', ' : '')
                         return ret;
                     })
                 )
@@ -173,36 +174,35 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 Tooltip( {position:"above", content:polyglot.t("menu.tooltip.seeMore")} )
             )
         )
-        /***
-         * flag info reply clone star?
-         * parent children viewRaw|image expand
-         * tip json permalink
-         ***/
+
+
+        // ICON SETS
         var iconSetOne = (
             React.DOM.div( {className:className}, 
-                PuffFlagLink( {sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
+                PuffFlagLink( {ref:"flag", sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
                 PuffInfoLink( {puff:puff} ),
-                PuffReplyLink( {sig:puff.sig} ),
-                PuffClone( {puff:puff} ),
+                PuffParentCount( {puff:puff} ),
+                PuffChildrenCount( {puff:puff} ),
                 showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
+                PuffReplyLink( {ref:"reply", sig:puff.sig} ),
                 moreButton
             )
         );
         var iconSetTwo = (
             React.DOM.div( {className:className}, 
-                PuffParentCount( {puff:puff} ),
-                PuffChildrenCount( {puff:puff} ),
                 canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                 puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
                 PuffExpand( {puff:puff} ),
+                PuffTipLink( {username:puff.username} ),
                 moreButton
             )
         )
         var iconSetThree = (
             React.DOM.div( {className:className}, 
-                PuffTipLink( {username:puff.username} ),
+
                 PuffJson( {puff:puff} ),
                 PuffPermaLink( {sig:puff.sig} ),
+                PuffClone( {puff:puff} ),
                 moreButton
             )
         );
@@ -248,8 +248,9 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
         if (this.props.flagged) return false;
-        var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
+        var doIt = confirm(polyglot.t("alert.flag"));
 
         if(!doIt)
             return false
@@ -258,6 +259,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
+                console.log(result);
                 self.setState({flagged: true});
             })
             .catch(function(err) {
@@ -432,8 +434,6 @@ var TipButton = React.createClass({displayName: 'TipButton',
         // Get the public key for this user, convert to wallet
         // TODO: Get the link so have meta-data set, like "From puffball"
 
-
-
         var self = this;
         var prom = Puffball.getUserRecord(this.props.username);
 
@@ -596,16 +596,17 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             : []
 
         var index = parents.indexOf(sig)
-
+        var openMenu = true;
         if(index == -1) {
             parents.push(sig)
         } else {
-            parents.splice(index, 1)
+            parents.splice(index, 1);
+            openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
         var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (!puffworldprops.reply.expand) {
-            menu.show = true;
+            menu.show = openMenu;
             menu.section = 'publish';
         }
 
@@ -691,7 +692,12 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
                                    .filter(function(s){
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
-                                    });
+                                    })
+                                   .filter(function(s){
+                                        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+                                        var found = flaggedPuff.indexOf(s.sig);
+                                        return found == -1;
+                                   });
         return starShells;
     },
     getCurrentUserStar: function() {
@@ -747,11 +753,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         if (username == PuffForum.getPuffBySig(this.props.sig).username)
             return false;
         var sig = this.props.sig;
-        var starred = PuffForum.getShells()
-                                 .filter(function(s){
-                                    return s.payload.type == 'star' && 
-                                           s.payload.content == sig;
-                                  })
+        var starred = this.getStarShells();
         starred = starred.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
@@ -760,7 +762,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             prom.then(function(result) {
                     self.setState({color: 'black'});
                     self.updateScore();
-
                 })
                 .catch(function(err) {
                    alert(err);

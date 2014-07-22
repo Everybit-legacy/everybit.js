@@ -28,7 +28,8 @@ var PuffPublishFormEmbed = React.createClass({
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
-        this.setState(puffworldprops.reply.state);
+        if (puffworldprops.reply.state)
+            this.setState(puffworldprops.reply.state);
         this.getUsernames();
         this.preventDragText();
 
@@ -226,7 +227,7 @@ var PuffPublishFormEmbed = React.createClass({
         var prom = Puffball.getUserRecord(newUsername);
         prom.then(function(){
             self.setState({usernameError: ''});
-            if (usernames.indexOf(newUsername) == -1 && newUsername != 'everybit') {
+            if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
                 usernames.push(newUsername);
                 self.setState({username: usernames});
             }
@@ -312,7 +313,7 @@ var PuffPublishFormEmbed = React.createClass({
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(function(item, index, array) { return array.indexOf(item) == index })
                                      .filter(Boolean)
-                                     .filter(function(value){return value!='everybit'});
+                                     .filter(function(value){return value!=CONFIG.zone});
         }
         var currentParentUsernames = this.state.parentUsernames;
         if (currentParentUsernames.length != parentUsernames.length) {
@@ -453,7 +454,7 @@ var PuffPublishFormEmbed = React.createClass({
                 <span style={leftColStyle}>{polyglot.t("replyForm.recipient")}: </span>
                 {self.state.usernames.map(function(value){
                     return (
-                        <span className='bubbleNode'>
+                        <span key={value} className='bubbleNode'>
                             {value}
                             <a href="#" onClick={self.removeUsername.bind(self, value)}>
                                 <i className="fa fa-times-circle-o fa-fw"></i>
@@ -484,16 +485,16 @@ var PuffPublishFormEmbed = React.createClass({
             'paranoid': 'fa-circle-thin'
         }
         var privacyOption = (
-            <span ref="privacy" id="privacyDiv" className="icon" style={relativeStyle}>
-                Privacy: 
+            <span ref="privacy" id="privacyDiv" className="icon">
+                {polyglot.t("replyForm.privacyOption")}: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
                     var color = privacy == p ? 'green' : 'black';
                     return (
-                        <span>
+                        <span key={p}>
                             <button className={'btn ' + color} value={p}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
-                            <Tooltip position="under" content={polyglot.t("replyForm.pOptions."+p)} />
+                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
                         </span>)
-                })}
+                })}</span>
             </span>
         );
 
@@ -573,16 +574,16 @@ var PuffPublishFormEmbed = React.createClass({
 
         var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
         var replyPrivacyOption = (
-            <span ref="replyPrivacy" className="icon">
+            <span ref="replyPrivacy" className="icon" style={{display: 'block'}}>
                 {polyglot.t("replyForm.advanced.replyPrivacy")}: 
-                <span  style={relativeStyle}>
+                <span className="relative" style={{display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
                     var color = replyPrivacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
                     return (
                         <span>
                             <button className={'btn ' + color} value={p} onClick={handleClick}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
-                            <Tooltip position="under" content={polyglot.t("replyForm.pOptions."+p)} />
+                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
                         </span>)
                 })}
                 </span>
@@ -622,7 +623,7 @@ var PuffPublishFormEmbed = React.createClass({
                 <div id="replyFormBox" style={relativeStyle}>
                     {sendToField}
                     {typeOption}
-                    {privacyOption}<br />
+                    {privacyOption}
                     {contentField}
                     {expandButton}
                     {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bbcodeMsg")}<br/></span>) : ""}

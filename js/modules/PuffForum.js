@@ -322,7 +322,8 @@ PuffForum.getPuffList = function(query, filters, limit) {
     var puffs = filtered_shells.map(Puffball.getPuffFromShell)
                                .filter(Boolean)
 
-    var have = filtered_shells.length
+    // var have = filtered_shells.length
+    var have = puffs.length
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
@@ -562,7 +563,6 @@ PuffForum.addContentType('image', {
 PuffForum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
-
         return converter.makeHtml(content);
     }
 })
@@ -634,17 +634,18 @@ PuffForum.flagPuff = function (sig) {
                };
 
     var prom = PuffNet.post(CONFIG.puffApi, data);
-    prom = prom.then(function(){
-        // clear localstorage
-        var storedShells = Puffball.Persist.get('shells');
-        var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
+    prom = prom.then(function(result){
+        // var storedShells = Puffball.Persist.get('shells');
+        // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
         var flaggedSig = Puffball.Persist.get('flagged') || [];
         flaggedSig.push(content);
 
-        Puffball.Persist.save('shells', filteredShells);
+        // Puffball.Persist.save('shells', filteredShells);
         Puffball.Persist.save('flagged', flaggedSig);
         // reload?
-        document.location.reload();
+        // document.location.reload();
+        events.pub('ui/flag', {})
+        return result;
     })
     return prom;
 }

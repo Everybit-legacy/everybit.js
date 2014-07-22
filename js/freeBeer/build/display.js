@@ -108,8 +108,16 @@ var ViewKeybindingsMixin = {
             } else {
                 return events.pub('ui/menu/open',  {'menu.show': true})
             }
-
         }.bind(this));
+
+        // k go to keyboard shortcut
+        Mousetrap.bind('k', function() {
+            var polyglot = Translate.language[puffworldprops.view.language];
+            events.pub('ui/view/rows/1', {'view.rows': 1})
+            showPuff(polyglot.t("puff.shortcut"));
+            return false;
+        }.bind(this));
+        
 
         // l shows latest puffs
         Mousetrap.bind('l', function() {

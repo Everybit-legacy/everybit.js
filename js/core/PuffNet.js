@@ -36,6 +36,16 @@ PuffNet.getPuffBySig = function(sig) {
     return PuffNet.getJSON(url, data);
 }
 
+PuffNet.getKidSigs = function(sig) {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getChildrenBySig', sig: sig};
+    
+    return PuffNet.getJSON(url, data);
+}
+
+PuffNet.getKidSigs = PB.memoize(PuffNet.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
+
+
 /**
  * get the shells of all puff as an array
  * @return {Puff[]}
@@ -109,37 +119,43 @@ PuffNet.getAncestors = function(todo, limit, results) {
     return prom.then(function(puffs) {
         return PuffNet.getAncestors(todo, limit, results.concat(puffs))
     })
-    
-    
-    if(!shell) return Puffball.emptyPromise             // try again later
-
-    if(!todo) todo = []
-    
-    var parents = shell.payload.parents
-    if(!parents.length) return Puffball.emptyPromise    // nothing left to do
-    
-    var len = parents.length
-    
-    parents.map(PuffData.getPuffBySig)                  // TODO: CF re: callback // THINK: we might have these already
-    limit -= parents.length
-    if(limit <= 0) return Puffball.emptyPromise         // all done
-    if(!todo.length) return Puffball.emptyPromise       // all done
-    
-    next = todo.pop()
-    // return Promise.resolve(function() {
-    //     shell =
-    //     return
-    // })
-    //
-    // return parents.reduce(function(prom, sig) {         // promise ring
-    //     return prom.then(function(puffs) {
-    //         return PuffData.getCachedShellBySig(sig).parents..then(function(morepuffs) {
-    //             return puffs.concat(morepuffs) })})
-    // }, Promise.resolve([]))
 }
 
-PuffNet.getDescendants = function() {return Puffball.emptyPromise() }
-PuffNet.getSiblings = function() {return Puffball.emptyPromise() }
+PuffNet.getDescendants = function(todo, limit, results) {
+    if(!todo.length) 
+        return Promise.resolve(results)             // all done
+    if(results.length >= limit) 
+        return Promise.resolve(results)             // all done
+    
+    var sig = todo[0]
+    var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
+             || results.filter(function(result) {return result.sig == sig})[0]
+    
+    // if we already have a puff for sig, then put its children on the todo stack
+    if(shell) {
+        todo.shift() // take off the shell we just worked on
+        var kidsigprom = PuffNet.getKidSigs(sig) // get all of its children // OPT: cache this?
+        return kidsigprom.then(function(kidsigs) {
+            // var newsigs  = kidpuffs.map(R.prop('sig'))
+            return PuffNet.getDescendants(todo.concat(kidsigs), limit, results)
+            
+            // var newpuffs = kidpuffs.filter(function(puff) {return !PuffData.getCachedShellBySig(puff.sig)
+            //                                                    && !results.filter(function(result) {return result.sig == puff.sig})[0]}) // OPT: this is O(n^2)-ish
+            // return PuffNet.getDescendants(todo.concat(newsigs), limit, results.concat(newpuffs))
+        })
+    }
+    
+    // otherwise, get a promise for the shell, then add it to results
+    var prom = PuffNet.getPuffBySig(sig)
+    return prom.then(function(puffs) {
+        return PuffNet.getDescendants(todo, limit, results.concat(puffs))
+    })
+}
+
+PuffNet.getSiblings = function() {
+    // this case is ugly, so we're leaving it until the client api can answer questions for us
+    return Puffball.emptyPromise() 
+}
 
 /**
  * get all puffs within the zone (default to CONFIG.zone)

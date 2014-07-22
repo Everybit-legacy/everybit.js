@@ -50,8 +50,8 @@ puffworldprops = {
         mode: 'list',
         
         filters: {
-            tags: [],
-            users : ['anon.dy1dajjp9q'],
+            tags: ['jellyfish'],
+            users : [],
             routes: []
         },
 

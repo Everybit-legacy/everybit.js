@@ -803,13 +803,21 @@ select:disabled {
     width: 100%;
     position: fixed;
     left: 0;
-    background-color: rgba(255,255,255,1);
+    background-color: rgba(255,255,255,.6)
     font-family: Gudea;
     font-size: 1.1em;
     padding-top: .2em;
-    padding-bottom: .3em;
+    padding-bottom: .1em;
     padding-left: .3em;
     z-index: 300;
+    border-bottom: 2px solid rgba(255,255,255,.7);
+}
+
+.headerHider {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 900;
 }
 
 .headerIcon {

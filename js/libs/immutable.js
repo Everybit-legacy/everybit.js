@@ -92,6 +92,14 @@ PB.extend = function() {
 }
 
 
+PB.memoize = function(f) {
+    var table = {}
+    return function() {
+        var args = Array.prototype.slice.call(arguments)
+        var key = args.toString()
+        return table[key] ? table[key] : (table[key] = f.apply(null, args))
+    } 
+}
 
 
 

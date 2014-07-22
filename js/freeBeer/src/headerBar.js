@@ -262,15 +262,66 @@ var HBPuffIcon = React.createClass({
     render: function() {
         return (
             <div className="headerIcon">
-                <img onClick={this.handleClick} src="img/puffballIconAnimated.gif" id="puffballIcon" />
+                <img onClick={this.handleClick} src="img/animated20pxtall.gif" id="puffballIcon" />
             </div>
             );
     }
 });
 
 calculateScore = function(username) {
-    if(username.indexOf('.') === -1)
-        return 1.0
-    else
-        return 0.1
+    scoreRules = {
+
+        // Base score for being one of these users
+        base: {
+            anon: 0.1,
+            tlu: 1.0,
+            slu: 0.1
+        },
+
+        stars: {
+            valuesByUser: {
+                anon: 0.1,
+                tlu: 0.5,
+                slu: 0.2
+            },
+
+            maxValue: {
+                fromAnon: 1,
+                fromTlu: 10,
+                fromSlu: 3
+            }
+        }
+
+        // Other factors
+        // Number of published things
+        // Date of last published thing
+        // Date of first published thing
+
+
+
+        // Formula for putting it all together
+
+    }
+
+
+    var score = 0;
+    if(username.substring(0, 4) == 'anon.') {
+        score += scoreRules.base.anon
+    } else if(username.indexOf('.') !== -1) {
+        score += scoreRules.base.tlu
+    } else {
+        score += scoreRules.base.slu
+    }
+
+    // Look at everyone who has starred this, add in value for that
+
+
+    // Get puffs from this user
+
+    // Config stuff:
+
+
+
+
+
 }

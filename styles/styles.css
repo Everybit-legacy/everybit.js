@@ -705,9 +705,10 @@ select:disabled {
 
 #puffballIcon {
     float: left;
-    padding-right: 20px;
+    padding-right: 10px;
+    padding-left: 6px;
     z-index: 500;
-    height: 24px;
+    height: 20px;
 }
 
 #puffballIcon:hover {
@@ -756,6 +757,9 @@ select:disabled {
     width: 30%;
     position: relative;
     top: 0;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .slide {
@@ -766,8 +770,9 @@ select:disabled {
     padding: .5em 1em .5em 1em;
     line-height: 2em;
     background-color: #F2EFEB;
-    max-height: 80%;
+    max-height: 75%;
     overflow-y: auto;
+    height:100%;
 }
 
 .slideContent {
@@ -787,13 +792,14 @@ select:disabled {
     z-index: 25;
     bottom: .1em;
     right: .1em;
+    color:darkgrey;
 }
 
 
 .sliderDots {
     z-index: 850;
     margin: auto;
-    padding-bottom: 1em;
+    padding-bottom: 1%;
     width: 100%;
     text-align: center;
     font-size: 1.3em;

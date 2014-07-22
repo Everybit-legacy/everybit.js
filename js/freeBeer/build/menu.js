@@ -38,12 +38,12 @@ var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
             React.DOM.div( {className:"menu"}, 
-                Logo(null ),
-                React.DOM.br(null ),React.DOM.br(null ),
+                Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish",
+                clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view} ),
+
                 Cluster( {clusterName:"view", clusterPath:"ui/clusters/view", clusterPropPath:"clusters.view",
                          clusterMenu:"ViewMenu", clusterIcon:"fa-search", view:this.props.view} ),
-                Cluster( {clusterName:"publish", clusterPath:"ui/clusters/publish", clusterPropPath:"clusters.publish", 
-                         clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view} ),
+
                 Cluster( {clusterName:"identity", clusterPath:"ui/clusters/identity", clusterPropPath:"clusters.identity", 
                          clusterMenu:"IdentityMenu", clusterIcon:"fa-user", view:this.props.view} ),
                 Cluster( {clusterName:"preferences", clusterPath:"ui/clusters/preferences", 
@@ -52,7 +52,9 @@ var Menu = React.createClass({displayName: 'Menu',
                 Cluster( {clusterName:"about", clusterPath:"ui/clusters/about", clusterPropPath:"clusters.about",  
                          clusterMenu:"AboutMenu", clusterIcon:"fa-info-circle", view:this.props.view} ),
                 Cluster( {clusterName:"tools", clusterPath:"ui/clusters/tools", clusterPropPath:"clusters.tools", 
-                         clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench", view:this.props.view} )
+                         clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench", view:this.props.view} ),
+
+                Logo(null )
             )
         )
     }

@@ -51,12 +51,12 @@ puffworldprops = {
         
         filters: {
             tags: [],
-            users : [],
+            users : ['anon.dy1dajjp9q'],
             routes: []
         },
 
         // TODO: move these options into view.layout
-        arrows    : true,                              // true -> show relationship arrows between puffs
+        arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
         cols      : 5,
         boxRatio  : 1,

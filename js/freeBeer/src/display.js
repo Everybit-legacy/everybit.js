@@ -428,8 +428,10 @@ var PuffWorld = React.createClass({
 
         if(this.props.menu.show) {
             CONFIG.rightMargin = 420;
+            CONFIG.leftMargin = 420;
         } else {
             CONFIG.rightMargin = 60;
+            CONFIG.leftMargin = 40;
         }
 
         /*
@@ -483,11 +485,13 @@ var PuffWorld = React.createClass({
 
         var animateClass = this.props.view.animation ? "animation" : '';
 
+        // <PuffHeader menu={this.props.menu} />
+
         return (
             <div className={animateClass}>
                 <Slider />
-                <HeaderBar />
-                <PuffHeader menu={this.props.menu} />
+                <HeaderBar view={this.props.view} />
+
                 {menu}
                 {view}
                 {replyExpand}
@@ -784,21 +788,7 @@ var Arrow = React.createClass({
  
 
 
-var PuffHeader = React.createClass({
-    handleClick: function() {
-        if(puffworldprops.menu.show)
-            return events.pub('ui/menu/close', {'menu.show': false})
-        else
-            return events.pub('ui/menu/open', {'menu.show': true})
-    },
-    render: function() {
-        return (
-            <div>
-                <img onClick={this.handleClick} src="img/puffballIconAnimated.gif" id="puffballIcon" height="48" width="41" className={this.props.menu.show ? 'menuOn' : ''} />
-            </div>
-        );
-    }
-});
+
 
 var PuffFooter = React.createClass({
     render: function() {
@@ -807,22 +797,25 @@ var PuffFooter = React.createClass({
         // TODO: Is this a very bad idea?
 
         return (
-            <div className="footerWrapper">
-            <div className="footer" style={{maxWidth: width, right: 0}}>
+
+            <div className="footer" style={{maxWidth: width}}>
                 <div className="footerText">
                 {polyglot.t("footer.powered")} <a href="http://www.puffball.io" className="footerText">puffball</a>.
                 {polyglot.t("footer.rest")}
                 </div>
             </div>
-            </div>
         );
     }
 });
 
+
+
 var Logo = React.createClass({
     render: function() {
         return (
-            <img src={CONFIG.logo} alt="Logo" className="logo" />
+            <div>
+                <img src={CONFIG.logo} alt="Logo" className="logo" />
+            </div>
             )
     }
 });

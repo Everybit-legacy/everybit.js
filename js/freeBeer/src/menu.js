@@ -38,12 +38,12 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div className="menu">
-                <Logo />
-                <br /><br />
+                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish'
+                clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
+
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
                          clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
-                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish' 
-                         clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
+
                 <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' 
                          clusterMenu='IdentityMenu' clusterIcon='fa-user' view={this.props.view} />
                 <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' 
@@ -53,6 +53,8 @@ var Menu = React.createClass({
                          clusterMenu='AboutMenu' clusterIcon='fa-info-circle' view={this.props.view} />
                 <Cluster clusterName="tools" clusterPath='ui/clusters/tools' clusterPropPath='clusters.tools' 
                          clusterMenu='ToolsMenu' clusterIcon='fa-wrench' view={this.props.view} />
+
+                <Logo />
             </div>
         )
     }

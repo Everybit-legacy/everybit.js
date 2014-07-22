@@ -6,7 +6,7 @@
 
 CONFIG = {};
 
-CONFIG.version = '0.4';
+CONFIG.version = '0.4.1';
 
 // Array of versions of Puff supported
 // Not yet implemented
@@ -19,7 +19,7 @@ CONFIG.puffApi = 'http://162.219.162.56/c/puffs/api.php';
 CONFIG.zone = 'everybit';
 
 CONFIG.url = 'http://www.everybit.com';
-CONFIG.logo = 'img/EveryBitLogo.svg';
+CONFIG.logo = 'img/EveryBitLogoLeft.svg';
 
 /* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
@@ -52,7 +52,7 @@ CONFIG.leftMargin = 20;
 
 CONFIG.rightMargin = 20;
 
-CONFIG.verticalPadding = 60;
+CONFIG.verticalPadding = 70;
 
 // Side of the page you want the menu to go on
 CONFIG.menuRight = true;

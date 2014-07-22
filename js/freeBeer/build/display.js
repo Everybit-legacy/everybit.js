@@ -428,8 +428,10 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         if(this.props.menu.show) {
             CONFIG.rightMargin = 420;
+            CONFIG.leftMargin = 420;
         } else {
             CONFIG.rightMargin = 60;
+            CONFIG.leftMargin = 40;
         }
 
         /*
@@ -483,11 +485,13 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         var animateClass = this.props.view.animation ? "animation" : '';
 
+        // <PuffHeader menu={this.props.menu} />
+
         return (
             React.DOM.div( {className:animateClass}, 
                 Slider(null ),
-                HeaderBar(null ),
-                PuffHeader( {menu:this.props.menu} ),
+                HeaderBar( {view:this.props.view} ),
+
                 menu,
                 view,
                 replyExpand,
@@ -784,21 +788,7 @@ var Arrow = React.createClass({displayName: 'Arrow',
  
 
 
-var PuffHeader = React.createClass({displayName: 'PuffHeader',
-    handleClick: function() {
-        if(puffworldprops.menu.show)
-            return events.pub('ui/menu/close', {'menu.show': false})
-        else
-            return events.pub('ui/menu/open', {'menu.show': true})
-    },
-    render: function() {
-        return (
-            React.DOM.div(null, 
-                React.DOM.img( {onClick:this.handleClick, src:"img/puffballIconAnimated.gif", id:"puffballIcon", height:"48", width:"41", className:this.props.menu.show ? 'menuOn' : ''} )
-            )
-        );
-    }
-});
+
 
 var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
@@ -807,22 +797,25 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
         // TODO: Is this a very bad idea?
 
         return (
-            React.DOM.div( {className:"footerWrapper"}, 
-            React.DOM.div( {className:"footer", style:{maxWidth: width, right: 0}}, 
+
+            React.DOM.div( {className:"footer", style:{maxWidth: width}}, 
                 React.DOM.div( {className:"footerText"}, 
                 polyglot.t("footer.powered"), " ", React.DOM.a( {href:"http://www.puffball.io", className:"footerText"}, "puffball"),".",
                 polyglot.t("footer.rest")
                 )
             )
-            )
         );
     }
 });
 
+
+
 var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
-            React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            React.DOM.div(null, 
+                React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+            )
             )
     }
 });

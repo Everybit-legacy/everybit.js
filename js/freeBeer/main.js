@@ -82,7 +82,7 @@ puffworldprops = {
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
-        flash     : false, // flash the cursor
+        flash     : false,                              // flash the cursor
         cursor    : false,                              // sig of selected puff
     },
 
@@ -100,8 +100,6 @@ puffworldprops = {
         puffs: []
     },
 
-
-
     prefs: {
         reporting: true
     },
@@ -117,7 +115,7 @@ puffworldprops = {
 puffworlddefaults = puffworldprops                          // it's immutable so we don't care
 
 
-//// event bindings for controlling core behavior from the display
+//// event bindings for controlling core behavior from the display ////
 
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
     var new_state = !PuffWardrobe.getPref('storeKeychain')
@@ -145,13 +143,9 @@ events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    // data['reply.preview'] = false                           // FIXME: this is not the right place for this
-
     update_puffworldprops(data)                             // change props in a persistent fashion
 
     setURLfromViewProps()                                   // set the props in the url and history
-
-    // puffworldprops.reply.preview = false;                   // FIXME: DO NOT MUTATE PROPS!!!!
     
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
@@ -218,16 +212,16 @@ reduceUsernameToAlphanumeric = function(username, allowDot) {
 function draggableize(el) {
     /// modified from http://jsfiddle.net/tovic/Xcb8d/light/
     
-    var x_pos = 0,  y_pos = 0,                              // mouse coordinates
-        x_elem = 0, y_elem = 0;                             // top and left element coords
-
-    // called when user starts dragging an element
-    function drag_init(e) {
-        x_pos = e.pageX;                                    // store coords
-        y_pos = e.pageY;
-        x_elem = x_pos - el.offsetLeft;
-        y_elem = y_pos - el.offsetTop;
-        document.addEventListener('mousemove', move_el);    // start moving
+    var x_pos = 0,  y_pos = 0,                                      // mouse coordinates
+        x_elem = 0, y_elem = 0;                                     // top and left element coords
+                                                                    
+    // called when user starts dragging an element              
+    function drag_init(e) {                                     
+        x_pos = e.pageX;                                            // store coords
+        y_pos = e.pageY;                                            
+        x_elem = x_pos - el.offsetLeft;                         
+        y_elem = y_pos - el.offsetTop;                          
+        document.addEventListener('mousemove', move_el);            // start moving
         return false
     }
 
@@ -289,16 +283,6 @@ function setURL(state, path) {
     var url = convertStateToURL(state)
 
     history.pushState(state, path || '', url)
-
-    // saving in case we need this in the future
-    //
-    // var cloneCurrent = JSON.parse(flatCurrent)
-    // var cloneState = JSON.parse(flatState)
-    // delete cloneCurrent.cursor
-    // delete cloneState.cursor
-    //     
-    // if(JSON.stringify(cloneState) == JSON.stringify(cloneCurrent))       // equiv up to cursor?
-    //     return false
 }
 
 function convertStateToURL(state) {
@@ -338,12 +322,6 @@ function getQuerystringObject() {
             acc[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1])
             return acc}, {})
 }
-
-// TODO: what we really want is to stash these *on first page load*, and to replace the history at that point 
-//       so we skip it when going back through time. if we do that then we don't need to look for these every 
-//       time we update the URL.
-
-
 
 
 
@@ -385,39 +363,13 @@ function showPuffDirectly(puff) {
 function renderPuffWorld() {
     var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
 
+    // THINK: is this the right place for this? these probably belong in update_puffworldprops...
     // puffworldprops has to contain some important things like prefs
-    // THINK: is this the right place for this? 
     var data = { prefs: PuffWardrobe.getAllPrefs()
                , profile: PuffWardrobe.getAllProfileItems()
                }
 
-    
-    // puffworldprops = PB.persistent_merge(puffworldprops, data)
     update_puffworldprops(PB.flatten(data))
-    
-    // puffworldprops.prefs = PuffWardrobe.getAllPrefs()
-    // puffworldprops.profile = PuffWardrobe.getAllProfileItems()
-
-    // fiddle with fiddles
-    // var sig = pushstate.puff
-    //
-    // if(sig)
-    //     pushstate.puff = PuffForum.getPuffBySig(sig)
-    //
-    // if(!sig || props['view.puff']) {                            // we've got it
-    //     return updateUI()
-    // }
-    //
-    // var prom = PuffData.pending[sig]                            // we ain't got it
-    // if(!prom)
-    //     return Puffball.onError('Bad sig in pushstate')
-    //
-    // prom.then(function(puffs) {                                 // now we have it
-    //     props['view.puff'] = puffs[0]
-    //     update_puffworldprops(props)
-    //     updateUI()
-    // })
-
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
@@ -426,6 +378,7 @@ update_puffworldprops = function(data) {
     puffworldprops = PB.persistent_merge(puffworldprops, data)
     
     // THINK: this is not the right place for this...
+    // TODO: build a type system for javascript and use instead of this mess
     // this is a fresh copy of puffworldprops, so we're going to mutate it here before releasing it into the wild
 
     // ROUTES
@@ -518,7 +471,6 @@ events.sub('ui/*', function(data) {
     // XHR this bad boy!
     if(puffworldprops.prefs.reporting)
         PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
-
 });
 
 // Hide slideshow from people with more than one identity

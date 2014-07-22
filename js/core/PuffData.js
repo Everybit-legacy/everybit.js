@@ -333,7 +333,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     PuffData.slotLock[key] = true
     
     var offset = 0
-    var giveup = 1500
+    var giveup = 300
     var new_shells = []
     
     function getMeSomeShells(puffs) {

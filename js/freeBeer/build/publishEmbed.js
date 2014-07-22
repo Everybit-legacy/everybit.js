@@ -544,7 +544,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         );
         var previewTab = (
             React.DOM.span( {className:this.state.showPreview ? "linkTabHighlighted" : "linkTab", onClick:this.handlePreviewTab}, 
-                "Preivew"
+                "Preview"
             )
         );
 

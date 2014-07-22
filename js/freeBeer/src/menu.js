@@ -375,7 +375,7 @@ var ViewMenu = React.createClass({
                 </div>
 
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a>
+                    <a href="#" onClick={this.handleShowShortcuts}>{polyglot.t("menu.view.shortcut")}</a>{' '}<span className="shortcut">[k]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.shortcut")} />
                 </div>
 

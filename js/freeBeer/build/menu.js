@@ -375,7 +375,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")),
+                    React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")),' ',React.DOM.span( {className:"shortcut"}, "[k]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.shortcut")} )
                 )
 

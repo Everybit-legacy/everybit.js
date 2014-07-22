@@ -131,7 +131,7 @@ Translate.language["en"].extend({
         sendTo: 'Send to',
 		sendToPh: 'Add new user to receive', /*placeholder*/
 		textareaPh: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
-		send: 'Send as %{author}',
+		send: 'Send',
 		preview: 'preview',
 		format: {
 			text: 'text',

@@ -51,7 +51,6 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                             //  , 'reply': {show: true} 
                                                 });
         }.bind(this));
         /*
@@ -477,8 +476,8 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         
         
         // TODO: Focus the reply box when arrow clicked
-        var replyExpand = this.props.reply.expand ? PuffPublishFormExpand( {reply:this.props.reply} ) : ''
-
+        // var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
+        var popout = PopoutCluster( {section:this.props.menu.popout, view:this.props.view})
         var menu = this.props.menu.show 
                  ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile, view:this.props.view} )) 
                  : '';
@@ -496,7 +495,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
                 hb,
                 menu,
                 view,
-                replyExpand,
+                popout,
                 PuffFooter(null )
             )
         )

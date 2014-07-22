@@ -17,6 +17,7 @@ puffworldprops = {
         profile: false,
         import: false,                                  // import username
         section: false,                                 // the section user is currently working on
+        popout: false,
 
         user: {
             pick_one: false,
@@ -50,7 +51,7 @@ puffworldprops = {
         mode: 'list',
         
         filters: {
-            tags: ['jellyfish'],
+            tags: [],
             users : [],
             routes: []
         },

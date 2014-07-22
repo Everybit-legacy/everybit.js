@@ -639,6 +639,20 @@ select:disabled {
     // overflow-x: auto; */
 }
 
+.expand {
+    left: 15%;
+    z-index: 400;
+    position: absolute;
+    top: 200px;
+    background: #FAFAFA;
+    border-radius: 10px;
+    /* text-align: center; */
+    padding: 8px;
+    border: 2px solid #555;
+    width: 70%;
+    margin: auto;
+}
+
 #replyFormEmbed {
     z-index: 400;
     text-align: left;

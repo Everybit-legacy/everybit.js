@@ -24,8 +24,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
 
         if(this.refs.content) {
-            var content = this.refs.content.getDOMNode();
-            if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
+            var contentDiv = this.refs.content.getDOMNode();
+            if (puffworldprops.menu.section == "publish") contentDiv.focus();
         }
 
         if (puffworldprops.reply.state)
@@ -39,13 +39,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             var button = buttons[i];
             button.onclick = this.handlePickPrivacy.bind(this, button.value);
         }
-
-        /*var replyPrivacyNode = this.refs.replyPrivacy.getDOMNode();
-        buttons = privacyNode.getElementsByTagName('button');
-        for (var i=0; i<buttons.length; i++) {
-            var button = buttons[i];
-            button.onclick = this.handlePickReplyPrivacy.bind(this, button.value);
-        }*/
     },
     componentDidUpdate: function() {
         this.preventDragText();
@@ -54,7 +47,14 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     componentWillUnmount: function() {
         // remove silly global
         globalReplyFormSubmitArg = null;
-        return events.pub("", {'reply.content': ""})
+
+        var content = "";
+        if (this.refs.content) {
+            content = this.refs.content.getDOMNode().value;
+            events.pub("ui/set-content", {'reply.content': content});
+        }
+
+        return false;
     },
     cleanUpSubmit: function(){
         var className = this.refs.send.getDOMNode().className;
@@ -94,7 +94,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var parents = this.props.reply.parents;
         
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
-        if(!type) return false
+        if(!type) {
+            this.cleanUpSubmit();
+            return false
+        }
 
         if (type != 'image') this.setState({'showPreview': false});
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
@@ -102,6 +105,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             content = this.state.imageSrc;
         } else {
             content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
+        }
+        if (content.length < CONFIG.minimumPuffLength) {
+            alert("Not enough content.");
+            this.cleanUpSubmit();
+            return false;
         }
         metadata.license = this.state.advancedOpt.contentLicense;
         metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
@@ -204,6 +212,12 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         return false;
     },
 
+    handleContentTab: function() {
+        this.setState({showPreview: false});
+    },
+    handlePreviewTab: function() {
+        this.setState({showPreview: true});
+    },
     handleImageLoad: function() {
         var self   = this;
         var reader = new FileReader();
@@ -276,28 +290,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },
-    handleExpand: function() {
-        // save current content and state
-        var content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content;
-        // DON'T MUTATE PROPS!
-        // puffworldprops.reply.content = content;
-        // puffworldprops.reply.state = this.state;
-        update_puffworldprops({'reply.content': content, 'reply.state': this.state})
-        
-        
-        // publish events
-        var expanded = this.props.reply.expand;
-        if (expanded) {
-            return events.pub('ui/publish-menu', {'reply.expand': false,
-                                                  'menu.section': 'publish',
-                                                  'menu.show': true,
-                                                  'clusters.publish': true});
-        } else {
-            return events.pub('ui/publish-expand', {'reply.expand': true,
-                                                    'menu.section': false,
-                                                    'menu.show': false});
-        }
-    },
     handleShowAdvanced: function() {
         this.setState({showAdvanced: !this.state.showAdvanced});
         return false;
@@ -344,6 +336,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         return false;
     },
     render: function() {
+        /* variables, default value */
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
         var privacyDefault = "public";
@@ -399,43 +392,23 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             marginBottom: '5px',
             width: '70%'
         }
-        var typeStyle = {
-            width: '28%',
-            marginRight: '2%',
-            textAlign: 'left',
-            display: 'inline-block'
-        }
         var contentStyle = {
             width: (puffworldprops.reply.expand ? "400px" : '100%'),
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
             overflowY: this.state.showPreview ? "scroll" : "hidden",
             cursor: this.state.showPreview ? "default" : "auto", 
-            marginTop: '10px',
             marginBottom: '10px',
             border: '1px solid #333',
             display: 'block',
             background: '#FFFFFF'
         }
-        var sendStyle = {
-            minWidth: '60%',
-            marginRight: '2%',
-            display: 'inline-block'
-        };
-        var sendButton = (
-            React.DOM.a( {href:"#", style:sendStyle, ref:"send", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send", {author: author}))
-        );
-        var expandStyle = {
-            position: 'relative',
-            top: '-2em',
-            float: 'right'
-        };
-        var expandButton = (
-            React.DOM.a( {href:"#", style:expandStyle, onClick:this.handleExpand}, React.DOM.i( {className:"fa fa-fw fa-expand"}))
-        );
-        var relativeStyle = {
-            position: 'relative'
-        }
 
+        /* components */
+        var sendButton = (
+            React.DOM.span( {className:"linkTab"}, 
+            React.DOM.a( {href:"#", ref:"send", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send"))
+            )
+        );
         /* Recipient: username bubbles
          * Send to: newusername input + 
          */
@@ -472,7 +445,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         /* type | privacy */
         var typeOption = (
-            React.DOM.select( {className:"btn", style:typeStyle, ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
+            React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
                     return React.DOM.option( {key:type, value:type}, type)
                 })
@@ -498,9 +471,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             )
         );
 
-        
         var contentField = (
-            React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", placeholder:polyglot.t('replyForm.textareaPh'), defaultValue:defaultContent, style:contentStyle, onChange:this.updateContent})
+            React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", placeholder:polyglot.t('replyForm.textareaPh'), defaultValue:defaultContent, style:contentStyle, onChange:this.updateContent} )
         );
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value;
@@ -529,21 +501,15 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 React.DOM.div(null, 
                     React.DOM.div( {className:"menuItem"}, 
                         polyglot.t("replyForm.format.imageFile"),":",
-                        React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad} )
+                        React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad})
                     ),
-                    React.DOM.br(null ),React.DOM.br(null ),
-                    imageField
+                    React.DOM.br(null ),imageField
                 )
             );
+            if (this.state.showPreview) {
+                contentField = (React.DOM.div(null, imageField))
+            }
         } 
-        /*else if(type == 'bbcode') {
-            contentField = (
-                <div>
-                    {contentField}
-                    <p>{polyglot.t("replyForm.format.bbcodeMsg")}</p>
-                </div>
-            )
-        }*/
 
         // preview toggle
         // CSS for checkbox
@@ -568,6 +534,19 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         if (type == 'image') {
             previewToggle = (React.DOM.span(null)); // no preview toggle for image
         }
+
+        // tabs
+        /* content | preview |   send to */
+        var contentTab = (
+            React.DOM.span( {className:this.state.showPreview ? "linkTab" : "linkTabHighlighted", onClick:this.handleContentTab}, 
+                "Content"
+            )
+        );
+        var previewTab = (
+            React.DOM.span( {className:this.state.showPreview ? "linkTabHighlighted" : "linkTab", onClick:this.handlePreviewTab}, 
+                "Preivew"
+            )
+        );
 
         var errorField = "";
         if (this.state.err) errorField =  React.DOM.span(null, React.DOM.em(null, this.state.err),React.DOM.br(null ));
@@ -610,7 +589,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var advancedField = (
             React.DOM.div(null, 
                 React.DOM.span(null, polyglot.t("replyForm.advanced.title"),React.DOM.a( {href:"#", onClick:this.handleShowAdvanced}, React.DOM.i( {className:"fa fa-fw "+chevronIcon}))),React.DOM.br(null),
-                React.DOM.div( {style:advancedStyle}, 
+                React.DOM.div( {style:{display: this.state.showAdvanced ? 'block' : 'none'}}, 
+                    sendToField,
+                    privacyOption,
                     replyPrivacyOption,
                     licenseOption
                 )
@@ -620,16 +601,12 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var className = privacy == 'public' ? "" : "encrypted"
         return (
             React.DOM.div( {id:"replyFormEmbed", className:className}, 
-                React.DOM.div( {id:"replyFormBox", style:relativeStyle}, 
-                    sendToField,
-                    typeOption,
-                    privacyOption,
+                React.DOM.div( {id:"replyFormBox", className:"relative"}, 
+                    contentTab,previewTab, " ", sendButton,
                     contentField,
-                    expandButton,
                     type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bbcodeMsg"),React.DOM.br(null))) : "",
                     errorField,
-                    previewToggle,
-                    sendButton,
+                    "Type: ", typeOption,
                     advancedField
                 )
             )

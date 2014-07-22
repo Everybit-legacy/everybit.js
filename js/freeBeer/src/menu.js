@@ -62,8 +62,6 @@ var Menu = React.createClass({
 });
 
 
-
-
 var Cluster = React.createClass({
     mixins: [TooltipMixin],
     switchMenuSection: function() {
@@ -79,6 +77,21 @@ var Cluster = React.createClass({
         eventJSON[this.props.clusterPropPath] = changed;
 
         return events.pub(this.props.clusterPath, eventJSON);
+    },
+    handlePopoutMenu:function() {
+        var eventJSON = {};
+        eventJSON[this.props.clusterPropPath] = true;
+
+        var popout = this.props.clusterName;
+        var showMenu = false;
+        if (puffworldprops.menu.popout == popout) {
+            popout = false;
+            showMenu = true;
+        }
+
+        eventJSON['menu.show'] = showMenu;
+        eventJSON['menu.popout'] = popout;
+        return events.pub('ui/expand/menu', eventJSON);
     },
 
     render: function() {
@@ -96,7 +109,7 @@ var Cluster = React.createClass({
 
         switch (this.props.clusterName) {
         case "publish":
-            clusterMenu = puffworldprops.reply.expand ? '' : <PuffPublishFormEmbed reply={puffworldprops.reply} />
+            clusterMenu = <PuffPublishFormEmbed reply={puffworldprops.reply} />
             break;
         case "view":
             clusterMenu = <ViewMenu view={this.props.view}/>
@@ -117,25 +130,29 @@ var Cluster = React.createClass({
             break;
         }
 
-
-        /*if(!puffworldprops.clusters[this.props.clusterName]) {
+        if (puffworldprops.menu.popout == this.props.clusterName &&
+            !this.props.isPopout)
             clusterMenu = '';
-        } */
 
         var section = this.props.clusterName;
         var className = (puffworldprops.clusters[section] && section == puffworldprops.menu.section) ? 'flash' : '';
         // <span className="floatRight gray"><i className={setClass}></i></span>
         
         var slide = puffworldprops.clusters[this.props.clusterName] ? 'slidedown' : 'slideup';
+        var popoutClassName = this.props.isPopout ? "fa fa-fw fa-compress" : "fa fa-fw fa-expand";
         return (
             <div className="menuCluster">
                 <div className={className}>
-                    <a href="#" onClick={this.handleToggleShowMenu}>
-                        <div className="menuHeader">
+                    <div className="menuHeader">
+                        <a href="#" onClick={this.handleToggleShowMenu}>
                             <i className={"fa " + this.props.clusterIcon + " fa-fw gray"}></i>
                             {polyglot.t(menuTitle)}
-                        </div>
-                    </a>
+                        </a>
+                        <a className="floatRight" href="#" onClick={this.handlePopoutMenu}>
+                            <i className={popoutClassName}></i>
+                        </a>
+                    </div>
+                    
                     <div className={slide}>{clusterMenu}</div>
                 </div>
             </div>

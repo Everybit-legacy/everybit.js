@@ -469,8 +469,8 @@ window.requestAnimationFrame = window.requestAnimationFrame       || window.mozR
 var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
 var eatPuffs = function(puffs) {
-    if(!Array.isArray(puffs) || !puffs.length)
-        return false;
+    // if(!Array.isArray(puffs) || !puffs.length)   // THINK: this disrupts cold loads of contentless shells...
+    //     return false;
 
     updateUI();
 }

@@ -318,20 +318,22 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     
     // -- redraw screen on new puffs being ingested (w/o looping)
     // -- cycle all new puffs through graph stuff
-    // - call fillSomeSlotsPlease every time we have slots to fill
+    // -- call fillSomeSlotsPlease every time we have slots to fill
+    // -- get focused puff immediately
     
     // - perform GC on in-memory puffs (can remove content also)
     // - use GC funs for persisting shells
     // - store size of each shell/puff for GC
     // - manage empty vertices better (different type?)
-    // - get focused puff immediately
-    
-    var key = JSON.stringify([query, filters, need])
+
+    var args = [query, filters, need]
+    if(!query.mode) args.push(have) // hack for alternate query modes
+    var key = JSON.stringify(args)
     if(PuffData.slotLock[key]) return false
     PuffData.slotLock[key] = true
     
     var offset = 0
-    var giveup = 300
+    var giveup = 1500
     var new_shells = []
     
     function getMeSomeShells(puffs) {

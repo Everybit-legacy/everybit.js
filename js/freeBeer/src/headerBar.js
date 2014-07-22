@@ -262,7 +262,7 @@ var HBPuffIcon = React.createClass({
     render: function() {
         return (
             <div className="headerIcon">
-                <img onClick={this.handleClick} src="img/puffballIconAnimated.gif" id="puffballIcon" />
+                <img onClick={this.handleClick} src="img/animated20pxtall.gif" id="puffballIcon" />
             </div>
             );
     }

@@ -71,9 +71,9 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     // TODO: switching by query 'mode' is kind of a hack. we're doing it for now until the network api matches our local api (i.e. once we use browser p2p &headless clients to service requests)
     
     var mode = query.mode
-    if(mode == 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit, [])
-    if(mode == 'descendants') return PuffNet.getDescendants([query.focus], limit, [])
-    if(mode == 'siblings')    return PuffNet.getSiblings   ([query.focus], limit, [])
+    if(mode == 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit)
+    if(mode == 'descendants') return PuffNet.getDescendants([query.focus], limit)
+    if(mode == 'siblings')    return PuffNet.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
@@ -98,27 +98,55 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     return PuffNet.getJSON(url, data);  
 }
 
-PuffNet.getAncestors = function(todo, limit, results) {
-    if(!todo.length) 
-        return Promise.resolve(results)             // all done
-    if(results.length >= limit) 
-        return Promise.resolve(results)             // all done
+PuffNet.getAncestors = function(start, limit) {
+    getEm(start, [], limit)
+    return Puffball.emptyPromise()
     
-    var sig = todo[0]
-    var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
-             || results.filter(function(result) {return result.sig == sig})[0]
+    function getEm(todo, done, remaining) {
+        if(!todo.length) return false               // all done
+        if(!remaining) return false                 // all done
     
-    // if we already have a puff for sig, then we just need to put its parents on the todo stack
-    if(shell) {
-        todo.shift() // take off the shell we just worked on
-        return PuffNet.getAncestors(todo.concat(shell.payload.parents), limit, results)
+        var sig = todo[0]
+    
+        if(~done.indexOf(sig)) {
+            return getEm(todo.slice(1), done, remaining) // we've already done this one
+        }
+        
+        // TODO: set a callback in PuffNet instead of calling PuffData directly
+        var puff = PuffData.getPuffBySig(sig) // effectful
+    
+        if(puff) 
+            return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
+
+        // no puff? that's ok. attach a then clause to its pending promise. // TODO: this is a major hack
+        remaining-- // because we're adding a new puff, or at least new content
+        var prom = PuffData.pending[sig]
+        prom.then(function(puffs) {
+            getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
+        })
     }
     
-    // otherwise, get a promise for the shell, then add it to results
-    var prom = PuffNet.getPuffBySig(sig)
-    return prom.then(function(puffs) {
-        return PuffNet.getAncestors(todo, limit, results.concat(puffs))
-    })
+    //
+    // if(!todo.length)
+    //     return Promise.resolve(results)             // all done
+    // if(results.length >= limit)
+    //     return Promise.resolve(results)             // all done
+    //
+    // var sig = todo[0]
+    // var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
+    //          || results.filter(function(result) {return result.sig == sig})[0]
+    //
+    // // if we already have a puff for sig, then we just need to put its parents on the todo stack
+    // if(shell) {
+    //     todo.shift() // take off the shell we just worked on
+    //     return PuffNet.getAncestors(todo.concat(shell.payload.parents), limit, results)
+    // }
+    //
+    // // otherwise, get a promise for the shell, then add it to results
+    // var prom = PuffNet.getPuffBySig(sig)
+    // return prom.then(function(puffs) {
+    //     return PuffNet.getAncestors(todo, limit, results.concat(puffs))
+    // })
 }
 
 PuffNet.getDescendants = function(start, limit) {
@@ -146,7 +174,7 @@ PuffNet.getDescendants = function(start, limit) {
 
         var kidsigprom = PuffNet.getKidSigs(sig) // get all its children
         return kidsigprom.then(function(kidsigs) {
-            PuffNet.getDescendants(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
+            getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
         })
     }
 }

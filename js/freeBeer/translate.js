@@ -7,13 +7,13 @@ Translate.language["en"].extend({
 });
 Translate.language["en"].extend({
 	alert: {
-		noUserSet: "You will need to set your identity first"
+		noUserSet: "You will need to set your identity first",
+        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
 	},
 	menu: {
 		view: {
 			title: 'View',
 			roots: "Conversation starters",
-			faq: "Puffball FAQ",
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
@@ -80,11 +80,14 @@ Translate.language["en"].extend({
 		},
 		about: {
 			title: 'ABOUT',
+			introduction: 'Introduction',
+			faq: "Puffball FAQ",
 			code: 'Source code'
 		},
 		tools: {
 			title: 'ADVANCED TOOLS',
-			builder: "Puff builder"
+			builder: "Puff builder",
+			clearCache: 'Clear cached puffs'
 		},
         tooltip:{
             roots:'View latest conversation starters',
@@ -137,7 +140,7 @@ Translate.language["en"].extend({
 			imageFile: 'Image File',
 			imageChosen: 'No file chosen',
 		},
-        privacyOption: 'Privacy options',
+        privacyOption: 'Privacy',
         pOptions: {
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
@@ -153,10 +156,7 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	},
-    alert:{
-        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
-    }
+	}
 });
 Translate.language["en"].extend({
 	puff: {

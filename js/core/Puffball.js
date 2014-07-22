@@ -305,6 +305,7 @@ Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWi
     var puffkey  = Puffball.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = Puffball.Crypto.decryptWithAES(letterCipher, puffkey)
+    letterString = decodeURIComponent(escape(letterString)); // encoding
     return Puffball.parseJSON(letterString)
 }
 

@@ -28,7 +28,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             if (puffworldprops.menu.section == "publish" || puffworldprops.reply.expand) content.focus();
         }
 
-        this.setState(puffworldprops.reply.state);
+        if (puffworldprops.reply.state)
+            this.setState(puffworldprops.reply.state);
         this.getUsernames();
         this.preventDragText();
 
@@ -226,7 +227,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var prom = Puffball.getUserRecord(newUsername);
         prom.then(function(){
             self.setState({usernameError: ''});
-            if (usernames.indexOf(newUsername) == -1 && newUsername != 'everybit') {
+            if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
                 usernames.push(newUsername);
                 self.setState({username: usernames});
             }
@@ -312,7 +313,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(function(item, index, array) { return array.indexOf(item) == index })
                                      .filter(Boolean)
-                                     .filter(function(value){return value!='everybit'});
+                                     .filter(function(value){return value!=CONFIG.zone});
         }
         var currentParentUsernames = this.state.parentUsernames;
         if (currentParentUsernames.length != parentUsernames.length) {
@@ -453,7 +454,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.recipient"),": " ),
                 self.state.usernames.map(function(value){
                     return (
-                        React.DOM.span( {className:"bubbleNode"}, 
+                        React.DOM.span( {key:value, className:"bubbleNode"}, 
                             value,
                             React.DOM.a( {href:"#", onClick:self.removeUsername.bind(self, value)}, 
                                 React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -484,16 +485,16 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             'paranoid': 'fa-circle-thin'
         }
         var privacyOption = (
-            React.DOM.span( {ref:"privacy", id:"privacyDiv", className:"icon", style:relativeStyle}, 
-                "Privacy:", 
+            React.DOM.span( {ref:"privacy", id:"privacyDiv", className:"icon"}, 
+                polyglot.t("replyForm.privacyOption"),": ", React.DOM.span( {className:"relative", style:{width: '150px', display: 'inline-block'}}, 
                 Object.keys(privacyToIcon).map(function(p){
                     var color = privacy == p ? 'green' : 'black';
                     return (
-                        React.DOM.span(null, 
+                        React.DOM.span( {key:p}, 
                             React.DOM.button( {className:'btn ' + color, value:p}, React.DOM.i( {className:"fa fa-fw "+privacyToIcon[p]})),
-                            Tooltip( {position:"under", content:polyglot.t("replyForm.pOptions."+p)} )
+                            Tooltip( {position:"above", content:polyglot.t("replyForm.pOptions."+p)} )
                         ))
-                })
+                }))
             )
         );
 
@@ -573,16 +574,16 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
         var replyPrivacyOption = (
-            React.DOM.span( {ref:"replyPrivacy", className:"icon"}, 
+            React.DOM.span( {ref:"replyPrivacy", className:"icon", style:{display: 'block'}}, 
                 polyglot.t("replyForm.advanced.replyPrivacy"),":", 
-                React.DOM.span(  {style:relativeStyle}, 
+                React.DOM.span( {className:"relative", style:{display: 'inline-block'}}, 
                 Object.keys(privacyToIcon).map(function(p){
                     var color = replyPrivacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
                     return (
                         React.DOM.span(null, 
                             React.DOM.button( {className:'btn ' + color, value:p, onClick:handleClick}, React.DOM.i( {className:"fa fa-fw "+privacyToIcon[p]})),
-                            Tooltip( {position:"under", content:polyglot.t("replyForm.pOptions."+p)} )
+                            Tooltip( {position:"above", content:polyglot.t("replyForm.pOptions."+p)} )
                         ))
                 })
                 )
@@ -622,7 +623,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 React.DOM.div( {id:"replyFormBox", style:relativeStyle}, 
                     sendToField,
                     typeOption,
-                    privacyOption,React.DOM.br(null ),
+                    privacyOption,
                     contentField,
                     expandButton,
                     type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bbcodeMsg"),React.DOM.br(null))) : "",

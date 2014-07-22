@@ -57,7 +57,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
-                PuffAuthor( {puff:puff, hidden:hidden} ),
+                PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),
                 PuffContent( {puff:puff, height:height} ),
                 PuffBar( {ref:"bar", puff:puff, hidden:hidden, flagged:flagged})
             )
@@ -184,7 +184,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
-                PuffReplyLink( {sig:puff.sig} ),
+                PuffReplyLink( {ref:"reply", sig:puff.sig} ),
                 moreButton
             )
         );
@@ -248,8 +248,9 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
         if (this.props.flagged) return false;
-        var doIt = confirm("WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!");
+        var doIt = confirm(polyglot.t("alert.flag"));
 
         if(!doIt)
             return false
@@ -258,6 +259,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var prom = PuffForum.flagPuff(self.props.sig);
 
         prom.then(function(result) {
+                console.log(result);
                 self.setState({flagged: true});
             })
             .catch(function(err) {
@@ -594,16 +596,17 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             : []
 
         var index = parents.indexOf(sig)
-
+        var openMenu = true;
         if(index == -1) {
             parents.push(sig)
         } else {
-            parents.splice(index, 1)
+            parents.splice(index, 1);
+            openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
         var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (!puffworldprops.reply.expand) {
-            menu.show = true;
+            menu.show = openMenu;
             menu.section = 'publish';
         }
 
@@ -689,7 +692,12 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
                                    .filter(function(s){
                                         return s.payload.type == 'star' && 
                                                s.payload.content == sig;
-                                    });
+                                    })
+                                   .filter(function(s){
+                                        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+                                        var found = flaggedPuff.indexOf(s.sig);
+                                        return found == -1;
+                                   });
         return starShells;
     },
     getCurrentUserStar: function() {
@@ -745,11 +753,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         if (username == PuffForum.getPuffBySig(this.props.sig).username)
             return false;
         var sig = this.props.sig;
-        var starred = PuffForum.getShells()
-                                 .filter(function(s){
-                                    return s.payload.type == 'star' && 
-                                           s.payload.content == sig;
-                                  })
+        var starred = this.getStarShells();
         starred = starred.filter(this.filterCurrentUserStar);
         if (starred.length != 0) {
             var self = this;
@@ -758,7 +762,6 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             prom.then(function(result) {
                     self.setState({color: 'black'});
                     self.updateScore();
-
                 })
                 .catch(function(err) {
                    alert(err);

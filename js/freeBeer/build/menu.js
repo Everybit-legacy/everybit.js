@@ -184,7 +184,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 
         var color = this.state.type == type ? 'green' : 'black';
         return (
-            React.DOM.span(null, 
+            React.DOM.span( {key:type}, 
                 React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa fa-fw '+icon})),
                 Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"Filter")} )
             )
@@ -214,7 +214,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 var CurrentFilters = React.createClass({displayName: 'CurrentFilters',
     render: function() {
         var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
-            return FilterBubble( {filterName:key, filterValue:this.props.view.filters[key]} )
+            return FilterBubble( {key:key, filterName:key, filterValue:this.props.view.filters[key]} )
         }.bind(this))
 
         return (
@@ -617,7 +617,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
         return (
             React.DOM.div(null, 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, "Introduction")
+                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, polyglot.t("menu.about.introduction"))
                 ),
 
                 React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")),
@@ -625,7 +625,7 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
                 ),
 
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.view.faq"))
+                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.about.faq"))
                 )
 
 
@@ -659,7 +659,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
                     Tooltip( {content:polyglot.t("menu.tooltip.puffBuilder")} )
                 ),
                 React.DOM.div( {className:"menuItem"}, 
-                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, "Clear cached puffs")
+                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, polyglot.t("menu.tools.clearCache"))
                 )
             )
         )
@@ -1237,19 +1237,19 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.default"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:defaultKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:defaultKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:defaultKeyQRStyle, name:"default", onClick:this.handleShowQRCode} )
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.admin"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:adminKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:adminKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:adminKeyQRStyle, name:"admin", onClick:this.handleShowQRCode})
                     ),React.DOM.br(null ),
 
                     React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.root"),": " ),
                     React.DOM.div( {className:"menuInput"}, 
-                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus} ),
+                        React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus, readOnly:true} ),
                         React.DOM.i( {className:rootKeyQRStyle, name:"root", onClick:this.handleShowQRCode})
                     ),React.DOM.br(null )
 

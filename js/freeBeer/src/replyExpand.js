@@ -2,6 +2,7 @@
 
 
 var PuffPublishFormExpand = React.createClass({
+    mixins: [TooltipMixin],
     componentDidMount: function(){
         var el = this.getDOMNode();
         draggableize(el);

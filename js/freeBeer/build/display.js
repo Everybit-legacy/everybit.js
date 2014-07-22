@@ -1,12 +1,39 @@
 /** @jsx React.DOM */
 
 var PuffBarShortcutMixin = {
+    // call methods from PuffBar of cursor puff directly for shortcuts
     componentDidMount: function() {
         Mousetrap.bind(['shift+f'], function(){
             var cursor = puffworldprops.view.cursor;
             var bar = this.refs[cursor].refs['bar'];
             if (bar.refs.flag)
                 bar.refs.flag.handleFlagRequest();
+        }.bind(this));
+
+        Mousetrap.bind(['shift+i'], function(){
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            var author = this.refs[cursor].refs['author'];
+            var className = ' ' + bar.getDOMNode().className + ' ';
+            if (className.indexOf(' hidden ') == -1) {
+                bar.getDOMNode().className += ' hidden';
+                author.getDOMNode().className += ' hidden';
+            } else {
+                bar.getDOMNode().className = className.replace(' hidden ', '');
+                var authorClassName = ' ' + author.getDOMNode().className + ' ';
+                author.getDOMNode().className = authorClassName.replace(' hidden ', '');
+            }
+        }.bind(this));
+
+        Mousetrap.bind('r', function() {
+            if (puffworldprops.reply.preview) return false;
+            
+            var cursor = puffworldprops.view.cursor;
+            var bar = this.refs[cursor].refs['bar'];
+            if (bar.refs.reply) {
+                bar.refs.reply.handleClick();
+            }
+            return false;
         }.bind(this));
     }
 };
@@ -27,7 +54,7 @@ var ViewKeybindingsMixin = {
                                              //  , 'reply': {show: true} 
                                                 });
         }.bind(this));
-        
+        /*
         // r replies to 'selected' puff
         Mousetrap.bind('r', function() { 
             if (puffworldprops.reply.preview) return false;
@@ -39,18 +66,17 @@ var ViewKeybindingsMixin = {
             if (!sig) return;                                // no cursor? do nothing
             
             var index = parents.indexOf(sig)
-            
+            var openMenu = true;
             if(index == -1) {
                 parents.push(sig)
             } else {
                 parents.splice(index, 1)
+                openMenu = puffworldprops.menu.show;
             }
-            /*if (parents.length == 0) 
-                return events.pub('ui/reply/open', { 'reply.parents': parents });*/
 
             var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
             if (!puffworldprops.reply.expand) {
-                menu.show = true;
+                menu.show = openMenu;
                 menu.section = 'publish';
             }
 
@@ -63,7 +89,7 @@ var ViewKeybindingsMixin = {
                                                , 'menu': menu
                                                , 'reply.parents': parents });
         }.bind(this));
-
+*/
         // a toggles animation
         Mousetrap.bind('a', function() {
             return events.pub( 'ui/animation/toggle',

@@ -13,12 +13,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 showAdvanced: false,
                 advancedOpt : {}};
     },
-    preventDragText: function() {
-        if (this.refs.content) {
-            var content = this.refs.content.getDOMNode();
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-        }
-    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
@@ -31,7 +25,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         if (puffworldprops.reply.state)
             this.setState(puffworldprops.reply.state);
         this.getUsernames();
-        this.preventDragText();
 
         var privacyNode = this.refs.privacy.getDOMNode();
         var buttons = privacyNode.getElementsByTagName('button');
@@ -41,7 +34,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
     },
     componentDidUpdate: function() {
-        this.preventDragText();
         this.getUsernames();
     },
     componentWillUnmount: function() {
@@ -390,7 +382,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             width: '70%'
         }
         var contentStyle = {
-            width: (puffworldprops.reply.expand ? "400px" : '100%'),
+            width: '100%',
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
             overflowY: this.state.showPreview ? "scroll" : "hidden",
             cursor: this.state.showPreview ? "default" : "auto", 

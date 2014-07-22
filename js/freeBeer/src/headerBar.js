@@ -313,6 +313,8 @@ calculateScore = function(username) {
         score += scoreRules.base.slu
     }
 
+    return score;
+
     // Look at everyone who has starred this, add in value for that
 
 

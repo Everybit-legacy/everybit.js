@@ -39,7 +39,7 @@ var Menu = React.createClass({
         return (
             <div className="menu">
                 <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish'
-                clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view} />
+                clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view}/>
 
                 <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
                          clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
@@ -1564,7 +1564,8 @@ var NewIdentity = React.createClass({
     scrollToShow: function() {
         var node = this.getDOMNode().parentNode;
         var top = node.offsetTop;
-        document.getElementsByClassName('menu')[0].scrollTop = top;
+        if (document.getElementsByClassName('menu')[0])
+            document.getElementsByClassName('menu')[0].scrollTop = top;
     },
     componentDidUpdate: function() {
         if (puffworldprops.menu.section == "identity") {

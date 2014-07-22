@@ -489,7 +489,7 @@ var PuffWorld = React.createClass({
         // var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
         var popout = <PopoutCluster section={this.props.menu.popout} view={this.props.view}/>
         var menu = this.props.menu.show 
-                 ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} view={this.props.view} /></div> 
+                 ? <div><Menu prefs={this.props.prefs} profile={this.props.profile} view={this.props.view}/></div> 
                  : '';
 
         var animateClass = this.props.view.animation ? "animation" : '';

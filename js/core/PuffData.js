@@ -326,7 +326,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     // - manage empty vertices better (different type?)
     // - get focused puff immediately
     
-    var key = JSON.stringify([query, filters])
+    var key = JSON.stringify([query, filters, need])
     if(PuffData.slotLock[key]) return false
     PuffData.slotLock[key] = true
     

@@ -655,7 +655,7 @@ var PuffArrow =  React.createClass({
 
         // Child is below parent or sideways
         if(y2 >= y1) {
-
+            // arrow is top to down
             // Which does it hit first, top edge or left edge?
             if (x2 > x1) {
                 // Arrow is left to right
@@ -676,10 +676,11 @@ var PuffArrow =  React.createClass({
 
                 }
             } else {
+                // arrow is right to left
                 if (boxSlope < lineSlope) {
 
                     // Limited by top edge
-                    x2 += ((c.height / 2) + offset / 2) / lineSlope
+                    x2 += ((c.height / 2) - offset / 2) / lineSlope
                     y2 -= ((c.height / 2) - offset / 2)
 
                     y2 -= Math.abs(Math.sin(theta)) * 5
@@ -696,7 +697,7 @@ var PuffArrow =  React.createClass({
             // Which does it hit first, top edge or left edge?
             if (x2 < x1) {
                 // Arrow is right to left
-                if (boxSlope > lineSlope) {
+                if (boxSlope < lineSlope) {
 
                     // Limited by bottom edge
                     x2 += ((c.height / 2) - offset / 2) / lineSlope
@@ -717,7 +718,7 @@ var PuffArrow =  React.createClass({
                 if (boxSlope < lineSlope) {
 
                     // Limited by bottom edge
-                    x2 -= ((c.height / 2) + offset / 2) / lineSlope
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
                     y2 += ((c.height / 2) - offset / 2)
 
                     y2 += Math.abs(Math.sin(theta)) * 5

@@ -326,7 +326,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     // - manage empty vertices better (different type?)
     // - get focused puff immediately
     
-    var key = JSON.stringify([query, filters, need, have])
+    var key = JSON.stringify([query, filters])
     if(PuffData.slotLock[key]) return false
     PuffData.slotLock[key] = true
     
@@ -342,12 +342,13 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
             have += delta || 0
         }
         
-        if(have >= need || offset > giveup) {
+        if(have >= need || offset > giveup || (query.mode && offset)) {
             PuffData.makeShellsAvailable(new_shells)
             return false
         }
         
-        var limit = need - have + 50 // grab a few extras to help work through bare patches
+        var limit = need - have 
+        if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
         
         var prom = PuffNet.getSomeShells(query, filters, limit, offset)
         prom.then(getMeSomeShells)

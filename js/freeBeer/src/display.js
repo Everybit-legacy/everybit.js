@@ -153,6 +153,14 @@ var ViewKeybindingsMixin = {
         
         // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
         Mousetrap.bind('esc', function(e) {
+            if(puffworldprops.menu.popout) {
+                var section = puffworldprops.menu.popout;
+                return events.pub('ui/close-popout', {'menu.popout': false,
+                                                      'menu.show': true,
+                                                      'menu.section': section})
+
+            };
+
             if(puffworldprops.slider.show)
                 return events.pub('ui/slider/close', {'slider.show': false})
 

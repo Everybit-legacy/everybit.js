@@ -412,13 +412,15 @@ Dagoba.firehooks = function(type, query) {
 
 // NOTE: removing these for current purposes. have them available for uses that require them. our vertex payloads are immutable, and we uniqueify prior to taking.
 
-// Dagoba.addhook('postquery', Dagoba.uniqueify = function (results) { // THINK: should we inline this and merge&count in the gremlins?
-//   return [results.filter(function(item, index, array) {return array.indexOf(item) == index})]
-// })
+// Dagoba.addhook('postquery', 
+  Dagoba.uniqueify = function (results) { // THINK: should we inline this and merge&count in the gremlins?
+    return [results.filter(function(item, index, array) {return array.indexOf(item) == index})]}
+// )
 //
-// Dagoba.addhook('postquery', Dagoba.cleanclone = function (results) { // THINK: do we always want this?
-//   return [results.map(function(item) {return JSON.parse(JSON.stringify(item, function(key, value) {return key[0]=='_' ? undefined : value}))})]
-// })
+// Dagoba.addhook('postquery', 
+  Dagoba.cleanclone = function (results) { // THINK: do we always want this?
+   return [results.map(function(item) {return JSON.parse(JSON.stringify(item, function(key, value) {return key[0]=='_' ? undefined : value}))})]}
+// )
 
 
 

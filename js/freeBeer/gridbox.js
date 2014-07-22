@@ -27,7 +27,7 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
             for(var dy = 0; dy < height; dy++) {
                 for(var dx = 0; dx < width; dx++) {
                     grid[y+dy][x+dx] = pointer || 1 } }
-            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight}
+            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight+(CONFIG.verticalPadding/2)}
         }
     }
 }

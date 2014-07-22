@@ -52,7 +52,7 @@ CONFIG.leftMargin = 20;
 
 CONFIG.rightMargin = 20;
 
-CONFIG.verticalPadding = 20;
+CONFIG.verticalPadding = 60;
 
 // Side of the page you want the menu to go on
 CONFIG.menuRight = true;

@@ -8,7 +8,8 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 200: selected puff block
 250: author and info bar
 275: scroll up/down;
-300: menu
+300: header bar
+350: menu
 400: reply form
 500: puffball icon
 
@@ -43,6 +44,17 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
     font-family: 'DroidSansMono';
     src: url("fonts/DroidSansMono.ttf");
 }
+
+a {
+    text-decoration:none;
+    color: #1616A8;
+    cursor: pointer;
+}
+
+a.under {
+    text-decoration:underline;
+}
+
 
 body,
 html {
@@ -182,12 +194,11 @@ section {
     /* transition: opacity 5s;*/
 }
 
-
-
 img {
     max-width:100%;
     max-height:85%;
 }
+
 
 .imgInBox {
     display: block;
@@ -204,15 +215,7 @@ p {
     line-height: 1.4em;
 }
 
-a {
-    text-decoration:none;
-    color: #1616A8;
-    cursor: pointer;
-}
 
-a.under {
-    text-decoration:underline;
-}
 
 textarea {
     font-family: Gudea, sans-serif;
@@ -709,18 +712,13 @@ select:disabled {
     margin-bottom: 3px;
     text-align: left;
     color: #000000;
-    /*
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    */
     border-right: 2px solid #a1a1a1;
     position: absolute;
     right:0px;
     top: 0px;
     width: 400px;
     background-color: rgba(255, 255, 255, 1);
-    z-index: 25;
+    z-index: 350;
     font-size: 1em;
     line-height: 1.7em;
     text-decoration:none;
@@ -799,6 +797,18 @@ select:disabled {
 
 .invisible {
     display: none;
+}
+
+.headerBar {
+    width: 100%;
+    position: fixed;
+    left: 0;
+    background-color: rgba(255,255,255,.6);
+    font-family: GudeaBold;
+    font-size: 1.1em;
+    padding-top: .2em;
+    padding-bottom: .3em;
+    z-index: 300;
 }
 
 .slideup, .slidedown {
@@ -1216,42 +1226,6 @@ a.deactive, a.deactive:hover {
      to   { opacity: 1; }
 }​
 
-/* not in use
-@keyframes fadeout {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}
-*/
-
-/* Firefox */
-/* not in use
-@-moz-keyframes fadeout {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}*/
-
-/* Safari and Chrome */
-/* not in use
-@-webkit-keyframes fadeout {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}*/
-
-/* Opera */
-/* not in use
-@-o-keyframes fadeout {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}*/
-
-/* Internet Explorer */
-/* not in use
-@-ms-keyframes fadeout {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-} */
-
-/* not in use */
 @-webkit-keyframes slidein {
     from { right: -300px; }
     to { right: 0px; }
@@ -1274,45 +1248,6 @@ a.deactive, a.deactive:hover {
     to { right: 0px; }
 }
 
-
-/* DOUBLE FLASH */
-/*
-@-webkit-keyframes flash {
-    0%  { background: #fff; }
-    25% { background: #ccc; }
-    50% { background: #fff; }
-    75% { background: #ccc; }
-    100% { background: #F7F7F7;}
-}
-@-moz-keyframes flash {
-    0%  { background: #fff; }
-    25% { background: #ccc; }
-    50% { background: #fff; }
-    75% { background: #ccc; }
-    100% { background: #F7F7F7;}
-}
-@-o-keyframes flash {
-    0%  { background: #fff; }
-    25% { background: #ccc; }
-    50% { background: #fff; }
-    75% { background: #ccc; }
-    100% { background: #F7F7F7;}
-}
-@-ms-keyframes flash {
-    0%  { background: #fff; }
-    25% { background: #ccc; }
-    50% { background: #fff; }
-    75% { background: #ccc; }
-    100% { background: #F7F7F7;}
-}
-@keyframes flash {
-    0%  { background: #fff; }
-    25% { background: #ccc; }
-    50% { background: #fff; }
-    75% { background: #ccc; }
-    100% { background: #F7F7F7;}
-}
-*/
 
 /* Single Flash */
 @-webkit-keyframes flash {

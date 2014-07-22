@@ -12,7 +12,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: true,
+        show: false,
         prefs: false,
         profile: false,
         import: false,                                  // import username
@@ -23,6 +23,19 @@ puffworldprops = {
             manage: false,
             show_bc: false,
             show_key: false
+        }
+    },
+
+    header: {
+        show: true,
+        publish: {
+            show: false
+        },
+        identity: {
+            show: false
+        },
+        score: {
+            show: false
         }
     },
 

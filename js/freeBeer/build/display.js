@@ -290,7 +290,7 @@ var GridLayoutMixin = {
     },
     getCols: function(rows) {
         var screencoords = this.getScreenCoords();
-        var boxHeight = screencoords.height / rows;
+        var boxHeight = (screencoords.height / rows);
 
 
         var boxWidth = this.props.view.boxRatio * boxHeight;
@@ -460,6 +460,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         return (
             React.DOM.div( {className:animateClass}, 
                 Slider(null ),
+                HeaderBar(null ),
                 PuffHeader( {menu:this.props.menu} ),
                 menu,
                 view,

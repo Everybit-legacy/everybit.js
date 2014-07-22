@@ -121,35 +121,34 @@ PuffNet.getAncestors = function(todo, limit, results) {
     })
 }
 
-PuffNet.getDescendants = function(todo, limit, results) {
-    if(!todo.length) 
-        return Promise.resolve(results)             // all done
-    if(results.length >= limit) 
-        return Promise.resolve(results)             // all done
+PuffNet.getDescendants = function(start, limit) {
+    getEm(start, [], limit)
+    return Puffball.emptyPromise()
     
-    var sig = todo[0]
-    var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
-             || results.filter(function(result) {return result.sig == sig})[0]
+    function getEm(todo, done, remaining) {
+        if(!todo.length) return false               // all done
+        if(!remaining) return false                 // all done
     
-    // if we already have a puff for sig, then put its children on the todo stack
-    if(shell) {
-        todo.shift() // take off the shell we just worked on
-        var kidsigprom = PuffNet.getKidSigs(sig) // get all of its children // OPT: cache this?
+        var sig = todo[0]
+    
+        if(~done.indexOf(sig)) {
+            return getEm(todo.slice(1), done, remaining) // we've already done this one
+        }
+    
+        // TODO: set a callback in PuffNet instead of calling PuffData directly
+        var haveShell = PuffData.getCachedShellBySig(sig) 
+    
+        if(!haveShell) { // we don't have the shell yet, so go get it
+            // TODO: callback PuffData erg merb lerb herp derp
+            PuffData.getPuffBySig(sig)  // effectful
+            remaining--
+        }
+
+        var kidsigprom = PuffNet.getKidSigs(sig) // get all its children
         return kidsigprom.then(function(kidsigs) {
-            // var newsigs  = kidpuffs.map(R.prop('sig'))
-            return PuffNet.getDescendants(todo.concat(kidsigs), limit, results)
-            
-            // var newpuffs = kidpuffs.filter(function(puff) {return !PuffData.getCachedShellBySig(puff.sig)
-            //                                                    && !results.filter(function(result) {return result.sig == puff.sig})[0]}) // OPT: this is O(n^2)-ish
-            // return PuffNet.getDescendants(todo.concat(newsigs), limit, results.concat(newpuffs))
+            PuffNet.getDescendants(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
         })
     }
-    
-    // otherwise, get a promise for the shell, then add it to results
-    var prom = PuffNet.getPuffBySig(sig)
-    return prom.then(function(puffs) {
-        return PuffNet.getDescendants(todo, limit, results.concat(puffs))
-    })
 }
 
 PuffNet.getSiblings = function() {

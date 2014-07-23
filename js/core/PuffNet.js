@@ -59,6 +59,20 @@ PuffNet.getAllShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
+PuffNet.getStarShells = function() {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getPuffs', contentType: 'star'};
+    
+    return PuffNet.getJSON(url, data);
+}
+
+PuffNet.getPrivateShells = function(username) {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getPuffs', contentType: 'encryptedpuff', username: username};
+    
+    return PuffNet.getJSON(url, data);
+}
+
 /**
  * to get some shells
  * @param {string} query
@@ -77,7 +91,7 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs'};
+    var data = {type: 'getPuffs', contentType: 'plain'};
 
     if(limit)  data.numb    = limit                         // defaults to 20 on the server
     if(offset) data.offset  = offset                        // defaults to 0, which is latest

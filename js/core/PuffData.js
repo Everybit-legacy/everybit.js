@@ -303,30 +303,28 @@ PuffData.importLocalShells = function() {   // callback) {
 
 
 
-//// this is crazy, but probably effective... new puffs come in via p2p, and only push old puffs further down the offset list
-//// oh except if you're filtering. so offset per filter? 
-PuffData.crazyGlobalOffset = 0
-
 PuffData.importRemoteShells = function() {
-    // var offset = 0
-    var giveup = 300            // TODO: unify this with fillSomeSlotsPlease and put it in config
-    var limit  = 50             // TODO: likewise
+    //// only called during initial application bootup. handles both cold loads and hot loads.
+    
+    var offset = 0
+    var giveup = CONFIG.initLoadGiveup
+    var limit  = CONFIG.initLoadBatchSize
     var new_shells = []
     var keep_going = true
     
-    giveup = PuffData.crazyGlobalOffset + giveup
+    // giveup = PuffData.crazyGlobalOffset + giveup
     
     function getMeSomeShells(puffs) {
         if(puffs) {
-            var my_new_shells = PuffData.addShellsThenMakeAvailable(puffs)
-            new_shells = new_shells.concat(my_new_shells)
-            var delta = my_new_shells.length
+            var delta = PuffData.addShellsThenMakeAvailable(puffs)
+            // new_shells = new_shells.concat(my_new_shells)
+            // var delta = my_new_shells.length
             
             if(delta != limit) // some shells were already in our cache
                 keep_going = false
         }
         
-        if(PuffData.crazyGlobalOffset > giveup)
+        if(offset > giveup)
             keep_going = false
 
         if(!keep_going) {
@@ -335,10 +333,10 @@ PuffData.importRemoteShells = function() {
             return false
         }
         
-        var prom = PuffNet.getSomeShells({}, {}, limit, PuffData.crazyGlobalOffset)
+        var prom = PuffNet.getSomeShells({}, {}, limit, offset)
         prom.then(getMeSomeShells)
 
-        PuffData.crazyGlobalOffset += limit
+        offset += limit
     }
     
     getMeSomeShells()
@@ -346,6 +344,10 @@ PuffData.importRemoteShells = function() {
 
 
 
+
+//// this is crazy, but probably effective... new puffs come in via p2p, and only push old puffs further down the offset list
+//// oh except if you're filtering. so offset per filter? 
+PuffData.crazyGlobalOffset = 0
 
 PuffData.slotLock = {}
 

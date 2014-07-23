@@ -110,3 +110,10 @@ CONFIG.arrowColors = [
      '#82CAFA',
      '#82CAFF'
  ];
+ 
+
+// configurations for network requests. eventually queries will track their timing and we'll automate these settings.
+
+CONFIG.initLoadBatchSize = 50
+CONFIG.initLoadGiveup = 300
+

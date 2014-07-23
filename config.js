@@ -119,3 +119,5 @@ CONFIG.initLoadGiveup    = 300
 
 CONFIG.fillSlotsBatchSize = 50
 CONFIG.fillSlotsGiveup    = 1000
+
+CONFIG.globalBigBatchLimit = 2000

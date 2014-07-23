@@ -61,14 +61,14 @@ PuffNet.getAllShells = function() {
 
 PuffNet.getStarShells = function() {
     var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs', contentType: 'star'};
+    var data = {type: 'getPuffs', contentType: 'star', numb: CONFIG.globalBigBatchLimit};
     
     return PuffNet.getJSON(url, data);
 }
 
 PuffNet.getPrivateShells = function(username) {
     var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs', contentType: 'encryptedpuff', username: username};
+    var data = {type: 'getPuffs', contentType: 'encryptedpuff', username: username, numb: CONFIG.globalBigBatchLimit};
     
     return PuffNet.getJSON(url, data);
 }

@@ -1000,7 +1000,7 @@ select:disabled {
     font-family: DroidSansMono;
 }
 
-.linkTab {
+.linkTab, .linkTabHighlighted {
     text-transform: uppercase;
     font-size: 1em;
     display: inline-block;
@@ -1010,24 +1010,14 @@ select:disabled {
     margin-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
-    margin-left: 10px;
-    background-color: #e8e8e8;
+    margin-right: 10px;
     position: relative;
 }
-
+.linkTab {
+    background-color: #e8e8e8;
+}
 .linkTabHighlighted {
-    text-transform: uppercase;
-    font-size: 1em;
-    display: inline-block;
-    float: left;
-    cursor: pointer;
-    cursor: hand;
-    margin-top: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 10px;
     background-color: #d6d6ff;
-    position: relative;
 }
 
 .menuSection {

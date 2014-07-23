@@ -315,8 +315,6 @@ PuffForum.getPuffList = function(query, filters, limit) {
     var shells = PuffForum.getShells(query, filters)
     
     var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
-                                .filter(function(s){return s.payload.type != 'star'}) // ?move this to somewhere else?
-                                // .filter(function(s){return s.payload.type != 'star'})
                                 .sort(PuffForum.sortByPayload) // TODO: sort by query
 
     var sliced_shells = filtered_shells.slice(offset, offset+limit)

@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+
+
 var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
     render: function() {
         var   puff = this.props.puff
@@ -682,71 +684,11 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
 
 
 var PuffStar = React.createClass({displayName: 'PuffStar',
-    filterCurrentUserStar: function(s){
-        var username =  PuffWardrobe.getCurrentKeys().username || Puffball.Persist.get('identity');
-        return s.username == username;
-    },
-    getStarShells: function() {
-        var sig = this.props.sig;
-        var starShells = PuffForum.getShells()
-                                   .filter(function(s){
-                                        return s.payload.type == 'star' && 
-                                               s.payload.content == sig;
-                                    })
-                                   .filter(function(s){
-                                        var flaggedPuff = Puffball.Persist.get('flagged') || [];
-                                        var found = flaggedPuff.indexOf(s.sig);
-                                        return found == -1;
-                                   });
-        return starShells;
-    },
-    getCurrentUserStar: function() {
-        var username = PuffWardrobe.getCurrentUsername();
-        var starShells = this.getStarShells();
-        var self = this;
-        starShells = starShells.filter(self.filterCurrentUserStar);
-        return starShells;
-    },
-    updateScore: function() {
-        var starShells = this.getStarShells();
-        var tluScore = 0;
-        var suScore = 0;
-        var scorePref = PB.shallow_copy(puffworldprops.view.score);
-        for (var k in scorePref) {
-            if (scorePref[k]) {
-                var s = parseFloat(scorePref[k]);
-                if (isNaN(s))
-                    s = parseFloat(puffworlddefaults.view.score[k]);
-                scorePref[k] = s;
-            }
-        }
-        for (var i=0; i<starShells.length; i++) {
-            var username = starShells[i].username;
-            // username = username.filter(function(item, index, array) {return Array.indexOf(item) == index});
-            if (username.indexOf('.') == -1) {
-                tluScore += scorePref.tluValue;
-            } else {
-                suScore += scorePref.suValue;
-            }
-        }
-        var score = tluScore + Math.min(scorePref.maxSuValue, suScore);
-        score = score.toFixed(1);
-        if (score == parseInt(score)) score = parseInt(score);
-        return this.setState({score: score});
-    },
     getInitialState: function(){
         return {
             score: 0,
-            color: 'black'
+            color: ''
         }
-    },
-    componentDidMount: function(){
-        var starShells = this.getStarShells();
-        var userStar = this.getCurrentUserStar();
-        this.setState({
-            color: (userStar.length == 0) ? 'black' : 'yellow'
-        })
-        this.updateScore();
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
@@ -787,21 +729,33 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return false;
     },
     render: function() {
+        var fauxShell = {sig: this.props.sig} // grumble grumble
+        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var score = 0
+        var color = this.state.color
+        
+        if(starStats && starStats.from) {
+            var username = PuffWardrobe.getCurrentUsername();
+            var selfStar = starStats.from[username]
+            score = starStats.score
+            color = color || selfStar ? 'yellow' : 'black'
+        }
+        
         var link = (
             React.DOM.a( {href:"#", onClick:this.handleClick}, 
-                React.DOM.i( {className:"fa fa-fw fa-star "+this.state.color})
+                React.DOM.i( {className:"fa fa-fw fa-star " + color})
             )
         );
         var pointerStyle = {};
         var self = this;
         if (PuffWardrobe.getCurrentUsername() == PuffForum.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'};
-            link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star "+self.state.color}));
+            link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star " + color}));
         }
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
-                link,React.DOM.span( {style:pointerStyle}, this.state.score)
+                link,React.DOM.span( {style:pointerStyle}, score)
             )
         );
     }

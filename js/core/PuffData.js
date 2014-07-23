@@ -187,8 +187,8 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     shells = shells.filter(PuffData.isGoodShell)
     
     var useful_shells = shells.filter(PuffData.tryAddingShell) // note that we're filtering effectfully,
-                                                               // and that useful shells may be new or just new content
-    if(!useful_shells.length) return []
+                                                               //   and that useful shells may be new or just new content
+    if(!useful_shells.length) return []                        //   and that we remove stars, which may change things
     
     PuffData.addToGraph(shells)
     
@@ -218,8 +218,52 @@ PuffData.makeShellsAvailable = function(shells) {
  */
 PuffData.tryAddingShell = function(shell) {
     //// try adding a shell, or updating the content of an existing shell
+    //// this is the central shell ingestation station, where metapuffs meet their doom
     
     // NOTE: don't call this without filtering using isGoodShell
+    
+    function scoreStars(usernames) {
+        var tluScore = 0;
+        var suScore = 0;
+        var scorePref = PB.shallow_copy(puffworldprops.view.score);
+        for (var k in scorePref) {
+            if (scorePref[k]) {
+                var s = parseFloat(scorePref[k]);
+                if (isNaN(s))
+                    s = parseFloat(puffworlddefaults.view.score[k]);
+                scorePref[k] = s;
+            }
+        }
+        
+        usernames.forEach(function(username) {
+            if (username.indexOf('.') == -1) {
+                tluScore += scorePref.tluValue;
+            } else {
+                suScore += scorePref.suValue;
+            }
+        })
+        
+        var score = tluScore + Math.min(scorePref.maxSuValue, suScore);
+        score = score.toFixed(1);
+        if (score == parseInt(score)) score = parseInt(score);
+        return score
+    }
+    
+    // metapuff wonkery
+    if(shell.payload.type == 'star') {
+        // update shell bonii
+        var sig = shell.payload.content
+        var fauxshell = {sig: sig} // THINK: ye gads is this ugly
+        var starStats = PuffData.getBonus(fauxshell, 'starStats') || {score: 0, from: {}}
+        
+        starStats.from[shell.username] = true
+        starStats.score = scoreStars(Object.keys(starStats.from)) // OPT: O(n^2) in stars-per-puff
+        
+        PuffData.addBonus(fauxshell, 'starStats', starStats)
+        
+        return false // because we didn't actually add a new shell // THINK: but we did change one...
+    }
+    
     
     var existing = PuffData.getCachedShellBySig(shell.sig)
     
@@ -289,6 +333,7 @@ PuffData.importShells = function() {
     PuffData.importLocalShells()
     // PuffData.getMoreShells()
     PuffData.importRemoteShells()
+    PuffData.importAllStars()
 }
 
 /**
@@ -342,6 +387,10 @@ PuffData.importRemoteShells = function() {
     getMeSomeShells()
 }
 
+PuffData.importAllStars = function() {
+    var prom = PuffNet.getStarShells()
+    prom.then(PuffData.addShellsThenMakeAvailable)
+}
 
 
 

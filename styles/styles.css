@@ -746,6 +746,8 @@ select:disabled {
     z-index: 700;
     border: 2px solid #303030;
     margin: auto;
+    left: 0;
+    right: 0;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-border-radius: 10px;

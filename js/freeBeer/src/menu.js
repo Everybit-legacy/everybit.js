@@ -1395,7 +1395,7 @@ var NewIdentity = React.createClass({
                 var prom = Puffball.getUserRecord(importInfo.username);
                 var self = this;
                 prom.then(function(userRecord){
-                    var message = "Username already exist.";
+                    var message = "Username already exists.";
                     if (importInfo.network == "instagram") {
                         message += " You may try to import your content."
                     }

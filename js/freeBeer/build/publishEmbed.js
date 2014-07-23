@@ -17,9 +17,16 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
 
+        // auto focus
         if(this.refs.content) {
             var contentDiv = this.refs.content.getDOMNode();
-            if (puffworldprops.menu.section == "publish") contentDiv.focus();
+            if (puffworldprops.menu.section == "publish") {
+                contentDiv.focus();
+                // move cursor to the end
+                if (typeof contentDiv.selectionStart == "number") {
+                    contentDiv.selectionStart = contentDiv.selectionEnd = contentDiv.value.length;
+                }
+            }
         }
 
         if (puffworldprops.reply.state)
@@ -322,6 +329,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             this.setState({parentUsernames: parentUsernames, 
                            usernames: usernames});
         }
+        return false;
+    },
+    updateContent: function() {
+        var content = this.refs.content.getDOMNode().value;
+        update_puffworldprops({'reply.content': content});
         return false;
     },
     render: function() {

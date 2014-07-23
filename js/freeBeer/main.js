@@ -59,8 +59,10 @@ puffworldprops = {
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
-        cols      : 5,
+        cols      : 5,                                  // NOTE: not currently used... ?
         boxRatio  : 1,
+        bigrows   : 2,
+        bigcols   : 2,
         
         language  : 'en',
         animation : true,                               // true -> animate everything; false -> animate nothing

@@ -28,8 +28,8 @@ var HeaderBar = React.createClass({
                 <HBpublish />{' '}
                 <HBscore />{' '}
                 <HBidentity />{' '}
-                <HBFilters view={this.props.view} /><HBCurrentFilters view={this.props.view} />
-
+                <HBFilters view={this.props.view} />
+                {' '}<HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
             </div>
             )
     }
@@ -78,12 +78,17 @@ var PublishPulldown = React.createClass({
 
 
 var HBidentity = React.createClass({
+    handleShowIdentityPopout: function() {
+        return events.pub("ui/menu/popout", {'menu.popout': 'identity',
+                                             'clusters.identity': true});
+    },
     render: function() {
         var name = PuffWardrobe.getCurrentUsername();
 
         return (
             <span className="headerIcon">
-                <i className="fa fa-user fa-fw"></i><span className="authorSpan">{name}</span>
+
+                <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>{name}</a>
             </span>
             )
     }
@@ -327,3 +332,46 @@ calculateScore = function(username) {
 
 
 }
+
+
+var HBoffset = React.createClass({
+    handleSetOffset: function() {
+        var offset = this.refs.offset.getDOMNode().value || 0;
+        events.pub("ui/set-offset", {'view.query.offset': offset});
+        return false;
+    },
+    handleKeyDown: function(e) {
+        if (e.keyCode == 13) {
+            this.handleSetOffset();
+        }
+    },
+    render: function() {
+        var offsetStart = this.props.view.query.offset || 0;
+        return (
+            <span>
+                Showing {offsetStart} &em;
+            </span>
+        )
+    }
+})
+
+var HBsort = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleSort: function() {
+        var sort = this.props.view.query.sort || 'DESC';
+        sort = (sort == 'DESC') ? 'ASC' : 'DESC';
+        events.pub("ui/query/sort", {'view.query.sort': sort});
+        return false;
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var sort = this.props.view.query.sort || 'DESC';
+        var className = "fa fa-fw fa-sort-amount-"+sort.toLowerCase();
+        return (
+            <span className="relative">
+                <a href="#" onClick={this.handleToggleSort}><i className={className}></i></a>
+                <Tooltip position="under" content={polyglot.t("menu.tooltip.sort"+sort)} />
+            </span>
+        )
+    }
+})

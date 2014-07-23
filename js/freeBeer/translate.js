@@ -123,7 +123,8 @@ Translate.language["en"].extend({
             compress: 'Compress puff size to default setting',
             copy:'Copy the raw content of this puff to the reply box',
             disable_reporting: "We track how you use our website. Click to disable.",
-
+            sortDESC: "Sorted by most recent. Click to change.",
+            sortASC: "Sorted by least recent. Click to change.",
         }
 	},
 	replyForm: {

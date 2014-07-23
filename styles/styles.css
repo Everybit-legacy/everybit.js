@@ -704,7 +704,8 @@ select:disabled {
 }
 
 #puffballIcon {
-    float: left;
+    display: inline;
+    vertical-align: text-top;
     padding-right: 10px;
     padding-left: 6px;
     z-index: 500;
@@ -825,7 +826,7 @@ select:disabled {
     width: 100%;
     position: fixed;
     left: 0;
-    background-color: rgba(255,255,255,.6)
+    background-color: rgba(255,255,255,.6);
     font-family: Gudea;
     font-size: 1.1em;
     padding-top: .2em;

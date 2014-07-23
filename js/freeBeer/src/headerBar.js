@@ -161,6 +161,17 @@ var HBFilterBubble = React.createClass({
     },
 
     render: function() {
+        if(this.props.filterName == 'tags') {
+            var icon = <i className="fa gray fa-tag"></i>
+        } else if(this.props.filterName == 'users') {
+            var icon = <i className="fa gray fa-user"></i>
+        } else if(this.props.filterName == 'routes') {
+            var icon = <i className="fa gray fa-sitemap"></i>
+        } else {
+            var icon = ''
+        }
+
+
         var filterArray = Array.isArray(this.props.filterValue)
             ? this.props.filterValue
             : [this.props.filterValue]
@@ -170,6 +181,8 @@ var HBFilterBubble = React.createClass({
         var toReturn = filterArray.map(function(value) {
             return (
                 <span className='bubbleNode'>
+                    {icon}
+                    {' '}
                     {value}
                     <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
                         <i className="fa fa-times-circle-o fa-fw"></i>
@@ -180,7 +193,6 @@ var HBFilterBubble = React.createClass({
 
         return (
             <span>
-                {this.props.filterName}:{' '}
                 {toReturn}
             </span>
             );
@@ -266,9 +278,7 @@ var HBPuffIcon = React.createClass({
     },
     render: function() {
         return (
-            <div className="headerIcon">
-                <img onClick={this.handleClick} src="img/blueAnimated.gif" id="puffballIcon" />
-            </div>
+                <img id="puffballIcon" onClick={this.handleClick} src="img/blueAnimated.gif" />
             );
     }
 });
@@ -366,10 +376,10 @@ var HBsort = React.createClass({
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         var sort = this.props.view.query.sort || 'DESC';
-        var className = "fa fa-fw fa-sort-amount-"+sort.toLowerCase();
+        var className = "fa btn blue fa-sort-amount-"+sort.toLowerCase();
         return (
             <span className="relative">
-                <a href="#" onClick={this.handleToggleSort}><i className={className}></i></a>
+                <a href="#" onClick={this.handleToggleSort}><i className={className}></i></a>{' '}
                 <Tooltip position="under" content={polyglot.t("menu.tooltip.sort"+sort)} />
             </span>
         )

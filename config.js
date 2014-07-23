@@ -115,5 +115,7 @@ CONFIG.arrowColors = [
 // configurations for network requests. eventually queries will track their timing and we'll automate these settings.
 
 CONFIG.initLoadBatchSize = 50
-CONFIG.initLoadGiveup = 300
+CONFIG.initLoadGiveup    = 300
 
+CONFIG.fillSlotsBatchSize = 50
+CONFIG.fillSlotsGiveup    = 1000

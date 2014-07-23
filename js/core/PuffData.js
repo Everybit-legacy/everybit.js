@@ -382,7 +382,8 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     PuffData.slotLock[key] = true
     
     var my_offset = PuffData.crazyGlobalOffset
-    var giveup = 1000 
+    // var batchSize = CONFIG.fillSlotsBatchSize
+    var giveup = CONFIG.fillSlotsGiveup
     var new_shells = []
     
     giveup = giveup + my_offset

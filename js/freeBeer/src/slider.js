@@ -484,16 +484,22 @@ var PasswordWizard = React.createClass({
         var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) { 
                 self.refs.keyFields.getDOMNode().style.display = "block";
+                PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
                 for (var field in keys) {
                     if (keys[field])
                         self.refs[field].getDOMNode().value = keys[field];
                 }
                 PuffWardrobe.switchCurrent(username);
-            },
+                updateUI();
+            })
+        .catch(
             function(err) {
                 self.refs.keyFields.getDOMNode().style.display = "none";
                 self.setState({errMsg: "Registration failed. Error message: " + err.msg});
             });
+    },
+    handlePublish: function() {
+        return false;
     },
     componentDidMount: function() {
         this.handleRegisterUser();
@@ -526,7 +532,7 @@ var PasswordWizard = React.createClass({
                     <span style={labelStyle}>root:</span><input type="text" ref="rootKeyPublic" size="8" readOnly /><br/>
                     <span style={labelStyle}>default:</span><input type="text" ref="defaultKeyPublic" size="8" readOnly />
                     </div>
-                    <a href="#" onClick={handlePublish}>Publish a new puff.</a>
+                    <a href="#" onClick={this.handlePublish}>Publish a new puff.</a>
                 </div>
                 <div ref="errFields">
                     <em>{this.state.errMsg}</em>

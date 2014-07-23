@@ -522,6 +522,8 @@ var PuffList = React.createClass({
         return nextProps !== this.props // TODO: this won't update when new items arrive
     },
     render: function() {
+        // if(!PuffData.stupidHorribleGlobalThing) return <div></div>
+        
         globalSillyPropsClone = PB.shallow_copy(puffworldprops)
         
         var dimensions = this.getDimensions();

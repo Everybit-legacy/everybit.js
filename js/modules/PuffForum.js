@@ -33,7 +33,7 @@ PuffForum.init = function() {
     
     Puffball.addRelationship(PuffForum.addFamilialEdges);
   
-    Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in all interesting puffs, caches user information, etc
+    Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }
 
 /**
@@ -316,18 +316,20 @@ PuffForum.getPuffList = function(query, filters, limit) {
     
     var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
                                 .filter(function(s){return s.payload.type != 'star'}) // ?move this to somewhere else?
+                                // .filter(function(s){return s.payload.type != 'star'})
                                 .sort(PuffForum.sortByPayload) // TODO: sort by query
-                                .slice(offset, offset+limit)
 
-    var puffs = filtered_shells.map(Puffball.getPuffFromShell)
-                               .filter(Boolean)
+    var sliced_shells = filtered_shells.slice(offset, offset+limit)
+    
+    var puffs = sliced_shells.map(Puffball.getPuffFromShell)
+                             .filter(Boolean)
 
-    // var have = filtered_shells.length
-    var have = puffs.length
+    var have = sliced_shells.length
+    // var have = puffs.length
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
-    PuffData.fillSomeSlotsPlease(limit, have, query, filters)
+    PuffData.fillSomeSlotsPlease(limit+offset, have, query, filters)
     
     return puffs;
 } 

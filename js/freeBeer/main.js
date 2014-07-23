@@ -422,12 +422,14 @@ window.requestAnimationFrame = window.requestAnimationFrame       || window.mozR
 var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
 var eatPuffs = function(puffs) {
-    // if(!Array.isArray(puffs) || !puffs.length)   // THINK: this disrupts cold loads of contentless shells...
+    // if(!Array.isArray(puffs) || !puffs.length)   // THINK: this disrupts cold load of contentless shells...
     //     return false;
 
     updateUI();
 }
 
+
+////
 PuffForum.onNewPuffs(eatPuffs);                     // register our update function
 
 PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
@@ -437,6 +439,8 @@ PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on 
 handleImportRedirect();                             // check if import
 
 setPropsFromURL();                                  // handle pushstate hash
+////
+
 
 window.addEventListener('resize', function() {
     updateUI();

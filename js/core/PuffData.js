@@ -288,7 +288,7 @@ PuffData.importShells = function() {
     
     PuffData.importLocalShells()
     // PuffData.getMoreShells()
-    // PuffData.importRemoteShells()
+    PuffData.importRemoteShells()
 }
 
 /**
@@ -300,6 +300,52 @@ PuffData.importLocalShells = function() {   // callback) {
     
     PuffData.addShellsThenMakeAvailable(localShells)
 }
+
+
+
+//// this is crazy, but probably effective... new puffs come in via p2p, and only push old puffs further down the offset list
+//// oh except if you're filtering. so offset per filter? 
+PuffData.crazyGlobalOffset = 0
+
+PuffData.importRemoteShells = function() {
+    // var offset = 0
+    var giveup = 300            // TODO: unify this with fillSomeSlotsPlease and put it in config
+    var limit  = 50             // TODO: likewise
+    var new_shells = []
+    var keep_going = true
+    
+    giveup = PuffData.crazyGlobalOffset + giveup
+    
+    function getMeSomeShells(puffs) {
+        if(puffs) {
+            var my_new_shells = PuffData.addShellsThenMakeAvailable(puffs)
+            new_shells = new_shells.concat(my_new_shells)
+            var delta = my_new_shells.length
+            
+            if(delta != limit) // some shells were already in our cache
+                keep_going = false
+        }
+        
+        if(PuffData.crazyGlobalOffset > giveup)
+            keep_going = false
+
+        if(!keep_going) {
+            // PuffData.stupidHorribleGlobalThing = true
+            // PuffData.makeShellsAvailable(new_shells)
+            return false
+        }
+        
+        var prom = PuffNet.getSomeShells({}, {}, limit, PuffData.crazyGlobalOffset)
+        prom.then(getMeSomeShells)
+
+        PuffData.crazyGlobalOffset += limit
+    }
+    
+    getMeSomeShells()
+}
+
+
+
 
 PuffData.slotLock = {}
 
@@ -328,13 +374,16 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
 
     var args = [query, filters, need]
     if(!query.mode) args.push(have) // hack for alternate query modes
+
     var key = JSON.stringify(args)
     if(PuffData.slotLock[key]) return false
     PuffData.slotLock[key] = true
     
-    var offset = 0
-    var giveup = 300
+    var my_offset = PuffData.crazyGlobalOffset
+    var giveup = 1000 
     var new_shells = []
+    
+    giveup = giveup + my_offset
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -344,7 +393,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
             have += delta || 0
         }
         
-        if(have >= need || offset > giveup || (query.mode && offset)) {
+        if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
             PuffData.makeShellsAvailable(new_shells)
             return false
         }
@@ -352,10 +401,10 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
         var limit = need - have 
         if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
         
-        var prom = PuffNet.getSomeShells(query, filters, limit, offset)
+        var prom = PuffNet.getSomeShells(query, filters, limit, my_offset)
         prom.then(getMeSomeShells)
 
-        offset += limit
+        my_offset += limit
     }
     
     getMeSomeShells()

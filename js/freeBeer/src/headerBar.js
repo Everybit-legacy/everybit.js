@@ -243,7 +243,7 @@ var HBFilters = React.createClass({
         return (
             <span>
                 <input ref="filter" type="text" placeholder="Add filter" className="btn narrowInputField" onKeyDown={this.handleKeyDown} />{' '}
-                <span>
+                <span className="relative">
                     {all_filter.map(this.createEachFilter)}
                 </span>
             </span>

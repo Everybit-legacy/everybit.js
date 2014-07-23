@@ -209,10 +209,14 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     },
 
     handleContentTab: function() {
-        this.setState({showPreview: false});
+        return this.setState({showPreview: false});
     },
     handlePreviewTab: function() {
-        this.setState({showPreview: true});
+        var type = this.refs.type.getDOMNode().value;
+        if (type == 'image') {
+            return false;
+        }
+        return this.setState({showPreview: true});
     },
     handleImageLoad: function() {
         var self   = this;
@@ -494,47 +498,20 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // TODO: move this in to the content type handlers
         if(type == 'image') {
             // emply src will show no image icon in firefox
-            var imageField = (React.DOM.img( {id:"preview_image"} ));
+            var imageField = (React.DOM.img( {id:"preview_image", width:"100%", height:"1px"}));
             if (this.state.imageSrc) {
                 imageField = (React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} ));
             }
             contentField = (
                 React.DOM.div(null, 
-                    React.DOM.div( {className:"menuItem"}, 
-                        polyglot.t("replyForm.format.imageFile"),":",
-                        React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad})
+                    React.DOM.div( {style:{marginLeft: '10px'}}, 
+                        React.DOM.div( {style:{display: 'inline-block'}}, polyglot.t("replyForm.format.imageFile"),":",
+                        React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad}))
                     ),
                     React.DOM.br(null ),imageField
                 )
             );
-            if (this.state.showPreview) {
-                contentField = (React.DOM.div(null, imageField))
-            }
         } 
-
-        // preview toggle
-        // CSS for checkbox
-        var cbClass = React.addons.classSet({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': this.state.showPreview,
-            'fa-square-o': !this.state.showPreview,
-            'green': this.state.showPreview
-        });
-        var toggleStyle = {
-            minWidth: '28%',
-            marginRight: '2%',
-            display: 'inline-block'
-        }
-        var previewToggle = (
-            React.DOM.span( {className:"replyPreview", style:toggleStyle}, 
-                React.DOM.i( {className:cbClass, onClick:this.handleTogglePreview} ),
-                React.DOM.a( {onClick:this.handleTogglePreview}, polyglot.t("replyForm.preview"))
-            )
-        );
-        if (type == 'image') {
-            previewToggle = (React.DOM.span(null)); // no preview toggle for image
-        }
 
         // tabs
         /* content | preview |   send to */
@@ -548,6 +525,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 "Preview"
             )
         );
+        if (type == 'image') previewTab = React.DOM.span(null);
 
         var errorField = "";
         if (this.state.err) errorField =  React.DOM.span(null, React.DOM.em(null, this.state.err),React.DOM.br(null ));

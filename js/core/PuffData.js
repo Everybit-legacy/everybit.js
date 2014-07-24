@@ -378,13 +378,35 @@ PuffData.getCurrentDecryptedShells = function() {
 }
 
 PuffData.importPrivateShells = function(username) {
-    var prom = PuffNet.getPrivateShells(username) // OPT: re-requesting this is unnecessary
+    PuffData.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
     
-    prom.then(function(privateShells) {
-        PuffData.currentDecryptedShells = // FIXME: oh dear this is horrible oh dear oh dear
-            privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
-                         .filter(Boolean)
+    // FIXME: race condition while toggling identities
+    
+    var promFromMe = PuffNet.getPrivatePuffsFromMe(username) 
+    promFromMe.then(PuffData.addPrivateShells)
+
+    var promForMe = PuffNet.getPrivatePuffsForMe(username) 
+    promForMe.then(PuffData.addPrivateShells)
+}
+
+PuffData.clearExistingPrivateShells = function() {
+    PuffData.currentDecryptedShells.forEach(function(shell) {
+        PuffData.purgeShellFromGraph(shell.sig) // TODO: this is not quite right
     })
+    
+    PuffData.currentDecryptedShells = [] 
+}
+
+PuffData.addPrivateShells = function(privateShells) {
+    var decryptedShells = privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                         .filter(Boolean) // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
+    
+    PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)
+    
+    PuffData.addToGraph(decryptedShells)
+    PuffForum.addFamilialEdges(decryptedShells) // FIXME: ugh seriously do not use PuffForum here!
+    
+    updateUI() // FIXME: this is definitely not the right place for this
 }
 
 
@@ -584,14 +606,18 @@ PuffData.removeShellFromCache = function(sig) {
     // remove shell's bonii
     delete PuffData.bonii[sig]
     
+    PuffData.purgeShellFromGraph(sig)
+    
+    updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
+}
+
+PuffData.purgeShellFromGraph = function(sig) {
     // change graph vertex to 'pseudo-shell' type (or 'purged' type?)
     //   and remove the content of the 'shell' property
     // TODO: this is icky make it better
     var vertex = PuffData.graph.v(sig).run()[0]
     vertex.type = 'purged'
     vertex.shell = undefined
-    
-    updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
 }
 
 

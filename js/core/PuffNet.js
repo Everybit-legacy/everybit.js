@@ -69,9 +69,16 @@ PuffNet.getStarShells = function() {
     return PuffNet.getJSON(url, data);
 }
 
-PuffNet.getPrivateShells = function(username) {
+PuffNet.getPrivatePuffsFromMe = function(username) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs', contentType: 'encryptedpuff', username: username, numb: CONFIG.globalBigBatchLimit};
+    
+    return PuffNet.getJSON(url, data);
+}
+
+PuffNet.getPrivatePuffsForMe = function(username) {
+    var url  = CONFIG.puffApi;
+    var data = {type: 'getPuffs', contentType: 'encryptedpuff', route: username, numb: CONFIG.globalBigBatchLimit};
     
     return PuffNet.getJSON(url, data);
 }

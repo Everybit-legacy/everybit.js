@@ -46,6 +46,13 @@ var HBpublish = React.createClass({
 
     },
 
+    handleShowPublish: function() {
+
+        return events.pub('ui/publish/show', {'menu.show': true, 'menu.section': 'publish','clusters.publish': true})
+
+
+    },
+
     render: function() {
         if(puffworldprops.header.publish.show)
             var pulldown = <PublishPulldown />
@@ -54,7 +61,7 @@ var HBpublish = React.createClass({
 
         return (
             <span className="headerIcon">
-                <a href="#" onClick={this.handleToggleShowPublish}>
+                <a href="#" onClick={this.handleShowPublish}>
                     <i className="fa fa-send fa-fw"></i>
                 </a>
                 {pulldown}

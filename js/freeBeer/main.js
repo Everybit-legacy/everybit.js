@@ -41,7 +41,7 @@ puffworldprops = {
     },
 
     slider: {
-        show: true,
+        show: false,
         currentSlide: 1,
         totalSlides: 7,
         username: '',
@@ -485,6 +485,7 @@ events.sub('ui/*', function(data) {
 // Make sure not problem if empty
 if(Object.keys(PuffWardrobe.getAll()).length < 2)
     events.pub( 'ui/slider/close',{ 'slider.show': true});
+    // console.log("hide silder cuz several users")
 
 
 ////////// End PuffForum Interface ////////////

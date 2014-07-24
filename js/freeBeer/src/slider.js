@@ -42,12 +42,12 @@ var Slider = React.createClass({
             slidesArr.push(i)
         }
 
-
-        if(puffworldprops.slider.show) {
+        var cn = "slider";
+        /*if(puffworldprops.slider.show) {
             var cn = "slider"
         } else {
             var cn = "invisible";
-        }
+        }*/
 
         // TODO: if invisible, short-circuit all the rest
 
@@ -79,9 +79,6 @@ var Slider = React.createClass({
                     slideName = <RegisterSubuserWizard />
                     break;
                 case 3:
-                    slideName = <ImportWizard />
-                    break;
-                case 4:
                     slideName = <PasswordWizard />
                     break;
                 case 4:
@@ -132,9 +129,9 @@ var Slider = React.createClass({
                 </div>
 
                 <div className="sliderDots">
-                        {slidesArr.map(function(i) {
+                        <span className={this.state.wizard ? "hidden" : ""}>{slidesArr.map(function(i) {
                             return <SliderBullet active={i == puffworldprops.slider.currentSlide} numb={i} />
-                        })} {this.state.wizard ? "" : getStartedBtn}
+                        })}</span> {this.state.wizard ? "" : getStartedBtn}
                 </div>
 
 
@@ -362,7 +359,7 @@ var DecentralizedSlide = React.createClass({
 /* wizard slides */
 var PickStepWizard = React.createClass({
     handleJumpPost: function() {
-        return events.pub("ui/wizard/post", {"slider.currentSlide": 5})
+        return events.pub("ui/wizard/post", {"slider.currentSlide": 4})
     },
     handleJumpCreate: function() {
         return events.pub("ui/wizard/post", {"slider.currentSlide": 2})
@@ -420,7 +417,7 @@ var RegisterSubuserWizard = React.createClass({
     },
     handleRegisterSubuser: function() {
         var username = this.state.username;
-        return events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username})
+        return events.pub('ui/wizard/password', {"slider.currentSlide":3, "slider.username":username})
     },
     render: function() {
         var generatedName = PuffWardrobe.generateRandomUsername();
@@ -484,11 +481,19 @@ var PasswordWizard = React.createClass({
         var content = 'requestUsername';
 
         var self = this;
-        var prefix = username.split('.')[0]; 
+        var prefix = username.split('.')[0];  
+        self.refs.keyFields.getDOMNode().style.display = "block";
+        // PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
+        for (var field in keys) {
+            if (keys[field])
+                self.refs[field].getDOMNode().value = keys[field];
+        }
+        // PuffWardrobe.switchCurrent(username);
+        // updateUI();
                 
         var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload);
         // SUBMIT REQUEST
-        var prom = PuffNet.updateUserRecord(puff);
+        /*var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) { 
                 self.refs.keyFields.getDOMNode().style.display = "block";
                 PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
@@ -503,9 +508,10 @@ var PasswordWizard = React.createClass({
             function(err) {
                 self.refs.keyFields.getDOMNode().style.display = "none";
                 self.setState({errMsg: "Registration failed. Error message: " + err.msg});
-            });
+            });*/
     },
     handlePublish: function() {
+        events.pub("ui/wizard/publish", {"slider.currentSlide": 4})
         return false;
     },
     componentDidMount: function() {
@@ -550,10 +556,47 @@ var PasswordWizard = React.createClass({
 })
 
 var PublishWizard = React.createClass({
+    getInitialState: function() {
+        return {
+            current: 0
+        }
+    },
+    handleNext: function() {
+        var total = 5;
+        var current = this.state.current;
+        current = current + 1;
+        if (current >= total) {
+            var sliderProp = PB.shallow_copy(puffworlddefaults.slider);
+            return events.pub("ui/wizard/close", {'slider':sliderProp});
+        }
+        this.setState({current: current});
+        if (current >= 2) {
+            var leftColDiv = this.refs.leftCol.getDOMNode();
+            leftColDiv.scrollTop = leftColDiv.scrollHeight;
+        }
+        if (current == total-1) {
+            var leftColDiv = this.refs.leftCol.getDOMNode();
+            leftColDiv.scrollTop = 0;
+        }
+        return false;
+    },
     render: function() {
+        var current = this.state.current;
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var message = polyglot.t("wizard.publish.message"+(current+1));
+        var nextMsg = "Next";
+        if (current == 5) {
+            nextMsg == "Enter site"
+        }
         return (
             <div className="slideContent">
-                Publish Content
+                <div ref="leftCol" className="slideLeftCol">
+                    <PuffPublishFormEmbed reply={puffworldprops.reply} showAdvanced={true} />
+                </div>
+                <div className="slideRightCol">
+                    {message}<br/>
+                    <a href="#" onClick={this.handleNext}>{nextMsg}</a>
+                </div>
             </div>
         )
     }

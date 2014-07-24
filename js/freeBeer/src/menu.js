@@ -592,7 +592,8 @@ var AboutMenu = React.createClass({
         if(puffworldprops.slider.show)
             return events.pub( 'ui/slider/open',{ 'slider.show': false});
 
-        return events.pub( 'ui/slider/open',{ 'slider.show': true});
+        return events.pub( 'ui/slider/open',{ 'slider.show': true,
+                                              'menu.show': false});
     },
 
     render: function() {

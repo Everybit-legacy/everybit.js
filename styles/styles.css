@@ -139,7 +139,7 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
-#replyFormEmbed.encrypted {
+.replyFormEmbed.encrypted {
     background-image:url('../img/lock.gif');
     background-repeat:repeat;
     background-size: 36px 36px;
@@ -653,13 +653,13 @@ select:disabled {
     margin: auto;
 }
 
-#replyFormEmbed {
+.replyFormEmbed {
     z-index: 400;
     text-align: left;
     padding: 8px 20px 5px 15px;
 }
 
-#replyFormBox{
+.replyFormBox{
     overflow-y: auto;
     overflow-x: auto;
     width: 100%;
@@ -780,6 +780,32 @@ select:disabled {
 
 .slideContent {
     overflow-y: auto;
+}
+
+.slideLeftCol, .slideRightCol {
+    width: 50%;
+    height: 100%;
+    display: block;
+    float: left;
+}
+.slideLeftCol {
+    border-right: 1px solid black;
+    overflow-y: auto;
+}
+.slideLeftCol .replyFormEmbed {
+    font-size: 0.8em;
+    line-height: 1.6em;
+    padding: 0px;
+    padding-right: 20px;
+    overflow-y: visible;
+}
+.slideLeftCol .replyFormBox {
+    max-height: none;
+    overflow-y: visible;
+}
+.slideRightCol {
+    padding: 0px;
+    padding-left: 20px;
 }
 
 .slideHeader {

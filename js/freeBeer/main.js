@@ -45,7 +45,7 @@ puffworldprops = {
         currentSlide: 1,
         totalSlides: 7,
         username: '',
-        totalWizardSlides: 5
+        totalWizardSlides: 4
     },
 
 

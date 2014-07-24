@@ -154,6 +154,15 @@ Translate.language["en"].extend({
 			replyPrivacy: 'Reply privacy level'
         }
 	},
+	wizard: {
+		publish: {
+			message1: 'Pick the type of message you want to publish. Add your content in the text box.',
+			message2: 'Click preview tab to preview your content.',
+			message3: 'Enter a username to send your puff to an existing user.',
+			message4: 'Select different options.',
+			message5: 'Click send to publish your new puff.'
+		}
+	},
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'

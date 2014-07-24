@@ -401,6 +401,10 @@ PuffData.addPrivateShells = function(privateShells) {
     var decryptedShells = privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
                          .filter(Boolean) // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
     
+    decryptedShells = decryptedShells.filter(function(puff) { 
+        return !PuffData.currentDecryptedShells.filter(function(otherpuff) {return otherpuff.sig == puff.sig}).length
+    })
+    
     PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)
     
     PuffData.addToGraph(decryptedShells)

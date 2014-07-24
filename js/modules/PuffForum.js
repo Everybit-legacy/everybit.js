@@ -384,6 +384,19 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
                        .catch(Puffball.promiseError('Posting failed'))
+                       
+                       
+    prom.then(function(puff) {
+        if(puff.keys) { // TODO: this is hacky
+            PuffData.removeShellFromCache(puff.sig)
+            PuffData.addPrivateShells([puff])
+            // username = PuffWardrobe.getCurrentUsername()
+            // PuffData.importPrivateShells(username)
+        }
+        
+        return puff
+    })
+    
     return prom;
     
     // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface

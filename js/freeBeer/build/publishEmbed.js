@@ -39,6 +39,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             var button = buttons[i];
             button.onclick = this.handlePickPrivacy.bind(this, button.value);
         }
+
+        if (this.props.showAdvanced) {
+            this.setState({showAdvanced: true})
+        }
     },
     componentDidUpdate: function() {
         this.getUsernames();
@@ -577,10 +581,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             )
         );
 
-        var className = privacy == 'public' ? "" : "encrypted"
+        var className = privacy == 'public' ? "replyFormEmbed" : "replyFormEmbed encrypted"
         return (
-            React.DOM.div( {id:"replyFormEmbed", className:className}, 
-                React.DOM.div( {id:"replyFormBox", className:"relative"}, 
+            React.DOM.div( {className:className}, 
+                React.DOM.div( {className:"replyFormBox relative"}, 
                     contentTab,previewTab, " ", sendButton,
                     contentField,
                     type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bbcodeMsg"),React.DOM.br(null))) : "",

@@ -24,14 +24,17 @@ var Slider = React.createClass({
 
     handleGetStarted: function() {
         // Live version goes right to publish until the wizard is done
-        // this.setState({wizard: true});
-        // events.pub('ui/slider/get-start', {'slider.currentSlide': 1});
+        this.setState({wizard: true});
+        events.pub('ui/slider/get-start', {'slider.currentSlide': 1});
+        return false;
+        /*
         var eventJSON = {};
         eventJSON["ui/clusters/publish"] = true;
         eventJSON['menu.show'] = false;
         eventJSON['menu.popout'] = 'publish';
         events.pub( 'ui/slider/close',{ 'slider.show': false});
         return events.pub('ui/expand/menu', eventJSON);
+        */
 
     },
 

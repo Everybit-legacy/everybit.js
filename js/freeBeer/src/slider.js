@@ -1,21 +1,40 @@
 /** @jsx React.DOM */
 
+var SliderMixin = {
+    handleCheckAvailability: function(username) {
+        if (!this.state.enableCheck) return false;
+        var self = this;
+        var prom = Puffball.getUserRecord(username);
+        prom.then(function(){
+            self.setState({msg: "Not available."})
+        })  .catch(function(err){
+            self.setState({msg: "Available.", nameAvailable: true, username: username})
+        })
+        console.log(this.state.username);
+        return false;
+    },
+    handleGotoSlide: function(slide) {
+        events.pub("ui/slide", {'slider.currentSlide': slide})
+    }
+}
 var Slider = React.createClass({
     getInitialState: function() {
         return {wizard: false};
     },
+    componentWillUnmount:function() {
+        var sliderProp = PB.shallow_copy(puffworlddefaults.slider);
+        return events.pub("ui/wizard/close", {'slider':sliderProp});
+    },
+
     handleChangeSlide: function() {
         var curr = puffworldprops.slider.currentSlide + 1;
-        var totalSlides = this.state.wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides;
-        if (curr > totalSlides && !this.state.wizard) {
-            curr = 1;
-            this.setState({wizard: true});
+        var wizard = puffworldprops.slider.wizard;
+        var totalSlides = wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides;
+        if (curr == totalSlides && !wizard) {
+            return events.pu('ui/wizard/show', {'slider.currentSlide': 1, 'slider.wizard': true});
         }
 
-        console.log(curr);
-
         return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': curr});
-
     },
 
     handleHideSlider: function() {
@@ -23,14 +42,14 @@ var Slider = React.createClass({
     },
 
     handleGetStarted: function() {
-        this.setState({wizard: true});
-        events.pub('ui/slider/get-start', {'slider.currentSlide': 1});
+        events.pub('ui/slider/get-start', {'slider.currentSlide': 1, 'slider.wizard': true});
         return false;
     },
 
     render: function() {
+        var wizard = puffworldprops.slider.wizard;
         var slidesArr = new Array();
-        var totalSlides = this.state.wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides;
+        var totalSlides = wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides;
         for(i=1;i<=totalSlides;i++) {
             slidesArr.push(i)
         }
@@ -63,20 +82,24 @@ var Slider = React.createClass({
 
         var slideName;
 
-        if (this.state.wizard) {
+        if (wizard) {
             switch (puffworldprops.slider.currentSlide) {
                 case 1:
                     slideName = <PickStepWizard />
                     break;
                 case 2:
-                    slideName = <RegisterSubuserWizard />
+                    slideName = <RegisterSubuserWizard/>
                     break;
-                case 3:
-                    slideName = <PasswordWizard />
+                case 3: 
+                    slideName = <ImportWizard />
                     break;
                 case 4:
+                    slideName = <PasswordWizard />
+                    break;
+                case 5:
                     slideName = <PublishWizard />
                     break;
+
                 default: 
                     break;
             }
@@ -122,9 +145,9 @@ var Slider = React.createClass({
                 </div>
 
                 <div className="sliderDots">
-                        <span className={this.state.wizard ? "hidden" : ""}>{slidesArr.map(function(i) {
+                        <span className={wizard ? "hidden" : ""}>{slidesArr.map(function(i) {
                             return <SliderBullet active={i == puffworldprops.slider.currentSlide} numb={i} />
-                        })}</span> {this.state.wizard ? "" : getStartedBtn}
+                        })}</span> {wizard ? "" : getStartedBtn}
                 </div>
 
 
@@ -352,10 +375,10 @@ var DecentralizedSlide = React.createClass({
 /* wizard slides */
 var PickStepWizard = React.createClass({
     handleJumpPost: function() {
-        return events.pub("ui/wizard/post", {"slider.currentSlide": 4})
+        return events.pub("ui/wizard/post", {"slider.currentSlide": 5})
     },
     handleJumpCreate: function() {
-        return events.pub("ui/wizard/post", {"slider.currentSlide": 2})
+        return events.pub("ui/wizard/create", {"slider.currentSlide": 2})
     },
     render: function() {
         return (
@@ -373,8 +396,13 @@ var PickStepWizard = React.createClass({
 })
 
 var RegisterSubuserWizard = React.createClass({
+    mixins: [SliderMixin],
     getInitialState: function(){
-        return {msg: '', enableCheck: true, nameAvailable: false, username: ''};
+        return {
+            msg: '', 
+            enableCheck: true, 
+            nameAvailable: false, 
+            username: ''};
     },
     handleTestUsername: function() {
         this.setState({nameAvailable: false});
@@ -391,13 +419,14 @@ var RegisterSubuserWizard = React.createClass({
             this.setState({msg: msg, enableCheck: true});
         }
     },
-    handleCheckAvailability: function() {
+    handleCheck: function() {
         if (!this.state.enableCheck) return false;
         var prefix = this.refs.prefix.getDOMNode().value;
         var subusername = this.refs.newUsername.getDOMNode().value.toLowerCase();
         this.refs.newUsername.getDOMNode().value = subusername;
         var username = prefix + '.' + subusername;
 
+        if (!this.state.enableCheck) return false;
         var self = this;
         var prom = Puffball.getUserRecord(username);
         prom.then(function(){
@@ -405,12 +434,18 @@ var RegisterSubuserWizard = React.createClass({
         })  .catch(function(err){
             self.setState({msg: "Available.", nameAvailable: true, username: username})
         })
-
+        console.log(self.state.username);
         return false;
+
     },
     handleRegisterSubuser: function() {
         var username = this.state.username;
-        return events.pub('ui/wizard/password', {"slider.currentSlide":3, "slider.username":username})
+        console.log("username", username);
+        return events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username})
+    },
+    handleImport: function() {
+        var network = this.refs.import.getDOMNode().value;
+        UsernameImport[network].requestAuthentication();
     },
     render: function() {
         var generatedName = PuffWardrobe.generateRandomUsername();
@@ -428,19 +463,76 @@ var RegisterSubuserWizard = React.createClass({
                 </select> <em>.</em>{' '}
                 <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" onChange={this.handleTestUsername}/> <br/>
 
-                <a href="#" className={this.state.enableCheck? '' : "gray"} onClick={this.handleCheckAvailability}>Check Availability</a>
+                <a href="#" className={this.state.enableCheck? '' : "gray"} onClick={this.handleCheck}>Check Availability</a>
                 {' '}<em>{this.state.msg}</em> <br/>
                 {getUsername}
+
+                <hr/>
+                Or import from{' '}<select className="import" ref="import" onChange={this.handleImport}>
+                    <option value=""></option>
+                    <option value="instagram">Instagram</option>
+                    <option value="reddit">Reddit</option>
+                </select>
             </div>
         )
     }
 })
 
 var ImportWizard = React.createClass({
+    mixins: [SliderMixin],
+    getInitialState: function() {
+        return {
+            importInfo: {},
+            enableCheck: false,
+            enableContentImport: false,
+            nameAvailable: false,
+            msg: ""
+        }
+    },
+    handleRegisterSubuser: function() {
+        var username = this.state.username;
+        return events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username})
+    },
+    handleCheck: function() {
+        var username = this.state.importInfo.username;
+        this.handleCheckAvailability(username);
+        if (this.state.nameAvailable) {
+            update_puffworldprops({"slider.importInfo": this.state.importInfo,
+                                   "slider.username": this.state.importInfo.username})
+        }
+        return false;
+    },
     render: function() {
+        if (Object.keys(this.state.importInfo).length==0) {
+            var params = getStashedKeysFromURL();
+            if (!params['requestedUsername'])
+                return <span>No import information</span>
+            var importInfo = {
+                username: reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase(),
+                token  : params['token'],
+                id     : params['requestedUserId'],
+                network: params['network']
+            };
+
+            if (importInfo.username.length < 5) {
+                return (
+                    <div className="slideContent">
+                        Username: {importInfo.username}<br/>
+                        Username must be at least 5 characters long.
+                        <a href="#" onClick={handleGoBack}>Go back.</a>
+                    </div>
+                )
+            }
+            this.setState({importInfo: importInfo, enableCheck: true})
+        }
+
+        var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>;
         return (
             <div className="slideContent">
-                Import Username
+                username: {this.state.importInfo.username}<br/>
+                <a href="#" onClick={this.handleCheck}>Check Availability</a><br/>
+                {this.state.msg}<br/>
+                {this.state.nameAvailable ? getUsername : ""}
             </div>
         )
     }
@@ -448,12 +540,9 @@ var ImportWizard = React.createClass({
 
 var PasswordWizard = React.createClass({
     getInitialState: function() {
-        return {errMsg: ''};
+        return {errMsg: '', registerSuccess: false};
     },
-    handleRegisterUser: function() {
-        var username = puffworldprops.slider.username;
-        this.setState({errMsg: ''});
-
+    populateKeys: function() {
         var keys = {};
         keys.rootKeyPrivate    = Puffball.Crypto.generatePrivateKey();
         keys.adminKeyPrivate   = Puffball.Crypto.generatePrivateKey();
@@ -462,6 +551,24 @@ var PasswordWizard = React.createClass({
         keys.rootKeyPublic    = Puffball.Crypto.privateToPublic(keys.rootKeyPrivate);
         keys.adminKeyPublic   = Puffball.Crypto.privateToPublic(keys.adminKeyPrivate);
         keys.defaultKeyPublic = Puffball.Crypto.privateToPublic(keys.defaultKeyPrivate);  
+        for (var field in keys) {
+            if (keys[field])
+                this.refs[field].getDOMNode().value = keys[field];
+        }
+        return false;
+    },
+    handleRegisterUser: function() {
+        var username = puffworldprops.slider.username;
+        this.setState({errMsg: ''});
+
+        var keys = {};
+        keys.rootKeyPrivate    = this.refs.rootKeyPrivate.getDOMNode().value;
+        keys.adminKeyPrivate   = this.refs.adminKeyPrivate.getDOMNode().value;
+        keys.defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
+        
+        keys.rootKeyPublic     = this.refs.rootKeyPublic.getDOMNode().value;
+        keys.adminKeyPublic    = this.refs.adminKeyPublic.getDOMNode().value;
+        keys.defaultKeyPublic  = this.refs.defaultKeyPublic.getDOMNode().value;  
 
         var payload = {
             requestedUsername: username,
@@ -469,6 +576,11 @@ var PasswordWizard = React.createClass({
             adminKey: keys.adminKeyPublic,
             defaultKey: keys.defaultKeyPublic
         };
+        var importInfo = puffworldprops.slider.importInfo;
+        if (importInfo.username && importInfo.username == username) {
+            payload.importInfo = importInfo;            
+        }
+
         var routes = [];
         var type = 'updateUserRecord';
         var content = 'requestUsername';
@@ -476,39 +588,31 @@ var PasswordWizard = React.createClass({
         var self = this;
         var prefix = username.split('.')[0];  
         self.refs.keyFields.getDOMNode().style.display = "block";
-        // PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
-        for (var field in keys) {
-            if (keys[field])
-                self.refs[field].getDOMNode().value = keys[field];
-        }
-        // PuffWardrobe.switchCurrent(username);
-        // updateUI();
+        var prefixKey = CONFIG.users[prefix].adminKey || "";
                 
-        var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload);
+        var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
+
         // SUBMIT REQUEST
-        /*var prom = PuffNet.updateUserRecord(puff);
+        var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) { 
-                self.refs.keyFields.getDOMNode().style.display = "block";
+                // self.refs.keyFields.getDOMNode().style.display = "block";
                 PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
-                for (var field in keys) {
-                    if (keys[field])
-                        self.refs[field].getDOMNode().value = keys[field];
-                }
                 PuffWardrobe.switchCurrent(username);
                 updateUI();
+                self.setState({"registerSuccess": true})
             })
         .catch(
             function(err) {
-                self.refs.keyFields.getDOMNode().style.display = "none";
                 self.setState({errMsg: "Registration failed. Error message: " + err.msg});
-            });*/
+            });
+        return false;
     },
     handlePublish: function() {
-        events.pub("ui/wizard/publish", {"slider.currentSlide": 4})
+        events.pub("ui/wizard/publish", {"slider.currentSlide": 5})
         return false;
     },
     componentDidMount: function() {
-        this.handleRegisterUser();
+        this.populateKeys();
     },
     render: function() {
         var keyColumnStyle = {
@@ -521,10 +625,13 @@ var PasswordWizard = React.createClass({
             display: 'inline-block',
             width: '100px'
         };
+        var registerLink = (<a href="#" onClick={this.handleRegisterSubuser}>Register</a>);
+        var publishLink = (<a href="#" onClick={this.handlePublish}>Publish a new puff.</a>);
         return (
             <div className="slideContent">
                 Username: {puffworldprops.slider.username} <br/>
                 <div ref="keyFields">
+                    <a href="#" onClick={this.populateKeys}>Regenerate keys</a><br/>
                     <em>Remeber to save your keys!</em><br/>
                     <div style={keyColumnStyle}>
                         Private Keys: <br/>
@@ -538,7 +645,7 @@ var PasswordWizard = React.createClass({
                     <span style={labelStyle}>root:</span><input type="text" ref="rootKeyPublic" size="8" readOnly /><br/>
                     <span style={labelStyle}>default:</span><input type="text" ref="defaultKeyPublic" size="8" readOnly />
                     </div>
-                    <a href="#" onClick={this.handlePublish}>Publish a new puff.</a>
+                    {this.state.registerSuccess ? publishLink : registerLink}
                 </div>
                 <div ref="errFields">
                     <em>{this.state.errMsg}</em>

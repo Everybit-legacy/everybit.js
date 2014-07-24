@@ -42,6 +42,7 @@ puffworldprops = {
 
     slider: {
         show: false,
+        wizard: false,
         currentSlide: 1,
         totalSlides: 7,
         username: '',
@@ -258,18 +259,20 @@ function handleImportRedirect() {
     var state = getQuerystringObject();
     var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
     if (state['requestedUsername']) {
-        update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+        // update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
+        update_puffworldprops({'slider.show': true, 'slider.wizard':true, 'slider.currentSlide': 3})
 
         state = PB.shallow_copy(state)                                      // clone before delete
         
         for(var key in state) {
             if(!~keysToStash.indexOf(key)) continue
             stashedKeysFromURL[key] = state[key]
+
             delete state[key]
         }
         setURLfromViewProps();
     }
-    // setURLfromViewProps();
+    //setURLfromViewProps();
 }
 
 function setURLfromViewProps() {

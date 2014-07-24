@@ -655,7 +655,7 @@ Puffball.onError = function(msg, obj) {
     if(puffworldprops.prefs.reporting)
         PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, toSend)
 
-        // console.log(msg, obj)
+    console.log(msg, obj) // adding this back in for debugging help
     return false
 }
 

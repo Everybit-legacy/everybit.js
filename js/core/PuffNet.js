@@ -51,6 +51,9 @@ PuffNet.getKidSigs = PB.memoize(PuffNet.getKidSigs) // THINK: this assumes we'll
  * @return {Puff[]}
  */
 PuffNet.getAllShells = function() {
+    
+    // NOTE: don't use this in production!!
+    
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     

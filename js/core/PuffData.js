@@ -367,7 +367,6 @@ PuffData.importLocalShells = function() {   // callback) {
 }
 
 
-
 PuffData.importRemoteShells = function() {
     //// only called during initial application bootup. handles both cold loads and hot loads.
     
@@ -376,8 +375,6 @@ PuffData.importRemoteShells = function() {
     var limit  = CONFIG.initLoadBatchSize
     var new_shells = []
     var keep_going = true
-    
-    // giveup = PuffData.crazyGlobalOffset + giveup
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -407,6 +404,7 @@ PuffData.importRemoteShells = function() {
     getMeSomeShells()
 }
 
+
 PuffData.importAllStars = function() {
     var prom = PuffNet.getStarShells()
     prom.then(PuffData.addShellsThenMakeAvailable)
@@ -414,11 +412,13 @@ PuffData.importAllStars = function() {
 
 
 
-//// this is crazy, but probably effective... new puffs come in via p2p, and only push old puffs further down the offset list
-//// oh except if you're filtering. so offset per filter? 
-PuffData.crazyGlobalOffset = 0
+// the slot locker contains information on queries made to fill slots. 
+// in particular it holds the offset, which will be -1 when [] is returned.
+// it keeps queries from re-requesting the same shells over and over, 
+// and provides some concurrency / flow control by allowing a query
+// to set it to -1 when it is running and then replace it when done.
+PuffData.slotLocker = {}
 
-PuffData.slotLock = {}
 
 /**
  * to fill some slots
@@ -443,14 +443,34 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     // - store size of each shell/puff for GC
     // - manage empty vertices better (different type?)
 
-    var args = [query, filters, need]
-    if(!query.mode) args.push(have) // hack for alternate query modes
+    var args = [query, filters]
+    // var args = [query, filters, need]
+    // if(!query.mode) args.push(have) // hack for alternate query modes
 
     var key = JSON.stringify(args)
-    if(PuffData.slotLock[key]) return false
-    PuffData.slotLock[key] = true
+    var my_offset = PuffData.slotLocker[key] || 0
     
-    var my_offset = PuffData.crazyGlobalOffset
+    if(my_offset < 0)
+        return false // slot is locked, go elsewhere
+    
+    PuffData.slotLocker[key] = -1 // ORLY?
+    
+    //////
+
+    var limit = need - have + 3 // 3 for luck
+    
+    var received_shells = 0
+    
+    var prom = PuffNet.getSomeShells(query, filters, limit, query.offset)
+    prom.then(function(shells) {total_shells = shells.length; return shells})
+    prom.then(PuffData.addShellsThenMakeAvailable)
+    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1})
+    
+    return true
+    
+    //////
+
+
     // var batchSize = CONFIG.fillSlotsBatchSize
     var giveup = CONFIG.fillSlotsGiveup
     var new_shells = []
@@ -462,16 +482,19 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
             var my_new_shells = PuffData.hereHaveSomeNewShells(puffs)
             new_shells = new_shells.concat(my_new_shells)
             var delta = my_new_shells.length
+            // THINK: but do they pass the filter?
+            // TODO: can we make available here now that we're locking?
             have += delta || 0
         }
         
         if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
             PuffData.makeShellsAvailable(new_shells)
+            PuffData.slotLocker[key] = my_offset-limit
             return false
         }
         
         var limit = need - have 
-        if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
+        // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
         
         var prom = PuffNet.getSomeShells(query, filters, limit, my_offset)
         prom.then(getMeSomeShells)

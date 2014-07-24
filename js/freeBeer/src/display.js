@@ -584,7 +584,7 @@ var PuffTallTree = React.createClass({
         var bigBoxStartRow = Math.floor((rows - bigrows) / 2)
         var childrenStartRow = bigBoxStartRow + bigrows
         var ancestorTotal = bigBoxStartRow * cols
-        var childrenTotal = childrenStartRow * cols
+        var childrenTotal = (rows - childrenStartRow) * cols
         var siblingTotal  = (cols - bigcols) * bigrows
 
         // box building

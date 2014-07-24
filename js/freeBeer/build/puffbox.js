@@ -1,7 +1,5 @@
 /** @jsx React.DOM */
 
-
-
 var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
     render: function() {
         var   puff = this.props.puff
@@ -14,9 +12,6 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var   left = stats.x + CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
 
-
-
-        
         // set up classes
         var classArray = ['block']
         if(this.props.extraClassy)
@@ -685,31 +680,31 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
 
 var PuffStar = React.createClass({displayName: 'PuffStar',
     getInitialState: function(){
-        return {
-            score: 0,
-            color: ''
-        }
+        return { pending: false }
     },
     handleClick: function() {
         var username = PuffWardrobe.getCurrentUsername();
-        if (username == PuffForum.getPuffBySig(this.props.sig).username)
-            return false;
-        var sig = this.props.sig;
-        var starred = this.getStarShells();
-        starred = starred.filter(this.filterCurrentUserStar);
-        if (starred.length != 0) {
+        
+        if(username == PuffForum.getPuffBySig(this.props.sig).username)
+            return false; // can't star your own puff
+            
+        var sig = this.props.sig
+        var fauxShell = {sig: sig} // grumble grumble
+        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var iHaveStarredThis = (starStats.from||{})[username]
+        
+        if(iHaveStarredThis) {
             var self = this;
-            var starSig = starred[0].sig;
+            var starSig = iHaveStarredThis;
             var prom = PuffForum.flagPuff(starSig);
             prom.then(function(result) {
-                    self.setState({color: 'black'});
-                    self.updateScore();
+                    PuffData.removeStar(sig, username)
                 })
                 .catch(function(err) {
                    alert(err);
                 });
         } else {
-            this.setState({color: 'gray'});
+            this.setState({ pending: true });
             var self = this;
             var content = this.props.sig;
             var type = 'star';
@@ -719,10 +714,8 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
-                    self.setState({
-                        color: 'yellow'
-                    });
-                    self.updateScore();
+                    self.setState({ pending: false });
+                    PuffData.addStar(sig, username, puff.sig)
                 })
                 .catch(Puffball.promiseError('Posting failed'));
         }
@@ -731,15 +724,19 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     render: function() {
         var fauxShell = {sig: this.props.sig} // grumble grumble
         var starStats = PuffData.getBonus(fauxShell, 'starStats');
+
         var score = 0
-        var color = this.state.color
+        var color = 'black'
         
         if(starStats && starStats.from) {
             var username = PuffWardrobe.getCurrentUsername();
             var selfStar = starStats.from[username]
             score = starStats.score
-            color = color || selfStar ? 'yellow' : 'black'
+            color = selfStar ? 'yellow' : 'black'
         }
+        
+        if(this.state.pending)
+            color = 'gray'
         
         var link = (
             React.DOM.a( {href:"#", onClick:this.handleClick}, 

@@ -691,7 +691,7 @@ var PuffStar = React.createClass({
         var sig = this.props.sig
         var fauxShell = {sig: sig} // grumble grumble
         var starStats = PuffData.getBonus(fauxShell, 'starStats');
-        var iHaveStarredThis = (starStats.from||{})[username]
+        var iHaveStarredThis = ((starStats||{}).from||{})[username]
         
         if(iHaveStarredThis) {
             var self = this;

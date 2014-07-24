@@ -563,23 +563,123 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
         var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
         var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
-                                       
-                                     
+
+
+        ///// new focus mode stuff here /////
+        
+        // TODO: this can only currently handle 9 rows with a 2x2 bigbox: 3 ancestors and 4 descendants
+        
+        var ancestorRows = Math.min(3, bigBoxStartRow)
+        var ancestorBoxes = []
+        var parents = [], grandparents = [], greatgrandparents = []
+        
+        if(ancestorRows >= 1) {
+            parents = PuffData.graph.v(sig).out('parent')
+                              .unique().filter(propsfilter).take(cols)
+                              .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            parentBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-1, 0, bigBoxStartRow-1, cols)
+            ancestorBoxes = ancestorBoxes.concat(parents.map(parentBox('parent')))
+        }
+        
+        var notParent = graphize(difffilter([puff].concat(parents)))
+
+        if(ancestorRows >= 2) {
+            grandparents = PuffData.graph.v(sig).out('parent').out('parent')
+                                   .unique().filter(propsfilter).filter(notParent).take(cols)
+                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            gpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-2, 0, bigBoxStartRow-2, cols)
+            ancestorBoxes = ancestorBoxes.concat(grandparents.map(gpBox('parent')))
+        }
+        
+        var notGrandParent = graphize(difffilter([puff].concat(parents, grandparents)))
+
+        if(ancestorRows >= 2) {
+            greatgrandparents = PuffData.graph.v(sig).out('parent').out('parent').out('parent')
+                                   .unique().filter(propsfilter).filter(notGrandParent).take(cols)
+                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            ggpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-3, 0, bigBoxStartRow-3, cols)
+            ancestorBoxes = ancestorBoxes.concat(greatgrandparents.map(ggpBox('parent')))
+        }
+        
+        var ancestorPuffs = [].concat(parents, grandparents, greatgrandparents)
+        
+        
+        
+        /////// descendants ////////
+        
+        
+        var descendantRows = Math.min(4, rows - childrenStartRow)
+        var descendantBoxes = []
+        var kids = [], gkids = [], ggkids = [], gggkids = []
+        
+        if(descendantRows >= 1) {
+            kids = PuffData.graph.v(sig).out('child')
+                           .unique().filter(propsfilter).take(cols)
+                           .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            kidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow, 0, childrenStartRow, cols)
+            descendantBoxes = descendantBoxes.concat(kids.map(kidsBox('child')))
+        }
+        
+        var notKid = graphize(difffilter([puff].concat(kids)))
+        
+        if(descendantRows >= 2) {
+            gkids = PuffData.graph.v(sig).out('child').out('child')
+                            .unique().filter(propsfilter).filter(notKid).take(cols)
+                            .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            gkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+1, 0, childrenStartRow+1, cols)
+            descendantBoxes = descendantBoxes.concat(gkids.map(gkidsBox('child')))
+        }
+        
+        var notGKid = graphize(difffilter([puff].concat(kids, gkids)))
+        
+        if(descendantRows >= 3) {
+            ggkids = PuffData.graph.v(sig).out('child').out('child').out('child')
+                             .unique().filter(propsfilter).filter(notGKid).take(cols)
+                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            ggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+2, 0, childrenStartRow+2, cols)
+            descendantBoxes = descendantBoxes.concat(ggkids.map(ggkidsBox('child')))
+        }
+        
+        var notGGKid = graphize(difffilter([puff].concat(kids, gkids, ggkids)))
+        
+        if(descendantRows >= 4) {
+            gggkids = PuffData.graph.v(sig).out('child').out('child').out('child').out('child')
+                             .unique().filter(propsfilter).filter(notGGKid).take(cols)
+                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+
+            gggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+3, 0, childrenStartRow+3, cols)
+            descendantBoxes = descendantBoxes.concat(gggkids.map(gggkidsBox('child')))
+        }
+        
+        childrenPuffs = [].concat(kids, gkids, ggkids, gggkids)
+        
+        
+        ///// end new focus mode stuff /////
+
+
+
+
         // gather puffs, graph style
         // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
-        var genLimit = 10
-        var notSelf  = graphize(difffilter([puff]))
-        var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
-                                    .unique().filter(propsfilter).filter(notSelf)
-                                    .take(ancestorTotal).property('shell').run()
-                                    .map(PuffForum.getPuffBySig).filter(Boolean)
-        
-        var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
-        
-        var childrenPuffs = PuffData.graph.v(sig).inAllN('parent', genLimit)
-                                    .unique().filter(propsfilter).filter(notAncestor)
-                                    .take(childrenTotal).property('shell').run()
-                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+        // var genLimit = 10
+        // var notSelf  = graphize(difffilter([puff]))
+        // var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
+        //                             .unique().filter(propsfilter).filter(notSelf)
+        //                             .take(ancestorTotal).property('shell').run()
+        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
+        //
+        // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
+        //
+        // var childrenPuffs = PuffData.graph.v(sig).inAllN('parent', genLimit)
+        //                             .unique().filter(propsfilter).filter(notAncestor)
+        //                             .take(childrenTotal).property('shell').run()
+        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
@@ -589,25 +689,29 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
         
         // fill remaining slots
+        // TODO: this isn't right with the new stuff
         PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, PB.extend({}, query, {mode: 'ancestors'}), filters)
         PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, PB.extend({}, query, {mode: 'descendants'}), filters)
         PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, PB.extend({}, query, {mode: 'siblings'}), filters)
         
         // special sorting for children puffs
-        var childrenPuffs = 
-            childrenPuffs.sort(function(a, b) {
-                                return a.username == username ? -1 : 0       // fancy sorting for current user puffs
-                                    || b.username == username ?  1 : 0
-                                    || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
-                                    || b.username == puff.username ?  1 : 0
-                                    || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
-                                    })
+        // TODO: bring this back for the new stuff
+        // var childrenPuffs =
+        //     childrenPuffs.sort(function(a, b) {
+        //                         return a.username == username ? -1 : 0       // fancy sorting for current user puffs
+        //                             || b.username == username ?  1 : 0
+        //                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
+        //                             || b.username == puff.username ?  1 : 0
+        //                             || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+        //                             })
         
         // box the puffs 
         var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
-                                 , ancestorPuffs.map(ancestorBox('parent'))
+                                 // , ancestorPuffs.map(ancestorBox('parent'))
+                                 , ancestorBoxes
                                  , siblingPuffs.map(siblingBox('sibling'))
-                                 , childrenPuffs.map(childrenBox('child'))
+                                 // , childrenPuffs.map(childrenBox('child'))
+                                 , descendantBoxes
                                 )
                           .filter(function(x) {return x.width})               // remove nodes that don't fit in the grid 
                           .sort(function(a, b) {                              // sort required so React doesn't have  

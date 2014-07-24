@@ -559,7 +559,7 @@ var PublishWizard = React.createClass({
         var current = this.state.current;
         current = current + 1;
         if (current >= total) {
-            var sliderProp = PB.shallow_copy(puffworldprops.props.slider);
+            var sliderProp = PB.shallow_copy(puffworldprops.slider);
             return events.pub("ui/wizard/close", {'slider':sliderProp});
         }
         this.setState({current: current});

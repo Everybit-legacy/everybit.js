@@ -465,7 +465,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         return (
             React.DOM.div( {className:animateClass}, 
-                Slider(null ),
+                puffworldprops.slider.show ? Slider(null ) : "",
                 HeaderHider(null ),
                 hb,
                 menu,

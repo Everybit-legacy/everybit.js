@@ -35,12 +35,12 @@ var Slider = React.createClass({
             slidesArr.push(i)
         }
 
-
-        if(puffworldprops.slider.show) {
+        var cn = "slider";
+        /*if(puffworldprops.slider.show) {
             var cn = "slider"
         } else {
             var cn = "invisible";
-        }
+        }*/
 
         // TODO: if invisible, short-circuit all the rest
 
@@ -559,7 +559,7 @@ var PublishWizard = React.createClass({
         var current = this.state.current;
         current = current + 1;
         if (current >= total) {
-            var sliderProp = PB.shallow_copy(puffworldprops.slider);
+            var sliderProp = PB.shallow_copy(puffworlddefaults.slider);
             return events.pub("ui/wizard/close", {'slider':sliderProp});
         }
         this.setState({current: current});

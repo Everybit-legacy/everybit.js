@@ -367,6 +367,14 @@ PuffData.importLocalShells = function() {   // callback) {
 }
 
 
+
+// the slot locker contains information on queries made to fill slots. 
+// in particular it holds the offset, which will be -1 when [] is returned.
+// it keeps queries from re-requesting the same shells over and over, 
+// and provides some concurrency / flow control by allowing a query
+// to set it to -1 when it is running and then replace it when done.
+PuffData.slotLocker = {}
+
 PuffData.importRemoteShells = function() {
     //// only called during initial application bootup. handles both cold loads and hot loads.
     
@@ -375,6 +383,9 @@ PuffData.importRemoteShells = function() {
     var limit  = CONFIG.initLoadBatchSize
     var new_shells = []
     var keep_going = true
+    
+    var key = '[{"sort":"DESC"},{"tags":[],"users":[],"routes":[]}]' // default query // TODO: this is fragile
+    PuffData.slotLocker[key] = -1
     
     function getMeSomeShells(puffs) {
         if(puffs) {
@@ -390,6 +401,7 @@ PuffData.importRemoteShells = function() {
             keep_going = false
 
         if(!keep_going) {
+            PuffData.slotLocker[key] = 1
             // PuffData.stupidHorribleGlobalThing = true
             // PuffData.makeShellsAvailable(new_shells)
             return false
@@ -410,14 +422,6 @@ PuffData.importAllStars = function() {
     prom.then(PuffData.addShellsThenMakeAvailable)
 }
 
-
-
-// the slot locker contains information on queries made to fill slots. 
-// in particular it holds the offset, which will be -1 when [] is returned.
-// it keeps queries from re-requesting the same shells over and over, 
-// and provides some concurrency / flow control by allowing a query
-// to set it to -1 when it is running and then replace it when done.
-PuffData.slotLocker = {}
 
 
 /**
@@ -457,7 +461,9 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     
     //////
 
-    var limit = need - have + 3 // 3 for luck
+    // var limit = need - have + 3 // 3 for luck
+    
+    var limit = need // so... if we only do this once, and we have half the puffs already, we might only grab that half again. this is true even if we send an offset of 'have' to the server, because what we have might map to that slice (or to anything else -- our offsets are totally different than the servers). so we have to grab enough to cover the difference, which means grabbing the same shells multiple times... (but only empty shells, fortunately. but still.)
     
     var received_shells = 0
     
@@ -466,9 +472,17 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     prom.then(PuffData.addShellsThenMakeAvailable)
     prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1})
     
+    
+    // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated. 
+    
+    
     return true
     
     //////
+
+
+
+
 
 
     // var batchSize = CONFIG.fillSlotsBatchSize

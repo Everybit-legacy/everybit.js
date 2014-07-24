@@ -579,9 +579,12 @@ PuffData.getPuffBySig = function(sig) {
     // so we clear it from our cache if we can't find it.
     var badShellClearCache = function(shells) {
         if(!shells.length) {
-            PuffData.removeShellFromCache(sig)
-            return Puffball.throwError("Content can not be found for shell '" + sig + "'")
-            // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
+            var fauxshell = {sig: sig}
+            if(!PuffData.getBonus(fauxshell, 'envelope')) {
+                PuffData.removeShellFromCache(sig)
+                return Puffball.throwError("Content can not be found for shell '" + sig + "'")
+                // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
+            }
         }
         return shells
     }

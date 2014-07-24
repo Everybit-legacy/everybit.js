@@ -327,7 +327,7 @@ PuffForum.getPuffList = function(query, filters, limit) {
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
-    PuffData.fillSomeSlotsPlease(limit+offset, have, query, filters)
+    PuffData.fillSomeSlotsPlease(limit, have, query, filters)
     
     return puffs;
 } 

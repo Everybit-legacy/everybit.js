@@ -704,7 +704,8 @@ select:disabled {
 }
 
 #puffballIcon {
-    float: left;
+    display: inline;
+    vertical-align: text-top;
     padding-right: 10px;
     padding-left: 6px;
     z-index: 500;
@@ -746,6 +747,8 @@ select:disabled {
     z-index: 700;
     border: 2px solid #303030;
     margin: auto;
+    left: 0;
+    right: 0;
     overflow-x: hidden;
     overflow-y: auto;
     -webkit-border-radius: 10px;
@@ -823,7 +826,7 @@ select:disabled {
     width: 100%;
     position: fixed;
     left: 0;
-    background-color: rgba(255,255,255,.6)
+    background-color: rgba(255,255,255,.6);
     font-family: Gudea;
     font-size: 1.1em;
     padding-top: .2em;
@@ -1000,7 +1003,7 @@ select:disabled {
     font-family: DroidSansMono;
 }
 
-.linkTab {
+.linkTab, .linkTabHighlighted {
     text-transform: uppercase;
     font-size: 1em;
     display: inline-block;
@@ -1010,24 +1013,14 @@ select:disabled {
     margin-top: 10px;
     padding-left: 5px;
     padding-right: 5px;
-    margin-left: 10px;
-    background-color: #e8e8e8;
+    margin-right: 10px;
     position: relative;
 }
-
+.linkTab {
+    background-color: #e8e8e8;
+}
 .linkTabHighlighted {
-    text-transform: uppercase;
-    font-size: 1em;
-    display: inline-block;
-    float: left;
-    cursor: pointer;
-    cursor: hand;
-    margin-top: 10px;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-left: 10px;
     background-color: #d6d6ff;
-    position: relative;
 }
 
 .menuSection {

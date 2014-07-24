@@ -53,42 +53,7 @@ var ViewKeybindingsMixin = {
                                                , 'menu': menu
                                                 });
         }.bind(this));
-        /*
-        // r replies to 'selected' puff
-        Mousetrap.bind('r', function() { 
-            if (puffworldprops.reply.preview) return false;
-            
-            var parents = puffworldprops.reply.parents || [] // OPT: global prop hits prevent early bailout
-            parents = parents.slice()                        // don't mutate props directly
-            var sig = this.props.view.cursor
-            
-            if (!sig) return;                                // no cursor? do nothing
-            
-            var index = parents.indexOf(sig)
-            var openMenu = true;
-            if(index == -1) {
-                parents.push(sig)
-            } else {
-                parents.splice(index, 1)
-                openMenu = puffworldprops.menu.show;
-            }
 
-            var menu = PB.shallow_copy(puffworlddefaults.menu); // don't mutate directly!
-            if (!puffworldprops.reply.expand) {
-                menu.show = openMenu;
-                menu.section = 'publish';
-            }
-
-            var contentEle = document.getElementById('content');
-            if (contentEle) {
-                contentEle.focus();
-            }
-
-            return events.pub('ui/reply/open', { 'clusters.publish': true
-                                               , 'menu': menu
-                                               , 'reply.parents': parents });
-        }.bind(this));
-*/
         // a toggles animation
         Mousetrap.bind('a', function() {
             return events.pub( 'ui/animation/toggle',
@@ -159,7 +124,7 @@ var ViewKeybindingsMixin = {
                              { 'view.arrows': !this.props.view.arrows })
         }.bind(this));
         
-        // escape closes menu, else closes reply, else removes cursor, else pops up 'nothing to close' alert
+        // escape closes expand, else closes menu, else removes cursor, else pops up 'nothing to close' alert
         Mousetrap.bind('esc', function(e) {
             if(puffworldprops.menu.popout) {
                 var section = puffworldprops.menu.popout;
@@ -175,8 +140,8 @@ var ViewKeybindingsMixin = {
             if(puffworldprops.menu.show)
                 return events.pub('ui/menu/close', {'menu.show': false})
 
-            if(puffworldprops.reply.expand)
-                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})
+            /*if(puffworldprops.reply.expand)
+                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);
@@ -189,7 +154,7 @@ var ViewKeybindingsMixin = {
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!(puffworldprops.reply.expand || 
+            if(!(puffworldprops.menu.popout == 'publish' || 
                 (puffworldprops.menu.show && puffworldprops.menu.section == 'publish'))) {
                 return true
             }
@@ -692,7 +657,7 @@ var PuffArrow =  React.createClass({
 
         // Child is below parent or sideways
         if(y2 >= y1) {
-
+            // arrow is top to down
             // Which does it hit first, top edge or left edge?
             if (x2 > x1) {
                 // Arrow is left to right
@@ -713,10 +678,11 @@ var PuffArrow =  React.createClass({
 
                 }
             } else {
+                // arrow is right to left
                 if (boxSlope < lineSlope) {
 
                     // Limited by top edge
-                    x2 += ((c.height / 2) + offset / 2) / lineSlope
+                    x2 += ((c.height / 2) - offset / 2) / lineSlope
                     y2 -= ((c.height / 2) - offset / 2)
 
                     y2 -= Math.abs(Math.sin(theta)) * 5
@@ -733,7 +699,7 @@ var PuffArrow =  React.createClass({
             // Which does it hit first, top edge or left edge?
             if (x2 < x1) {
                 // Arrow is right to left
-                if (boxSlope > lineSlope) {
+                if (boxSlope < lineSlope) {
 
                     // Limited by bottom edge
                     x2 += ((c.height / 2) - offset / 2) / lineSlope
@@ -754,7 +720,7 @@ var PuffArrow =  React.createClass({
                 if (boxSlope < lineSlope) {
 
                     // Limited by bottom edge
-                    x2 -= ((c.height / 2) + offset / 2) / lineSlope
+                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
                     y2 += ((c.height / 2) - offset / 2)
 
                     y2 += Math.abs(Math.sin(theta)) * 5

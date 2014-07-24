@@ -13,25 +13,25 @@ var PuffPublishFormEmbed = React.createClass({
                 showAdvanced: false,
                 advancedOpt : {}};
     },
-    preventDragText: function() {
-        if (this.refs.content) {
-            var content = this.refs.content.getDOMNode();
-            content.addEventListener("mousedown", function(e){e.stopPropagation()}, false);
-        }
-    },
     componentDidMount: function() {
         // set silly global this is very very dumb
         globalReplyFormSubmitArg = this.handleSubmit.bind(this);
 
+        // auto focus
         if(this.refs.content) {
             var contentDiv = this.refs.content.getDOMNode();
-            if (puffworldprops.menu.section == "publish") contentDiv.focus();
+            if (puffworldprops.menu.section == "publish") {
+                contentDiv.focus();
+                // move cursor to the end
+                if (typeof contentDiv.selectionStart == "number") {
+                    contentDiv.selectionStart = contentDiv.selectionEnd = contentDiv.value.length;
+                }
+            }
         }
 
         if (puffworldprops.reply.state)
             this.setState(puffworldprops.reply.state);
         this.getUsernames();
-        this.preventDragText();
 
         var privacyNode = this.refs.privacy.getDOMNode();
         var buttons = privacyNode.getElementsByTagName('button');
@@ -41,7 +41,6 @@ var PuffPublishFormEmbed = React.createClass({
         }
     },
     componentDidUpdate: function() {
-        this.preventDragText();
         this.getUsernames();
     },
     componentWillUnmount: function() {
@@ -210,10 +209,14 @@ var PuffPublishFormEmbed = React.createClass({
     },
 
     handleContentTab: function() {
-        this.setState({showPreview: false});
+        return this.setState({showPreview: false});
     },
     handlePreviewTab: function() {
-        this.setState({showPreview: true});
+        var type = this.refs.type.getDOMNode().value;
+        if (type == 'image') {
+            return false;
+        }
+        return this.setState({showPreview: true});
     },
     handleImageLoad: function() {
         var self   = this;
@@ -332,6 +335,11 @@ var PuffPublishFormEmbed = React.createClass({
         }
         return false;
     },
+    updateContent: function() {
+        var content = this.refs.content.getDOMNode().value;
+        update_puffworldprops({'reply.content': content});
+        return false;
+    },
     render: function() {
         /* variables, default value */
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -390,7 +398,7 @@ var PuffPublishFormEmbed = React.createClass({
             width: '70%'
         }
         var contentStyle = {
-            width: (puffworldprops.reply.expand ? "400px" : '100%'),
+            width: '100%',
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
             overflowY: this.state.showPreview ? "scroll" : "hidden",
             cursor: this.state.showPreview ? "default" : "auto", 
@@ -490,47 +498,20 @@ var PuffPublishFormEmbed = React.createClass({
         // TODO: move this in to the content type handlers
         if(type == 'image') {
             // emply src will show no image icon in firefox
-            var imageField = (<img id="preview_image" />);
+            var imageField = (<img id="preview_image" width="100%" height="1px"/>);
             if (this.state.imageSrc) {
                 imageField = (<img src={this.state.imageSrc} id="preview_image" />);
             }
             contentField = (
                 <div>
-                    <div className="menuItem">
-                        {polyglot.t("replyForm.format.imageFile")}:
-                        <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/>
+                    <div style={{marginLeft: '10px'}}>
+                        <div style={{display: 'inline-block'}}>{polyglot.t("replyForm.format.imageFile")}:
+                        <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/></div>
                     </div>
                     <br />{imageField}
                 </div>
             );
-            if (this.state.showPreview) {
-                contentField = (<div>{imageField}</div>)
-            }
         } 
-
-        // preview toggle
-        // CSS for checkbox
-        var cbClass = React.addons.classSet({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': this.state.showPreview,
-            'fa-square-o': !this.state.showPreview,
-            'green': this.state.showPreview
-        });
-        var toggleStyle = {
-            minWidth: '28%',
-            marginRight: '2%',
-            display: 'inline-block'
-        }
-        var previewToggle = (
-            <span className="replyPreview" style={toggleStyle}>
-                <i className={cbClass} onClick={this.handleTogglePreview} ></i>
-                <a onClick={this.handleTogglePreview}>{polyglot.t("replyForm.preview")}</a>
-            </span>
-        );
-        if (type == 'image') {
-            previewToggle = (<span></span>); // no preview toggle for image
-        }
 
         // tabs
         /* content | preview |   send to */
@@ -544,6 +525,7 @@ var PuffPublishFormEmbed = React.createClass({
                 Preview
             </span>
         );
+        if (type == 'image') previewTab = <span></span>;
 
         var errorField = "";
         if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;

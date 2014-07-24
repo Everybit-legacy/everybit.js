@@ -50,7 +50,7 @@ Translate.language["en"].extend({
 			admin: 'admin',
 			root: 'root',
 			newIdentity: {
-				title: 'New Identity',
+				title: 'New',
 				msg: 'Desired username',
 				generate: 'Regenerate',
 				or: 'or',
@@ -59,12 +59,12 @@ Translate.language["en"].extend({
 				submit: 'Submit request',
 				importContent: 'Import Content'
 			},
-			editIdentity: {
-				title: 'View Identity',
+			viewIdentity: {
+				title: 'View',
 				msg: 'Stored keys for'
 			},
 			setIdentity: {
-				title: 'Set Identity',
+				title: 'Set',
 				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
 			},
             step: {
@@ -100,7 +100,7 @@ Translate.language["en"].extend({
             animation:'Enable/disable animations',
             infobar:'Display/hide the information bars for each puff',
             setIdentity: 'Store your private keys',
-            editIdentity: 'View stored keys for current identity',
+            viewIdentity: 'View stored keys for current identity',
             newIdentity: 'Create a new identity',
 			generate: 'randomly generate new username',
             newPuff:'Create a new puff',
@@ -123,7 +123,8 @@ Translate.language["en"].extend({
             compress: 'Compress puff size to default setting',
             copy:'Copy the raw content of this puff to the reply box',
             disable_reporting: "We track how you use our website. Click to disable.",
-
+            sortDESC: "Sorted by most recent. Click to change.",
+            sortASC: "Sorted by least recent. Click to change.",
         }
 	},
 	replyForm: {

@@ -394,11 +394,7 @@ var IdentityMenu = React.createClass({
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
-            section: {
-                setIdentity: false,
-                editIdentity: false,
-                newIdentity: puffworldprops.menu.import
-            }
+            section: puffworldprops.menu.import ? 'new' : false
         }
     },
 
@@ -416,17 +412,8 @@ var IdentityMenu = React.createClass({
     },
 
     handleToggleShowSection: function(name) {
-        /*var newState = {
-            setIdentity: false,
-            editIdentity: false,
-            newIdentity: false
-        };
-        if (this.state.section[name] == false) {
-            newState[name] = true;
-        };*/
-        var newState = this.state.section;
-        newState[name] = !newState[name];
-        this.setState({section: newState});
+        this.setState({section: name});
+        return false;
     },
 
     render: function() {
@@ -434,58 +421,35 @@ var IdentityMenu = React.createClass({
 
         // TODO: Help icon takes you to tutorial related to this.
         var polyglot = Translate.language[puffworldprops.view.language];
+        var self = this;
+        var sectionToIcon = {
+            "new": "fa-plus", "set": "fa-sign-in", "view": "fa-eye"
+        };
         return (
             <div>
                 <AuthorPicker />
 
-                <div>
-                    <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'newIdentity')}>
-                            <i className="fa fa-plus fa-fw"></i>{polyglot.t("menu.identity.newIdentity.title")}
-                        </a>
-                        <Tooltip content={polyglot.t("menu.tooltip.newIdentity")} />
-                        <br/>
-                        <NewIdentity show={this.state.section.newIdentity} />
-                    </div>
-
-                    <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'setIdentity')}><i className="fa fa-sign-in fa-fw"></i>{polyglot.t("menu.identity.setIdentity.title")}</a><br/>
-                        <Tooltip content={polyglot.t("menu.tooltip.setIdentity")} />
-                        <SetIdentity show={this.state.section.setIdentity} username={currUser} />
-                    </div>
-                    
-                    <div className="menuItem" >
-                        <a className='menuLabel' onClick={this.handleToggleShowSection.bind(this, 'editIdentity')}><i className="fa fa-eye fa-fw"></i>{polyglot.t("menu.identity.editIdentity.title")}</a><br/>
-                        <Tooltip content={polyglot.t("menu.tooltip.editIdentity")} />
-                        <EditIdentity show={this.state.section.editIdentity} username={currUser} />
-                    </div>
+                <div style={{display:'inline-block'}} className="menuItem">
+                    {['new', 'set', 'view'].map(function(key){
+                        var show = self.state.section == key;
+                        var tabClassName = show ? "linkTabHighlighted" : "linkTab";
+                        return (
+                            <span className={tabClassName} key={key}>
+                                <a href="#" onClick={self.handleToggleShowSection.bind(self, key)}><i className={"fa fa-fw "+sectionToIcon[key]}></i>{polyglot.t("menu.identity."+key+"Identity.title")}</a>
+                                <Tooltip position="under" content={polyglot.t("menu.tooltip."+key+"Identity")} />
+                            </span>
+                        )
+                    })}
                 </div>
-
+                <div className="menuItem">
+                    <NewIdentity show={this.state.section == "new"} />
+                    <SetIdentity show={this.state.section == "set"} username={currUser} />
+                    <EditIdentity show={this.state.section == 'view'} username={currUser} />
+                </div>
+                <br/>
             </div>
             )
     }
-    /*not in use ,
-
-    toggleShowTab: function(tabName) {
-        var self = this;
-
-        var truthArray = [false, false, false];
-        var tabArray = ['showSetIdentity', 'showEditIdentity', 'showNewIdentity'];
-
-        if(!self.state.tabs[tabName]) {
-            var toggleThis = tabArray.indexOf(tabName);
-            truthArray[toggleThis] = true;
-        }
-
-        // Do the update of tab value
-        this.setState({tabs: {
-            showSetIdentity: truthArray[0],
-            showEditIdentity: truthArray[1],
-            showNewIdentity: truthArray[2]
-        }
-        });
-
-    }*/
 });
 
 
@@ -1248,7 +1212,7 @@ var EditIdentity = React.createClass({
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
             return (
                 <div className={slide}>
-                    <div className="message">{polyglot.t("menu.identity.editIdentity.msg")}: <span className="authorSpan">{currUser}</span>
+                    <div className="message">{polyglot.t("menu.identity.viewIdentity.msg")}: <span className="authorSpan">{currUser}</span>
                     </div>
 
                     <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
@@ -1431,7 +1395,7 @@ var NewIdentity = React.createClass({
                 var prom = Puffball.getUserRecord(importInfo.username);
                 var self = this;
                 prom.then(function(userRecord){
-                    var message = "Username already exist.";
+                    var message = "Username already exists.";
                     if (importInfo.network == "instagram") {
                         message += " You may try to import your content."
                     }

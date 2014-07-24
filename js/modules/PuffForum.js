@@ -79,6 +79,13 @@ PuffForum.getAllMyShells = function() {
  */
 PuffForum.getEncryptedShells = function() {
     // TODO: check 'all or one' wardrobe toggle, if true get for all wardrobe users
+
+    
+    
+    return PuffData.getCurrentDecryptedShells()
+    
+    
+    
     var myUsername = PuffWardrobe.getCurrentUsername()
     var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
                                   .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)

@@ -367,6 +367,28 @@ PuffData.importLocalShells = function() {   // callback) {
 }
 
 
+PuffData.importAllStars = function() {
+    var prom = PuffNet.getStarShells()
+    prom.then(PuffData.addShellsThenMakeAvailable)
+}
+
+PuffData.currentDecryptedShells = []
+PuffData.getCurrentDecryptedShells = function() {
+    return PuffData.currentDecryptedShells
+}
+
+PuffData.importPrivateShells = function(username) {
+    var prom = PuffNet.getPrivateShells(username) // OPT: re-requesting this is unnecessary
+    
+    prom.then(function(privateShells) {
+        PuffData.currentDecryptedShells = // FIXME: oh dear this is horrible oh dear oh dear
+            privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                         .filter(Boolean)
+    })
+}
+
+
+
 
 // the slot locker contains information on queries made to fill slots. 
 // in particular it holds the offset, which will be -1 when [] is returned.
@@ -415,13 +437,6 @@ PuffData.importRemoteShells = function() {
     
     getMeSomeShells()
 }
-
-
-PuffData.importAllStars = function() {
-    var prom = PuffNet.getStarShells()
-    prom.then(PuffData.addShellsThenMakeAvailable)
-}
-
 
 
 /**

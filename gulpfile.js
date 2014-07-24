@@ -26,16 +26,19 @@ gulp.task('jsxFiles', function() {
 var ourOthersList = [
               'js/freeBeer/translate.js',
               'js/freeBeer/translate-zh.js',
+              'js/libs/immutable.js',
+              'js/libs/dagoba.js',
               'js/core/PuffData.js',
               'js/core/Puffball.js',
               'js/core/PuffNet.js',
+
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',
               'js/freeBeer/usernameImport.js',
-              'js/libs/dagoba.js',
+
               'js/libs/events.js',
               'js/libs/gridbox.js',
-              'js/libs/immutable.js',
+
               'js/freeBeer/main.js']; 
 gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)

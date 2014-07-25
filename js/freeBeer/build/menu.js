@@ -1771,6 +1771,22 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
     }
 });
 
+var PopoutCluster = React.createClass({displayName: 'PopoutCluster',
+    mixins: [TooltipMixin],
+    render: function() {
+        if (!this.props.section) {
+            return React.DOM.span(null)
+        } 
+        var section = this.props.section;
+        var cluster = Cluster( {clusterName:section, view:this.props.view, clusterPath:'ui/clusters/'+section, clusterPropPath:'clusters.'+section, isPopout:true})
+        return (
+            React.DOM.div( {className:"expand"}, 
+                cluster
+            )
+        )
+    }
+})
+
 
 /*
  // TODO: Put in stuff for

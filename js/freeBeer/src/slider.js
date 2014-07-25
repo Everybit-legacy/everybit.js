@@ -1,6 +1,9 @@
 /** @jsx React.DOM */
 
 var SliderMixin = {
+    handleGotoSlide: function(goTo) {
+        return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo});
+    },
     handleCheckAvailability: function(username) {
         if (!this.state.enableCheck) return false;
         var self = this;
@@ -13,6 +16,7 @@ var SliderMixin = {
         return false;
     }
 }
+
 var Slider = React.createClass({
     getInitialState: function() {
         return {wizard: false};
@@ -151,29 +155,19 @@ var Slider = React.createClass({
 // , position: 'absolute', bottom: '0'
 
 var SliderBullet = React.createClass({
-    handleGotoSlide: function() {
-
-        return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': this.props.numb});
-
-
-    },
-
-
+    mixins: [SliderMixin],
     render: function() {
         if(this.props.active) {
-            return <a href="#" onClick={this.handleGotoSlide}><i className="fa fa-fw fa-circle blue"></i></a>
+            return <a href="#" onClick={this.handleGotoSlide.bind(this, this.props.numb)}><i className="fa fa-fw fa-circle blue"></i></a>
         } else {
-            return <a href="#" onClick={this.handleGotoSlide}><i className="fa fa-fw fa-circle-thin"></i></a>
+            return <a href="#" onClick={this.handleGotoSlide.bind(this, this.props.numb)}><i className="fa fa-fw fa-circle-thin"></i></a>
         }
     }
 
 });
 
 var WelcomeSlide = React.createClass({
-
-    handleGotoSlide: function(goTo) {
-        return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo});
-    },
+    mixins: [SliderMixin],
 
     render: function() {
         return (
@@ -234,10 +228,7 @@ var ShortcutsSlide = React.createClass({
 })
 
 var SecureSlide = React.createClass({
-    handleGotoSlide: function(goTo) {
-        return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo});
-    },
-
+    mixins: [SliderMixin],
     render: function() {
         return (
             <div className="slideContent">

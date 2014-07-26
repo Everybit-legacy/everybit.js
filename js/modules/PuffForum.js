@@ -215,7 +215,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
 }
 
 /**
- * get a particular puff by its sig
+ * Get a particular puff by its sig
  * @param  {String} sig
  * @return {Object}
  */
@@ -232,7 +232,7 @@ PuffForum.getPuffBySig = function(sig) {
 }
 
 /**
- * helper for sorting by payload.time
+ * Helper for sorting by payload.time
  * @param  {Object} a
  * @param  {object} b
  * @return {number}
@@ -246,7 +246,7 @@ PuffForum.sortByPayload = function(a,b) {
 }
 
 /**
- * filter if it is not props
+ * Filter it out if it's not in props
  * @param  {Object} props
  * @return {boolean}
  */		
@@ -273,7 +273,7 @@ PuffForum.getPropsFilter = function(props) {
 }
 
 /**
- * get the current puff's parents
+ * Get the current puff's parents
  * @param  {Object} puff
  * @param  {Object} props
  * @return {Puff[]}

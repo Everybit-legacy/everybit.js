@@ -28,8 +28,8 @@ var HeaderBar = React.createClass({
                 <HBpublish />{' '}
                 <HBscore />{' '}
                 <HBidentity />{' '}
-                <HBFilters view={this.props.view} />
-                {' '}<HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
+                <HBFilters view={this.props.view} />{' '}
+                <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
             </div>
             )
     }
@@ -47,10 +47,7 @@ var HBpublish = React.createClass({
     },
 
     handleShowPublish: function() {
-
         return events.pub('ui/publish/show', {'menu.show': true, 'menu.section': 'publish','clusters.publish': true})
-
-
     },
 
     render: function() {
@@ -179,9 +176,10 @@ var HBFilterBubble = React.createClass({
         }
 
 
-        var filterArray = Array.isArray(this.props.filterValue)
-            ? this.props.filterValue
-            : [this.props.filterValue]
+        if(Array.isArray(this.props.filterValue))
+            var filterArray = this.props.filterValue;
+        else
+            var filterArray = [this.props.filterValue]
 
         if (filterArray.length == 0) return <span></span>;
 
@@ -329,7 +327,7 @@ calculateScore = function(username) {
     var score = 0;
     if(username.substring(0, 4) == 'anon.') {
         score += scoreRules.base.anon
-    } else if(username.indexOf('.') !== -1) {
+    } else if(username.indexOf('.') === -1) {
         score += scoreRules.base.tlu
     } else {
         score += scoreRules.base.slu
@@ -339,14 +337,7 @@ calculateScore = function(username) {
 
     // Look at everyone who has starred this, add in value for that
 
-
     // Get puffs from this user
-
-    // Config stuff:
-
-
-
-
 
 }
 

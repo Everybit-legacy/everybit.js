@@ -491,12 +491,12 @@ var PuffList = React.createClass({
         
         globalSillyPropsClone = PB.shallow_copy(puffworldprops)
         
-        var dimensions = this.getDimensions();
-        var limit = dimensions.cols * dimensions.rows;
+        var dimensions = this.getDimensions()
+        var limit = dimensions.cols * dimensions.rows
         
         var query   = this.props.view.query
         var filters = this.props.view.filters
-        var puffs   = PuffForum.getPuffList(query, filters, limit);
+        var puffs   = PuffForum.getPuffList(query, filters, limit)
         
         this.cursorPower(puffs)
 
@@ -539,8 +539,10 @@ var PuffTallTree = React.createClass({
         // big box
         var bigrows = +this.props.view.bigrows || 2
         var bigcols = +this.props.view.bigcols || 2
+
         if(bigrows < 0) bigrows = Math.max(rows + bigrows, 1)
         if(bigcols < 0) bigcols = Math.max(cols + bigcols, 1)
+
         if(rows < bigrows) bigrows = rows
         if(cols < bigcols) bigcols = cols
         
@@ -609,7 +611,6 @@ var PuffTallTree = React.createClass({
         
         
         /////// descendants ////////
-        
         
         var descendantRows = Math.min(4, rows - childrenStartRow)
         var descendantBoxes = []
@@ -878,9 +879,6 @@ var Arrow = React.createClass({
         return result
     }
 })
- 
-
-
 
 
 var PuffFooter = React.createClass({
@@ -916,6 +914,7 @@ var Logo = React.createClass({
 
 var PuffScroller = React.createClass({
     mixins: [GridLayoutMixin],
+
     handleScroll: function() {
         if (!this.props.show) return false;
 
@@ -925,6 +924,7 @@ var PuffScroller = React.createClass({
         offset = Math.max(offset, 0);
         return events.pub("ui/scroll/down", {'view.query.offset': offset});
     },
+
     render: function() {
         if (!this.props.show) {
             return (<span></span>)

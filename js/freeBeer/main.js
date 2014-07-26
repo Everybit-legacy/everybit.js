@@ -416,9 +416,6 @@ update_puffworldprops = function(data) {
 
 
 
-
-
-
 ///////// PuffForum Interface ////////////
 
 // NOTE: this has to load last, so keep it at the bottom
@@ -493,5 +490,3 @@ if(Object.keys(PuffWardrobe.getAll()).length < 2)
 
 
 ////////// End PuffForum Interface ////////////
-
-

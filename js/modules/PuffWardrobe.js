@@ -41,7 +41,7 @@ PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorag
 PuffWardrobe.currentKeys = false    // false if not set, so watch out
 
 /**
- * get the current keys
+ * Get the current keys
  * @return {string}
  */
 PuffWardrobe.getCurrentKeys = function() {
@@ -113,7 +113,7 @@ PuffWardrobe.switchCurrent = function(username) {
 }
 
 /**
- * to store the user's private key
+ * Store the user's root key
  * @param  {string} username
  * @param  {string} rootKey
  */
@@ -122,7 +122,7 @@ PuffWardrobe.storeRootKey = function(username, rootKey) {
 }
 
 /**
- * to store the user's admin key
+ * Store the user's admin key
  * @param  {string} username
  * @param  {string} rootKey
  */
@@ -131,7 +131,7 @@ PuffWardrobe.storeAdminKey = function(username, adminKey) {
 }
 
 /**
- * to store the user's default key
+ * Store the user's default key
  * @param  {string} username
  * @param  {string} rootKey
  */
@@ -164,7 +164,7 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
 }
 
 /**
- * to ensure keys match the userRecord
+ * Ensure keys match the userRecord
  * @param  {string}   username
  * @param  {string}   rootKey
  * @param  {string}   adminKey
@@ -192,7 +192,7 @@ PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, default
 
 
 /**
- * to clear the identity's private keys from the wardrobe
+ * Clear the identity's private keys from the wardrobe
  * @param  {string} username
  */
 PuffWardrobe.removeKeys = function(username) {
@@ -209,7 +209,7 @@ PuffWardrobe.removeKeys = function(username) {
 }
 
 /**
- * to create a new anonymous identity and add it to the local identity list
+ * Create a new anonymous identity and add it to the local identity list
  */
 PuffWardrobe.addNewAnonUser = function() {
     //// create a new anonymous identity and add it to the local identity list
@@ -241,7 +241,7 @@ PuffWardrobe.addNewAnonUser = function() {
 }
 
 /**
- * to generate a random username
+ * Generate a random username
  * @return {string}
  */
 PuffWardrobe.generateRandomUsername = function() {
@@ -254,7 +254,7 @@ PuffWardrobe.generateRandomUsername = function() {
 }
 
 /**
- * to get the current user's DHT record, or create a new anon user, or die trying
+ * Get the current user's DHT record, or create a new anon user, or die trying
  * @return {string}
  */
 PuffWardrobe.getUpToDateUserAtAnyCost = function() {
@@ -375,7 +375,7 @@ PuffWardrobe.getAllProfileItems = function() {
 }
 
 /**
- * to get the user's profile item
+ * Get a specific profile item for a user
  * @param  {string} username
  * @param  {string} key
  * @return {object}
@@ -386,7 +386,7 @@ PuffWardrobe.getUserProfileItem = function(username, key) {
 }
 
 /**
- * to get all of the user's profile items
+ * Get all of the user's profile items
  * @param  {string} username
  * @return {object}
  */
@@ -403,7 +403,7 @@ PuffWardrobe.getAllUserProfileItems = function(username) {
 }
 
 /**
- * to set the user's profile items
+ * Set the user's profile items
  * @param {string} username
  * @param {string} key
  * @param {string} value
@@ -423,7 +423,7 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
 }
 
 /**
- * to remove the user's profile
+ * Remove the user's profile from wardrobe
  * @param  {string} username
  * @return {(void|false)}
  */

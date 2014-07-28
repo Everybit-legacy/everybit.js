@@ -488,8 +488,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
                     return React.DOM.option( {key:type, value:type}, type)
-                }),
-                React.DOM.option( {key:"zip", value:"zip"}, "zip")
+                })
             )
         );
         var privacyToIcon = {

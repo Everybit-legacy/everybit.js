@@ -3,7 +3,8 @@
     
 var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed',
     getInitialState: function() {
-        return {imageSrc    : '', 
+        return {imageSrc    : '',
+                zipSrc      : '',
                 state: false,
                 usernames   : [],
                 parentUsernames: [],
@@ -221,6 +222,36 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             return false;
         }
         return this.setState({showPreview: true});
+    },
+    handleZipLoad: function() {
+        var self = this;
+        var file = this.refs.zipLoader.getDOMNode().files[0];
+        var fileListDiv = this.refs.zipFileList.getDOMNode();
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            self.state.zipSrc = event.target.result;
+            console.log(event.target.result)
+            return events.pub("ui/reply/zip-upload");
+        }
+        reader.readAsDataURL(file);
+
+        zip.createReader(new zip.BlobReader(file), function(reader){
+            reader.getEntries(function(entries){
+                if (entries.length){
+                    var entryArr = entries.map(function(e){
+                            var name = e.filename.split('/');
+                            name.splice(0, 1)
+                            name = name.join('/');
+                            return name;
+                        });
+                    entryArr = entryArr.sort().filter(Boolean);
+                    fileListDiv.innerHTML = entryArr.join('<br>');
+                }
+            }, function(error){
+                console.log(error)
+            })
+        })
+        return false;
     },
     handleImageLoad: function() {
         var self   = this;
@@ -457,7 +488,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
                     return React.DOM.option( {key:type, value:type}, type)
-                })
+                }),
+                React.DOM.option( {key:"zip", value:"zip"}, "zip")
             )
         );
         var privacyToIcon = {
@@ -515,7 +547,18 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                     React.DOM.br(null ),imageField
                 )
             );
-        } 
+        } else if (type == "zip") {
+            var zipFileList = (React.DOM.div( {ref:"zipFileList"}));
+            contentField = (
+                React.DOM.div(null, 
+                    React.DOM.div( {style:{marginLeft: '10px'}}, 
+                        React.DOM.div( {style:{display: 'inline-block'}}, "Zip file:",
+                        React.DOM.input( {type:"file", accept:"application/zip", ref:"zipLoader", onChange:this.handleZipLoad}))
+                    ),
+                    React.DOM.br(null ),zipFileList
+                )
+            );
+        }
 
         // tabs
         /* content | preview |   send to */

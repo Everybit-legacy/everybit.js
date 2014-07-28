@@ -9,9 +9,9 @@ var SliderMixin = {
         var self = this;
         var prom = Puffball.getUserRecord(username);
         prom.then(function(){
-            self.setState({msg: "Not available."})
+            self.setState({msg: "Not available.", enableCheck: false})
         })  .catch(function(err){
-            self.setState({msg: "Available.", nameAvailable: true, username: username})
+            self.setState({msg: "Available.", nameAvailable: true, username: username, enableCheck: false})
         })
         return false;
     }
@@ -94,6 +94,9 @@ var Slider = React.createClass({
                     slideName = <PasswordWizard />
                     break;
                 case 5:
+                    slideName = <importContentWizard />
+                    break;
+                case 6:
                     slideName = <PublishWizard />
                     break;
 
@@ -358,7 +361,7 @@ var DecentralizedSlide = React.createClass({
 /* wizard slides */
 var PickStepWizard = React.createClass({
     handleJumpPost: function() {
-        return events.pub("ui/wizard/post", {"slider.currentSlide": 5})
+        return events.pub("ui/wizard/post", {"slider.currentSlide": 6})
     },
     handleJumpCreate: function() {
         return events.pub("ui/wizard/create", {"slider.currentSlide": 2})
@@ -474,6 +477,9 @@ var ImportWizard = React.createClass({
         var username = this.state.username;
         return events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username, 'slider.importInfo': this.state.importInfo})
     },
+    handleImportContent: function() {
+        return events.pub("ui/wizard/import", {"slider.currentSlide": 5, "slider.importInfo": this.state.importInfo})
+    },
     handleCheck: function() {
         var username = this.state.importInfo.username;
         this.handleCheckAvailability(username);
@@ -504,12 +510,16 @@ var ImportWizard = React.createClass({
         }
 
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>;
+        var importContent = <a href="#" onClick={this.handleImportContent}>Import Content</a>;
+        if ((!this.state.importInfo.network) || (this.state.importInfo.network != "instagram") || this.state.enableCheck) {
+            importContent = "";
+        }
         return (
             <div className="slideContent">
                 username: {this.state.importInfo.username}<br/>
                 <a href="#" onClick={this.handleCheck}>Check Availability</a><br/>
                 {this.state.msg}<br/>
-                {this.state.nameAvailable ? getUsername : ""}
+                {this.state.nameAvailable ? getUsername : importContent}
             </div>
         )
     }
@@ -601,7 +611,6 @@ var PasswordWizard = React.createClass({
             prefixKey = CONFIG.users["anon"].adminKey;
             prefix = "anon";
         }
-        // console.log(prefix, prefixKey, routes, type, content, payload); 
        var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
         // SUBMIT REQUEST
         var prom = PuffNet.updateUserRecord(puff);
@@ -618,11 +627,14 @@ var PasswordWizard = React.createClass({
         return false;
     },
     handlePublish: function() {
-        events.pub("ui/wizard/publish", {"slider.currentSlide": 5})
+        events.pub("ui/wizard/publish", {"slider.currentSlide": 6})
         return false;
     },
     handleGotoMain: function() {
-        events.pub("ui/wizard/exit", {"slider.show": false});
+        return events.pub("ui/wizard/exit", {"slider.show": false});
+    },
+    handleImportContent: function() {
+        return events.pub("ui/wizard/import", {"slider.currentSlide": 5})
     },
     componentDidMount: function() {
         this.populateKeys();
@@ -641,6 +653,7 @@ var PasswordWizard = React.createClass({
         var registerLink = (<a href="#" onClick={this.handleRegisterUser}>Register</a>);
         var publishLink = (<a href="#" onClick={this.handlePublish}>Publish a new puff.</a>);
         var gotoMainLink = (<a href="#" onClick={this.handleGotoMain}>Go to main site.</a>)
+        var importContentLink = (<a href="#" onClick={this.handleImportContent}>Import Content</a>)
         return (
             <div className="slideContent">
                 Username: {puffworldprops.slider.username} <br/>
@@ -663,13 +676,42 @@ var PasswordWizard = React.createClass({
                 </div>
                 <div className={this.state.registerSuccess ? "" : "hidden"}>
                     Success!{' '}
-                    {publishLink} or {gotoMainLink}
+                    You may want to {importContentLink}, {publishLink} or {gotoMainLink}
                 </div>
                 <div ref="errFields">
                     <em>{this.state.errMsg}</em>
                 </div>
             </div>
         );
+    }
+})
+
+var importContentWizard = React.createClass({
+    getInitialState: function() {
+        return {message: ""};
+    },
+    handleContentImport: function() {
+        this.setState({errorMessage: ""});
+        var importInfo = puffworldprops.slider.importInfo;
+        var network = importInfo.network;
+        try {
+            UsernameImport[network].contentURL(importInfo.username, importInfo.id, importInfo.token);
+        } catch (err) {
+            this.setState({message: err.message});
+        }
+        return false;
+    },
+    componentDidMount: function() {
+        this.handleContentImport();
+    },
+    render: function() {
+        return (
+            <div>
+                <div id="importContent">
+                </div>
+                {this.state.message}
+            </div>
+        )
     }
 })
 

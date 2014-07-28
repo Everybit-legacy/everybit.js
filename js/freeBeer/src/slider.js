@@ -583,7 +583,9 @@ var PasswordWizard = React.createClass({
         };
         var importInfo = puffworldprops.slider.importInfo;
         if (importInfo && importInfo.username && importInfo.username == username) {
-            payload.importInfo = importInfo;            
+            payload.importNetwork = importInfo.network;
+            payload.importToken = importInfo.token;
+            payload.importId = importInfo.id;          
         }
 
         var routes = [];
@@ -592,7 +594,13 @@ var PasswordWizard = React.createClass({
 
         var self = this;
         var prefix = username.split('.')[0];  
-        var prefixKey = CONFIG.users[prefix] ? CONFIG.users[prefix].adminKey : CONFIG.users['anon'].adminKey;
+        var prefixKey;
+        if (CONFIG.users[prefix]) {
+            prefixKey = CONFIG.users[prefix].adminKey;
+        } else {
+            prefixKey = CONFIG.users["anon"].adminKey;
+            prefix = "anon";
+        }
         // console.log(prefix, prefixKey, routes, type, content, payload); 
        var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
         // SUBMIT REQUEST

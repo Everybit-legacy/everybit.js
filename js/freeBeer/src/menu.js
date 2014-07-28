@@ -394,7 +394,7 @@ var IdentityMenu = React.createClass({
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
-            section: puffworldprops.menu.import ? 'new' : false
+            section: false
         }
     },
 
@@ -1278,36 +1278,19 @@ var NewIdentity = React.createClass({
             step: 0,
             keys: {},
             desiredUsername: '',
-            importInfo: {},
-            enableContentImport: false,
             usernameAvailable: 'unknown',
-            errorMessage: ''/*,
-            newUsername: ''*/
+            errorMessage: ''
         }
-    },
-
-    handleFocus: function(e) {
-        var target = e.target;
-        setTimeout(function() {
-            target.select();
-        }, 0);
     },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
         UsernameImport[network].requestAuthentication();
     },
-    handleContentImport: function() {
-        this.setState({errorMessage: ""});
-        var network = this.state.importInfo.network;
-        try {
-            UsernameImport[network].contentURL(this.state.importInfo.username, this.state.importInfo.id, this.state.importInfo.token);
-        } catch (err) {
-            this.setState({enableContentImport: false, errorMessage: err.message});
-        }
-        return false;
-    },
-    handleCancelImport: function() {
-        this.setState({desiredUsername: '', importInfo: {}})
+    handleFocus: function(e) {
+        var target = e.target;
+        setTimeout(function() {
+            target.select();
+        }, 0);
     },
     handleBack: function() {
         // this.state.keys = {};
@@ -1317,12 +1300,7 @@ var NewIdentity = React.createClass({
     handleNext: function() {
         if (this.state.step == 0) {
             // set the desired username
-            var username = "";
-            if (!this.state.importInfo.username) {
-                username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
-            } else {
-                username = this.state.importInfo.username;
-            }
+            var username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
             // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
             this.handleGenerateKeys();
@@ -1347,77 +1325,32 @@ var NewIdentity = React.createClass({
     // TODO: Add options for users to save keys
     // TODO: Add to advanced tools <UsernameCheckbox show={this.state.usernameAvailable} />
     render: function() {
-        /*if (!this.props.show) {
-            return <span></span>
-        } else {*/
-            var showNext = true;
-            var polyglot = Translate.language[puffworldprops.view.language];
-            var generatedName = PuffWardrobe.generateRandomUsername();
+        var showNext = true;
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var generatedName = PuffWardrobe.generateRandomUsername();
 
-            var usernameField = (
-                <div>
-                    <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.newIdentity.msg")}:</span></div><br/>
-                    <div className = "menuItem">
-                        <select ref="prefix">
-                        {CONFIG.users.map(function(u) {
-                            return <option key={u.username} value={u.username}>{u.username}</option>
-                        })}
-                        </select> <em>.</em>{' '}
-                        <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" />
-                        <span className="relative">
-                            <a href="#" onClick={this.handleGenerateUsername}><i className="fa fa-question-circle fa-fw" rel="tooltip"></i></a>
-                            <Tooltip position="under" content={polyglot.t("menu.tooltip.generate")}/>
-                        </span>
-                    </div>
-                {polyglot.t("menu.identity.step.import")}
-                {' '}<select id="import" ref="import" onChange={this.handleImport}>
-                    <option value=""></option>
-                    <option value="instagram">Instagram</option>
-                    <option value="reddit">Reddit</option>
-                </select>
-                </div>);
-
-            // check if there is requestedUsername parameter
-            var params = getStashedKeysFromURL();
-            if (params['requestedUsername'] && Object.keys(this.state.importInfo).length == 0) {
-                var importInfo = {
-                    username: reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase(),
-                    token  : params['token'],
-                    id     : params['requestedUserId'],
-                    network: params['network']
-                };
-                delete stashedKeysFromURL['requestedUsername'];
-                delete stashedKeysFromURL['token'];
-                delete stashedKeysFromURL['requestedUserId'];
-                delete stashedKeysFromURL['network'];
-
-
-                // check if username exist
-                var prom = Puffball.getUserRecord(importInfo.username);
-                var self = this;
-                prom.then(function(userRecord){
-                    var message = "Username already exists.";
-                    if (importInfo.network == "instagram") {
-                        message += " You may try to import your content."
-                    }
-                    self.setState({importInfo: importInfo, 
-                                   desiredUsername: importInfo.username,
-                                   enableContentImport: (importInfo.network == "instagram"),
-                                   step: 3, 
-                                   errorMessage: message});
-                }).catch(function(err){
-                    self.setState({importInfo: importInfo});
-                })
-
-            }
-
-            if (Object.keys(this.state.importInfo).length != 0) {
-                showNext = true;
-                usernameField = (
-                    <div>
-                        <div className="menuLabel"><em>Imported Username</em></div>{' '}<span>{this.state.importInfo.username}</span>{' '}<input className="btn-link" type="button" onClick={this.handleCancelImport} value="Cancel"/>
-                    </div>);
-            }
+        var usernameField = (
+            <div>
+                <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.newIdentity.msg")}:</span></div><br/>
+                <div className = "menuItem">
+                    <select ref="prefix">
+                    {CONFIG.users.map(function(u) {
+                        return <option key={u.username} value={u.username}>{u.username}</option>
+                    })}
+                    </select> <em>.</em>{' '}
+                    <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" />
+                    <span className="relative">
+                        <a href="#" onClick={this.handleGenerateUsername}><i className="fa fa-question-circle fa-fw" rel="tooltip"></i></a>
+                        <Tooltip position="under" content={polyglot.t("menu.tooltip.generate")}/>
+                    </span>
+                </div>
+            {polyglot.t("menu.identity.step.import")}
+            {' '}<select id="import" ref="import" onChange={this.handleImport}>
+                <option value=""></option>
+                <option value="instagram">Instagram</option>
+                <option value="reddit">Reddit</option>
+            </select>
+            </div>);
 
             var keyArray = ['root', 'admin', 'default'];
             var self=this;
@@ -1466,17 +1399,11 @@ var NewIdentity = React.createClass({
                 </div>
                 );
 
-            var importContentField = "";
-            if (this.state.enableContentImport) {
-                importContentField = (
-                    <span id="importContent"><a href="#" onClick={this.handleContentImport}>Import Content</a></span>
-                );
-            }
             var requestedUsernameField = (
                 <div>{this.state.desiredUsername}</div>
             );
 
-            var mainField = [usernameField, keyField, requestedUsernameField, importContentField];
+            var mainField = [usernameField, keyField, requestedUsernameField, ""];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
                 polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
@@ -1605,14 +1532,6 @@ var NewIdentity = React.createClass({
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
-        // import
-        var importInfo = this.state.importInfo;
-        if (Object.keys(importInfo).length != 0) {
-            payload.importNetwork = importInfo.network;
-            payload.importToken = importInfo.token;
-            payload.importId = importInfo.id;
-        }
-
         var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
 
         // SUBMIT REQUEST
@@ -1621,7 +1540,6 @@ var NewIdentity = React.createClass({
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
-                    enableContentImport: importInfo.network == "instagram",
                     errorMessage: polyglot.t("menu.identity.newIdentity.success")});
 
                 // Set this person as the current user
@@ -1631,7 +1549,6 @@ var NewIdentity = React.createClass({
             function(err) {
                 console.log("ERR")
                 self.setState({step: 3,
-                    enableContentImport: importInfo.network == "instagram",
                     errorMessage: err.toString()});
                 events.pub('ui/event', {});
             });

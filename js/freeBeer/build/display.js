@@ -93,7 +93,7 @@ var ViewKeybindingsMixin = {
 
             return events.pub('ui/show/latest', { 'view.mode': 'list'
                                                 , 'view.rows': showRows
-                                                , 'view.filters': puffworlddefaults.view.filters
+                                                , 'view.filters': {}
                                                 , 'view.query': puffworlddefaults.view.query
                                                 , 'menu': puffworlddefaults.menu});
         }.bind(this));

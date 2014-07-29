@@ -138,9 +138,10 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
     handleShowMore: function() {
         this.setState({iconSet: (this.state.iconSet+1)%3});
     },
-    /*componentDidUpdate: function() {
+    componentDidUpdate: function() {
+        // to show tooltips for the other puffs
         this.componentDidMount();
-    },*/
+    },
     render: function() {
         var puff = this.props.puff;
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
@@ -237,7 +238,6 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
  });
 
 var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
-
     getInitialState: function() {
         return {flagged: false}
     },

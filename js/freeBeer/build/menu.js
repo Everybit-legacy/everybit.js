@@ -401,7 +401,10 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
     },*/
 
     handleToggleShowSection: function(name) {
-        this.setState({section: name});
+        var section = name;
+        if (this.state.section == section)
+            section = false;
+        this.setState({section: section});
         return false;
     },
 
@@ -1291,11 +1294,10 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.setState({step: (this.state.step+1)%4});
         return false;
     },
-
     handleStartOver: function() {
-        var show = this.props.show;
+        /*var show = this.props.show;
         this.props = {};                                    // THINK: why is this here? don't mutate props.
-        this.props.show = show;
+        this.props.show = show;*/
         var state = this.getInitialState();
         this.setState(state);
         this.handleGenerateUsername();
@@ -1360,7 +1362,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                             React.DOM.div(null, 
                                 React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity."+k),": " ),
                                 React.DOM.div( {className:"menuInput"}, 
-                                    React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus} )
+                                    React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus, onChange:self.handlePrivateKeyChange.bind(self, k)} )
                                 ),
                                 React.DOM.br(null )
 
@@ -1449,6 +1451,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         }
     },
 
+    handlePrivateKeyChange: function(key) {
+        this.refs[key+'KeyPublic'].getDOMNode().value = "";
+    },
     checkKeys: function() {
         // Stuff to register. These are public keys
         var rootKeyPublic    = this.refs.rootKeyPublic.getDOMNode().value;
@@ -1568,10 +1573,6 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
 
     handleConvertPrivatePublic: function() {
-        // clear public key fields
-        this.refs.rootKeyPublic.getDOMNode().value = "";
-        this.refs.adminKeyPublic.getDOMNode().value = "";
-        this.refs.defaultKeyPublic.getDOMNode().value = "";
         // NOTE: When blank, Puffball.Crypto.privateToPublic generates a new public key
         var rP = this.refs.rootKeyPrivate.getDOMNode().value;
         var aP = this.refs.adminKeyPrivate.getDOMNode().value;

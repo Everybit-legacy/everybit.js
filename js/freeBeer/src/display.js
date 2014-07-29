@@ -3,6 +3,7 @@
 var PuffBarShortcutMixin = {
     // call methods from PuffBar of cursor puff directly for shortcuts
     componentDidMount: function() {
+        // shift+f bomb the cursor puff
         Mousetrap.bind(['shift+f'], function(){
             var cursor = puffworldprops.view.cursor;
             var bar = this.refs[cursor].refs['bar'];
@@ -10,6 +11,7 @@ var PuffBarShortcutMixin = {
                 bar.refs.flag.handleFlagRequest();
         }.bind(this));
 
+        // shift+i toggle the infobar for the cursored puff only
         Mousetrap.bind(['shift+i'], function(){
             var cursor = puffworldprops.view.cursor;
             var bar = this.refs[cursor].refs['bar'];
@@ -25,8 +27,9 @@ var PuffBarShortcutMixin = {
             }
         }.bind(this));
 
+        // r replies to the cursored puff
         Mousetrap.bind('r', function() {
-            if (puffworldprops.reply.preview) return false;
+            // if (puffworldprops.reply.preview) return false;
             
             var cursor = puffworldprops.view.cursor;
             var bar = this.refs[cursor].refs['bar'];
@@ -43,7 +46,7 @@ var ViewKeybindingsMixin = {
         
         // n shows new puff form
         Mousetrap.bind('n', function() { 
-            if (puffworldprops.reply.preview) return false;
+            // if (puffworldprops.reply.preview) return false;
             
             var menu = PB.shallow_copy(puffworlddefaults.menu);
             menu.show = true;
@@ -68,11 +71,8 @@ var ViewKeybindingsMixin = {
 
         // m toggles menu show
         Mousetrap.bind('m', function() {
-            if(puffworldprops.menu.show) {
-                return events.pub('ui/menu/close', {'menu.show': false})
-            } else {
-                return events.pub('ui/menu/open',  {'menu.show': true})
-            }
+            return events.pub('ui/menu/toggle', 
+                              {'menu.show': !puffworldprops.menu.show});
         }.bind(this));
 
         // k go to keyboard shortcut
@@ -124,7 +124,8 @@ var ViewKeybindingsMixin = {
                              { 'view.arrows': !this.props.view.arrows })
         }.bind(this));
         
-        // escape closes expand, else closes menu, else removes cursor, else pops up 'nothing to close' alert
+        // escape closes expand, else closes menu, else set cursor back to default (topleft for list mode, or focused puff for focus mode)
+            //// NOT removes cursor, else pops up 'nothing to close' alert since we are setting the cursor to a default position when it is false
         Mousetrap.bind('esc', function(e) {
             if(puffworldprops.menu.popout) {
                 var section = puffworldprops.menu.popout;
@@ -149,7 +150,7 @@ var ViewKeybindingsMixin = {
                 return events.pub('ui/menu/close', {'view.cursor': false})
             }
 
-            alert("I'm afraid there's nothing left to close!")
+            // alert("I'm afraid there's nothing left to close!")
         }.bind(this));
         
         // cmd-enter submits the reply box
@@ -257,6 +258,7 @@ var CursorBindingsMixin = {
         Mousetrap.reset();
     },
     cursorPower: function(puffs, defaultPuff) {
+        // set the cursor to default when cursor puff is outside the view or cursor is set to false
         var cursor = this.props.view.cursor
         
         if(cursor) {
@@ -479,6 +481,7 @@ var PuffWorld = React.createClass({
 
 var PuffList = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
+    /*
     shouldComponentUpdate: function(nextProps, nextState) {
         // TODO: todo this
         return true
@@ -486,6 +489,7 @@ var PuffList = React.createClass({
         return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
         return nextProps !== this.props // TODO: this won't update when new items arrive
     },
+    */
     render: function() {
         // if(!PuffData.stupidHorribleGlobalThing) return <div></div>
         
@@ -871,12 +875,9 @@ var Arrow = React.createClass({
 
         //
 
-        var result = (
+        return (
             <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="2" fill={this.props.fill} ></line>
-
         )
-        
-        return result
     }
 })
 
@@ -891,7 +892,7 @@ var PuffFooter = React.createClass({
 
             <div className="footer" style={{maxWidth: width}}>
                 <div className="footerText">
-                {polyglot.t("footer.powered")} <a href="http://www.puffball.io" className="footerText">puffball</a>.
+                {polyglot.t("footer.powered")} <a href={CONFIG.url} className="footerText">puffball</a>.
                 {polyglot.t("footer.rest")}
                 </div>
             </div>

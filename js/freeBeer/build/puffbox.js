@@ -245,6 +245,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
+        if (PuffWardrobe.getCurrentUsername() != this.props.username &&PuffWardrobe.getCurrentUsername() != CONFIG.zone)
+            return false;
         var polyglot = Translate.language[puffworldprops.view.language];
         if (this.props.flagged) return false;
         var doIt = confirm(polyglot.t("alert.flag"));

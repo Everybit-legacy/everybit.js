@@ -656,7 +656,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
 var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     handleUserPick: function() {
         PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+        return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
 
     handleRemoveUser: function() {

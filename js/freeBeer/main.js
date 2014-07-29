@@ -20,7 +20,7 @@ puffworldprops = {
         popout: false,
 
         user: {
-            pick_one: false,
+            // pick_one: false,
             manage: false,
             show_bc: false,
             show_key: false

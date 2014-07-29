@@ -35,15 +35,13 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var className = classArray.join(' ')
         
         var offset = CONFIG.extraSpacing;
+        var spacing = CONFIG.minSpacing;
         if(arrows) {
             width  -= offset
             height -= offset
             top  += offset/2
             left += offset/2
-        }
-
-        var spacing = CONFIG.minSpacing;
-        if(!arrows) {
+        } else {
             width  -= spacing
             height -= spacing
             top  += spacing
@@ -66,7 +64,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     clickUsername: function(username) {
         return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
                                              })
@@ -656,11 +654,11 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
         var puff = this.props.puff;
         var row = puffworldprops.view.rows == 1 ? puffworlddefaults.view.rows : 1;
         return events.pub("ui/expand-puff", { 'view.mode': 'focus'
-                                            , 'view.filters': puffworlddefaults.view.filters
-                                            , 'view.query': puffworlddefaults.view.query
+                                            // , 'view.filters': {}
+                                            // , 'view.query': puffworlddefaults.view.query
                                             , 'view.query.focus': puff.sig
                                             , 'menu': puffworlddefaults.menu
-                                            , 'reply': puffworlddefaults.reply
+                                            // , 'reply': puffworlddefaults.reply
                                             , 'view.rows': row
                                             })
     },

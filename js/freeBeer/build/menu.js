@@ -316,7 +316,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         return events.pub('ui/show/latest', { 'view.mode': 'list'
                                             , 'view.rows': showRows
                                             , 'menu': puffworlddefaults.menu
-                                            , 'view.filters': []
+                                            , 'view.filters': {}
                                             , 'view.query': puffworlddefaults.view.query
                                             });
     },
@@ -329,14 +329,14 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
 
         return events.pub('filter/show/by-user', 
-                            { 'view.filters': puffworlddefaults.view.filters, 
+                            { 'view.filters': {}, 
                               'view.rows': showRows,
                               'view.filters.users': [username] })
 
 
         /*return events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.rows': showRows
-                                             , 'view.filters': puffworlddefaults.view.filters
+                                             , 'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
                                              })*/
@@ -682,7 +682,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
         return events.pub('filter/show/by-user', 
-                            { 'view.filters': puffworlddefaults.view.filters, 
+                            { 'view.filters': {}, 
                               'view.filters.users': [username] } )
     },
 
@@ -695,7 +695,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         }
         // var route = this.refs.pickroute.getDOMNode().value;
         return events.pub('filter/show/for-user', 
-                            { 'view.filters': puffworlddefaults.view.filters, 
+                            { 'view.filters': {}, 
                               'view.filters.routes': [username] });
     },
 

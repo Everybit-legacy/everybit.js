@@ -187,6 +187,12 @@ humanizeUsernames = function(username) {
     return username
 }
 
+/**
+ * reduce imported username to alphanumeric
+ * @param  {string} username original username
+ * @param  {string} allowDot allow '.' in the username for subusers
+ * @return {string}          valid username
+ */
 reduceUsernameToAlphanumeric = function(username, allowDot) {
     allowDot = allowDot || false;
     var pattern = allowDot ? /[^.A-Za-z0-9]/ : /[^A-Za-z0-9]/;
@@ -214,7 +220,7 @@ reduceUsernameToAlphanumeric = function(username, allowDot) {
 
 
 
-
+/* not in use
 function draggableize(el) {
     /// modified from http://jsfiddle.net/tovic/Xcb8d/light/
     
@@ -245,6 +251,7 @@ function draggableize(el) {
         document.removeEventListener('mousemove', move_el);
     });
 }
+*/
 
 
 

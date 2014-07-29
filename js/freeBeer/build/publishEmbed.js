@@ -77,12 +77,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             sig = decrypted.sig;
         }
         showPuff(sig);
-        var defaultFilters = PB.shallow_copy(puffworlddefaults.view.filters);
         events.pub('ui/submit/success', 
                    { 'reply.parents': [],
                      'view.cursor': sig, 
                      'view.flash': true,
-                     'view.filters': defaultFilters  });
+                     'view.filters': {}  });
         // set back to initial state
         this.setState(this.getInitialState());
     },

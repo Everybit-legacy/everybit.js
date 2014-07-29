@@ -3,7 +3,7 @@
 var SliderMixin = {
     handleGotoSlide: function(goTo) {
         return events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo});
-    },
+    }/*,
     handleCheckAvailability: function(username) {
         if (!this.state.enableCheck) return false;
         var self = this;
@@ -14,13 +14,13 @@ var SliderMixin = {
             self.setState({msg: "Available.", nameAvailable: true, username: username, enableCheck: false})
         })
         return false;
-    }
+    }*/
 }
 
 var Slider = React.createClass({
-    getInitialState: function() {
+    /*getInitialState: function() {
         return {wizard: false};
-    },
+    },*/
     componentWillUnmount:function() {
         var sliderDefault = PB.shallow_copy(puffworlddefaults.slider);
         return events.pub("ui/wizard/close", {'slider':sliderDefault});
@@ -44,7 +44,6 @@ var Slider = React.createClass({
     handleGetStarted: function() {
         // Live version goes right to publish until the wizard is done
         this.setState({wizard: true});
-        events.pub('ui/slider/get-start', {'slider.currentSlide': 1});
         events.pub('ui/slider/get-start', {'slider.currentSlide': 1, 'slider.wizard': true});
         return false;
 
@@ -54,11 +53,11 @@ var Slider = React.createClass({
         var wizard = puffworldprops.slider.wizard;
         var slidesArr = new Array();
         var totalSlides = wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides;
-        for(i=1;i<=totalSlides;i++) {
+        for (var i=1;i<=totalSlides;i++) {
             slidesArr.push(i)
         }
 
-        var cn = "slider";
+        // var cn = "slider";
 
         var w = window.innerWidth;
         var h = window.innerHeight;
@@ -133,7 +132,7 @@ var Slider = React.createClass({
         }
 
         return (
-            <div className={cn} style={sliderStyle}>
+            <div className="slider" style={sliderStyle}>
                 <img src="img/EveryBitLogo.svg" className="sliderLogo" />
                 <a href="#" onClick={this.handleHideSlider}>
                     <i className="fa fa-times-circle-o fa-fw closeBox"></i>
@@ -482,7 +481,15 @@ var ImportWizard = React.createClass({
     },
     handleCheck: function() {
         var username = this.state.importInfo.username;
-        this.handleCheckAvailability(username);
+        if (!this.state.enableCheck) return false;
+
+        var self = this;
+        var prom = Puffball.getUserRecord(username);
+        prom.then(function(){
+            self.setState({msg: "Not available.", enableCheck: false})
+        })  .catch(function(err){
+            self.setState({msg: "Available.", nameAvailable: true, username: username, enableCheck: false})
+        })
         return false;
     },
     render: function() {

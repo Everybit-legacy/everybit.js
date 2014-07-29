@@ -23,6 +23,7 @@ CONFIG.logo = 'img/EveryBitLogoLeft.svg';
 
 /* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
+CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di';
 
 // List of supported
 // TODO: This is not hooked up.

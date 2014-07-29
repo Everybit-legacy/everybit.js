@@ -38,21 +38,13 @@ var Menu = React.createClass({
     render: function() {
         return (
             <div className="menu">
-                <Cluster clusterName="publish" clusterPath='ui/clusters/publish' clusterPropPath='clusters.publish'
-                clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view}/>
-
-                <Cluster clusterName="view" clusterPath='ui/clusters/view' clusterPropPath='clusters.view'
-                         clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
-
-                <Cluster clusterName="identity" clusterPath='ui/clusters/identity' clusterPropPath='clusters.identity' 
-                         clusterMenu='IdentityMenu' clusterIcon='fa-user' view={this.props.view} />
-                <Cluster clusterName="preferences" clusterPath='ui/clusters/preferences' 
-                         clusterPropPath='clusters.preferences' clusterMenu='PreferencesMenu' 
+                <Cluster clusterName="publish" clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view}/>
+                <Cluster clusterName="view" clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
+                <Cluster clusterName="identity" clusterMenu='IdentityMenu' clusterIcon='fa-user' view={this.props.view} />
+                <Cluster clusterName="preferences" clusterMenu='PreferencesMenu' 
                          clusterIcon='fa-gears' view={this.props.view} />
-                <Cluster clusterName="about" clusterPath='ui/clusters/about' clusterPropPath='clusters.about'  
-                         clusterMenu='AboutMenu' clusterIcon='fa-info-circle' view={this.props.view} />
-                <Cluster clusterName="tools" clusterPath='ui/clusters/tools' clusterPropPath='clusters.tools' 
-                         clusterMenu='ToolsMenu' clusterIcon='fa-wrench' view={this.props.view} />
+                <Cluster clusterName="about" clusterMenu='AboutMenu' clusterIcon='fa-info-circle' view={this.props.view} />
+                <Cluster clusterName="tools" clusterMenu='ToolsMenu' clusterIcon='fa-wrench' view={this.props.view} />
 
                 <Logo />
             </div>
@@ -72,17 +64,24 @@ var Cluster = React.createClass({
         this.getDOMNode().onclick = this.switchMenuSection;
     },
     handleToggleShowMenu: function() {
-        var changed = !puffworldprops.clusters[this.props.clusterName];
-        var eventJSON = {};
-        eventJSON[this.props.clusterPropPath] = changed;
+        var clusterName = this.props.clusterName;
+        var path = "ui/clusters/" + clusterName;
+        var propPath = "clusters." + clusterName;
 
-        return events.pub(this.props.clusterPath, eventJSON);
+        var changed = !puffworldprops.clusters[clusterName];
+        var eventJSON = {};
+        eventJSON[propPath] = changed;
+
+        return events.pub(path, eventJSON);
     },
     handlePopoutMenu:function() {
-        var eventJSON = {};
-        eventJSON[this.props.clusterPropPath] = true;
+        var clusterName = this.props.clusterName;
+        var propPath = "clusters." + clusterName;
 
-        var popout = this.props.clusterName;
+        var eventJSON = {};
+        eventJSON[propPath] = true;
+
+        var popout = clusterName;
         var showMenu = false;
         if (puffworldprops.menu.popout == popout) {
             popout = false;
@@ -211,7 +210,7 @@ var FilterMenu = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var all_filter = ['tags', 'users', 'routes'];
+        // var all_filter = ['tags', 'users', 'routes'];
         var leftColStyle = {
             width: '80px',
             display: 'inline-block',
@@ -223,7 +222,7 @@ var FilterMenu = React.createClass({
                 <input ref="filter" type="text" className="btn narrowInputField" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-plus-circle fa-fw"></i></a><br/>
                 <span style={leftColStyle}>{polyglot.t("menu.filters.by")}:</span>
                 <span className="relative">
-                    {all_filter.map(this.createEachFilter)}
+                    {['tags', 'users', 'routes'].map(this.createEachFilter)}
                 </span>
             </div>
         );
@@ -332,14 +331,6 @@ var ViewMenu = React.createClass({
                             { 'view.filters': {}, 
                               'view.rows': showRows,
                               'view.filters.users': [username] })
-
-
-        /*return events.pub('ui/show/by-user', { 'view.mode': 'list'
-                                             , 'view.rows': showRows
-                                             , 'view.filters': {}
-                                             , 'view.query': puffworlddefaults.view.query
-                                             , 'view.filters.users': [username]
-                                             })*/
     },
 
     handleShowShortcuts: function() {
@@ -350,7 +341,6 @@ var ViewMenu = React.createClass({
     },
 
     /*
-
      <div className="menuItem">
      <a href="#" onClick={this.handleViewRoots}>{polyglot.t("menu.view.roots")}</a>
      <Tooltip content={polyglot.t("menu.tooltip.roots")} />
@@ -368,7 +358,6 @@ var ViewMenu = React.createClass({
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />
                 </div>
 
-
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowUserPuffs.bind(this,'choices.book')}>{polyglot.t("menu.view.collection")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.collection")} />
@@ -380,7 +369,7 @@ var ViewMenu = React.createClass({
                 </div>
 
             </div>
-            )
+        )
     }
 });
 
@@ -398,7 +387,7 @@ var IdentityMenu = React.createClass({
         }
     },
 
-    componentWillMount: function() {
+    /*componentWillMount: function() {
         if (!this.state.username) {
             // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
             // prom.then(function() {
@@ -409,7 +398,7 @@ var IdentityMenu = React.createClass({
             // this.setState({username: 'anon'});
 
         }
-    },
+    },*/
 
     handleToggleShowSection: function(name) {
         this.setState({section: name});
@@ -428,7 +417,6 @@ var IdentityMenu = React.createClass({
         return (
             <div>
                 <AuthorPicker />
-
                 <div style={{display:'inline-block'}} className="menuItem">
                     {['new', 'set', 'view'].map(function(key){
                         var show = self.state.section == key;
@@ -459,29 +447,34 @@ var PreferencesMenu = React.createClass({
     
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
-        if(puffworldprops.view.arrows) {
+        return events.pub('ui/relationships/hide', 
+                            {'view.arrows': !puffworldprops.view.arrows});
+        /*if(puffworldprops.view.arrows) {
             return events.pub('ui/relationships/hide', {'view.arrows': false});
         } else {
             return events.pub('ui/relationships/show', {'view.arrows': true});
-        }
+        }*/
     },
 
     handleShowHideAnimations: function() {
-
+        return events.pub('ui/animation/hide', 
+                            {'view.animation': !puffworldprops.view.animation});
+        /*
         if(puffworldprops.view.animation) {
             return events.pub('ui/animation/hide', {'view.animation': false});
         } else {
             return events.pub('ui/animation/show', {'view.animation': true});
-        }
+        }*/
     },
 
 
     handleToggleReporting: function() {
-        if(puffworldprops.prefs.reporting) {
+        return events.pub('ui/prefs/reporting', {'prefs.reporting': !puffworldprops.prefs.reporting});
+        /*if(puffworldprops.prefs.reporting) {
             return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
         } else {
             return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
-        }
+        }*/
     },
 
     handleShowHideInfobar: function() {
@@ -509,7 +502,6 @@ var PreferencesMenu = React.createClass({
             'green': (puffworldprops.view.arrows)
         });
 
-        var cb2 = React.addons.classSet;
         var cbClass2 = cb({
             'fa': true,
             'fa-fw': true,
@@ -536,7 +528,6 @@ var PreferencesMenu = React.createClass({
 
         return(
             <div>
-
                 <div className="menuItem">
                     <span className="floatingCheckbox"><i className={cbClass}  onClick={this.handleShowHideRelationships} ></i></span>
                     <a href="#" onClick={this.handleShowHideRelationships}>{polyglot.t("menu.preferences.relationship")}</a>{' '}<span className="shortcut">[space]</span>
@@ -555,14 +546,11 @@ var PreferencesMenu = React.createClass({
                     <Tooltip content={polyglot.t("menu.tooltip.infobar")} />
                 </div>
 
-
                 <div className="menuItem">
                     <span className="floatingCheckbox"><i className={cbClass4} onClick={this.handleToggleReporting} ></i></span>
                     <a href="#" onClick={this.handleToggleReporting}>{polyglot.t("menu.preferences.disable_reporting")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.disable_reporting")} />
                 </div>
-
-
 
                 <div className="menuItem">
                 {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} defaultValue={language}>
@@ -584,7 +572,7 @@ var AboutMenu = React.createClass({
     mixins: [TooltipMixin],
 
     handleShowFaq: function() {
-        showPuff('AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di');
+        showPuff(CONFIG.faqPuff);
         return false;
     },
 
@@ -611,8 +599,6 @@ var AboutMenu = React.createClass({
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowFaq}>{polyglot.t("menu.about.faq")}</a>
                 </div>
-
-
             </div>
         )
     }
@@ -625,10 +611,6 @@ var ToolsMenu = React.createClass({
         return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
     clearPuffShells: function(){
-        /*var allKeys = Object.keys(window.localStorage);
-        allKeys = allKeys.filter(function(k){return k.indexOf('PUFF::') == 0})
-        for (var i=0; i<allKeys.length; i++) 
-            window.localStorage.removeItem(allKeys[i]);*/
         Puffball.Persist.remove('shells');
         Puffball.Persist.remove('flagged');
         document.location.reload(true);
@@ -661,7 +643,6 @@ var AuthorPicker = React.createClass({
 
     handleRemoveUser: function() {
         var userToRemove = this.refs.switcher.getDOMNode().value;
-
         // Confirm alert first
         var msg = "WARNING: This will erase all of this user's private keys from your web browser. If you have not yet saved your private keys, hit Cancel and use the EDIT section of the menu to save your keys. Are you sure you wish to continue?"
         var r = confirm(msg);
@@ -724,7 +705,7 @@ var AuthorPicker = React.createClass({
                         {all_usernames.map(function(username) {
                             return <option key={username} value={username}>{username}</option>
                         })}
-                </select>
+                        </select>
                     {' '}<span className="relative"><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.currentDelete')} /></span>
                 </div>
 
@@ -984,7 +965,6 @@ var SetIdentity = React.createClass({
             rootKey: false,
             adminKey: false,
             defaultKey: false
-
         }
     },
 
@@ -1056,7 +1036,6 @@ var SetIdentity = React.createClass({
                 // Add this to wardrobe, set username to current
                 if(keyType == 'defaultKey') {
                     PuffWardrobe.storeDefaultKey(username, privateKey);
-                    console.log("Updated default key");
                 }
 
                 if(keyType == 'adminKey') {
@@ -1094,46 +1073,46 @@ var SetIdentity = React.createClass({
         /*if (!this.props.show) {
             return <div></div>
         } else {*/
-            var currUser = this.props.username;
-            var polyglot = Translate.language[puffworldprops.view.language];
+        var currUser = this.props.username;
+        var polyglot = Translate.language[puffworldprops.view.language];
 
-            var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
-            return (
-                <div className={slide}>
-                    <div className="message red">{polyglot.t("menu.identity.setIdentity.msg")}</div>
-                    <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
-                    <div className="menuInput">
-                        <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
-                        {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                        <span className="message">{this.state.usernameStatus}</span>
-                    </div><br />
-                    <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
+        var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
+        return (
+            <div className={slide}>
+                <div className="message red">{polyglot.t("menu.identity.setIdentity.msg")}</div>
+                <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
+                <div className="menuInput">
+                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
+                    {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                    <span className="message">{this.state.usernameStatus}</span>
+                </div><br />
+                <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
 
-                    <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="defaultKey" ref="defaultKey" size="12" />
-                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'defaultKey')}>
-                        <Checkmark show={this.state.defaultKey} /></a>
-                        <span className="message">{this.state.defaultKey}</span>
-                    </div><br />
+                <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="defaultKey" ref="defaultKey" size="12" />
+                    {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'defaultKey')}>
+                    <Checkmark show={this.state.defaultKey} /></a>
+                    <span className="message">{this.state.defaultKey}</span>
+                </div><br />
 
-                    <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="adminKey" ref="adminKey" size="12" />
-                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
-                        <Checkmark show={this.state.adminKey} /></a>
-                        <span className="message">{this.state.adminKey}</span>
-                    </div><br />
+                <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="adminKey" ref="adminKey" size="12" />
+                    {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
+                    <Checkmark show={this.state.adminKey} /></a>
+                    <span className="message">{this.state.adminKey}</span>
+                </div><br />
 
-                    <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="rootKey" ref="rootKey" size="12" />
-                        {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'rootKey')}>
-                        <Checkmark show={this.state.rootKey} /></a>
-                        <span className="message">{this.state.rootKey}</span>
-                    </div><br />
-                </div>
-                )
+                <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="rootKey" ref="rootKey" size="12" />
+                    {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'rootKey')}>
+                    <Checkmark show={this.state.rootKey} /></a>
+                    <span className="message">{this.state.rootKey}</span>
+                </div><br />
+            </div>
+            )
        //}
     }
 });
@@ -1180,70 +1159,69 @@ var EditIdentity = React.createClass({
             return <span></span>
         } else {*/
 
-            var currUser = this.props.username;
-            var qrcodeField = "";
-            var showQRCode = this.state.qrCode && this.state.qrCodeUser == currUser;
-            if (showQRCode) {
-                var keyType = this.state.qrCode;
-                var key = PuffWardrobe.getCurrentKeys()[keyType];
-                if (key.length < 1) {
-                    showQRCode = false;
-                } else {
-                    var qr = qrcode(4, 'M');
-                    qr.addData(key);
-                    qr.make();
-                    var image_data = qr.createImgTag() || {};
-                    var data = 'data:image/gif;base64,' + image_data.base64;
-                    qrcodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
-                }
+        var currUser = this.props.username;
+        var qrcodeField = "";
+        var showQRCode = this.state.qrCode && this.state.qrCodeUser == currUser;
+        if (showQRCode) {
+            var keyType = this.state.qrCode;
+            var key = PuffWardrobe.getCurrentKeys()[keyType];
+            if (key.length < 1) {
+                showQRCode = false;
+            } else {
+                var qr = qrcode(4, 'M');
+                qr.addData(key);
+                qr.make();
+                var image_data = qr.createImgTag() || {};
+                var data = 'data:image/gif;base64,' + image_data.base64;
+                qrcodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
             }
+        }
 
-            var qrcodeBaseStyle = "fa fa-qrcode fa-fw";
+        var qrcodeBaseStyle = "fa fa-qrcode fa-fw";
 
-            var defaultKey = PuffWardrobe.getCurrentKeys()['default'];
-            var defaultKeyQRStyle = (showQRCode && this.state.qrCode == 'default') ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
-            var adminKey = PuffWardrobe.getCurrentKeys()['admin'];
-            var adminKeyQRStyle   = (showQRCode && this.state.qrCode == 'admin')   ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
-            var rootKey = PuffWardrobe.getCurrentKeys()['root'];
-            var rootKeyQRStyle    = (showQRCode && this.state.qrCode == 'root')    ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
+        var defaultKey = PuffWardrobe.getCurrentKeys()['default'];
+        var defaultKeyQRStyle = (showQRCode && this.state.qrCode == 'default') ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
+        var adminKey = PuffWardrobe.getCurrentKeys()['admin'];
+        var adminKeyQRStyle   = (showQRCode && this.state.qrCode == 'admin')   ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
+        var rootKey = PuffWardrobe.getCurrentKeys()['root'];
+        var rootKeyQRStyle    = (showQRCode && this.state.qrCode == 'root')    ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
 
-            // TODO: make sure not None
-            // TODO: Allow erase keys here?
-            var polyglot = Translate.language[puffworldprops.view.language];
-            var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
-            return (
-                <div className={slide}>
-                    <div className="message">{polyglot.t("menu.identity.viewIdentity.msg")}: <span className="authorSpan">{currUser}</span>
-                    </div>
-
-                    <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
-                    {qrcodeField}
-
-                    <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="defaultKey" ref="defaultKey" size="12" value={defaultKey} onFocus={this.handleFocus} readOnly />
-                        <i className={defaultKeyQRStyle} name="default" onClick={this.handleShowQRCode} ></i>
-                    </div><br />
-
-                    <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="adminKey" ref="adminKey" size="12" value={adminKey} onFocus={this.handleFocus} readOnly />
-                        <i className={adminKeyQRStyle} name="admin" onClick={this.handleShowQRCode}></i>
-                    </div><br />
-
-                    <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
-                    <div className="menuInput">
-                        <input type="text" name="rootKey" ref="rootKey" size="12" value={rootKey} onFocus={this.handleFocus} readOnly />
-                        <i className={rootKeyQRStyle} name="root" onClick={this.handleShowQRCode}></i>
-                    </div><br />
-
+        // TODO: make sure not None
+        // TODO: Allow erase keys here?
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
+        return (
+            <div className={slide}>
+                <div className="message">{polyglot.t("menu.identity.viewIdentity.msg")}: <span className="authorSpan">{currUser}</span>
                 </div>
-                )
-        //}
-    },
 
+                <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
+                {qrcodeField}
+
+                <div className="menuLabel">{polyglot.t("menu.identity.default")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="defaultKey" ref="defaultKey" size="12" value={defaultKey} onFocus={this.handleFocus} readOnly />
+                    <i className={defaultKeyQRStyle} name="default" onClick={this.handleShowQRCode} ></i>
+                </div><br />
+
+                <div className="menuLabel">{polyglot.t("menu.identity.admin")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="adminKey" ref="adminKey" size="12" value={adminKey} onFocus={this.handleFocus} readOnly />
+                    <i className={adminKeyQRStyle} name="admin" onClick={this.handleShowQRCode}></i>
+                </div><br />
+
+                <div className="menuLabel">{polyglot.t("menu.identity.root")}: </div>
+                <div className="menuInput">
+                    <input type="text" name="rootKey" ref="rootKey" size="12" value={rootKey} onFocus={this.handleFocus} readOnly />
+                    <i className={rootKeyQRStyle} name="root" onClick={this.handleShowQRCode}></i>
+                </div><br />
+
+            </div>
+            )
+        //}
+    }
+    /* not in use
     toggleShowRootKey: function() {
-        // console.log(this.state.rootKey);
         if(this.state.rootKey == 'hidden') {
             this.setState({rootKey: PuffWardrobe.getCurrentUserRecord().rootKey});
         } else {
@@ -1254,10 +1232,11 @@ var EditIdentity = React.createClass({
 
     handleChange: function(event){
         return false;
-    }
+    }*/
 
 });
 
+/* not in use
 var defaultPrivateKeyField = React.createClass({
     render: function() {
         return (
@@ -1271,6 +1250,7 @@ var defaultPrivateKeyField = React.createClass({
     }
 
 })
+*/
 
 var NewIdentity = React.createClass({
     getInitialState: function() {
@@ -1301,12 +1281,11 @@ var NewIdentity = React.createClass({
         if (this.state.step == 0) {
             // set the desired username
             var username = this.refs.prefix.getDOMNode().value + '.' + this.refs.newUsername.getDOMNode().value;
-            // TODO check the username and make sure it is valid
             this.setState({desiredUsername: username});
             this.handleGenerateKeys();
         } else if (this.state.step == 1) {
             var valid = this.checkKeys();
-            if (!valid) return;
+            if (!valid) return false;
             this.setState({errorMessage: ''});
         }
         this.setState({step: (this.state.step+1)%4});
@@ -1556,6 +1535,7 @@ var NewIdentity = React.createClass({
     },
 
     handleRegenerateKeys: function() {
+        console.log('here');
         var rootKey = Puffball.Crypto.generatePrivateKey();
         var adminKey = Puffball.Crypto.generatePrivateKey();
         var defaultKey = Puffball.Crypto.generatePrivateKey();
@@ -1588,28 +1568,25 @@ var NewIdentity = React.createClass({
     },
 
     handleConvertPrivatePublic: function() {
+        // clear public key fields
+        this.refs.rootKeyPublic.getDOMNode().value = "";
+        this.refs.adminKeyPublic.getDOMNode().value = "";
+        this.refs.defaultKeyPublic.getDOMNode().value = "";
         // NOTE: When blank, Puffball.Crypto.privateToPublic generates a new public key
         var rP = this.refs.rootKeyPrivate.getDOMNode().value;
         var aP = this.refs.adminKeyPrivate.getDOMNode().value;
         var dP = this.refs.defaultKeyPrivate.getDOMNode().value;
 
-        var missingValues = false;
         if(!rP.length) {
-            this.setState({rootKeyMessage: 'Missing root key. '});
-            missingValues = true;
+            this.setState({errorMessage: 'Missing root key. '});
+            return false
         }
-
         if(!aP.length) {
-            this.setState({adminKeyMessage: 'Missing admin key. '});
-            missingValues = true;
+            this.setState({errorMessage: 'Missing admin key. '});
+            return false
         }
-
         if(!dP.length) {
-            this.setState({defaultKeyMessage: 'Missing default key. '});
-            missingValues = true;
-        }
-
-        if(missingValues) {
+            this.setState({errorMessage: 'Missing default key. '});
             return false;
         }
 
@@ -1617,9 +1594,9 @@ var NewIdentity = React.createClass({
         var aPublic = Puffball.Crypto.privateToPublic(aP);
         var dPublic = Puffball.Crypto.privateToPublic(dP);
 
-        rPublic ? this.refs.rootKeyPublic.getDOMNode().value = rPublic : this.setState({rootKeyMessage: 'Invalid root key. '});
-        aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({adminKeyMessage: 'Invalid admin key. '});
-        dPublic ? this.refs.defaultKeyPublic.getDOMNode().value = dPublic : this.setState({defaultKeyMessage: 'Invalid default key. '});
+        rPublic ? this.refs.rootKeyPublic.getDOMNode().value = rPublic : this.setState({errorMessage: 'Invalid root key. '});
+        aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({errorMessage: 'Invalid admin key. '});
+        dPublic ? this.refs.defaultKeyPublic.getDOMNode().value = dPublic : this.setState({errorMessage: 'Invalid default key. '});
 
         return false;
 
@@ -1695,7 +1672,7 @@ var PopoutCluster = React.createClass({
             return <span></span>
         } 
         var section = this.props.section;
-        var cluster = <Cluster clusterName={section} view={this.props.view} clusterPath={'ui/clusters/'+section} clusterPropPath={'clusters.'+section} isPopout={true}/>
+        var cluster = <Cluster clusterName={section} view={this.props.view} isPopout={true}/>
         return (
             <div className="expand">
                 {cluster}

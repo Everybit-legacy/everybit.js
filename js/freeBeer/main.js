@@ -63,7 +63,7 @@ puffworldprops = {
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
-        cols      : 5,                                  // NOTE: not currently used... ?
+        // cols      : 5,                                  // NOTE: not currently used... ?
         boxRatio  : 1,
         bigrows   : 2,
         bigcols   : 2,
@@ -364,7 +364,8 @@ function showPuffDirectly(puff) {
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
                                , 'menu'      : puffworlddefaults.menu
-                               , 'reply'     : puffworlddefaults.reply})
+                               // , 'reply'     : puffworlddefaults.reply
+                               })
 }
 
 

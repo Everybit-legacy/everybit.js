@@ -80,7 +80,6 @@ var PuffPublishFormEmbed = React.createClass({
         var defaultFilters = PB.shallow_copy(puffworlddefaults.view.filters);
         events.pub('ui/submit/success', 
                    { 'reply.parents': [],
-                     'reply.privacy': false,
                      'view.cursor': sig, 
                      'view.flash': true,
                      'view.filters': defaultFilters  });
@@ -96,7 +95,7 @@ var PuffPublishFormEmbed = React.createClass({
         var content = '';
         var metadata = {};
         var parents = this.props.reply.parents;
-        
+
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) {
             this.cleanUpSubmit();
@@ -226,6 +225,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         return this.setState({showPreview: true});
     },
+    /* 
     handleZipLoad: function() {
         var self = this;
         var file = this.refs.zipLoader.getDOMNode().files[0];
@@ -256,6 +256,7 @@ var PuffPublishFormEmbed = React.createClass({
         })
         return false;
     },
+    */
     handleImageLoad: function() {
         var self   = this;
         var reader = new FileReader();
@@ -382,7 +383,7 @@ var PuffPublishFormEmbed = React.createClass({
         /* variables, default value */
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
-        var privacyDefault = "public";
+        var privacyDefault = this.props.reply.privacy || "public";
         var author = PuffWardrobe.getCurrentUsername();
         author = humanizeUsernames(author) || "anonymous";
 
@@ -391,10 +392,10 @@ var PuffPublishFormEmbed = React.createClass({
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
         }
-        var parentType = CONFIG.defaultContentType;
+        var type = this.props.reply.type || CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);
-            parentType = parent.payload.type;
+            type = parent.payload.type;
 
             // figure out reply privacy
             var envelope = PuffData.getBonus(parent, 'envelope');
@@ -419,8 +420,6 @@ var PuffPublishFormEmbed = React.createClass({
                 }
             }
         }
-        var type = this.props.reply.type || parentType;
-        var privacy = this.props.reply.privacy || privacyDefault;
 
         /* styles */
         var leftColStyle = {
@@ -504,7 +503,7 @@ var PuffPublishFormEmbed = React.createClass({
             <span ref="privacy" id="privacyDiv" className="icon">
                 {polyglot.t("replyForm.privacyOption")}: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
-                    var color = privacy == p ? 'green' : 'black';
+                    var color = privacyDefault == p ? 'green' : 'black';
                     return (
                         <span key={p}>
                             <button className={'btn ' + color} value={p}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
@@ -626,7 +625,7 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
-        var className = privacy == 'public' ? "replyFormEmbed" : "replyFormEmbed encrypted"
+        var className = privacyDefault == 'public' ? "replyFormEmbed" : "replyFormEmbed encrypted"
         return (
             <div className={className}>
                 <div className='replyFormBox relative'>

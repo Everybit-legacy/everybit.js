@@ -197,7 +197,7 @@ var PuffBar = React.createClass({
             <div className={className}>
                 <PuffJson puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
-                <PuffClone puff={puff} />
+                {puff.payload.type == "image" ? "" : <PuffClone puff={puff} />}
                 {moreButton}
             </div>
         );
@@ -610,9 +610,16 @@ var PuffReplyLink = React.createClass({
         if (contentEle) {
             contentEle.focus();
         }
+
+        // reply type
+        var type = puffworldprops.reply.lastType;
+        if (parents.length != 0) {
+            type = PuffForum.getPuffBySig(parents[0]).payload.type;
+        }
         return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
-                                                   'reply.parents': parents
-                                                 , 'menu': menu
+                                                   'reply.parents': parents,
+                                                   'reply.type': type,
+                                                   'menu': menu
                                                  });
 
         // TODO: draw reply arrows. Maybe

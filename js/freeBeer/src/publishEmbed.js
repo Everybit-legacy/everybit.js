@@ -79,6 +79,7 @@ var PuffPublishFormEmbed = React.createClass({
         showPuff(sig);
         events.pub('ui/submit/success', 
                    { 'reply.parents': [],
+                     'reply.lastType': puffworldprops.reply.type,
                      'view.cursor': sig, 
                      'view.flash': true,
                      'view.filters': {}  });
@@ -213,7 +214,18 @@ var PuffPublishFormEmbed = React.createClass({
 
         return false;
     },
-
+    handleDiscard: function() {
+        var type = this.refs.type.getDOMNode().value;
+        
+        if (type == 'image') {
+            this.setState({imageSrc: ''});
+            this.refs.imageLoader.getDOMNode().value = '';
+            return false;
+        } else {
+            this.refs.content.getDOMNode().value = "";
+            return events.pub("ui/reply/clear-content", {'reply.content': ''});
+        }
+    },
     handleContentTab: function() {
         return this.setState({showPreview: false});
     },
@@ -305,6 +317,7 @@ var PuffPublishFormEmbed = React.createClass({
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
+        this.setState({parentType: false});
         return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
     handlePickPrivacy: function(privacy) {
@@ -391,10 +404,9 @@ var PuffPublishFormEmbed = React.createClass({
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
         }
-        var type = this.props.reply.type || CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);
-            type = parent.payload.type;
+            // type = parent.payload.type;
 
             // figure out reply privacy
             var envelope = PuffData.getBonus(parent, 'envelope');
@@ -436,7 +448,7 @@ var PuffPublishFormEmbed = React.createClass({
         var contentStyle = {
             width: '100%',
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
-            overflowY: this.state.showPreview ? "scroll" : "hidden",
+            overflowY: "auto",
             cursor: this.state.showPreview ? "default" : "auto", 
             marginBottom: '10px',
             border: '1px solid #333',
@@ -483,13 +495,16 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
-        /* type | privacy */
+        var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType;
         var typeOption = (
-            <select className="btn" ref="type" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select className="btn" ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}
             </select>
+        );
+        var discardBtn = (
+            <a onClick={this.handleDiscard} href="#">Discard</a>
         );
         var privacyToIcon = {
             'public': 'fa-bullhorn',
@@ -620,7 +635,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {contentField}
                     {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bbcodeMsg")}<br/></span>) : ""}
                     {errorField}
-                    Type: {typeOption}
+                    Type: {typeOption}{' '}{this.state.showPreview ? "" : discardBtn}
                     {advancedField}
                 </div>
             </div>

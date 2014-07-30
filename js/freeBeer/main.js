@@ -95,6 +95,7 @@ puffworldprops = {
     reply: {
         parents: [],
         // show: false,
+        lastType: false, // type of the last published puff
         expand: false,
         content: '',
         state: {},

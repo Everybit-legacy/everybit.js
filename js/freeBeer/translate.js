@@ -50,7 +50,7 @@ Translate.language["en"].extend({
 			admin: 'admin',
 			root: 'root',
 			newIdentity: {
-				title: 'New',
+				title: 'Create',
 				msg: 'Desired username',
 				generate: 'Regenerate',
 				or: 'or',
@@ -64,7 +64,7 @@ Translate.language["en"].extend({
 				msg: 'Stored keys for'
 			},
 			setIdentity: {
-				title: 'Set',
+				title: 'Store',
 				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
 			},
             step: {

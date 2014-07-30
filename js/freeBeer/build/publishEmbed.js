@@ -214,7 +214,13 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         return false;
     },
-
+    handleDiscard: function() {
+        if (this.state.showPreview) {
+            this.setState({showPreview: false});
+        }
+        this.refs.content.getDOMNode().value = "";
+        return events.pub("ui/reply/clear-content", {'reply.content': ''});
+    },
     handleContentTab: function() {
         return this.setState({showPreview: false});
     },
@@ -437,7 +443,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var contentStyle = {
             width: '100%',
             height: (type=="PGN" && this.state.showPreview) ? 'auto' : '200px',
-            overflowY: this.state.showPreview ? "scroll" : "hidden",
+            overflowY: "auto",
             cursor: this.state.showPreview ? "default" : "auto", 
             marginBottom: '10px',
             border: '1px solid #333',
@@ -485,13 +491,15 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         );
 
         var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType;
-        /* type | privacy */
         var typeOption = (
             React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
                     return React.DOM.option( {key:type, value:type}, type)
                 })
             )
+        );
+        var discardBtn = (
+            React.DOM.a( {onClick:this.handleDiscard, href:"#"}, "Discard")
         );
         var privacyToIcon = {
             'public': 'fa-bullhorn',
@@ -622,7 +630,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                     contentField,
                     type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bbcodeMsg"),React.DOM.br(null))) : "",
                     errorField,
-                    "Type: ", typeOption,
+                    "Type: ", typeOption,' ',this.state.showPreview ? "" : discardBtn,
                     advancedField
                 )
             )

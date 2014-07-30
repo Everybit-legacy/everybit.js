@@ -1440,16 +1440,16 @@ var NewIdentity = React.createClass({
         if (document.getElementsByClassName('menu')[0])
             document.getElementsByClassName('menu')[0].scrollTop = top;
     },
-    componentDidUpdate: function() {
+    componentDidUpdate: function(prevProps, prevState) {
+        if (this.state.step != prevState.step || this.props.show != prevProps.show) {
+            this.scrollToShow();
+        }
+    },
+    /*componentDidMount: function() {
         if (puffworldprops.menu.section == "identity") {
             this.scrollToShow();           
         }
-    },
-    componentDidMount: function() {
-        if (puffworldprops.menu.section == "identity") {
-            this.scrollToShow();           
-        }
-    },
+    },*/
 
     handlePrivateKeyChange: function(key) {
         this.refs[key+'KeyPublic'].getDOMNode().value = "";

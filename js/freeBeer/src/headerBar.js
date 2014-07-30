@@ -47,7 +47,8 @@ var HBpublish = React.createClass({
     },
 
     handleShowPublish: function() {
-        return events.pub('ui/publish/show', {'menu.show': true, 'menu.section': 'publish','clusters.publish': true})
+        return events.pub('ui/publish/show', {'menu.popout': 'publish',
+                                             'clusters.publish': true})
     },
 
     render: function() {

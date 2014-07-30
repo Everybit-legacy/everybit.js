@@ -197,7 +197,7 @@ var PuffBar = React.createClass({
             <div className={className}>
                 <PuffJson puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
-                <PuffClone puff={puff} />
+                {puff.payload.type == "image" ? "" : <PuffClone puff={puff} />}
                 {moreButton}
             </div>
         );

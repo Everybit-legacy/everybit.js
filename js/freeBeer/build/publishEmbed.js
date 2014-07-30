@@ -215,11 +215,16 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         return false;
     },
     handleDiscard: function() {
-        if (this.state.showPreview) {
-            this.setState({showPreview: false});
+        var type = this.refs.type.getDOMNode().value;
+        
+        if (type == 'image') {
+            this.setState({imageSrc: ''});
+            this.refs.imageLoader.getDOMNode().value = '';
+            return false;
+        } else {
+            this.refs.content.getDOMNode().value = "";
+            return events.pub("ui/reply/clear-content", {'reply.content': ''});
         }
-        this.refs.content.getDOMNode().value = "";
-        return events.pub("ui/reply/clear-content", {'reply.content': ''});
     },
     handleContentTab: function() {
         return this.setState({showPreview: false});

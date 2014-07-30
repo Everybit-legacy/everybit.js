@@ -612,7 +612,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         }
 
         // reply type
-        var type = false;
+        var type = puffworldprops.reply.lastType;
         if (parents.length != 0) {
             type = PuffForum.getPuffBySig(parents[0]).payload.type;
         }

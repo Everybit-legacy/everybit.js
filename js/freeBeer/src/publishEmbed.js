@@ -79,6 +79,7 @@ var PuffPublishFormEmbed = React.createClass({
         showPuff(sig);
         events.pub('ui/submit/success', 
                    { 'reply.parents': [],
+                     'reply.lastType': puffworldprops.reply.type,
                      'view.cursor': sig, 
                      'view.flash': true,
                      'view.filters': {}  });
@@ -483,10 +484,10 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
-        var type = this.props.reply.type || CONFIG.defaultContentType;
+        var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType;
         /* type | privacy */
         var typeOption = (
-            <select className="btn" ref="type" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select className="btn" ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}

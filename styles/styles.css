@@ -1105,8 +1105,11 @@ select:disabled {
 
 .qrcode {
     cursor: pointer;
+    float: right;
+}
+.expand .qrcode {
     position: absolute;
-    left: 230px;
+    left: 15em;
 }
 
 .menu .flash {

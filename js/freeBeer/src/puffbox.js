@@ -195,7 +195,6 @@ var PuffBar = React.createClass({
         )
         var iconSetThree = (
             <div className={className}>
-
                 <PuffJson puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
                 <PuffClone puff={puff} />

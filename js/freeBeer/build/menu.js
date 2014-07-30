@@ -1176,7 +1176,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
                 qr.make();
                 var image_data = qr.createImgTag() || {};
                 var data = 'data:image/gif;base64,' + image_data.base64;
-                qrcodeField = (React.DOM.img( {id:"qrcode", src:data, width:image_data.width, height:image_data.height, onClick:this.handleClickQRCode}));
+                qrcodeField = (React.DOM.img( {className:"qrcode", src:data, width:image_data.width, height:image_data.height, onClick:this.handleClickQRCode}));
             }
         }
 

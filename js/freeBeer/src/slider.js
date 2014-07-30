@@ -534,7 +534,7 @@ var ImportWizard = React.createClass({
 
 var PasswordWizard = React.createClass({
     getInitialState: function() {
-        return {errMsg: '', registerSuccess: false};
+        return {errMsg: '', registerSuccess: false, enableImport: false};
     },
     populateKeys: function() {
         var keys = {};
@@ -625,7 +625,8 @@ var PasswordWizard = React.createClass({
                 PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
                 PuffWardrobe.switchCurrent(username);
                 updateUI();
-                self.setState({errMsg: "","registerSuccess": true})
+                var enableImport = (payload.importNetwork && payload.importNetwork == 'instagram');
+                self.setState({errMsg: "","registerSuccess": true, enableImport: enableImport})
             })
             .catch(
                 function(err) {
@@ -683,7 +684,7 @@ var PasswordWizard = React.createClass({
                 </div>
                 <div className={this.state.registerSuccess ? "" : "hidden"}>
                     Success!{' '}
-                    You may want to {importContentLink}, {publishLink} or {gotoMainLink}
+                    You may want to {this.state.enableImport ? importContentLink+"," : ""} {publishLink} or {gotoMainLink}
                 </div>
                 <div ref="errFields">
                     <em>{this.state.errMsg}</em>

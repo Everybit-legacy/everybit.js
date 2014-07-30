@@ -483,10 +483,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             )
         );
 
-
         /* type | privacy */
         var typeOption = (
-            React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
+            React.DOM.select( {className:"btn", ref:"type", defaultValue:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
                     return React.DOM.option( {key:type, value:type}, type)
                 })
@@ -532,7 +531,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if(type == 'image') {
+        if (type == 'image') {
             // emply src will show no image icon in firefox
             var imageField = (React.DOM.img( {id:"preview_image", width:"100%", height:"1px"}));
             if (this.state.imageSrc) {
@@ -545,17 +544,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                         React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad}))
                     ),
                     React.DOM.br(null ),imageField
-                )
-            );
-        } else if (type == "zip") {
-            var zipFileList = (React.DOM.div( {ref:"zipFileList"}));
-            contentField = (
-                React.DOM.div(null, 
-                    React.DOM.div( {style:{marginLeft: '10px'}}, 
-                        React.DOM.div( {style:{display: 'inline-block'}}, "Zip file:",
-                        React.DOM.input( {type:"file", accept:"application/zip", ref:"zipLoader", onChange:this.handleZipLoad}))
-                    ),
-                    React.DOM.br(null ),zipFileList
                 )
             );
         }

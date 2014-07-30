@@ -483,10 +483,9 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
-
         /* type | privacy */
         var typeOption = (
-            <select className="btn" ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
+            <select className="btn" ref="type" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
                     return <option key={type} value={type}>{type}</option>
                 })}
@@ -532,7 +531,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if(type == 'image') {
+        if (type == 'image') {
             // emply src will show no image icon in firefox
             var imageField = (<img id="preview_image" width="100%" height="1px"/>);
             if (this.state.imageSrc) {
@@ -545,17 +544,6 @@ var PuffPublishFormEmbed = React.createClass({
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/></div>
                     </div>
                     <br />{imageField}
-                </div>
-            );
-        } else if (type == "zip") {
-            var zipFileList = (<div ref="zipFileList"></div>);
-            contentField = (
-                <div>
-                    <div style={{marginLeft: '10px'}}>
-                        <div style={{display: 'inline-block'}}>Zip file:
-                        <input type="file" accept="application/zip" ref="zipLoader" onChange={this.handleZipLoad}/></div>
-                    </div>
-                    <br />{zipFileList}
                 </div>
             );
         }

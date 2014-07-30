@@ -651,6 +651,7 @@ select:disabled {
     border: 2px solid #555;
     width: 70%;
     margin: auto;
+    line-height: 1.7em;
 }
 
 .replyFormEmbed {
@@ -1102,9 +1103,10 @@ select:disabled {
 }
 
 
-#qrcode {
-    float: right;
+.qrcode {
     cursor: pointer;
+    position: absolute;
+    left: 230px;
 }
 
 .menu .flash {

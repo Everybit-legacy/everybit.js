@@ -55,7 +55,7 @@ puffworldprops = {
         mode: 'list',
         
         filters: {
-            tags: [],
+            tags: ['jellyfish'],
             users : [],
             routes: []
         },
@@ -492,7 +492,7 @@ events.sub('ui/*', function(data) {
 
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
-if(Object.keys(PuffWardrobe.getAll()).length < 2)
+if(Object.keys(PuffWardrobe.getAll()).length < 1)
     events.pub( 'ui/slider/close',{ 'slider.show': true});
     // console.log("hide silder cuz several users")
 

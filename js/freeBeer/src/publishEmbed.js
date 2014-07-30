@@ -305,6 +305,7 @@ var PuffPublishFormEmbed = React.createClass({
     handlePickType: function() {
         var type = this.refs.type.getDOMNode().value;
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
+        this.setState({parentType: false});
         return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
     handlePickPrivacy: function(privacy) {
@@ -391,10 +392,9 @@ var PuffPublishFormEmbed = React.createClass({
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
         }
-        var type = this.props.reply.type || CONFIG.defaultContentType;
         if(parents.length) {
             var parent = PuffForum.getPuffBySig(parents[0]);
-            type = parent.payload.type;
+            // type = parent.payload.type;
 
             // figure out reply privacy
             var envelope = PuffData.getBonus(parent, 'envelope');
@@ -483,6 +483,7 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         );
 
+        var type = this.props.reply.type || CONFIG.defaultContentType;
         /* type | privacy */
         var typeOption = (
             <select className="btn" ref="type" defaultValue={type} disabled={this.state.showPreview} onChange={this.handlePickType} >

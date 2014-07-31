@@ -33,7 +33,8 @@ Translate.language["en"].extend({
 			animation: "Show animations",
 			infobar: "Show information bars",
             disable_reporting: "Disable reporting",
-			language: "Language"
+			language: "Language",
+			bgcolor: "Background"
         },
 		publish: {
 			title: 'Publish',

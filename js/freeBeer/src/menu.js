@@ -493,10 +493,21 @@ var PreferencesMenu = React.createClass({
         return events.pub( 'ui/view/showinfo/toggle',
             { 'view.showinfo': !puffworldprops.view.showinfo})
     },
-
+    handlePickBgcolor: function() {
+        var colorDiv = this.refs.bgcolor.getDOMNode();
+        var color = colorDiv.color;
+        var body = document.getElementsByTagName("body")[0];
+        body.style.backgroundColor = color;
+    },
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;
         return events.pub('ui/view/language/set', {'view.language': language});
+    },
+    componentDidMount: function() {
+        if (this.refs.bgcolor) {
+            var colorDiv = this.refs.bgcolor.getDOMNode();
+            colorDiv.onchange = this.handlePickBgcolor;
+        }
     },
 
     render: function() {
@@ -562,6 +573,12 @@ var PreferencesMenu = React.createClass({
                     <span className="floatingCheckbox"><i className={cbClass4} onClick={this.handleToggleReporting} ></i></span>
                     <a href="#" onClick={this.handleToggleReporting}>{polyglot.t("menu.preferences.disable_reporting")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.disable_reporting")} />
+                </div>
+
+
+                <div className="menuItem">
+                {polyglot.t("menu.preferences.bgcolor")}:{' '}
+                    <input className="colorPicker btn" size="6" ref="bgcolor" />
                 </div>
 
                 <div className="menuItem">

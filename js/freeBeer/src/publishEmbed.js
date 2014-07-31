@@ -539,9 +539,7 @@ var PuffPublishFormEmbed = React.createClass({
 
             currentContent = PuffForum.processContent(currentType, currentContent, {});
             contentField = (
-                <div>
-                    <div style={contentStyle} id="preview" ref="preview" name="preview" dangerouslySetInnerHTML={{__html: currentContent}}></div>
-                </div>
+                <div style={contentStyle} id="preview" ref="preview" name="preview" dangerouslySetInnerHTML={{__html: currentContent}}></div>
             )
         }
         // TODO: Did I hear someone say switch?

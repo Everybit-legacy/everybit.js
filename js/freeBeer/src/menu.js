@@ -264,6 +264,11 @@ var FilterBubble = React.createClass({
 
         return false;
     },
+    componentDidUpdate: function(prevProp) {
+        if (prevProp.filterValue != this.props.filterValue) {
+            TooltipMixin.componentDidMount.bind(this)();
+        }
+    },
 
     render: function() {
         var filterArray = Array.isArray(this.props.filterValue)
@@ -272,13 +277,17 @@ var FilterBubble = React.createClass({
 
         if (filterArray.length == 0) return <span></span>;
         
+        var polyglot = Translate.language[puffworldprops.view.language];
         var toReturn = filterArray.map(function(value) {
             return (
-                <span className='bubbleNode'>
+                <span className='bubbleNode relative'>
                     {value}
-                    <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
+                    <span >
+                        <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
                         <i className="fa fa-times-circle-o fa-fw"></i>
-                    </a>
+                        </a>
+                        <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
+                    </span>
                 </span>
             )
         }.bind(this));

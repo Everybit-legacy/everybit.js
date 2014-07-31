@@ -109,6 +109,7 @@ Translate.language["en"].extend({
             tagsFilter: 'Add a tag to filters',
             routesFilter: 'Add a route to filters',
             usersFilter: 'Add a user to filters',
+            removeFilter: 'Remove this filter',
             currentDelete:'To delete this user from the browser',
             flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
             viewImage: 'View large',
@@ -126,6 +127,13 @@ Translate.language["en"].extend({
             sortDESC: "Sorted by most recent. Click to change.",
             sortASC: "Sorted by least recent. Click to change.",
         }
+	},
+	header: {
+		tooltip: {
+            publish: 'Publish a new puff',
+            identity: 'Open identity popout',
+
+		}
 	},
 	replyForm: {
 		recipient: 'Recipients',

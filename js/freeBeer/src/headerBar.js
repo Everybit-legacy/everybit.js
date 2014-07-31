@@ -37,6 +37,7 @@ var HeaderBar = React.createClass({
 });
 
 var HBpublish = React.createClass({
+    mixins: [TooltipMixin],
     handleToggleShowPublish: function() {
         // Send event
         if(puffworldprops.header.publish.show)
@@ -52,17 +53,19 @@ var HBpublish = React.createClass({
     },
 
     render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
         if(puffworldprops.header.publish.show)
             var pulldown = <PublishPulldown />
         else
             var pulldown = ''
 
         return (
-            <span className="headerIcon">
+            <span className="headerIcon relative">
                 <a href="#" onClick={this.handleShowPublish}>
                     <i className="fa fa-send fa-fw"></i>
                 </a>
                 {pulldown}
+                <Tooltip position='under' content={polyglot.t('header.tooltip.publish')} />
             </span>
             )
     }
@@ -83,17 +86,19 @@ var PublishPulldown = React.createClass({
 
 
 var HBidentity = React.createClass({
+    mixins: [TooltipMixin],
     handleShowIdentityPopout: function() {
         return events.pub("ui/menu/popout", {'menu.popout': 'identity',
                                              'clusters.identity': true});
     },
     render: function() {
         var name = PuffWardrobe.getCurrentUsername();
-
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
-            <span className="headerIcon">
+            <span className="headerIcon relative">
 
                 <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>{name}</a>
+                <Tooltip position='under' content={polyglot.t('header.tooltip.identity')} />
             </span>
             )
     }
@@ -144,6 +149,7 @@ var HBCurrentFilters = React.createClass({
 });
 
 var HBFilterBubble = React.createClass({
+    mixins: [TooltipMixin],
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
         var filterPath  = 'view.filters.' + this.props.filterName;
@@ -163,6 +169,11 @@ var HBFilterBubble = React.createClass({
         }
 
         return false;
+    },
+    componentDidUpdate: function(prevProp) {
+        if (prevProp.filterValue != this.props.filterValue) {
+            TooltipMixin.componentDidMount.bind(this)();
+        }
     },
 
     render: function() {
@@ -184,15 +195,19 @@ var HBFilterBubble = React.createClass({
 
         if (filterArray.length == 0) return <span></span>;
 
+        var polyglot = Translate.language[puffworldprops.view.language];
         var toReturn = filterArray.map(function(value) {
             return (
-                <span className='bubbleNode'>
+                <span className='bubbleNode relative'>
                     {icon}
                     {' '}
                     {value}
-                    <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
-                        <i className="fa fa-times-circle-o fa-fw"></i>
-                    </a>
+                    <span>
+                        <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
+                            <i className="fa fa-times-circle-o fa-fw"></i>
+                        </a>
+                        <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
+                    </span>
                 </span>
                 )
         }.bind(this));
@@ -208,7 +223,6 @@ var HBFilterBubble = React.createClass({
 
 
 var HBFilters = React.createClass({
-    mixins: [TooltipMixin],
     getInitialState: function() {
         return {type:'tags'}
     },

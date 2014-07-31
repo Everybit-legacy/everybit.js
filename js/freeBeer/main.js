@@ -12,7 +12,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: false,
+        show: true,
         prefs: false,
         profile: false,
         import: false,                                  // import username

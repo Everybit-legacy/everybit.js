@@ -719,3 +719,63 @@ PuffData.getMyPuffChain = function(username) {
 
 
 
+///////////////////////////////////////////
+//                                       //
+//       Garbage Collector Thing         //
+//                                       //
+///////////////////////////////////////////
+
+PuffData.runningSizeTally = 0
+PuffData.scoreSort = []
+
+PuffData.heuristics = []
+PuffData.addHeuristics = function(fun) {
+    PuffData.heuristics.push(fun)
+}
+
+PuffData.rateMyPuff = function(puff) {
+    var scores = PuffData.heuristics.map(function(h) {return h(puff)})          // apply heuristics
+    var total  = scores.reduce(function(acc, score) {return acc+score}, 0)      // get total // TODO: improve algo
+    return total
+}
+
+PuffData.rateSomePuffs = function(puffs) {
+    puffs.forEach(function(puff) {                                              // rate each puff
+        var score = PuffData.rateMyPuff(puff)
+        PuffData.addBonus(puff, 'rating', score)                                // add rating to bonii
+        
+    })
+    
+    
+    // OPT: cache sorted version
+    // maybe bins[score.floor].push(puff) or something...
+    // THINK: some heuristics rely on scores of related puffs... possible feedback loop? topological ordering?
+}
+
+PuffData.rateAllPuffs = function() {
+    allPuffs = PuffData.shells
+    PuffData.rateSomePuffs(allPuffs)
+}
+
+PuffData.getTopPuffs = function(limit) {
+    // grab the best puffs
+}
+
+PuffData.getBottomPuffs = function(limit) {
+    // grab the puffs below the limit threshold (w/ 300 puffs and limit=100 this returns the 200 worst puffs)
+}
+
+// PuffData.getTopPuffs = function(options) {
+//     var numberLimit =  options.number || 0
+//     var sizeLimit   =    options.size || 0
+//     var compact     = options.compact || false  // whether to allow compaction of returned puffs
+//     var reverse     = options.reverse || false  // return bottom puffs instead of top puffs
+// }
+
+PuffData.doGC = function() {
+    // are we over the limits?
+    // find puffs to remove (> num limit)
+    // find puffs to compact (> size limit)
+}
+
+

@@ -113,8 +113,11 @@ CONFIG.arrowColors = [
  ];
  
 
-// configurations for network requests. eventually queries will track their timing and we'll automate these settings.
+// background color
+CONFIG.defaultBgcolor = "E0E0E0";
 
+
+// configurations for network requests. eventually queries will track their timing and we'll automate these settings.
 CONFIG.initLoadBatchSize = 50
 CONFIG.initLoadGiveup    = 300
 
@@ -124,4 +127,9 @@ CONFIG.fillSlotsGiveup    = 1000
 CONFIG.globalBigBatchLimit = 2000
 
 
-CONFIG.defaultBgcolor = "E0E0E0";
+// default size limits
+CONFIG.localStorageMemoryLimit =  3E6 //  3MB
+CONFIG.inMemoryMemoryLimit     = 30E6 // 30MB
+
+CONFIG.localStorageShellLimit =  1000 // maximum number of shells
+CONFIG.inMemoryShellLimit     = 10000 // (shells are removed to compensate)

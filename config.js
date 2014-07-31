@@ -122,3 +122,6 @@ CONFIG.fillSlotsBatchSize = 50
 CONFIG.fillSlotsGiveup    = 1000
 
 CONFIG.globalBigBatchLimit = 2000
+
+
+CONFIG.defaultBgcolor = "E0E0E0";

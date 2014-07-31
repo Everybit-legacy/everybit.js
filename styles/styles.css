@@ -1222,6 +1222,11 @@ a.footerText {
 }
 
 
+.colorPick {
+    border: 1px solid #000;
+}
+
+
 .animation, .animation .block{
     transition: all 1s;
 }

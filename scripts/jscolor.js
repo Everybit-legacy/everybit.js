@@ -328,7 +328,7 @@ var jscolor = {
 
 		this.required = true; // refuse empty values?
 		this.adjust = true; // adjust value to uniform notation?
-		this.hash = false; // prefix color with # symbol?
+		this.hash = true; // prefix color with # symbol?
 		this.caps = true; // uppercase?
 		this.slider = true; // show the value/saturation slider?
 		this.valueElement = target; // value holder

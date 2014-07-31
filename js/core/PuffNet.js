@@ -71,14 +71,20 @@ PuffNet.getStarShells = function() {
 
 PuffNet.getPrivatePuffsFromMe = function(username) {
     var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs', contentType: 'encryptedpuff', username: username, numb: CONFIG.globalBigBatchLimit};
+    var data = { username: username
+               , contentType: 'encryptedpuff', fullOrShell: 'full'
+               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+               };
     
     return PuffNet.getJSON(url, data);
 }
 
 PuffNet.getPrivatePuffsForMe = function(username) {
     var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs', contentType: 'encryptedpuff', route: username, numb: CONFIG.globalBigBatchLimit};
+    var data = { route: username
+               , contentType: 'encryptedpuff', fullOrShell: 'full'
+               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+               };
     
     return PuffNet.getJSON(url, data);
 }

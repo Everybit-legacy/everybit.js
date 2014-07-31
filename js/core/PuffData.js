@@ -285,6 +285,19 @@ PuffData.tryAddingShell = function(shell) {
     }
     
     
+    // TODO: fix this private pathway
+    if(shell.payload.type == 'encryptedpuff') {
+        var username = PuffWardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
+        
+        if(!shell.keys[username]) return false
+        
+        PuffData.addPrivateShells([shell]) // TODO: this calls updateUI and other weird stuff >.<
+        
+        return false // we added a shell, but not the normal way... 
+    }
+    
+    
+    
     var existing = PuffData.getCachedShellBySig(shell.sig)
     
     if(existing) {

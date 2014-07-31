@@ -13,6 +13,8 @@ PB.persistent_merge = function(props, data) {
     ///   and  data {'fun.yay':0, 'cat.ant.bear':0}}          
     ///     returns {fun: {yay:0, ok:123}, cat:{ant:{bear:0}}}
     
+    data = data || []
+    
     if(Array.isArray(data) || Array.isArray(data)) {
         // THINK: what do we do with arrays?
         if(Array.isArray(data) !== Array.isArray(props)) {

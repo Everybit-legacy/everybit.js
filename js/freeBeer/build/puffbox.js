@@ -174,35 +174,39 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
 
         // ICON SETS
         var iconSetOne = (
-            React.DOM.div( {className:className}, 
+            React.DOM.span( {className:iconSet == 0 ? "" : "hidden"}, 
                 PuffFlagLink( {ref:"flag", sig:puff.sig, username:puff.username, flagged:this.props.flagged}),
                 PuffInfoLink( {puff:puff} ),
                 PuffParentCount( {puff:puff} ),
                 PuffChildrenCount( {puff:puff} ),
                 showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
-                PuffReplyLink( {ref:"reply", sig:puff.sig} ),
-                moreButton
+                PuffReplyLink( {ref:"reply", sig:puff.sig} )
             )
         );
         var iconSetTwo = (
-            React.DOM.div( {className:className}, 
+            React.DOM.span( {className:iconSet == 1 ? "" : "hidden"}, 
                 canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
                 puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
                 PuffExpand( {puff:puff} ),
-                PuffTipLink( {username:puff.username} ),
-                moreButton
+                PuffTipLink( {username:puff.username} )
             )
         )
         var iconSetThree = (
-            React.DOM.div( {className:className}, 
+            React.DOM.span( {className:iconSet == 2 ? "" : "hidden"}, 
                 PuffJson( {puff:puff} ),
                 PuffPermaLink( {sig:puff.sig} ),
-                puff.payload.type == "image" ? "" : PuffClone( {puff:puff} ),
-                moreButton
+                puff.payload.type == "image" ? "" : PuffClone( {puff:puff} )
             )
         );
         var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
-        return iconSetArray[iconSet];
+        return (
+        React.DOM.div( {className:className}, 
+            iconSetOne,
+            iconSetTwo,
+            iconSetThree,
+            moreButton
+        )
+        );
     }
 });
 

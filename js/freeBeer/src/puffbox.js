@@ -174,35 +174,39 @@ var PuffBar = React.createClass({
 
         // ICON SETS
         var iconSetOne = (
-            <div className={className}>
+            <span className={iconSet == 0 ? "" : "hidden"}>
                 <PuffFlagLink ref="flag" sig={puff.sig} username={puff.username} flagged={this.props.flagged}/>
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
                 {showStar ? <PuffStar show={showStar} sig={puff.sig} /> : ''}
                 <PuffReplyLink ref="reply" sig={puff.sig} />
-                {moreButton}
-            </div>
+            </span>
         );
         var iconSetTwo = (
-            <div className={className}>
+            <span className={iconSet == 1 ? "" : "hidden"}>
                 {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                 {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
                 <PuffExpand puff={puff} />
                 <PuffTipLink username={puff.username} />
-                {moreButton}
-            </div>
+            </span>
         )
         var iconSetThree = (
-            <div className={className}>
+            <span className={iconSet == 2 ? "" : "hidden"}>
                 <PuffJson puff={puff} />
                 <PuffPermaLink sig={puff.sig} />
                 {puff.payload.type == "image" ? "" : <PuffClone puff={puff} />}
-                {moreButton}
-            </div>
+            </span>
         );
         var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
-        return iconSetArray[iconSet];
+        return (
+        <div className={className}>
+            {iconSetOne}
+            {iconSetTwo}
+            {iconSetThree}
+            {moreButton}
+        </div>
+        );
     }
 });
 

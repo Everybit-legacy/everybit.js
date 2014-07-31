@@ -116,6 +116,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         metadata.license = this.state.advancedOpt.contentLicense;
         metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
+        metadata.language = puffworldprops.view.language;
         
         if(type == 'PGN') {
             metadata.quote = true;

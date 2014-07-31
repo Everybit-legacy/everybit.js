@@ -505,7 +505,21 @@ var PreferencesMenu = React.createClass({
     },
     componentDidMount: function() {
         if (this.refs.bgcolor) {
+            jscolor.init();
             var colorDiv = this.refs.bgcolor.getDOMNode();
+
+            var currentBg = document.body.style.backgroundColor;
+            if (currentBg) {
+                currentBg = currentBg.substring(4, currentBg.length-1)
+                                     .replace(/ /g, '')
+                                     .split(',');
+                var r = parseFloat(currentBg[0]);
+                var g = parseFloat(currentBg[1]);
+                var b = parseFloat(currentBg[2]);
+                colorDiv.color.fromRGB(r/255.0, g/255.0, b/255.0)
+            } else {
+                colorDiv.color.fromString(CONFIG.defaultBgcolor);
+            }
             colorDiv.onchange = this.handlePickBgcolor;
         }
     },

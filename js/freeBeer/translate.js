@@ -132,7 +132,7 @@ Translate.language["en"].extend({
 		tooltip: {
             publish: 'Publish a new puff',
             identity: 'Open identity popout',
-
+            icon: 'Open/close menu'
 		}
 	},
 	replyForm: {

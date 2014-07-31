@@ -223,6 +223,7 @@ var HBFilterBubble = React.createClass({
 
 
 var HBFilters = React.createClass({
+    mixins: [TooltipMixin],
     getInitialState: function() {
         return {type:'tags'}
     },
@@ -290,6 +291,7 @@ var HBFilters = React.createClass({
 });
 
 var HBPuffIcon = React.createClass({
+    mixins: [TooltipMixin],
     handleClick: function() {
         if(puffworldprops.menu.show)
             return events.pub('ui/menu/close', {'menu.show': false})
@@ -297,8 +299,12 @@ var HBPuffIcon = React.createClass({
             return events.pub('ui/menu/open', {'menu.show': true})
     },
     render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
         return (
+            <span className="relative">
                 <img id="puffballIcon" onClick={this.handleClick} src="img/blueAnimated.gif" />
+                <Tooltip position="under" content={polyglot.t("header.tooltip.icon")} />
+            </span>
             );
     }
 });

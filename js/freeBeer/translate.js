@@ -79,8 +79,11 @@ Translate.language["en"].extend({
                 request:'Requested username '
             }
 		},
+		profile: {
+			title: 'Profile'
+		},
 		about: {
-			title: 'ABOUT',
+			title: 'About',
 			introduction: 'Introduction',
 			faq: "Puffball FAQ",
 			code: 'Source code'

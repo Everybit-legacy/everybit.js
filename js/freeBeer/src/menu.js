@@ -52,7 +52,7 @@ var Menu = React.createClass({
     }
 
 });
-               /* <Cluster clusterName="profile" clusterMenu='ProfileForm' clusterIcon='fa-user' view={this.props.view} />*/
+               /* <Cluster clusterName="profile" clusterMenu='ProfileForm' clusterIcon='fa-file-text' view={this.props.view} />*/
 
 
 var Cluster = React.createClass({

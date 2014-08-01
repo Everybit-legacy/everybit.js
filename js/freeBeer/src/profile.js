@@ -92,7 +92,9 @@ var ProfileForm = React.createClass({
 			return false;
 		}
 
-		// publish the puff with image src
+		metadata.imgSrc = this.state.imgSrc;
+		// build puff
+		// publish puff
 		console.log(metadata);
 		return false;
 	},

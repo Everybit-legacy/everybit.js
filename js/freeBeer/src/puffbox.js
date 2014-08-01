@@ -597,10 +597,15 @@ var PuffReplyLink = React.createClass({
 
         var index = parents.indexOf(sig)
         var openMenu = true;
+        var type = puffworldprops.reply.type;
         if(index == -1) {
+            if (parents.length == 0)
+                type = PuffForum.getPuffBySig(parents[0]).payload.type;
             parents.push(sig)
         } else {
             parents.splice(index, 1);
+            if (parents.length == 0)
+                type = puffworldprops.reply.lastType;
             openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
@@ -615,11 +620,6 @@ var PuffReplyLink = React.createClass({
             contentEle.focus();
         }
 
-        // reply type
-        var type = puffworldprops.reply.lastType;
-        if (parents.length != 0) {
-            type = PuffForum.getPuffBySig(parents[0]).payload.type;
-        }
         return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
                                                    'reply.parents': parents,
                                                    'reply.type': type,

@@ -325,7 +325,15 @@ function setPropsFromURL() {
 
 function setPropsFromPushstate(pushstate) {
     var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
-    
+
+    /* setting the filter to NONE when no filter is specified in the url but there is other property set
+        to deal with filter issue on reload
+    */
+    var filterProps = Object.keys(props).filter(function(k){return k.indexOf('view.filters') == 0});
+    if (Object.keys(pushstate).filter(Boolean).length > 0 && filterProps.length == 0) {
+        props['view.filters'] = {};
+    }
+
     update_puffworldprops(props)
     
     updateUI()
@@ -473,7 +481,6 @@ window.addEventListener('load', function() {
         window.addEventListener('popstate', function(event) {
             if(event.state)
                 return setPropsFromPushstate(event.state);
-
             puffworldprops = puffworlddefaults;
             updateUI();
         });

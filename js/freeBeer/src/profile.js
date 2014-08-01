@@ -94,6 +94,12 @@ var ProfileForm = React.createClass({
 
 		metadata.imgSrc = this.state.imgSrc;
 		// build puff
+		/*var type = 'profile';
+		var self = this;
+		var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
+		var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], metadata, []);*/
+
+		
 		// publish puff
 		console.log(metadata);
 		return false;
@@ -112,8 +118,8 @@ var ProfileForm = React.createClass({
 		for (var i=0; i<this.state.additionRows; i++)
 			rows.push(<ProfileInput />)
 
-		var addNewBtn = <input type="button" className="btn" onClick={this.handleAddNewRow} value="Add new row" style={{minWidth: '40%', marginRight:'5%'}}/>
-		var submitBtn = <input type="button" className="btn" onClick={this.handleSubmit} value="Submit" style={{minWidth: '40%', marginRight:'5%'}} />
+		var addNewBtn = <input type="button" className="btn" onClick={this.handleAddNewRow} value="Add new row" style={{minWidth: '45%', marginRight:'5%'}}/>
+		var submitBtn = <input type="button" className="btn" onClick={this.handleSubmit} value="Submit" style={{minWidth: '45%', marginRight:'5%'}} />
         var privacyOption = (
             <div ref="privacy" className="icon">
             	Privacy: 

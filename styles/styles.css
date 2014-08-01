@@ -1216,7 +1216,7 @@ a.footerText {
     bottom: 0;
 }
 .scroller.up {
-    top: 0;
+    top: 40px; /* for header bar */
 }
 .scroller a {
     color: #888888;

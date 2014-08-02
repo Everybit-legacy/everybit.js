@@ -742,6 +742,9 @@ PuffData.addHeuristics(function(shell) {
     return parseFloat( (PuffData.getBonus(shell, 'starStats') || {}).score || 0 ) * 100
 })
 
+// TODO: add heuristics for: my puffs (which go elsewhere, ultimately), replies to my puffs, my puff's parents, 
+//       friend's puffs (whatever that means), puff freshness, last seen, etc
+
 
 PuffData.rateMyPuff = function(puff) {
     var scores = PuffData.heuristics.map(function(h) {return h(puff)})          // apply heuristics
@@ -847,8 +850,6 @@ PuffData.doGC = function() {
     if(PuffData.shells.length > limit) {}
     
     if(PuffData.runningSizeTally > memlimit) {}
-    
-    
 }
 
 PuffData.getShellsForLocalStorage = function() {

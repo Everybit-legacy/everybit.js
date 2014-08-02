@@ -192,6 +192,8 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     
     PuffData.addToGraph(shells)
     
+    PuffData.rateSomePuffs(shells)
+    
     PuffData.persistShells()
     // PuffData.makeShellsAvailable()
     
@@ -321,14 +323,15 @@ PuffData.tryAddingShell = function(shell) {
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
-    shells = shells || PuffData.shells
-    
+    if(!shells) // THINK: when we receive shells directly we should compact them too
+        shells = PuffData.getShellsForLocalStorage()
+        
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     // THINK: we need knowledge of our user records here... how do we get that? 
     // PuffData.interesting_usernames?
     
-    shells = shells.filter(function(shell) { return !shell.payload.content || (shell.payload.content.length < 1000) })
+    // shells = shells.filter(function(shell) { return !shell.payload.content || (shell.payload.content.length < 1000) })
     
     Puffball.Persist.save('shells', shells)
 }
@@ -628,6 +631,8 @@ PuffData.removeShellFromCache = function(sig) {
     
     PuffData.purgeShellFromGraph(sig)
     
+    PuffData.removeCachedPuffScore(shell)
+    
     updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
 }
 
@@ -726,43 +731,104 @@ PuffData.getMyPuffChain = function(username) {
 ///////////////////////////////////////////
 
 PuffData.runningSizeTally = 0
-PuffData.scoreSort = []
+PuffData.scoreSort = {}
 
 PuffData.heuristics = []
 PuffData.addHeuristics = function(fun) {
     PuffData.heuristics.push(fun)
 }
 
+PuffData.addHeuristics(function(shell) {
+    return parseFloat( (PuffData.getBonus(shell, 'starStats') || {}).score || 0 ) * 100
+})
+
+
 PuffData.rateMyPuff = function(puff) {
     var scores = PuffData.heuristics.map(function(h) {return h(puff)})          // apply heuristics
-    var total  = scores.reduce(function(acc, score) {return acc+score}, 0)      // get total // TODO: improve algo
+    var total  = scores.reduce(function(acc, score) {return acc+(score||0)}, 0) // get total // TODO: improve algo
     return total
 }
 
 PuffData.rateSomePuffs = function(puffs) {
     puffs.forEach(function(puff) {                                              // rate each puff
         var score = PuffData.rateMyPuff(puff)
-        PuffData.addBonus(puff, 'rating', score)                                // add rating to bonii
-        
+        PuffData.doStuffWithScore(puff, score)
+        PuffData.doStuffWithPuff (puff)
     })
-    
-    
+    // THINK: some heuristics rely on scores of related puffs... possible feedback loop? topological ordering?
+    //        a toposort is easy-ish w/ graph db...
+}
+
+// TODO: when you switch identities, rescore the puffs
+
+
+PuffData.doStuffWithScore = function(puff, score) {
+    PuffData.removeCachedPuffScore(puff)                                        // NOTE: has to come before bonii
+    PuffData.addBonus(puff, 'rating', score)                                    // add rating to bonii
+    PuffData.cachePuffScore(puff, score)    
     // OPT: cache sorted version
     // maybe bins[score.floor].push(puff) or something...
-    // THINK: some heuristics rely on scores of related puffs... possible feedback loop? topological ordering?
 }
 
-PuffData.rateAllPuffs = function() {
-    allPuffs = PuffData.shells
-    PuffData.rateSomePuffs(allPuffs)
+PuffData.doStuffWithPuff = function(puff) {
+    var puffsize = JSON.stringify(puff).length
+    PuffData.addBonus(puff, 'size', puffsize)
+    PuffData.runningSizeTally += puffsize
 }
+
+PuffData.cachePuffScore = function(puff, score) {
+    var key = PuffData.convertScoreToKey(score)
+    PuffData.scoreSort[key] = PuffData.scoreSort[key] || []
+    PuffData.scoreSort[key].push(puff)
+}
+
+PuffData.removeCachedPuffScore = function(puff) {
+    var score = PuffData.getBonus(puff, 'score')
+    var key = PuffData.convertScoreToKey(score)
+    var bin = PuffData.scoreSort[key]
+    if(!bin) return false
+    if(!bin.length) return false
+    
+    for(var i = bin.length - 1; i >= 0; i--) {
+        if(bin[i].sig == puff.sig) {
+            bin.splice(i, 1)
+            var puffsize = PuffData.getBonus(puff, 'size')
+            PuffData.runningSizeTally -= puffsize
+            return false
+        }
+    }
+}
+
+PuffData.getCachedPuffs = function(limit, bottom) {
+    var seen = 0
+    var result = []
+    var keys = Object.keys(PuffData.scoreSort).map(parseFloat).sort()
+    
+    for (var i = 0; i < keys.length; i++) {
+        var key = keys[i]
+        var puffs = PuffData.scoreSort[key] // OPT: short-circuit on !bottom
+        
+        puffs.reduce(function(seen, puff) {
+            if(seen > limit == !!bottom) result.push(puff)
+            return seen+1
+        }, 0)
+    }
+    
+    return result
+}
+
+PuffData.convertScoreToKey = function(score) {
+    return Math.floor(score / 10) || 0 // TODO: make this smarter
+}
+
 
 PuffData.getTopPuffs = function(limit) {
-    // grab the best puffs
+    return PuffData.getCachedPuffs(limit)
 }
 
-PuffData.getBottomPuffs = function(limit) {
+PuffData.getNotTopPuffs = function(limit) {
     // grab the puffs below the limit threshold (w/ 300 puffs and limit=100 this returns the 200 worst puffs)
+    return PuffData.getCachedPuffs(limit, 'bottom')
 }
 
 // PuffData.getTopPuffs = function(options) {
@@ -774,8 +840,54 @@ PuffData.getBottomPuffs = function(limit) {
 
 PuffData.doGC = function() {
     // are we over the limits?
-    // find puffs to remove (> num limit)
-    // find puffs to compact (> size limit)
+    var limit     = CONFIG.inMemoryShellLimit
+    var memlimit  = CONFIG.inMemoryMemoryLimit
+    var sizelimit = CONFIG.shellContentThreshold
+
+    if(PuffData.shells.length > limit) {}
+    
+    if(PuffData.runningSizeTally > memlimit) {}
+    
+    
+}
+
+PuffData.getShellsForLocalStorage = function() {
+    var limit     = CONFIG.localStorageShellLimit
+    var memlimit  = CONFIG.localStorageMemoryLimit
+    var sizelimit = CONFIG.shellContentThreshold
+    
+    var shells = PuffData.getTopPuffs(limit)
+    var total = shells.reduce(function(size, shell) {
+        return size + (PuffData.getBonus(shell, 'size') || 0)
+    }, 0)
+    
+    if (total <= memlimit) return shells
+    
+    // compact the shells
+    // TODO: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content from the bad ones
+    for (var i = shells.length - 1; i >= 0; i--) {
+        var shell = shells[i]
+        var content_size = (shell.payload.content||"").length
+        if (content_size > sizelimit) {
+            var new_shell = PB.extend(shell)
+            var new_payload = {}
+            for(var prop in shell.payload)
+                if(prop != 'content')
+                    new_payload[prop] = shell.payload[prop] 
+
+            new_shell.payload = new_payload
+            shells[i] = new_shell
+            
+            total -= content_size
+            if(total <= memlimit) break
+        }
+    }
+    
+    if (total <= memlimit) return shells
+    
+    // TODO: if still over memlimit, then remove shells until under memlimit
+    
+    return shells
 }
 
 

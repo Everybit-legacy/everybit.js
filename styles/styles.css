@@ -1064,6 +1064,10 @@ select:disabled {
     background: #d6d6ff;
 }
 
+.profileInput .input[type="text"] {
+    outline: 0;
+}
+
 .steps {
     font-family: GudeaBold;
     text-transform: uppercase;
@@ -1212,7 +1216,7 @@ a.footerText {
     bottom: 0;
 }
 .scroller.up {
-    top: 0;
+    top: 40px; /* for header bar */
 }
 .scroller a {
     color: #888888;

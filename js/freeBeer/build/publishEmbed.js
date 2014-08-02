@@ -114,10 +114,12 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             this.cleanUpSubmit();
             return false;
         }
-        metadata.license = this.state.advancedOpt.contentLicense;
-        metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
+        if (this.state.advancedOpt.contentLicense)
+            metadata.license = this.state.advancedOpt.contentLicense;
+        if (this.state.advancedOpt.replyPrivacy)
+            metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
         metadata.language = puffworldprops.view.language;
-        
+
         if(type == 'PGN') {
             metadata.quote = true;
         }

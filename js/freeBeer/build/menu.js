@@ -52,6 +52,7 @@ var Menu = React.createClass({displayName: 'Menu',
     }
 
 });
+               /* <Cluster clusterName="profile" clusterMenu='ProfileForm' clusterIcon='fa-file-text' view={this.props.view} />*/
 
 
 var Cluster = React.createClass({displayName: 'Cluster',
@@ -124,6 +125,9 @@ var Cluster = React.createClass({displayName: 'Cluster',
             break;
         case "tools":
             clusterMenu = ToolsMenu(null )
+            break;
+        case "profile":
+            clusterMenu = ProfileForm(null )
             break;
         default:
             break;

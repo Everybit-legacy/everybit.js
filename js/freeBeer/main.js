@@ -380,7 +380,6 @@ function showPuffDirectly(puff) {
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
                                , 'menu'      : puffworlddefaults.menu
-                               // , 'reply'     : puffworlddefaults.reply
                                })
 }
 

@@ -2,7 +2,7 @@
 
 var ProfileInput = React.createClass({
 	getInitialState: function() {
-		return {msg: ''};
+		return {msg: '', show: true};
 	},
 	handleCheckKey: function(e) {
 		var key = e.target.value;
@@ -24,7 +24,12 @@ var ProfileInput = React.createClass({
 		if (e.target.style.border) e.target.style.border = "";
 		if (this.state.msg.length > 0) this.setState({msg: ''});
 	},
+	deleteSelf: function() {
+		this.setState({show: false});
+		return false;
+	},
 	render: function() {
+		if (!this.state.show) return <span></span>
 		var key = this.props.metaKey;
 		var keyField = <input type="text" className="btn" placeholder="key" size="6" style={{marginRight: '5%', float: 'left'}} onChange={this.handleCheckKey}/>
 		if (key)
@@ -47,6 +52,7 @@ var ProfileForm = React.createClass({
 			public: true,
 			imageSrc: '',
 			additionRows: 1,
+			deletedRows: 0,
 			msg: ''
 		}
 	},
@@ -62,7 +68,7 @@ var ProfileForm = React.createClass({
 	},
 	handleAddNewRow: function() {
 		var row = this.state.additionRows;
-		if (row < 5) {
+		if (row - this.state.deletedRows < 5) {
 			this.setState({additionRows: row+1})
 		} else {
 			this.setState({msg: "Overlimit"})
@@ -88,13 +94,13 @@ var ProfileForm = React.createClass({
 		var update_prom = PuffNet.updateUserRecord(update_puff);
 		update_prom.then(function(userRecord){
 			self.setState({msg: 'Success!'});
-			console.log(userRecord);
 			if (oldProfile) {
 				var prom = PuffForum.flagPuff(oldProfile);
 				prom.then(function() {
 					console.log('Old Profile flagged');
 				})
 			}
+			showPuff(userRecord.sig);
 			self.handleCleanFields();
 		}).catch(function(err){
 			self.setState({msg: "Error."});
@@ -109,7 +115,7 @@ var ProfileForm = React.createClass({
 		}
 		var fileInput = this.refs.imageLoader.getDOMNode();
 		fileInput.value = "";
-		
+
 		var initialState = this.getInitialState();
 		this.setState(initialState);
 		return false;
@@ -185,6 +191,16 @@ var ProfileForm = React.createClass({
 		}
 		return false;
 	},
+	handleDeleteRow: function(rowRef, e) {
+		if (this.refs[rowRef])
+			this.refs[rowRef].deleteSelf();
+		var target = e.target;
+		console.log(target);
+		target.parentNode.removeChild(target);
+		var deletedRows = this.state.deletedRows+1;
+		this.setState({deletedRows: deletedRows})
+		return false;
+	},
 	render: function() {
 		var linkToProfilePuff = <span><a href="#" onClick={this.handleShowProfilePuff}>View Profile Puff</a></span>
 
@@ -199,8 +215,20 @@ var ProfileForm = React.createClass({
 
 		var defaultRows = ['name', 'email', 'url'];
 		var rows = [];
-		for (var i=0; i<this.state.additionRows; i++)
-			rows.push(<ProfileInput />)
+		var self = this;
+		var deleteRowStyle = {
+			position: 'absolute',
+			left: '2%',
+			padding: '5px'
+		}
+		for (var i=0; i<this.state.additionRows; i++) {
+			var ref = "row"+i;
+			rows.push(
+				<div>
+					<a href="#" style={deleteRowStyle} onClick={self.handleDeleteRow.bind(self, ref)}><i className="fa fa-fw fa-minus-circle"></i></a><ProfileInput ref={ref} />
+				</div>
+			);
+		}
 
 		var addNewBtn = <input type="button" className="btn" onClick={this.handleAddNewRow} value="Add new row" style={{minWidth: '45%', marginRight:'5%'}}/>
 		var submitBtn = <input type="button" className="btn" onClick={this.handleSubmit} value="Submit" style={{minWidth: '45%', marginRight:'5%'}} />

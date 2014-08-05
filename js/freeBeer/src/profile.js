@@ -40,37 +40,10 @@ var ProfileInput = React.createClass({
 	}
 })
 
-var ProfileDisplay = React.createClass({
-	render: function() {
-		/*var username = PuffWardrobe.getCurrentUsername();
-		if (!username) return <span></span>;
-
-		var profiles = PuffData.Persist.get('profile') || {};
-		var profileSig = profiles[username];
-		if (!profile) return <span></span>;*/
-		var profileSig = this.props.sig;
-
-		var profilePuff = PuffForum.getPuffBySig(profileSig);
-		var image = profilePuff.payload.content;
-		var metadata = profilePuff.payload;
-
-		return (
-			<div>
-				<img src={image} />
-				{Object.keys(metadata).filter(function(k){return k!='type'&&k!='content'})
-									  .map(function(k){
-									  	if (metadata[key])
-									  		return <div>{k}:{' '}{metadata[k]}</div>
-									  })}
-			</div>
-		)
-	}
-})
-
 var ProfileForm = React.createClass({
 	getInitialState: function() {
 		return {
-			profilePuff: false,
+			profileMsg: '',
 			public: true,
 			imageSrc: '',
 			additionRows: 1,
@@ -104,6 +77,7 @@ var ProfileForm = React.createClass({
 	handleUpdateProfile: function(puff){
 		var self = this;
 		var currentKeys = PuffWardrobe.getCurrentKeys();
+		var oldProfile = PuffWardrobe.getCurrentUserRecord().profile;
 		var type = 'updateUserRecord';
 		var content = "setProfile";
 		var payload = {};
@@ -113,14 +87,32 @@ var ProfileForm = React.createClass({
 
 		var update_prom = PuffNet.updateUserRecord(update_puff);
 		update_prom.then(function(userRecord){
-			return PuffNet.getUserRecord(userRecord.username);
-		}).then(function(userRecord){
 			self.setState({msg: 'Success!'});
 			console.log(userRecord);
+			if (oldProfile) {
+				var prom = PuffForum.flagPuff(oldProfile);
+				prom.then(function() {
+					console.log('Old Profile flagged');
+				})
+			}
+			self.handleCleanFields();
 		}).catch(function(err){
 			self.setState({msg: "Error."});
 			console.log('error', err);
 		});
+	},
+	handleCleanFields: function() {
+		var inputs = this.getDOMNode().querySelectorAll('input[text]');
+		for (var i=0; i<inputs.length; i++) {
+			if (!inputs[i].readOnly)
+				inputs[i].value = "";
+		}
+		var fileInput = this.refs.imageLoader.getDOMNode();
+		fileInput.value = "";
+		
+		var initialState = this.getInitialState();
+		this.setState(initialState);
+		return false;
 	},
 	handleSubmit: function() {
 		if (!this.state.imageSrc) {
@@ -165,7 +157,6 @@ var ProfileForm = React.createClass({
 		            .then(function(puff){
 		            	self.handleUpdateProfile(puff);
 		            	var sig = puff.sig;
-				        self.setState({profilePuff: sig});
 		            })
 		            .catch(Puffball.promiseError('Posting failed'));	
 	    } else {
@@ -178,19 +169,24 @@ var ProfileForm = React.createClass({
 	    	post_prom
 		    		.then(function(puff){
 		            	self.handleUpdateProfile(puff);
-			    		var decryptedPuff = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
-			    		var sig = decryptedPuff.sig;
-				        self.setState({profilePuff: sig});
 			    	})
 			    	.catch(Puffball.promiseError("Posting failed"));
 	    }
 
 		return false;
 	},
-	render: function() {
-		if (this.state.profilePuff) {
-			return <span>Success</span>
+	handleShowProfilePuff: function() {
+		var user = PuffWardrobe.getCurrentUserRecord();
+		if (user && user.profile) {
+			this.setState({profileMsg: ''});
+			showPuff(user.profile);
+		} else {
+			this.setState({profileMsg: 'No profile published.'});
 		}
+		return false;
+	},
+	render: function() {
+		var linkToProfilePuff = <span><a href="#" onClick={this.handleShowProfilePuff}>View Profile Puff</a></span>
 
 		var imageField = (
 			<div>
@@ -201,7 +197,7 @@ var ProfileForm = React.createClass({
 			</div>
 		)
 
-		var defaultRows = ['name', 'email', 'url', 'bio'];
+		var defaultRows = ['name', 'email', 'url'];
 		var rows = [];
 		for (var i=0; i<this.state.additionRows; i++)
 			rows.push(<ProfileInput />)
@@ -221,6 +217,7 @@ var ProfileForm = React.createClass({
         );
 		return (
 			<div className="menuItem">
+				{linkToProfilePuff} <span className="red">{this.state.profileMsg}</span>
 				{imageField}
 				{defaultRows.map(function(key){
 					return <ProfileInput metaKey={key} />

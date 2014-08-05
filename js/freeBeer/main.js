@@ -376,7 +376,7 @@ function showPuff(sig) {
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
     events.pub('ui/show/tree', { 'view.mode' : 'focus'
-                               , 'view.filter' : puffworlddefaults.view.filter
+                               , 'view.filters' : {}
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
                                , 'menu'      : puffworlddefaults.menu

@@ -139,6 +139,11 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
+.profileKey {
+    font-weight: bold;
+}
+.profileValue {
+}
 .replyFormEmbed.encrypted {
     background-image:url('../img/lock.gif');
     background-repeat:repeat;

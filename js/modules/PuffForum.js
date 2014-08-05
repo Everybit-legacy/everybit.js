@@ -598,6 +598,20 @@ PuffForum.addContentType('PGN', {
     }
 })
 
+
+PuffForum.addContentType('profile', {
+    toHtml: function(content, puff) {
+        var toRet = '<img class="imgInBox" src=' + content + ' />';
+        for (var key in puff.payload) {
+            var value = puff.payload[key];
+            if (key != 'content' && value && value.length) {
+                toRet += '<div><span class="profileKey">' + key + ': </span><span class="profileValue">' + value + '</span></div>';
+            }
+        }
+        return toRet;
+    }
+})
+
 /**
  * to add content type LaTex
  * @param  {string} content

@@ -28,7 +28,9 @@ var PuffFancyBox = React.createClass({
         }
         var flaggedPuff = Puffball.Persist.get('flagged') || [];
         var flagged = false;
-        if (flaggedPuff.indexOf(puff.sig)!= -1) {
+        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        if (flaggedPuff.indexOf(puff.sig)!= -1 ||
+            (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
             flagged = true;
         }
@@ -175,7 +177,7 @@ var PuffBar = React.createClass({
         // ICON SETS
         var iconSetOne = (
             <span className={iconSet == 0 ? "" : "hidden"}>
-                <PuffFlagLink ref="flag" sig={puff.sig} username={puff.username} flagged={this.props.flagged}/>
+                <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
                 <PuffInfoLink puff={puff} />
                 <PuffParentCount puff={puff} />
                 <PuffChildrenCount puff={puff} />
@@ -248,15 +250,20 @@ var PuffFlagLink = React.createClass({
     handleFlagRequest: function() {
         if (PuffWardrobe.getCurrentUsername() != this.props.username &&PuffWardrobe.getCurrentUsername() != CONFIG.zone)
             return false;
-        var polyglot = Translate.language[puffworldprops.view.language];
         if (this.props.flagged) return false;
+
+        var polyglot = Translate.language[puffworldprops.view.language];
         var doIt = confirm(polyglot.t("alert.flag"));
 
         if(!doIt)
             return false
 
         var self = this;
-        var prom = PuffForum.flagPuff(self.props.sig);
+        var sig = this.props.puff.sig;
+        var env = PuffData.getBonus(self.props.puff, 'envelope');
+        if (env)
+            sig = env.sig;
+        var prom = PuffForum.flagPuff(sig);
 
         prom.then(function(result) {
                 console.log(result);

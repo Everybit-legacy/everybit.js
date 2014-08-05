@@ -41,6 +41,7 @@ var Menu = React.createClass({displayName: 'Menu',
                 Cluster( {clusterName:"publish", clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view}),
                 Cluster( {clusterName:"view", clusterMenu:"ViewMenu", clusterIcon:"fa-search", view:this.props.view} ),
                 Cluster( {clusterName:"identity", clusterMenu:"IdentityMenu", clusterIcon:"fa-user", view:this.props.view} ),
+                Cluster( {clusterName:"profile", clusterMenu:"ProfileForm", clusterIcon:"fa-file-text", view:this.props.view} ),
                 Cluster( {clusterName:"preferences", clusterMenu:"PreferencesMenu", 
                          clusterIcon:"fa-gears", view:this.props.view} ),
                 Cluster( {clusterName:"about", clusterMenu:"AboutMenu", clusterIcon:"fa-info-circle", view:this.props.view} ),
@@ -52,7 +53,6 @@ var Menu = React.createClass({displayName: 'Menu',
     }
 
 });
-               /* <Cluster clusterName="profile" clusterMenu='ProfileForm' clusterIcon='fa-file-text' view={this.props.view} />*/
 
 
 var Cluster = React.createClass({displayName: 'Cluster',
@@ -168,12 +168,8 @@ var ProfileMenu = React.createClass({displayName: 'ProfileMenu',
         var username = PuffWardrobe.getCurrentUsername();
         if (!username) 
             return React.DOM.span(null, "You have to set your identity first.");
-        var profiles = Puffball.Persist.get('profile') || {};
-        var profileSig = profiles[username];
-        if (!profileSig)
-            return ProfileForm(null )
-
-        return ProfileDisplay( {sig:profileSig} )
+        
+        return ProfileForm(null );
     }
 })
 

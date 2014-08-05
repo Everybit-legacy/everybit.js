@@ -112,9 +112,10 @@ Puffball.packagePuffStructure = function(username, routes, type, content, payloa
  * @param  {string} updated    date of the most recent update to the username
  * @return {object}            a canonical user object
  */
-Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated) {
+Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile) {
     latest = latest || ""
     updated = updated || ""
+    profile = profile || ""
     
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
@@ -129,6 +130,7 @@ Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, lat
            , defaultKey: defaultKey
            ,     latest: latest
            ,    updated: updated
+           ,    profile: profile
            }
 }
 
@@ -162,7 +164,7 @@ Puffball.validateUsername = function(username) {
 Puffball.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
-    userRecord = Puffball.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated);
+    userRecord = Puffball.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
     
     if(!userRecord)
         return Puffball.onError('That is not an acceptable user record', userRecord);

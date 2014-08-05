@@ -67,7 +67,6 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
     var puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
 
     puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
-
     if(userRecordsForWhomToEncrypt) {
         puff = Puffball.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
     }

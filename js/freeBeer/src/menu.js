@@ -127,7 +127,7 @@ var Cluster = React.createClass({
             clusterMenu = <ToolsMenu />
             break;
         case "profile":
-            clusterMenu = <ProfileForm />
+            clusterMenu = <ProfileMenu />
             break;
         default:
             break;
@@ -162,6 +162,20 @@ var Cluster = React.createClass({
         )
     }
 });
+
+var ProfileMenu = React.createClass({
+    render: function() {
+        var username = PuffWardrobe.getCurrentUsername();
+        if (!username) 
+            return <span>You have to set your identity first.</span>;
+        var profiles = Puffball.Persist.get('profile') || {};
+        var profileSig = profiles[username];
+        if (!profileSig)
+            return <ProfileForm />
+
+        return <ProfileDisplay sig={profileSig} />
+    }
+})
 
 var FilterMenu = React.createClass({
     mixins: [TooltipMixin],

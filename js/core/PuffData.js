@@ -213,6 +213,7 @@ PuffData.makeShellsAvailable = function(shells) {
     
 }
 
+
 PuffData.addStar = function(sig, username, starsig) {
     // TODO: this doesn't belong here
     var fauxshell = {sig: sig} // THINK: ye gads is this ugly
@@ -277,6 +278,13 @@ PuffData.tryAddingShell = function(shell) {
     // NOTE: don't call this without filtering using isGoodShell
         
     // metapuff wonkery
+    
+    // var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(shell);
+    if (shell.payload.type == 'profile') {
+        // todo filter out the private ones too
+        return false;
+    }
+
     if(shell.payload.type == 'star') {
         // update shell bonii
         var sig = shell.payload.content

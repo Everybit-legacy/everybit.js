@@ -421,7 +421,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
     
     var payload = metadata || {}                            // metadata becomes the basis of payload
-    payload.parents = parents                               // ids of the parent puffs
+    payload.parents = payload.parents || parents                               // ids of the parent puffs
     payload.time = metadata.time || Date.now()              // time is always a unix timestamp
     payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
 

@@ -41,7 +41,6 @@ var Menu = React.createClass({
                 <Cluster clusterName="publish" clusterMenu='PuffPublishFormEmbed' clusterIcon='fa-paper-plane' view={this.props.view}/>
                 <Cluster clusterName="view" clusterMenu='ViewMenu' clusterIcon='fa-search' view={this.props.view} />
                 <Cluster clusterName="identity" clusterMenu='IdentityMenu' clusterIcon='fa-user' view={this.props.view} />
-                <Cluster clusterName="profile" clusterMenu='ProfileForm' clusterIcon='fa-file-text' view={this.props.view} />
                 <Cluster clusterName="preferences" clusterMenu='PreferencesMenu' 
                          clusterIcon='fa-gears' view={this.props.view} />
                 <Cluster clusterName="about" clusterMenu='AboutMenu' clusterIcon='fa-info-circle' view={this.props.view} />
@@ -737,6 +736,16 @@ var AuthorPicker = React.createClass({
                               'view.filters.routes': [username] });
     },
 
+    handlePublishProfile: function() {
+        var replyProps = PB.shallow_copy(puffworlddefaults.reply);
+        replyProps.type = 'profile';
+        return events.pub('ui/publish/profile',
+                           {'menu.show': true,
+                            'menu.section': 'publish',
+                            'clusters.publish': true,
+                            'reply': replyProps});
+    },
+
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -773,6 +782,9 @@ var AuthorPicker = React.createClass({
                 <div className="menuItem">
                     <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />
+                </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handlePublishProfile}>Publish Profile</a>
                 </div>
             </div>
             );

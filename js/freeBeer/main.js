@@ -6,6 +6,7 @@ puffworldprops = {
         publish: true,
         view: true,
         identity: false,
+        profile: false,
         preferences: false,
         about: true,
         tools: false
@@ -198,6 +199,18 @@ reduceUsernameToAlphanumeric = function(username, allowDot) {
     allowDot = allowDot || false;
     var pattern = allowDot ? /[^.A-Za-z0-9]/ : /[^A-Za-z0-9]/;
     return username.split(pattern).join('');
+}
+
+toLowerCamelCase = function(str) {
+    str = str.split(" ");
+    var first = str[0];
+    var rest = str.slice(1)
+                .map(function(s){
+                    if (s.length < 2) return s.toUpperCase();
+                    return s.slice(0, 1).toUpperCase() + s.slice(1);
+                })
+                .join("");
+    return first+rest;
 }
 
 

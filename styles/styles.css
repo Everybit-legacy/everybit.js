@@ -139,18 +139,6 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
-.profileKey {
-    font-weight: bold;
-}
-.profileValue {
-}
-.replyFormEmbed.encrypted {
-    background-image:url('../img/lock.gif');
-    background-repeat:repeat;
-    background-size: 36px 36px;
-    background-color: #eeeeee;
-
-}
 #talltree .block.encrypted {
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
@@ -664,6 +652,12 @@ select:disabled {
     text-align: left;
     padding: 8px 20px 5px 15px;
 }
+.replyFormEmbed.encrypted {
+    background-image:url('../img/lock.gif');
+    background-repeat:repeat;
+    background-size: 36px 36px;
+    background-color: #eeeeee;
+}
 
 .replyFormBox{
     overflow-y: auto;
@@ -1071,6 +1065,9 @@ select:disabled {
 
 .profileInput .input[type="text"] {
     outline: 0;
+}
+.profileKey {
+    font-weight: bold;
 }
 
 .steps {

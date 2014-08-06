@@ -151,6 +151,7 @@ Translate.language["en"].extend({
 			image: 'image',
 			bbcodeMsg: 'You can use BBCode-style tags',
 			imageFile: 'Image File',
+			profileFile: 'Profile image*',
 			imageChosen: 'No file chosen',
 		},
         privacyOption: 'Privacy',

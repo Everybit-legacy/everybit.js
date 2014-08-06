@@ -1,6 +1,300 @@
 /** @jsx React.DOM */
 
-    
+var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
+    getInitialState: function() {
+        return {
+            array: []
+        }
+    },
+    getValue: function() {
+        var type = this.props.fieldInfo.type;
+        var content = "";
+        switch (type) {
+            case "array":
+                content = this.state.array;
+                break;
+            default:
+                content = this.refs.content.getDOMNode().value;
+                break;
+        }
+        return content;
+    },
+    validateInput: function(value) {
+        if (value.length == '') return true;
+
+        var valid = true;
+        if (this.props.fieldInfo.validator) {
+            valid = this.props.fieldInfo.validator(value);
+        }
+        if (!valid) {
+            this.setState({msg: 'Invalid input.'});
+        }
+
+        return valid;
+    },
+    removeItem: function(value) {
+        var self = this;
+        var array = PB.shallow_copy(self.state.array);
+        array = array.filter(function(v){return v != value});
+        this.setState({array: array});
+        return false;
+    },
+    addItem: function() {
+        var value = this.refs.item.getDOMNode().value;
+        var valid = true;
+        if (this.props.fieldInfo.validator) {
+            valid = this.props.fieldInfo.validator(value);
+        }
+        if (!valid) {
+            this.setState({msg: 'Invalid input.'});
+            return false;
+        }
+        var self = this;
+        var array = PB.shallow_copy(self.state.array);
+        if (array.indexOf(value) == -1) {
+            array.push(value);
+        }
+        this.setState({array: array, msg:''});
+        this.refs.item.getDOMNode().value = "";
+        return false;
+    },
+    handleArrayKeyDown: function(e) {
+        if (e.keyCode == 13) {
+            this.addItem();
+        }
+    },
+    handleInputChange: function(e) {
+        var value = e.target.value;
+        this.setState({msg: ''})
+        return this.validateInput(value);
+    },
+    render: function() {
+        var type = this.props.fieldInfo.type;
+        var defaultValue = this.props.fieldInfo.defaultValue || "";
+        if (typeof defaultValue == 'function')
+            defaultValue = defaultValue();
+
+        var contentStyle = {width: '100%', border: '1px solid'};
+        var field = React.DOM.input( {ref:"content", type:"text", className:"btn", placeholder:"content", style:contentStyle, defaultValue:defaultValue, onChange:this.handleInputChange});
+        var self = this;
+        switch (type) {
+            case "text":
+                break;
+            case "textarea":
+                field = React.DOM.textarea( {ref:"content", className:"btn", placeholder:"content", style:contentStyle})
+                break;
+            case "pulldown":
+                field = 
+                    React.DOM.select( {ref:"content", className:"btn", defaultValue:defaultValue, style:contentStyle}, 
+                        self.props.fieldInfo.enum.map(function(v){
+                            return React.DOM.option( {key:v, value:v}, v)
+                        })
+                    );
+                break;
+            case "array":
+                var inputStyle = PB.shallow_copy(contentStyle);
+                inputStyle.width = "90%"
+                var newItemInput = React.DOM.input( {ref:"item", type:"text", className:"btn", placeholder:"new item", style:inputStyle, onKeyDown:this.handleArrayKeyDown, onChange:this.handleInputChange});
+                field = 
+                    React.DOM.div(null, 
+                        self.state.array.map(function(value){
+                            return (
+                                React.DOM.span( {key:value, className:"bubbleNode"}, 
+                                    value,
+                                    React.DOM.a( {href:"#", onClick:self.removeItem.bind(self, value)}, 
+                                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
+                                    )
+                                )
+                            )
+                        }),self.state.array.length ? React.DOM.br(null) : "",
+                        newItemInput,
+                        React.DOM.a( {href:"#", onClick:self.addItem}, React.DOM.i( {className:"fa fa-fw fa-plus-circle"}))
+                    )
+                break;
+            default:
+                break;
+        }
+        return React.DOM.span(null, field,React.DOM.span( {className:"red"}, this.state.msg));
+    }
+})
+
+var MetaInput = React.createClass({displayName: 'MetaInput',
+    getInitialState: function() {
+        return {msg: '', show: true};
+    },
+    getKeyContentPair: function() {
+        if (!this.state.show) return false;
+
+        var key = this.refs.key.getDOMNode();
+        if (key.tagName.toLowerCase() == "input") {key = key.value;}
+        else {key = key.innerHTML;}
+        var content = this.refs.content.getValue();
+        var fail = this.refs.key.getDOMNode().style.border.indexOf('red') != -1;
+
+        return {key: key, content: content, fail: fail};
+    },
+    handleCheckKey: function(e) {
+        var key = e.target.value;
+        if (key.length == 0) return;
+        key = key.toLowerCase();
+        key = toLowerCamelCase(key);
+        if (!/^[a-z0-9]+$/i.test(key) || key.length > 255) {
+            e.target.style.border = "1px solid red";
+            this.setState({msg: "Key must be alphanumeric with max length of 255."})
+        } else {
+            e.target.style.border = "";
+            this.setState({msg: ""})
+        }
+    },
+    handleEditKey: function(e) {
+        if (e.target.style.border) e.target.style.border = "";
+        if (this.state.msg.length > 0) this.setState({msg: ''});
+    },
+    deleteSelf: function() {
+        this.setState({show: false});
+        return false;
+    },
+    render: function() {
+        if (!this.state.show) return React.DOM.span(null)
+
+        var contentStyle = {width: '100%', border: '1px solid'};
+        var keyStyle = {marginRight: '5%', float: 'left', minWidth: '25%'};
+        var key = this.props.metaKey;
+        var keyField = React.DOM.input( {ref:"key", type:"text", className:"btn", placeholder:"key", size:"6", style:keyStyle, onChange:this.handleCheckKey})
+
+        var contentField = MetaInputContent( {ref:"content", fieldInfo:{type: 'text'}})
+
+        if (key) {
+            var fieldInfo = PuffForum.metaFields.filter(function(f){return f.name == key});
+            if (fieldInfo && fieldInfo.length) {
+                fieldInfo = fieldInfo[0];
+                keyField = React.DOM.label( {ref:"key", style:keyStyle}, key)
+                contentField = MetaInputContent( {ref:"content", fieldInfo:fieldInfo} )
+            } 
+
+        }
+        return (
+            React.DOM.div( {className:"metaInput"}, 
+                keyField,' ',React.DOM.span( {style:{display: 'block', overflow: 'hidden', paddingRight: '5%'}}, contentField),
+                React.DOM.span( {className:"red"}, this.state.msg)
+            )
+        )
+    }
+})
+
+var MetaFields = React.createClass({displayName: 'MetaFields',
+    getInitialState: function() {
+        return {
+            profileMsg: '',
+            public: true,
+            imageSrc: '',
+            additionRows: 1,
+            deletedRows: 0,
+            msg: ''
+        }
+    },
+    handleAddNewRow: function() {
+        var row = this.state.additionRows;
+        if (row - this.state.deletedRows < 5) {
+            this.setState({additionRows: row+1})
+        } else {
+            this.setState({msg: "Overlimit"})
+        }
+        return false;
+    },
+    handleCleanFields: function() {
+        var inputs = this.getDOMNode().querySelectorAll('input[type=text]');
+        for (var i=0; i<inputs.length; i++) {
+            if (!inputs[i].readOnly)
+                inputs[i].value = "";
+        }
+        var fileInput = this.refs.imageLoader.getDOMNode();
+        fileInput.value = "";
+
+        var initialState = this.getInitialState();
+        initialState.msg = this.state.msg;
+        this.setState(initialState);
+        return false;
+    },
+    handleDeleteRow: function(rowRef, e) {
+        if (this.refs[rowRef])
+            this.refs[rowRef].deleteSelf();
+        var target = e.target;
+        target.parentNode.removeChild(target);
+        var deletedRows = this.state.deletedRows+1;
+        this.setState({deletedRows: deletedRows})
+        return false;
+    },
+    getAllFields: function(fieldRequired) {
+        var metadata = {};
+        var refs = this.refs;
+
+        fieldRequired = fieldRequired || false;
+        var valid = !fieldRequired;
+
+        for (var r in refs) {
+            var component = refs[r];
+            if (component) {
+                var keyContentPair = component.getKeyContentPair();
+                if (!keyContentPair) continue;
+                var fail = keyContentPair.fail;
+                if (fail) {
+                    return {'FAIL': true, 'msg': "Please fix invalid fields."};
+                }
+                var key = keyContentPair.key;
+                var content = keyContentPair.content;
+                if (key && key.length>0 && content && content.length>0) {
+                    key = toLowerCamelCase(key);
+                    if (key == 'parents' || key == 'time') {
+                        var msg = "Key reserved: " + key;
+                        return {'FAIL': true, 'msg': msg};
+                    }
+                    if (typeof metadata[key] !== 'undefined') {
+                        var msg = "Please fix dulplicate fields: " + key;
+                        return {'FAIL': true, 'msg': msg};
+                    }
+                    metadata[key] = content;
+                    valid = true;
+                }
+            }
+        }
+        if (!valid) {
+            return {'FAIL':true, 'msg': "Must set at least one field."}
+        }
+        return metadata;
+    },
+    render: function() {
+        var type = this.props.type;
+        var defaultFields = PuffForum.context[type] || [];
+        var rows = [];
+        var self = this;
+        var deleteRowStyle = {
+            position: 'absolute',
+            right: '0'
+        }
+        for (var i=0; i<this.state.additionRows; i++) {
+            var ref = "row"+i;
+            rows.push(
+                React.DOM.div(null, 
+                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {ref:ref} )
+                )
+            );
+        }
+
+        var addNewBtn = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow, value:"Add new row", style:{minWidth: '45%', marginRight: '5%', float: 'right'}})
+        
+        return (
+            React.DOM.div(null, 
+                defaultFields.map(function(key){
+                    return MetaInput( {metaKey:key, ref:key} )
+                }),
+                rows,
+                addNewBtn
+            )
+        )
+    }
+})
+
 var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed',
     getInitialState: function() {
         return {imageSrc    : '',
@@ -91,16 +385,24 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             return false;
         this.refs.send.getDOMNode().className += " deactive";
 
-        var self = this;
-        var content = '';
-        var metadata = {};
-        var parents = this.props.reply.parents;
-
         var type = this.props.reply.type || this.refs.type.getDOMNode().value;
         if(!type) {
             this.cleanUpSubmit();
             return false
         }
+
+        var metadata = this.refs.meta.getAllFields(type == 'profile') || {};
+        if (metadata['FAIL'] === true) {
+            this.setState({'err': metadata.msg});
+            return false;
+        }
+        if (type == 'profile') {
+            return this.handleSubmitProfile(metadata);
+        }
+
+        var self = this;
+        var content = '';
+        var parents = this.props.reply.parents;
 
         if (type != 'image') this.setState({'showPreview': false});
         // TODO: allow the content type handler to dictate this part (pass all refs and props and state?)
@@ -229,6 +531,90 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             return events.pub("ui/reply/clear-content", {'reply.content': ''});
         }
     },
+
+    /* functions for type = profile */
+    handleUpdateProfile: function(puff){
+        var self = this;
+        var currentKeys = PuffWardrobe.getCurrentKeys();
+        var oldProfile = PuffWardrobe.getCurrentUserRecord().profile;
+        var type = 'updateUserRecord';
+        var content = "setProfile";
+        var payload = {};
+        payload.profile = puff.sig;
+
+        var update_puff = Puffball.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
+
+        var update_prom = PuffNet.updateUserRecord(update_puff);
+        update_prom.then(function(userRecord){
+            self.setState({msg: 'Success!'});
+            showPuff(userRecord.profile);
+            self.handleCleanFields.bind(self)();
+
+            if (oldProfile) {
+                var prom = PuffForum.flagPuff(oldProfile);
+                prom.then(function() {
+                    console.log('Old Profile flagged');
+                })
+            }
+        }).catch(function(err){
+            self.setState({msg: "Error."});
+            console.log('error', err);
+        });
+    },
+    handleCleanFields: function() {
+        var inputs = this.getDOMNode().querySelectorAll('input[type=text]');
+        for (var i=0; i<inputs.length; i++) {
+            if (!inputs[i].readOnly)
+                inputs[i].value = "";
+        }
+        var fileInput = this.refs.imageLoader.getDOMNode();
+        fileInput.value = "";
+
+        var initialState = this.getInitialState();
+        initialState.msg = this.state.msg;
+        this.setState(initialState);
+        return false;
+    },
+    handleSubmitProfile: function(metadata) {
+        if (!this.state.imageSrc) {
+            this.setState({err: "Profile image required."})
+            return false;
+        }
+        metadata = metadata || {};
+
+        // build puff
+        var content = this.state.imageSrc;
+        var type = 'profile';
+        var self = this
+        var privacy = this.refs.privacy.getDOMNode().querySelector("button.green").value;
+
+        if (privacy) {
+            // publish public profile
+            var post_prom = PuffForum.addPost( type, content, [], metadata);
+            post_prom
+                    .then(function(puff){
+                        self.handleUpdateProfile(puff);
+                        var sig = puff.sig;
+                    })
+                    .catch(Puffball.promiseError('Posting failed'));    
+        } else {
+            // publish private profile
+            var prom = Promise.resolve();
+            var currentUserRecord = PuffWardrobe.getCurrentUserRecord();
+            var userRecords = [];
+            userRecords.push(currentUserRecord);
+            var post_prom = PuffForum.addPost( type, content, [], metadata, userRecords );
+            post_prom
+                    .then(function(puff){
+                        self.handleUpdateProfile(puff);
+                    })
+                    .catch(Puffball.promiseError("Posting failed"));
+        }
+
+        return false;
+    },
+
+    /* tabs */
     handleContentTab: function() {
         return this.setState({showPreview: false});
     },
@@ -514,11 +900,14 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             'private': 'fa-lock',
             'anonymous': 'fa-barcode',
             'paranoid': 'fa-circle-thin'
-        }
+        } 
+        var supportedPrivacy = Object.keys(privacyToIcon);
+        if (type == 'profile')
+            supportedPrivacy = ['public', 'private'];
         var privacyOption = (
             React.DOM.span( {ref:"privacy", id:"privacyDiv", className:"icon"}, 
                 polyglot.t("replyForm.privacyOption"),": ", React.DOM.span( {className:"relative", style:{width: '150px', display: 'inline-block'}}, 
-                Object.keys(privacyToIcon).map(function(p){
+                supportedPrivacy.map(function(p){
                     var color = privacyDefault == p ? 'green' : 'black';
                     return (
                         React.DOM.span( {key:p}, 
@@ -547,7 +936,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
-        if (type == 'image') {
+        if (type == 'image' || type == 'profile') {
             // emply src will show no image icon in firefox
             var imageField = (React.DOM.img( {id:"preview_image", width:"100%", height:"1px"}));
             if (this.state.imageSrc) {
@@ -556,7 +945,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             contentField = (
                 React.DOM.div(null, 
                     React.DOM.div( {style:{marginLeft: '10px'}}, 
-                        React.DOM.div( {style:{display: 'inline-block'}}, polyglot.t("replyForm.format.imageFile"),":",
+                        React.DOM.div( {style:{display: 'inline-block'}}, polyglot.t("replyForm.format." + type+'File'),":",
                         React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad}))
                     ),
                     React.DOM.br(null ),imageField
@@ -576,42 +965,45 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 "Preview"
             )
         );
-        if (type == 'image') previewTab = React.DOM.span(null);
+        if (type == 'image' || type == 'profile') previewTab = React.DOM.span(null);
 
         var errorField = "";
         if (this.state.err) errorField =  React.DOM.span(null, React.DOM.em(null, this.state.err),React.DOM.br(null ));
 
-        var replyPrivacy = this.state.advancedOpt.replyPrivacy; 
+        /*
+        var replyPrivacy = this.state.advancedOpt.replyPrivacy;
         var replyPrivacyOption = (
-            React.DOM.span( {ref:"replyPrivacy", className:"icon", style:{display: 'block'}}, 
-                polyglot.t("replyForm.advanced.replyPrivacy"),":", 
-                React.DOM.span( {className:"relative", style:{display: 'inline-block'}}, 
-                Object.keys(privacyToIcon).map(function(p){
+            <span ref="replyPrivacy" className="icon" style={{display: 'block'}}>
+                {polyglot.t("replyForm.advanced.replyPrivacy")}: 
+                <span className="relative" style={{display: 'inline-block'}}>
+                {Object.keys(privacyToIcon).map(function(p){
                     var color = replyPrivacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
                     return (
-                        React.DOM.span(null, 
-                            React.DOM.button( {className:'btn ' + color, value:p, onClick:handleClick}, React.DOM.i( {className:"fa fa-fw "+privacyToIcon[p]})),
-                            Tooltip( {position:"above", content:polyglot.t("replyForm.pOptions."+p)} )
-                        ))
-                })
-                )
-            )
+                        <span>
+                            <button className={'btn ' + color} value={p} onClick={handleClick}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
+                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
+                        </span>)
+                })}
+                </span>
+            </span>
             );
         var licenseDefault = this.state.advancedOpt.contentLicense || "";
         var licenseOption = (
-            React.DOM.div(null, 
-                React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.advanced.contentLicense")),
-                React.DOM.select( {style:rightColStyle, ref:"contentLicense", className:"btn", name:"contentLicense", defaultValue:licenseDefault, onChange:this.handlePickAdvancedOpt}, 
-                    React.DOM.option( {value:""}),
-                    React.DOM.option( {value:"CreativeCommonsAttribution"}, "Creative Commons Attribution"),
-                    React.DOM.option( {value:"GNUPublicLicense"}, "GNU Public License"),
-                    React.DOM.option( {value:"Publicdomain"}, "Public domain"),
-                    React.DOM.option( {value:"Rights-managed"}, "Rights-managed"),
-                    React.DOM.option( {value:"Royalty-free"}, "Royalty-free")
-                )
-            )
+            <div>
+                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
+                <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                    <option value=""></option>
+                    <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
+                    <option value="GNUPublicLicense">GNU Public License</option>
+                    <option value="Publicdomain">Public domain</option>
+                    <option value="Rights-managed">Rights-managed</option>
+                    <option value="Royalty-free">Royalty-free</option>
+                </select>
+            </div>
             );
+        */
+       
         var advancedStyle = {
             display: this.state.showAdvanced ? 'block' : 'none'
         }
@@ -622,8 +1014,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 React.DOM.div( {style:{display: this.state.showAdvanced ? 'block' : 'none'}}, 
                     sendToField,
                     privacyOption,
-                    replyPrivacyOption,
-                    licenseOption
+                    MetaFields(  {ref:"meta", type:type} )
                 )
             )
         );

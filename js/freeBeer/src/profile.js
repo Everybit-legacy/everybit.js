@@ -94,21 +94,22 @@ var ProfileForm = React.createClass({
 		var update_prom = PuffNet.updateUserRecord(update_puff);
 		update_prom.then(function(userRecord){
 			self.setState({msg: 'Success!'});
+			showPuff(userRecord.profile);
+			self.handleCleanFields.bind(self)();
+
 			if (oldProfile) {
 				var prom = PuffForum.flagPuff(oldProfile);
 				prom.then(function() {
 					console.log('Old Profile flagged');
 				})
 			}
-			showPuff(userRecord.sig);
-			self.handleCleanFields();
 		}).catch(function(err){
 			self.setState({msg: "Error."});
 			console.log('error', err);
 		});
 	},
 	handleCleanFields: function() {
-		var inputs = this.getDOMNode().querySelectorAll('input[text]');
+		var inputs = this.getDOMNode().querySelectorAll('input[type=text]');
 		for (var i=0; i<inputs.length; i++) {
 			if (!inputs[i].readOnly)
 				inputs[i].value = "";
@@ -117,6 +118,7 @@ var ProfileForm = React.createClass({
 		fileInput.value = "";
 
 		var initialState = this.getInitialState();
+		initialState.msg = this.state.msg;
 		this.setState(initialState);
 		return false;
 	},
@@ -245,7 +247,6 @@ var ProfileForm = React.createClass({
         );
 		return (
 			<div className="menuItem">
-				{linkToProfilePuff} <span className="red">{this.state.profileMsg}</span>
 				{imageField}
 				{defaultRows.map(function(key){
 					return <ProfileInput metaKey={key} />

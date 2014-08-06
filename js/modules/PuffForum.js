@@ -684,3 +684,70 @@ PuffForum.flagPuff = function (sig) {
     })
     return prom;
 }
+
+
+// adding default metafields to included in a puff
+PuffForum.metaFields = []
+PuffForum.context = {};
+PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
+    if (!fieldInfo.name) return Puffball.onError('Invalid meta field name.');
+
+    // supported type: text, textarea, pulldown, array
+    if (!fieldInfo.type) return Puffball.onError('Invalid meta field type.');
+
+    if (!fieldInfo.validator || typeof fieldInfo.validator != 'function') {
+        fieldInfo.validator = false;
+    }
+
+    context = context || Object.keys(PuffForum.contentTypes);
+    if (typeof context == 'string') {
+        context = [context];
+    } else if (!Array.isArray(context)) {
+        return Puffball.onError('Invalid context.')
+    }
+
+    excludeContext = excludeContext || [];
+    if (typeof excludeContext == 'string') {
+        excludeContext = [excludeContext];
+    }else if (!Array.isArray(excludeContext)) {
+        return Puffball.onError('Invalid context.')
+    }
+
+    PuffForum.metaFields.push(fieldInfo);
+    for (var i=0; i<context.length; i++) {
+        if (excludeContext.indexOf(context[i]) != -1)
+            continue;
+        var contextFields = PuffForum.context[context[i]] || [];
+        contextFields.push(fieldInfo.name);
+        PuffForum.context[context[i]] = contextFields;
+    }
+}
+
+PuffForum.addMetaFields(
+    {name: 'reply privacy',
+     type: 'pulldown',
+     enum: ['', 'public', 'private', 'anonymous', 'invisible'],
+     defaultValue: ''});
+
+PuffForum.addMetaFields(
+    {name: 'content license',
+     type: 'pulldown',
+     enum: ['', 'CreativeCommonsAttribution', 'GNUPublicLicense', 'Publicdomain', 'Rights-managed', 'Royalty-free'],
+     defaultValue: ''});
+
+PuffForum.addMetaFields(
+    {name: 'tags',
+     type: 'array',
+     validator: function(v){return /^[a-z0-9]+$/i.test(v)}
+     },
+    false, 'profile');
+
+PuffForum.addMetaFields(
+    {name: 'language',
+     type: 'text',
+     defaultValue: function(){return puffworldprops.view.language}});
+
+PuffForum.addMetaFields(
+    {name: 'name',
+     type: 'text'},
+    'profile');

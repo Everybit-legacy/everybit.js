@@ -3,7 +3,23 @@
 var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
     getInitialState: function() {
         return {
-            array: []
+            array: [],
+            msg: ""
+        }
+    },
+    cleanUp: function() {
+        this.setState(this.getInitialState());
+        switch (this.props.fieldInfo.type) {
+            case "array":
+                this.refs.item.getDOMNode().value = "";
+                break;
+            default:
+                var defaultValue = this.props.fieldInfo.defaultValue || "";
+                if (typeof defaultValue == "function") {
+                    defaultValue = defaultValue();
+                }
+                this.refs.content.getDOMNode().value = defaultValue;
+                break;
         }
     },
     getValue: function() {
@@ -154,6 +170,12 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
         this.setState({show: false});
         return false;
     },
+    cleanUp: function() {
+        var keyNode = this.refs.key.getDOMNode();
+        if (keyNode.tagName.toLowerCase() == 'input' && !keyNode.attributes.readOnly)
+            keyNode.value = "";
+        this.refs.content.cleanUp();
+    },
     render: function() {
         if (!this.state.show) return React.DOM.span(null)
 
@@ -203,17 +225,15 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
         return false;
     },
     handleCleanFields: function() {
-        var inputs = this.getDOMNode().querySelectorAll('input[type=text]');
-        for (var i=0; i<inputs.length; i++) {
-            if (!inputs[i].readOnly)
-                inputs[i].value = "";
-        }
-        var fileInput = this.refs.imageLoader.getDOMNode();
-        fileInput.value = "";
+        var refs = this.refs;
 
-        var initialState = this.getInitialState();
-        initialState.msg = this.state.msg;
-        this.setState(initialState);
+        for (var r in refs) {
+            var component = refs[r];
+            if (component && component.cleanUp) {
+                component.cleanUp();
+            }
+        }
+
         return false;
     },
     handleDeleteRow: function(rowRef, e) {
@@ -354,10 +374,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     cleanUpSubmit: function(){
         var className = this.refs.send.getDOMNode().className;
         className = className.replace(' deactive', '');
-        this.refs.send.getDOMNode().className = className
+        this.refs.send.getDOMNode().className = className;
     },
     handleSubmitSuccess: function(puff) {
         this.cleanUpSubmit();
+        this.refs.meta.handleCleanFields();
         // clear the content
         update_puffworldprops({'reply.content': ''})
         
@@ -428,11 +449,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         metadata.routes = this.state.usernames;
         
-        /*var replyPrivacy = this.refs.replyPrivacy.getDOMNode().value;
-        if(replyPrivacy) {
-            metadata.replyPrivacy = replyPrivacy;
-        }*/
-        
         var privacy = this.refs.privacy.getDOMNode().querySelector("button.green").value;
 
         if(privacy == 'public') {
@@ -443,6 +459,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {
                     self.cleanUpSubmit();
+                    console.log(err);
                     self.setState({err: err.message});
                 })
             return false;
@@ -548,7 +565,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         update_prom.then(function(userRecord){
             self.setState({msg: 'Success!'});
             showPuff(userRecord.profile);
-            self.handleCleanFields.bind(self)();
+            self.refs.meta.handleCleanFields();
 
             if (oldProfile) {
                 var prom = PuffForum.flagPuff(oldProfile);
@@ -560,20 +577,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             self.setState({msg: "Error."});
             console.log('error', err);
         });
-    },
-    handleCleanFields: function() {
-        var inputs = this.getDOMNode().querySelectorAll('input[type=text]');
-        for (var i=0; i<inputs.length; i++) {
-            if (!inputs[i].readOnly)
-                inputs[i].value = "";
-        }
-        var fileInput = this.refs.imageLoader.getDOMNode();
-        fileInput.value = "";
-
-        var initialState = this.getInitialState();
-        initialState.msg = this.state.msg;
-        this.setState(initialState);
-        return false;
     },
     handleSubmitProfile: function(metadata) {
         if (!this.state.imageSrc) {

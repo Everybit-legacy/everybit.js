@@ -607,7 +607,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         var type = puffworldprops.reply.type;
         if(index == -1) {
             if (parents.length == 0)
-                type = PuffForum.getPuffBySig(parents[0]).payload.type;
+                type = PuffForum.getPuffBySig(sig).payload.type;
             parents.push(sig)
         } else {
             parents.splice(index, 1);

@@ -86,6 +86,7 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
     },
     render: function() {
         var type = this.props.fieldInfo.type;
+
         var defaultValue = this.props.fieldInfo.defaultValue || "";
         if (typeof defaultValue == 'function')
             defaultValue = defaultValue();
@@ -94,8 +95,6 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
         var field = React.DOM.input( {ref:"content", type:"text", className:"btn", placeholder:"content", style:contentStyle, defaultValue:defaultValue, onChange:this.handleInputChange});
         var self = this;
         switch (type) {
-            case "text":
-                break;
             case "textarea":
                 field = React.DOM.textarea( {ref:"content", className:"btn", placeholder:"content", style:contentStyle})
                 break;
@@ -193,7 +192,6 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
                 keyField = React.DOM.label( {ref:"key", style:keyStyle}, key)
                 contentField = MetaInputContent( {ref:"content", fieldInfo:fieldInfo} )
             } 
-
         }
         return (
             React.DOM.div( {className:"metaInput"}, 
@@ -596,6 +594,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             var post_prom = PuffForum.addPost( type, content, [], metadata);
             post_prom
                     .then(function(puff){
+                        self.cleanUpSubmit();
+                        self.refs.meta.handleCleanFields();
                         self.handleUpdateProfile(puff);
                         var sig = puff.sig;
                     })
@@ -609,6 +609,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             var post_prom = PuffForum.addPost( type, content, [], metadata, userRecords );
             post_prom
                     .then(function(puff){
+                        self.cleanUpSubmit();
+                        self.refs.meta.handleCleanFields();
                         self.handleUpdateProfile(puff);
                     })
                     .catch(Puffball.promiseError("Posting failed"));

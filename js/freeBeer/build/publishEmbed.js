@@ -170,6 +170,7 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
         return false;
     },
     cleanUp: function() {
+        if (!this.state.show) return false;
         var keyNode = this.refs.key.getDOMNode();
         if (keyNode.tagName.toLowerCase() == 'input' && !keyNode.attributes.readOnly)
             keyNode.value = "";
@@ -701,8 +702,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         this.setState({usernames: currentUsernames});
         return false;
     },
-    handleSendtoInput: function() {
-        if (event.keyCode == 13) {
+    handleSendtoInput: function(e) {
+        if (e.keyCode == 13) {
             this.addUsername();
         } else {
             this.setState({usernameError: ''});

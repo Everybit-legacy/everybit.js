@@ -184,7 +184,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     var myUsername = PuffWardrobe.getCurrentUsername()
     var myKeys = PuffWardrobe.getCurrentKeys()
     var maybeShell = PuffForum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
-    
+
     if(maybeShell) return maybeShell
         
     if(PuffForum.badEnvelope(envelope.sig)) return false
@@ -209,9 +209,17 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     
     var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
     yourUserRecordPromise.then(function(yourUserRecord) {
-        doit(envelope, yourUserRecord)                                              // puts it in the cache for next time
+        var decrypted = doit(envelope, yourUserRecord)
+        events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
+        // puts it in the cache for next time
+        
+        // add for display (sepecrate from here?)
+        PuffData.currentDecryptedShells.push(decrypted)
+        PuffData.addToGraph([decrypted])
+        PuffForum.addFamilialEdges([decrypted])
+        
         updateUI()                                                                  // redraw everything once DHT responds
-    })
+    })  .catch(function(err){console.log(err)});
 }
 
 /**

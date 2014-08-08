@@ -392,7 +392,7 @@ function showPuffDirectly(puff) {
                                , 'view.filters' : {}
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
-                               , 'menu'      : puffworlddefaults.menu
+                               // , 'menu'      : puffworlddefaults.menu
                                })
 }
 
@@ -521,6 +521,5 @@ if(Object.keys(PuffWardrobe.getAll()).length < 1)
 
 TRACKINCOMEPUFF = [];
 events.sub('track/*', function(data, path) {
-    data.currentIdentity = PuffWardrobe.getCurrentKeys();
     TRACKINCOMEPUFF.push({path: path, data:data});
 })

@@ -692,6 +692,9 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
 
 // Was PuffSwitchUser
 var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
+    getInitialState: function() {
+        return {profileMsg: ''}
+    },
     handleUserPick: function() {
         PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
@@ -746,6 +749,33 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                             'reply': replyProps});
     },
 
+    handleViewProfile: function() {
+        var userRecord = PuffWardrobe.getCurrentUserRecord();
+        var profile = userRecord.profile;
+        var self = this;
+        if (profile.length) {
+            var puff = PuffForum.getPuffBySig(profile);
+            if (puff) {
+                this.setState({profileMsg: ''});
+                return showPuffDirectly(puff);
+            }
+            
+            var prom = PuffData.pending[profile];
+            prom.then(function(puffs){
+                var p = puffs[0];
+                if (p) {
+                    self.setState({profileMsg: ''});
+                    showPuffDirectly(p);
+                } else {
+                    self.setState({profileMsg: 'No profile published.'})
+                }
+            })
+        } else {
+            this.setState({profileMsg: 'No profile published.'})
+        }
+        return false;
+    },
+
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -785,6 +815,10 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                 ),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handlePublishProfile}, "Publish Profile")
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewProfile}, "View profile"),
+                    ' ',React.DOM.span( {className:"red"}, this.state.profileMsg)
                 )
             )
             );

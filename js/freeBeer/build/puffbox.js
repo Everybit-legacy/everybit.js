@@ -197,7 +197,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
             React.DOM.span( {className:iconSet == 2 ? "" : "hidden"}, 
                 PuffJson( {puff:puff} ),
                 PuffPermaLink( {sig:puff.sig} ),
-                puff.payload.type == "image" ? "" : PuffClone( {puff:puff} )
+                PuffClone( {puff:puff} )
             )
         );
         var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
@@ -799,10 +799,10 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         var envelope = PuffData.getBonus(puff, 'envelope');
         if(envelope && envelope.keys)
             reply.privacy = "private";
-        if (puff.payload.type != 'profile') {
-            reply.content = puff.payload.content;
-        } else {
+        if (puff.payload.type == 'profile' || puff.payload.type == 'image') {
             reply.state.imageSrc = puff.payload.content;
+        } else {
+            reply.content = puff.payload.content;
         }
 
         events.pub('ui/reply/open', { 'clusters.publish': true

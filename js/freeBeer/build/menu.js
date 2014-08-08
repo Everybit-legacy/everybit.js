@@ -125,9 +125,6 @@ var Cluster = React.createClass({displayName: 'Cluster',
         case "tools":
             clusterMenu = ToolsMenu(null )
             break;
-        case "profile":
-            clusterMenu = ProfileMenu(null )
-            break;
         default:
             break;
         }
@@ -162,15 +159,15 @@ var Cluster = React.createClass({displayName: 'Cluster',
     }
 });
 
-var ProfileMenu = React.createClass({displayName: 'ProfileMenu',
+/*var ProfileMenu = React.createClass({
     render: function() {
         var username = PuffWardrobe.getCurrentUsername();
         if (!username) 
-            return React.DOM.span(null, "You have to set your identity first.");
+            return <span>You have to set your identity first.</span>;
         
-        return ProfileForm(null );
+        return <ProfileForm />;
     }
-})
+})*/
 
 var FilterMenu = React.createClass({displayName: 'FilterMenu',
     mixins: [TooltipMixin],
@@ -759,7 +756,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                 this.setState({profileMsg: ''});
                 return showPuffDirectly(puff);
             }
-            
+
             var prom = PuffData.pending[profile];
             prom.then(function(puffs){
                 var p = puffs[0];

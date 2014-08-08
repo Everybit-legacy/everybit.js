@@ -660,10 +660,10 @@ select:disabled {
 }
 
 .replyFormBox{
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: auto;
     width: 100%;
-    max-height: 100%;
+    /*max-height: 100%;*/
 }
 
 /*#replyForm:hover, form:hover {*/
@@ -905,7 +905,7 @@ select:disabled {
     overflow-y: hidden;
 }
 .slidedown {
-    max-height: 800px;
+    max-height: 2000px;
     overflow-y: visible;
 }
 .animation .slideup, .animation .slidedown {

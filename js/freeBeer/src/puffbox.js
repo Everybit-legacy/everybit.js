@@ -788,21 +788,22 @@ var PuffClone = React.createClass({
         }
 
         var reply = PB.shallow_copy(puffworldprops.reply);
-        reply.content = puff.payload.content;
         reply.type = puff.payload.type;
 
         reply.showPreview = false;
         reply.state = {};
         reply.state.showAdvanced = true;
-        reply.state.advancedOpt =  {
-            replyPrivacy: puff.payload.replyPrivacy,
-            contentLicense: puff.payload.license
-        };
+        reply.state.meta = PB.shallow_copy(puff.payload);
 
         reply.privacy = 'public';
         var envelope = PuffData.getBonus(puff, 'envelope');
         if(envelope && envelope.keys)
             reply.privacy = "private";
+        if (puff.payload.type != 'profile') {
+            reply.content = puff.payload.content;
+        } else {
+            reply.state.imageSrc = puff.payload.content;
+        }
 
         events.pub('ui/reply/open', { 'clusters.publish': true
                                     , 'menu': menu
@@ -810,7 +811,7 @@ var PuffClone = React.createClass({
         
         // may want a different way...
         var contentNode = document.getElementById('content');
-        if (contentNode)
+        if (contentNode && puff.payload.type != 'profile')
             contentNode.value = puff.payload.content;
 
         return false;

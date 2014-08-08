@@ -22,6 +22,16 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
                 break;
         }
     },
+    fillIn: function(content) {
+        switch (this.props.fieldInfo.type) {
+            case "array":
+                this.setState({array: content});
+                break;
+            default:
+                this.refs.content.getDOMNode().value = content;
+                break;
+        }
+    },
     getValue: function() {
         var type = this.props.fieldInfo.type;
         var content = "";
@@ -137,6 +147,14 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
     getInitialState: function() {
         return {msg: '', show: true};
     },
+    fillIn: function(key, content) {
+        if (!this.state.show) return false;
+        var keyDiv = this.refs.key.getDOMNode();
+        if (keyDiv.tagName.toLowerCase() == "input" && key.length) {keyDiv.value = key};
+
+        var contentComponent = this.refs.content;
+        if (content.length) {contentComponent.fillIn(content)};
+    },
     getKeyContentPair: function() {
         if (!this.state.show) return false;
 
@@ -183,8 +201,9 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
         var keyStyle = {marginRight: '5%', float: 'left', minWidth: '25%'};
         var key = this.props.metaKey;
         var keyField = React.DOM.input( {ref:"key", type:"text", className:"btn", placeholder:"key", size:"6", style:keyStyle, onChange:this.handleCheckKey})
+        var type = this.props.type || 'text';
 
-        var contentField = MetaInputContent( {ref:"content", fieldInfo:{type: 'text'}})
+        var contentField = MetaInputContent( {ref:"content", fieldInfo:{type: type}})
 
         if (key) {
             var fieldInfo = PuffForum.metaFields.filter(function(f){return f.name == key});
@@ -209,15 +228,17 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
             profileMsg: '',
             public: true,
             imageSrc: '',
-            additionRows: 1,
+            additionRows: ['text'],
             deletedRows: 0,
             msg: ''
         }
     },
-    handleAddNewRow: function() {
-        var row = this.state.additionRows;
-        if (row - this.state.deletedRows < 5) {
-            this.setState({additionRows: row+1})
+    handleAddNewRow: function(type) {
+        type = type || 'text'
+        var row = PB.shallow_copy(this.state.additionRows);
+        if (row.length - this.state.deletedRows < 5) {
+            row.push(type)
+            this.setState({additionRows: row})
         } else {
             this.setState({msg: "Overlimit"})
         }
@@ -232,7 +253,7 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
                 component.cleanUp();
             }
         }
-
+        this.setState({additionRows: ['text']})
         return false;
     },
     handleDeleteRow: function(rowRef, e) {
@@ -282,6 +303,30 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
         }
         return metadata;
     },
+    fillIn: function(meta) {
+        if (meta) {
+            this.setState({additionRows: []});
+            var metaKeys = Object.keys(meta);
+            for (var i=0; i<metaKeys.length; i++) {
+                var key = metaKeys[i];
+                if (this.refs[key]) {
+                    this.refs[key].fillIn("", meta[key]);
+                } else {
+                    var reserved = ['parents', 'content', 'time', 'type'];
+                    if (reserved.indexOf(key) != -1) continue;
+
+                    var content = meta[key];
+                    if (!content.length) continue;
+
+                    var type = Array.isArray(content) ? 'array' : 'text';
+                    this.handleAddNewRow(type);
+
+                    var n = this.state.additionRows.length-1;
+                    this.refs["row"+n].fillIn(key, meta[key]);
+                }
+            }
+        }
+    },
     render: function() {
         var type = this.props.type;
         var defaultFields = PuffForum.context[type] || [];
@@ -291,24 +336,30 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
             position: 'absolute',
             right: '0'
         }
-        for (var i=0; i<this.state.additionRows; i++) {
+        for (var i=0; i<this.state.additionRows.length; i++) {
+            var type = this.state.additionRows[i];
             var ref = "row"+i;
             rows.push(
                 React.DOM.div(null, 
-                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {ref:ref} )
+                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {ref:ref, type:type} )
                 )
             );
         }
 
-        var addNewBtn = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow, value:"Add new row", style:{minWidth: '45%', marginRight: '5%', float: 'right'}})
+        var addNewText = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'text'), value:"Add text", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
+
+        var addNewTextarea = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'textarea'), value:"Add textarea", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
+
+        var addNewArray = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'array'), value:"Add array", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
         
         return (
             React.DOM.div(null, 
                 defaultFields.map(function(key){
-                    return MetaInput( {metaKey:key, ref:key} )
+                    var ref = toLowerCamelCase(key)
+                    return MetaInput( {metaKey:key, ref:ref} )
                 }),
                 rows,
-                addNewBtn
+                addNewText,addNewTextarea,addNewArray
             )
         )
     }
@@ -317,15 +368,13 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
 var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed',
     getInitialState: function() {
         return {imageSrc    : '',
-                zipSrc      : '',
-                state: false,
                 usernames   : [],
                 parentUsernames: [],
                 usernameErr : '',
                 showPreview : false, 
                 err         : false,
                 showAdvanced: false,
-                advancedOpt : {}};
+                meta: {}};
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
@@ -342,7 +391,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 }
             }
         }
-
         if (puffworldprops.reply.state)
             this.setState(puffworldprops.reply.state);
         this.getUsernames();
@@ -358,8 +406,13 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             this.setState({showAdvanced: true})
         }
     },
-    componentDidUpdate: function() {
+    componentDidUpdate: function(prevProp) {
         this.getUsernames();
+        if (prevProp.reply.state.meta != this.props.reply.state.meta) {
+            this.setState({showAdvanced: true, 
+                           imageSrc: this.props.reply.state.imageSrc})
+            this.refs.meta.fillIn(this.props.reply.state.meta);
+        }
     },
     componentWillUnmount: function() {
         // remove silly global
@@ -436,12 +489,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             this.cleanUpSubmit();
             return false;
         }
-        if (this.state.advancedOpt.contentLicense)
-            metadata.license = this.state.advancedOpt.contentLicense;
-        if (this.state.advancedOpt.replyPrivacy)
-            metadata.replyPrivacy = this.state.advancedOpt.replyPrivacy;
-        metadata.language = puffworldprops.view.language;
-
         if(type == 'PGN') {
             metadata.quote = true;
         }
@@ -537,8 +584,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     },
     handleDiscard: function() {
         var type = this.refs.type.getDOMNode().value;
+        this.refs.meta.handleCleanFields();
         
-        if (type == 'image') {
+        if (type == 'image' || type == 'profile') {
             this.setState({imageSrc: ''});
             this.refs.imageLoader.getDOMNode().value = '';
             return false;
@@ -718,6 +766,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     handlePickPrivacy: function(privacy) {
         return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
     },
+    /*
     handlePickReplyPrivacy: function(privacy) {
         var advancedOpt = this.state.advancedOpt;
         advancedOpt.replyPrivacy = privacy
@@ -728,7 +777,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var advancedOpt = this.state.advancedOpt;
         advancedOpt[key] = e.target.value;
         this.setState({advancedOpt: advancedOpt});
-    },
+    },*/
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
     },

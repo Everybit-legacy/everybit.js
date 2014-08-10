@@ -518,9 +518,3 @@ if(Object.keys(PuffWardrobe.getAll()).length < 1)
 
 
 ////////// End PuffForum Interface ////////////
-
-TRACKINCOMEPUFF = [];
-events.sub('track/*', function(data, path) {
-    data.currentIdentity = PuffWardrobe.getCurrentKeys();
-    TRACKINCOMEPUFF.push({path: path, data:data});
-})

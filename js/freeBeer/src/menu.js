@@ -125,9 +125,6 @@ var Cluster = React.createClass({
         case "tools":
             clusterMenu = <ToolsMenu />
             break;
-        case "profile":
-            clusterMenu = <ProfileMenu />
-            break;
         default:
             break;
         }
@@ -162,7 +159,7 @@ var Cluster = React.createClass({
     }
 });
 
-var ProfileMenu = React.createClass({
+/*var ProfileMenu = React.createClass({
     render: function() {
         var username = PuffWardrobe.getCurrentUsername();
         if (!username) 
@@ -170,7 +167,7 @@ var ProfileMenu = React.createClass({
         
         return <ProfileForm />;
     }
-})
+})*/
 
 var FilterMenu = React.createClass({
     mixins: [TooltipMixin],
@@ -692,6 +689,9 @@ var ToolsMenu = React.createClass({
 
 // Was PuffSwitchUser
 var AuthorPicker = React.createClass({
+    getInitialState: function() {
+        return {profileMsg: ''}
+    },
     handleUserPick: function() {
         PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
@@ -746,6 +746,33 @@ var AuthorPicker = React.createClass({
                             'reply': replyProps});
     },
 
+    handleViewProfile: function() {
+        var userRecord = PuffWardrobe.getCurrentUserRecord();
+        var profile = userRecord.profile;
+        var self = this;
+        if (profile.length) {
+            var puff = PuffForum.getPuffBySig(profile);
+            if (puff) {
+                this.setState({profileMsg: ''});
+                return showPuffDirectly(puff);
+            }
+
+            var prom = PuffData.pending[profile];
+            prom.then(function(puffs){
+                var p = puffs[0];
+                if (p) {
+                    self.setState({profileMsg: ''});
+                    showPuffDirectly(p);
+                } else {
+                    self.setState({profileMsg: 'No profile published.'})
+                }
+            })
+        } else {
+            this.setState({profileMsg: 'No profile published.'})
+        }
+        return false;
+    },
+
     render: function() {
         var all_usernames = Object.keys(PuffWardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -785,6 +812,10 @@ var AuthorPicker = React.createClass({
                 </div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handlePublishProfile}>Publish Profile</a>
+                </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleViewProfile}>View profile</a>
+                    {' '}<span className="red">{this.state.profileMsg}</span>
                 </div>
             </div>
             );

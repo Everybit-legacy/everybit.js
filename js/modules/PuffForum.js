@@ -193,6 +193,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
         var letter = Puffball.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
         if(!letter) {
             PuffForum.horridStash[envelope.sig] = true
+            events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
             return false
         }
         PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
@@ -210,7 +211,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
     yourUserRecordPromise.then(function(yourUserRecord) {
         var decrypted = doit(envelope, yourUserRecord)
-        events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
+        // events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
         // puts it in the cache for next time
         
         // add for display (sepecrate from here?)

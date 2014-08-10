@@ -300,8 +300,6 @@ PuffData.tryAddingShell = function(shell) {
         return false // we added a shell, but not the normal way... 
     }
     
-    
-    
     var existing = PuffData.getCachedShellBySig(shell.sig)
     
     if(existing) {
@@ -309,6 +307,12 @@ PuffData.tryAddingShell = function(shell) {
         if(shell.payload.content === undefined) return false
         existing.payload.content = shell.payload.content        // add the missing content
         return true // true because we changed it
+    }
+
+    // only add the shell if it is supported content type
+    if (!PuffForum.contentTypes[shell.payload.type]) {
+        events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig});
+        return false;        
     }
     
     PuffData.shells.push(shell)
@@ -416,10 +420,16 @@ PuffData.clearExistingPrivateShells = function() {
 }
 
 PuffData.addPrivateShells = function(privateShells) {
-    var decryptedShells = privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption) // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
-    events.pub("track/incoming-puff/decryption", {privateShells: privateShells, decryptedShells: decryptedShells})
-    decryptedShells = decryptedShells.filter(Boolean)
+    var decryptedShells = privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                            .filter(Boolean)
+    // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
     
+    if (decryptedShells.length != privateShells) {
+        events.pub('track/decrypt/some-decrypt-fails', 
+                    {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
+                     privateShells: privateShells.map(function(p){return p.sig})})
+    }
+        
     decryptedShells = decryptedShells.filter(function(puff) { 
         return !PuffData.currentDecryptedShells.filter(function(otherpuff) {return otherpuff.sig == puff.sig}).length
     })

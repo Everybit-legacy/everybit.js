@@ -392,7 +392,7 @@ function showPuffDirectly(puff) {
                                , 'view.filters' : {}
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
-                               , 'menu'      : puffworlddefaults.menu
+                               // , 'menu'      : puffworlddefaults.menu
                                })
 }
 
@@ -517,4 +517,8 @@ if(Object.keys(PuffWardrobe.getAll()).length < 1)
     // console.log("hide silder cuz several users")
 
 
-////////// End PuffForum Interface ////////////
+
+TRACKINCOMEPUFF = [];
+events.sub('track/*', function(data, path) {
+    TRACKINCOMEPUFF.push({path: path, data:data});
+})

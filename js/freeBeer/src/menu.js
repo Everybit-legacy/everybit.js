@@ -189,7 +189,7 @@ var FilterMenu = React.createClass({
         var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('filter/add', jsonToSet);
+        return events.pub('filter/add', jsonToSet); // THINK: why not 'ui/filter/add' ?
     },
     
     handleKeyDown: function(event) {
@@ -469,40 +469,25 @@ var PreferencesMenu = React.createClass({
     
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
-        return events.pub('ui/relationships/hide', 
-                            {'view.arrows': !puffworldprops.view.arrows});
-        /*if(puffworldprops.view.arrows) {
-            return events.pub('ui/relationships/hide', {'view.arrows': false});
-        } else {
-            return events.pub('ui/relationships/show', {'view.arrows': true});
-        }*/
+        return events.pub( 'ui/relationships/hide', 
+                           {'view.arrows': !puffworldprops.view.arrows});
     },
 
     handleShowHideAnimations: function() {
-        return events.pub('ui/animation/hide', 
-                            {'view.animation': !puffworldprops.view.animation});
-        /*
-        if(puffworldprops.view.animation) {
-            return events.pub('ui/animation/hide', {'view.animation': false});
-        } else {
-            return events.pub('ui/animation/show', {'view.animation': true});
-        }*/
+        return events.pub( 'ui/animation/hide', 
+                           {'view.animation': !puffworldprops.view.animation});
     },
 
-
     handleToggleReporting: function() {
-        return events.pub('ui/prefs/reporting', {'prefs.reporting': !puffworldprops.prefs.reporting});
-        /*if(puffworldprops.prefs.reporting) {
-            return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
-        } else {
-            return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
-        }*/
+        return events.pub( 'ui/prefs/reporting', 
+                           {'prefs.reporting': !puffworldprops.prefs.reporting});
     },
 
     handleShowHideInfobar: function() {
         return events.pub( 'ui/view/showinfo/toggle',
-            { 'view.showinfo': !puffworldprops.view.showinfo})
+                            {'view.showinfo': !puffworldprops.view.showinfo})
     },
+    
     handlePickBgcolor: function() {
         var colorDiv = this.refs.bgcolor.getDOMNode();
         var color = colorDiv.color;

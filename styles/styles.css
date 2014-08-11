@@ -139,6 +139,11 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
+
+#talltree. replied{
+    background-color: lightgreen;
+}
+
 #talltree .block.encrypted {
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
@@ -155,7 +160,7 @@ section {
     border: 2px solid #333;
 }
 
-#talltree .block.encrypted.ivisible {
+#talltree .block.encrypted.invisible {
     background-image:url('../img/circle2.png');
     background-repeat:no-repeat;
     background-position: left bottom;

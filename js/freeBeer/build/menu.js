@@ -616,10 +616,10 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 
     handleToggleShowIntro: function() {
         if(puffworldprops.slider.show)
-            return events.pub( 'ui/slider/open',{ 'slider.show': false});
+            return events.pub('ui/slider/open', {'slider.show': false});
 
-        return events.pub( 'ui/slider/open',{ 'slider.show': true,
-                                              'menu.show': false});
+        return events.pub('ui/slider/open', {'slider.show': true,
+                                             'menu.show':   false});
     },
 
     render: function() {
@@ -693,7 +693,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         }
 
         PuffWardrobe.removeKeys(userToRemove);
-        events.pub('user/'+userToRemove+'/remove', {});
+        events.pub('user/'+userToRemove+'/remove', {}); // THINK: why not 'ui/user/...' ?
         var all_usernames = Object.keys(PuffWardrobe.getAll()).filter(function(u){return u!=userToRemove});
         if (all_usernames.length != 0) {
             PuffWardrobe.switchCurrent(all_usernames[0]);
@@ -704,32 +704,32 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
-        return events.pub('filter/show/by-user', 
-                            { 'view.filters': {}, 
-                              'view.filters.users': [username] } )
+        return events.pub( 'filter/show/by-user', 
+                           { 'view.filters': {}
+                           , 'view.filters.users': [username] } );
     },
 
     handleShowPuffsForMe: function(){
         var polyglot = Translate.language[puffworldprops.view.language];
         var username = PuffWardrobe.getCurrentUsername();
         if(!username.length) {
-            alert(polyglot.t("alert.noUserSet"))
+            alert(polyglot.t("alert.noUserSet"));
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('filter/show/for-user', 
-                            { 'view.filters': {}, 
-                              'view.filters.routes': [username] });
+        return events.pub( 'filter/show/for-user', 
+                           { 'view.filters': {}
+                           , 'view.filters.routes': [username] } );
     },
 
     handlePublishProfile: function() {
         var replyProps = PB.shallow_copy(puffworlddefaults.reply);
         replyProps.type = 'profile';
-        return events.pub('ui/publish/profile',
-                           {'menu.show': true,
-                            'menu.section': 'publish',
-                            'clusters.publish': true,
-                            'reply': replyProps});
+        return events.pub( 'ui/publish/profile',
+                           { 'menu.show': true
+                           , 'menu.section': 'publish'
+                           , 'clusters.publish': true
+                           , 'reply': replyProps } );
     },
 
     handleViewProfile: function() {

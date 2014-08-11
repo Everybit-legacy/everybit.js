@@ -33,11 +33,11 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 UsernameImport.instagram.collectData = function(result) {
 	if (result.meta.code == 200) {
 		var data = result.data.filter(function(d){return d.type == "image"});
-		var nextPage = result.pagination.nextURL;
+		var nextPage = result.pagination['next_url'];
 		this.allResult = this.allResult.concat(data);
 		if (nextPage && nextPage.length > 0) {
 			var newScript_el = document.createElement('script');
-			newScript_el.setAttribute("src", nextURL+'&callback=UsernameImport.instagram.collectData');
+			newScript_el.setAttribute("src", nextPage+'&callback=UsernameImport.instagram.collectData');
 			newScript_el.setAttribute("class", "instagramContent");
 			document.getElementsByTagName('head')[0].appendChild(newScript_el);
 		} else {
@@ -52,7 +52,7 @@ UsernameImport.instagram.importAllContent = function() {
 	var contents = this.allResult;
 	var loadedCount = 0;
 	var createdCount = 0;
-	var total = contents.length;
+	var total = Math.min(contents.length, 100);
 	UsernameImport.update(loadedCount, createdCount, total);
 	for (var i=0; i<total; i++) {
 		var entry = contents[i];
@@ -85,9 +85,10 @@ UsernameImport.instagram.importAllContent = function() {
 
 			var metadata = {
 				time: entry.created_time * 1000,
-				tags: entry.tags,
-				caption: entry.caption.text
+				tags: entry.tags
 			}
+			if (entry.caption)
+				metadata.caption = entry.caption.text;
 			var post_prom = PuffForum.addPost('image', img, [], metadata);
 			post_prom.then(function(puff){
 				createdCount++;
@@ -96,14 +97,15 @@ UsernameImport.instagram.importAllContent = function() {
 				if (createdCount == total) {
 					document.getElementById("importContent").innerHTML = "Import finished.<br>";
 					var username = PuffWardrobe.getCurrentUsername();
-					events.pub("ui/show-imported-puff", {'view.mode': 'list', 
+					events.pub("ui/show-imported-puff", {'view.mode': 'list',
+														 'view.filters': {},  
 														 'view.filters.users': [username]});
 
 					// clean up
 					var head = document.getElementsByTagName("head")[0];
 					var contentScript = head.getElementsByClassName("instagramContent");
 					for (var i=0; i<contentScript.length; i++) {
-						head.removeChild(contentScript);
+						head.removeChild(contentScript[i]);
 					}
 				}
 			}).catch(function(err){

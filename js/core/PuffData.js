@@ -456,6 +456,9 @@ PuffData.addPrivateShells = function(privateShells) {
 // to set it to -1 when it is running and then replace it when done.
 PuffData.slotLocker = {}
 
+// TODO: we're calling this from the 'refresh' button now, which is totally weird and requires some thinking.
+
+
 PuffData.importRemoteShells = function() {
     //// only called during initial application bootup. handles both cold loads and hot loads.
     

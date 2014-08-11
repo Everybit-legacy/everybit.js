@@ -24,12 +24,13 @@ var HeaderBar = React.createClass({
     render: function() {
         return (
             <div className="headerBar">
-                <HBPuffIcon />{' '}
-                <HBpublish />{' '}
-                <HBscore />{' '}
-                <HBidentity />{' '}
-                <HBFilters view={this.props.view} />{' '}
-                <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
+                {' '} <HBPuffIcon />
+                {' '} <HBpublish />
+                {' '} <HBscore />
+                {' '} <HBidentity />
+                {' '} <HBFilters view={this.props.view} />
+                {' '} <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
+                {' '} <HBrefresh />
             </div>
             )
     }
@@ -404,3 +405,21 @@ var HBsort = React.createClass({
         )
     }
 })
+
+
+var HBrefresh = React.createClass({
+    mixins: [TooltipMixin],
+    handleRefresh: function() {
+        PuffData.importRemoteShells() // TODO: this doesn't respect filters etc and should be websockets instead of a query
+        return false                  //       (like, sockets from a p2p node that links rtc-less browsers to the network)
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <span className="headerIcon relative">
+                <a className="authorSpan" onClick={this.handleRefresh}><i className="fa fa-repeat fa-fw"></i></a>
+                <Tooltip position='under' content={polyglot.t('header.tooltip.refresh')} />
+            </span>
+        )
+    }
+});

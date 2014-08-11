@@ -64,7 +64,7 @@ puffworldprops = {
         // TODO: move these options into view.layout
         arrows    : false,                              // true -> show relationship arrows between puffs
         rows      : 4,
-        // cols      : 5,                                  // NOTE: not currently used... ?
+        // cols      : 5,                               // THINK: not currently used...
         boxRatio  : 1,
         bigrows   : 2,
         bigcols   : 2,
@@ -162,6 +162,7 @@ events.sub("filter/*", function(data, path) {
     data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
     data['view.mode'] = 'list';
     events.pub('ui/query/default', data);
+    PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })
 
 // TODO: move these somewhere nicer

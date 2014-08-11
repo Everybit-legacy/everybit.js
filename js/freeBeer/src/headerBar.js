@@ -24,12 +24,13 @@ var HeaderBar = React.createClass({
     render: function() {
         return (
             <div className="headerBar">
-                <HBPuffIcon />{' '}
-                <HBpublish />{' '}
-                <HBscore />{' '}
-                <HBidentity />{' '}
-                <HBFilters view={this.props.view} />{' '}
-                <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
+                {' '} <HBPuffIcon />
+                {' '} <HBpublish />
+                {' '} <HBscore />
+                {' '} <HBidentity />
+                {' '} <HBrefresh />
+                {' '} <HBFilters view={this.props.view} />
+                {' '} <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
             </div>
             )
     }
@@ -136,13 +137,15 @@ var HBassorted = React.createClass({
 
 var HBCurrentFilters = React.createClass({
     render: function() {
-        var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
+        /*var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
             return <HBFilterBubble key={key} filterName={key} filterValue={this.props.view.filters[key]} />
-        }.bind(this))
-
+        }.bind(this))*/
+        var self = this;
         return (
             <span>
-                {filterNodes}
+                {Object.keys(self.props.view.filters).map(function(key) {
+                    return <HBFilterBubble key={key} filterName={key} filterValue={self.props.view.filters[key]} />
+                })}
             </span>
             );
     }
@@ -177,17 +180,6 @@ var HBFilterBubble = React.createClass({
     },
 
     render: function() {
-        if(this.props.filterName == 'tags') {
-            var icon = <i className="fa gray fa-tag"></i>
-        } else if(this.props.filterName == 'users') {
-            var icon = <i className="fa gray fa-user"></i>
-        } else if(this.props.filterName == 'routes') {
-            var icon = <i className="fa gray fa-sitemap"></i>
-        } else {
-            var icon = ''
-        }
-
-
         if(Array.isArray(this.props.filterValue))
             var filterArray = this.props.filterValue;
         else
@@ -201,6 +193,14 @@ var HBFilterBubble = React.createClass({
         return (
             <span>
                 {filterArray.map(function(value) {
+                    var icon = '';
+                    if(self.props.filterName == 'tags') {
+                        icon = <i className="fa gray fa-tag"></i>
+                    } else if(self.props.filterName == 'users') {
+                        icon = <i className="fa gray fa-user"></i>
+                    } else if(self.props.filterName == 'routes') {
+                        icon = <i className="fa gray fa-sitemap"></i>
+                    }
                     return (
                         <span key={value} className='bubbleNode relative'>
                             {icon}
@@ -216,7 +216,7 @@ var HBFilterBubble = React.createClass({
                     )
                 })}
             </span>
-            );
+        );
     }
 
 });
@@ -404,3 +404,21 @@ var HBsort = React.createClass({
         )
     }
 })
+
+
+var HBrefresh = React.createClass({
+    mixins: [TooltipMixin],
+    handleRefresh: function() {
+        PuffData.importRemoteShells() // TODO: this doesn't respect filters etc and should be websockets instead of a query
+        return false                  //       (like, sockets from a p2p node that links rtc-less browsers to the network)
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        return (
+            <span className="headerIcon relative">
+                <a className="authorSpan" onClick={this.handleRefresh}><i className="fa fa-repeat fa-fw"></i></a>
+                <Tooltip position='under' content={polyglot.t('header.tooltip.refresh')} />
+            </span>
+        )
+    }
+});

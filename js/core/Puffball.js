@@ -645,7 +645,7 @@ Puffball.Persist.remove = function(key) {
 
 /// ERROR ERROR
 /**
- * on error funtion
+ * on error function
  * @param  {string} msg 
  * @param  {object} obj 
  * @return {false}
@@ -749,6 +749,7 @@ Puffball.emptyPromise = function(msg) {
 }()
 
 ~function() {
+    //// do something later, but only once
     var later = []
 
     var step = function() {

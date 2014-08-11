@@ -189,7 +189,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('filter/add', jsonToSet);
+        return events.pub('filter/add', jsonToSet); 
     },
     
     handleKeyDown: function(event) {
@@ -469,40 +469,25 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
     
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
-        return events.pub('ui/relationships/hide', 
-                            {'view.arrows': !puffworldprops.view.arrows});
-        /*if(puffworldprops.view.arrows) {
-            return events.pub('ui/relationships/hide', {'view.arrows': false});
-        } else {
-            return events.pub('ui/relationships/show', {'view.arrows': true});
-        }*/
+        return events.pub( 'ui/relationships/hide', 
+                           {'view.arrows': !puffworldprops.view.arrows});
     },
 
     handleShowHideAnimations: function() {
-        return events.pub('ui/animation/hide', 
-                            {'view.animation': !puffworldprops.view.animation});
-        /*
-        if(puffworldprops.view.animation) {
-            return events.pub('ui/animation/hide', {'view.animation': false});
-        } else {
-            return events.pub('ui/animation/show', {'view.animation': true});
-        }*/
+        return events.pub( 'ui/animation/hide', 
+                           {'view.animation': !puffworldprops.view.animation});
     },
 
-
     handleToggleReporting: function() {
-        return events.pub('ui/prefs/reporting', {'prefs.reporting': !puffworldprops.prefs.reporting});
-        /*if(puffworldprops.prefs.reporting) {
-            return events.pub('ui/prefs/reporting', {'prefs.reporting': false});
-        } else {
-            return events.pub('ui/prefs/reporting', {'prefs.reporting': true});
-        }*/
+        return events.pub( 'ui/prefs/reporting', 
+                           {'prefs.reporting': !puffworldprops.prefs.reporting});
     },
 
     handleShowHideInfobar: function() {
         return events.pub( 'ui/view/showinfo/toggle',
-            { 'view.showinfo': !puffworldprops.view.showinfo})
+                            {'view.showinfo': !puffworldprops.view.showinfo})
     },
+    
     handlePickBgcolor: function() {
         var colorDiv = this.refs.bgcolor.getDOMNode();
         var color = colorDiv.color;
@@ -631,10 +616,10 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 
     handleToggleShowIntro: function() {
         if(puffworldprops.slider.show)
-            return events.pub( 'ui/slider/open',{ 'slider.show': false});
+            return events.pub('ui/slider/open', {'slider.show': false});
 
-        return events.pub( 'ui/slider/open',{ 'slider.show': true,
-                                              'menu.show': false});
+        return events.pub('ui/slider/open', {'slider.show': true,
+                                             'menu.show':   false});
     },
 
     render: function() {
@@ -719,32 +704,32 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
-        return events.pub('filter/show/by-user', 
-                            { 'view.filters': {}, 
-                              'view.filters.users': [username] } )
+        return events.pub( 'filter/show/by-user', 
+                           { 'view.filters': {}
+                           , 'view.filters.users': [username] } );
     },
 
     handleShowPuffsForMe: function(){
         var polyglot = Translate.language[puffworldprops.view.language];
         var username = PuffWardrobe.getCurrentUsername();
         if(!username.length) {
-            alert(polyglot.t("alert.noUserSet"))
+            alert(polyglot.t("alert.noUserSet"));
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub('filter/show/for-user', 
-                            { 'view.filters': {}, 
-                              'view.filters.routes': [username] });
+        return events.pub( 'filter/show/for-user', 
+                           { 'view.filters': {}
+                           , 'view.filters.routes': [username] } );
     },
 
     handlePublishProfile: function() {
         var replyProps = PB.shallow_copy(puffworlddefaults.reply);
         replyProps.type = 'profile';
-        return events.pub('ui/publish/profile',
-                           {'menu.show': true,
-                            'menu.section': 'publish',
-                            'clusters.publish': true,
-                            'reply': replyProps});
+        return events.pub( 'ui/publish/profile',
+                           { 'menu.show': true
+                           , 'menu.section': 'publish'
+                           , 'clusters.publish': true
+                           , 'reply': replyProps } );
     },
 
     handleViewProfile: function() {

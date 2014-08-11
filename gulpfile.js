@@ -13,13 +13,13 @@ var filesize = require('gulp-filesize');
 
 // Tasks
 var jsxList = [
-    "js/freeBeer/build/display.js",
-    "js/freeBeer/build/slider.js",
-    "js/freeBeer/build/menu.js",
-    "js/freeBeer/build/headerBar.js",
-    "js/freeBeer/build/puffbox.js",
-    "js/freeBeer/build/publishEmbed.js",
-    "js/freeBeer/build/tools.js"
+    "js/freeBeer/src/display.js",
+    "js/freeBeer/src/slider.js",
+    "js/freeBeer/src/menu.js",
+    "js/freeBeer/src/headerBar.js",
+    "js/freeBeer/src/puffbox.js",
+    "js/freeBeer/src/publishEmbed.js",
+    "js/freeBeer/src/tools.js"
 ];
 gulp.task('jsxFiles', function() {
     gulp.src(jsxList)

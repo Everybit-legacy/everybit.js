@@ -28,6 +28,7 @@ CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKr
 // List of supported
 // TODO: This is not hooked up.
 CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
+CONFIG.unsupportedContentTypes = [];
 CONFIG.defaultContentType = 'markdown';
 
 CONFIG.anon = {};

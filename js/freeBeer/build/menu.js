@@ -693,6 +693,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         return {profileMsg: ''}
     },
     handleUserPick: function() {
+        this.setState({profileMsg: ''});
         PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
@@ -757,10 +758,9 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                 return showPuffDirectly(puff);
             }
 
-            var prom = PuffData.pending[profile];
-            prom.then(function(puffs){
-                var p = puffs[0];
-                if (p) {
+            var prom = PuffNet.getPuffBySig(profile);
+            prom.then(function(p){
+                if (p.payload) {
                     self.setState({profileMsg: ''});
                     showPuffDirectly(p);
                 } else {
@@ -1438,13 +1438,12 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     keyArray.map(function(k){
                         var name = k + 'KeyPublic';
                         return (
-                            React.DOM.div(null, 
+                            React.DOM.div( {key:name}, 
                                 React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity."+k),": " ),
                                 React.DOM.div( {className:"menuInput"}, 
                                     React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus} )
                                 ),
                                 React.DOM.br(null )
-
                             )
                         )
                     })
@@ -1456,7 +1455,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                     keyArray.map(function(k){
                         var name = k + 'KeyPrivate';
                         return (
-                            React.DOM.div(null, 
+                            React.DOM.div( {key:name}, 
                                 React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity."+k),": " ),
                                 React.DOM.div( {className:"menuInput"}, 
                                     React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus, onChange:self.handlePrivateKeyChange.bind(self, k)} )

@@ -760,7 +760,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 
             var prom = PuffNet.getPuffBySig(profile);
             prom.then(function(p){
-                if (p) {
+                if (p.payload) {
                     self.setState({profileMsg: ''});
                     showPuffDirectly(p);
                 } else {

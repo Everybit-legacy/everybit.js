@@ -340,8 +340,8 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
             var type = this.state.additionRows[i];
             var ref = "row"+i;
             rows.push(
-                React.DOM.div(null, 
-                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {ref:ref, type:type} )
+                React.DOM.span( {key:ref}, 
+                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {key:ref, ref:ref, type:type} )
                 )
             );
         }
@@ -356,7 +356,7 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
             React.DOM.div(null, 
                 defaultFields.map(function(key){
                     var ref = toLowerCamelCase(key)
-                    return MetaInput( {metaKey:key, ref:ref} )
+                    return MetaInput( {key:ref, metaKey:key, ref:ref} )
                 }),
                 rows,
                 addNewText,addNewTextarea,addNewArray
@@ -378,7 +378,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     },
     componentDidMount: function() {
         // set silly global this is very very dumb
-        globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+        // globalReplyFormSubmitArg = this.handleSubmit.bind(this);
+        globalReplyFormSubmitArg = this.handleSubmit;
 
         // auto focus
         if(this.refs.content) {

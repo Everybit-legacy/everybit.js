@@ -92,7 +92,7 @@ var PuffAuthor = React.createClass({
                     {" > "}
                     {routes.map(function(value, index){
                         var link = <a href="" onClick={self.clickUsername.bind(self, value)}>{value}</a>
-                        var ret = <span>{link}
+                        var ret = <span key={value}>{link}
                                     {(index != total-1) ? ', ' : ''}</span>
                         return ret;
                     })}
@@ -165,8 +165,8 @@ var PuffBar = React.createClass({
             <span className ="icon">
                 <a style={boldStyle} onClick={this.handleShowMore}>
                     {[0,1,2].map(function(i){
-                        if (i == iconSet) return <span style={selectedStyle}>•</span>
-                        else return <span>•</span>
+                        if (i == iconSet) return <span key={i} style={selectedStyle}>•</span>
+                        else return <span key={i}>•</span>
                     })}
                 </a>
                 <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />

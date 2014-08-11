@@ -693,6 +693,7 @@ var AuthorPicker = React.createClass({
         return {profileMsg: ''}
     },
     handleUserPick: function() {
+        this.setState({profileMsg: ''});
         PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
@@ -757,9 +758,8 @@ var AuthorPicker = React.createClass({
                 return showPuffDirectly(puff);
             }
 
-            var prom = PuffData.pending[profile];
-            prom.then(function(puffs){
-                var p = puffs[0];
+            var prom = PuffNet.getPuffBySig(profile);
+            prom.then(function(p){
                 if (p) {
                     self.setState({profileMsg: ''});
                     showPuffDirectly(p);
@@ -1438,13 +1438,12 @@ var NewIdentity = React.createClass({
                     {keyArray.map(function(k){
                         var name = k + 'KeyPublic';
                         return (
-                            <div>
+                            <div key={name}>
                                 <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity."+k)}: </div>
                                 <div className="menuInput">
                                     <input type="text" name={name} ref={name} size="18" defaultValue={self.state.keys[name]} onFocus={self.handleFocus} />
                                 </div>
                                 <br />
-
                             </div>
                         )
                     })}
@@ -1456,7 +1455,7 @@ var NewIdentity = React.createClass({
                     {keyArray.map(function(k){
                         var name = k + 'KeyPrivate';
                         return (
-                            <div>
+                            <div key={name}>
                                 <div className="menuLabel"><sup>*</sup>{polyglot.t("menu.identity."+k)}: </div>
                                 <div className="menuInput">
                                     <input type="text" name={name} ref={name} size="18" defaultValue={self.state.keys[name]} onFocus={self.handleFocus} onChange={self.handlePrivateKeyChange.bind(self, k)} />

@@ -636,7 +636,7 @@ select:disabled {
     left: 15%;
     z-index: 400;
     position: absolute;
-    top: 200px;
+    top: 25%;
     background: #FAFAFA;
     border-radius: 10px;
     /* text-align: center; */
@@ -645,6 +645,9 @@ select:disabled {
     width: 70%;
     margin: auto;
     line-height: 1.7em;
+
+    max-height: 50%;
+    overflow-y: auto;
 }
 
 .replyFormEmbed {

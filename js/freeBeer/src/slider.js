@@ -144,7 +144,7 @@ var Slider = React.createClass({
 
                 <div className={wizard ? "hidden" : "sliderDots"}>
                         <span>{slidesArr.map(function(i) {
-                            return <SliderBullet active={i == puffworldprops.slider.currentSlide} numb={i} />
+                            return <SliderBullet key={i} active={i == puffworldprops.slider.currentSlide} numb={i} />
                         })}</span><a href="#" onClick={this.handleGetStarted}><em>Get started!</em></a>
                 </div>
 
@@ -661,7 +661,7 @@ var PasswordWizard = React.createClass({
         var registerLink = (<a href="#" onClick={this.handleRegisterUser}>Register</a>);
         var publishLink = (<a href="#" onClick={this.handlePublish}>Publish a new puff.</a>);
         var gotoMainLink = (<a href="#" onClick={this.handleGotoMain}>Go to main site.</a>)
-        var importContentLink = (<a href="#" onClick={this.handleImportContent}>Import Content</a>)
+        var importContentLink = (<a href="#" onClick={this.handleImportContent}>Import Content, </a>)
         return (
             <div className="slideContent">
                 Username: {puffworldprops.slider.username} <br/>
@@ -684,7 +684,7 @@ var PasswordWizard = React.createClass({
                 </div>
                 <div className={this.state.registerSuccess ? "" : "hidden"}>
                     Success!{' '}
-                    You may want to {this.state.enableImport ? importContentLink+"," : ""} {publishLink} or {gotoMainLink}
+                    You may want to {this.state.enableImport ? importContentLink : ""} {publishLink} or {gotoMainLink}
                 </div>
                 <div ref="errFields">
                     <em>{this.state.errMsg}</em>

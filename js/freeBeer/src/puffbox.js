@@ -611,8 +611,8 @@ var PuffReplyLink = React.createClass({
             parents.push(sig)
         } else {
             parents.splice(index, 1);
-            if (parents.length == 0)
-                type = puffworldprops.reply.lastType;
+            /*if (parents.length == 0)
+                type = puffworldprops.reply.lastType;*/
             openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 

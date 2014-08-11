@@ -288,24 +288,24 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
         if (filterArray.length == 0) return React.DOM.span(null);
         
         var polyglot = Translate.language[puffworldprops.view.language];
-        var toReturn = filterArray.map(function(value) {
-            return (
-                React.DOM.span( {className:"bubbleNode relative"}, 
-                    value,
-                    React.DOM.span(null , 
-                        React.DOM.a( {href:"#", onClick:this.handleRemoveFilter.bind(this, value)}, 
-                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
-                        ),
-                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.removeFilter")} )
-                    )
-                )
-            )
-        }.bind(this));
         
+        var self = this;
         return (
             React.DOM.div( {className:"menuItem"}, 
                 this.props.filterName,":",' ',
-                toReturn
+                filterArray.map(function(value) {
+                return (
+                    React.DOM.span( {key:value, className:"bubbleNode relative"}, 
+                        value,
+                        React.DOM.span(null , 
+                            React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(self, value)}, 
+                            React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
+                            ),
+                            Tooltip( {position:"under", content:polyglot.t("menu.tooltip.removeFilter")} )
+                        )
+                    )
+                )
+            })
             )
         );
     }

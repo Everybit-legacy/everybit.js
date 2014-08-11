@@ -196,25 +196,25 @@ var HBFilterBubble = React.createClass({
         if (filterArray.length == 0) return <span></span>;
 
         var polyglot = Translate.language[puffworldprops.view.language];
-        var toReturn = filterArray.map(function(value) {
-            return (
-                <span className='bubbleNode relative'>
-                    {icon}
-                    {' '}
-                    {value}
-                    <span>
-                        <a href="#" onClick={this.handleRemoveFilter.bind(this, value)}>
-                            <i className="fa fa-times-circle-o fa-fw"></i>
-                        </a>
-                        <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
-                    </span>
-                </span>
-                )
-        }.bind(this));
-
+        
+        var self = this;
         return (
             <span>
-                {toReturn}
+                {filterArray.map(function(value) {
+                    return (
+                        <span key={value} className='bubbleNode relative'>
+                            {icon}
+                            {' '}
+                            {value}
+                            <span>
+                                <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
+                                    <i className="fa fa-times-circle-o fa-fw"></i>
+                                </a>
+                                <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
+                            </span>
+                        </span>
+                    )
+                })}
             </span>
             );
     }

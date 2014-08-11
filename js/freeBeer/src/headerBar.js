@@ -28,9 +28,9 @@ var HeaderBar = React.createClass({
                 {' '} <HBpublish />
                 {' '} <HBscore />
                 {' '} <HBidentity />
+                {' '} <HBrefresh />
                 {' '} <HBFilters view={this.props.view} />
                 {' '} <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
-                {' '} <HBrefresh />
             </div>
             )
     }

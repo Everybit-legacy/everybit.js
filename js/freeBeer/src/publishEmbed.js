@@ -408,7 +408,9 @@ var PuffPublishFormEmbed = React.createClass({
         }
     },
     componentDidUpdate: function(prevProp) {
-        this.getUsernames();
+        if (prevProp.reply.parents != this.props.reply.parents)
+            this.getUsernames();
+        
         if (prevProp.reply.state.meta != this.props.reply.state.meta) {
             this.setState({showAdvanced: true, 
                            imageSrc: this.props.reply.state.imageSrc})
@@ -435,7 +437,6 @@ var PuffPublishFormEmbed = React.createClass({
         // clear the content
         update_puffworldprops({'reply.content': ''})
         
-        // console.log(this);
         if (this.refs.content) this.refs.content.getDOMNode().value = '';
 
         // go to the puff

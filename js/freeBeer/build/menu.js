@@ -189,7 +189,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('filter/add', jsonToSet); // THINK: why not 'ui/filter/add' ?
+        return events.pub('filter/add', jsonToSet); 
     },
     
     handleKeyDown: function(event) {
@@ -693,7 +693,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         }
 
         PuffWardrobe.removeKeys(userToRemove);
-        events.pub('user/'+userToRemove+'/remove', {}); // THINK: why not 'ui/user/...' ?
+        events.pub('user/'+userToRemove+'/remove', {});
         var all_usernames = Object.keys(PuffWardrobe.getAll()).filter(function(u){return u!=userToRemove});
         if (all_usernames.length != 0) {
             PuffWardrobe.switchCurrent(all_usernames[0]);

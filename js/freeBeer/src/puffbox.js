@@ -49,9 +49,16 @@ var PuffFancyBox = React.createClass({
             top  += spacing
             left += spacing
         }
-        
+
+        var replied = false;
+        if (PuffForum.getChildCount(puff) > 0) {
+            replied = true;
+        }
+
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
+        if(replied)
+            style = {position: 'absolute', width: width, height: height, left: left, top: top, background: 'lightgreen'}
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
                 <PuffAuthor ref="author" puff={puff} hidden={hidden} />

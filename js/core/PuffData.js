@@ -861,13 +861,15 @@ PuffData.getNotTopPuffs = function(limit) {
 //     var reverse     = options.reverse || false  // return bottom puffs instead of top puffs
 // }
 
-PuffData.doGC = function() {
+PuffData.garbageCompactor = function() {
     // are we over the limits?
     var limit     = CONFIG.inMemoryShellLimit
     var memlimit  = CONFIG.inMemoryMemoryLimit
     var sizelimit = CONFIG.shellContentThreshold
 
-    if(PuffData.shells.length > limit) {}
+    if(PuffData.shells.length > limit) {
+        
+    }
     
     if(PuffData.runningSizeTally > memlimit) {}
 }
@@ -885,20 +887,12 @@ PuffData.getShellsForLocalStorage = function() {
     if (total <= memlimit) return shells
     
     // compact the shells
-    // TODO: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content from the bad ones
     for (var i = shells.length - 1; i >= 0; i--) {
         var shell = shells[i]
-        var content_size = (shell.payload.content||"").length
+        var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
         if (content_size > sizelimit) {
-            var new_shell = PB.extend(shell)
-            var new_payload = {}
-            for(var prop in shell.payload)
-                if(prop != 'content')
-                    new_payload[prop] = shell.payload[prop] 
-
-            new_shell.payload = new_payload
+            var new_shell = PuffData.compactPuff(shell)
             shells[i] = new_shell
-            
             total -= content_size
             if(total <= memlimit) break
         }
@@ -911,4 +905,15 @@ PuffData.getShellsForLocalStorage = function() {
     return shells
 }
 
+PuffData.compactPuff = function(puff) {
+    // TODO: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
+    var new_shell = PB.extend(puff)
+    var new_payload = {}
+    for(var prop in puff.payload)
+        if(prop != 'content')
+            new_payload[prop] = puff.payload[prop] 
+
+    new_shell.payload = new_payload
+    return new_shell
+}
 

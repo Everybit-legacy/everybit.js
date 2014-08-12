@@ -441,7 +441,7 @@ var RegisterSubuserWizard = React.createClass({
 
                 <select ref="prefix">
                 {CONFIG.users.map(function(u) {
-                    return <option key={u.username} value={u.username}>{u.username}</option>
+                    return <option key={u.username} value={u.username}>.{u.username}</option>
                 })}
                 </select> <em>.</em>{' '}
                 <input type="text" name="newUsername" ref="newUsername"  defaultValue={generatedName} size="12" onChange={this.handleTestUsername}/> <br/>
@@ -466,6 +466,7 @@ var ImportWizard = React.createClass({
     getInitialState: function() {
         return {
             importInfo: {},
+            requestedUsername: '',
             enableCheck: false,
             enableContentImport: false,
             nameAvailable: false,
@@ -480,7 +481,8 @@ var ImportWizard = React.createClass({
         return events.pub("ui/wizard/import", {"slider.currentSlide": 5, "slider.importInfo": this.state.importInfo})
     },
     handleCheck: function() {
-        var username = this.state.importInfo.username;
+        // var username = this.state.importInfo.username;
+        var username = this.state.requestedUsername;
         if (!this.state.enableCheck) return false;
 
         var self = this;
@@ -512,8 +514,11 @@ var ImportWizard = React.createClass({
                         <a href="#" onClick={handleGoBack}>Go back.</a>
                     </div>
                 )
-            }
-            this.setState({importInfo: importInfo, enableCheck: true})
+            };
+
+            // var requestedUsername = importInfo.network + '.' + importInfo.username;
+            var requestedUsername = importInfo.username;
+            this.setState({importInfo: importInfo, enableCheck: true, requestedUsername: requestedUsername})
         }
 
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>;
@@ -523,7 +528,7 @@ var ImportWizard = React.createClass({
         }
         return (
             <div className="slideContent">
-                username: {this.state.importInfo.username}<br/>
+                username: .{this.state.requestedUsername}<br/>
                 <a href="#" onClick={this.handleCheck}>Check Availability</a><br/>
                 {this.state.msg}<br/>
                 {this.state.nameAvailable ? getUsername : importContent}
@@ -599,7 +604,8 @@ var PasswordWizard = React.createClass({
             defaultKey: keys.defaultKeyPublic
         };
         var importInfo = puffworldprops.slider.importInfo;
-        if (importInfo && importInfo.username && importInfo.username == username) {
+        if (importInfo && importInfo.username && 
+            /*importInfo.network + '.' +*/importInfo.username == username) {
             payload.importNetwork = importInfo.network;
             payload.importToken = importInfo.token;
             payload.importId = importInfo.id;          
@@ -664,7 +670,7 @@ var PasswordWizard = React.createClass({
         var importContentLink = (<a href="#" onClick={this.handleImportContent}>Import Content, </a>)
         return (
             <div className="slideContent">
-                Username: {puffworldprops.slider.username} <br/>
+                Username: .{puffworldprops.slider.username} <br/>
                 <div ref="keyFields" className={this.state.registerSuccess ? "hidden" : ""}>
                     <a href="#" onClick={this.populateKeys}>Regenerate keys</a> or <a href="#" onClick={this.handleConvert}>Convert your private keys</a><br/>
                     <em>Remeber to save your keys!</em><br/>

@@ -51,8 +51,16 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         }
 
         var replied = false;
-        if (PuffForum.getChildCount(puff) > 0) {
-            replied = true;
+        var countChildren = PuffForum.getChildCount(puff);
+        if (countChildren > 0) {
+            var kids = PuffData.graph.v(puff.sig).out('child').run();
+            var curUser = PuffWardrobe.getCurrentUsername();
+            for (var i=0; i<countChildren; i++) {
+                if (kids[i].shell.username==curUser) {
+                    replied = true;
+                    break;
+                }
+            }
         }
 
         if(stats)

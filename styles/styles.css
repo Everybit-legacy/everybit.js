@@ -140,10 +140,6 @@ section {
     overflow-x: auto;
 }
 
-#talltree. replied{
-    background-color: lightgreen;
-}
-
 #talltree .block.encrypted {
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;

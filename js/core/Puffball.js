@@ -245,9 +245,11 @@ Puffball.receiveNewPuffs = function(puffs) {
     // TODO: this is only called from PuffData.makeShellsAvailable -- pull this down there or rethink it all
     
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
-    
-    puffs = puffs.filter(function(puff) {
-        return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
+
+    // THINK: why didn't we allow shells through here, and should we in the future?
+    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
+    // puffs = puffs.filter(function(puff) {
+    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
     
     Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     

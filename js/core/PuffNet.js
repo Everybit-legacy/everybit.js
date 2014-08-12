@@ -186,22 +186,22 @@ PuffNet.getDescendants = function(start, limit) {
     function getEm(todo, done, remaining) {
         if(!todo.length) return false               // all done
         if(!remaining) return false                 // all done
-    
+        
         var sig = todo[0]
-    
+        
         if(~done.indexOf(sig)) {
             return getEm(todo.slice(1), done, remaining) // we've already done this one
         }
-    
+        
         // TODO: set a callback in PuffNet instead of calling PuffData directly
         var haveShell = PuffData.getCachedShellBySig(sig) 
-    
+        
         if(!haveShell) { // we don't have the shell yet, so go get it
             // TODO: callback PuffData erg merb lerb herp derp
             PuffData.getPuffBySig(sig)  // effectful
             remaining--
         }
-
+        
         var kidsigprom = PuffNet.getKidSigs(sig) // get all its children
         return kidsigprom.then(function(kidsigs) {
             getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)

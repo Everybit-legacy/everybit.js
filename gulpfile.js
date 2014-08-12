@@ -12,8 +12,17 @@ var jsdoc = require('gulp-jsdoc');
 var filesize = require('gulp-filesize');
 
 // Tasks
+var jsxList = [
+    "js/freeBeer/src/display.js",
+    "js/freeBeer/src/slider.js",
+    "js/freeBeer/src/menu.js",
+    "js/freeBeer/src/headerBar.js",
+    "js/freeBeer/src/puffbox.js",
+    "js/freeBeer/src/publishEmbed.js",
+    "js/freeBeer/src/tools.js"
+];
 gulp.task('jsxFiles', function() {
-    gulp.src('js/freeBeer/src/*.js')
+    gulp.src(jsxList)
         .pipe(react())
         //.pipe(sourcemaps.init())
              .pipe(concat('fbr.js'))

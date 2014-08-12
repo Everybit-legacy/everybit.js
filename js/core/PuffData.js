@@ -433,10 +433,11 @@ PuffData.addPrivateShells = function(privateShells) {
                      privateShells: privateShells.map(function(p){return p.sig})})
     }
         
-    decryptedShells = decryptedShells.filter(function(puff) { 
-        return !PuffData.currentDecryptedShells.filter(function(otherpuff) {return otherpuff.sig == puff.sig}).length
-    })
-                        .filter(function(puff){return CONFIG.unsupportedContentTypes.indexOf(puff.payload.type) == -1}) // filter out unsupported content types
+    decryptedShells = decryptedShells
+        .filter(function(puff) { 
+            return (CONFIG.unsupportedContentTypes.indexOf(puff.payload.type) == -1)  // no unsupported content types
+               &&  !PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
+                       function(otherpuff) { return otherpuff.sig == puff.sig}).length })
     
     PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)
     
@@ -906,7 +907,7 @@ PuffData.getShellsForLocalStorage = function() {
 }
 
 PuffData.compactPuff = function(puff) {
-    // TODO: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
+    // THINK: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
     var new_shell = PB.extend(puff)
     var new_payload = {}
     for(var prop in puff.payload)

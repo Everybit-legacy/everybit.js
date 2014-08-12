@@ -189,6 +189,7 @@ var HBFilterBubble = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         
         var self = this;
+        var addDot = this.props.filterName == "routes" || this.props.filterName == "users";
         return (
             <span>
                 {filterArray.map(function(value) {
@@ -204,7 +205,7 @@ var HBFilterBubble = React.createClass({
                         <span key={value} className='bubbleNode relative'>
                             {icon}
                             {' '}
-                            {value}
+                            {addDot ? '.' : ''}{value}
                             <span>
                                 <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                                     <i className="fa fa-times-circle-o fa-fw"></i>
@@ -235,6 +236,10 @@ var HBFilters = React.createClass({
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
             this.refs.filter.getDOMNode().value = '';
             return false;
+        }
+        if (type == "users" || type == 'routes') {
+            if (newFilter.slice(0, 1) == '.')
+                newFilter = newFilter.slice(1);
         }
         if (newFilter && currFilter.indexOf(newFilter) == -1)
             currFilter.push(newFilter);

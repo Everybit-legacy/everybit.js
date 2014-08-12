@@ -184,6 +184,10 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
             this.refs.filter.getDOMNode().value = '';
             return false;
         }
+        if (type == 'users' || type == 'routes') {
+            if (newFilter.slice(0, 1) == '.')
+                newFilter = newFilter.slice(1);
+        }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
         var jsonToSet = {};
@@ -290,13 +294,15 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
         var polyglot = Translate.language[puffworldprops.view.language];
         
         var self = this;
+        var addDot = this.props.filterName == "routes" || this.props.filterName == "users";
+
         return (
             React.DOM.div( {className:"menuItem"}, 
                 this.props.filterName,":",' ',
                 filterArray.map(function(value) {
                 return (
                     React.DOM.span( {key:value, className:"bubbleNode relative"}, 
-                        value,
+                        addDot ? '.' : '',value,
                         React.DOM.span(null , 
                             React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(self, value)}, 
                             React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -846,6 +852,8 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             events.pub('ui/event', {});
             return false;
         }
+        if (username.slice(0, 1) == '.')
+            username = username.slice(1);
 
         var prom = Puffball.getUserRecord(username);
 
@@ -942,6 +950,8 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             return <div></div>
         } else {*/
         var currUser = this.props.username;
+        if (currUser)
+            currUser = '.' + currUser;
         var polyglot = Translate.language[puffworldprops.view.language];
 
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';

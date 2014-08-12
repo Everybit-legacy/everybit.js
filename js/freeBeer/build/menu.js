@@ -184,6 +184,10 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
             this.refs.filter.getDOMNode().value = '';
             return false;
         }
+        if (type == 'users' || type == 'routes') {
+            if (newFilter.slice(0, 1) == '.')
+                newFilter = newFilter.slice(1);
+        }
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
         var jsonToSet = {};
@@ -290,13 +294,15 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
         var polyglot = Translate.language[puffworldprops.view.language];
         
         var self = this;
+        var addDot = this.props.filterName == "routes" || this.props.filterName == "users";
+
         return (
             React.DOM.div( {className:"menuItem"}, 
                 this.props.filterName,":",' ',
                 filterArray.map(function(value) {
                 return (
                     React.DOM.span( {key:value, className:"bubbleNode relative"}, 
-                        value,
+                        addDot ? '.' : '',value,
                         React.DOM.span(null , 
                             React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(self, value)}, 
                             React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
@@ -454,7 +460,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
                 React.DOM.div( {className:"menuItem"}, 
                     NewIdentity( {show:this.state.section == "new"} ),
                     SetIdentity( {show:this.state.section == "set", username:currUser} ),
-                    EditIdentity( {show:this.state.section == 'view', username:currUser} )
+                    ViewIdentity( {show:this.state.section == 'view', username:currUser} )
                 ),
                 React.DOM.br(null)
             )
@@ -781,7 +787,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                 React.DOM.div( {className:"menuItem"}, 
                     polyglot.t("menu.identity.current"),": ", React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, value:username}, 
                         all_usernames.map(function(username) {
-                            return React.DOM.option( {key:username, value:username}, username)
+                            return React.DOM.option( {key:username, value:username}, ".",username)
                         })
                         ),
                     ' ',React.DOM.span( {className:"relative"}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.currentDelete')} ))
@@ -822,223 +828,6 @@ var Checkmark = React.createClass({displayName: 'Checkmark',
     }
 });
 
-/* not in use 
-var QRCode = React.createClass({
-    render: function() {
-        if (!this.props.show) return <span></span>;
-        if (!this.props.status) return <span><i className="fa fa-qrcode fa-fw gray"></i></span>
-        return <span><i className="fa fa-qrcode fa-fw green"></i></span>
-    }
-});
-var ManageIdentity = React.createClass({
-    getInitialState: function() {
-        var username = this.props.username;
-        var keys = PuffWardrobe.getAll()[username] || {root: false, default: false, admin: false};
-        var keyStatus = {root: false, default: false, admin: false};
-        var qrCodeStatus = false;
-
-        return {
-            username: username,
-            usernameStatus: false,
-            needUpdate: false,
-            keys: keys,
-            keyStatus: keyStatus,
-            qrCodeStatus: qrCodeStatus
-        }
-    },
-    handleUsernameLookup: function() {
-        var username = this.refs.username.getDOMNode().value;
-        this.setState({username: username, needUpdate: (username != PuffWardrobe.getCurrentUsername())});
-        var self = this;
-
-        // Check for zero length
-        if(!username.length) {
-            this.state.usernameStatus = 'Missing';
-            events.pub('ui/event', {});
-            return false;
-        }
-
-        var prom = Puffball.getUserRecord(username);
-        prom.then(function(result) {
-            self.setState({usernameStatus: true});
-            self.updateKeys();
-            events.pub('ui/puff-packer/userlookup', {});
-        })
-            .catch(function(err) {
-                console.log(err);
-                self.setState({usernameStatus: 'Not found'});
-                events.pub('ui/puff-packer/userlookup/failed', {});
-            })
-        return false;
-    },
-    handleUsernameChange: function() {
-        var status = {root: false, default: false, admin: false};
-        this.setState({usernameStatus: false, 
-                       keyStatus: status,
-                       needUpdate: true,
-                       qrCodeStatus: false});
-        return false;
-    },
-    updateUsername: function() {
-        var username = PuffWardrobe.getCurrentUsername();
-        this.setState({username: username});
-        this.refs.username.getDOMNode().value = username;
-
-        this.handleUsernameLookup();
-        this.updateKeys();
-        return false;
-    },
-
-    updateKeys: function() {
-        var username = this.state.username;
-        var keys = PuffWardrobe.getAll()[username] || {root: false, default: false, admin: false};
-        this.setState({keys: keys});
-
-        var types = ['root', 'admin', 'default'];
-        for (var i=0; i<3; i++){
-            var type = types[i];
-            var key = keys[type];
-            this.refs[type].getDOMNode().value = key || '';
-            this.state.keyStatus[type] = Boolean(key);
-        }
-        this.state.qrCodeStatus = false;
-        return false;            
-    },
-    handleKeyCheck: function(type) {
-        var self = this;
-        var username = this.state.username;
-        var privateKey = this.refs[type].getDOMNode().value;
-        // Check for zero length
-        if(!privateKey.length) {
-            this.state.keyStatus[type] = 'Key missing';
-            events.pub('ui/event', {});
-            return false;
-        }
-        // Convert to public key
-        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
-        if(!publicKey) {
-            this.state.keyStatus[type] = 'Bad key';
-            events.pub('ui/event', {});
-            return false;
-        }
-
-        var prom = Puffball.getUserRecord(username);
-        prom.then(function(userInfo) {
-            if(publicKey != userInfo[type+'Key']) {
-                self.state.keyStatus[type] = 'Incorrect key';
-                events.pub('ui/event', {});
-                return false;
-            } else {
-                self.state.keys[type] = privateKey;
-                self.state.keyStatus[type] = true;
-                self.setState({qrCodeStatus: false});
-
-                // Add this to wardrobe, set username to current
-                if(type == 'default') {
-                    PuffWardrobe.storeDefaultKey(username, privateKey);
-                }
-                if(type == 'admin') {
-                    PuffWardrobe.storeAdminKey(username, privateKey);
-                }
-                if(type == 'root') {
-                    PuffWardrobe.storeRootKey(username, privateKey);
-                }
-
-                // At least one good key, set this to current user
-                PuffWardrobe.switchCurrent(username);
-                events.pub('ui/event', {});
-                return false;
-            }
-        })
-            .catch(function(err) {
-                self.state.keyStatus[type] = 'Not found';
-                events.pub('ui/event', {});
-                return false;
-            })
-        return false;
-    },
-    handleKeyChange: function(type) {
-        var status = this.state.keyStatus;
-        status[type] = false;
-        this.setState({keyStatus: status});
-        if (this.state.qrCodeStatus == type)
-            this.setState({qrCodeStatus: false});
-    },
-    handlePickQRCode: function(type) {
-        if (this.state.qrCodeStatus == type) {
-            this.setState({qrCodeStatus: false});
-        } else {
-            this.setState({qrCodeStatus: type});
-        }
-        return false;
-    },
-    handleClickQRCode: function(){
-        // create the qr code
-        var key = PuffWardrobe.getCurrentKeys()[this.state.qrCodeStatus];
-        var qr = qrcode(4, 'M');
-        qr.addData(key);
-        qr.make();
-        var image_data = qr.createImgTag(10);
-        var data = 'data:image/gif;base64,' + image_data.base64;
-        window.open(data, 'Image')
-    },
-
-    componentDidMount: function() {
-        var self = this;
-        this.handleUsernameLookup();
-        ['root', 'admin', 'default'].map(self.handleKeyCheck.bind(self));
-    },
-
-    render: function() {
-        var username = this.state.username;
-        var self = this;
-        
-        var polyglot = Translate.language[puffworldprops.view.language];
-        var qrCodeField = "";
-        if (this.state.qrCodeStatus) {
-            var type = this.state.qrCodeStatus;
-            var key = this.state.keys[type];
-            if (key) {
-                var qr = qrcode(4, 'M');
-                qr.addData(key);
-                qr.make();
-                var image_data = qr.createImgTag() || {};
-                var data = 'data:image/gif;base64,' + image_data.base64;
-                qrCodeField = (<img id="qrcode" src={data} width={image_data.width} height={image_data.height} onClick={this.handleClickQRCode}/>);
-            }
-        }
-        var updateBtn = <a href="#" onClick={this.updateUsername}><i className="fa fa-refresh fa-fw"></i></a>
-        return (
-            <div className="identitySection menuSection">
-                <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
-                <div className="menuInput">
-                    <input type="text" ref="username" defaultValue={username} onChange={this.handleUsernameChange} onBlur={this.handleUsernameLookup} size="10"/>
-                    <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                    {updateBtn}
-                </div><br/>
-                {qrCodeField}
-
-                {['root', 'admin', 'default'].map(function(type){
-                    var key = self.state.keys[type];
-                    var keyStatus = self.state.keyStatus[type];
-                    var showQRCode = self.state.qrCodeStatus == type;
-                    return (
-                        <div>
-                            {type}:
-                            <div className="menuInput">
-                                <input type="text" ref={type} defaultValue={key} onChange={self.handleKeyChange.bind(self, type)} size="10"/>
-                                <a href="#" onClick={self.handleKeyCheck.bind(self,type)}><Checkmark show={keyStatus} /></a>
-                                <a href="#" onClick={self.handlePickQRCode.bind(self, type)}><QRCode show={keyStatus === true} status={showQRCode} value={key} /></a>
-                            </div><br/>
-                        </div>
-                    )})
-                }
-            </div>
-        )
-    }
-})*/
-
-
 var SetIdentity = React.createClass({displayName: 'SetIdentity',
     getInitialState: function() {
         return {
@@ -1063,6 +852,8 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             events.pub('ui/event', {});
             return false;
         }
+        if (username.slice(0, 1) == '.')
+            username = username.slice(1);
 
         var prom = Puffball.getUserRecord(username);
 
@@ -1159,6 +950,8 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
             return <div></div>
         } else {*/
         var currUser = this.props.username;
+        if (currUser)
+            currUser = '.' + currUser;
         var polyglot = Translate.language[puffworldprops.view.language];
 
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
@@ -1203,7 +996,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 });
 
 
-var EditIdentity = React.createClass({displayName: 'EditIdentity',
+var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
     getInitialState: function() {
         return {
             qrCode: false,
@@ -1277,7 +1070,7 @@ var EditIdentity = React.createClass({displayName: 'EditIdentity',
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup';
         return (
             React.DOM.div( {className:slide}, 
-                React.DOM.div( {className:"message"}, polyglot.t("menu.identity.viewIdentity.msg"),": ", React.DOM.span( {className:"authorSpan"}, currUser)
+                React.DOM.div( {className:"message"}, polyglot.t("menu.identity.viewIdentity.msg"),": ", React.DOM.span( {className:"authorSpan"}, ".",currUser)
                 ),
 
                 React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
@@ -1398,7 +1191,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 React.DOM.div( {className:  "menuItem"}, 
                     React.DOM.select( {ref:"prefix"}, 
                     CONFIG.users.map(function(u) {
-                        return React.DOM.option( {key:u.username, value:u.username}, u.username)
+                        return React.DOM.option( {key:u.username, value:u.username}, ".",u.username)
                     })
                     ), " ", React.DOM.em(null, "."),' ',
                     React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),
@@ -1462,13 +1255,13 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 );
 
             var requestedUsernameField = (
-                React.DOM.div(null, this.state.desiredUsername)
+                React.DOM.div(null, ".",this.state.desiredUsername)
             );
 
             var mainField = [usernameField, keyField, requestedUsernameField, ""];
             var stepMessage = [
                 polyglot.t("menu.identity.step.select"),
-                polyglot.t("menu.identity.step.generate", {username: this.state.desiredUsername}),
+                polyglot.t("menu.identity.step.generate", {username: '.'+this.state.desiredUsername}),
                 polyglot.t("menu.identity.step.request"),
                 this.state.desiredUsername
             ];

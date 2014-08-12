@@ -98,16 +98,15 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
                 React.DOM.span(null, 
                     " > ",
                     routes.map(function(value, index){
-                        var link = React.DOM.a( {href:"", onClick:self.clickUsername.bind(self, value)}, value)
-                        var ret = React.DOM.span( {key:value}, link,
-                                    (index != total-1) ? ', ' : '')
-                        return ret;
+                        var link = React.DOM.a( {href:"", onClick:self.clickUsername.bind(self, value)}, ".",value);
+                        return React.DOM.span( {key:value}, link,
+                                    (index != total-1) ? ', ' : '');
                     })
                 )
             );
 
         return (
-            React.DOM.div( {className:className}, React.DOM.a( {href:"", onClick:this.handleClick}, username),sendTo)
+            React.DOM.div( {className:className}, React.DOM.a( {href:"", onClick:this.handleClick}, ".",username),sendTo)
         );
     }
 });
@@ -207,7 +206,6 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
                 PuffClone( {puff:puff} )
             )
         );
-        var iconSetArray = [iconSetOne, iconSetTwo, iconSetThree];
         return (
         React.DOM.div( {className:className}, 
             iconSetOne,

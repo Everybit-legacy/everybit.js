@@ -504,7 +504,7 @@ var PuffList = React.createClass({
         
         this.cursorPower(puffs)
 
-        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset != 0;
+        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset;
         var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
         return (
             <div>

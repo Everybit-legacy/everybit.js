@@ -436,7 +436,7 @@ PuffData.addPrivateShells = function(privateShells) {
     decryptedShells = decryptedShells.filter(function(puff) { 
         return !PuffData.currentDecryptedShells.filter(function(otherpuff) {return otherpuff.sig == puff.sig}).length
     })
-                        .filter(function(puff){return CONFIG.unsupportedContentTypes.index(puff.payload.type) == -1}) // filter out unsupported content types
+                        .filter(function(puff){return CONFIG.unsupportedContentTypes.indexOf(puff.payload.type) == -1}) // filter out unsupported content types
     
     PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)
     

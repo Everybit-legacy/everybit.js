@@ -410,7 +410,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     componentDidUpdate: function(prevProp) {
         if (prevProp.reply.parents != this.props.reply.parents)
             this.getUsernames();
-        
+
         if (prevProp.reply.state.meta != this.props.reply.state.meta) {
             this.setState({showAdvanced: true, 
                            imageSrc: this.props.reply.state.imageSrc})
@@ -723,7 +723,6 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
 
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
-
         return false;
     },
     addUsername: function() {
@@ -731,6 +730,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var usernameNode = this.refs.username.getDOMNode();
         var newUsername = usernameNode.value.toLowerCase();
         newUsername = newUsername.replace(/\s+/g, '');
+        if (newUsername.slice(0, 1) == '.')
+            newUsername = newUsername.slice(1);
         if (newUsername.length == 0) return false;
         var usernames = this.state.usernames;
         var prom = Puffball.getUserRecord(newUsername);
@@ -927,7 +928,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 self.state.usernames.map(function(value){
                     return (
                         React.DOM.span( {key:value, className:"bubbleNode"}, 
-                            value,
+                            ".",value,
                             React.DOM.a( {href:"#", onClick:self.removeUsername.bind(self, value)}, 
                                 React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
                             )

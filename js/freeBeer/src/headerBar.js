@@ -97,8 +97,7 @@ var HBidentity = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <span className="headerIcon relative">
-
-                <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>{name}</a>
+                <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>.{name}</a>
                 <Tooltip position='under' content={polyglot.t('header.tooltip.identity')} />
             </span>
             )

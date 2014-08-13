@@ -797,7 +797,7 @@ PuffData.doStuffWithScore = function(puff, score) {
 PuffData.doStuffWithPuff = function(puff) {
     var puffsize = JSON.stringify(puff).length
     PuffData.addBonus(puff, 'size', puffsize)
-    PuffData.runningSizeTally += puffsize
+    PuffData.runningSizeTally += puffsize || 0                                  // block NaNs
 }
 
 PuffData.cachePuffScore = function(puff, score) {
@@ -817,7 +817,7 @@ PuffData.removeCachedPuffScore = function(puff) {
         if(bin[i].sig == puff.sig) {
             bin.splice(i, 1)
             var puffsize = PuffData.getBonus(puff, 'size')
-            PuffData.runningSizeTally -= puffsize
+            PuffData.runningSizeTally -= puffsize || 0                          // block NaNs
             return false
         }
     }
@@ -894,7 +894,7 @@ PuffData.getShellsForLocalStorage = function() {
         if (content_size > sizelimit) {
             var new_shell = PuffData.compactPuff(shell)
             shells[i] = new_shell
-            total -= content_size
+            total -= content_size + 13 // NOTE: magic number == '"content":"",'.length
             if(total <= memlimit) break
         }
     }

@@ -5,14 +5,32 @@ var ComputeDimensionMixin = {
 		return GridLayoutMixin.getScreenCoords()
 	},
 	computeRowHeight: function() {
-		var row = (parseInt(puffworldprops.view.rows) || 1)+ 1; // 1 more row for header
+		var row = (parseInt(puffworldprops.view.rows) || 1);
 		var screencoords = this.getScreenCoords();
-		var rowHeight = screencoords.height / row;
+		var rowHeight = (screencoords.height-60) / row;
 		return rowHeight - 10; // TODO : add this to CONFIG
+	},
+	getColumnWidth: function(c){
+		var columnProps = this.props.column;
+		var columnArr = Object.keys(columnProps);
+		columnArr = columnArr.filter(function(c){return columnProps[c].show});
+
+		if (columnArr.indexOf(c) == -1) return 0;
+		
+		var screenWidth = this.getScreenCoords().width;
+		var rowWidth = screenWidth - 40; // TODO : add this to config
+		
+		var weightArr = columnArr.map(function(c){return columnProps[c].weight});
+		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
+		
+		var width = rowWidth * columnProps[c].weight / totalWeight; 
+		return width;
 	}
 }
 
-var RowSingleRenderMixin = {
+// puffball.io/img/icons/?sig=
+
+var RowRenderMixin = {
 	renderDefault: function(col) {
 		var metadata = this.props.puff.payload || {};
 		var content = metadata[col] || "";
@@ -38,11 +56,35 @@ var RowSingleRenderMixin = {
 			return <span key={tag} className="bubbleNode">{tag}</span>
 		})}</span>
 	},
-	renderParents: function() {
-		return "";
-	},
-	renderChildren: function() {
-		return "";
+	renderReferences: function() {
+		var iconStyle = {
+			display: 'inline-block',
+			height: '24px',
+			verticalAlign: 'middle',
+			marginBottom: '2px'
+		};
+		var parentsDiv = <div></div>;
+		var parents = this.props.puff.payload.parents || [];
+		var parentIcons = parents.map(function(sig){
+			return <img key={sig} style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+sig}/>
+		})
+		if (parents.length)
+			parentsDiv = <div><span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}</div>;
+
+		var childrenDiv = <div></div>;
+		var sig = this.props.puff.sig;
+		var children = PuffData.graph.v(sig).out('child').run();
+		var childrenIcon = children.map(function(vertex){
+			var s = vertex.shell.sig;
+			return <img key={s} style={{marginRight: '5px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+s}/>
+		})
+		if (children.length) 
+			childrenDiv = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+
+		return <div>
+			{parentsDiv}
+			{childrenDiv}
+		</div>
 	},
 	renderScore: function() {
         var showStar = true;
@@ -66,38 +108,25 @@ var RowSingleRenderMixin = {
 
 var RowView = React.createClass({
 	mixins: [ComputeDimensionMixin,ViewKeybindingsMixin],
-	getInitialState: function() {
+	getPuffList: function() {
 		var listprop = this.props.list;
-		var columnArr = [];
-		var totalWeight = 0;
-		for (var c in listprop.column) {
-			if (listprop.column[c] && listprop.column[c].show) {
-				columnArr.push(c);
-				totalWeight += listprop.column[c].weight || CONFIG.defaultColumn.weight;
+		var query = this.props.view.query;
+		var filters = this.props.view.filters;
+		var limit = this.props.view.rows;
+		if (listprop.expand.puff) {
+			if (listprop.expand.num >= limit) {
+				limit = 1;
+			} else {
+				limit = limit - (listprop.expand.num-1)
 			}
 		}
-		return {
-			columnArr: columnArr,
-			totalWeight: totalWeight
-		}
+		var puffs = PuffForum.getPuffList(query, filters, limit);
+		return puffs;
 	},
-	getColumnWidth: function(c){
-		var columnProps = this.props.list.column;
-		var columnArr = Object.keys(columnProps);
-		columnArr = columnArr.filter(function(c){return columnProps[c].show});
-
-		if (columnArr.indexOf(c) == -1) return 0;
-		
-		var screenWidth = this.getScreenCoords().width;
-		var rowWidth = screenWidth - 40; // TODO : add this to config
-		
-		var weightArr = columnArr.map(function(c){return columnProps[c].weight});
-		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
-		
-		var width = rowWidth * columnProps[c].weight / totalWeight; 
-		return width;
+	getRowBox: function() {
+		var rows = this.props.view.rows;
+		var gridbox = this.getGridBox(rows, 1)
 	},
-
 	render: function() {
 		var self = this;
 		var listprop = this.props.list;
@@ -107,17 +136,12 @@ var RowView = React.createClass({
 		var style={
 			top: top, left:left, position: 'absolute'
 		}
-
-		var query = this.props.view.query;
-		var filters = this.props.view.filters;
-		var limit = this.props.view.rows;
-		var puffs = PuffForum.getPuffList(query, filters, limit);
-
+		var puffs = this.getPuffList();
 		return (
 			<div style={style} className="listview">
-				<RowHeader getColumnWidth={this.getColumnWidth} column={this.props.list.column}/>
+				<RowHeader column={this.props.list.column}/>
 				{puffs.map(function(puff, index){
-					return <RowSingle key={puff.sig} getColumnWidth={self.getColumnWidth} puff={puff}  column={self.props.list.column} expand={self.props.list.expand} index={index}/>
+					return <RowSingle key={puff.sig} puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
 				})}
 			</div>
 		)
@@ -161,10 +185,10 @@ var RowHeader = React.createClass({
 		var columnProp = this.props.column;
 		var columns = Object.keys(columnProp);
 		columns = columns.filter(function(c){return columnProp[c].show});
-		var getColumnWidth = this.props.getColumnWidth;
+		var self = this;
 
 		return (
-			<div className="listrow listheader" style={{height: this.computeRowHeight().toString()+'px'}}>
+			<div className="listrow listheader">
 				<span className="listcell" style={{width: '2em', padding: '0.5em 0px'}}>
 					<a href="#" onClick={this.handleManageCol}>
 						<i className="fa fa-fw fa-cog"></i>
@@ -173,7 +197,7 @@ var RowHeader = React.createClass({
 				</span>
 				{columns.map(function(c){
 					var style = {
-						width: getColumnWidth(c).toString()+'px'
+						width: self.getColumnWidth(c).toString()+'px'
 					};
 					return <span className="listcell" key={c} style={style}>{c}</span>
 				})}
@@ -183,13 +207,15 @@ var RowHeader = React.createClass({
 })
 
 var RowSingle = React.createClass({
-	mixins: [ComputeDimensionMixin, RowSingleRenderMixin],
+	mixins: [ComputeDimensionMixin, RowRenderMixin],
+	
 	addColumn: function() {
 		var metadata = this.props.puff.payload;
 		var currentColumns = Object.keys(this.props.column);
 		for (var col in metadata) {
 			if (metadata[col] && metadata[col].length > 0 && 
-				currentColumns.indexOf(col) == -1) {
+				currentColumns.indexOf(col) == -1 &&
+				col != 'parents') {
 				var jsonToSet = {};
 				jsonToSet['list.column.'+col] = PB.shallow_copy(CONFIG.defaultColumn);
 				update_puffworldprops(jsonToSet)
@@ -207,7 +233,6 @@ var RowSingle = React.createClass({
 		var columns = Object.keys(columnProp);
 		columns = columns.filter(function(c){return columnProp[c].show});
 
-		var getColumnWidth = this.props.getColumnWidth;
 		var self = this;
 
 		var height = this.computeRowHeight();
@@ -216,11 +241,17 @@ var RowSingle = React.createClass({
 			var factor = Math.min(puffworldprops.view.rows, expandProp.num);
 			height = height * factor + 10 * (factor-1);
 		}
+
+		var className = ['listrow'];
+		/*if (this.props.view.cursor == puff.sig) {
+			className.push('cursor');
+		}*/
+
 		return (
-			<div className="listrow" style={{height: height.toString()+'px'}}>
+			<div className={className.join(' ')} style={{height: height.toString()+'px'}}>
 				<span className="listcell"><RowBar puff={puff} index={this.props.index}/></span>
 				{columns.map(function(col){
-					width = getColumnWidth(col).toString()+'px';
+					width = self.getColumnWidth(col).toString()+'px';
 					return self.renderColumn(col, width)
 				})}
 			</div>
@@ -292,8 +323,10 @@ var RowBar = React.createClass({
                 <PuffClone puff={puff} />
             </span>
         );
+
         return (
         <div className={className}>
+        	<img style={{marginBottom: '5px'}} src={'http://puffball.io/img/icons/?sig='+puff.sig}/>
             {iconSetOne}
             {iconSetTwo}
             {iconSetThree}

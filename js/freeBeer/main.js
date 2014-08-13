@@ -5,17 +5,17 @@ puffworldprops = {
         column: {
             identity: {
                 show: true,
-                weight: 2,
+                weight: 1,
                 allowSort: false
             },
             content: {
                 show: true,
-                weight: 4,
+                weight: 3,
                 allowSort: false
             },
             date: {
                 show: true,
-                weight: 2,
+                weight: 1,
                 allowSort: false
             },
             tags: {
@@ -23,16 +23,21 @@ puffworldprops = {
                 weight: 2,
                 allowSort: false
             },
-            parents: {
-                show: false,
+            references: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
+            /*parents: {
+                show: true,
                 weight: 2,
                 allowSort: false
             },
             children: {
-                show: false,
+                show: true,
                 weight: 2,
                 allowSort: false
-            },
+            },*/
             score: {
                 show: true,
                 weight: 1,

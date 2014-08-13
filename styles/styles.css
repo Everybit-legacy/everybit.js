@@ -123,7 +123,7 @@ section {
 }
 
 /* cursor */
-#talltree .block.cursor {
+#talltree .block.cursor, .listrow.cursor {
     outline: 2px dashed rgba(0, 0, 0, 0.45);
     /*   transition: all .5s;*/
     z-index: 200;
@@ -1442,6 +1442,12 @@ a.deactive, a.deactive:hover {
 }
 .animation .listrow{
     transition: all 1s;
+}
+.listheader {
+    height: 50px;
+}
+.listrow.listheader {
+    margin-top: 0;
 }
 .listheader .listcell {
     text-align: center;

@@ -10,6 +10,7 @@ var minifyCSS = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var jsdoc = require('gulp-jsdoc');
 var filesize = require('gulp-filesize');
+var zip = require('gulp-zip');
 
 // Tasks
 var jsxList = [
@@ -107,10 +108,17 @@ gulp.task('css', function() {
 });
 
 
+gulp.task('zip', function() {
+    gulp.src(['build/*.js','build/*.html','build/img/*','build/styles/*','build/styles/fonts/*'],{base: '.'})
+        .pipe(zip('puffball.zip'))
+        .pipe(gulp.dest('build'));
+});
+
+
 gulp.task('doDocs', function() {
     gulp.src('js/core/*.js')
         .pipe(jsdoc('doc'));
 });
 
 
-gulp.task('default', ['jsxFiles','css','ourOthers','theirOthers','copyBinaries']);
+gulp.task('default', ['jsxFiles','css','ourOthers','theirOthers','copyBinaries','zip']);

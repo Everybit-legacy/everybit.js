@@ -1,6 +1,55 @@
 // Bridge between visualization framework and js/forum files
 
 puffworldprops = {
+    list: { 
+        column: {
+            identity: {
+                show: true,
+                weight: 1,
+                allowSort: false
+            },
+            content: {
+                show: true,
+                weight: 3,
+                allowSort: false
+            },
+            date: {
+                show: true,
+                weight: 1,
+                allowSort: false
+            },
+            tags: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
+            references: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
+            /*parents: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
+            children: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },*/
+            score: {
+                show: true,
+                weight: 1,
+                allowSort: false
+            }
+        },
+        expand: {
+            num: 3,
+            puff: false
+        }
+    },
+
     clusters: {
         filters: true,
         publish: true,

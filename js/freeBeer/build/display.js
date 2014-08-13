@@ -432,8 +432,6 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         }
         */
 
-
-
         if( viewprops.mode == 'focus' )
             view  = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
 
@@ -442,6 +440,9 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         else if( viewprops.mode == 'PuffPacker' )
             view  = PuffPacker(      {tools:this.props.tools} )
+
+        else if ( viewprops.mode == 'newview' )
+            view = RowView( {view:viewprops, list:this.props.list})
 
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;

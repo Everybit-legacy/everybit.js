@@ -49,9 +49,24 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             top  += spacing
             left += spacing
         }
-        
+
+        var replied = false;
+        var countChildren = PuffForum.getChildCount(puff);
+        if (countChildren > 0) {
+            var kids = PuffData.graph.v(puff.sig).out('child').run();
+            var curUser = PuffWardrobe.getCurrentUsername();
+            for (var i=0; i<countChildren; i++) {
+                if (kids[i].shell.username==curUser) {
+                    replied = true;
+                    break;
+                }
+            }
+        }
+
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
+        if(replied)
+            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'lightgreen'}
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),

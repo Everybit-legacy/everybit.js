@@ -66,7 +66,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
         if(replied)
-            style = {position: 'absolute', width: width, height: height, left: left, top: top, background: 'lightgreen'}
+            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'lightgreen'}
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),

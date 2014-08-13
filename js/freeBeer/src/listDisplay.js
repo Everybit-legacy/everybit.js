@@ -1,67 +1,18 @@
 /** @jsx React.DOM */
 
-var listprop = {
-	column: {
-		identity: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		},
-		content: {
-			show: true,
-			weight: 4,
-			allowSort: false
-		},
-		date: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		},
-		tags: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		},
-		parents: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		},
-		children: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		},
-		score: {
-			show: true,
-			weight: 2,
-			allowSort: false
-		}
-	},
-	defaultColumn: {
-		show: false,
-		weight: 1,
-		allowSort: false
-	},
-	row: {
-		num: 5,
-		expand: 3
-	}
-}
-
 var ComputeDimensionMixin = {
 	getScreenCoords: function() {
 		return GridLayoutMixin.getScreenCoords()
 	},
 	computeRowHeight: function() {
-		var row = listprop.row.num + 1; // 1 more row for header
+		var row = (parseInt(puffworldprops.view.rows) || 1)+ 1; // 1 more row for header
 		var screencoords = this.getScreenCoords();
 		var rowHeight = screencoords.height / row;
 		return rowHeight - 10; // TODO : add this to CONFIG
 	}
 }
 
-var ListRowRenderMixin = {
+var RowSingleRenderMixin = {
 	renderDefault: function(col) {
 		var metadata = this.props.puff.payload || {};
 		var content = metadata[col] || "";
@@ -94,31 +45,35 @@ var ListRowRenderMixin = {
 		return "";
 	},
 	renderScore: function() {
-		return "";
+        var showStar = true;
+        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        if(envelope && envelope.keys)
+            showStar = false;
+		return <PuffStar sig={this.props.puff.sig}/>;
 	},
 	renderColumn: function(col, width) {
 		var ret = <span></span>
 		var content = "";
 		var functionName = "render" + col.slice(0, 1).toUpperCase() + col.slice(1);
-		console.log(col, this[functionName]);
 		if (this[functionName]) {
 			content = this[functionName]();
 		} else {
 			content = this.renderDefault(col);
 		}
-		return <span className="listcell" style={{width: width}}>{content}</span>;
+		return <span key={col} className="listcell" style={{width: width}}>{content}</span>;
 	}
 }
 
-var ListView = React.createClass({
-	mixins: [ComputeDimensionMixin],
+var RowView = React.createClass({
+	mixins: [ComputeDimensionMixin,ViewKeybindingsMixin],
 	getInitialState: function() {
+		var listprop = this.props.list;
 		var columnArr = [];
 		var totalWeight = 0;
 		for (var c in listprop.column) {
 			if (listprop.column[c] && listprop.column[c].show) {
 				columnArr.push(c);
-				totalWeight += listprop.column[c].weight || listprop.defaultColumn.weight;
+				totalWeight += listprop.column[c].weight || CONFIG.defaultColumn.weight;
 			}
 		}
 		return {
@@ -126,34 +81,26 @@ var ListView = React.createClass({
 			totalWeight: totalWeight
 		}
 	},
-	addNewColumn: function(c) {
-		var columnArr = PB.shallow_copy(this.state.columnArr);
-		if (columnArr.indexOf(c) != -1) return false;
-		var column = listprop.column[c];
-		if (!column) {
-			column = PB.shallow_copy(listprop.defaultColumn);
-			listprops.column[c] = column;
-		}
-		column.show = true;
-		columnArr.push(c);
-		var totalWeight = this.state.totalWeight + column.weight;
-		this.setState({
-			columnArr: columnArr,
-			totalWeight: totalWeight
-		});
-		return false;
-	},
 	getColumnWidth: function(c){
-		if (this.state.columnArr.indexOf(c) == -1) return 0;
+		var columnProps = this.props.list.column;
+		var columnArr = Object.keys(columnProps);
+		columnArr = columnArr.filter(function(c){return columnProps[c].show});
+
+		if (columnArr.indexOf(c) == -1) return 0;
+		
 		var screenWidth = this.getScreenCoords().width;
 		var rowWidth = screenWidth - 40; // TODO : add this to config
-		var width = rowWidth * (listprop.column[c].weight || listprop.defaultColumn.weight) / this.state.totalWeight; 
+		
+		var weightArr = columnArr.map(function(c){return columnProps[c].weight});
+		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
+		
+		var width = rowWidth * columnProps[c].weight / totalWeight; 
 		return width;
 	},
-	componentDidUpdate: function(prevProp, prevState) {
-	},
+
 	render: function() {
 		var self = this;
+		var listprop = this.props.list;
 		// TODO add this to config
 		var top = CONFIG.verticalPadding - 10;
 		var left = CONFIG.leftMargin - 10;
@@ -163,31 +110,66 @@ var ListView = React.createClass({
 
 		var query = this.props.view.query;
 		var filters = this.props.view.filters;
-		var limit = listprop.row.num;
+		var limit = this.props.view.rows;
 		var puffs = PuffForum.getPuffList(query, filters, limit);
 
 		return (
 			<div style={style} className="listview">
-				<ListHeader columns={this.state.columnArr} getColumnWidth={this.getColumnWidth}/>
-				{puffs.map(function(puff){
-					return <ListRow key={puff.sig} columns={self.state.columnArr} getColumnWidth={self.getColumnWidth} puff={puff} />
+				<RowHeader getColumnWidth={this.getColumnWidth} column={this.props.list.column}/>
+				{puffs.map(function(puff, index){
+					return <RowSingle key={puff.sig} getColumnWidth={self.getColumnWidth} puff={puff}  column={self.props.list.column} expand={self.props.list.expand} index={index}/>
 				})}
 			</div>
 		)
 	}
 })
 
-var ListHeader = React.createClass({
-	mixins: [ComputeDimensionMixin],
+var RowViewColOptions = React.createClass({
+	handleCheck: function(col) {
+		var columnProp = this.props.column;
+		var currentShow = columnProp[col].show;
+		var jsonToSet = {};
+		jsonToSet['list.column.'+col+'.show'] = !currentShow;
+		return events.pub('ui/show-hide/col', jsonToSet);
+	},
 	render: function() {
-		var columns = this.props.columns;
+		var columnProp = this.props.column;
+		var possibleCols = Object.keys(columnProp);
+		var self = this;
+		return (
+			<div className="rowViewColOptions">
+				{possibleCols.map(function(col){
+					return <div key={col}>
+						<input type="checkbox" onChange={self.handleCheck.bind(self, col)} value={col} defaultChecked={columnProp[col].show}>{col}</input>
+						</div>
+				})}
+			</div>
+		)
+	}
+})
+
+var RowHeader = React.createClass({
+	mixins: [ComputeDimensionMixin],
+	getInitialState: function() {
+		return {showOptions: false}
+	},
+	handleManageCol: function() {
+		this.setState({showOptions: !this.state.showOptions});
+		return false;
+	},
+	render: function() {
+		var columnProp = this.props.column;
+		var columns = Object.keys(columnProp);
+		columns = columns.filter(function(c){return columnProp[c].show});
 		var getColumnWidth = this.props.getColumnWidth;
+
 		return (
 			<div className="listrow listheader" style={{height: this.computeRowHeight().toString()+'px'}}>
 				<span className="listcell" style={{width: '2em', padding: '0.5em 0px'}}>
-					<a href="#" onClick={this.handleManageRow}>
+					<a href="#" onClick={this.handleManageCol}>
 						<i className="fa fa-fw fa-cog"></i>
 					</a>
+					{this.state.showOptions ? <RowViewColOptions column={columnProp}/> : ""}
 				</span>
 				{columns.map(function(c){
 					var style = {
@@ -200,16 +182,43 @@ var ListHeader = React.createClass({
 	}
 })
 
-var ListRow = React.createClass({
-	mixins: [ComputeDimensionMixin, ListRowRenderMixin],
+var RowSingle = React.createClass({
+	mixins: [ComputeDimensionMixin, RowSingleRenderMixin],
+	addColumn: function() {
+		var metadata = this.props.puff.payload;
+		var currentColumns = Object.keys(this.props.column);
+		for (var col in metadata) {
+			if (metadata[col] && metadata[col].length > 0 && 
+				currentColumns.indexOf(col) == -1) {
+				var jsonToSet = {};
+				jsonToSet['list.column.'+col] = PB.shallow_copy(CONFIG.defaultColumn);
+				update_puffworldprops(jsonToSet)
+			}
+		}
+		return events.pub('ui/new-column', {});
+	},
+	componentDidMount: function() {
+		this.addColumn();
+	},
 	render: function() {
 		var puff = this.props.puff;
-		var columns = this.props.columns;
+
+		var columnProp = this.props.column;
+		var columns = Object.keys(columnProp);
+		columns = columns.filter(function(c){return columnProp[c].show});
+
 		var getColumnWidth = this.props.getColumnWidth;
 		var self = this;
+
+		var height = this.computeRowHeight();
+		if (this.props.expand.puff == puff.sig) {
+			var expandProp = this.props.expand;
+			var factor = Math.min(puffworldprops.view.rows, expandProp.num);
+			height = height * factor + 10 * (factor-1);
+		}
 		return (
-			<div className="listrow" style={{height: this.computeRowHeight().toString()+'px'}}>
-				<span className="listcell"><ListBar puff={puff} hidden={false} /></span>
+			<div className="listrow" style={{height: height.toString()+'px'}}>
+				<span className="listcell"><RowBar puff={puff} index={this.props.index}/></span>
 				{columns.map(function(col){
 					width = getColumnWidth(col).toString()+'px';
 					return self.renderColumn(col, width)
@@ -220,17 +229,17 @@ var ListRow = React.createClass({
 })
 
 
-var ListBar = React.createClass({
+var RowBar = React.createClass({
     getInitialState: function() {
         return {iconSet: 0};
     },
     handleShowMore: function() {
         this.setState({iconSet: (this.state.iconSet+1)%3});
     },
-    componentDidUpdate: function() {
+    /*componentDidUpdate: function() {
         // to show tooltips for the other puffs
         this.componentDidMount();
-    },
+    },*/
     render: function() {
         var puff = this.props.puff;
         var className = 'listbar'
@@ -264,14 +273,13 @@ var ListBar = React.createClass({
         // ICON SETS
         var iconSetOne = (
             <span className={iconSet == 0 ? "" : "hidden"}>
-                <PuffExpand puff={puff} />
-                <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
-                <PuffInfoLink puff={puff} />
+                <RowExpand puff={puff} index={this.props.index}/>
                 <PuffReplyLink ref="reply" sig={puff.sig} />
             </span>
         );
         var iconSetTwo = (
             <span className={iconSet == 1 ? "" : "hidden"}>
+                <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
                 {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
                 {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
                 <PuffTipLink username={puff.username} />
@@ -294,3 +302,33 @@ var ListBar = React.createClass({
         );
     }
 });
+
+var RowExpand = React.createClass({
+	handleClick: function() {
+		if (puffworldprops.list.expand.puff == this.props.puff.sig) {
+			events.pub('ui/collapse-row', {'list.expand.puff': false});
+		} else {
+			var currentOffset = puffworldprops.view.query.offset || 0;
+			var currentIndex = this.props.index;
+
+			var totalRow = puffworldprops.view.rows;
+			var expandRow = Math.min(totalRow, puffworldprops.list.expand.num);
+			var newIndex = Math.floor((totalRow-expandRow)/2.0);
+			var newOffset = Math.max(currentOffset - (newIndex-currentIndex), 0);
+
+			events.pub('ui/collapse-row', {'list.expand.puff': this.props.puff.sig,
+										   'view.query.offset': newOffset});
+		}
+		return false;
+	},
+    render: function() {
+        var expand = puffworldprops.list.expand.puff == this.props.puff.sig ? "compress" : "expand";
+        return (
+            <span className="icon">
+                <a href="#" onClick={this.handleClick}>
+                    <i className={"fa fa-fw fa-"+expand}></i>
+                </a>
+            </span>
+        );
+    }
+})

@@ -442,7 +442,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             view  = PuffPacker(      {tools:this.props.tools} )
 
         else if ( viewprops.mode == 'newview' )
-            view = ListView( {view:viewprops})
+            view = RowView( {view:viewprops, list:this.props.list})
 
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;

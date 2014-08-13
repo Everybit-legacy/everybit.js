@@ -1440,9 +1440,14 @@ a.deactive, a.deactive:hover {
     border-radius: 5px;
     margin: 10px 0px;
 }
+.animation .listrow{
+    transition: all 1s;
+}
 .listheader .listcell {
     text-align: center;
     font-weight: bold;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
 }
 .listcell {
     height: 100%;
@@ -1450,6 +1455,9 @@ a.deactive, a.deactive:hover {
     display: inline-block;
     vertical-align: middle;
     border-right: 1px dotted #ccc;
+    word-wrap: break-word;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 .listbar {
     position:relative;
@@ -1459,4 +1467,14 @@ a.deactive, a.deactive:hover {
     height: auto;
     font-size: 1em;
     line-height: 1em;
+}
+.rowViewColOptions {
+    position: absolute;
+    left: 0.5em;
+    z-index: 200;
+    background-color: #ccc;
+    text-align: left;
+    font-weight: normal;
+    padding: 0.5em;
+    border-radius: 5px;
 }

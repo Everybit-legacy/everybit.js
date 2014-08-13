@@ -136,3 +136,10 @@ CONFIG.localStorageShellLimit =  1000 // maximum number of shells
 CONFIG.inMemoryShellLimit     = 10000 // (shells are removed to compensate)
 
 CONFIG.shellContentThreshold  =  1000 // size of uncompacted content
+
+// newview
+CONFIG.defaultColumn = {
+    show: false,
+    weight: 1,
+    allowSort: false
+}

@@ -139,6 +139,7 @@ section {
 .block.focused .txt {
     overflow-x: auto;
 }
+
 #talltree .block.encrypted {
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
@@ -155,7 +156,7 @@ section {
     border: 2px solid #333;
 }
 
-#talltree .block.encrypted.ivisible {
+#talltree .block.encrypted.invisible {
     background-image:url('../img/circle2.png');
     background-repeat:no-repeat;
     background-position: left bottom;
@@ -1421,4 +1422,41 @@ a.deactive, a.deactive:hover {
     0%  { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1;}
+}
+
+
+
+
+
+
+
+
+
+/* list view stuff */
+.listview {
+}
+.listrow {
+    background-color: #fff;
+    border-radius: 5px;
+    margin: 10px 0px;
+}
+.listheader .listcell {
+    text-align: center;
+    font-weight: bold;
+}
+.listcell {
+    height: 100%;
+    padding: 0.5em;
+    display: inline-block;
+    vertical-align: middle;
+    border-right: 1px dotted #ccc;
+}
+.listbar {
+    position:relative;
+    left: 0;
+    top: 0;
+    width: 1em;
+    height: auto;
+    font-size: 1em;
+    line-height: 1em;
 }

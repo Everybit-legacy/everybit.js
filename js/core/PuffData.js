@@ -278,9 +278,6 @@ PuffData.tryAddingShell = function(shell) {
     // NOTE: don't call this without filtering using isGoodShell
         
     // metapuff wonkery
-    if (CONFIG.unsupportedContentTypes.indexOf(shell.payload.type) != -1) {
-        return false; // content type not supported
-    }
 
     if(shell.payload.type == 'star') {
         // update shell bonii
@@ -434,8 +431,7 @@ PuffData.addPrivateShells = function(privateShells) {
         
     decryptedShells = decryptedShells
         .filter(function(puff) { 
-            return (CONFIG.unsupportedContentTypes.indexOf(puff.payload.type) == -1)  // no unsupported content types
-               &&  !PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
+            return (!PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
                        function(otherpuff) { return otherpuff.sig == puff.sig}).length })
     
     PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)

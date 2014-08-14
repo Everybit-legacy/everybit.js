@@ -934,8 +934,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var typeOption = (
             React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
                 contentTypeNames.map(function(type) {
-                    if (CONFIG.unsupportedContentTypes.indexOf(type) == -1)
-                        return React.DOM.option( {key:type, value:type}, type)
+                    return React.DOM.option( {key:type, value:type}, type)
                 })
             )
         );

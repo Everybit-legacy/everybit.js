@@ -506,8 +506,12 @@ PuffForum.addFamilialEdgesForParent = function(child) {
  * @param {string} type
  */
 PuffForum.addContentType = function(name, type) {
-    if(!name) return Puffball.onError('Invalid content type name')
-    if(!type.toHtml) return Puffball.onError('Invalid content type: object is missing toHtml method')
+    if(!name) 
+        return console.log('Invalid content type name');
+    if (CONFIG.supportedContentTypes.indexOf(name) == -1) 
+        return console.log('Unsupported content type: ' + name);
+    if(!type.toHtml) 
+        return console.log('Invalid content type: object is missing toHtml method', name);
     
     // TODO: add more thorough name/type checks
     PuffForum.contentTypes[name] = type
@@ -701,10 +705,10 @@ PuffForum.flagPuff = function (sig) {
 PuffForum.metaFields = []
 PuffForum.context = {};
 PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
-    if (!fieldInfo.name) return Puffball.onError('Invalid meta field name.');
+    if (!fieldInfo.name) return console.log('Invalid meta field name.');
 
     // supported type: text, textarea, pulldown, array
-    if (!fieldInfo.type) return Puffball.onError('Invalid meta field type.');
+    if (!fieldInfo.type) return console.log('Invalid meta field type.');
 
     if (!fieldInfo.validator || typeof fieldInfo.validator != 'function') {
         fieldInfo.validator = false;

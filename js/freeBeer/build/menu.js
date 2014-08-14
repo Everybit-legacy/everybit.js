@@ -769,10 +769,11 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, polyglot.t("menu.identity.current"),": ", polyglot.t("menu.identity.none"))
 
+        // TODO: this creates an infinite loop, because switching the current user forces a check for private puffs, and importing private puffs forces a rerender. 
         // Force selection of the single user when just one
-        if(all_usernames.length == 1) {
-            PuffWardrobe.switchCurrent(all_usernames[0]);
-        }
+        // if(all_usernames.length == 1) {
+        //     PuffWardrobe.switchCurrent(all_usernames[0]);
+        // }
 
         var username = PuffWardrobe.getCurrentUsername()
 

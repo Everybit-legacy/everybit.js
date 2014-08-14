@@ -275,10 +275,10 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleSetIdentityToAnon: function() {
-        PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
+        PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
         PuffWardrobe.switchCurrent('anon');
         events.pub('ui/puff-packer/set-identity-to-anon', {});
-        // var keys = Puffball.buildKeyObject(0, CONFIG.anon.privateKeyAdmin, 0);
+        // var keys = Puffball.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
         // PuffWardrobe.addUserReally('anon', keys);
     },
     handleImport: function() {

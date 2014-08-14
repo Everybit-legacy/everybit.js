@@ -413,18 +413,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         }
     },
 
-    /*componentWillMount: function() {
-        if (!this.state.username) {
-            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-            // prom.then(function() {
-            //     PuffWardrobe.switchCurrent('anon');
-            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
-            // });
-            //
-            // this.setState({username: 'anon'});
 
-        }
-    },*/
 
     handleToggleShowSection: function(name) {
         var section = name;

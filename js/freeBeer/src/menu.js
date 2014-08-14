@@ -227,7 +227,7 @@ var FilterMenu = React.createClass({
         // var all_filter = ['tags', 'users', 'routes'];
         var leftColStyle = {
             width: '80px',
-            display: 'inline-block',
+            display: 'inline-block'
         }
         
         return (
@@ -302,7 +302,8 @@ var FilterBubble = React.createClass({
                 {filterArray.map(function(value) {
                 return (
                     <span key={value} className='bubbleNode relative'>
-                        {addDot ? '.' : ''}{value}
+                        {addDot ? '.' : ''}
+                        {value}
                         <span >
                             <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                             <i className="fa fa-times-circle-o fa-fw"></i>

@@ -3,9 +3,9 @@
 puffworldprops = {
     list: { 
         column: {
-            identity: {
+            user: {
                 show: true,
-                weight: 1,
+                weight: 2,
                 allowSort: false
             },
             content: {
@@ -25,7 +25,7 @@ puffworldprops = {
             },
             references: {
                 show: true,
-                weight: 2,
+                weight: 1,
                 allowSort: false
             },
             /*parents: {
@@ -40,7 +40,7 @@ puffworldprops = {
             },*/
             score: {
                 show: true,
-                weight: 1,
+                weight: 0.5,
                 allowSort: false
             }
         },
@@ -105,7 +105,7 @@ puffworldprops = {
         mode: 'list',
         
         filters: {
-            tags: ['jellyfish'],
+            tags: [],
             users : [],
             routes: []
         },
@@ -128,7 +128,7 @@ puffworldprops = {
             ancestors: false,                           // number of ancestor levels to show (false for none)
             descendants: false,                         // number of descendant levels to show (false for none)
             focus: false,                               // a puff sig to focus on
-            offset: 0,
+            offset: 0
         },
 
         score: {
@@ -139,7 +139,7 @@ puffworldprops = {
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
         flash     : false,                              // flash the cursor
-        cursor    : false,                              // sig of selected puff
+        cursor    : false                              // sig of selected puff
     },
 
     reply: {
@@ -169,7 +169,7 @@ puffworldprops = {
     }
 }
 
-puffworlddefaults = puffworldprops                          // it's immutable so we don't care
+puffworlddefaults = puffworldprops  // it's immutable so we don't care
 
 
 //// event bindings for controlling core behavior from the display ////
@@ -209,7 +209,9 @@ events.sub('ui/*', function(data, path) {
 
 events.sub("filter/*", function(data, path) {
     data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
-    data['view.mode'] = 'list';
+    if(typeof data['view.mode'] == 'undefined')
+        data['view.mode'] = 'list';
+
     events.pub('ui/query/default', data);
     PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })

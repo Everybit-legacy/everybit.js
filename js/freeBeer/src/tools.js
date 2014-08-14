@@ -1,7 +1,11 @@
 /** @jsx React.DOM */
+/*
 
+ PUFFBALL DECENTRALIZED PUBLISHING PLATFORM
+ @2014 UNDER MIT LICENSE
+ CONTACT USER .PUFFBALL ON THE PLATFORM
 
-// BEGIN ADVANCED TOOLS
+ */
 
 var PuffToolsPuffDisplay = React.createClass({
     getInitialState: function() {
@@ -326,18 +330,38 @@ var PuffPacker = React.createClass({
         }
         var disabled = importUser ? "disabled" : "";
 
+        // Where is our menu?
+        var menuSideSpace = CONFIG.menuWidth + 20;
+        var nonMenuSideSpace = 10;
+
+        if(CONFIG.menuRight) {
+            var rightSpacing = menuSideSpace + 'px';
+            var leftSpacing = nonMenuSideSpace + 'px';
+        } else {
+            var leftSpacing = menuSideSpace + 'px';
+            var rightSpacing = nonMenuSideSpace + 'px'
+        }
+
+        var width = window.innerWidth - menuSideSpace - nonMenuSideSpace;
+        width = width < CONFIG.minWidthAdvancedTools ? CONFIG.minWidthAdvancedTools : width;
+
+        var styleInfo = {
+                            left: leftSpacing,
+                            right: rightSpacing,
+                            width: width
+                        }
+
         return (
-            <div id="adminForm">
+            <div id="adminForm" style={styleInfo}>
                 <form id="PuffPacker">
-                    <div id="closeDiv">
-                        <a href="#" onClick={this.handleClose} className="under">
-                            <img src="img/close.png" width="24" height="24" />
+                    <div className="closeBox">
+                        <a href="#" onClick={this.handleClose}><i className="fa fa-fw fa-times-circle" />
                         </a>
                     </div>
                     <div className="col1">
-                        <h3>Tools</h3>
-
-                    username:
+                        <div className="menuHeader">Advanced tools</div>
+                        <br />
+                        username:
                         <input className="fixedLeft" type="text" name="username" ref="username" defaultValue={requestedUsername} disabled={disabled}/> <br />
                         <input className="btn-link" type="button" value="Lookup" onClick={this.handleUsernameLookup} />
 
@@ -374,20 +398,7 @@ var PuffPacker = React.createClass({
                     default:
                         <input className="fixedLeft" type="text" name="defaultKeyPublic" ref="defaultKeyPublic" /><br /><br />
 
-                        <h4> Content Manipulation </h4>
 
-                        <p>get latest puff sig from DHT</p>
-
-                    Latest: <input className="fixedLeft" type="text" name="latestSig" ref="latestSig" value={this.state.latest} readOnly="true" /><br />
-
-                        <p><a href="#" onClick={this.handleGetLatest}>Get latest sig from DHT</a></p>
-
-                        <p>create a DHT-puff for setting latest</p>
-
-                    Set latest to: <input className="fixedLeft" type="text" name="setLatestSigTo" ref="setLatestSigTo" /><br />
-                        <a href="#" onClick={this.handleBuildSetLatest}>Build setLatest DHT-style puff</a>
-
-                        <br />
                     Key to modify: <br /><select id="keyToModify" ref="keyToModify">
                         <option value="defaultKey">default</option>
                         <option value="adminKey"  >admin</option>

@@ -1,7 +1,11 @@
 /** @jsx React.DOM */
+/*
 
+ PUFFBALL DECENTRALIZED PUBLISHING PLATFORM
+ @2014 UNDER MIT LICENSE
+ CONTACT USER .PUFFBALL ON THE PLATFORM
 
-// BEGIN ADVANCED TOOLS
+ */
 
 var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay',
     getInitialState: function() {
@@ -326,18 +330,38 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         }
         var disabled = importUser ? "disabled" : "";
 
+        // Where is our menu?
+        var menuSideSpace = CONFIG.menuWidth + 20;
+        var nonMenuSideSpace = 10;
+
+        if(CONFIG.menuRight) {
+            var rightSpacing = menuSideSpace + 'px';
+            var leftSpacing = nonMenuSideSpace + 'px';
+        } else {
+            var leftSpacing = menuSideSpace + 'px';
+            var rightSpacing = nonMenuSideSpace + 'px'
+        }
+
+        var width = window.innerWidth - menuSideSpace - nonMenuSideSpace;
+        width = width < CONFIG.minWidthAdvancedTools ? CONFIG.minWidthAdvancedTools : width;
+
+        var styleInfo = {
+                            left: leftSpacing,
+                            right: rightSpacing,
+                            width: width
+                        }
+
         return (
-            React.DOM.div( {id:"adminForm"}, 
+            React.DOM.div( {id:"adminForm", style:styleInfo}, 
                 React.DOM.form( {id:"PuffPacker"}, 
-                    React.DOM.div( {id:"closeDiv"}, 
-                        React.DOM.a( {href:"#", onClick:this.handleClose, className:"under"}, 
-                            React.DOM.img( {src:"img/close.png", width:"24", height:"24"} )
+                    React.DOM.div( {className:"closeBox"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleClose}, React.DOM.i( {className:"fa fa-fw fa-times-circle"} )
                         )
                     ),
                     React.DOM.div( {className:"col1"}, 
-                        React.DOM.h3(null, "Tools"),
-
-                    "username:",
+                        React.DOM.div( {className:"menuHeader"}, "Advanced tools"),
+                        React.DOM.br(null ),
+                        "username:",
                         React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:requestedUsername, disabled:disabled}), " ", React.DOM.br(null ),
                         React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
 
@@ -374,20 +398,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                     "default:",
                         React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic"} ),React.DOM.br(null ),React.DOM.br(null ),
 
-                        React.DOM.h4(null,  " Content Manipulation " ),
 
-                        React.DOM.p(null, "get latest puff sig from DHT"),
-
-                    "Latest: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"latestSig", ref:"latestSig", value:this.state.latest, readOnly:"true"} ),React.DOM.br(null ),
-
-                        React.DOM.p(null, React.DOM.a( {href:"#", onClick:this.handleGetLatest}, "Get latest sig from DHT")),
-
-                        React.DOM.p(null, "create a DHT-puff for setting latest"),
-
-                    "Set latest to: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"setLatestSigTo", ref:"setLatestSigTo"} ),React.DOM.br(null ),
-                        React.DOM.a( {href:"#", onClick:this.handleBuildSetLatest}, "Build setLatest DHT-style puff"),
-
-                        React.DOM.br(null ),
                     "Key to modify: ", React.DOM.br(null ),React.DOM.select( {id:"keyToModify", ref:"keyToModify"}, 
                         React.DOM.option( {value:"defaultKey"}, "default"),
                         React.DOM.option( {value:"adminKey"}  , "admin"),

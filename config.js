@@ -55,7 +55,10 @@ CONFIG.verticalPadding = 70;
 // Side of the page you want the menu to go on
 CONFIG.menuRight = false;
 
-CONFIG.menuWidth = '400';
+CONFIG.menuWidth = 400;
+
+// Minimum width for advanced tools
+CONFIG.minWidthAdvancedTools = 400;
 
 /* Puffs must be at least this many characters to be submitted */
 CONFIG.minimumPuffLength = 3;

@@ -1436,7 +1436,8 @@ a.deactive, a.deactive:hover {
 .listrow {
     background-color: #fff;
     /* border-radius: 5px; */
-    margin: 3px 0px;
+    margin-bottom: 3px;
+    position: relative;
 }
 .animation .listrow{
     transition: all 1s;
@@ -1447,34 +1448,49 @@ a.deactive, a.deactive:hover {
 .listrow.listheader {
     margin-top: 0;
 }
+.listrowContainer{
+    height: 100%;
+    margin-top: 3px;
+    overflow-y: auto;
+}
+
 .listheader .listcell {
     text-align: center;
     font-weight: bold;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    word-wrap: normal;
 }
 .listcell {
     height: 100%;
     padding: 0.5em;
+    min-height: 1.4em;
     display: inline-block;
     vertical-align: middle;
-    border-right: 1px dotted #ccc;
     word-wrap: break-word;
     overflow-y: auto;
     overflow-x: hidden;
+    position: relative;
+}
+.listcell+.listcell::before {
+    content: '';
+    height: 1.4em;
+    border-left: 1px dotted #ccc;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -0.7em;
 }
 .listbar {
     position:relative;
     left: 0;
     top: 0;
     width: 1em;
-    height: auto;
     font-size: 1em;
-    line-height: 1em;
 }
 .rowViewColOptions {
     position: absolute;
-    left: 0.5em;
+    left: 2em;
     z-index: 200;
     background-color: #ccc;
     text-align: left;
@@ -1490,6 +1506,17 @@ a.deactive, a.deactive:hover {
     border-radius: 5px;
     display: none;
 }
-.rowReference:hover > .rowReferencePreview {
+.rowReference:hover > .rowReferencePreview{
     display: block;
+}
+.listbarAllIcon {
+    position: absolute;
+    z-index: 200;
+    background-color: #aaa;
+    text-align: left;
+    border-radius: 5px;
+    width: 3em;
+    padding: 0.5em 0;
+    left: 2em;
+    bottom: 0.5em;
 }

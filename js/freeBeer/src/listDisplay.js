@@ -85,22 +85,22 @@ var RowRenderMixin = {
 // <<<<<<< HEAD
 		var sig = this.props.puff.sig;
 
-		var parentsDiv = <div></div>;
+		var parentsEle = <span></span>;
 		var parents = PuffData.graph.v(sig).out('parent').run();
 		parents = parents.map(function(v){return v.shell});
 		var parentIcons = parents.map(this.getReferenceIcon);
 		if (parents.length)
-			parentsDiv = 
+			parentsEle = 
 			<div style={{position: 'relative'}}>
 				<span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}
 			</div>;
 
-		var childrenDiv = <div></div>;
+		var childrenEle = <span></span>;
 		var children = PuffData.graph.v(sig).out('child').run();
 		children = children.map(function(v){return v.shell});
 		var childrenIcon = children.map(this.getReferenceIcon);
 		if (children.length) 
-			childrenDiv = <div style={{position: 'relative'}}><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+			childrenEle = <div style={{position: 'relative'}}><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
 /*=======
 		var parentsSpan = <span></span>;
 		var parents = this.props.puff.payload.parents || [];
@@ -125,8 +125,8 @@ var RowRenderMixin = {
 >>>>>>> 5f913db2f49bd2fb5a8d96f6f7bf8516449bfa35*/
 
 		return <div>
-			{parentsSpan}
-			{childrenSpan}
+			{parentsEle}
+			{childrenEle}
 		</div>
 	},
 	renderScore: function() {

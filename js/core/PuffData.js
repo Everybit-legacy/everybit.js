@@ -431,8 +431,8 @@ PuffData.addPrivateShells = function(privateShells) {
         
     decryptedShells = decryptedShells
         .filter(function(puff) { 
-            return (!PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
-                       function(otherpuff) { return otherpuff.sig == puff.sig}).length })
+            return !PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
+                       function(otherpuff) { return otherpuff.sig == puff.sig}).length})
     
     PuffData.currentDecryptedShells = PuffData.currentDecryptedShells.concat(decryptedShells)
     

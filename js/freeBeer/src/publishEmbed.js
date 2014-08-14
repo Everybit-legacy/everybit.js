@@ -504,13 +504,10 @@ var PuffPublishFormEmbed = React.createClass({
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
 
             post_prom
-                .catch(function(err){
-                    console.log(err);
-                })
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {
                     self.cleanUpSubmit();
-                    console.log(err);
+                    // console.log(err);
                     self.setState({err: err.message});
                 })
             return false;
@@ -1018,7 +1015,7 @@ var PuffPublishFormEmbed = React.createClass({
         if (type == 'image' || type == 'profile') previewTab = <span></span>;
 
         var errorField = "";
-        if (this.state.err) errorField =  <span><em>{this.state.err}</em><br /></span>;
+        if (this.state.err) errorField =  <span className="red" style={{fontWeight: 'bold'}}>{this.state.err}<br /></span>;
 
         /*
         var replyPrivacy = this.state.advancedOpt.replyPrivacy;

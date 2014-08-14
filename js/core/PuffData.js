@@ -291,11 +291,10 @@ PuffData.tryAddingShell = function(shell) {
         return false // because we didn't actually add a new shell  // THINK: but we did change one...
     }
     
-    
     // TODO: fix this private pathway
     if(shell.payload.type == 'encryptedpuff') {
         var username = PuffWardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
-        
+
         if(!shell.keys[username]) return false
         
         PuffData.addPrivateShells([shell]) // TODO: this calls updateUI and other weird stuff >.<
@@ -427,7 +426,7 @@ PuffData.addPrivateShells = function(privateShells) {
                             .filter(Boolean)
     // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
     
-    if (decryptedShells.length != privateShells) {
+    if (decryptedShells.length != privateShells.length) {
         events.pub('track/decrypt/some-decrypt-fails', 
                     {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
                      privateShells: privateShells.map(function(p){return p.sig})})

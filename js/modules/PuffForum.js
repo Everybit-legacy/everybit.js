@@ -445,8 +445,10 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         var username   = userRecord.username
 
         var privateKeys = PuffWardrobe.getCurrentKeys()
-        if(!privateKeys || !privateKeys.default)
-            return Puffball.onError('No valid private key found for signing the content')
+        if(!privateKeys || !privateKeys.default) {
+            // Puffball.onError('No valid private key found for signing the content')
+            throw Error('No valid private key found for signing the content')
+        }
 
         var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 

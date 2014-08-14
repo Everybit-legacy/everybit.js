@@ -170,7 +170,7 @@ var MetaInput = React.createClass({
         var key = e.target.value;
         if (key.length == 0) return;
         key = key.toLowerCase();
-        key = toLowerCamelCase(key);
+        key = StringConversion.toLowerCamelCase(key);
         if (!/^[a-z0-9]+$/i.test(key) || key.length > 255) {
             e.target.style.border = "1px solid red";
             this.setState({msg: "Key must be alphanumeric with max length of 255."})
@@ -284,7 +284,7 @@ var MetaFields = React.createClass({
                 var key = keyContentPair.key;
                 var content = keyContentPair.content;
                 if (key && key.length>0 && content && content.length>0) {
-                    key = toLowerCamelCase(key);
+                    key = StringConversion.toLowerCamelCase(key);
                     if (key == 'parents' || key == 'time') {
                         var msg = "Key reserved: " + key;
                         return {'FAIL': true, 'msg': msg};
@@ -355,7 +355,7 @@ var MetaFields = React.createClass({
         return (
             <div>
                 {defaultFields.map(function(key){
-                    var ref = toLowerCamelCase(key)
+                    var ref = StringConversion.toLowerCamelCase(key)
                     return <MetaInput key={ref} metaKey={key} ref={ref} />
                 })}
                 {rows}
@@ -394,7 +394,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         if (puffworldprops.reply.state)
             this.setState(puffworldprops.reply.state);
-        this.getUsernames();
+        this.getRecipientUsernames();
 
         var privacyNode = this.refs.privacy.getDOMNode();
         var buttons = privacyNode.getElementsByTagName('button');
@@ -409,7 +409,7 @@ var PuffPublishFormEmbed = React.createClass({
     },
     componentDidUpdate: function(prevProp) {
         if (prevProp.reply.parents != this.props.reply.parents)
-            this.getUsernames();
+            this.getRecipientUsernames();
 
         if (prevProp.reply.state.meta != this.props.reply.state.meta) {
             this.setState({showAdvanced: true, 
@@ -504,6 +504,9 @@ var PuffPublishFormEmbed = React.createClass({
             var post_prom = PuffForum.addPost( type, content, parents, metadata );
 
             post_prom
+                .catch(function(err){
+                    console.log(err);
+                })
                 .then(self.handleSubmitSuccess.bind(self))
                 .catch(function(err) {
                     self.cleanUpSubmit();
@@ -728,10 +731,7 @@ var PuffPublishFormEmbed = React.createClass({
     addUsername: function() {
         var self = this;
         var usernameNode = this.refs.username.getDOMNode();
-        var newUsername = usernameNode.value.toLowerCase();
-        newUsername = newUsername.replace(/\s+/g, '');
-        if (newUsername.slice(0, 1) == '.')
-            newUsername = newUsername.slice(1);
+        var newUsername = StringConversion.toActualUsername(usernameNode.value);
         if (newUsername.length == 0) return false;
         var usernames = this.state.usernames;
         var prom = Puffball.getUserRecord(newUsername);
@@ -748,6 +748,7 @@ var PuffPublishFormEmbed = React.createClass({
         return false;
     },
     removeUsername: function(value) {
+        value = StringConversion.toActualUsername(value);
         var currentUsernames = this.state.usernames;
         currentUsernames = currentUsernames.filter(function(u){return u != value});
         this.setState({usernames: currentUsernames});
@@ -769,30 +770,19 @@ var PuffPublishFormEmbed = React.createClass({
     handlePickPrivacy: function(privacy) {
         return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
     },
-    /*
-    handlePickReplyPrivacy: function(privacy) {
-        var advancedOpt = this.state.advancedOpt;
-        advancedOpt.replyPrivacy = privacy
-        return this.setState({advancedOpt: advancedOpt});
-    },
-    handlePickAdvancedOpt: function(e) {
-        var key = e.target.name;
-        var advancedOpt = this.state.advancedOpt;
-        advancedOpt[key] = e.target.value;
-        this.setState({advancedOpt: advancedOpt});
-    },*/
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
     },
+    /*
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
         return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
-    },
+    },*/
     handleShowAdvanced: function() {
         this.setState({showAdvanced: !this.state.showAdvanced});
         return false;
     },
-    getUsernames: function() {
+    getRecipientUsernames: function() {
         var parents = [];
         if (typeof this.props.reply.parents != 'undefined') {
             parents = this.props.reply.parents;
@@ -843,8 +833,8 @@ var PuffPublishFormEmbed = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
         var privacyDefault = this.props.reply.privacy || "public";
-        var author = PuffWardrobe.getCurrentUsername();
-        author = humanizeUsernames(author) || "anonymous";
+        /*var author = PuffWardrobe.getCurrentUsername();
+        author = StringConversion.humanizeUsernames(author) || "anonymous";*/
 
         var defaultContent = puffworldprops.reply.content || '';
         var parents = [];
@@ -922,13 +912,14 @@ var PuffPublishFormEmbed = React.createClass({
             </span>
         );
         var self = this;
+        var recipients = this.state.usernames.map(StringConversion.toDisplayUsername);
         var sendToField = (
             <div>
                 <span style={leftColStyle}>{polyglot.t("replyForm.recipient")}: </span>
-                {self.state.usernames.map(function(value){
+                {recipients.map(function(value){
                     return (
                         <span key={value} className='bubbleNode'>
-                            .{value}
+                            {value}
                             <a href="#" onClick={self.removeUsername.bind(self, value)}>
                                 <i className="fa fa-times-circle-o fa-fw"></i>
                             </a>

@@ -220,16 +220,8 @@ formatForDisplay = function(obj, style) {
     return JSON.stringify(obj).replace(/^\{\}$/, '');
 }
 
-/**
- * Truncate long usernames. May be depricated
- * @param username string
- * @returns string
- */
-humanizeUsernames = function(username) {
-    if(/^[A-Za-z0-9]{32}$/.test(username))
-        return username.slice(0, 7) + '...'
-    return username
-}
+// functions that convert string for displaying
+var StringConversion = {};
 
 /**
  * reduce imported username to alphanumeric
@@ -237,13 +229,13 @@ humanizeUsernames = function(username) {
  * @param  {string} allowDot allow '.' in the username for subusers
  * @return {string}          valid username
  */
-reduceUsernameToAlphanumeric = function(username, allowDot) {
+StringConversion.reduceUsernameToAlphanumeric = function(username, allowDot) {
     allowDot = allowDot || false;
     var pattern = allowDot ? /[^.A-Za-z0-9]/ : /[^A-Za-z0-9]/;
     return username.split(pattern).join('');
 }
 
-toLowerCamelCase = function(str) {
+StringConversion.toLowerCamelCase = function(str) {
     str = str.split(" ");
     var first = str[0];
     var rest = str.slice(1)
@@ -254,6 +246,45 @@ toLowerCamelCase = function(str) {
                 .join("");
     return first+rest;
 }
+
+StringConversion.toDisplayUsername = function(username) {
+    if (username.length == 0) return username;
+    username = username.replace(/\s+/g, '');
+    if (username.slice(0, 1) != '.')
+        username = '.' + username;
+    return username;
+}
+StringConversion.toActualUsername = function(username) {
+    if (username.length == 0) return username;
+    username = username.toLowerCase().replace(/\s+/g, '');
+    if (username.slice(0, 1) == '.')
+        username = username.slice(1);
+    return username;
+}
+
+/**
+ * Truncate long usernames. May be depricated
+ * @param username string
+ * @returns string
+ */
+StringConversion.humanizeUsernames = function(username) {
+    if(/^[A-Za-z0-9]{32}$/.test(username))
+        return username.slice(0, 7) + '...'
+    return username
+}
+
+formatForDisplay = function(obj, style) {
+    if(style == 'formatted') {
+        return JSON.stringify(obj, null, 2)
+            .replace(/[{}",\[\]]/g, '')
+            .replace(/^\n/, '')
+            .replace(/\n$/, '');
+    }
+
+    // style is raw
+    return JSON.stringify(obj).replace(/^\{\}$/, '');
+}
+
 
 
 /////// minimap ////////

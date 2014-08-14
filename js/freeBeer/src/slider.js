@@ -500,7 +500,7 @@ var ImportWizard = React.createClass({
             if (!params['requestedUsername'])
                 return <span>No import information</span>
             var importInfo = {
-                username: reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase(),
+                username: StringConversion.reduceUsernameToAlphanumeric(params['requestedUsername']).toLowerCase(),
                 token  : params['token'],
                 id     : params['requestedUserId'],
                 network: params['network']

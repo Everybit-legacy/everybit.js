@@ -97,7 +97,7 @@ var HBidentity = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <span className="headerIcon relative">
-                <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>.{name}</a>
+                <a className="authorSpan" onClick={this.handleShowIdentityPopout}><i className="fa fa-user fa-fw"></i>{StringConversion.toDisplayUsername(name)}</a>
                 <Tooltip position='under' content={polyglot.t('header.tooltip.identity')} />
             </span>
             )
@@ -186,7 +186,7 @@ var HBFilterBubble = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         
         var self = this;
-        var addDot = this.props.filterName == "routes" || this.props.filterName == "users";
+        var isUsername = this.props.filterName == "routes" || this.props.filterName == "users";
         return (
             <span>
                 {filterArray.map(function(value) {
@@ -198,12 +198,12 @@ var HBFilterBubble = React.createClass({
                     } else if(self.props.filterName == 'routes') {
                         icon = <i className="fa gray fa-sitemap"></i>
                     }
+
                     return (
                         <span key={value} className='bubbleNode relative'>
                             {icon}
                             {' '}
-                            {addDot ? '.' : ''}
-                            {value}
+                            {isUsername ? StringConversion.toDisplayUsername(value) : value}
                             <span>
                                 <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                                     <i className="fa fa-times-circle-o fa-fw"></i>

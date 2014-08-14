@@ -91,7 +91,8 @@ var PuffAuthor = React.createClass({
         return this.clickUsername(username);
     },
     render: function() {
-        var username = humanizeUsernames(this.props.puff.username)
+        // var username = humanizeUsernames(this.props.puff.username)
+        var username = this.props.puff.username;
         var className = 'author' + (this.props.hidden ? ' hidden' : '')
 
         var routes = this.props.puff.routes || [];

@@ -28,16 +28,6 @@ puffworldprops = {
                 weight: 2,
                 allowSort: false
             },
-            /*parents: {
-                show: true,
-                weight: 2,
-                allowSort: false
-            },
-            children: {
-                show: true,
-                weight: 2,
-                allowSort: false
-            },*/
             score: {
                 show: true,
                 weight: 1,

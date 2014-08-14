@@ -1484,3 +1484,14 @@ a.deactive, a.deactive:hover {
     padding: 0.5em;
     border-radius: 5px;
 }
+.rowReferencePreview {
+    position: absolute;
+    z-index: 200;
+    background-color: #ccc;
+    text-align: left;
+    border-radius: 5px;
+    display: none;
+}
+.rowReference:hover > .rowReferencePreview {
+    display: block;
+}

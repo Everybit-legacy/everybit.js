@@ -1437,8 +1437,8 @@ a.deactive, a.deactive:hover {
 }
 .listrow {
     background-color: #fff;
-    border-radius: 5px;
-    margin: 10px 0px;
+    /* border-radius: 5px; */
+    margin: 3px 0px;
 }
 .animation .listrow{
     transition: all 1s;

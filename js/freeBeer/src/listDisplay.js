@@ -58,7 +58,7 @@ var RowRenderMixin = {
 		var puff = this.props.puff;
 		var date = new Date(puff.payload.time);
 
-        return <span>{date.ymdhis()}</span>;
+        return <span>{date.yyyymmdd()}</span>;
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 	},
     // TODO: Link each tag to a search for that tag (maintain view as list)
@@ -84,7 +84,7 @@ var RowRenderMixin = {
 			return <img style={{marginRight: '2px', marginBottom:'2px'}} src={getImageCode(sig)}/>
 		})
 		if (parents.length)
-            parentsSpan = <span><span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}</span>;
+            parentsSpan = <span><span style={iconStyle}></span>{parentIcons}<i className="fa fa-fw fa-male"></i></span>;
 
 		var childrenSpan = <span></span>;
 		var sig = this.props.puff.sig;

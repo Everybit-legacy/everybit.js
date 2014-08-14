@@ -28,8 +28,6 @@ var ComputeDimensionMixin = {
 	}
 }
 
-// puffball.io/img/icons/?sig=
-
 var RowRenderMixin = {
     handleViewUser: function(username) {
         return events.pub( 'filter/show/by-user',
@@ -70,6 +68,13 @@ var RowRenderMixin = {
 			return <span key={tag} className="bubbleNode">{tag}</span>
 		})}</span>
 	},
+	getReferenceIcon: function(puff) {
+		var sig = puff.sig;
+		var preview = <span></span>;
+		if (puff.payload.content)
+			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
+		return <span key={sig} className="rowReference"><img key={sig} style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+sig}/>{preview}</span>
+	},
 	renderReferences: function() {
 		var iconStyle = {
 			display: 'inline-block',
@@ -77,6 +82,26 @@ var RowRenderMixin = {
 			verticalAlign: 'middle',
 			marginBottom: '2px'
 		};
+// <<<<<<< HEAD
+		var sig = this.props.puff.sig;
+
+		var parentsDiv = <div></div>;
+		var parents = PuffData.graph.v(sig).out('parent').run();
+		parents = parents.map(function(v){return v.shell});
+		var parentIcons = parents.map(this.getReferenceIcon);
+		if (parents.length)
+			parentsDiv = 
+			<div style={{position: 'relative'}}>
+				<span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}
+			</div>;
+
+		var childrenDiv = <div></div>;
+		var children = PuffData.graph.v(sig).out('child').run();
+		children = children.map(function(v){return v.shell});
+		var childrenIcon = children.map(this.getReferenceIcon);
+		if (children.length) 
+			childrenDiv = <div style={{position: 'relative'}}><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+/*=======
 		var parentsSpan = <span></span>;
 		var parents = this.props.puff.payload.parents || [];
 		var parentIcons = parents.map(function(sig){
@@ -97,6 +122,7 @@ var RowRenderMixin = {
 		})
 		if (children.length)
             childrenSpan = <span><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</span>;
+>>>>>>> 5f913db2f49bd2fb5a8d96f6f7bf8516449bfa35*/
 
 		return <div>
 			{parentsSpan}
@@ -124,7 +150,7 @@ var RowRenderMixin = {
 }
 
 var RowView = React.createClass({
-	mixins: [ComputeDimensionMixin,ViewKeybindingsMixin],
+	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
 	getPuffList: function() {
 		var listprop = this.props.list;
 		var query = this.props.view.query;
@@ -138,11 +164,33 @@ var RowView = React.createClass({
 			}
 		}
 		var puffs = PuffForum.getPuffList(query, filters, limit);
+		globalPuffRowList = puffs;
 		return puffs;
 	},
 	getRowBox: function() {
 		var rows = this.props.view.rows;
-		var gridbox = this.getGridBox(rows, 1)
+		var gridbox = this.getGridBox(rows, 1);
+
+		// big row
+		var expandRow = Math.min(this.props.list.expand.num, rows);
+
+		var puffs = this.getPuffList();
+		var minRow = 0;
+		var puffBoxes = [];
+		for (var i=0; i<puffs.length; i++) {
+			var p = puffs[i];
+			var box;
+			if (p.sig == this.props.list.expand.puff) {
+				box = this.applySizes(expandRow, 1, gridbox.add, {}, minRow)()(p)
+				// minRow += expandRow;
+			} else {
+				box = this.applySizes(1, 1, gridbox.add, {}, minRow)()(p)
+				// minRow += 1;
+			}
+			puffBoxes.push(box)
+		}
+		console.log(puffBoxes);
+		return puffBoxes;
 	},
 	render: function() {
 		var self = this;

@@ -25,14 +25,10 @@ CONFIG.logo = 'img/EveryBitLogoLeft.svg';
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
 CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di';
 
-// List of supported
-// TODO: This is not hooked up.
-CONFIG.supportedContentTypes = ['img/png', 'bbcode', 'text'];
+// List of supported content types
+CONFIG.supportedContentTypes = ['image', 'bbcode', 'text','markdown'];
 CONFIG.unsupportedContentTypes = [];
 CONFIG.defaultContentType = 'markdown';
-
-CONFIG.anon = {};
-CONFIG.anon.privateKeyAdmin = '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'; // public: 161s1zgTMSVLCp72SBphusQHzBzhjqtK5SSrCqKn17VfdvJPugz
 
 CONFIG.users = [
     {

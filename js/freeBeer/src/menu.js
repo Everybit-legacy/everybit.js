@@ -227,7 +227,7 @@ var FilterMenu = React.createClass({
         // var all_filter = ['tags', 'users', 'routes'];
         var leftColStyle = {
             width: '80px',
-            display: 'inline-block',
+            display: 'inline-block'
         }
         
         return (
@@ -302,7 +302,8 @@ var FilterBubble = React.createClass({
                 {filterArray.map(function(value) {
                 return (
                     <span key={value} className='bubbleNode relative'>
-                        {addDot ? '.' : ''}{value}
+                        {addDot ? '.' : ''}
+                        {value}
                         <span >
                             <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                             <i className="fa fa-times-circle-o fa-fw"></i>
@@ -412,18 +413,7 @@ var IdentityMenu = React.createClass({
         }
     },
 
-    /*componentWillMount: function() {
-        if (!this.state.username) {
-            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-            // prom.then(function() {
-            //     PuffWardrobe.switchCurrent('anon');
-            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
-            // });
-            //
-            // this.setState({username: 'anon'});
 
-        }
-    },*/
 
     handleToggleShowSection: function(name) {
         var section = name;
@@ -769,10 +759,11 @@ var AuthorPicker = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!all_usernames.length) return <div className="menuItem">{polyglot.t("menu.identity.current")}: {polyglot.t("menu.identity.none")}</div>
 
+        // TODO: this creates an infinite loop, because switching the current user forces a check for private puffs, and importing private puffs forces a rerender. 
         // Force selection of the single user when just one
-        if(all_usernames.length == 1) {
-            PuffWardrobe.switchCurrent(all_usernames[0]);
-        }
+        // if(all_usernames.length == 1) {
+        //     PuffWardrobe.switchCurrent(all_usernames[0]);
+        // }
 
         var username = PuffWardrobe.getCurrentUsername()
 

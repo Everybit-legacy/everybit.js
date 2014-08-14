@@ -158,15 +158,12 @@ var HBFilterBubble = React.createClass({
         var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
         // var propPiece = puffworldprops.filter[this.props.filterName];
 
-        // THINK: do we still need this?
-        // var viewStyle = puffworldprops.view.mode;
-        // if (viewStyle == 'PuffByUser') viewStyle = "PuffLatest";
-
         var index = filterValue.indexOf(toRemove);
         if(index >= 0) {
             filterValue.splice(index, 1);
             var propsMod = {};
             propsMod[filterPath] = filterValue;
+            propsMod['view.mode'] = puffworldprops.view.mode; // KEEP THE SAME!
             return events.pub('filter/remove', propsMod);
         }
 
@@ -205,7 +202,8 @@ var HBFilterBubble = React.createClass({
                         <span key={value} className='bubbleNode relative'>
                             {icon}
                             {' '}
-                            {addDot ? '.' : ''}{value}
+                            {addDot ? '.' : ''}
+                            {value}
                             <span>
                                 <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                                     <i className="fa fa-times-circle-o fa-fw"></i>

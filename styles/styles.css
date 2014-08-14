@@ -65,7 +65,6 @@ html {
 }
 
 body {
-    /* background-image:url('../img/background.gif'); */
     background-color: #E0E0E0;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
@@ -1243,17 +1242,16 @@ a.footerText {
 
 #adminForm {
     position: absolute;
-    margin-top: 50px;
-    margin-left: 100px;
     background-color: #F0F0F0;
     padding: 10px 20px 10px 15px;
-    border: 2px solid #868686;
     font-family: Gudea, sans-serif;
     font-size: 1.1em;
     line-height: 1.8em;
-    width: 1000px;
-    max-height: 80%;
+    top: 45px;
+    max-height: 90%;
     overflow-y: auto;
+    overflow-x: auto;
+
 }
 
 .fixedLeft {

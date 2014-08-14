@@ -432,17 +432,23 @@ var PuffWorld = React.createClass({
         }
         */
 
-        if( viewprops.mode == 'focus' )
-            view  = <PuffTallTree    view={viewprops} reply={this.props.reply} />
+        if( viewprops.mode == 'focus' ) {
+            view = <PuffTallTree    view={viewprops} reply={this.props.reply} />
+        }
 
-        else if( viewprops.mode == 'list' )
-            view  = <PuffList        view={viewprops} reply={this.props.reply} />
+        else if( viewprops.mode == 'list' ) {
+            view = <PuffList        view={viewprops} reply={this.props.reply} />
+        }
 
-        else if( viewprops.mode == 'PuffPacker' )
-            view  = <PuffPacker      tools={this.props.tools} />
+        else if( viewprops.mode == 'PuffPacker' ) {
+            view = <PuffPacker      tools={this.props.tools} />
+        }
 
-        else if ( viewprops.mode == 'newview' )
+        else if ( viewprops.mode == 'newview' ) {
             view = <RowView view={viewprops} list={this.props.list}/>
+            document.body.style.overflowY = "auto"
+        }
+
 
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;

@@ -31,13 +31,23 @@ var ComputeDimensionMixin = {
 // puffball.io/img/icons/?sig=
 
 var RowRenderMixin = {
+    handleViewUser: function(username) {
+        return events.pub( 'filter/show/by-user',
+            {
+              'view.filters': {},
+              'view.filters.users': [username],
+              'view.mode': 'newview'
+            }
+        );
+    },
+
 	renderDefault: function(col) {
 		var metadata = this.props.puff.payload || {};
 		var content = metadata[col] || "";
 		return content;
 	},
-	renderIdentity: function() {
-		return "." + this.props.puff.username;
+	renderUser: function() {
+		return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>;
 	},
 	renderContent: function() {
 		var puff = this.props.puff;
@@ -47,8 +57,12 @@ var RowRenderMixin = {
 	renderDate: function() {
 		var puff = this.props.puff;
 		var date = new Date(puff.payload.time);
-		return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+
+        return <span>{date.ymdhis()}</span>;
+		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 	},
+    // TODO: Link each tag to a search for that tag (maintain view as list)
+    // TODO: Change the format of the links to be more normal
 	renderTags: function() {
 		var puff = this.props.puff;
 		var tags = puff.payload.tags || [];
@@ -63,27 +77,30 @@ var RowRenderMixin = {
 			verticalAlign: 'middle',
 			marginBottom: '2px'
 		};
-		var parentsDiv = <div></div>;
+		var parentsSpan = <span></span>;
 		var parents = this.props.puff.payload.parents || [];
 		var parentIcons = parents.map(function(sig){
-			return <img key={sig} style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+sig}/>
+            // return <img style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+sig}/>
+			return <img style={{marginRight: '2px', marginBottom:'2px'}} src={getImageCode(sig)}/>
 		})
 		if (parents.length)
-			parentsDiv = <div><span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}</div>;
+            parentsSpan = <span><span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}</span>;
 
-		var childrenDiv = <div></div>;
+		var childrenSpan = <span></span>;
 		var sig = this.props.puff.sig;
 		var children = PuffData.graph.v(sig).out('child').run();
 		var childrenIcon = children.map(function(vertex){
 			var s = vertex.shell.sig;
-			return <img key={s} style={{marginRight: '5px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+s}/>
+            // return <img key={s} style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+s}/>
+
+            return <img style={{marginRight: '2px', marginBottom:'2px'}} src={getImageCode(s)}/>
 		})
-		if (children.length) 
-			childrenDiv = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+		if (children.length)
+            childrenSpan = <span><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</span>;
 
 		return <div>
-			{parentsDiv}
-			{childrenDiv}
+			{parentsSpan}
+			{childrenSpan}
 		</div>
 	},
 	renderScore: function() {
@@ -164,7 +181,7 @@ var RowViewColOptions = React.createClass({
 			<div className="rowViewColOptions">
 				{possibleCols.map(function(col){
 					return <div key={col}>
-						<input type="checkbox" onChange={self.handleCheck.bind(self, col)} value={col} defaultChecked={columnProp[col].show}>{col}</input>
+						<input type="checkbox" onChange={self.handleCheck.bind(self, col)} value={col} defaultChecked={columnProp[col].show}> {col}</input>
 						</div>
 				})}
 			</div>
@@ -188,7 +205,7 @@ var RowHeader = React.createClass({
 		var self = this;
 
 		return (
-			<div className="listrow listheader">
+			<div className="listrow listheader" key="listHeader">
 				<span className="listcell" style={{width: '2em', padding: '0.5em 0px'}}>
 					<a href="#" onClick={this.handleManageCol}>
 						<i className="fa fa-fw fa-cog"></i>
@@ -323,10 +340,14 @@ var RowBar = React.createClass({
                 <PuffClone puff={puff} />
             </span>
         );
-
+        // <img key={puff.sig} style={{marginBottom: '5px'}} src={'http://puffball.io/img/icons/?sig='+puff.sig}/>
         return (
         <div className={className}>
-        	<img style={{marginBottom: '5px'}} src={'http://puffball.io/img/icons/?sig='+puff.sig}/>
+            <img key={puff.sig} style={{marginBottom: '5px'}} src={getImageCode(puff.sig)} />
+
+
+
+
             {iconSetOne}
             {iconSetTwo}
             {iconSetThree}

@@ -6,7 +6,7 @@ puffworldprops = {
             user: {
                 show: true,
                 weight: 1.5,
-                allowSort: false
+                allowSort: true
             },
             content: {
                 show: true,
@@ -21,7 +21,7 @@ puffworldprops = {
             date: {
                 show: true,
                 weight: 1,
-                allowSort: false
+                allowSort: true
             },
             tags: {
                 show: true,
@@ -36,15 +36,16 @@ puffworldprops = {
             score: {
                 show: true,
                 weight: 0.5,
-                allowSort: false
+                allowSort: true
             }
         },
         bar: {
             expand: false,
             showIcons: false
         },
-        expand: {
-            puff: false
+        sort: {
+            column: 'date',
+            desc: true
         }
     },
 

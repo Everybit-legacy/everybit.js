@@ -140,7 +140,7 @@ var RowRenderMixin = {
             showStar = false;
 		return <PuffStar sig={this.props.puff.sig}/>;
 	},
-	renderColumn: function(col, width, maxHeight) {
+	render_column: function(col, width, maxHeight) {
 		var style = {};
 		style['width'] = (width-1).toString() + 'px';
 		if (maxHeight)
@@ -153,14 +153,43 @@ var RowRenderMixin = {
 			content = this[functionName]();
 		} else {
 			content = this.renderDefault(col);
-			cls.push(col);
 		}
 		return <span key={col}><span className="listcellborder"></span><span className={cls.join(' ')} style={style}>{content}</span></span>;
 	}
 }
 
+var RowSortMixin = {
+	sortDate: function(p1, p2) {
+		return p2.payload.time - p1.payload.time;
+	}, 
+	getScore: function(puff) {
+		var score = 0;
+        var starStats = PuffData.getBonus({sig: puff.sig}, 'starStats');
+        if(starStats && starStats.from) {
+            score = starStats.score
+        }
+        return score;
+	},
+	sortScore: function(p1, p2) {
+		return this.getScore(p2) - this.getScore(p1);
+	},
+	sortUser: function(p1, p2){
+		if (p1.username < p2.username) return -1;
+		if (p1.username > p2.username) return 1;
+		return 0;
+	},
+	sort_column: function(col) {
+		var functionName = "sort" + col.slice(0, 1).toUpperCase() + col.slice(1);
+		if (this[functionName]) {
+			return this[functionName];
+		}
+		return false;
+	}
+}
+
+
 var RowView = React.createClass({
-	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+	mixins: [ViewKeybindingsMixin, GridLayoutMixin, RowSortMixin],
 	getInitialState: function() {
 		return {loaded: 20, noMorePuff: false};
 	},
@@ -186,6 +215,17 @@ var RowView = React.createClass({
 			this.setState({noMorePuff: false});
 
 	},
+	sortPuffs: function(puffs) {
+		var col = this.props.list.sort.column;
+		var desc = this.props.list.sort.desc;
+		puffs = puffs || [];
+		var fn = this.sort_column(col);
+		puffs = puffs.sort(function(p1, p2){
+			if (desc) return fn(p1, p2);
+			else return -fn(p1, p2);
+		})
+		return puffs;
+	},
 	componentDidMount: function() {
 		this.refs.container.getDOMNode().addEventListener("scroll", this.handleScroll);
 	},
@@ -207,11 +247,12 @@ var RowView = React.createClass({
 		var filters = this.props.view.filters;
 		var limit = this.state.loaded;
 		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
+		puffs = this.sortPuffs(puffs);
 
 		var containerHeight = this.getScreenCoords().height - 30;
 		return (
 			<div style={style} className="listview">
-				<RowHeader column={this.props.list.column} bar={this.props.list.bar}/>
+				<RowHeader column={this.props.list.column} bar={this.props.list.bar} sort={this.props.list.sort}/>
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
 						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} />
 					})}
@@ -243,6 +284,31 @@ var RowViewColOptions = React.createClass({
 				})}
 			</div>
 		)
+	}
+})
+
+var RowSortIcon = React.createClass({
+	handleSort: function() {
+		var col = this.props.col;
+		if (this.props.sort.column != col) {
+			return events.pub('ui/sort-by/'+col, 
+					{'list.sort.column': col})
+		} else {
+			var desc = !this.props.sort.desc;
+			return events.pub('ui/sort-by/'+col, 
+					{'list.sort.desc': desc})
+		}
+	},
+	render: function() {
+		if (!this.props.allowSort)
+			return <span></span>;
+		var col = this.props.col;
+		var iconClass = "fa-sort";
+		if (this.props.sort.column == col) {
+			if (this.props.sort.desc) iconClass = "fa-sort-desc";
+			else iconClass = "fa-sort-asc";
+		}
+		return <a href="#" onClick={this.handleSort}><i className={"fa fa-fw " + iconClass}></i></a>
 	}
 })
 
@@ -279,7 +345,8 @@ var RowHeader = React.createClass({
 					var style = {
 						width: self.getColumnWidth(c).toString()+'px'
 					};
-					return <span className="listcell" key={c} style={style}>{c}</span>
+					var allowSort = columnProp[c].allowSort;
+					return <span className="listcell" key={c} style={style}><RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} />{c}</span>
 				})}
 			</div>
 		)
@@ -353,7 +420,7 @@ var RowSingle = React.createClass({
 				</span>
 				{columns.map(function(col){
 					width = self.getColumnWidth(col);
-					return self.renderColumn(col, width, maxHeight)
+					return self.render_column(col, width, maxHeight)
 				})}
 			</div>
 		)

@@ -127,14 +127,40 @@ var RowRenderMixin = {
 
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
+	getInitialState: function() {
+		return {loaded: 0, puffs: []};
+	},
 	getPuffList: function() {
+		console.log(this.state.loaded)
 		var listprop = this.props.list;
-		var query = this.props.view.query;
+		var query = PB.shallow_copy(this.props.view.query);
+		query.offset = query.offset + this.state.loaded;
+
 		var filters = this.props.view.filters;
-		var limit = 15;
+		var limit = 40;
+
 		var puffs = PuffForum.getPuffList(query, filters, limit);
-		globalPuffRowList = puffs;
+		this.setState({loaded: this.state.loaded + limit});
 		return puffs;
+	},
+	loadMore: function() {
+		var morePuffs = this.getPuffList();
+		var currentPuffs = PB.shallow_copy(this.state.puffs);
+		currentPuffs = currentPuffs.concat(morePuffs);
+		console.log(morePuffs.length);
+		this.setState({puffs: morePuffs});
+		return false;
+	},
+	handleScroll: function() {
+		var ele = document.body;
+		if (ele.scrollTop >= ele.scrollHeight - ele.offsetHeight) {
+			console.log('bottom');
+			this.loadMore();
+		}
+	},
+	componentDidMount: function() {
+		window.addEventListener("scroll", this.handleScroll);
+		this.loadMore();
 	},
 	render: function() {
 		var self = this;
@@ -145,7 +171,7 @@ var RowView = React.createClass({
 		var style={
 			top: top, left:left, position: 'absolute'
 		}
-		var puffs = this.getPuffList();
+		var puffs = this.state.puffs;
 		return (
 			<div style={style} className="listview">
 				<RowHeader column={this.props.list.column}/>

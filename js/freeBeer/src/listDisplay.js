@@ -61,12 +61,19 @@ var RowRenderMixin = {
 	},
     // TODO: Link each tag to a search for that tag (maintain view as list)
     // TODO: Change the format of the links to be more normal
+    handleShowTag: function(tag) {
+    	return events.pub('filter/show/tag', {
+    							'view.filters': {},
+    							'view.filters.tags': [tag]
+    						});
+    },
 	renderTags: function() {
 		var puff = this.props.puff;
 		var tags = puff.payload.tags || [];
 		tags = tags.filter(function(t, index, array){return array.indexOf(t) == index});
+		var self = this;
 		return <span>{tags.map(function(tag){
-			return <span key={tag} className="bubbleNode">{tag}</span>
+			return <a href="#" onClick={self.handleShowTag.bind(self, tag)} key={tag}><span className="bubbleNode">{tag}</span></a>
 		})}</span>
 	},
 	getReferenceIcon: function(sig) {
@@ -122,25 +129,28 @@ var RowRenderMixin = {
 		return <PuffStar sig={this.props.puff.sig}/>;
 	},
 	renderColumn: function(col, width, maxHeight) {
-		width = width -1;
-		width = width.toString() + 'px';
-		maxHeight = maxHeight.toString() + 'em';
-		var ret = <span></span>
+		var style = {};
+		style['width'] = (width-1).toString() + 'px';
+		if (maxHeight)
+			style['maxHeight'] = maxHeight.toString() + 'em';
+
 		var content = "";
+		var cls = ['listcell'];
 		var functionName = "render" + col.slice(0, 1).toUpperCase() + col.slice(1);
 		if (this[functionName]) {
 			content = this[functionName]();
 		} else {
 			content = this.renderDefault(col);
+			cls.push(col);
 		}
-		return <span ><span className="listcellborder"></span><span key={col} className="listcell" style={{width: width, maxHeight: maxHeight}}>{content}</span></span>;
+		return <span key={col}><span className="listcellborder"></span><span className={cls.join(' ')} style={style}>{content}</span></span>;
 	}
 }
 
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
 	getInitialState: function() {
-		return {loaded: 10, noMorePuff: false};
+		return {loaded: 20, noMorePuff: false};
 	},
 	loadMore: function() {
 		this.setState({loaded: this.state.loaded + 10});
@@ -152,21 +162,24 @@ var RowView = React.createClass({
 			setTimeout(this.loadMore, 10);
 		}
 	},
+	checkMorePuff: function() {
+		var query = PB.shallow_copy(this.props.view.query);
+		query.offset = (+query.offset || 0) + this.state.loaded;
+		var filters = this.props.view.filters;
+		var limit = 10;
+		var puffs = PuffForum.getPuffList(query, filters, limit);
+		if (puffs.length == 0)
+			this.setState({noMorePuff: true});
+		else
+			this.setState({noMorePuff: false});
+
+	},
 	componentDidMount: function() {
 		this.refs.container.getDOMNode().addEventListener("scroll", this.handleScroll);
-		this.loadMore();
 	},
 	componentDidUpdate: function(prevProp, prevState) {
 		if (prevState.loaded != this.state.loaded) {
-			var query = PB.shallow_copy(this.props.view.query);
-			query.offset = (+query.offset || 0) + this.state.loaded;
-			var filters = this.props.view.filters;
-			var limit = 10;
-			var puffs = PuffForum.getPuffList(query, filters, limit);
-			if (puffs.length == 0)
-				this.setState({noMorePuff: true});
-			else
-				this.setState({noMorePuff: false});
+			this.checkMorePuff();
 		}
 	},
 	render: function() {
@@ -186,11 +199,11 @@ var RowView = React.createClass({
 		var containerHeight = this.getScreenCoords().height - 30;
 		return (
 			<div style={style} className="listview">
-				<RowHeader column={this.props.list.column}/>
+				<RowHeader column={this.props.list.column} bar={this.props.list.bar}/>
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
-						return <RowSingle puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
+						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} />
 					})}
-					<div className={this.state.noMorePuff ? "hidden" : "listfooter listrow" }>Loading...</div>
+					<div className="listfooter listrow" >{this.state.noMorePuff ? "No more puff." : "Loading..."}</div>
 				</div>
 			</div>
 		)
@@ -223,13 +236,15 @@ var RowViewColOptions = React.createClass({
 
 var RowHeader = React.createClass({
 	mixins: [ComputeDimensionMixin],
-	getInitialState: function() {
-		return {showOptions: false}
-	},
-	handleManageCol: function() {
-		this.setState({showOptions: !this.state.showOptions});
-		return false;
-	},
+    handleManageCol: function() {
+    	if (this.props.bar.showIcons == 'header') {
+	    	return events.pub('ui/row/hide-all', 
+	    		{'list.bar.showIcons': false});
+    	} else {
+	    	return events.pub('ui/row/show-all', 
+	    		{'list.bar.showIcons': 'header'});
+    	}
+    },
 	render: function() {
 		var columnProp = this.props.column;
 		var columns = Object.keys(columnProp);
@@ -238,7 +253,7 @@ var RowHeader = React.createClass({
 
 		return (
 			<div className="listrow listheader" key="listHeader">
-				{this.state.showOptions ? <RowViewColOptions column={columnProp}/> : ""}
+				{this.props.bar.showIcons == "header" ? <RowViewColOptions column={columnProp}/> : ""}
 				<span className="listcell" >
 					<span className="listbar"><a href="#" onClick={this.handleManageCol}>
 						<i className="fa fa-fw fa-cog"></i>
@@ -256,7 +271,7 @@ var RowHeader = React.createClass({
 })
 
 var RowSingle = React.createClass({
-	mixins: [ComputeDimensionMixin, RowRenderMixin],
+	mixins: [ComputeDimensionMixin, RowRenderMixin, TooltipMixin],
     getInitialState: function() {
         return {showAll: false};
     },
@@ -277,17 +292,14 @@ var RowSingle = React.createClass({
 	componentDidMount: function() {
 		this.addColumn();
 	},
-    handleToggleShowAll: function() {
-    	this.setState({showAll: !this.state.showAll});
-    	return false;
-    },
-    handleHideAll: function() {
-        this.setState({showAll: false});
-        return false;
-    },
-    handleShowAll: function() {
-        this.setState({showAll: true});
-        return false;
+    handleToggleShowIcons: function() {
+    	if (this.props.bar.showIcons == this.props.puff.sig) {
+	    	return events.pub('ui/row/hide-all', 
+	    		{'list.bar.showIcons': false});
+    	} else {
+	    	return events.pub('ui/row/show-all', 
+	    		{'list.bar.showIcons': this.props.puff.sig});
+    	}
     },
 	render: function() {
 		var puff = this.props.puff;
@@ -299,36 +311,30 @@ var RowSingle = React.createClass({
 		var self = this;
 
 		// var height = this.computeRowHeight();
-		var maxHeight = puffworldprops.view.rows * 1.4;
-		// var style = {};
-		/*if (this.props.expand.puff == puff.sig) {
-			var expandProp = this.props.expand;
-			var factor = Math.min(puffworldprops.view.rows, expandProp.num);
-			height = height * factor + 10 * (factor-1);
-		}*/
-		/*if (this.props.expand.puff != puff.sig) {
-			style.maxHeight = maxHeight.toString() + 'em';
-		}*/
-
-		var className = ['listrow'];
-		/*if (this.props.view.cursor == puff.sig) {
-			className.push('cursor');
+		var maxHeight = puffworldprops.view.rows * 1.4 + 1; // +1 for padding
+		if (this.props.bar.expand == puff.sig) {
+			maxHeight = 0;
 		}
 
-         <i className="fa fa-fw fa-plus"></i>
-         <img src="img/puffballIconBigger.png" style={{height:'16px'}} />
-		*/
+		var classArray = ['listrow'];
+        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flagged = false;
+        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        if (flaggedPuff.indexOf(puff.sig)!= -1 ||
+            (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
+            classArray.push('flagged');
+            flagged = true;
+        }		
 
+		var showIcons = this.props.bar.showIcons == puff.sig;
 		return (
-			<div className={className.join(' ')}>
+			<div className={classArray.join(' ')}>
 				<span className="listcell" >
-					<span className="listbar"><a href="#" onClick={this.handleToggleShowAll}>
+					<span className="listbar"><a href="#" onClick={this.handleToggleShowIcons}>
                         <img key={puff.sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(puff.sig)}/>
-
-
 					</a></span>
+				{showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 				</span>
-				{this.state.showAll ? <RowBar puff={puff} index={this.props.index} column={columnProp}/> : null}
 				{columns.map(function(col){
 					width = self.getColumnWidth(col);
 					return self.renderColumn(col, width, maxHeight)
@@ -340,6 +346,7 @@ var RowSingle = React.createClass({
 
 
 var RowBar = React.createClass({
+	mixins: [TooltipMixin],
     getInitialState: function() {
         return {showAll: false};
     },
@@ -355,7 +362,7 @@ var RowBar = React.createClass({
         return (
             <span className="listbarAllIcon">
                 <div className="listBarIcon">
-                    <RowExpand puff={puff} index={this.props.index}/>
+                    <RowExpand puff={puff} />
                 </div>
                 <div className="listBarIcon">
                     <PuffReplyLink ref="reply" sig={puff.sig} />
@@ -388,29 +395,24 @@ var RowBar = React.createClass({
 
 var RowExpand = React.createClass({
 	handleClick: function() {
-		if (puffworldprops.list.expand.puff == this.props.puff.sig) {
-			events.pub('ui/collapse-row', {'list.expand.puff': false});
+		if (puffworldprops.list.bar.expand == this.props.puff.sig) {
+			events.pub('ui/collapse-row', 
+						{'list.bar.expand': false});
 		} else {
-			var currentOffset = puffworldprops.view.query.offset || 0;
-			var currentIndex = this.props.index;
-
-			var totalRow = puffworldprops.view.rows;
-			var expandRow = Math.min(totalRow, puffworldprops.list.expand.num);
-			var newIndex = Math.floor((totalRow-expandRow)/2.0);
-			var newOffset = Math.max(currentOffset - (newIndex-currentIndex), 0);
-
-			events.pub('ui/collapse-row', {'list.expand.puff': this.props.puff.sig,
-										   'view.query.offset': newOffset});
+			events.pub('ui/collapse-row', 
+						{'list.bar.expand': this.props.puff.sig});
 		}
 		return false;
 	},
     render: function() {
-        var expand = puffworldprops.list.expand.puff == this.props.puff.sig ? "compress" : "expand";
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var expand = puffworldprops.list.bar.expand == this.props.puff.sig ? "compress" : "expand";
         return (
             <span className="icon">
                 <a href="#" onClick={this.handleClick}>
                     <i className={"fa fa-fw fa-"+expand}></i>
                 </a>
+                <Tooltip position="above" content={polyglot.t("rowview.tooltip.rowExpand")} />
             </span>
         );
     }

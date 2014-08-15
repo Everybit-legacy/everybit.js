@@ -1470,7 +1470,7 @@ a.deactive, a.deactive:hover {
     padding: 0.5em;
     min-height: 1.4em;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: top;
     word-wrap: break-word;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1490,10 +1490,8 @@ a.deactive, a.deactive:hover {
 }*/
 .listcellborder {
     border-left: 1px dotted black;
-    margin-top: -0.7em;
-    height: 1.4em;
+    height: 100%;
     position: absolute;
-    top: 50%;
 }
 .listbar {
     position:relative;
@@ -1543,4 +1541,16 @@ a.deactive, a.deactive:hover {
     background-color: rgba(240,240,240,.95);
     text-align: left;
     padding: 1em;
+}
+
+.listview .menuTooltip {
+    right: 0px;
+    top: 3em;
+    bottom: initial;
+    min-width: 80px;
+}
+.listview .listrow.flagged {
+    background-image:url('../img/flagged.png');
+    background-repeat:repeat;
+    background-size: 36px 36px;
 }

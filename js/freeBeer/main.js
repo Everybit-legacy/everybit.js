@@ -34,8 +34,11 @@ puffworldprops = {
                 allowSort: false
             }
         },
+        bar: {
+            expand: false,
+            showIcons: false
+        },
         expand: {
-            num: 3,
             puff: false
         }
     },
@@ -199,8 +202,8 @@ events.sub('ui/*', function(data, path) {
 
 events.sub("filter/*", function(data, path) {
     data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
-    if(typeof data['view.mode'] == 'undefined')
-        data['view.mode'] = 'list';
+    /*if(typeof data['view.mode'] == 'undefined')
+        data['view.mode'] = 'list';*/  // TODO put this in config as default view
 
     events.pub('ui/query/default', data);
     PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers

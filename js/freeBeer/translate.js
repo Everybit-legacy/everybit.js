@@ -180,6 +180,11 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
+	},
+	rowview: {
+		tootip: {
+            rowExpand: "Expand/collapse this row.",
+		}
 	}
 });
 Translate.language["en"].extend({

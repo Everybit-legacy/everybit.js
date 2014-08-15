@@ -1488,6 +1488,20 @@ a.deactive, a.deactive:hover {
     width: 1em;
     font-size: 1em;
 }
+
+.listBarIcon {
+    padding: .08em;
+    display: inline-block;
+}
+
+.listBarCloseIcon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    height: .8em;
+}
+
+
 .rowViewColOptions {
     position: absolute;
     left: 2em;
@@ -1512,11 +1526,7 @@ a.deactive, a.deactive:hover {
 .listbarAllIcon {
     position: absolute;
     z-index: 200;
-    background-color: #aaa;
+    background-color: rgba(240,240,240,.95);
     text-align: left;
-    border-radius: 5px;
-    width: 3em;
-    padding: 0.5em 0;
-    left: 2em;
-    bottom: 0.5em;
+    padding: 1em;
 }

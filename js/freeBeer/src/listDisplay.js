@@ -73,13 +73,13 @@ var RowRenderMixin = {
 		var preview = <span></span>;
 		if (puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
-		return <span key={sig} className="rowReference"><img key={sig} style={{marginRight: '2px', marginBottom:'2px'}} src={'http://puffball.io/img/icons/?sig='+sig}/>{preview}</span>
+		return <span key={sig} className="rowReference"><img key={sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
 	renderReferences: function() {
 		var iconStyle = {
 			display: 'inline-block',
-			height: '24px',
-			verticalAlign: 'middle',
+			height: '20px',
+			verticalAlign: 'top',
 			marginBottom: '2px'
 		};
 		var sig = this.props.puff.sig;
@@ -237,9 +237,17 @@ var RowSingle = React.createClass({
 	componentDidMount: function() {
 		this.addColumn();
 	},
-    handleShowAll: function() {
+    handleToggleShowAll: function() {
     	this.setState({showAll: !this.state.showAll});
     	return false;
+    },
+    handleHideAll: function() {
+        this.setState({showAll: false});
+        return false;
+    },
+    handleShowAll: function() {
+        this.setState({showAll: true});
+        return false;
     },
 	render: function() {
 		var puff = this.props.puff;
@@ -267,13 +275,17 @@ var RowSingle = React.createClass({
 			className.push('cursor');
 		}
 
+         <i className="fa fa-fw fa-plus"></i>
+         <img src="img/puffballIconBigger.png" style={{height:'16px'}} />
 		*/
 
 		return (
 			<div className={className.join(' ')}>
 				<span className="listcell" >
-					<span className="listbar"><a href="#" onClick={this.handleShowAll}>
-						<i className="fa fa-fw fa-plus"></i>
+					<span className="listbar"><a href="#" onClick={this.handleToggleShowAll}>
+                        <img key={puff.sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(puff.sig)}/>
+
+
 					</a></span>
 				</span>
 				{this.state.showAll ? <RowBar puff={puff} index={this.props.index} column={columnProp}/> : null}
@@ -291,10 +303,6 @@ var RowBar = React.createClass({
     getInitialState: function() {
         return {showAll: false};
     },
-    handleShowAll: function() {
-    	this.setState({showAll: !this.state.showAll});
-    	return false;
-    },
     render: function() {
         var puff = this.props.puff;
 
@@ -306,15 +314,33 @@ var RowBar = React.createClass({
 
         return (
             <span className="listbarAllIcon">
-                <RowExpand puff={puff} index={this.props.index}/>
-                <PuffReplyLink ref="reply" sig={puff.sig} />
-                <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
-                {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
-                {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
-                <PuffTipLink username={puff.username} />
-                <PuffJson puff={puff} />
-                <PuffClone puff={puff} />
-                <PuffPermaLink sig={puff.sig} />
+                <div className="listBarIcon">
+                    <RowExpand puff={puff} index={this.props.index}/>
+                </div>
+                <div className="listBarIcon">
+                    <PuffReplyLink ref="reply" sig={puff.sig} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
+                </div>
+                <div className="listBarIcon">
+                    {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
+                </div>
+                <div className="listBarIcon">
+                    {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
+                </div>
+                <div className="listBarIcon">
+                    <PuffTipLink username={puff.username} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffJson puff={puff} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffClone puff={puff} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffPermaLink sig={puff.sig} />
+                </div>
             </span>
         )
     }

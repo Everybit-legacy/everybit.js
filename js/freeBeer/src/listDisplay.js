@@ -97,7 +97,7 @@ var RowRenderMixin = {
 		var parentIcons = parents.map(this.getReferenceIcon);
 		if (parents.length)
 			parentsEle = 
-			<div style={{position: 'relative'}}>
+			<div>
 				<span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}
 			</div>;
 
@@ -108,11 +108,11 @@ var RowRenderMixin = {
 						   .filter(function(s, i, array){return i == array.indexOf(s)});
 		var childrenIcon = children.map(this.getReferenceIcon);
 		if (children.length) 
-			childrenEle = <div style={{position: 'relative'}}><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+			childrenEle = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
 		return <div>
 			{parentsEle}
 			{childrenEle}
-		</div>
+		</div>;
 	},
 	renderScore: function() {
         var showStar = true;
@@ -122,6 +122,9 @@ var RowRenderMixin = {
 		return <PuffStar sig={this.props.puff.sig}/>;
 	},
 	renderColumn: function(col, width, maxHeight) {
+		width = width -1;
+		width = width.toString() + 'px';
+		maxHeight = maxHeight.toString() + 'em';
 		var ret = <span></span>
 		var content = "";
 		var functionName = "render" + col.slice(0, 1).toUpperCase() + col.slice(1);
@@ -130,14 +133,14 @@ var RowRenderMixin = {
 		} else {
 			content = this.renderDefault(col);
 		}
-		return <span key={col} className="listcell" style={{width: width, maxHeight: maxHeight}}>{content}</span>;
+		return <span ><span className="listcellborder"></span><span key={col} className="listcell" style={{width: width, maxHeight: maxHeight}}>{content}</span></span>;
 	}
 }
 
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
 	getInitialState: function() {
-		return {loaded: 20, noMorePuff: false};
+		return {loaded: 10, noMorePuff: false};
 	},
 	loadMore: function() {
 		this.setState({loaded: this.state.loaded + 10});
@@ -146,11 +149,12 @@ var RowView = React.createClass({
 	handleScroll: function() {
 		var ele = this.refs.container.getDOMNode();
 		if (ele.scrollTop - ele.scrollHeight + ele.offsetHeight == 0) {
-			setTimeout(this.loadMore, 100);
+			setTimeout(this.loadMore, 10);
 		}
 	},
 	componentDidMount: function() {
 		this.refs.container.getDOMNode().addEventListener("scroll", this.handleScroll);
+		this.loadMore();
 	},
 	componentDidUpdate: function(prevProp, prevState) {
 		if (prevState.loaded != this.state.loaded) {
@@ -169,7 +173,7 @@ var RowView = React.createClass({
 		var self = this;
 		var listprop = this.props.list;
 		// TODO add this to config
-		var top = CONFIG.verticalPadding - 10;
+		var top = CONFIG.verticalPadding - 20;
 		var left = CONFIG.leftMargin - 10;
 		var style={
 			right:'10px', top: top, left:left, position: 'absolute'
@@ -326,8 +330,8 @@ var RowSingle = React.createClass({
 				</span>
 				{this.state.showAll ? <RowBar puff={puff} index={this.props.index} column={columnProp}/> : null}
 				{columns.map(function(col){
-					width = self.getColumnWidth(col).toString()+'px';
-					return self.renderColumn(col, width, maxHeight.toString()+'em')
+					width = self.getColumnWidth(col);
+					return self.renderColumn(col, width, maxHeight)
 				})}
 			</div>
 		)

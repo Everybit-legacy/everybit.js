@@ -1474,9 +1474,9 @@ a.deactive, a.deactive:hover {
     word-wrap: break-word;
     overflow-y: auto;
     overflow-x: hidden;
-    position: relative;
+    /*position: relative;*/
 }
-.listcell+.listcell::before {
+/*.listcell+.listcell::before {
     content: '';
     height: 1.4em;
     border-left: 1px dotted #ccc;
@@ -1484,6 +1484,16 @@ a.deactive, a.deactive:hover {
     left: 0;
     top: 50%;
     margin-top: -0.7em;
+}*/
+/*.listcell+.listcell {
+    border-left: 1px dotted #ccc;
+}*/
+.listcellborder {
+    border-left: 1px dotted black;
+    margin-top: -0.7em;
+    height: 1.4em;
+    position: absolute;
+    top: 50%;
 }
 .listbar {
     position:relative;

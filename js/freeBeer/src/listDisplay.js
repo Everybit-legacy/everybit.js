@@ -64,16 +64,18 @@ var RowRenderMixin = {
 	renderTags: function() {
 		var puff = this.props.puff;
 		var tags = puff.payload.tags || [];
+		tags = tags.filter(function(t, index, array){return array.indexOf(t) == index});
 		return <span>{tags.map(function(tag){
 			return <span key={tag} className="bubbleNode">{tag}</span>
 		})}</span>
 	},
 	getReferenceIcon: function(puff) {
+		if (!puff) return "";
 		var sig = puff.sig;
 		var preview = <span></span>;
 		if (puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
-		return <span key={sig} className="rowReference"><img key={sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
+		return <span key={sig} className="rowReference"><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
 	renderReferences: function() {
 		var iconStyle = {
@@ -128,39 +130,37 @@ var RowRenderMixin = {
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
 	getInitialState: function() {
-		return {loaded: 0, puffs: []};
+		return {loaded: 20};
 	},
 	getPuffList: function() {
-		console.log(this.state.loaded)
 		var listprop = this.props.list;
 		var query = PB.shallow_copy(this.props.view.query);
-		query.offset = query.offset + this.state.loaded;
+		query.offset = (parseInt(query.offset) || 0) + this.state.loaded;
 
 		var filters = this.props.view.filters;
-		var limit = 40;
-
+		var limit = 20;
 		var puffs = PuffForum.getPuffList(query, filters, limit);
-		this.setState({loaded: this.state.loaded + limit});
+		console.log(puffs.length, query, filters, limit)
 		return puffs;
 	},
 	loadMore: function() {
-		var morePuffs = this.getPuffList();
+		/*var morePuffs = this.getPuffList();
 		var currentPuffs = PB.shallow_copy(this.state.puffs);
 		currentPuffs = currentPuffs.concat(morePuffs);
-		console.log(morePuffs.length);
-		this.setState({puffs: morePuffs});
+		this.setState({loaded: this.state.loaded + morePuffs.length});
+		this.setState({puffs: currentPuffs});*/
+		this.setState({loaded: this.state.loaded + 20});
 		return false;
 	},
 	handleScroll: function() {
 		var ele = document.body;
-		if (ele.scrollTop >= ele.scrollHeight - ele.offsetHeight) {
-			console.log('bottom');
-			this.loadMore();
+		if (ele.scrollTop - ele.scrollHeight + ele.offsetHeight == 0) {
+			setTimeout(this.loadMore, 500);
 		}
 	},
 	componentDidMount: function() {
 		window.addEventListener("scroll", this.handleScroll);
-		this.loadMore();
+		// this.loadMore();
 	},
 	render: function() {
 		var self = this;
@@ -170,14 +170,21 @@ var RowView = React.createClass({
 		var left = CONFIG.leftMargin - 10;
 		var style={
 			top: top, left:left, position: 'absolute'
-		}
-		var puffs = this.state.puffs;
+		}		
+		var query = PB.shallow_copy(this.props.view.query);
+		// query.offset = (parseInt(query.offset) || 0) + this.state.loaded;
+
+		var filters = this.props.view.filters;
+		var limit = this.state.loaded;
+		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
+
 		return (
 			<div style={style} className="listview">
 				<RowHeader column={this.props.list.column}/>
 				<div className="listrowContainer">{puffs.map(function(puff, index){
-					return <RowSingle key={puff.sig} puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
+					return <RowSingle puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
 				})}</div>
+				<div className="listfooter listrow">Loading...</div>
 			</div>
 		)
 	}

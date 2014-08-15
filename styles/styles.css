@@ -1461,6 +1461,10 @@ a.deactive, a.deactive:hover {
     text-overflow: ellipsis;
     word-wrap: normal;
 }
+.listfooter {
+    line-height: 3em;
+    text-align:center;
+}
 .listcell {
     height: 100%;
     padding: 0.5em;

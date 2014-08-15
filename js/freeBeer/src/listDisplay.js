@@ -69,11 +69,13 @@ var RowRenderMixin = {
 			return <span key={tag} className="bubbleNode">{tag}</span>
 		})}</span>
 	},
-	getReferenceIcon: function(puff) {
-		if (!puff) return "";
-		var sig = puff.sig;
+	getReferenceIcon: function(sig) {
+		// type = type || "";
+		// if (!puff) return "";
+		// var sig = puff.sig;
 		var preview = <span></span>;
-		if (puff.payload.content)
+		var puff = PuffForum.getPuffBySig(sig);
+		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
 		return <span key={sig} className="rowReference"><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
@@ -85,10 +87,13 @@ var RowRenderMixin = {
 			marginBottom: '2px'
 		};
 		var sig = this.props.puff.sig;
+		var self = this;
 
 		var parentsEle = <span></span>;
 		var parents = PuffData.graph.v(sig).out('parent').run();
-		parents = parents.map(function(v){return v.shell});
+		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
+						 .filter(Boolean)
+						 .filter(function(s, i, array){return i == array.indexOf(s)});
 		var parentIcons = parents.map(this.getReferenceIcon);
 		if (parents.length)
 			parentsEle = 
@@ -98,7 +103,9 @@ var RowRenderMixin = {
 
 		var childrenEle = <span></span>;
 		var children = PuffData.graph.v(sig).out('child').run();
-		children = children.map(function(v){return v.shell});
+		children = children.map(function(v){if (v.shell) return v.shell.sig})
+						   .filter(Boolean)
+						   .filter(function(s, i, array){return i == array.indexOf(s)});
 		var childrenIcon = children.map(this.getReferenceIcon);
 		if (children.length) 
 			childrenEle = <div style={{position: 'relative'}}><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
@@ -130,37 +137,33 @@ var RowRenderMixin = {
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin],
 	getInitialState: function() {
-		return {loaded: 20};
-	},
-	getPuffList: function() {
-		var listprop = this.props.list;
-		var query = PB.shallow_copy(this.props.view.query);
-		query.offset = (parseInt(query.offset) || 0) + this.state.loaded;
-
-		var filters = this.props.view.filters;
-		var limit = 20;
-		var puffs = PuffForum.getPuffList(query, filters, limit);
-		console.log(puffs.length, query, filters, limit)
-		return puffs;
+		return {loaded: 20, noMorePuff: false};
 	},
 	loadMore: function() {
-		/*var morePuffs = this.getPuffList();
-		var currentPuffs = PB.shallow_copy(this.state.puffs);
-		currentPuffs = currentPuffs.concat(morePuffs);
-		this.setState({loaded: this.state.loaded + morePuffs.length});
-		this.setState({puffs: currentPuffs});*/
-		this.setState({loaded: this.state.loaded + 20});
+		this.setState({loaded: this.state.loaded + 10});
 		return false;
 	},
 	handleScroll: function() {
-		var ele = document.body;
+		var ele = this.refs.container.getDOMNode();
 		if (ele.scrollTop - ele.scrollHeight + ele.offsetHeight == 0) {
-			setTimeout(this.loadMore, 500);
+			setTimeout(this.loadMore, 100);
 		}
 	},
 	componentDidMount: function() {
-		window.addEventListener("scroll", this.handleScroll);
-		// this.loadMore();
+		this.refs.container.getDOMNode().addEventListener("scroll", this.handleScroll);
+	},
+	componentDidUpdate: function(prevProp, prevState) {
+		if (prevState.loaded != this.state.loaded) {
+			var query = PB.shallow_copy(this.props.view.query);
+			query.offset = (+query.offset || 0) + this.state.loaded;
+			var filters = this.props.view.filters;
+			var limit = 10;
+			var puffs = PuffForum.getPuffList(query, filters, limit);
+			if (puffs.length == 0)
+				this.setState({noMorePuff: true});
+			else
+				this.setState({noMorePuff: false});
+		}
 	},
 	render: function() {
 		var self = this;
@@ -169,22 +172,22 @@ var RowView = React.createClass({
 		var top = CONFIG.verticalPadding - 10;
 		var left = CONFIG.leftMargin - 10;
 		var style={
-			top: top, left:left, position: 'absolute'
+			right:'10px', top: top, left:left, position: 'absolute'
 		}		
-		var query = PB.shallow_copy(this.props.view.query);
-		// query.offset = (parseInt(query.offset) || 0) + this.state.loaded;
-
+		var query = this.props.view.query;
 		var filters = this.props.view.filters;
 		var limit = this.state.loaded;
 		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
 
+		var containerHeight = this.getScreenCoords().height - 30;
 		return (
 			<div style={style} className="listview">
 				<RowHeader column={this.props.list.column}/>
-				<div className="listrowContainer">{puffs.map(function(puff, index){
-					return <RowSingle puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
-				})}</div>
-				<div className="listfooter listrow">Loading...</div>
+				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
+						return <RowSingle puff={puff} column={self.props.list.column} expand={self.props.list.expand} index={index} view={self.props.view} />
+					})}
+					<div className={this.state.noMorePuff ? "hidden" : "listfooter listrow" }>Loading...</div>
+				</div>
 			</div>
 		)
 	}

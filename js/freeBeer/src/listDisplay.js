@@ -191,7 +191,7 @@ var RowSortMixin = {
 var RowView = React.createClass({
 	mixins: [ViewKeybindingsMixin, GridLayoutMixin, RowSortMixin],
 	getInitialState: function() {
-		return {loaded: 20, noMorePuff: false};
+		return {loaded: 20, noMorePuff: false, headerHeight: 0};
 	},
 	loadMore: function() {
 		this.setState({loaded: this.state.loaded + 10});
@@ -220,6 +220,10 @@ var RowView = React.createClass({
 		var desc = this.props.list.sort.desc;
 		puffs = puffs || [];
 		var fn = this.sort_column(col);
+		if (fn === false) {
+			console.log('Missing sort function', col);
+			return puffs;
+		}
 		puffs = puffs.sort(function(p1, p2){
 			if (desc) return fn(p1, p2);
 			else return -fn(p1, p2);
@@ -232,6 +236,10 @@ var RowView = React.createClass({
 	componentDidUpdate: function(prevProp, prevState) {
 		if (prevState.loaded != this.state.loaded) {
 			this.checkMorePuff();
+		}
+		var headerNode = this.refs.header.getDOMNode();
+		if (headerNode.offsetHeight != this.state.headerHeight) {
+			this.setState({headerHeight: headerNode.offsetHeight});
 		}
 	},
 	render: function() {
@@ -249,10 +257,10 @@ var RowView = React.createClass({
 		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
 		puffs = this.sortPuffs(puffs);
 
-		var containerHeight = this.getScreenCoords().height - 30;
+		var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
 		return (
 			<div style={style} className="listview">
-				<RowHeader column={this.props.list.column} bar={this.props.list.bar} sort={this.props.list.sort}/>
+				<RowHeader ref="header" column={this.props.list.column} bar={this.props.list.bar} sort={this.props.list.sort}/>
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
 						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} />
 					})}
@@ -346,7 +354,7 @@ var RowHeader = React.createClass({
 						width: self.getColumnWidth(c).toString()+'px'
 					};
 					var allowSort = columnProp[c].allowSort;
-					return <span className="listcell" key={c} style={style}><RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} />{c}</span>
+					return <span className="listcell" key={c} style={style}>{c}<RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} /></span>
 				})}
 			</div>
 		)

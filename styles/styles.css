@@ -1455,7 +1455,7 @@ a.deactive, a.deactive:hover {
 }
 
 .listheader .listcell {
-    text-align: center;
+    text-align: left;
     font-weight: bold;
     overflow-x: hidden;
     text-overflow: ellipsis;

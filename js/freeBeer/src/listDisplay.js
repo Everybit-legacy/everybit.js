@@ -52,6 +52,18 @@ var RowRenderMixin = {
 		var puffcontent = PuffForum.getProcessedPuffContent(puff);
 		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 	},
+	renderMeta: function() {
+		var puff = this.props.puff;
+		var keysNotShow = ['content', 'parents'];
+		return <span>
+			{Object.keys(puff.payload).map(function(key){
+				var value = puff.payload[key];
+	            if (keysNotShow.indexOf(key)==-1 && value && value.length) {
+	                return <div><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
+	            }
+			})}
+		</span>
+	},
 	renderDate: function() {
 		var puff = this.props.puff;
 		var date = new Date(puff.payload.time);
@@ -235,7 +247,7 @@ var RowViewColOptions = React.createClass({
 })
 
 var RowHeader = React.createClass({
-	mixins: [ComputeDimensionMixin],
+	mixins: [ComputeDimensionMixin, TooltipMixin],
     handleManageCol: function() {
     	if (this.props.bar.showIcons == 'header') {
 	    	return events.pub('ui/row/hide-all', 
@@ -251,14 +263,18 @@ var RowHeader = React.createClass({
 		columns = columns.filter(function(c){return columnProp[c].show});
 		var self = this;
 
+        var polyglot = Translate.language[puffworldprops.view.language];
 		return (
 			<div className="listrow listheader" key="listHeader">
-				{this.props.bar.showIcons == "header" ? <RowViewColOptions column={columnProp}/> : ""}
 				<span className="listcell" >
-					<span className="listbar"><a href="#" onClick={this.handleManageCol}>
-						<i className="fa fa-fw fa-cog"></i>
-					</a></span>
+					<span className="listbar">
+						<a href="#" onClick={this.handleManageCol}>
+							<i className="fa fa-fw fa-cog"></i>
+						</a>
+					</span>
 				</span>
+					<Tooltip content={polyglot.t("rowview.tooltip.colOptions")} />
+				{this.props.bar.showIcons == "header" ? <RowViewColOptions column={columnProp}/> : ""}
 				{columns.map(function(c){
 					var style = {
 						width: self.getColumnWidth(c).toString()+'px'

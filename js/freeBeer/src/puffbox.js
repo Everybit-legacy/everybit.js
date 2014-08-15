@@ -142,6 +142,23 @@ var PuffContent = React.createClass({
                                      .replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag;
 
         }
+
+        // show meta for profile // TODO add this to config
+        if (puff.type != 'profile') {
+            var keysNotShow = ['content', 'parents', 'type'];
+            return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick}>
+                <div  dangerouslySetInnerHTML={{__html: puffcontent}}></div>
+                <span>
+                    {Object.keys(puff.payload).map(function(key){
+                        var value = puff.payload[key];
+                        if (keysNotShow.indexOf(key)==-1 && value && value.length) {
+                            return <div><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
+                        }
+                    })}
+                </span>
+            </div>
+        }
+
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick} dangerouslySetInnerHTML={{__html: puffcontent}}></div>
     }
@@ -784,6 +801,7 @@ var PuffStar = React.createClass({
         return (
             <span className="icon">
                 {link}<span style={pointerStyle}>{score}</span>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.star")}/>
             </span>
         );
     }

@@ -617,13 +617,13 @@ PuffForum.addContentType('PGN', {
 PuffForum.addContentType('profile', {
     toHtml: function(content, puff) {
         var toRet = '<img class="imgInBox" src=' + content + ' />';
-        var keysNotShow = ['content', 'type'];
+        /*var keysNotShow = ['content', 'type'];
         for (var key in puff.payload) {
             var value = puff.payload[key];
             if (keysNotShow.indexOf(key)==-1 && value && value.length) {
                 toRet += '<div><span class="profileKey">' + key + ': </span><span class="profileValue">' + value + '</span></div>';
             }
-        }
+        }*/
         return toRet;
     }
 })

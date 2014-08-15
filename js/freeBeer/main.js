@@ -13,6 +13,11 @@ puffworldprops = {
                 weight: 3,
                 allowSort: false
             },
+            meta: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
             date: {
                 show: true,
                 weight: 1,

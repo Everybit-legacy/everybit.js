@@ -123,9 +123,12 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     // data.ancestors
     // data.descendants
     
-    if(CONFIG.noNetwork) return Puffball.emptyPromise();    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork)                                    // THINK: this is only for debugging and development
+        return Puffball.emptyPromise()
+                       .then(function() {return []});    
     
-    return PuffNet.getJSON(url, data);  
+    return PuffNet.getJSON(url, data)                       // always returns a valid array
+                  .then(function(x) {return x || []}, function() {return []})
 }
 
 PuffNet.getAncestors = function(start, limit) {
@@ -418,15 +421,15 @@ PuffNet.xhr = function(url, options, data) {
             req.responseType = options.type;
                 
         req.onload = function() {
-          if (req.status == 200) // silly safari
-            resolve( (req.responseType != options.type) // THINK: JSON.parse throws on invalid JSON
-                  && options.type == 'json' ? JSON.parse(req.response) : req.response);
-          else 
-            reject(Error(req.statusText));
+            if (req.status == 200) // silly safari
+                resolve( (req.responseType != options.type) // THINK: JSON.parse throws on invalid JSON
+                      && options.type == 'json' ? JSON.parse(req.response) : req.response);
+            else 
+                reject(Error(req.statusText));
         };
 
         req.onerror = function() {
-          reject(Error("Network Error"));
+            reject(Error("Network Error"));
         };
 
         req.send(formdata);

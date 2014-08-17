@@ -609,16 +609,18 @@ Puffball.Persist.todoflag = false
 Puffball.Persist.save = function(key, value) {
     Puffball.Persist.todo[key] = value
     if(!Puffball.Persist.todoflag) {
-        setImmediate(function() {
+        onceInAwhile(function() {
             for(var key in Puffball.Persist.todo) {
-                // prepend PUFF:: so we're good neighbors
-                var realkey = 'PUFF::' + key;
-                var str = JSON.stringify(Puffball.Persist.todo[key]);                
+                var realkey = 'PUFF::' + key;                           // prepend PUFF:: so we're good neighbors
+                var value = Puffball.Persist.todo[key];
+                if(typeof value == 'function')                          // in case we're passed a thunk
+                    value = value();
+                var str = JSON.stringify(value);                
                 localStorage.setItem(realkey, str);
             }
             Puffball.Persist.todo = {};
             Puffball.Persist.todoflag = false;
-        });
+        }, 2500);                                                       // call at most every 100ms
     }
     Puffball.Persist.todoflag = true
 }
@@ -720,8 +722,8 @@ Puffball.emptyPromise = function(msg) {
     var messageName = 12345
     var gimme_a_tick = true
 
-    function setImmediate(fn) {
-        later.push(fn)
+    function setImmediate(fun) {
+        later.push(fun)
         
         if(gimme_a_tick) {
             gimme_a_tick = false
@@ -750,31 +752,7 @@ Puffball.emptyPromise = function(msg) {
     }
 }()
 
-~function() {
-    //// do something later, but only once
-    var later = []
-
-    var step = function() {
-        var now = later
-        later = []
-        for(var i=0, l=now.length; i < l; i++)
-            now[i]()
-    }
-            
-    var once = function(invoker, fun) {
-        if(~later.indexOf(fun)) return false
-        later.push(fun)
-        if(later.length > 1) return false // THINK: possible race condition
-        invoker(step) 
-    }
-    
-    if(typeof window != 'undefined') {
-        window.onceImmediate = once.bind(this, setImmediate)
-        window.onceRAF = once.bind(this, requestAnimationFrame)
-    }
-}()
-
-~function() {
+PB.queuer = function() {
     //// do something after some other things
     var queue = []
     
@@ -792,9 +770,42 @@ Puffball.emptyPromise = function(msg) {
         nexttime(invoker) 
     }
     
+    return queuer
+}
+
+PB.once = function() {
+    //// do something later, but only once
+    var later = []
+
+    var step = function() {
+        var now = later
+        later = []
+        for(var i=0, l=now.length; i < l; i++)
+            now[i]()
+    }
+            
+    var once = function(invoker, fun) {
+        if(~later.indexOf(fun)) return false
+        later.push(fun)
+        if(later.length > 1) return false // THINK: possible race condition
+        invoker(step) 
+    }
+    
+    return once
+}
+
+~function() {
     if(typeof window != 'undefined') {
-        window.queueImmediate = queuer.bind(this, setImmediate)
-        window.queueRAF = queuer.bind(this, requestAnimationFrame)
+        window.queueImmediate = PB.queuer().bind(null, setImmediate)
+        window.onceImmediate  = PB.once().bind(null, setImmediate)
+        window.queueRAF = PB.queuer().bind(null, requestAnimationFrame)
+        window.onceRAF  = PB.once().bind(null, requestAnimationFrame)
+    
+        var timefunbind = {}
+        window.onceInAwhile = function(fun, time) {
+            //// NOTE: don't use the same fun with different times
+            if(timefunbind[fun]) return false
+            timefunbind[fun] = setTimeout(function() {fun(); timefunbind[fun] = false}, time)
+        }
     }
 }()
-

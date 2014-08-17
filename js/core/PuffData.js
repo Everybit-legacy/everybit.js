@@ -328,9 +328,10 @@ PuffData.tryAddingShell = function(shell) {
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
-    if(!shells) // THINK: when we receive shells directly we should compact them too
-        shells = PuffData.getShellsForLocalStorage()
-        
+    // THINK: when we receive shells directly we should compact them too
+    if(!shells) 
+        shells = function() {return PuffData.getShellsForLocalStorage()} // thunked for perf
+    
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     // THINK: we need knowledge of our user records here... how do we get that? 
@@ -428,7 +429,7 @@ PuffData.addPrivateShells = function(privateShells) {
                     {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
                      privateShells: privateShells.map(function(p){return p.sig})})
     }
-        
+    
     decryptedShells = decryptedShells
         .filter(function(puff) { 
             return !PuffData.currentDecryptedShells.filter(                           // don't repeat yourself
@@ -530,7 +531,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     if(my_offset < 0)
         return false // slot is locked, go elsewhere
     
-    PuffData.slotLocker[key] = -1 // ORLY?
+    PuffData.slotLocker[key] = -1 // prevent concurrent versions of the same request
     
     //////
 
@@ -541,13 +542,14 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     var received_shells = 0
     
     var prom = PuffNet.getSomeShells(query, filters, limit, query.offset)
-    prom.then(function(shells) {total_shells = shells.length; return shells})
+    prom.then(function(shells) {received_shells = shells.length; return shells})
     prom.then(PuffData.addShellsThenMakeAvailable)
-    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1})
+    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1}) // if the request is fruitful, unlock it (but be careful of offsets here)
     
     
     // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated. 
-    
+    //       so send query.offset+have to getSomeShells, and store that same offset as part of the slotLocker.
+    //       then you can track how much of some type of stuff is on the server... except that doesn't work for the P2P network.
     
     return true
     
@@ -746,6 +748,8 @@ PuffData.getMyPuffChain = function(username) {
 //                                       //
 ///////////////////////////////////////////
 
+
+
 PuffData.runningSizeTally = 0
 PuffData.scoreSort = {}
 
@@ -882,7 +886,7 @@ PuffData.getShellsForLocalStorage = function() {
     
     if (total <= memlimit) return shells
     
-    // compact the shells
+    // compact the puffs
     for (var i = shells.length - 1; i >= 0; i--) {
         var shell = shells[i]
         var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
@@ -896,7 +900,14 @@ PuffData.getShellsForLocalStorage = function() {
     
     if (total <= memlimit) return shells
     
-    // TODO: if still over memlimit, then remove shells until under memlimit
+    // remove shells until under memlimit
+    for (var i = shells.length - 1; i >= 0; i--) {
+        var content_size = JSON.stringify(shell).length
+        total -= content_size
+        if(total <= memlimit) break
+    }
+    
+    shells = shells.slice(0, Math.max(i, 1)) // prevent -1 
     
     return shells
 }
@@ -912,4 +923,3 @@ PuffData.compactPuff = function(puff) {
     new_shell.payload = new_payload
     return new_shell
 }
-

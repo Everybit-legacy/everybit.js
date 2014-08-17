@@ -531,7 +531,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     if(my_offset < 0)
         return false // slot is locked, go elsewhere
     
-    PuffData.slotLocker[key] = -1 // ORLY?
+    PuffData.slotLocker[key] = -1 // prevent concurrent versions of the same request
     
     //////
 
@@ -542,13 +542,14 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     var received_shells = 0
     
     var prom = PuffNet.getSomeShells(query, filters, limit, query.offset)
-    prom.then(function(shells) {total_shells = shells.length; return shells})
+    prom.then(function(shells) {received_shells = shells.length; return shells})
     prom.then(PuffData.addShellsThenMakeAvailable)
-    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1})
+    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1}) // if the request is fruitful, unlock it (but be careful of offsets here)
     
     
     // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated. 
-    
+    //       so send query.offset+have to getSomeShells, and store that same offset as part of the slotLocker.
+    //       then you can track how much of some type of stuff is on the server... except that doesn't work for the P2P network.
     
     return true
     

@@ -539,7 +539,7 @@ window.addEventListener('load', function() {
         // set current identity
         var lastUsername = localStorage['PUFF::identity'];
         if (lastUsername) {
-            lastUsername = JSON.parse(lastUsername);
+            lastUsername = Puffball.parseJSON(lastUsername);
             PuffWardrobe.switchCurrent(lastUsername);
         }
         window.addEventListener('popstate', function(event) {

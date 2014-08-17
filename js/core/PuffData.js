@@ -331,7 +331,7 @@ PuffData.persistShells = function(shells) {
     // THINK: when we receive shells directly we should compact them too
     if(!shells) 
         shells = function() {return PuffData.getShellsForLocalStorage()} // thunked for perf
-        
+    
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
     // THINK: we need knowledge of our user records here... how do we get that? 
@@ -885,7 +885,7 @@ PuffData.getShellsForLocalStorage = function() {
     
     if (total <= memlimit) return shells
     
-    // compact the shells
+    // compact the puffs
     for (var i = shells.length - 1; i >= 0; i--) {
         var shell = shells[i]
         var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
@@ -899,7 +899,14 @@ PuffData.getShellsForLocalStorage = function() {
     
     if (total <= memlimit) return shells
     
-    // TODO: if still over memlimit, then remove shells until under memlimit
+    // remove shells until under memlimit
+    for (var i = shells.length - 1; i >= 0; i--) {
+        var content_size = JSON.stringify(shell).length
+        total -= content_size
+        if(total <= memlimit) break
+    }
+    
+    shells = shells.slice(0, Math.max(i, 1)) // prevent -1 
     
     return shells
 }
@@ -915,4 +922,3 @@ PuffData.compactPuff = function(puff) {
     new_shell.payload = new_payload
     return new_shell
 }
-

@@ -136,7 +136,7 @@ CONFIG.inMemoryShellLimit     = 10000 // (shells are removed to compensate)
 
 CONFIG.shellContentThreshold  =  1000 // size of uncompacted content
 
-// newview
+// for tableView
 CONFIG.defaultColumn = {
     show: false,
     weight: 1,

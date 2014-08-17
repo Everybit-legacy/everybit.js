@@ -63,10 +63,13 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             }
         }
 
+        // TODO: Move these into css
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
+
         if(replied)
-            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'lightgreen'}
+            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'rgba(220,255,220,.9)'}
+
         return (
             React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
                 PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),
@@ -144,20 +147,22 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
         }
 
         // show meta for profile // TODO add this to config
+        /*
         if (puff.type != 'profile') {
             var keysNotShow = ['content', 'parents', 'type'];
-            return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick}, 
-                React.DOM.div(  {dangerouslySetInnerHTML:{__html: puffcontent}}),
-                React.DOM.span(null, 
-                    Object.keys(puff.payload).map(function(key){
+            return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick}>
+                <div  dangerouslySetInnerHTML={{__html: puffcontent}}></div>
+                <span>
+                    {Object.keys(puff.payload).map(function(key){
                         var value = puff.payload[key];
                         if (keysNotShow.indexOf(key)==-1 && value && value.length) {
-                            return React.DOM.div(null, React.DOM.span( {className:"profileKey"}, key+": "),React.DOM.span( {className:"profileValue"}, value))
+                            return <div><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
                         }
-                    })
-                )
-            )
+                    })}
+                </span>
+            </div>
         }
+        */
 
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})

@@ -6,16 +6,11 @@ puffworldprops = {
             user: {
                 show: true,
                 weight: 1.5,
-                allowSort: true
+                allowSort: false
             },
             content: {
                 show: true,
                 weight: 3,
-                allowSort: false
-            },
-            meta: {
-                show: true,
-                weight: 2,
                 allowSort: false
             },
             date: {
@@ -28,6 +23,11 @@ puffworldprops = {
                 weight: 2,
                 allowSort: false
             },
+            other: {
+                show: true,
+                weight: 2,
+                allowSort: false
+            },
             references: {
                 show: true,
                 weight: 1,
@@ -36,7 +36,7 @@ puffworldprops = {
             score: {
                 show: true,
                 weight: 0.5,
-                allowSort: true
+                allowSort: false
             }
         },
         bar: {

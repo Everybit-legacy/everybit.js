@@ -399,6 +399,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
         if(puff.keys) { // TODO: this is hacky
             PuffData.removeShellFromCache(puff.sig)
             PuffData.addPrivateShells([puff])
+            updateUI()
             // username = PuffWardrobe.getCurrentUsername()
             // PuffData.importPrivateShells(username)
         }

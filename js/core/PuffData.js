@@ -195,9 +195,13 @@ PuffData.hereHaveSomeNewShells = function(shells) {
     PuffData.rateSomePuffs(shells)
     
     PuffData.persistShells()
-    // PuffData.makeShellsAvailable()
     
-    return useful_shells
+    var compacted = PuffData.garbageCompactor()                // OPT: call this earlier
+    
+    if(!compacted) return useful_shells
+    
+    return useful_shells.map(R.prop('sig'))                    // if GC eats puffs this spits them out
+                        .map(PuffData.getCachedShellBySig).filter(Boolean)
 }
 
 /**
@@ -539,12 +543,16 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
     
     var limit = need // so... if we only do this once, and we have half the puffs already, we might only grab that half again. this is true even if we send an offset of 'have' to the server, because what we have might map to that slice (or to anything else -- our offsets are totally different than the servers). so we have to grab enough to cover the difference, which means grabbing the same shells multiple times... (but only empty shells, fortunately. but still.)
     
-    var received_shells = 0
+    // var received_shells = 0
     
     var prom = PuffNet.getSomeShells(query, filters, limit, query.offset)
-    prom.then(function(shells) {received_shells = shells.length; return shells})
+    // prom.then(function(shells) {received_shells = shells.length; return shells})
     prom.then(PuffData.addShellsThenMakeAvailable)
-    prom.then(function() {PuffData.slotLocker[key] = received_shells ? 1 : -1}) // if the request is fruitful, unlock it (but be careful of offsets here)
+        .then(function(delta) { 
+            PuffData.slotLocker[key] = delta ? 1 : -1}) 
+            // if the request is fruitful, unlock it (but be careful of offsets here).
+            // also, this locks when we received data but chose not to keep it (either dups or GC),
+            // so we could have an issue with locked queries that would be fruitful w/ different offset / limits...
     
     
     // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated. 
@@ -558,7 +566,7 @@ PuffData.fillSomeSlotsPlease = function(need, have, query, filters) {
 
 
 
-
+    // OLD STUFF SAVE FOR REFERENCE
 
     // var batchSize = CONFIG.fillSlotsBatchSize
     var giveup = CONFIG.fillSlotsGiveup
@@ -619,7 +627,7 @@ PuffData.getPuffBySig = function(sig) {
         if(!shells.length) {
             var fauxshell = {sig: sig}
             if(!PuffData.getBonus(fauxshell, 'envelope')) {
-                PuffData.removeShellFromCache(sig)
+                PuffData.removeShellFromCache(sig) // no updateUI call
                 return Puffball.throwError("Content can not be found for shell '" + sig + "'")
                 // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
             }
@@ -651,7 +659,7 @@ PuffData.removeShellFromCache = function(sig) {
     
     PuffData.removeCachedPuffScore(shell)
     
-    updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
+    // updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
 }
 
 PuffData.purgeShellFromGraph = function(sig) {
@@ -866,12 +874,27 @@ PuffData.garbageCompactor = function() {
     var limit     = CONFIG.inMemoryShellLimit
     var memlimit  = CONFIG.inMemoryMemoryLimit
     var sizelimit = CONFIG.shellContentThreshold
+    var didStuff  = false
 
     if(PuffData.shells.length > limit) {
-        
+        didStuff = true
+        PuffData.shells.slice(limit).map(R.prop('sig')).forEach(PuffData.removeShellFromCache)
     }
     
-    if(PuffData.runningSizeTally > memlimit) {}
+    if(PuffData.runningSizeTally > memlimit) {
+        didStuff = true
+        for (var i = PuffData.shells.length - 1; i >= 0; i--) {
+            var shell = PuffData.shells[i]
+            var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
+            if (content_size > sizelimit) {
+                delete shell.payload.content // TODO: this is rather dire
+                total -= content_size + 13 // NOTE: magic number == '"content":"",'.length
+                if(total <= memlimit) break
+            }
+        }
+    }
+    
+    return didStuff
 }
 
 PuffData.getShellsForLocalStorage = function() {

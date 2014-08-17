@@ -445,8 +445,10 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         var username   = userRecord.username
 
         var privateKeys = PuffWardrobe.getCurrentKeys()
-        if(!privateKeys || !privateKeys.default)
-            return Puffball.onError('No valid private key found for signing the content')
+        if(!privateKeys || !privateKeys.default) {
+            // Puffball.onError('No valid private key found for signing the content')
+            throw Error('No valid private key found for signing the content')
+        }
 
         var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
@@ -504,8 +506,12 @@ PuffForum.addFamilialEdgesForParent = function(child) {
  * @param {string} type
  */
 PuffForum.addContentType = function(name, type) {
-    if(!name) return Puffball.onError('Invalid content type name')
-    if(!type.toHtml) return Puffball.onError('Invalid content type: object is missing toHtml method')
+    if(!name) 
+        return console.log('Invalid content type name');
+    if (CONFIG.supportedContentTypes.indexOf(name) == -1) 
+        return console.log('Unsupported content type: ' + name);
+    if(!type.toHtml) 
+        return console.log('Invalid content type: object is missing toHtml method', name);
     
     // TODO: add more thorough name/type checks
     PuffForum.contentTypes[name] = type
@@ -611,13 +617,13 @@ PuffForum.addContentType('PGN', {
 PuffForum.addContentType('profile', {
     toHtml: function(content, puff) {
         var toRet = '<img class="imgInBox" src=' + content + ' />';
-        var keysNotShow = ['content', 'type'];
+        /*var keysNotShow = ['content', 'type'];
         for (var key in puff.payload) {
             var value = puff.payload[key];
             if (keysNotShow.indexOf(key)==-1 && value && value.length) {
                 toRet += '<div><span class="profileKey">' + key + ': </span><span class="profileValue">' + value + '</span></div>';
             }
-        }
+        }*/
         return toRet;
     }
 })
@@ -699,10 +705,10 @@ PuffForum.flagPuff = function (sig) {
 PuffForum.metaFields = []
 PuffForum.context = {};
 PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
-    if (!fieldInfo.name) return Puffball.onError('Invalid meta field name.');
+    if (!fieldInfo.name) return console.log('Invalid meta field name.');
 
     // supported type: text, textarea, pulldown, array
-    if (!fieldInfo.type) return Puffball.onError('Invalid meta field type.');
+    if (!fieldInfo.type) return console.log('Invalid meta field type.');
 
     if (!fieldInfo.validator || typeof fieldInfo.validator != 'function') {
         fieldInfo.validator = false;

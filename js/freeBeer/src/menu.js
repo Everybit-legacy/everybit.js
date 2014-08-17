@@ -294,7 +294,7 @@ var FilterBubble = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         
         var self = this;
-        var addDot = this.props.filterName == "routes" || this.props.filterName == "users";
+        var isUsername = this.props.filterName == "routes" || this.props.filterName == "users";
 
         return (
             <div className="menuItem">
@@ -302,8 +302,7 @@ var FilterBubble = React.createClass({
                 {filterArray.map(function(value) {
                 return (
                     <span key={value} className='bubbleNode relative'>
-                        {addDot ? '.' : ''}
-                        {value}
+                        {isUsername ? StringConversion.toDisplayUsername(value) : value}
                         <span >
                             <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                             <i className="fa fa-times-circle-o fa-fw"></i>
@@ -413,18 +412,7 @@ var IdentityMenu = React.createClass({
         }
     },
 
-    /*componentWillMount: function() {
-        if (!this.state.username) {
-            // var prom = PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.anon.privateKeyAdmin, 0);
-            // prom.then(function() {
-            //     PuffWardrobe.switchCurrent('anon');
-            //     events.pub('ui/puff-packer/set-identity-to-anon', {});
-            // });
-            //
-            // this.setState({username: 'anon'});
 
-        }
-    },*/
 
     handleToggleShowSection: function(name) {
         var section = name;
@@ -882,6 +870,8 @@ var SetIdentity = React.createClass({
          */
 
         var username = this.refs.username.getDOMNode().value;
+        if (username.slice(0, 1) == '.')
+            username = username.slice(1);
         var privateKey = this.refs[keyType].getDOMNode().value;
 
         // Check for zero length
@@ -942,7 +932,7 @@ var SetIdentity = React.createClass({
 
     verifyUsername: function() {
         var username = this.refs.username.getDOMNode().value;
-        username = reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
                     .toLowerCase();
         this.refs.username.getDOMNode().value = username;
     },
@@ -1393,7 +1383,6 @@ var NewIdentity = React.createClass({
         var content = 'requestUsername';
 
         var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
-
         // SUBMIT REQUEST
         var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) {

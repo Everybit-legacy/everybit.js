@@ -65,7 +65,6 @@ html {
 }
 
 body {
-    /* background-image:url('../img/background.gif'); */
     background-color: #E0E0E0;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
@@ -1243,17 +1242,16 @@ a.footerText {
 
 #adminForm {
     position: absolute;
-    margin-top: 50px;
-    margin-left: 100px;
     background-color: #F0F0F0;
     padding: 10px 20px 10px 15px;
-    border: 2px solid #868686;
     font-family: Gudea, sans-serif;
     font-size: 1.1em;
     line-height: 1.8em;
-    width: 1000px;
-    max-height: 80%;
+    top: 45px;
+    max-height: 90%;
     overflow-y: auto;
+    overflow-x: auto;
+
 }
 
 .fixedLeft {
@@ -1437,8 +1435,9 @@ a.deactive, a.deactive:hover {
 }
 .listrow {
     background-color: #fff;
-    border-radius: 5px;
-    margin: 10px 0px;
+    /* border-radius: 5px; */
+    margin-bottom: 3px;
+    position: relative;
 }
 .animation .listrow{
     transition: all 1s;
@@ -1449,38 +1448,114 @@ a.deactive, a.deactive:hover {
 .listrow.listheader {
     margin-top: 0;
 }
+.listrowContainer{
+    height: 100%;
+    margin-top: 3px;
+    overflow-y: auto;
+}
+
 .listheader .listcell {
-    text-align: center;
+    text-align: left;
     font-weight: bold;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    word-wrap: normal;
+}
+.listfooter {
+    line-height: 3em;
+    text-align:center;
 }
 .listcell {
     height: 100%;
     padding: 0.5em;
+    min-height: 1.4em;
     display: inline-block;
-    vertical-align: middle;
-    border-right: 1px dotted #ccc;
+    vertical-align: top;
     word-wrap: break-word;
     overflow-y: auto;
     overflow-x: hidden;
+    /*position: relative;*/
+}
+/*.listcell+.listcell::before {
+    content: '';
+    height: 1.4em;
+    border-left: 1px dotted #ccc;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    margin-top: -0.7em;
+}*/
+/*.listcell+.listcell {
+    border-left: 1px dotted #ccc;
+}*/
+.listcellborder {
+    border-left: 1px dotted black;
+    height: 100%;
+    position: absolute;
 }
 .listbar {
     position:relative;
     left: 0;
     top: 0;
     width: 1em;
-    height: auto;
     font-size: 1em;
-    line-height: 1em;
 }
+
+.listBarIcon {
+    padding: .08em;
+    display: inline-block;
+}
+
+.listBarCloseIcon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    height: .8em;
+}
+
+
 .rowViewColOptions {
     position: absolute;
-    left: 0.5em;
+    left: 2em;
+    top: 0;
     z-index: 200;
     background-color: #ccc;
     text-align: left;
     font-weight: normal;
     padding: 0.5em;
     border-radius: 5px;
+}
+.rowReferencePreview {
+    position: absolute;
+    z-index: 200;
+    background-color: #ccc;
+    text-align: left;
+    border-radius: 5px;
+    display: none;
+}
+.rowReference:hover > .rowReferencePreview{
+    display: block;
+}
+.listbarAllIcon {
+    position: absolute;
+    z-index: 200;
+    background-color: rgba(240,240,240,.95);
+    text-align: left;
+    padding: 1em;
+}
+
+.listview .menuTooltip {
+    right: 0px;
+    top: 3em;
+    bottom: initial;
+    min-width: 80px;
+}
+.listheader .menuTooltip {
+    left: 0px;
+    top: 2em;
+}
+.listview .listrow.flagged {
+    background-image:url('../img/flagged.png');
+    background-repeat:repeat;
+    background-size: 36px 36px;
 }

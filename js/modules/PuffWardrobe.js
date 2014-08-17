@@ -230,7 +230,7 @@ PuffWardrobe.addNewAnonUser = function() {
     var newUsername  = 'anon.' + anonUsername;
 
     // send it off
-    var prom = PuffNet.registerSubuser('anon', CONFIG.anon.privateKeyAdmin, newUsername, rootKey, adminKey, defaultKey);
+    var prom = PuffNet.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey);
 
     return prom.then(function(userRecord) {
                    // store directly because we know they're valid, and so we don't get tangled up in more promises

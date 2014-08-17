@@ -91,7 +91,8 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
         return this.clickUsername(username);
     },
     render: function() {
-        var username = humanizeUsernames(this.props.puff.username)
+        // var username = humanizeUsernames(this.props.puff.username)
+        var username = this.props.puff.username;
         var className = 'author' + (this.props.hidden ? ' hidden' : '')
 
         var routes = this.props.puff.routes || [];
@@ -141,6 +142,23 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
                                      .replace(/(?:\r\n|\r|\n)/g, '<br />') // replace line break with <br /> tag;
 
         }
+
+        // show meta for profile // TODO add this to config
+        if (puff.type != 'profile') {
+            var keysNotShow = ['content', 'parents', 'type'];
+            return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick}, 
+                React.DOM.div(  {dangerouslySetInnerHTML:{__html: puffcontent}}),
+                React.DOM.span(null, 
+                    Object.keys(puff.payload).map(function(key){
+                        var value = puff.payload[key];
+                        if (keysNotShow.indexOf(key)==-1 && value && value.length) {
+                            return React.DOM.div(null, React.DOM.span( {className:"profileKey"}, key+": "),React.DOM.span( {className:"profileValue"}, value))
+                        }
+                    })
+                )
+            )
+        }
+
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})
     }
@@ -782,7 +800,8 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             React.DOM.span( {className:"icon"}, 
-                link,React.DOM.span( {style:pointerStyle}, score)
+                link,React.DOM.span( {style:pointerStyle}, score),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.star")})
             )
         );
     }

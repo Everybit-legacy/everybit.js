@@ -127,6 +127,7 @@ Translate.language["en"].extend({
             expand: 'Expand puff to one row',
             compress: 'Compress puff size to default setting',
             copy:'Copy the raw content of this puff to the reply box',
+            star:'Star this puff',
             disable_reporting: "We track how you use our website. Click to disable.",
             sortDESC: "Sorted by most recent. Click to change.",
             sortASC: "Sorted by least recent. Click to change.",
@@ -180,6 +181,12 @@ Translate.language["en"].extend({
 	footer: {
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
+	},
+	rowview: {
+		tooltip: {
+            rowExpand: "Expand/collapse this row.",
+            colOptions: "Add/remove columns.",
+		}
 	}
 });
 Translate.language["en"].extend({

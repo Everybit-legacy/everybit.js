@@ -24,7 +24,7 @@ function getImageCode(sig) {
         for(var j = 0; j < blocks; j++) {
 
             ctx.fillRect((i*blockSize),(j*blockSize),blockSize,blockSize);
-            ctx.fillStyle=ctx.fillStyle = 'rgba('+dec.pop()+ ', '+dec.pop()+ ','+dec.pop()+ ',1)';
+            ctx.fillStyle=ctx.fillStyle = 'rgba('+dec.pop()+ ', '+dec.pop()+ ','+dec.pop()+ ',.7)';
 
             // $r = array_pop($colors);
             //$g = array_pop($colors);

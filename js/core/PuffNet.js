@@ -371,7 +371,7 @@ PuffNet.updateUserRecord = function(puff) {
     var prom = PuffNet.post(CONFIG.userApi, data);
     
     return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
-               .then(JSON.parse)
+               .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 
                        Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
@@ -386,9 +386,12 @@ PuffNet.updateUserRecord = function(puff) {
 /**
  * PuffNet promise-based XHR layer
  * 
- *   We use promises as default concurrency construct, because ultimately this platform is composed of a huge set of interdependent async calls 
- *   
- *   which mostly each resolve to a single immutable entity -- aka the promise sweet spot.
+ * We use promises as our default concurrency construct, 
+ * because ultimately this platform is composed of a 
+ * huge set of interdependent async calls which mostly 
+ * each resolve to a single immutable entity 
+ * -- aka the promise sweet spot.
+ * 
  * @param  {string} url     requested url
  * @param  {object} options 
  * @param  {object} data    
@@ -416,7 +419,8 @@ PuffNet.xhr = function(url, options, data) {
                 
         req.onload = function() {
           if (req.status == 200) // silly safari
-            resolve((req.responseType != options.type) && options.type == 'json' ? JSON.parse(req.response) : req.response);
+            resolve( (req.responseType != options.type) // THINK: JSON.parse throws on invalid JSON
+                  && options.type == 'json' ? JSON.parse(req.response) : req.response);
           else 
             reject(Error(req.statusText));
         };

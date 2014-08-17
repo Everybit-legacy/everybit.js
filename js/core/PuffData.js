@@ -332,8 +332,9 @@ PuffData.tryAddingShell = function(shell) {
 PuffData.persistShells = function(shells) {
     if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
-    if(!shells) // THINK: when we receive shells directly we should compact them too
-        shells = PuffData.getShellsForLocalStorage()
+    // THINK: when we receive shells directly we should compact them too
+    if(!shells) 
+        shells = function() {return PuffData.getShellsForLocalStorage()} // thunked for perf
         
     // when you save shells, GC older "uninteresting" shells and just save the latest ones
     // THINK: is this my puff? then save it. otherwise, if the content is >1k strip it down.
@@ -432,7 +433,7 @@ PuffData.addPrivateShells = function(privateShells) {
                     {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
                      privateShells: privateShells.map(function(p){return p.sig})})
     }
-        
+    
     decryptedShells = decryptedShells
         .filter(function(puff) { 
             return (CONFIG.unsupportedContentTypes.indexOf(puff.payload.type) == -1)  // no unsupported content types
@@ -750,6 +751,8 @@ PuffData.getMyPuffChain = function(username) {
 //       Garbage Collector Thing         //
 //                                       //
 ///////////////////////////////////////////
+
+
 
 PuffData.runningSizeTally = 0
 PuffData.scoreSort = {}

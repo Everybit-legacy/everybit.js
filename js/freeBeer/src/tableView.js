@@ -34,7 +34,7 @@ var RowRenderMixin = {
             {
               'view.filters': {},
               'view.filters.users': [username],
-              'view.mode': 'newview'
+              'view.mode': 'tableView'
             }
         );
     },
@@ -52,9 +52,19 @@ var RowRenderMixin = {
 		var puffcontent = PuffForum.getProcessedPuffContent(puff);
 		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 	},
-	renderMeta: function() {
+	renderOther: function() {
 		var puff = this.props.puff;
-		var keysNotShow = ['content', 'parents'];
+
+        // If we are showing the info as a column, hide them from "other"
+        var keysNotShow = ['content', 'parents'] // Never show these
+        for(var k in puffworldprops.list.column) {
+            if(puffworldprops.list.column[k].show == true && keysNotShow.indexOf(k)==-1) {
+                keysNotShow.push(k);
+            }
+        }
+
+
+		// var keysNotShow = ['content', 'parents'];
 		return <span>
 			{Object.keys(puff.payload).map(function(key){
 				var value = puff.payload[key];
@@ -96,6 +106,7 @@ var RowRenderMixin = {
 		var puff = PuffForum.getPuffBySig(sig);
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
+
 		return <span key={sig} className="rowReference"><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
 	renderReferences: function() {
@@ -114,11 +125,15 @@ var RowRenderMixin = {
 						 .filter(Boolean)
 						 .filter(function(s, i, array){return i == array.indexOf(s)});
 		var parentIcons = parents.map(this.getReferenceIcon);
-		if (parents.length)
-			parentsEle = 
-			<div>
-				<span style={iconStyle}><i className="fa fa-fw fa-male"></i></span>{parentIcons}
-			</div>;
+		if (parents.length) {
+            parentsEle = (
+                <div>
+                    <span style={iconStyle}>
+                        <i className="fa fa-fw fa-male"></i>
+                    </span>{parentIcons}
+                </div>
+                )
+        }
 
 		var childrenEle = <span></span>;
 		var children = PuffData.graph.v(sig).out('child').run();
@@ -245,11 +260,12 @@ var RowView = React.createClass({
 	render: function() {
 		var self = this;
 		var listprop = this.props.list;
+
 		// TODO add this to config
 		var top = CONFIG.verticalPadding - 20;
-		var left = CONFIG.leftMargin - 10;
+		var left = CONFIG.leftMargin;
 		var style={
-			right:'10px', top: top, left:left, position: 'absolute'
+			right:'30px', top: top, left:left, position: 'absolute'
 		}		
 		var query = this.props.view.query;
 		var filters = this.props.view.filters;
@@ -264,7 +280,7 @@ var RowView = React.createClass({
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
 						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} />
 					})}
-					<div className="listfooter listrow" >{this.state.noMorePuff ? "No more puff." : "Loading..."}</div>
+					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
 				</div>
 			</div>
 		)
@@ -331,6 +347,13 @@ var RowHeader = React.createClass({
 	    		{'list.bar.showIcons': 'header'});
     	}
     },
+
+    handleRemove: function(col) {
+        var jsonToSet = {};
+        jsonToSet['list.column.'+col+'.show'] = false;
+        return events.pub('ui/show-hide/col', jsonToSet);
+    },
+
 	render: function() {
 		var columnProp = this.props.column;
 		var columns = Object.keys(columnProp);
@@ -354,7 +377,22 @@ var RowHeader = React.createClass({
 						width: self.getColumnWidth(c).toString()+'px'
 					};
 					var allowSort = columnProp[c].allowSort;
-					return <span className="listcell" key={c} style={style}>{c}<RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} /></span>
+					return (
+                            <span>
+                                <span className="listcell" key={c} style={style}>
+                                    {c}
+                                    <RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} />
+                                    <span className="listCellOptions">
+                                        <a href="#" onClick={self.handleRemove.bind(self,c)} className="btn blue"><i className="fa fa-fw fa-times-circle" /></a>
+
+
+
+                                    </span>
+                                </span>
+
+                            </span>
+
+                        )
 				})}
 			</div>
 		)

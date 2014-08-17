@@ -26,9 +26,9 @@ var HeaderBar = React.createClass({
             <div className="headerBar">
                 {' '} <HBPuffIcon />
                 {' '} <HBpublish />
+                {' '} <HBviewType />
                 {' '} <HBscore />
                 {' '} <HBidentity />
-                {' '} <HBrefresh />
                 {' '} <HBFilters view={this.props.view} />
                 {' '} <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
             </div>
@@ -73,6 +73,41 @@ var HBpublish = React.createClass({
 
 });
 
+var HBviewType = React.createClass({
+    mixins: [TooltipMixin],
+
+    handleShowView: function (mode) {
+        var jsonToSet = {};
+        jsonToSet['view.mode'] = mode;
+        return events.pub('ui/view/mode', jsonToSet);
+    },
+
+
+    render: function() {
+        // Find out what kind of view we are in
+        // Show the appropriate icon
+        // NOTE: Not supporting "focus" as it's own view
+        var iconClass = "fa fa-fw "
+        if(puffworldprops.view.mode == 'tableView') {
+            iconClass += 'fa-th-large'
+            var changeTo = 'list'
+        } else {
+            iconClass += 'fa-table'
+            var changeTo = 'tableView'
+
+        }
+
+        return (
+            <span className="headerIcon relative">
+                <a href="#" onClick={this.handleShowView.bind(this,changeTo)}>
+                    <i className={iconClass}></i>
+                </a>
+            </span>
+            )
+
+    }
+
+});
 
 var PublishPulldown = React.createClass({
     render: function() {
@@ -340,8 +375,6 @@ calculateScore = function(username) {
         // Date of last published thing
         // Date of first published thing
 
-
-
         // Formula for putting it all together
 
     }
@@ -408,19 +441,4 @@ var HBsort = React.createClass({
 })
 
 
-var HBrefresh = React.createClass({
-    mixins: [TooltipMixin],
-    handleRefresh: function() {
-        PuffData.importRemoteShells() // TODO: this doesn't respect filters etc and should be websockets instead of a query
-        return false                  //       (like, sockets from a p2p node that links rtc-less browsers to the network)
-    },
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
-        return (
-            <span className="headerIcon relative">
-                <a className="authorSpan" onClick={this.handleRefresh}><i className="fa fa-repeat fa-fw"></i></a>
-                <Tooltip position='under' content={polyglot.t('header.tooltip.refresh')} />
-            </span>
-        )
-    }
-});
+

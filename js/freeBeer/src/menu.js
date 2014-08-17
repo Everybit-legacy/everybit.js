@@ -138,7 +138,7 @@ var Cluster = React.createClass({
         // <span className="floatRight gray"><i className={setClass}></i></span>
         
         var slide = puffworldprops.clusters[this.props.clusterName] ? 'slidedown' : 'slideup';
-        var popoutClassName = this.props.isPopout ? "fa fa-fw fa-compress" : "fa fa-fw fa-expand";
+        var popoutClassName = this.props.isPopout ? "fa fa-fw fa-compress gray" : "fa fa-fw fa-expand gray";
         return (
             <div className="menuCluster">
                 <div className={className}>
@@ -649,6 +649,13 @@ var ToolsMenu = React.createClass({
         document.location.reload(true);
         return false;
     },
+
+    handleRefresh: function() {
+        // TODO: this doesn't respect filters etc and should be websockets instead of a query
+        PuffData.importRemoteShells()
+        return false               // (like, sockets from a p2p node that links rtc-less browsers to the network)
+    },
+
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
@@ -657,6 +664,10 @@ var ToolsMenu = React.createClass({
                     <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tools.builder")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
                 </div>
+                <div className="menuItem">
+                    <a href="#" onClick={this.handleRefresh}>Force update of content</a>
+                </div>
+                <Tooltip position='under' content={polyglot.t('header.tooltip.refresh')} />
                 <div className="menuItem">
                     <a href="#" onClick={this.clearPuffShells}>{polyglot.t("menu.tools.clearCache")}</a>
                 </div>

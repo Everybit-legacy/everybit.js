@@ -63,10 +63,13 @@ var PuffFancyBox = React.createClass({
             }
         }
 
+        // TODO: Move these into css
         if(stats)
             style = {position: 'absolute', width: width, height: height, left: left, top: top }
+
         if(replied)
-            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'lightgreen'}
+            style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'rgba(220,255,220,.9)'}
+
         return (
             <div className={className} id={puff.sig} key={puff.sig} style={style}>
                 <PuffAuthor ref="author" puff={puff} hidden={hidden} />
@@ -144,6 +147,7 @@ var PuffContent = React.createClass({
         }
 
         // show meta for profile // TODO add this to config
+        /*
         if (puff.type != 'profile') {
             var keysNotShow = ['content', 'parents', 'type'];
             return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick}>
@@ -158,6 +162,7 @@ var PuffContent = React.createClass({
                 </span>
             </div>
         }
+        */
 
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
         return <div style={{height: this.props.height}} className="txt" onClick={this.handleClick} dangerouslySetInnerHTML={{__html: puffcontent}}></div>

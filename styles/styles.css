@@ -245,6 +245,9 @@ h4 {
     margin-bottom: 0;
 }
 
+
+
+
 .floatLeft {
     float: left;
 }
@@ -1015,6 +1018,10 @@ select:disabled {
     top: 1.5em;
 }
 
+.small {
+    font-size: .8em;
+}
+
 .smallCaps {
     font-family: GudeaBold;
     text-transform: uppercase;
@@ -1436,7 +1443,7 @@ a.deactive, a.deactive:hover {
 .listrow {
     background-color: #fff;
     /* border-radius: 5px; */
-    margin-bottom: 3px;
+    margin-bottom: 1px;
     position: relative;
 }
 .animation .listrow{
@@ -1465,17 +1472,22 @@ a.deactive, a.deactive:hover {
     line-height: 3em;
     text-align:center;
 }
-.listcell {
-    height: 100%;
-    padding: 0.5em;
-    min-height: 1.4em;
-    display: inline-block;
-    vertical-align: top;
-    word-wrap: break-word;
-    overflow-y: auto;
-    overflow-x: hidden;
-    /*position: relative;*/
+
+.listcell:hover >
+   .listCellOptions{
+        display: block;
 }
+
+.listCellOptions {
+    position: absolute;
+    z-index: 200;
+    padding: .5em;
+    background-color: rgba(250,250,250,.95);
+    text-align: left;
+    border: 1px #222222 dotted;
+    display: none;
+}
+
 /*.listcell+.listcell::before {
     content: '';
     height: 1.4em;
@@ -1513,24 +1525,40 @@ a.deactive, a.deactive:hover {
     height: .8em;
 }
 
+.listcell {
+    height: 100%;
+    padding: 0.5em 0.2em 0.5em 0.3em;
+    min-height: 1.4em;
+    display: inline-block;
+    vertical-align: top;
+    word-wrap: break-word;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /*position: relative;*/
+}
+
 
 .rowViewColOptions {
     position: absolute;
     left: 2em;
     top: 0;
     z-index: 200;
-    background-color: #ccc;
+    background-color: rgba(240,240,240,.95);
     text-align: left;
     font-weight: normal;
     padding: 0.5em;
-    border-radius: 5px;
+    border-radius: 3px;
+    line-height: 1.5em;
 }
+
+
 .rowReferencePreview {
     position: absolute;
     z-index: 200;
-    background-color: #ccc;
+    padding: .5em;
+    background-color: rgba(250,250,250,.95);
     text-align: left;
-    border-radius: 5px;
+    border: 1px #222222 dotted;
     display: none;
 }
 .rowReference:hover > .rowReferencePreview{
@@ -1541,7 +1569,8 @@ a.deactive, a.deactive:hover {
     z-index: 200;
     background-color: rgba(240,240,240,.95);
     text-align: left;
-    padding: 1em;
+    padding: .5em;
+    border-radius: 3px;
 }
 
 .listview .menuTooltip {

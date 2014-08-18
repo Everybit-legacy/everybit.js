@@ -106,6 +106,7 @@ puffworldprops = {
         
         filters: {
             tags: [],
+            types: [],
             users : [],
             routes: []
         },
@@ -524,6 +525,16 @@ update_puffworldprops = function(data) {
         else
             puffworldprops.view.filters.tags = [puffworldprops.view.filters.tags]
     }
+
+    // TYPES
+    if(!Array.isArray(puffworldprops.view.filters.types)) {
+        if(!puffworldprops.view.filters.types)
+            puffworldprops.view.filters.types = []
+        else
+            puffworldprops.view.filters.types = [puffworldprops.view.filters.types]
+    }
+
+
 }
 
 

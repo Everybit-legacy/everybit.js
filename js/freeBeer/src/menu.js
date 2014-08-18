@@ -184,10 +184,13 @@ var FilterMenu = React.createClass({
             this.refs.filter.getDOMNode().value = '';
             return false;
         }
+
+        // Remove leading "." on username
         if (type == 'users' || type == 'routes') {
             if (newFilter.slice(0, 1) == '.')
                 newFilter = newFilter.slice(1);
         }
+
         if (newFilter && currFilter.indexOf(newFilter) == -1) 
             currFilter.push(newFilter);
         var jsonToSet = {};
@@ -209,6 +212,7 @@ var FilterMenu = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         var filterToIcon = {
             tags: 'fa-tag',
+            types: 'fa-asterisk',
             users:'fa-user',
             routes:'fa-sitemap'
         }
@@ -236,7 +240,7 @@ var FilterMenu = React.createClass({
                 <input ref="filter" type="text" className="btn narrowInputField" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-plus-circle fa-fw"></i></a><br/>
                 <span style={leftColStyle}>{polyglot.t("menu.filters.by")}:</span>
                 <span className="relative">
-                    {['tags', 'users', 'routes'].map(this.createEachFilter)}
+                    {Object.keys(puffworldprops.view.filters).sort().map(this.createEachFilter)}
                 </span>
             </div>
         );

@@ -228,6 +228,8 @@ var HBFilterBubble = React.createClass({
                     var icon = '';
                     if(self.props.filterName == 'tags') {
                         icon = <i className="fa gray fa-tag"></i>
+                    } else if(self.props.filterName == 'types') {
+                        icon = <i className="fa gray fa-asterisk"></i>
                     } else if(self.props.filterName == 'users') {
                         icon = <i className="fa gray fa-user"></i>
                     } else if(self.props.filterName == 'routes') {
@@ -270,6 +272,8 @@ var HBFilters = React.createClass({
             this.refs.filter.getDOMNode().value = '';
             return false;
         }
+
+        // Remove leading "." on username
         if (type == "users" || type == 'routes') {
             if (newFilter.slice(0, 1) == '.')
                 newFilter = newFilter.slice(1);
@@ -295,6 +299,7 @@ var HBFilters = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         var filterToIcon = {
             tags: 'fa-tag',
+            types: 'fa-asterisk',
             users:'fa-user',
             routes:'fa-sitemap'
         }
@@ -310,7 +315,7 @@ var HBFilters = React.createClass({
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var all_filter = ['tags', 'users', 'routes'];
+        var all_filter = Object.keys(puffworldprops.view.filters).sort();
         var leftColStyle = {
             display: 'inline-block'
         }

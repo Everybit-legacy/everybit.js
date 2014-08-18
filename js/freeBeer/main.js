@@ -2,7 +2,7 @@
 
 puffworldprops = {
     list: { 
-        relationGroup: {},
+        relationGroup: false,
         column: {
             user: {
                 show: true,

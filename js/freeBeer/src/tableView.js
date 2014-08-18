@@ -92,7 +92,7 @@ var RowRenderMixin = {
         return <span>{date.yyyymmdd()}</span>;
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 	},
-    // TODO: Link each tag to a search for that tag (maintain view as list)
+
     // TODO: Change the format of the links to be more normal
     handleShowTag: function(tag) {
     	return events.pub('filter/show/tag', {
@@ -110,6 +110,21 @@ var RowRenderMixin = {
 			return <a href="#" onClick={self.handleShowTag.bind(self, tag)} key={tag}><span className="bubbleNode">{tag}</span></a>
 		})}</span>
 	},
+
+    handleViewType: function(type) {
+      // do the filter
+        return events.pub('filter/show/type', {
+            'view.filters': {},
+            'view.filters.types': [type]
+        });
+    },
+
+    renderType: function() {
+        var puff = this.props.puff;
+        var type = puff.payload.type;
+        return <span><a href="#" onClick={this.handleViewType.bind(this,type)}>{type}</a></span>;
+    },
+
 	getReferenceIcon: function(sig, type) {
 		// type = type || "";
 		// if (!puff) return "";
@@ -118,8 +133,14 @@ var RowRenderMixin = {
 		var puff = PuffForum.getPuffBySig(sig);
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
-
-		return <span key={sig} className="rowReference" onClick={this.handleShowRelationGroup.bind(this, sig, type)}><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
+		var highlight = this.props.highlight || [];
+		var classArray = ["rowReference"];
+		if (highlight.indexOf(sig) != -1) {
+			classArray.push('highlight')
+		}
+		return <a key={sig} className={classArray.join(' ')} onClick={this.handleShowRelationGroup.bind(this, sig, type)}>
+			<img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}
+		</a>
 	},
 	renderRefs: function() {
 		var iconStyle = {
@@ -297,10 +318,10 @@ var RowView = React.createClass({
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
                     {puffs.map(function(puff, index){
                         cntr++;
-                        if (listprop.relationGroup && listprop.relationGroup[puff.sig]) {
-                        	var parent = listprop.relationGroup[puff.sig].parent;
-                        	var child = listprop.relationGroup[puff.sig].child;
-                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} />
+                        if (listprop.relationGroup && listprop.relationGroup.sig == puff.sig) {
+                        	var parent = listprop.relationGroup.parent;
+                        	var child = listprop.relationGroup.child;
+                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} relationGroup={self.props.list.relationGroup}/>
                         }
 						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />
 					})}
@@ -455,12 +476,12 @@ var RowSingle = React.createClass({
     	}
     },
     handleShowRelationGroup: function(sig, type) {
+    	if (this.props.inGroup) return false;
     	var rowSig = this.props.puff.sig;
     	var relationGroup = PB.shallow_copy(puffworldprops.list.relationGroup) || {};
-    	if (relationGroup[rowSig]) {
-    		delete relationGroup[rowSig];
-    		return events.pub('ui/hide-relation-group', {'list.relationGroup':relationGroup})
-    	}
+    	/*if (relationGroup.sig == rowSig) {
+    		return events.pub('ui/hide-relation-group', {'list.relationGroup':false})
+    	}*/
     	var parent, child;
     	if (type == 'parent') {
     		parent = sig;
@@ -469,7 +490,7 @@ var RowSingle = React.createClass({
     		parent = "";
     		child = sig;
     	}
-    	relationGroup[rowSig] = {"parent": parent, "child": child}
+    	relationGroup = {"parent": parent, "child": child, "sig": rowSig}
     	return events.pub('ui/show-relation-group', {'list.relationGroup': relationGroup} )
     },
 	render: function() {
@@ -488,13 +509,9 @@ var RowSingle = React.createClass({
 		}
 
 		var classArray = ['listrow'];
-        if(this.props.cntr % 2) {
-            var bgColor = 'rgba(245,245,245,.9)';
-        } else {
-            var bgcolor = 'rgba(255,255,255,.9)';
-        }
-
-
+		if (this.props.clsPlus) {
+			classArray.push(this.props.clsPlus)
+		}
 
         var flaggedPuff = Puffball.Persist.get('flagged') || [];
         var flagged = false;
@@ -503,7 +520,13 @@ var RowSingle = React.createClass({
             (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
             flagged = true;
-        }		
+        }	
+
+        if(this.props.cntr % 2) {
+            var bgColor = 'rgba(245,245,245,.9)';
+        } else {
+            var bgcolor = 'rgba(255,255,255,.9)';
+        }	
 
 		var showIcons = this.props.bar.showIcons == puff.sig;
 		return (
@@ -598,6 +621,14 @@ var RowExpand = React.createClass({
 })
 
 var RowGroupCombined = React.createClass({
+	getInitialState: function() {
+		return {
+			parentGroup: [],
+			parentIndex: 0,
+			childGroup: [],
+			childIndex: 0
+		}
+	},
 	getGroup: function(originSig, relation) {
 		var group = PuffData.graph.v(originSig).out(relation).run();
 		group = group
@@ -606,86 +637,108 @@ var RowGroupCombined = React.createClass({
 				.filter(function(s, i, array){return i == array.indexOf(s)});
 		return group;
 	},
-	getMoreLevels: function(sig, type) {
+	getMoreGroups: function(sig, type) {
 		var groupArray = [];
 
 		var group = this.getGroup(sig, type);
 		while (group.length != 0) {
-			groupArray.push(group);
 			var nextSig = group[0];
+			groupArray.push(group.map(PuffForum.getPuffBySig));
 			group = this.getGroup(nextSig, type);
 		}
-		return grouPArray;
+		return groupArray;
 	},
+	handleClose: function() {
+		return events.pub('ui/close-relation-group', {'list.relationGroup': false})
+	},
+	getGroupAndIndex: function() {
+		var originSig = this.props.middle;
 
-	render: function() {
 		var parent = this.props.parent;
-		var middle = this.props.middle;
-		var child = this.props.child;
-
-		var parentGroup = this.getGroup(middle, 'parent');
-		var parentGroupIndex = Math.max(parentGroup.indexOf(parent), 0);
+		var parentGroup = this.getGroup(originSig, 'parent');
+		var parentIndex = Math.max(parentGroup.indexOf(parent), 0);
+		if (parentGroup.length) parent = parentGroup[parentIndex];
 		parentGroup = parentGroup.map(PuffForum.getPuffBySig);
 
-		var middleGroup, middleGroupIndex;
-		if (parentGroup.length) {
-			middleGroup = this.getGroup(parentGroup[parentGroupIndex].sig, 'child');
-			middleGroupIndex = middleGroup.indexOf(middle);
-			middleGroup = middleGroup.map(PuffForum.getPuffBySig);
-		} else {
-			middleGroup = [PuffForum.getPuffBySig(middle)];
-			middleGroupIndex = 0;
-		}
-
-		var childGroup = this.getGroup(middle, 'child');
-		var childGroupIndex = Math.max(childGroup.indexOf(child), 0);
+		var child = this.props.child;
+		var childGroup = this.getGroup(originSig, 'child');
+		var childIndex = Math.max(childGroup.indexOf(child), 0);
+		if (childGroup.length) child = childGroup[parentIndex];
 		childGroup = childGroup.map(PuffForum.getPuffBySig);
 
+		events.pub('ui/update-relation-group', 
+					{'list.relationGroup': 
+						{sig: originSig,
+						parent: parent,
+						child: child}});
+
+		return {
+			parentGroup: parentGroup,
+			parentIndex: parentIndex,
+			childGroup: childGroup,
+			childIndex: childIndex
+		}
+	},
+	componentDidMount: function() {
+		this.setState(this.getGroupAndIndex())
+	},
+	render: function() {
+		var originSig = this.props.relationGroup.sig;
+
+		var parent = this.props.relationGroup.parent;
+		var parentGroup = this.getGroup(originSig, 'parent');
+		var parentIndex = Math.max(parentGroup.indexOf(parent), 0);
+		if (parentGroup.length) parent = parentGroup[parentIndex];
+		parentGroup = parentGroup.map(PuffForum.getPuffBySig);
+
+		var child = this.props.relationGroup.child;
+		var childGroup = this.getGroup(originSig, 'child');
+		var childIndex = Math.max(childGroup.indexOf(child), 0);
+		if (childGroup.length) child = childGroup[parentIndex];
+		childGroup = childGroup.map(PuffForum.getPuffBySig);
+
+		var highlight = [parent, child];
+
+		var middle = this.props.middle;
+
 		return <div className="rowGroupCombined">
-			<RowGroup puffs={parentGroup} currentIndex={parentGroupIndex} />
-			<RowGroup puffs={middleGroup} currentIndex={middleGroupIndex} />
-			<RowGroup puffs={childGroup} currentIndex={childGroupIndex} />
+			<div style={{width: '100%', marginTop: '3px'}}><a href="#" onClick={this.handleClose}><i className="fa fa-fw fa-times-circle-o"></i></a></div>
+			<RowGroup puffs={parentGroup} sig={parent} currentIndex={parentIndex} level="parent"/>
+			<RowSingle puff={PuffForum.getPuffBySig(middle)} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} clsPlus="center" highlight={highlight}/>
+			<RowGroup puffs={childGroup} sig={child} currentIndex={childIndex} leve="child" />
 		</div>
+
 	}
 })
 var RowGroup = React.createClass({
-	getInitialState: function() {
-		return {
-			currentIndex: 0
-		}
-	},
-	componentDidMount: function(){
-		this.setState({currentIndex: this.props.currentIndex})
-	},
-	handleShowPrev: function() {
+	handleShowPrevNext: function(offset) {
+		var puffList = this.props.puffs;
+		var puff = PuffForum.getPuffBySig(this.props.sig);
+
 		var total = this.props.puffs.length;
 		if (total == 0) return false;
-		var index = (this.state.currentIndex - 1 + total) % total;
-		this.setState({currentIndex: index});
-		return false;
-	},
-	handleShowNext: function() {
-		var total = this.props.puffs.length;
-		if (total == 0) return false;
-		var index = (this.state.currentIndex + 1) % total;
-		this.setState({currentIndex: index});
-		return false;
+		var index = (puffList.indexOf(puff) + offset + total) % total;
+		var setJSON = {};
+		setJSON['list.relationGroup.'+this.props.level] = this.props.puffs[index].sig;
+		return events.pub('ui/relation-group/change-'+this.props.level, setJSON);
 	},
 	render: function() {
 		var puffList = this.props.puffs;
 		if (!puffList || !puffList.length)
 			return <span></span>;
-		var currentIndex = this.state.currentIndex || 0;
-		var puff = puffList[currentIndex];
+		var puff = PuffForum.getPuffBySig(this.props.sig);
 
-		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrev}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
-		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowNext}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
+		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrevNext.bind(this, -1)}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
+		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
 		if (puffList.length == 1) {
 			showPrev = <span></span>;
 			showNext = <span></span>;
 		}
 
-		return <div className="rowGroup">
+		var classArray=['rowGroup'];
+		if (this.props.iscenter) classArray.push('center')
+
+		return <div className={classArray.join(' ')}>
 			{showPrev}
 			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} inGroup={true}/>
 			{showNext}

@@ -1449,6 +1449,8 @@ a.deactive, a.deactive:hover {
     background-color: #fff;
     /* border-radius: 5px; */
     margin-bottom: 1px;
+    padding-bottom: 7px;
+    padding-top: 3px;
     position: relative;
 }
 .animation .listrow{
@@ -1556,6 +1558,9 @@ a.deactive, a.deactive:hover {
     line-height: 1.5em;
 }
 
+.rowReference.highlight img {
+    border: 3px solid #ccc;
+}
 
 .rowReferencePreview {
     position: absolute;
@@ -1595,10 +1600,18 @@ a.deactive, a.deactive:hover {
 }
 
 .rowGroupCombined {
-    border: 1px solid black;
+    margin: 10px 0;
+    border: 3px solid black;
+    background-color: #fff;
 }
 .rowGroup {
     position: relative;
+}
+.rowGroup .listrow {
+    background-color: rgba(194, 245, 218, 0.75);
+}
+.center.listrow {
+    background-color: #fff;
 }
 .rowGroupArrowLeft {
     position: absolute;

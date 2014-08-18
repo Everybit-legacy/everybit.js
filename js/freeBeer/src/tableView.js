@@ -56,10 +56,7 @@ var RowRenderMixin = {
             return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>;
         }
         
-
         return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></span>;
-
-
 	},
 	renderContent: function() {
 		var puff = this.props.puff;
@@ -99,6 +96,7 @@ var RowRenderMixin = {
     // TODO: Change the format of the links to be more normal
     handleShowTag: function(tag) {
     	return events.pub('filter/show/tag', {
+    							'view.mode': 'tableView',
     							'view.filters': {},
     							'view.filters.tags': [tag]
     						});
@@ -112,7 +110,7 @@ var RowRenderMixin = {
 			return <a href="#" onClick={self.handleShowTag.bind(self, tag)} key={tag}><span className="bubbleNode">{tag}</span></a>
 		})}</span>
 	},
-	getReferenceIcon: function(sig) {
+	getReferenceIcon: function(sig, type) {
 		// type = type || "";
 		// if (!puff) return "";
 		// var sig = puff.sig;
@@ -121,7 +119,7 @@ var RowRenderMixin = {
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
 
-		return <span key={sig} className="rowReference"><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
+		return <span key={sig} className="rowReference" onClick={this.handleShowRelation.bind(this, sig, type)}><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
 	renderRefs: function() {
 		var iconStyle = {
@@ -138,7 +136,8 @@ var RowRenderMixin = {
 		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
 						 .filter(Boolean)
 						 .filter(function(s, i, array){return i == array.indexOf(s)});
-		var parentIcons = parents.map(this.getReferenceIcon);
+		var parentIcons = parents.map(function(sig) 
+							{return self.getReferenceIcon(sig, 'parent')});
 		if (parents.length) {
             parentsEle = (
                 <div>
@@ -154,9 +153,10 @@ var RowRenderMixin = {
 		children = children.map(function(v){if (v.shell) return v.shell.sig})
 						   .filter(Boolean)
 						   .filter(function(s, i, array){return i == array.indexOf(s)});
-		var childrenIcon = children.map(this.getReferenceIcon);
+		var childrenIcons = children.map(function(sig) 
+							{return self.getReferenceIcon(sig, 'child')});
 		if (children.length) 
-			childrenEle = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcon}</div>;
+			childrenEle = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcons}</div>;
 		return <div>
 			{parentsEle}
 			{childrenEle}
@@ -239,7 +239,7 @@ var RowView = React.createClass({
 		var filters = this.props.view.filters;
 		var limit = 10;
 		var puffs = PuffForum.getPuffList(query, filters, limit);
-		if (puffs.length == 0)
+		if ((!puffs) || (puffs.length == 0))
 			this.setState({noMorePuff: true});
 		else
 			this.setState({noMorePuff: false});
@@ -449,6 +449,19 @@ var RowSingle = React.createClass({
 	    		{'list.bar.showIcons': this.props.puff.sig});
     	}
     },
+    handleShowRelationGroup: function(sig, type) {
+    	var parent, child;
+    	if (type == 'parent') {
+    		parent = sig;
+    		child = this.props.puff.sig;
+    	} else {
+    		parent = this.props.puff.sig;
+    		child = sig;
+    	}
+    	var relationGroup = PB.shallow_copy(puffworldprops.list.relationGroup);
+    	relationGroup[this.props.puff.sig] = {"parent": parent, "child": child}
+    	return events.pub('ui/show-relation-group', {'list.relationGroup': relationGroup} )
+    },
 	render: function() {
 		var puff = this.props.puff;
 
@@ -572,4 +585,68 @@ var RowExpand = React.createClass({
             </span>
         );
     }
+})
+
+var RowGroupCombined = React.createClass({
+	render: function() {
+		var parent = this.props.parent;
+		var child = this.props.child;
+
+		var parentGroup = PuffData.graph.v(child.sig).out('parent').run();
+		parentGroup = parentGroup
+						.map(function(v){if (v.shell) return v.shell.sig})
+						.filter(Boolean)
+						.filter(function(s, i, array){return i == array.indexOf(s)});
+		var parentGroupIndex = parentGroup.indexOf(parent.sig);
+		parentGroup = parentGroup.map(PuffForum.getPuffBySig);
+
+		var childGroup = PuffData.graph.v(parent.sig).out('child').run();
+		childGroup = childGroup
+						.map(function(v){if (v.shell) return v.shell.sig})
+						.filter(Boolean)
+						.filter(function(s, i, array){return i == array.indexOf(s)});
+		var childGroupIndex = childGroup.indexOf(child.sig);
+		childGroup = childGroup.map(PuffForum.getPuffBySig);
+
+		return <div className="rowGroupCombined">
+			<RowGroup puffs={parentGroup} currentIndex={parentGroupIndex} />
+			<RowGroup puffs={childGroup} currentIndex={childGroupIndex} />
+		</div>
+	}
+})
+var RowGroup = React.createClass({
+	getInitialState: function() {
+		return {
+			currentIndex: 0
+		}
+	},
+	componentDidMount: function(){
+		this.setState({currentIndex: this.props.index})
+	},
+	handleShowPrev: function() {
+		var total = this.props.puffs.length;
+		var index = (this.state.currentIndex - 1) % total;
+		this.setState({currentIndex: index});
+		return false;
+	},
+	handleShowNext: function() {
+		var total = this.props.puffs.length;
+		var index = (this.state.currentIndex + 1) % total;
+		this.setState({currentIndex: index});
+		return false;
+	},
+	render: function() {
+		var puffList = this.props.puffs;
+		var currentIndex = this.state.currentIndex || 0;
+		var puff = puffList[currentIndex];
+
+		var showPrev = <a href="#" onClick={this.handleShowPrev}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
+		var showNext = <a href="#" onClick={this.handleShowNext}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
+
+		return <div>
+			{showPrev}
+			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} />
+			{showNext}
+		</div>
+	}
 })

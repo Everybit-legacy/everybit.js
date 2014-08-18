@@ -126,9 +126,6 @@ var RowRenderMixin = {
     },
 
 	getReferenceIcon: function(sig, type) {
-		// type = type || "";
-		// if (!puff) return "";
-		// var sig = puff.sig;
 		var preview = <span></span>;
 		var puff = PuffForum.getPuffBySig(sig);
 		if (puff.payload && puff.payload.content)
@@ -621,14 +618,14 @@ var RowExpand = React.createClass({
 })
 
 var RowGroupCombined = React.createClass({
-	getInitialState: function() {
+	/*getInitialState: function() {
 		return {
 			parentGroup: [],
 			parentIndex: 0,
 			childGroup: [],
 			childIndex: 0
 		}
-	},
+	},*/
 	getGroup: function(originSig, relation) {
 		var group = PuffData.graph.v(originSig).out(relation).run();
 		group = group
@@ -637,7 +634,7 @@ var RowGroupCombined = React.createClass({
 				.filter(function(s, i, array){return i == array.indexOf(s)});
 		return group;
 	},
-	getMoreGroups: function(sig, type) {
+	/*getMoreGroups: function(sig, type) {
 		var groupArray = [];
 
 		var group = this.getGroup(sig, type);
@@ -647,9 +644,6 @@ var RowGroupCombined = React.createClass({
 			group = this.getGroup(nextSig, type);
 		}
 		return groupArray;
-	},
-	handleClose: function() {
-		return events.pub('ui/close-relation-group', {'list.relationGroup': false})
 	},
 	getGroupAndIndex: function() {
 		var originSig = this.props.middle;
@@ -663,7 +657,7 @@ var RowGroupCombined = React.createClass({
 		var child = this.props.child;
 		var childGroup = this.getGroup(originSig, 'child');
 		var childIndex = Math.max(childGroup.indexOf(child), 0);
-		if (childGroup.length) child = childGroup[parentIndex];
+		if (childGroup.length) child = childGroup[childIndex];
 		childGroup = childGroup.map(PuffForum.getPuffBySig);
 
 		events.pub('ui/update-relation-group', 
@@ -681,6 +675,9 @@ var RowGroupCombined = React.createClass({
 	},
 	componentDidMount: function() {
 		this.setState(this.getGroupAndIndex())
+	},*/
+	handleClose: function() {
+		return events.pub('ui/close-relation-group', {'list.relationGroup': false})
 	},
 	render: function() {
 		var originSig = this.props.relationGroup.sig;
@@ -694,7 +691,7 @@ var RowGroupCombined = React.createClass({
 		var child = this.props.relationGroup.child;
 		var childGroup = this.getGroup(originSig, 'child');
 		var childIndex = Math.max(childGroup.indexOf(child), 0);
-		if (childGroup.length) child = childGroup[parentIndex];
+		if (childGroup.length) child = childGroup[childIndex];
 		childGroup = childGroup.map(PuffForum.getPuffBySig);
 
 		var highlight = [parent, child];

@@ -106,27 +106,38 @@ PuffForum.filterByFilters = function(filters) {
     
     //// get a filtering function
     return function(shell) {
-        if(filters.routes && filters.routes.length > 0) {
+
+        // ROUTES
+        if (filters.routes && filters.routes.length > 0) {
             var routeMatch = false;
-            for (var i=0; i<filters.routes.length; i++) {
+            for (var i = 0; i < filters.routes.length; i++) {
                 if (shell.routes.indexOf(filters.routes[i]) > -1) routeMatch = true;
             }
-            if(!routeMatch) return false;
+            if (!routeMatch) return false;
         }
 
-        if(filters.tags && filters.tags.length > 0) {
-            if(!shell.payload.tags || !shell.payload.tags.length) {
+        // TAGS
+        if (filters.tags && filters.tags.length > 0) {
+            if (!shell.payload.tags || !shell.payload.tags.length) {
                 return false;
             }
             var tagMatch = false;
-            for (var i=0; i<filters.tags.length; i++) {
+            for (var i = 0; i < filters.tags.length; i++) {
                 if (shell.payload.tags.indexOf(filters.tags[i]) > -1) tagMatch = true;
             }
-            if(!tagMatch) return false;
+            if (!tagMatch) return false;
+        }
+
+        // TYPES
+        if (filters.types && filters.types.length > 0) {
+            if (!~filters.types.indexOf(shell.payload.type)) {
+                // console.log(shell.type)
+                return false
+            }
         }
 
 
-        
+        // USERS
         if(filters.users && filters.users.length > 0)
             if(!~filters.users.indexOf(shell.username)) return false
 

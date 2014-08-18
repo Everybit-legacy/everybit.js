@@ -469,7 +469,7 @@ PuffData.importRemoteShells = function() {
     var new_shells = []
     var keep_going = true
     
-    var key = '[{"sort":"DESC"},{"tags":[],"users":[],"routes":[]}]' // default query // TODO: this is fragile
+    var key = '[{"sort":"DESC"},{"tags":[],"types":[],"users":[],"routes":[]}]' // default query // TODO: this is fragile
     PuffData.slotLocker[key] = -1
     
     function getMeSomeShells(puffs) {

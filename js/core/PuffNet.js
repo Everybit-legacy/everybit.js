@@ -107,7 +107,12 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
+
+    //  if(filters.types)   data.type       = filters.types      // filter by types
+
     var data = {type: 'getPuffs', contentType: 'plain'};
+    // var data = {type: 'getPuffs', contentType: '["image"]'};
+
 
     if(limit)  data.numb    = limit                         // defaults to 20 on the server
     if(offset) data.offset  = offset                        // defaults to 0, which is latest
@@ -116,6 +121,7 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     if(filters.users)   data.username   = filters.users     // filter by username
     if(filters.routes)  data.route      = filters.routes    // filter by route
     if(filters.tags)    data.tags       = filters.tags      // filter by tags
+    if(filters.types)   data.type       = filters.types      // filter by tags
     if(query.ancestors) data.maxParents = query.ancestors   // defaults to all shells; 0 is roots, 1 is single parent, etc
     // data.flagged = false
     

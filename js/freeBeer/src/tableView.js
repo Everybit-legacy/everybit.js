@@ -46,22 +46,16 @@ var RowRenderMixin = {
 	},
 	renderUser: function() {
         // Try and find profile for this user
-        // TODO: Figure out why this is returning latest post by users
-        /*
         var queryJSON = {}
-        queryJSON.users = [].push(this.props.puff.username);
-        queryJSON.type = 'profile'
+        queryJSON.users = [this.props.puff.username];
+        queryJSON.type = ['profile']
 
         var prof = PuffForum.getPuffList(puffworldprops.view.query,queryJSON,1);
 
         if(prof.length) {
-
             return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>;
-
-        } else {
-
         }
-        */
+        
 
         return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></span>;
 

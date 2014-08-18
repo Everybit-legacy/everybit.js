@@ -142,6 +142,9 @@ PuffForum.filterByFilters = function(filters) {
         if(filters.descendants && filters.focus)
             if(!~shell.payload.parents.indexOf(filters.focus)) return false
 
+        if (filters.type && filters.type.length)
+            if (!~filters.type.indexOf(shell.payload.type)) return false
+
         return true
     }
 }

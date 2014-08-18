@@ -113,6 +113,7 @@ Translate.language["en"].extend({
             tagsFilter: 'Add a tag to filters',
             routesFilter: 'Add a route to filters',
             usersFilter: 'Add a user to filters',
+            typesFilter: 'Add a type to filters',
             removeFilter: 'Remove this filter',
             currentDelete:'To delete this user from the browser',
             flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',

@@ -119,7 +119,7 @@ var RowRenderMixin = {
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
 
-		return <span key={sig} className="rowReference" onClick={this.handleShowRelation.bind(this, sig, type)}><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
+		return <span key={sig} className="rowReference" onClick={this.handleShowRelationGroup.bind(this, sig, type)}><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
 	renderRefs: function() {
 		var iconStyle = {
@@ -297,6 +297,11 @@ var RowView = React.createClass({
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
                     {puffs.map(function(puff, index){
                         cntr++;
+                        if (listprop.relationGroup && listprop.relationGroup[puff.sig]) {
+                        	var parent = listprop.relationGroup[puff.sig].parent;
+                        	var child = listprop.relationGroup[puff.sig].child;
+                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} />
+                        }
 						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />
 					})}
 					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
@@ -450,16 +455,21 @@ var RowSingle = React.createClass({
     	}
     },
     handleShowRelationGroup: function(sig, type) {
+    	var rowSig = this.props.puff.sig;
+    	var relationGroup = PB.shallow_copy(puffworldprops.list.relationGroup) || {};
+    	if (relationGroup[rowSig]) {
+    		delete relationGroup[rowSig];
+    		return events.pub('ui/hide-relation-group', {'list.relationGroup':relationGroup})
+    	}
     	var parent, child;
     	if (type == 'parent') {
     		parent = sig;
-    		child = this.props.puff.sig;
+    		child = "";
     	} else {
-    		parent = this.props.puff.sig;
+    		parent = "";
     		child = sig;
     	}
-    	var relationGroup = PB.shallow_copy(puffworldprops.list.relationGroup);
-    	relationGroup[this.props.puff.sig] = {"parent": parent, "child": child}
+    	relationGroup[rowSig] = {"parent": parent, "child": child}
     	return events.pub('ui/show-relation-group', {'list.relationGroup': relationGroup} )
     },
 	render: function() {
@@ -588,28 +598,52 @@ var RowExpand = React.createClass({
 })
 
 var RowGroupCombined = React.createClass({
+	getGroup: function(originSig, relation) {
+		var group = PuffData.graph.v(originSig).out(relation).run();
+		group = group
+				.map(function(v){if (v.shell) return v.shell.sig})
+				.filter(Boolean)
+				.filter(function(s, i, array){return i == array.indexOf(s)});
+		return group;
+	},
+	getMoreLevels: function(sig, type) {
+		var groupArray = [];
+
+		var group = this.getGroup(sig, type);
+		while (group.length != 0) {
+			groupArray.push(group);
+			var nextSig = group[0];
+			group = this.getGroup(nextSig, type);
+		}
+		return grouPArray;
+	},
+
 	render: function() {
 		var parent = this.props.parent;
+		var middle = this.props.middle;
 		var child = this.props.child;
 
-		var parentGroup = PuffData.graph.v(child.sig).out('parent').run();
-		parentGroup = parentGroup
-						.map(function(v){if (v.shell) return v.shell.sig})
-						.filter(Boolean)
-						.filter(function(s, i, array){return i == array.indexOf(s)});
-		var parentGroupIndex = parentGroup.indexOf(parent.sig);
+		var parentGroup = this.getGroup(middle, 'parent');
+		var parentGroupIndex = Math.max(parentGroup.indexOf(parent), 0);
 		parentGroup = parentGroup.map(PuffForum.getPuffBySig);
 
-		var childGroup = PuffData.graph.v(parent.sig).out('child').run();
-		childGroup = childGroup
-						.map(function(v){if (v.shell) return v.shell.sig})
-						.filter(Boolean)
-						.filter(function(s, i, array){return i == array.indexOf(s)});
-		var childGroupIndex = childGroup.indexOf(child.sig);
+		var middleGroup, middleGroupIndex;
+		if (parentGroup.length) {
+			middleGroup = this.getGroup(parentGroup[parentGroupIndex].sig, 'child');
+			middleGroupIndex = middleGroup.indexOf(middle);
+			middleGroup = middleGroup.map(PuffForum.getPuffBySig);
+		} else {
+			middleGroup = [PuffForum.getPuffBySig(middle)];
+			middleGroupIndex = 0;
+		}
+
+		var childGroup = this.getGroup(middle, 'child');
+		var childGroupIndex = Math.max(childGroup.indexOf(child), 0);
 		childGroup = childGroup.map(PuffForum.getPuffBySig);
 
 		return <div className="rowGroupCombined">
 			<RowGroup puffs={parentGroup} currentIndex={parentGroupIndex} />
+			<RowGroup puffs={middleGroup} currentIndex={middleGroupIndex} />
 			<RowGroup puffs={childGroup} currentIndex={childGroupIndex} />
 		</div>
 	}
@@ -621,31 +655,39 @@ var RowGroup = React.createClass({
 		}
 	},
 	componentDidMount: function(){
-		this.setState({currentIndex: this.props.index})
+		this.setState({currentIndex: this.props.currentIndex})
 	},
 	handleShowPrev: function() {
 		var total = this.props.puffs.length;
-		var index = (this.state.currentIndex - 1) % total;
+		if (total == 0) return false;
+		var index = (this.state.currentIndex - 1 + total) % total;
 		this.setState({currentIndex: index});
 		return false;
 	},
 	handleShowNext: function() {
 		var total = this.props.puffs.length;
+		if (total == 0) return false;
 		var index = (this.state.currentIndex + 1) % total;
 		this.setState({currentIndex: index});
 		return false;
 	},
 	render: function() {
 		var puffList = this.props.puffs;
+		if (!puffList || !puffList.length)
+			return <span></span>;
 		var currentIndex = this.state.currentIndex || 0;
 		var puff = puffList[currentIndex];
 
-		var showPrev = <a href="#" onClick={this.handleShowPrev}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
-		var showNext = <a href="#" onClick={this.handleShowNext}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
+		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrev}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
+		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowNext}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
+		if (puffList.length == 1) {
+			showPrev = <span></span>;
+			showNext = <span></span>;
+		}
 
-		return <div>
+		return <div className="rowGroup">
 			{showPrev}
-			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} />
+			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} inGroup={true}/>
 			{showNext}
 		</div>
 	}

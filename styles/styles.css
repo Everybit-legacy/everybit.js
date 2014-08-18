@@ -1593,3 +1593,22 @@ a.deactive, a.deactive:hover {
     background-repeat:repeat;
     background-size: 36px 36px;
 }
+
+.rowGroupCombined {
+    border: 1px solid black;
+}
+.rowGroup {
+    position: relative;
+}
+.rowGroupArrowLeft {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 300;
+}
+.rowGroupArrowRight {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 300;
+}

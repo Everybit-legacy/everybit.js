@@ -101,7 +101,7 @@ var RowRenderMixin = {
         return <span>{date.yyyymmdd()}</span>;
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 	},
-    // TODO: Link each tag to a search for that tag (maintain view as list)
+
     // TODO: Change the format of the links to be more normal
     handleShowTag: function(tag) {
     	return events.pub('filter/show/tag', {
@@ -118,6 +118,21 @@ var RowRenderMixin = {
 			return <a href="#" onClick={self.handleShowTag.bind(self, tag)} key={tag}><span className="bubbleNode">{tag}</span></a>
 		})}</span>
 	},
+
+    handleViewType: function(type) {
+      // do the filter
+        return events.pub('filter/show/type', {
+            'view.filters': {},
+            'view.filters.types': [type]
+        });
+    },
+
+    renderType: function() {
+        var puff = this.props.puff;
+        var type = puff.payload.type;
+        return <span><a href="#" onClick={this.handleViewType.bind(this,type)}>{type}</a></span>;
+    },
+
 	getReferenceIcon: function(sig) {
 		// type = type || "";
 		// if (!puff) return "";

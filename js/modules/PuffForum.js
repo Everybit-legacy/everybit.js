@@ -598,7 +598,10 @@ PuffForum.addContentType('bbcode', {
  */
 PuffForum.addContentType('image', {
     toHtml: function(content) {
-        return '<img class="imgInBox" src=' + content + ' />';
+        if(puffworldprops.view.mode == "tableView")
+            return '<img src=' + content + ' />';
+        else
+            return '<img class="imgInBox" src=' + content + ' />';
     }
 })
 
@@ -628,7 +631,10 @@ PuffForum.addContentType('PGN', {
 
 PuffForum.addContentType('profile', {
     toHtml: function(content, puff) {
-        var toRet = '<img class="imgInBox" src=' + content + ' />';
+        if(puffworldprops.view.mode == "tableView")
+            return '<img src=' + content + ' />';
+        else
+            return '<img class="imgInBox" src=' + content + ' />';
         /*var keysNotShow = ['content', 'type'];
         for (var key in puff.payload) {
             var value = puff.payload[key];
@@ -636,7 +642,6 @@ PuffForum.addContentType('profile', {
                 toRet += '<div><span class="profileKey">' + key + ': </span><span class="profileValue">' + value + '</span></div>';
             }
         }*/
-        return toRet;
     }
 })
 

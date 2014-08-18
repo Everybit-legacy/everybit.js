@@ -1449,6 +1449,8 @@ a.deactive, a.deactive:hover {
     background-color: #fff;
     /* border-radius: 5px; */
     margin-bottom: 1px;
+    padding-bottom: 7px;
+    padding-top: 3px;
     position: relative;
 }
 .animation .listrow{

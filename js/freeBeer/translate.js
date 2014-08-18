@@ -111,6 +111,7 @@ Translate.language["en"].extend({
             code:'View source code on GitHub',
             puffBuilder:'Show the puff builder',
             tagsFilter: 'Add a tag to filters',
+            typesFilter: 'Add a content type to filters',
             routesFilter: 'Add a route to filters',
             usersFilter: 'Add a user to filters',
             removeFilter: 'Remove this filter',

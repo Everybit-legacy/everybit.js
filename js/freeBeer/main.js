@@ -13,6 +13,11 @@ puffworldprops = {
                 weight: 3,
                 allowSort: false
             },
+            refs: {
+                show: true,
+                weight:.8,
+                allowSort: false
+            },
             date: {
                 show: true,
                 weight: 1,
@@ -20,17 +25,12 @@ puffworldprops = {
             },
             tags: {
                 show: true,
-                weight: 2,
+                weight: 1.5,
                 allowSort: false
             },
             other: {
                 show: true,
                 weight: 2,
-                allowSort: false
-            },
-            references: {
-                show: true,
-                weight: 1,
                 allowSort: false
             },
             score: {

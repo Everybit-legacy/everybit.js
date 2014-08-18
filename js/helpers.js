@@ -1,3 +1,5 @@
+// TODO: Rename into P. namespace
+
 function getImageCode(sig) {
     // Create an empty canvas element
     var canvas = document.createElement("canvas");
@@ -12,7 +14,7 @@ function getImageCode(sig) {
     // TODO: Do this as often as needed
     var h1 = Bitcoin.Crypto.MD5(sig);
     var h2 = Bitcoin.Crypto.MD5(sig+h1);
-    hashed = h1 + h2;
+    hashed = h2 + h1;
 
     var parts = hashed.match(/.{1,2}/g);
 
@@ -41,6 +43,24 @@ function getImageCode(sig) {
     return canvas.toDataURL("image/png");
     // var dataURL = canvas.toDataURL("image/png");
     // return dataURL.replace(/^data:image\/(png|jpg);base64,/, "");
+}
+
+/**
+ *
+ * @param sig {string}
+ * Return an rgba color to use
+ */
+function getBGcolor(sig) {
+    // Get the ascii character numbers of all sigs
+    var len = sig.length;
+    var total = 0;
+    for(var i=0; i<len; i++) {
+        total += sig.charCodeAt(i);
+    }
+
+    var numbs = [255-(total % 9), 255-(total % 10),255-(total % 11) ]
+
+    return 'rgba(' + numbs[0] + ',' + numbs[1] + ',' + numbs[2] + ',.9)';
 }
 
 Date.prototype.yyyymmdd = function() {

@@ -45,7 +45,27 @@ var RowRenderMixin = {
 		return content;
 	},
 	renderUser: function() {
-		return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>;
+        // Try and find profile for this user
+        // TODO: Figure out why this is returning latest post by users
+        /*
+        var queryJSON = {}
+        queryJSON.users = [].push(this.props.puff.username);
+        queryJSON.type = 'profile'
+
+        var prof = PuffForum.getPuffList(puffworldprops.view.query,queryJSON,1);
+
+        if(prof.length) {
+
+            return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>;
+
+        } else {
+
+        }
+        */
+
+        return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></span>;
+
+
 	},
 	renderContent: function() {
 		var puff = this.props.puff;
@@ -109,7 +129,7 @@ var RowRenderMixin = {
 
 		return <span key={sig} className="rowReference"><img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}</span>
 	},
-	renderReferences: function() {
+	renderRefs: function() {
 		var iconStyle = {
 			display: 'inline-block',
 			height: '20px',
@@ -158,6 +178,7 @@ var RowRenderMixin = {
 	render_column: function(col, width, maxHeight) {
 		var style = {};
 		style['width'] = (width-1).toString() + 'px';
+
 		if (maxHeight)
 			style['maxHeight'] = maxHeight.toString() + 'em';
 
@@ -260,13 +281,15 @@ var RowView = React.createClass({
 	render: function() {
 		var self = this;
 		var listprop = this.props.list;
+        var cntr = 0;
 
 		// TODO add this to config
 		var top = CONFIG.verticalPadding - 20;
 		var left = CONFIG.leftMargin;
 		var style={
 			right:'30px', top: top, left:left, position: 'absolute'
-		}		
+		}
+
 		var query = this.props.view.query;
 		var filters = this.props.view.filters;
 		var limit = this.state.loaded;
@@ -277,8 +300,10 @@ var RowView = React.createClass({
 		return (
 			<div style={style} className="listview">
 				<RowHeader ref="header" column={this.props.list.column} bar={this.props.list.bar} sort={this.props.list.sort}/>
-				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>{puffs.map(function(puff, index){
-						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} />
+				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
+                    {puffs.map(function(puff, index){
+                        cntr++;
+						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />
 					})}
 					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
 				</div>
@@ -446,6 +471,14 @@ var RowSingle = React.createClass({
 		}
 
 		var classArray = ['listrow'];
+        if(this.props.cntr % 2) {
+            var bgColor = 'rgba(245,245,245,.9)';
+        } else {
+            var bgcolor = 'rgba(255,255,255,.9)';
+        }
+
+
+
         var flaggedPuff = Puffball.Persist.get('flagged') || [];
         var flagged = false;
         var outerPuff = PuffData.getBonus(puff, 'envelope');
@@ -457,7 +490,7 @@ var RowSingle = React.createClass({
 
 		var showIcons = this.props.bar.showIcons == puff.sig;
 		return (
-			<div className={classArray.join(' ')}>
+			<div className={classArray.join(' ')} style={{backgroundColor: bgColor}}>
 				<span className="listcell" >
 					<span className="listbar"><a href="#" onClick={this.handleToggleShowIcons}>
                         <img key={puff.sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(puff.sig)}/>

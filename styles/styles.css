@@ -901,6 +901,11 @@ select:disabled {
     overflow: auto;
 }
 
+.iconSized {
+    max-width: 24px;
+    max-height: 24px;
+}
+
 .score {
     font-family: GudeaBold;
     font-weight: bold;
@@ -1501,7 +1506,7 @@ a.deactive, a.deactive:hover {
     border-left: 1px dotted #ccc;
 }*/
 .listcellborder {
-    border-left: 1px dotted black;
+    /* border-left: 1px dotted black; */
     height: 100%;
     position: absolute;
 }

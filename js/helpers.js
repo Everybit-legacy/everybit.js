@@ -12,13 +12,12 @@ function getImageCode(sig) {
     var blocks = canvas.width / blockSize;
 
     colors = [
-        'rgba(241, 103, 69, .9)',
-        'rgba(255, 198, 93, .9)',
-        'rgba(123, 200, 164, .9)',
-        'rgba(76, 195, 217, .9)',
-        'rgba(147, 100, 141, .9)',
-        'rgba(255, 255, 255, .1)',
-        'rgba(255, 255, 255, .1)'
+        'rgba(139, 136, 255, .99)',
+        'rgba(255, 156, 0 , .99)',
+        'rgba(123, 179, 26, .99)',
+        'rgba(238, 219, 0, .99)',
+        'rgba(204, 51, 51, .99)',
+        'rgba(255, 255, 255, .99)'
     ]
 
     /*
@@ -44,8 +43,32 @@ function getImageCode(sig) {
             var fillIndex = murmurhash3_32_gc(sig, seed)% colors.length
             var fillRgba = colors[fillIndex];
 
-            ctx.fillRect((i*blockSize)+1,(j*blockSize)+1,blockSize,blockSize);
             ctx.fillStyle = fillRgba;
+
+            ctx.fillRect((i*blockSize),(j*blockSize),blockSize,blockSize);
+
+            /*
+            // Line overlay
+            if(i) {
+                ctx.lineWidth = 0.5;
+                ctx.strokeStyle="#0000FF";
+                ctx.beginPath();
+                ctx.moveTo(i*blockSize, 0);
+                ctx.lineTo(i*blockSize, canvas.height);
+                ctx.stroke();
+            }
+
+            if(j) {
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                ctx.moveTo(0, j*blockSize);
+                ctx.lineTo(canvas.width, j*blockSize);
+                ctx.stroke();
+            }
+            */
+
+
+
 
             // $r = array_pop($colors);
             //$g = array_pop($colors);
@@ -53,6 +76,11 @@ function getImageCode(sig) {
 
         }
     }
+
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle="#000000";
+    ctx.strokeRect(0,0,canvas.width,canvas.height);
+
 
     // Get the data-URL formatted image
     // Firefox supports PNG and JPEG. You could check img.src to guess the

@@ -685,9 +685,6 @@ var RowGroupCombined = React.createClass({
 	componentDidMount: function() {
 		this.setState(this.getGroupAndIndex())
 	},*/
-	handleClose: function() {
-		return events.pub('ui/close-relation-group', {'list.relationGroup': false})
-	},
 	render: function() {
 		var originSig = this.props.relationGroup.sig;
 
@@ -710,10 +707,9 @@ var RowGroupCombined = React.createClass({
 		return (
             <div className="rowGroupCombined">
 
-			<div style={{marginTop: '0px', left: '-15px', float: 'left', position: 'relative',height:0}}><a href="#" onClick={this.handleClose}><i className="fa fa-long-arrow-up"></i></a></div>
             <span>
 			<RowGroup puffs={parentGroup} sig={parent} currentIndex={parentIndex} level="parent" />
-			<RowSingle puff={PuffForum.getPuffBySig(middle)} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} clsPlus="center" highlight={highlight}/>
+			<RowGroupCenter onClick={this.handleClose} puff={PuffForum.getPuffBySig(middle)} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} clsPlus="center" highlight={highlight}/>
 			<RowGroup puffs={childGroup} sig={child} currentIndex={childIndex} level="child" />
              </span>
 		</div>
@@ -721,6 +717,18 @@ var RowGroupCombined = React.createClass({
 
 	}
 })
+
+var RowGroupCenter = React.createClass({
+	handleClose: function() {
+		return events.pub('ui/close-relation-group', {'list.relationGroup': false})
+	},
+	render: function() {
+		var collapseIcon = <a href="#" onClick={this.handleClose} className="rowGroupCollapse"><span><i className="fa fa-arrow-down"></i><i className="fa fa-arrow-up"></i></span></a>
+		return <div className="rowGroup">{collapseIcon}<RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} clsPlus="center" highlight={this.props.highlight}/></div>
+	}
+
+})
+
 var RowGroup = React.createClass({
 	handleShowPrevNext: function(offset) {
 		var puffList = this.props.puffs;
@@ -739,12 +747,12 @@ var RowGroup = React.createClass({
 			return <span></span>;
 		var puff = PuffForum.getPuffBySig(this.props.sig);
 
-		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrevNext.bind(this, -1)}><i className="fa fa-fw  fa-caret-square-o-left"></i></a>;
-		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-fw  fa-caret-square-o-right"></i></a>;
-		if (puffList.length == 1) {
+		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrevNext.bind(this, -1)}><i className="fa fa-chevron-left"></i></a>;
+		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-chevron-right"></i></a>;
+		if (puffList.indexOf(puff)-1 < 0)
 			showPrev = <span></span>;
-			showNext = <span></span>;
-		}
+		if (puffList.indexOf(puff)+1 >= puffList.length)
+			showNext = <span></span>
 
 		var classArray=['rowGroup'];
 		if (this.props.iscenter) classArray.push('center')

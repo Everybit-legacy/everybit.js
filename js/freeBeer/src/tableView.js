@@ -126,6 +126,7 @@ var RowRenderMixin = {
     },
 
 	getReferenceIcon: function(sig, type) {
+		if (!sig) return <span></span>;
 		var preview = <span></span>;
 		var puff = PuffForum.getPuffBySig(sig);
 		if (puff.payload && puff.payload.content)
@@ -499,6 +500,7 @@ var RowSingle = React.createClass({
     },
 	render: function() {
 		var puff = this.props.puff;
+		if (!puff.sig) {return <span></span>}
 
 		var columnProp = this.props.column;
 		var columns = Object.keys(columnProp);
@@ -581,13 +583,52 @@ var RowBox = React.createClass({
 	getMoreGroups: function(sig, relation) {
 		var groupArray = [];
 		var group = this.getGroup(sig, relation);
+		var level = 0;
 		while (group.length != 0) {
 			var nextSig = group[0].sig; // default to first item in list
 			// groupArray.push(group.map(PuffForum.getPuffBySig));
 			groupArray.push(group);
+			level = level + 1;
 			group = this.getGroup(nextSig, relation);
 		}
 		return groupArray;
+	},
+	regenerateGroups: function(originSig, targetSig, dir, originLevel) {
+		var group = PB.shallow_copy(this.getGroup(originSig, dir));
+		var firstIndex = -1;
+		for (var i=0; i<group.length && firstIndex==-1; i++) {
+			if (group[i].sig == targetSig)
+				firstIndex = i;
+		}
+		var additionGroups = this.getMoreGroups(targetSig, dir);
+
+		var indexArray = [firstIndex]
+							.concat(additionGroups.map(function(){return 0}));
+		var groupArray = [group].concat(additionGroups);
+
+		var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
+		newSelected = newSelected.slice(0, originLevel).concat(indexArray);
+		var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
+		newGroups = newGroups.slice(0, originLevel).concat(groupArray);
+		var newStateToSet = {};
+		newStateToSet[dir+'Selected'] = newSelected;
+		newStateToSet[dir+'Groups'] = newGroups;
+		this.setState(newStateToSet);
+		return false;
+	},
+	handleShowPrevNext: function(offset, originalPuff, dir, level) {
+		var currentLevel = this.state[dir+'Groups'][level];
+		var newIndex = this.state[dir+'Selected'][level] + offset;
+		console.log(this.state[dir+'Selected'][level], offset, level)
+		var targetSig = currentLevel[newIndex].sig;
+		console.log(targetSig, newIndex)
+
+		var prevLevelSig = this.props.puff.sig;
+		if (level > 0) {
+			var prevLevelIndex = this.state[dir+'Selected'][level-1];
+			prevLevelSig = this.state[dir+'Groups'][level-1][prevLevelIndex.toString()].sig;
+		}
+		return this.regenerateGroups(prevLevelSig, targetSig, dir, level);
 	},
 	handleClickReference: function(targetSig, targetDir, originSig, originDir, originLevel) {
 		if (originDir == 'main') {
@@ -596,29 +637,9 @@ var RowBox = React.createClass({
 				this.setState({expandParent: true});
 			}
 		}
-		console.log(targetDir, originDir)
 		if (originDir == "main" || targetDir == originDir) {
 			var dir = targetDir;
-			var group = PB.shallow_copy(this.getGroup(originSig, dir));
-			var firstIndex = -1;
-			for (var i=0; i<group.length && firstIndex==-1; i++) {
-				if (group[i].sig == targetSig)
-					firstIndex = i;
-			}
-			var additionGroups = this.getMoreGroups(targetSig, dir);
-
-			var indexArray = [firstIndex]
-								.concat(additionGroups.map(function(){return 0}));
-			var groupArray = [group].concat(additionGroups);
-
-			var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
-			newSelected = newSelected.slice(0, originLevel).concat(indexArray);
-			var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
-			newGroups = newGroups.slice(0, originLevel).concat(groupArray);
-			var newStateToSet = {};
-			newStateToSet[dir+'Selected'] = newSelected;
-			newStateToSet[dir+'Groups'] = newGroups;
-			this.setState(newStateToSet);
+			return this.regenerateGroups(originSig, targetSig, dir, originLevel)
 		}
 		return false;
 	},
@@ -631,6 +652,7 @@ var RowBox = React.createClass({
 		if (!this.state.expandParent && !this.state.expandChildren)
 			return <RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;
 		var highlight = [];
+		var self = this;
 
 		var parentGroupsCombined = <span></span>;
 		if (this.state.expandParent) {
@@ -649,7 +671,7 @@ var RowBox = React.createClass({
 				// for display, need to reverse parentGroups and parentSelected
 				parentGroups.reverse();
 				parentSelected.reverse();
-
+				var totalLevel = parentGroups.length;
 				parentGroupsCombined = <div>
 					{parentGroups.map(function(group, index){
 						var puffIndex = parentSelected[index];
@@ -658,10 +680,13 @@ var RowBox = React.createClass({
 						var highlight = [];
 						if (typeof parentSelected[index-1] !== 'undefined') {
 							var p = parentGroups[index-1][parentSelected[index-1]];
-							p = p.sig ? p.sig : p;
-							highlight.push(p);
+							if (p) {
+								p = p.sig ? p.sig : p;
+								highlight.push(p);
+							}
 						} 
-						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={index} highlight={highlight} boxClickReference={this.handleClickReference}/>
+						var level = totalLevel - 1 - index;
+						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} />
 					})}
 				</div>
 			}
@@ -859,7 +884,11 @@ var RowGroupCenter = React.createClass({
 
 var RowGroup = React.createClass({
 	handleShowPrevNext: function(offset) {
-		var puffList = this.props.puffs;
+		var boxShowPrevNext = this.props.boxShowPrevNext;
+		if (!boxShowPrevNext) return false;
+
+		return boxShowPrevNext(offset, PuffForum.getPuffBySig(this.props.sig), this.props.direction, this.props.level);
+		/*var puffList = this.props.puffs;
 		var puff = PuffForum.getPuffBySig(this.props.sig);
 
 		var total = this.props.puffs.length;
@@ -867,13 +896,13 @@ var RowGroup = React.createClass({
 		var index = (puffList.indexOf(puff) + offset + total) % total;
 		var setJSON = {};
 		setJSON['list.relationGroup.'+this.props.level] = this.props.puffs[index].sig;
-		return events.pub('ui/relation-group/change-'+this.props.level, setJSON);
+		return events.pub('ui/relation-group/change-'+this.props.level, setJSON);*/
 	},
 	render: function() {
 		var puffList = this.props.puffs;
-		if (!puffList || !puffList.length)
-			return <span></span>;
 		var puff = PuffForum.getPuffBySig(this.props.sig);
+		if (!puffList || !puffList.length || !puff)
+			return <span></span>;
 
 		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrevNext.bind(this, -1)}><i className="fa fa-chevron-left"></i></a>;
 		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-chevron-right"></i></a>;

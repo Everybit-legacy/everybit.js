@@ -648,6 +648,10 @@ var RowBox = React.createClass({
 			this.setState(this.getInitialState());
 		}
 	},
+	handleClose: function() {
+		this.setState(this.getInitialState());
+		return false;
+	},
 	render: function() {
 		if (!this.state.expandParent && !this.state.expandChildren)
 			return <RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;

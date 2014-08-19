@@ -11,6 +11,17 @@ function getImageCode(sig) {
     var blockSize = 6;
     var blocks = canvas.width / blockSize;
 
+    colors = [
+        'rgba(241, 103, 69, .9)',
+        'rgba(255, 198, 93, .9)',
+        'rgba(123, 200, 164, .9)',
+        'rgba(76, 195, 217, .9)',
+        'rgba(147, 100, 141, .9)',
+        'rgba(255, 255, 255, .1)',
+        'rgba(255, 255, 255, .1)'
+    ]
+
+    /*
     // TODO: Do this as often as needed
     var h1 = Bitcoin.Crypto.MD5(sig);
     var h2 = Bitcoin.Crypto.MD5(sig+h1);
@@ -18,15 +29,23 @@ function getImageCode(sig) {
 
     var parts = hashed.match(/.{1,2}/g);
 
-    colors = [];
+    // Change into blocks of 6, find closest, then split apart.
+    */
 
-    dec = parts.map( function(item) { return parseInt(item, 16); } );
+
+
+
+    // dec = parts.map( function(item) { return parseInt(item, 16); } );
+
 
     for (var i = 0; i < blocks; i++) {
         for(var j = 0; j < blocks; j++) {
+            seed = Math.pow(2,i)+Math.pow(3,j);
+            var fillIndex = murmurhash3_32_gc(sig, seed)% colors.length
+            var fillRgba = colors[fillIndex];
 
-            ctx.fillRect((i*blockSize),(j*blockSize),blockSize,blockSize);
-            ctx.fillStyle=ctx.fillStyle = 'rgba('+dec.pop()+ ', '+dec.pop()+ ','+dec.pop()+ ',.7)';
+            ctx.fillRect((i*blockSize)+1,(j*blockSize)+1,blockSize,blockSize);
+            ctx.fillStyle = fillRgba;
 
             // $r = array_pop($colors);
             //$g = array_pop($colors);
@@ -83,3 +102,69 @@ Date.prototype.ymdhis = function() {
 
     return yyyy + '-' + (mm[1]?mm:"0"+mm[0]) + '-' + (dd[1]?dd:"0"+dd[0]) + ' ' + hh+':'+mn+':'+ss;
 };
+
+
+/**
+ * JS Implementation of MurmurHash3 (r136) (as of May 20, 2011)
+ *
+ * @author <a href="mailto:gary.court@gmail.com">Gary Court</a>
+ * @see http://github.com/garycourt/murmurhash-js
+ * @author <a href="mailto:aappleby@gmail.com">Austin Appleby</a>
+ * @see http://sites.google.com/site/murmurhash/
+ *
+ * @param {string} key ASCII only
+ * @param {number} seed Positive integer only
+ * @return {number} 32-bit positive integer hash
+ */
+
+function murmurhash3_32_gc(key, seed) {
+    var remainder, bytes, h1, h1b, c1, c1b, c2, c2b, k1, i;
+
+    remainder = key.length & 3; // key.length % 4
+    bytes = key.length - remainder;
+    h1 = seed;
+    c1 = 0xcc9e2d51;
+    c2 = 0x1b873593;
+    i = 0;
+
+    while (i < bytes) {
+        k1 =
+            ((key.charCodeAt(i) & 0xff)) |
+            ((key.charCodeAt(++i) & 0xff) << 8) |
+            ((key.charCodeAt(++i) & 0xff) << 16) |
+            ((key.charCodeAt(++i) & 0xff) << 24);
+        ++i;
+
+        k1 = ((((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16))) & 0xffffffff;
+        k1 = (k1 << 15) | (k1 >>> 17);
+        k1 = ((((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16))) & 0xffffffff;
+
+        h1 ^= k1;
+        h1 = (h1 << 13) | (h1 >>> 19);
+        h1b = ((((h1 & 0xffff) * 5) + ((((h1 >>> 16) * 5) & 0xffff) << 16))) & 0xffffffff;
+        h1 = (((h1b & 0xffff) + 0x6b64) + ((((h1b >>> 16) + 0xe654) & 0xffff) << 16));
+    }
+
+    k1 = 0;
+
+    switch (remainder) {
+        case 3: k1 ^= (key.charCodeAt(i + 2) & 0xff) << 16;
+        case 2: k1 ^= (key.charCodeAt(i + 1) & 0xff) << 8;
+        case 1: k1 ^= (key.charCodeAt(i) & 0xff);
+
+            k1 = (((k1 & 0xffff) * c1) + ((((k1 >>> 16) * c1) & 0xffff) << 16)) & 0xffffffff;
+            k1 = (k1 << 15) | (k1 >>> 17);
+            k1 = (((k1 & 0xffff) * c2) + ((((k1 >>> 16) * c2) & 0xffff) << 16)) & 0xffffffff;
+            h1 ^= k1;
+    }
+
+    h1 ^= key.length;
+
+    h1 ^= h1 >>> 16;
+    h1 = (((h1 & 0xffff) * 0x85ebca6b) + ((((h1 >>> 16) * 0x85ebca6b) & 0xffff) << 16)) & 0xffffffff;
+    h1 ^= h1 >>> 13;
+    h1 = ((((h1 & 0xffff) * 0xc2b2ae35) + ((((h1 >>> 16) * 0xc2b2ae35) & 0xffff) << 16))) & 0xffffffff;
+    h1 ^= h1 >>> 16;
+
+    return h1 >>> 0;
+}

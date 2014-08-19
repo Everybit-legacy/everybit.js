@@ -170,15 +170,6 @@ section {
 }
 
 
-#talltree .parent .txt {
-}
-#talltree .sibling .txt {
-    /*background-color: #fafaec;*/
-}
-#talltree .child .txt {
-    /*background-color: #fffafc;*/
-}
-
 #talltree .txt {
     padding: 0px 12px 12px 12px;
 }
@@ -1559,7 +1550,8 @@ a.deactive, a.deactive:hover {
 }
 
 .rowReference.highlight img {
-    border: 3px solid #ccc;
+    outline: 2px dotted #222;
+    margin: 2px;
 }
 
 .rowReferencePreview {
@@ -1600,18 +1592,27 @@ a.deactive, a.deactive:hover {
 }
 
 .rowGroupCombined {
-    margin: 10px 0;
-    border: 3px solid black;
+    margin: 12px 0px 12px 15px;
+    border-right: 2px dotted #222222;
+    border-left: 4px solid #888888;
     background-color: #fff;
 }
+.rowGroupCombinedRider {
+    position: absolute;
+    background-color: #000000;
+    width: 10px;
+    border: 1px solid #000000;
+    left: -10px;
+}
+
 .rowGroup {
     position: relative;
 }
 .rowGroup .listrow {
-    background-color: rgba(194, 245, 218, 0.75);
+    background-color: rgba(245, 245, 245, 0.9);
 }
 .center.listrow {
-    background-color: #fff;
+    /* background-color: #fff; */
 }
 .rowGroupArrowLeft {
     position: absolute;

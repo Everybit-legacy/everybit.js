@@ -506,9 +506,11 @@ var RowSingle = React.createClass({
 		}
 
 		var classArray = ['listrow'];
+        /*
 		if (this.props.clsPlus) {
 			classArray.push(this.props.clsPlus)
 		}
+		*/
 
         var flaggedPuff = Puffball.Persist.get('flagged') || [];
         var flagged = false;
@@ -519,11 +521,18 @@ var RowSingle = React.createClass({
             flagged = true;
         }	
 
-        if(this.props.cntr % 2) {
-            var bgColor = 'rgba(245,245,245,.9)';
+
+        if(this.props.clsPlus == "center") {
+            var bgColor = 'rgba(254,254,254,.9)';
+        } else if(this.props.inGroup) {
+            var bgColor = 'rgba(244,244,244,.9)';
         } else {
-            var bgcolor = 'rgba(255,255,255,.9)';
-        }	
+            if(this.props.cntr % 2) {
+                var bgColor = 'rgba(245,245,245,.9)';
+            } else {
+                var bgColor = 'rgba(255,255,254,.9)';
+            }
+        }
 
 		var showIcons = this.props.bar.showIcons == puff.sig;
 		return (
@@ -698,12 +707,17 @@ var RowGroupCombined = React.createClass({
 
 		var middle = this.props.middle;
 
-		return <div className="rowGroupCombined">
-			<div style={{width: '100%', marginTop: '3px'}}><a href="#" onClick={this.handleClose}><i className="fa fa-fw fa-times-circle-o"></i></a></div>
-			<RowGroup puffs={parentGroup} sig={parent} currentIndex={parentIndex} level="parent"/>
+		return (
+            <div className="rowGroupCombined">
+
+			<div style={{marginTop: '0px', left: '-15px', float: 'left', position: 'relative',height:0}}><a href="#" onClick={this.handleClose}><i className="fa fa-long-arrow-up"></i></a></div>
+            <span>
+			<RowGroup puffs={parentGroup} sig={parent} currentIndex={parentIndex} level="parent" />
 			<RowSingle puff={PuffForum.getPuffBySig(middle)} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} clsPlus="center" highlight={highlight}/>
-			<RowGroup puffs={childGroup} sig={child} currentIndex={childIndex} leve="child" />
+			<RowGroup puffs={childGroup} sig={child} currentIndex={childIndex} level="child" />
+             </span>
 		</div>
+            )
 
 	}
 })

@@ -135,7 +135,7 @@ var RowRenderMixin = {
 		if (highlight.indexOf(sig) != -1) {
 			classArray.push('highlight')
 		}
-		return <a key={sig} className={classArray.join(' ')} onClick={this.handleShowRelationGroup.bind(this, sig, type)}>
+		return <a key={sig} className={classArray.join(' ')} onClick={this.handleClickReference.bind(this, sig, type)}>
 			<img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}
 		</a>
 	},
@@ -315,12 +315,7 @@ var RowView = React.createClass({
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
                     {puffs.map(function(puff, index){
                         cntr++;
-                        if (listprop.relationGroup && listprop.relationGroup.sig == puff.sig) {
-                        	var parent = listprop.relationGroup.parent;
-                        	var child = listprop.relationGroup.child;
-                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} relationGroup={self.props.list.relationGroup}/>
-                        }
-						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />
+						return <RowBox key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />
 					})}
 					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
 				</div>
@@ -328,6 +323,13 @@ var RowView = React.createClass({
 		)
 	}
 })
+
+/*if (listprop.relationGroup && listprop.relationGroup.sig == puff.sig) {
+                        	var parent = listprop.relationGroup.parent;
+                        	var child = listprop.relationGroup.child;
+                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} relationGroup={self.props.list.relationGroup}/>
+                        }
+						return <RowSingle key={index} puff={puff} column={self.props.list.column} bar={self.props.list.bar}  view={self.props.view} cntr={cntr} />*/
 
 var RowViewColOptions = React.createClass({
 	handleCheck: function(col) {
@@ -490,6 +492,11 @@ var RowSingle = React.createClass({
     	relationGroup = {"parent": parent, "child": child, "sig": rowSig}
     	return events.pub('ui/show-relation-group', {'list.relationGroup': relationGroup} )
     },
+    handleClickReference: function(sig, dir) {
+    	var boxClickReference = this.props.boxClickReference;
+    	if (typeof boxClickReference === "undefined") return false;
+    	return boxClickReference(sig, dir, this.props.puff.sig, this.props.direction, this.props.level)
+    },
 	render: function() {
 		var puff = this.props.puff;
 
@@ -552,6 +559,127 @@ var RowSingle = React.createClass({
 	}
 })
 
+var RowBox = React.createClass({
+	getInitialState: function() {
+		var sig = this.props.puff.sig;
+		return {
+			expandParent: false, 
+			parentSelected: [],
+			parentGroups: [],
+			// expandChildren: false,
+			// childGroupss: this.getMoreGroups(sig, 'child')
+		}
+	},
+	getGroup: function(originSig, relation) {
+		var group = PuffData.graph.v(originSig).out(relation).run();
+		group = group
+				.map(function(v){return v.shell})
+				.filter(Boolean)
+				.filter(function(s, i, array){return i == array.indexOf(s)});
+		return group;
+	},
+	getMoreGroups: function(sig, relation) {
+		var groupArray = [];
+		var group = this.getGroup(sig, relation);
+		while (group.length != 0) {
+			var nextSig = group[0].sig; // default to first item in list
+			// groupArray.push(group.map(PuffForum.getPuffBySig));
+			groupArray.push(group);
+			group = this.getGroup(nextSig, relation);
+		}
+		return groupArray;
+	},
+	handleClickReference: function(targetSig, targetDir, originSig, originDir, originLevel) {
+		if (originDir == 'main') {
+			originLevel = 0;
+			if (targetDir == 'parent') {
+				this.setState({expandParent: true});
+			}
+		}
+		console.log(targetDir, originDir)
+		if (originDir == "main" || targetDir == originDir) {
+			var dir = targetDir;
+			var group = PB.shallow_copy(this.getGroup(originSig, dir));
+			var firstIndex = -1;
+			for (var i=0; i<group.length && firstIndex==-1; i++) {
+				if (group[i].sig == targetSig)
+					firstIndex = i;
+			}
+			var additionGroups = this.getMoreGroups(targetSig, dir);
+
+			var indexArray = [firstIndex]
+								.concat(additionGroups.map(function(){return 0}));
+			var groupArray = [group].concat(additionGroups);
+
+			var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
+			newSelected = newSelected.slice(0, originLevel).concat(indexArray);
+			var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
+			newGroups = newGroups.slice(0, originLevel).concat(groupArray);
+			var newStateToSet = {};
+			newStateToSet[dir+'Selected'] = newSelected;
+			newStateToSet[dir+'Groups'] = newGroups;
+			this.setState(newStateToSet);
+		}
+		return false;
+	},
+	componentDidUpdate: function(prevProps) {
+		if (prevProps.puff != this.props.puff) {
+			this.setState(this.getInitialState());
+		}
+	},
+	render: function() {
+		if (!this.state.expandParent && !this.state.expandChildren)
+			return <RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;
+		var highlight = [];
+
+		var parentGroupsCombined = <span></span>;
+		if (this.state.expandParent) {
+			var parentGroups = PB.shallow_copy(this.state.parentGroups);
+			if (parentGroups.length) {
+				var parentSelected = PB.shallow_copy(this.state.parentSelected);
+				if (!parentSelected || !parentSelected.length) {
+					parentSelected = parentGroups.map(function(){return 0});
+				}
+
+				// add first parent to highlight
+				var parent = parentGroups[0][parentSelected[0]];
+				parent = parent.sig ? parent.sig : parent;
+				highlight.push(parent);
+
+				// for display, need to reverse parentGroups and parentSelected
+				parentGroups.reverse();
+				parentSelected.reverse();
+
+				parentGroupsCombined = <div>
+					{parentGroups.map(function(group, index){
+						var puffIndex = parentSelected[index];
+						var parent = group[puffIndex];
+
+						var highlight = [];
+						if (typeof parentSelected[index-1] !== 'undefined') {
+							var p = parentGroups[index-1][parentSelected[index-1]];
+							p = p.sig ? p.sig : p;
+							highlight.push(p);
+						} 
+						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={index} highlight={highlight} boxClickReference={this.handleClickReference}/>
+					})}
+				</div>
+			}
+		}
+
+		var collapseIcon = <a href="#" onClick={this.handleClose} className="rowGroupCollapse"><span><i className="fa fa-arrow-down"></i><i className="fa fa-arrow-up"></i></span></a>
+
+		return (
+        <div className="rowGroupCombined">
+            {parentGroupsCombined}
+            <div className="rowGroup">
+            	{collapseIcon}
+				<RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>;
+            </div>
+		</div>
+        )
+	}
+})
 
 var RowBar = React.createClass({
 	mixins: [TooltipMixin],
@@ -754,12 +882,9 @@ var RowGroup = React.createClass({
 		if (puffList.indexOf(puff)+1 >= puffList.length)
 			showNext = <span></span>
 
-		var classArray=['rowGroup'];
-		if (this.props.iscenter) classArray.push('center')
-
-		return <div className={classArray.join(' ')}>
+		return <div className='rowGroup'>
 			{showPrev}
-			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} inGroup={true}/>
+			<RowSingle puff={puff} column={puffworldprops.list.column} bar={puffworldprops.list.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} boxClickReference={this.props.boxClickReference}/>
 			{showNext}
 		</div>
 	}

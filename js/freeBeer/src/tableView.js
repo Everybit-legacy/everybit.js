@@ -292,10 +292,6 @@ var TableView = React.createClass({
 			this.setState({headerHeight: headerNode.offsetHeight});
 		}
 	},
-	handleClickReferenceInList: function(sig) {
-		return events.pub('ui/show-generation', {'view.query.focus': sig,
-												 'view.table.format': 'generation'})
-	},
 	render: function() {
 		var self = this;
         var cntr = 0;
@@ -322,7 +318,7 @@ var TableView = React.createClass({
 					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
 	                    {puffs.map(function(puff, index){
 	                        cntr++;
-							return <RowSingle key={index} puff={puff} cntr={cntr} direction="main" boxClickReference={self.handleClickReferenceInList}/>;
+							return <RowSingle key={index} puff={puff} cntr={cntr} />;
 						})}
 						<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
 					</div>
@@ -334,12 +330,12 @@ var TableView = React.createClass({
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
-						<RowBox puff={PuffForum.getPuffBySig(focus)} />
+						<RowBox puff={PuffForum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
 					</div>
 				</div>
 			)
 		}
-
+		return <span></span>
 	}
 })
 
@@ -505,10 +501,11 @@ var RowSingle = React.createClass({
     	relationGroup = {"parent": parent, "child": child, "sig": rowSig}
     	return events.pub('ui/view/show-relation-group', {'view.table.relationGroup': relationGroup} )
     },
-    handleClickReference: function(sig, dir) {
-    	var boxClickReference = this.props.boxClickReference;
-    	if (typeof boxClickReference === "undefined") return false;
-    	return boxClickReference(sig, dir, this.props.puff.sig, this.props.direction, this.props.level)
+    handleClickReference: function(sig) {
+		return events.pub('ui/show-generation', {'view.query.focus': this.props.puff.sig,
+												 'view.table.lastClick': sig,
+												 'view.table.format': 'generation',
+												 'view.filters': {}})
     },
 	render: function() {
 		var puff = this.props.puff;
@@ -527,11 +524,6 @@ var RowSingle = React.createClass({
 		}
 
 		var classArray = ['listrow'];
-        /*
-		if (this.props.clsPlus) {
-			classArray.push(this.props.clsPlus)
-		}
-		*/
 
         var flaggedPuff = Puffball.Persist.get('flagged') || [];
         var flagged = false;
@@ -542,26 +534,27 @@ var RowSingle = React.createClass({
             flagged = true;
         }	
 
-
-        if(this.props.clsPlus == "center") {
-            var bgColor = 'rgba(254,254,254,.9)';
-        } else if(this.props.direction != 'main') {
-            if((this.props.level+this.props.cntr) % 2) {
-                var bgColor = 'rgba(255,255,254,.9)';
-            } else {
-                var bgColor = 'rgba(245,245,245,.9)';
-            }
-        } else {
+        var additionStyle = {};
+        if (!this.props.direction) {
             if(this.props.cntr % 2) {
-                var bgColor = 'rgba(245,245,245,.9)';
+                additionStyle.backgroundColor = 'rgba(245,245,245,.9)';
             } else {
-                var bgColor = 'rgba(255,255,254,.9)';
+                additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
             }
+        } else if (this.props.direction == 'main') {
+            additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
+            additionStyle.outline = '2px solid'
+        } else {
+	        if(this.props.level % 2) {
+	            additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
+	        } else {
+	            additionStyle.backgroundColor = 'rgba(245,245,245,.9)';
+	        }
         }
 
 		var showIcons = (puffworldprops.view.table.bar.showIcons == puff.sig);
 		return (
-			<div className={classArray.join(' ')} style={{backgroundColor: bgColor}}>
+			<div className={classArray.join(' ')} style={additionStyle}>
 				<span className="listcell" >
 					<span className="listbar"><a href="#" onClick={this.handleToggleShowIcons}>
                         <img key={puff.sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(puff.sig)}/>
@@ -579,13 +572,11 @@ var RowSingle = React.createClass({
 
 var RowBox = React.createClass({
 	getInitialState: function() {
-		var sig = this.props.puff.sig;
 		return {
-			// expandParent: false, 
 			parentSelected: [],
-			parentGroups: []
-			// expandChildren: false,
-			// childGroupss: this.getMoreGroups(sig, 'child')
+			parentGroups: [], 
+			childSelected: [],
+			childGroups: []
 		}
 	},
 	getGroup: function(originSig, relation) {
@@ -610,26 +601,44 @@ var RowBox = React.createClass({
 		return groupArray;
 	},
 	regenerateGroups: function(originSig, targetSig, dir, originLevel) {
-		var group = PB.shallow_copy(this.getGroup(originSig, dir));
+		var group = this.getGroup(originSig, dir);
+		if (!group.length) {
+			var newStateToSet = {};
+			newStateToSet[dir+'Selected'] = [];
+			newStateToSet[dir+'Groups'] = [];
+			return this.setState(newStateToSet);
+		}
+
 		var firstIndex = -1;
 		for (var i=0; i<group.length && firstIndex==-1; i++) {
 			if (group[i].sig == targetSig)
 				firstIndex = i;
 		}
-		if (!targetSig.length) {
+		if (firstIndex == -1) {
 			firstIndex = 0;
-			target = group[0]
+			targetSig = group[0]
 		}
-		var additionGroups = this.getMoreGroups(targetSig, dir);
+		var additionGroups = targetSig.length ? this.getMoreGroups(targetSig, dir) : [];
 
 		var indexArray = [firstIndex]
 							.concat(additionGroups.map(function(){return 0}));
 		var groupArray = [group].concat(additionGroups);
 
 		var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
-		newSelected = newSelected.slice(0, originLevel).concat(indexArray);
+		if (originLevel != -1) {
+			newSelected = newSelected.slice(0, originLevel+1)			
+		} else {
+			newSelected = [];
+		}
+		newSelected = newSelected.concat(indexArray);
+
 		var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
-		newGroups = newGroups.slice(0, originLevel).concat(groupArray);
+		if (originLevel != -1) {
+			newGroups = newGroups.slice(0, originLevel+1)
+		} else {
+			newGroups = [];
+		}
+		newGroups = newGroups.concat(groupArray);
 		var newStateToSet = {};
 		newStateToSet[dir+'Selected'] = newSelected;
 		newStateToSet[dir+'Groups'] = newGroups;
@@ -646,43 +655,30 @@ var RowBox = React.createClass({
 			var prevLevelIndex = this.state[dir+'Selected'][level-1];
 			prevLevelSig = this.state[dir+'Groups'][level-1][prevLevelIndex.toString()].sig;
 		}
-		return this.regenerateGroups(prevLevelSig, targetSig, dir, level);
+		return this.regenerateGroups(prevLevelSig, targetSig, dir, level-1);
 	},
-	handleClickReference: function(targetSig, targetDir, originSig, originDir, originLevel) {
-		return events.pub('ui/show-generation', {'view.query.focus': targetSig,
-												 'view.table.format': 'generation'})
-		/*
-		if (originDir == 'main') {
-			originLevel = 0;
-			if (targetDir == 'parent') {
-				this.setState({expandParent: true});
-			}
-		}
-		if (originDir == "main" || targetDir == originDir) {
-			var dir = targetDir;
-			return this.regenerateGroups(originSig, targetSig, dir, originLevel)
-		}
-		return false;*/
+	getInitialGroups: function() {
+		var lastClick = puffworldprops.view.table.lastClick || "";
+		this.regenerateGroups(this.props.puff.sig, lastClick, 'parent', -1);
+		this.regenerateGroups(this.props.puff.sig, lastClick, 'child', -1);
 	},
-	componentDidUpdate: function(prevProps) {
-		if (prevProps.puff != this.props.puff) {
-			this.componentDidMount();
+	componentDidUpdate: function(prevProps, prevState) {
+		if (prevProps.puff != this.props.puff || prevProps.lastClick != this.props.lastClick) {
+			this.getInitialGroups();
+			this.refs.main.getDOMNode().scrollIntoView(true)
 		}
 	},
 	componentDidMount: function() {
-		var parentGroups = this.getMoreGroups(this.props.puff.sig, 'parent');
-		var parentSelected = parentGroups.map(function(){return 0});
-		this.setState({'parentSelected': parentSelected,
-					   'parentGroups': parentGroups})
+		this.getInitialGroups();
 	},
 	handleClose: function() {
-		// this.setState(this.getInitialState());
 		return events.pub('ui/switch-to-list', {'view.table.format': 'list'});
 	},
 	render: function() {
 		var highlight = [];
 		var self = this;
 
+		// parent
 		var parentGroupsCombined = <span></span>;
 		var parentGroups = PB.shallow_copy(this.state.parentGroups);
 		if (parentGroups.length) {
@@ -713,8 +709,59 @@ var RowBox = React.createClass({
 							highlight.push(p);
 						}
 					} 
+					if (typeof parentSelected[index+1] !== 'undefined') {
+						var p = parentGroups[index+1][parentSelected[index+1]];
+						if (p) {
+							p = p.sig ? p.sig : p;
+							highlight.push(p);
+						}
+					} else {
+						highlight.push(self.props.puff.sig)
+					}
 					var level = totalLevel - 1 - index;
-					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
+					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
+				})}
+			</div>
+		}
+
+		// child
+		var childGroupsCombined = <span></span>;
+		var childGroups = PB.shallow_copy(this.state.childGroups);
+		if (childGroups.length) {
+			var childSelected = PB.shallow_copy(this.state.childSelected);
+			if (!childSelected || !childSelected.length) {
+				childSelected = childGroups.map(function(){return 0});
+			}
+
+			// add first child to highlight
+			var child = childGroups[0][childSelected[0]];
+			child = child.sig ? child.sig : child;
+			highlight.push(child);
+
+			childGroupsCombined = <div>
+				{childGroups.map(function(group, index){
+					var puffIndex = childSelected[index];
+					var child = group[puffIndex];
+
+					var highlight = [];
+					if (typeof childSelected[index+1] !== 'undefined') {
+						var p = childGroups[index+1][childSelected[index+1]];
+						if (p) {
+							p = p.sig ? p.sig : p;
+							highlight.push(p);
+						}
+					} 
+					if (typeof childSelected[index-1] !== 'undefined') {
+						var p = childGroups[index-1][childSelected[index+1]];
+						if (p) {
+							p = p.sig ? p.sig : p;
+							highlight.push(p);
+						}
+					} else {
+						highlight.push(self.props.puff.sig)
+					}
+					var level = index;
+					return <RowGroup key={"child"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
 				})}
 			</div>
 		}
@@ -724,10 +771,11 @@ var RowBox = React.createClass({
 		return (
         <div className="rowBox">
             {parentGroupsCombined}
-            <div className="rowGroup">
+            <div className="rowGroup" ref="main">
             	{collapseIcon}
-				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>
+				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" highlight={highlight} level={-1}/>
             </div>
+            {childGroupsCombined}
 		</div>
         )
 	}
@@ -740,7 +788,6 @@ var RowGroup = React.createClass({
 
 		return boxShowPrevNext(offset, PuffForum.getPuffBySig(this.props.sig), this.props.direction, this.props.level);
 	},
-
 	render: function() {
 		var puffList = this.props.puffs;
 		var puff = PuffForum.getPuffBySig(this.props.sig);
@@ -756,7 +803,7 @@ var RowGroup = React.createClass({
 
 		return <div className='rowGroup'>
 			{showPrev}
-			<RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} boxClickReference={this.props.boxClickReference} cntr={this.props.cntr} />
+			<RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} cntr={this.props.cntr} />
 			{showNext}
 		</div>
 	}

@@ -145,6 +145,7 @@ puffworldprops = {
                 column: 'date',
                 desc: true
             },
+            lastClick: "",
             format: 'list'
         }
     },

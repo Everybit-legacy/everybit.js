@@ -11,7 +11,7 @@ var ComputeDimensionMixin = {
 		return rowHeight - 3; // TODO : add this to CONFIG
 	},
 	getColumnWidth: function(c){
-		var columnProps = this.props.column;
+		var columnProps = puffworldprops.view.table.column;
 		var columnArr = Object.keys(columnProps);
 		columnArr = columnArr.filter(function(c){return columnProps[c].show});
 
@@ -255,7 +255,7 @@ var TableView = React.createClass({
 	checkMorePuff: function() {
 		var query = PB.shallow_copy(this.props.view.query);
 		query.offset = (+query.offset || 0) + this.state.loaded;
-		var filters = this.props.view.filters;
+		var filters = puffworldprops.view.filters;
 		var limit = 10;
 		var puffs = PuffForum.getPuffList(query, filters, limit);
 		if ((!puffs) || (puffs.length == 0))
@@ -265,8 +265,8 @@ var TableView = React.createClass({
 
 	},
 	sortPuffs: function(puffs) {
-		var col = this.props.table.sort.column;
-		var desc = this.props.table.sort.desc;
+		var col = puffworldprops.view.table.sort.column;
+		var desc = puffworldprops.view.table.sort.desc;
 		puffs = puffs || [];
 		var fn = this.sort_column(col);
 		if (fn === false) {
@@ -293,7 +293,6 @@ var TableView = React.createClass({
 	},
 	render: function() {
 		var self = this;
-		var tableprop = this.props.table;
         var cntr = 0;
 
 		// TODO add this to config
@@ -303,8 +302,8 @@ var TableView = React.createClass({
 			right:'30px', top: top, left:left, position: 'absolute'
 		}
 
-		var query = this.props.view.query;
-		var filters = this.props.view.filters;
+		var query = puffworldprops.view.query;
+		var filters = puffworldprops.view.filters;
 		var limit = this.state.loaded;
 		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
 		puffs = this.sortPuffs(puffs);
@@ -312,11 +311,11 @@ var TableView = React.createClass({
 		var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
 		return (
 			<div style={style} className="listview">
-				<RowHeader ref="header" column={this.props.view.table.column} bar={this.props.table.bar} sort={this.props.table.sort}/>
+				<RowHeader ref="header" />
 				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
                     {puffs.map(function(puff, index){
                         cntr++;
-						return <RowBox key={index} puff={puff} column={self.props.view.table.column} bar={self.props.view.table.bar}  view={self.props.view} cntr={cntr} />
+						return <RowBox key={index} puff={puff} cntr={cntr} />
 					})}
 					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
 				</div>
@@ -325,23 +324,17 @@ var TableView = React.createClass({
 	}
 })
 
-/*if (tableprop.relationGroup && tableprop.relationGroup.sig == puff.sig) {
-                        	var parent = tableprop.relationGroup.parent;
-                        	var child = tableprop.relationGroup.child;
-                        	return <RowGroupCombined middle={puff.sig} parent={parent} child={child} relationGroup={self.props.table.relationGroup}/>
-                        }
-						return <RowSingle key={index} puff={puff} column={self.props.view.table.column} bar={self.props.bar}  view={self.props.view} cntr={cntr} />*/
 
 var TableViewColOptions = React.createClass({
 	handleCheck: function(col) {
-		var columnProp = this.props.column;
+		var columnProp = puffworldprops.view.table.column;
 		var currentShow = columnProp[col].show;
 		var jsonToSet = {};
 		jsonToSet['view.table.column.'+col+'.show'] = !currentShow;
 		return events.pub('ui/view/table/col', jsonToSet);
 	},
 	render: function() {
-		var columnProp = this.props.column;
+		var columnProp = puffworldprops.view.table.column;
 		var possibleCols = Object.keys(columnProp);
 		var self = this;
 		return (
@@ -359,13 +352,11 @@ var TableViewColOptions = React.createClass({
 var RowSortIcon = React.createClass({
 	handleSort: function() {
 		var col = this.props.col;
-		if (this.props.sort.column != col) {
-			return events.pub('ui/view/table/sort-by/'+col,
-					{'view.table.sort.column': col})
+		if (puffworldprops.view.table.sort.column != col) {
+			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.column': col})
 		} else {
-			var desc = !this.props.sort.desc;
-			return events.pub('ui/view/table/sort-by/'+col,
-					{'view.table.sort.desc': desc})
+			var desc = !puffworldprops.view.table.sort.desc;
+			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.desc': desc})
 		}
 	},
 	render: function() {
@@ -373,9 +364,12 @@ var RowSortIcon = React.createClass({
 			return <span></span>;
 		var col = this.props.col;
 		var iconClass = "fa-sort";
-		if (this.props.sort.column == col) {
-			if (this.props.sort.desc) iconClass = "fa-sort-desc";
-			else iconClass = "fa-sort-asc";
+		if (puffworldprops.view.table.sort.column == col) {
+            if (puffworldprops.view.table.sort.desc) {
+                iconClass = "fa-sort-desc";
+            } else {
+                iconClass = "fa-sort-asc";
+            }
 		}
 		return <a href="#" onClick={this.handleSort}><i className={"fa fa-fw " + iconClass}></i></a>
 	}
@@ -384,7 +378,7 @@ var RowSortIcon = React.createClass({
 var RowHeader = React.createClass({
 	mixins: [ComputeDimensionMixin, TooltipMixin],
     handleManageCol: function() {
-    	if (this.props.bar.showIcons == 'header') {
+    	if (puffworldprops.view.table.bar.showIcons == 'header') {
 	    	return events.pub('ui/view/table/row/hide-all',
 	    		{'view.table.bar.showIcons': false});
     	} else {
@@ -400,7 +394,7 @@ var RowHeader = React.createClass({
     },
 
 	render: function() {
-		var columnProp = this.props.column;
+		var columnProp = puffworldprops.view.table.column;
 		var columns = Object.keys(columnProp);
 		columns = columns.filter(function(c){return columnProp[c].show});
 		var self = this;
@@ -416,7 +410,7 @@ var RowHeader = React.createClass({
 					</span>
 				</span>
 					<Tooltip content={polyglot.t("tableview.tooltip.colOptions")} />
-				{this.props.bar.showIcons == "header" ? <TableViewColOptions column={columnProp}/> : ""}
+				{puffworldprops.view.table.bar.showIcons == "header" ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
 						width: self.getColumnWidth(c).toString()+'px'
@@ -426,17 +420,12 @@ var RowHeader = React.createClass({
                             <span>
                                 <span className="listcell" key={c} style={style}>
                                     {c}
-                                    <RowSortIcon col={c} allowSort={allowSort} sort={self.props.sort} />
+                                    <RowSortIcon col={c} allowSort={allowSort} />
                                     <span className="listCellOptions">
                                         <a href="#" onClick={self.handleRemove.bind(self,c)} className="btn blue"><i className="fa fa-fw fa-times-circle" /></a>
-
-
-
                                     </span>
                                 </span>
-
                             </span>
-
                         )
 				})}
 			</div>
@@ -451,7 +440,7 @@ var RowSingle = React.createClass({
     },
 	addColumn: function() {
 		var metadata = this.props.puff.payload;
-		var currentColumns = Object.keys(this.props.column);
+		var currentColumns = Object.keys(puffworldprops.view.table.column);
 		for (var col in metadata) {
 			if (metadata[col] && metadata[col].length > 0 && 
 				currentColumns.indexOf(col) == -1 &&
@@ -467,7 +456,7 @@ var RowSingle = React.createClass({
 		this.addColumn();
 	},
     handleToggleShowIcons: function() {
-    	if (this.props.bar.showIcons == this.props.puff.sig) {
+    	if (puffworldprops.view.table.bar.showIcons == this.props.puff.sig) {
 	    	return events.pub('ui/view/table/row/hide-all',
 	    		{'view.table.bar.showIcons': false});
     	} else {
@@ -502,15 +491,15 @@ var RowSingle = React.createClass({
 		var puff = this.props.puff;
 		if (!puff.sig) {return <span></span>}
 
-		var columnProp = this.props.column;
+		var columnProp = puffworldprops.view.table.column;
 		var columns = Object.keys(columnProp);
 		columns = columns.filter(function(c){return columnProp[c].show});
 
 		var self = this;
 
 		// var height = this.computeRowHeight();
-		var maxHeight = puffworldprops.view.rows * 1.4 + 1; // +1 for padding
-		if (this.props.bar.expand == puff.sig) {
+		var maxHeight = (puffworldprops.view.rows * 1.4) + 1; // +1 for padding
+		if (puffworldprops.view.table.bar.expand == puff.sig) {
 			maxHeight = 0;
 		}
 
@@ -533,8 +522,12 @@ var RowSingle = React.createClass({
 
         if(this.props.clsPlus == "center") {
             var bgColor = 'rgba(254,254,254,.9)';
-        } else if(this.props.inGroup) {
-            var bgColor = 'rgba(244,244,244,.9)';
+        } else if(this.props.direction != 'main') {
+            if((this.props.level+this.props.cntr) % 2) {
+                var bgColor = 'rgba(255,255,254,.9)';
+            } else {
+                var bgColor = 'rgba(245,245,245,.9)';
+            }
         } else {
             if(this.props.cntr % 2) {
                 var bgColor = 'rgba(245,245,245,.9)';
@@ -543,7 +536,7 @@ var RowSingle = React.createClass({
             }
         }
 
-		var showIcons = this.props.bar.showIcons == puff.sig;
+		var showIcons = (puffworldprops.view.table.bar.showIcons == puff.sig);
 		return (
 			<div className={classArray.join(' ')} style={{backgroundColor: bgColor}}>
 				<span className="listcell" >
@@ -567,7 +560,7 @@ var RowBox = React.createClass({
 		return {
 			expandParent: false, 
 			parentSelected: [],
-			parentGroups: [],
+			parentGroups: []
 			// expandChildren: false,
 			// childGroupss: this.getMoreGroups(sig, 'child')
 		}
@@ -654,7 +647,7 @@ var RowBox = React.createClass({
 	},
 	render: function() {
 		if (!this.state.expandParent && !this.state.expandChildren)
-			return <RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;
+			return <RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;
 		var highlight = [];
 		var self = this;
 
@@ -690,7 +683,7 @@ var RowBox = React.createClass({
 							}
 						} 
 						var level = totalLevel - 1 - index;
-						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} />
+						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
 					})}
 				</div>
 			}
@@ -703,7 +696,7 @@ var RowBox = React.createClass({
             {parentGroupsCombined}
             <div className="rowGroup">
             	{collapseIcon}
-				<RowSingle puff={this.props.puff} column={this.props.column} bar={this.props.bar} view={this.props.view} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>;
+				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>;
             </div>
 		</div>
         )
@@ -892,16 +885,8 @@ var RowGroup = React.createClass({
 		if (!boxShowPrevNext) return false;
 
 		return boxShowPrevNext(offset, PuffForum.getPuffBySig(this.props.sig), this.props.direction, this.props.level);
-		/*var puffList = this.props.puffs;
-		var puff = PuffForum.getPuffBySig(this.props.sig);
-
-		var total = this.props.puffs.length;
-		if (total == 0) return false;
-		var index = (puffList.indexOf(puff) + offset + total) % total;
-		var setJSON = {};
-		setJSON['table.relationGroup.'+this.props.level] = this.props.puffs[index].sig;
-		return events.pub('ui/relation-group/change-'+this.props.level, setJSON);*/
 	},
+
 	render: function() {
 		var puffList = this.props.puffs;
 		var puff = PuffForum.getPuffBySig(this.props.sig);
@@ -917,7 +902,7 @@ var RowGroup = React.createClass({
 
 		return <div className='rowGroup'>
 			{showPrev}
-			<RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} boxClickReference={this.props.boxClickReference}/>
+			<RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} boxClickReference={this.props.boxClickReference} cntr={this.props.cntr} />
 			{showNext}
 		</div>
 	}

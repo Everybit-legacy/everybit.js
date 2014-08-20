@@ -160,11 +160,12 @@ var RowRenderMixin = {
 							{return self.getReferenceIcon(sig, 'parent')});
 		if (parents.length) {
             parentsEle = (
-                <div>
+                <span>
+                    {parentIcons}
                     <span style={iconStyle}>
-                        <i className="fa fa-fw fa-male"></i>
-                    </span>{parentIcons}
-                </div>
+                        <i className="fa fa-fw fa-arrow-right"></i>
+                    </span>
+                </span>
                 )
         }
 
@@ -176,9 +177,12 @@ var RowRenderMixin = {
 		var childrenIcons = children.map(function(sig) 
 							{return self.getReferenceIcon(sig, 'child')});
 		if (children.length) 
-			childrenEle = <div><span style={iconStyle}><i className="fa fa-fw fa-child"></i></span>{childrenIcons}</div>;
+			childrenEle = <span><span style={iconStyle}><i className="fa fa-fw fa-arrow-right"></i></span>{childrenIcons}</span>;
+
+		var mainEle = <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(this.props.puff.sig)}/>
 		return <div>
 			{parentsEle}
+			{mainEle}
 			{childrenEle}
 		</div>;
 	},
@@ -557,7 +561,7 @@ var RowSingle = React.createClass({
 			<div className={classArray.join(' ')} style={additionStyle}>
 				<span className="listcell" >
 					<span className="listbar"><a href="#" onClick={this.handleToggleShowIcons}>
-                        <img key={puff.sig} style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(puff.sig)}/>
+                        <i className="fa fa-fw fa-wrench"></i>
 					</a></span>
 				{showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 				</span>

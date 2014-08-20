@@ -1509,6 +1509,13 @@ a.deactive, a.deactive:hover {
     top: 0;
     width: 1em;
     font-size: 1em;
+    visibility: hidden;
+}
+.listrow:hover .listbar {
+    visibility: visible;
+}
+.listheader .listbar {
+    visibility: visible;
 }
 
 .listBarIcon {
@@ -1562,6 +1569,7 @@ a.deactive, a.deactive:hover {
     text-align: left;
     border: 1px #222222 dotted;
     display: none;
+    max-width: 300px;
 }
 .rowReference:hover > .rowReferencePreview{
     display: block;

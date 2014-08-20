@@ -99,6 +99,11 @@ puffworldprops = {
         table: {
             relationGroup: false,
             column: {
+                refs: {
+                    show: true,
+                    weight:1,
+                    allowSort: false
+                },
                 user: {
                     show: true,
                     weight: 1.5,
@@ -107,11 +112,6 @@ puffworldprops = {
                 content: {
                     show: true,
                     weight: 3,
-                    allowSort: false
-                },
-                refs: {
-                    show: true,
-                    weight:.8,
                     allowSort: false
                 },
                 date: {

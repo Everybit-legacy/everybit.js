@@ -1509,13 +1509,9 @@ a.deactive, a.deactive:hover {
     top: 0;
     width: 1em;
     font-size: 1em;
+}
+.listbar.hide {
     visibility: hidden;
-}
-.listrow:hover .listbar {
-    visibility: visible;
-}
-.listheader .listbar {
-    visibility: visible;
 }
 
 .listBarIcon {

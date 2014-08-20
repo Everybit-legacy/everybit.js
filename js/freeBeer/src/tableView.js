@@ -396,20 +396,29 @@ var RowSortIcon = React.createClass({
 
 var RowHeader = React.createClass({
 	mixins: [ComputeDimensionMixin, TooltipMixin],
+	getInitialState: function() {
+		return {showColOptions: false}
+	},
     handleManageCol: function() {
-    	if (puffworldprops.view.table.bar.showIcons == 'header') {
+    	this.setState({showColOptions: !this.state.showColOptions})
+    	return false;
+    	/*if (puffworldprops.view.table.bar.showIcons == 'header') {
 	    	return events.pub('ui/view/table/row/hide-all',
 	    		{'view.table.bar.showIcons': false});
     	} else {
 	    	return events.pub('ui/view/table/row/show-all',
 	    		{'view.table.bar.showIcons': 'header'});
-    	}
+    	}*/
     },
 
     handleRemove: function(col) {
         var jsonToSet = {};
         jsonToSet['view.table.column.'+col+'.show'] = false;
         return events.pub('ui/view/table/show-hide/col', jsonToSet);
+    },
+    handleHideColOptions: function() {
+    	this.setState({showColOptions: false});
+    	return false;
     },
 
 	render: function() {
@@ -424,7 +433,7 @@ var RowHeader = React.createClass({
         	headerStyle = {'paddingLeft': '14px'};
         }
 		return (
-			<div className="listrow listheader" key="listHeader" style={headerStyle}>
+			<div className="listrow listheader" key="listHeader" style={headerStyle} onMouseLeave={this.handleHideColOptions}>
 				<span className="listcell" >
 					<span className="listbar">
 						<a href="#" onClick={this.handleManageCol}>
@@ -433,7 +442,7 @@ var RowHeader = React.createClass({
 					</span>
 				</span>
 					<Tooltip content={polyglot.t("tableview.tooltip.colOptions")} />
-				{puffworldprops.view.table.bar.showIcons == "header" ? <TableViewColOptions /> : ""}
+				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
 						width: self.getColumnWidth(c).toString()+'px'
@@ -459,7 +468,9 @@ var RowHeader = React.createClass({
 var RowSingle = React.createClass({
 	mixins: [ComputeDimensionMixin, RowRenderMixin, TooltipMixin],
     getInitialState: function() {
-        return {showAll: false};
+        return { showAll: false, 
+        		 showBar: false,
+        		 showIcons: false};
     },
 	addColumn: function() {
 		var metadata = this.props.puff.payload;
@@ -479,13 +490,8 @@ var RowSingle = React.createClass({
 		this.addColumn();
 	},
     handleToggleShowIcons: function() {
-    	if (puffworldprops.view.table.bar.showIcons == this.props.puff.sig) {
-	    	return events.pub('ui/view/table/row/hide-all',
-	    		{'view.table.bar.showIcons': false});
-    	} else {
-	    	return events.pub('ui/view/table/row/show-all',
-	    		{'view.table.bar.showIcons': this.props.puff.sig});
-    	}
+    	this.setState({showIcons: !this.state.showIcons});
+    	return false;
     },
     handleShowRelationGroup: function(sig, type) {
     	if (this.props.inGroup) return false;
@@ -510,6 +516,15 @@ var RowSingle = React.createClass({
 												 'view.table.lastClick': sig,
 												 'view.table.format': 'generation',
 												 'view.filters': {}})
+    },
+    handleOverRow: function(e){
+    	var showBar = this.state.showBar;
+    	if (showBar) {
+    		this.setState({showBar: false, showIcons: false})
+    	} else {
+    		this.setState({showBar: true})
+    	}
+    	return false;
     },
 	render: function() {
 		var puff = this.props.puff;
@@ -556,14 +571,17 @@ var RowSingle = React.createClass({
 	        }
         }
 
-		var showIcons = (puffworldprops.view.table.bar.showIcons == puff.sig);
+		var showIcons = this.state.showIcons && this.state.showBar;
+		var barClass = ['listbar'];
+		if (!this.state.showBar) {barClass.push('hide')};
 		return (
-			<div className={classArray.join(' ')} style={additionStyle}>
+			<div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
 				<span className="listcell" >
-					<span className="listbar"><a href="#" onClick={this.handleToggleShowIcons}>
+					<span className={barClass.join(' ')} ref="bar"><a href="#" onClick={this.handleToggleShowIcons}>
                         <i className="fa fa-fw fa-wrench"></i>
-					</a></span>
-				{showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+					</a>
+					</span>
+					{showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 				</span>
 				{columns.map(function(col){
 					width = self.getColumnWidth(col);

@@ -1,54 +1,7 @@
 // Bridge between visualization framework and js/forum files
 
 puffworldprops = {
-    list: { 
-        relationGroup: false,
-        column: {
-            user: {
-                show: true,
-                weight: 1.5,
-                allowSort: false
-            },
-            content: {
-                show: true,
-                weight: 3,
-                allowSort: false
-            },
-            refs: {
-                show: true,
-                weight:.8,
-                allowSort: false
-            },
-            date: {
-                show: true,
-                weight: 1,
-                allowSort: true
-            },
-            tags: {
-                show: true,
-                weight: 1.5,
-                allowSort: false
-            },
-            other: {
-                show: true,
-                weight: 2,
-                allowSort: false
-            },
-            score: {
-                show: true,
-                weight: 0.5,
-                allowSort: false
-            }
-        },
-        bar: {
-            expand: false,
-            showIcons: false
-        },
-        sort: {
-            column: 'date',
-            desc: true
-        }
-    },
+
 
     clusters: {
         filters: true,
@@ -102,7 +55,7 @@ puffworldprops = {
 
 
     view: {
-        mode: 'list',
+        mode: 'tableView',
         
         filters: {
             tags: [],
@@ -112,7 +65,7 @@ puffworldprops = {
         },
 
         // TODO: move these options into view.layout
-        arrows    : false,                              // true -> show relationship arrows between puffs
+        arrows    : true,                              // true -> show relationship arrows between puffs
         rows      : 4,
         // cols      : 5,                               // THINK: not currently used...
         boxRatio  : 1,
@@ -140,7 +93,57 @@ puffworldprops = {
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
         flash     : false,                              // flash the cursor
-        cursor    : false                              // sig of selected puff
+        cursor    : false,                              // sig of selected puff
+
+        // TABLEVIEW
+        table: {
+            relationGroup: false,
+            column: {
+                user: {
+                    show: true,
+                    weight: 1.5,
+                    allowSort: false
+                },
+                content: {
+                    show: true,
+                    weight: 3,
+                    allowSort: false
+                },
+                refs: {
+                    show: true,
+                    weight:.8,
+                    allowSort: false
+                },
+                date: {
+                    show: true,
+                    weight: 1,
+                    allowSort: true
+                },
+                tags: {
+                    show: true,
+                    weight: 1.5,
+                    allowSort: false
+                },
+                other: {
+                    show: true,
+                    weight: 2,
+                    allowSort: false
+                },
+                score: {
+                    show: true,
+                    weight: 0.5,
+                    allowSort: false
+                }
+            },
+            bar: {
+                expand: false,
+                showIcons: false
+            },
+            sort: {
+                column: 'date',
+                desc: true
+            }
+        }
     },
 
     reply: {

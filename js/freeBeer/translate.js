@@ -184,7 +184,7 @@ Translate.language["en"].extend({
 		powered: 'Powered by',
 		rest: ' Responsibility for all content lies with the publishing author and not this website.'
 	},
-	rowview: {
+	tableview: {
 		tooltip: {
             rowExpand: "Expand/collapse this row.",
             colOptions: "Add/remove columns.",

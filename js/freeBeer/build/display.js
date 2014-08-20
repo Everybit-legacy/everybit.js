@@ -445,7 +445,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         }
 
         else if ( viewprops.mode == 'tableView' ) {
-            view = RowView( {view:viewprops, list:this.props.list})
+            view = TableView( {view:viewprops, table:this.props.view.table})
             document.body.style.overflowY = "auto"
         }
 

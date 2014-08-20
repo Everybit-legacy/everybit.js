@@ -1592,7 +1592,7 @@ a.deactive, a.deactive:hover {
     background-size: 36px 36px;
 }
 
-.rowGroupCombined {
+.rowBox {
     margin: 14px 0px;
     border-right: 14px solid #ABAAB5;
     border-left: 14px solid #ABAAB5;

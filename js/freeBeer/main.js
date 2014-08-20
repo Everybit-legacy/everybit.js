@@ -137,12 +137,14 @@ puffworldprops = {
             },
             bar: {
                 expand: false,
-                showIcons: false
+                showIcons: false,
+                tmp: 1      // to prevent bar from disappearing
             },
             sort: {
                 column: 'date',
                 desc: true
-            }
+            },
+            format: 'list'
         }
     },
 

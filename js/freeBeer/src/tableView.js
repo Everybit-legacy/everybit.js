@@ -20,7 +20,7 @@ var ComputeDimensionMixin = {
 		var screenWidth = this.getScreenCoords().width;
 		var rowWidth = screenWidth - 80; // TODO : add this to config
 		
-		var weightArr = columnArr.map(function(c){return columnProps[c].weight});
+		var weightArr = columnArr.map(function(c){return +columnProps[c].weight});
 		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
 		
 		var width = rowWidth * columnProps[c].weight / totalWeight; 
@@ -291,6 +291,10 @@ var TableView = React.createClass({
 			this.setState({headerHeight: headerNode.offsetHeight});
 		}
 	},
+	handleClickReferenceInList: function(sig) {
+		return events.pub('ui/show-generation', {'view.query.focus': sig,
+												 'view.table.format': 'generation'})
+	},
 	render: function() {
 		var self = this;
         var cntr = 0;
@@ -309,18 +313,32 @@ var TableView = React.createClass({
 		puffs = this.sortPuffs(puffs);
 
 		var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
-		return (
-			<div style={style} className="listview">
-				<RowHeader ref="header" />
-				<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
-                    {puffs.map(function(puff, index){
-                        cntr++;
-						return <RowBox key={index} puff={puff} cntr={cntr} />
-					})}
-					<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
+
+		if (puffworldprops.view.table.format == "list") {	
+			return (
+				<div style={style} className="listview">
+					<RowHeader ref="header" />
+					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
+	                    {puffs.map(function(puff, index){
+	                        cntr++;
+							return <RowSingle key={index} puff={puff} cntr={cntr} direction="main" boxClickReference={self.handleClickReferenceInList}/>;
+						})}
+						<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
+					</div>
 				</div>
-			</div>
-		)
+			)
+		} else if (puffworldprops.view.table.format == "generation") {
+			var focus = puffworldprops.view.query.focus;
+			return (
+				<div style={style} className="listview">
+					<RowHeader ref="header" />
+					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
+						<RowBox puff={PuffForum.getPuffBySig(focus)} />
+					</div>
+				</div>
+			)
+		}
+
 	}
 })
 
@@ -558,7 +576,7 @@ var RowBox = React.createClass({
 	getInitialState: function() {
 		var sig = this.props.puff.sig;
 		return {
-			expandParent: false, 
+			// expandParent: false, 
 			parentSelected: [],
 			parentGroups: []
 			// expandChildren: false,
@@ -576,8 +594,8 @@ var RowBox = React.createClass({
 	getMoreGroups: function(sig, relation) {
 		var groupArray = [];
 		var group = this.getGroup(sig, relation);
-		var level = 0;
-		while (group.length != 0) {
+		var level = 1;
+		while (group.length != 0 && level < CONFIG.maxGeneration) {
 			var nextSig = group[0].sig; // default to first item in list
 			// groupArray.push(group.map(PuffForum.getPuffBySig));
 			groupArray.push(group);
@@ -592,6 +610,10 @@ var RowBox = React.createClass({
 		for (var i=0; i<group.length && firstIndex==-1; i++) {
 			if (group[i].sig == targetSig)
 				firstIndex = i;
+		}
+		if (!targetSig.length) {
+			firstIndex = 0;
+			target = group[0]
 		}
 		var additionGroups = this.getMoreGroups(targetSig, dir);
 
@@ -612,9 +634,7 @@ var RowBox = React.createClass({
 	handleShowPrevNext: function(offset, originalPuff, dir, level) {
 		var currentLevel = this.state[dir+'Groups'][level];
 		var newIndex = this.state[dir+'Selected'][level] + offset;
-		console.log(this.state[dir+'Selected'][level], offset, level)
 		var targetSig = currentLevel[newIndex].sig;
-		console.log(targetSig, newIndex)
 
 		var prevLevelSig = this.props.puff.sig;
 		if (level > 0) {
@@ -624,6 +644,9 @@ var RowBox = React.createClass({
 		return this.regenerateGroups(prevLevelSig, targetSig, dir, level);
 	},
 	handleClickReference: function(targetSig, targetDir, originSig, originDir, originLevel) {
+		return events.pub('ui/show-generation', {'view.query.focus': targetSig,
+												 'view.table.format': 'generation'})
+		/*
 		if (originDir == 'main') {
 			originLevel = 0;
 			if (targetDir == 'parent') {
@@ -634,59 +657,61 @@ var RowBox = React.createClass({
 			var dir = targetDir;
 			return this.regenerateGroups(originSig, targetSig, dir, originLevel)
 		}
-		return false;
+		return false;*/
 	},
 	componentDidUpdate: function(prevProps) {
 		if (prevProps.puff != this.props.puff) {
-			this.setState(this.getInitialState());
+			this.componentDidMount();
 		}
+	},
+	componentDidMount: function() {
+		var parentGroups = this.getMoreGroups(this.props.puff.sig, 'parent');
+		var parentSelected = parentGroups.map(function(){return 0});
+		this.setState({'parentSelected': parentSelected,
+					   'parentGroups': parentGroups})
 	},
 	handleClose: function() {
 		this.setState(this.getInitialState());
 		return false;
 	},
 	render: function() {
-		if (!this.state.expandParent && !this.state.expandChildren)
-			return <RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference}/>;
 		var highlight = [];
 		var self = this;
 
 		var parentGroupsCombined = <span></span>;
-		if (this.state.expandParent) {
-			var parentGroups = PB.shallow_copy(this.state.parentGroups);
-			if (parentGroups.length) {
-				var parentSelected = PB.shallow_copy(this.state.parentSelected);
-				if (!parentSelected || !parentSelected.length) {
-					parentSelected = parentGroups.map(function(){return 0});
-				}
-
-				// add first parent to highlight
-				var parent = parentGroups[0][parentSelected[0]];
-				parent = parent.sig ? parent.sig : parent;
-				highlight.push(parent);
-
-				// for display, need to reverse parentGroups and parentSelected
-				parentGroups.reverse();
-				parentSelected.reverse();
-				var totalLevel = parentGroups.length;
-				parentGroupsCombined = <div>
-					{parentGroups.map(function(group, index){
-						var puffIndex = parentSelected[index];
-						var parent = group[puffIndex];
-
-						var highlight = [];
-						if (typeof parentSelected[index-1] !== 'undefined') {
-							var p = parentGroups[index-1][parentSelected[index-1]];
-							if (p) {
-								p = p.sig ? p.sig : p;
-								highlight.push(p);
-							}
-						} 
-						var level = totalLevel - 1 - index;
-						return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
-					})}
-				</div>
+		var parentGroups = PB.shallow_copy(this.state.parentGroups);
+		if (parentGroups.length) {
+			var parentSelected = PB.shallow_copy(this.state.parentSelected);
+			if (!parentSelected || !parentSelected.length) {
+				parentSelected = parentGroups.map(function(){return 0});
 			}
+
+			// add first parent to highlight
+			var parent = parentGroups[0][parentSelected[0]];
+			parent = parent.sig ? parent.sig : parent;
+			highlight.push(parent);
+
+			// for display, need to reverse parentGroups and parentSelected
+			parentGroups.reverse();
+			parentSelected.reverse();
+			var totalLevel = parentGroups.length;
+			parentGroupsCombined = <div>
+				{parentGroups.map(function(group, index){
+					var puffIndex = parentSelected[index];
+					var parent = group[puffIndex];
+
+					var highlight = [];
+					if (typeof parentSelected[index-1] !== 'undefined') {
+						var p = parentGroups[index-1][parentSelected[index-1]];
+						if (p) {
+							p = p.sig ? p.sig : p;
+							highlight.push(p);
+						}
+					} 
+					var level = totalLevel - 1 - index;
+					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxClickReference={self.handleClickReference} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
+				})}
+			</div>
 		}
 
 		var collapseIcon = <a href="#" onClick={this.handleClose} className="rowGroupCollapse"><span><i className="fa fa-arrow-down"></i><i className="fa fa-arrow-up"></i></span></a>
@@ -696,7 +721,7 @@ var RowBox = React.createClass({
             {parentGroupsCombined}
             <div className="rowGroup">
             	{collapseIcon}
-				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>;
+				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" boxClickReference={this.handleClickReference} highlight={highlight}/>
             </div>
 		</div>
         )

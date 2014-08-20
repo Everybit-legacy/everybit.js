@@ -79,6 +79,9 @@ var HBviewType = React.createClass({
     handleShowView: function (mode) {
         var jsonToSet = {};
         jsonToSet['view.mode'] = mode;
+        if (mode == 'tableView') {
+            jsonToSet['view.table.format'] = 'list';
+        }
         return events.pub('ui/view/mode', jsonToSet);
     },
 

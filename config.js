@@ -142,3 +142,6 @@ CONFIG.defaultColumn = {
     weight: 1,
     allowSort: false
 }
+CONFIG.maxGeneration = 5
+CONFIG.maxParentGen = 3
+CONFIG.maxChildGen = 4

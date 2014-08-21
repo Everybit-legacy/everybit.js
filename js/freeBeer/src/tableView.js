@@ -18,8 +18,11 @@ var ComputeDimensionMixin = {
 		if (columnArr.indexOf(c) == -1) return 0;
 		
 		var screenWidth = this.getScreenCoords().width;
-		var rowWidth = screenWidth - 80; // TODO : add this to config
-		rowWidth = rowWidth - 28;// for generation view
+		var rowWidth = screenWidth - 74; // TODO : add this to config
+		// rowWidth = rowWidth - 28;// for generation view
+		if (puffworldprops.view.table.format == "generation") {
+			rowWidth = rowWidth - 28;
+		}
 		
 		var weightArr = columnArr.map(function(c){return +columnProps[c].weight});
 		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
@@ -195,7 +198,7 @@ var RowRenderMixin = {
 	},
 	render_column: function(col, width, maxHeight) {
 		var style = {};
-		style['width'] = (width-1).toString() + 'px';
+		style['width'] = width.toString() + 'px';
 
 		if (maxHeight)
 			style['maxHeight'] = maxHeight.toString() + 'em';
@@ -208,7 +211,7 @@ var RowRenderMixin = {
 		} else {
 			content = this.renderDefault(col);
 		}
-		return <span key={col}><span className={cls.join(' ')} style={style}>{content}</span></span>;
+		return <span key={col}><span className={cls.join(' ')} style={style}>{content}</span></span>
 	}
 }
 
@@ -248,12 +251,14 @@ var TableView = React.createClass({
 		return {loaded: 20, noMorePuff: false, headerHeight: 0};
 	},
 	loadMore: function() {
-		this.setState({loaded: this.state.loaded + 10});
+		this.setState({loaded: this.state.loaded + 10,
+					   noMorePuff: false});
 		return false;
 	},
 	handleScroll: function() {
-		var ele = this.refs.container.getDOMNode();
+		var ele = document.body;
 		if (ele.scrollTop - ele.scrollHeight + ele.offsetHeight == 0) {
+			this.setState({noMorePuff: 'load'})
 			setTimeout(this.loadMore, 10);
 		}
 	},
@@ -284,8 +289,20 @@ var TableView = React.createClass({
 		})
 		return puffs;
 	},
+	handleForceLoad: function() {
+		var query = PB.shallow_copy(this.props.view.query);
+		query.offset = (+query.offset || 0) + this.state.loaded;
+		var filters = puffworldprops.view.filters;
+		var limit = 10;
+		var puffs = PuffForum.getPuffList(query, filters, limit);
+		if ((!puffs) || (puffs.length == 0)) {
+			this.setState({noMorePuff: true});
+		} else {
+			this.loadMore();
+		}
+	},
 	componentDidMount: function() {
-		this.refs.container.getDOMNode().addEventListener("scroll", this.handleScroll);
+		window.addEventListener("scroll", this.handleScroll);
 	},
 	componentDidUpdate: function(prevProp, prevState) {
 		if (prevState.loaded != this.state.loaded) {
@@ -314,17 +331,24 @@ var TableView = React.createClass({
 		puffs = this.sortPuffs(puffs);
 
 		var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
-
+		var footer = <div></div>
+		if (this.state.noMorePuff === true) {
+			footer = <div className="listfooter listrow">End of puffs.</div>
+		} else if (this.state.noMorePuff === 'load') {
+			footer = <div className="listfooter listrow">Loading...</div>
+		} else {
+			footer = <div className="listfooter listrow"><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
+		}
 		if (puffworldprops.view.table.format == "list") {	
 			return (
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
+					<div ref="container" className="listrowContainer" style={{marginTop: this.state.headerHeight.toString()+'px'}}>
 	                    {puffs.map(function(puff, index){
 	                        cntr++;
 							return <RowSingle key={index} puff={puff} cntr={cntr} />;
 						})}
-						<div className="listfooter listrow" >{this.state.noMorePuff ? "End of puffs." : "Loading..."}</div>
+						{footer}
 					</div>
 				</div>
 			)
@@ -333,7 +357,7 @@ var TableView = React.createClass({
 			return (
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{maxHeight: containerHeight.toString()+'px'}}>
+					<div ref="container" className="listrowContainer" style={{marginTop: this.state.headerHeight.toString()+'px'}}>
 						<RowBox puff={PuffForum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
 					</div>
 				</div>
@@ -460,6 +484,7 @@ var RowHeader = React.createClass({
                             </span>
                         )
 				})}
+                {puffworldprops.view.table.format == 'generation' ? <span style={{display:'inline-block', width: '28px'}}>{' '}</span> : null}
 			</div>
 		)
 	}
@@ -578,8 +603,7 @@ var RowSingle = React.createClass({
 		var showIcons = this.state.showIcons && this.state.showBar;
 		var barClass = ['listbar'];
 		if (!this.state.showBar) {barClass.push('hide')};
-		return (
-			<div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
+		return <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
 				<span className="listcell" >
 					<span className={barClass.join(' ')} ref="bar"><a href="#" onClick={this.handleToggleShowIcons}>
                         <i className="fa fa-fw fa-wrench"></i>
@@ -590,9 +614,8 @@ var RowSingle = React.createClass({
 				{columns.map(function(col){
 					width = self.getColumnWidth(col);
 					return self.render_column(col, width, maxHeight)
-				})}
-			</div>
-		)
+				})}</div>
+		
 	}
 })
 

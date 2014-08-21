@@ -1448,7 +1448,8 @@ a.deactive, a.deactive:hover {
     transition: all 1s;
 }
 .listheader {
-    /* height: 50px; */
+    position: fixed;
+    z-index: 300;
 }
 .listrow.listheader {
     margin-top: 0;

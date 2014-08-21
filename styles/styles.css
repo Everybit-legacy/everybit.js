@@ -1553,7 +1553,7 @@ a.deactive, a.deactive:hover {
 }
 
 .rowReference.highlight img {
-    outline: 2px dotted #222;
+    /* outline: 2px dotted #222; */
     margin: 2px;
 }
 
@@ -1598,8 +1598,10 @@ a.deactive, a.deactive:hover {
 
 .rowBox {
     margin: 14px 0px;
-    border-right: 14px solid #ABAAB5;
-    border-left: 14px solid #ABAAB5;
+    background-color: #fff;
+}
+.rowBoxMain {
+    margin: 14px 0px;
     background-color: #fff;
 }
 .rowGroupCombinedRider {
@@ -1619,6 +1621,28 @@ a.deactive, a.deactive:hover {
 .center.listrow {
     /* background-color: #fff; */
 }
+
+.rowGroupSideLeft {
+    position: absolute;
+    left: -14px;
+    top: 0px;
+    height: 100%;
+    display: block;
+    width: 14px;
+    z-index: 300;
+}
+
+.rowGroupSideRight {
+    position: absolute;
+    right: -14px;
+    top: 0px;
+    height: 100%;
+    display: block;
+    width: 14px;
+    z-index: 300;
+    background-color: #ABAAB5;
+}
+
 .rowGroupArrowLeft {
     position: absolute;
     left: -14px;
@@ -1626,7 +1650,7 @@ a.deactive, a.deactive:hover {
 }
 .rowGroupArrowRight {
     position: absolute;
-    right: -14px;
+    right:-14px;
     top: 0px;
 }
 .rowGroupArrowLeft, .rowGroupArrowRight {

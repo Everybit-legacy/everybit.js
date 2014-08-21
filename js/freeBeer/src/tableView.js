@@ -560,15 +560,19 @@ var RowSingle = React.createClass({
             } else {
                 additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
             }
+            // additionStyle.borderRight = '14px solid #ABAAB5';
         } else if (this.props.direction == 'main') {
             additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
-            additionStyle.outline = '2px solid'
+            additionStyle.borderLeft = '14px solid rgba(0,128,0,.8)';
+            additionStyle.borderRight = '14px solid rgba(0,128,0,.8)';
+            // additionStyle.outline = '2px solid'
         } else {
 	        if(this.props.level % 2) {
 	            additionStyle.backgroundColor = 'rgba(255,255,254,.9)';
 	        } else {
 	            additionStyle.backgroundColor = 'rgba(245,245,245,.9)';
 	        }
+            // additionStyle.borderRight = '14px solid #ABAAB5';
         }
 
 		var showIcons = this.state.showIcons && this.state.showBar;
@@ -794,7 +798,6 @@ var RowBox = React.createClass({
         <div className="rowBox">
             {parentGroupsCombined}
             <div className="rowGroup" ref="main">
-            	{collapseIcon}
 				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" highlight={highlight} level={-1}/>
             </div>
             {childGroupsCombined}
@@ -816,18 +819,35 @@ var RowGroup = React.createClass({
 		if (!puffList || !puffList.length || !puff)
 			return <span></span>;
 
+        var additionalStyle = {};
 		var showPrev = <a className="rowGroupArrowLeft" href="#" onClick={this.handleShowPrevNext.bind(this, -1)}><i className="fa fa-chevron-left"></i></a>;
 		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-chevron-right"></i></a>;
-		if (puffList.indexOf(puff)-1 < 0)
-			showPrev = <span></span>;
-		if (puffList.indexOf(puff)+1 >= puffList.length)
-			showNext = <span></span>
+		if (puffList.indexOf(puff)-1 < 0) {
+            additionalStyle.backgroundColor = '#ABAAB5';
+            // showPrev = <span className="rowGroupSideLeft" style={additionalStyle}></span>;
+            var showPrev = <span></span>
+        }
+		if (puffList.indexOf(puff)+1 >= puffList.length) {
+            additionalStyle.backgroundColor = '#ABAAB5';
+            // showNext = <span className="rowGroupSideRight"style={additionalStyle}></span>
+            var showNext = <span></span>
+        }
 
-		return <div className='rowGroup'>
-			{showPrev}
-			<RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} cntr={this.props.cntr} />
-			{showNext}
-		</div>
+        // Make the main one green
+        if(this.props.direction == 'main') {
+            additionalStyle.backgroundColor = 'rgba(0, 88, 0, 0.8);';
+        } else {
+            additionalStyle.marginLeft = '14px';
+            additionalStyle.marginRight = '14px';
+        }
+
+		return (
+            <div className='rowGroup' style={additionalStyle}>
+                {showPrev}
+                <RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} cntr={this.props.cntr} />
+                {showNext}
+		    </div>
+        )
 	}
 })
 

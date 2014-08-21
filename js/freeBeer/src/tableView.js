@@ -203,7 +203,7 @@ var RowRenderMixin = {
         var envelope = PuffData.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
-		return <PuffStar sig={this.props.puff.sig}/>;
+		return showStar ? <PuffStar sig={this.props.puff.sig}/> : '';
 	},
 	render_column: function(col, width, maxHeight) {
 		var style = {};

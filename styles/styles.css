@@ -1554,7 +1554,7 @@ a.deactive, a.deactive:hover {
 }
 
 .rowReference.highlight img {
-    /* outline: 2px dotted #222; */
+    outline: 2px dotted #222;
     margin: 2px;
 }
 
@@ -1598,7 +1598,7 @@ a.deactive, a.deactive:hover {
 }
 
 .rowBox {
-    margin: 14px 0px;
+    /*margin: 14px 0px;*/
     background-color: #fff;
 }
 .rowBoxMain {

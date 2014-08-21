@@ -2,7 +2,15 @@
 
 var ComputeDimensionMixin = {
 	getScreenCoords: function() {
-		return GridLayoutMixin.getScreenCoords()
+        if(CONFIG.menuRight) {
+            var margin = CONFIG.rightMargin
+        } else {
+            var margin = CONFIG.leftMargin
+        }
+
+        return { width:  window.outerWidth - margin
+               , height: window.outerHeight - CONFIG.verticalPadding
+               }
 	},
 	computeRowHeight: function() {
 		var row = (parseInt(puffworldprops.view.rows) || 1);
@@ -60,7 +68,7 @@ var RowRenderMixin = {
             return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>;
         }
         
-        return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></span>;
+        return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>;
 	},
 	renderContent: function() {
 		var puff = this.props.puff;
@@ -183,11 +191,11 @@ var RowRenderMixin = {
 			childrenEle = <span><span style={iconStyle}><i className="fa fa-fw fa-arrow-right"></i></span>{childrenIcons}</span>;
 
 		var mainEle = <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(this.props.puff.sig)}/>
-		return <div>
+		return <span>
 			{parentsEle}
 			{mainEle}
 			{childrenEle}
-		</div>;
+		</span>;
 	},
 	renderScore: function() {
         var showStar = true;
@@ -211,7 +219,7 @@ var RowRenderMixin = {
 		} else {
 			content = this.renderDefault(col);
 		}
-		return <span key={col}><span className={cls.join(' ')} style={style}>{content}</span></span>
+		return <span key={col} className={cls.join(' ')} style={style}>{content}</span>
 	}
 }
 
@@ -300,6 +308,7 @@ var TableView = React.createClass({
 		} else {
 			this.loadMore();
 		}
+		return false;
 	},
 	componentDidMount: function() {
 		window.addEventListener("scroll", this.handleScroll);
@@ -343,7 +352,7 @@ var TableView = React.createClass({
 			return (
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{marginTop: this.state.headerHeight.toString()+'px'}}>
+					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 	                    {puffs.map(function(puff, index){
 	                        cntr++;
 							return <RowSingle key={index} puff={puff} cntr={cntr} />;
@@ -357,7 +366,7 @@ var TableView = React.createClass({
 			return (
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{marginTop: this.state.headerHeight.toString()+'px'}}>
+					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 						<RowBox puff={PuffForum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
 					</div>
 				</div>
@@ -426,13 +435,6 @@ var RowHeader = React.createClass({
     handleManageCol: function() {
     	this.setState({showColOptions: !this.state.showColOptions})
     	return false;
-    	/*if (puffworldprops.view.table.bar.showIcons == 'header') {
-	    	return events.pub('ui/view/table/row/hide-all',
-	    		{'view.table.bar.showIcons': false});
-    	} else {
-	    	return events.pub('ui/view/table/row/show-all',
-	    		{'view.table.bar.showIcons': 'header'});
-    	}*/
     },
 
     handleRemove: function(col) {
@@ -473,18 +475,15 @@ var RowHeader = React.createClass({
 					};
 					var allowSort = columnProp[c].allowSort;
 					return (
-                            <span>
-                                <span className="listcell" key={c} style={style}>
-                                    {c}
-                                    <RowSortIcon col={c} allowSort={allowSort} />
-                                    <span className="listCellOptions">
-                                        <a href="#" onClick={self.handleRemove.bind(self,c)} className="btn blue"><i className="fa fa-fw fa-times-circle" /></a>
-                                    </span>
-                                </span>
+                        <span className="listcell" key={c} style={style}>
+                            {c}
+                            <RowSortIcon col={c} allowSort={allowSort} />
+                            <span className="listCellOptions">
+                                <a href="#" onClick={self.handleRemove.bind(self,c)} className="btn blue"><i className="fa fa-fw fa-times-circle" /></a>
                             </span>
-                        )
+                        </span>
+                    )
 				})}
-                {puffworldprops.view.table.format == 'generation' ? <span style={{display:'inline-block', width: '28px'}}>{' '}</span> : null}
 			</div>
 		)
 	}
@@ -544,9 +543,9 @@ var RowSingle = React.createClass({
     },
     handleOverRow: function(e){
     	var showBar = this.state.showBar;
-    	if (showBar) {
+    	if (e.type == "mouseleave") {
     		this.setState({showBar: false, showIcons: false})
-    	} else {
+    	} else if (e.type == "mouseenter") {
     		this.setState({showBar: true})
     	}
     	return false;

@@ -1444,6 +1444,12 @@ a.deactive, a.deactive:hover {
     padding-top: 3px;
     position: relative;
 }
+.listrow.encrypted {
+    background-image:url('../img/lock2.png');
+    background-repeat:no-repeat;
+    background-position: left bottom;
+    background-size: 36px 36px;
+}
 .animation .listrow{
     transition: all 1s;
 }
@@ -1489,19 +1495,6 @@ a.deactive, a.deactive:hover {
     border: 1px #222222 dotted;
     display: none;
 }
-
-/*.listcell+.listcell::before {
-    content: '';
-    height: 1.4em;
-    border-left: 1px dotted #ccc;
-    position: absolute;
-    left: 0;
-    top: 50%;
-    margin-top: -0.7em;
-}*/
-/*.listcell+.listcell {
-    border-left: 1px dotted #ccc;
-}*/
 .listcellborder {
     /* border-left: 1px dotted black; */
     height: 100%;

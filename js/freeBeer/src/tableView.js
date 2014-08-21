@@ -257,13 +257,13 @@ var RowSortMixin = {
 var TableView = React.createClass({
 	mixins: [ViewKeybindingsMixin, ComputeDimensionMixin, RowSortMixin],
 	getInitialState: function() {
-		return {loaded: 20, 
+		return {loaded: CONFIG.initialLoad, 
 				noMorePuff: false/*, 
 				headerHeight: 0*/};
 	},
 	loadMore: function() {
-		if (this.state.noMorePuff !== "true") {
-			this.setState({loaded: this.state.loaded + 10,
+		if (this.state.noMorePuff !== true) {
+			this.setState({loaded: this.state.loaded + CONFIG.newLoad,
 					   	   noMorePuff: false});
 			this.refs.header.forceUpdate();
 		}
@@ -272,6 +272,10 @@ var TableView = React.createClass({
 	handleScroll: function() {
 		var ele = document.body;
 		if (ele.scrollTop - ele.scrollHeight + ele.offsetHeight == 0) {
+			if (!this.isMounted()) {
+				// handle error with reactjs warning
+				return false;
+			}
 			this.setState({noMorePuff: 'load'})
 			setTimeout(this.loadMore, 10);
 		}
@@ -280,7 +284,7 @@ var TableView = React.createClass({
 		var query = PB.shallow_copy(this.props.view.query);
 		query.offset = (+query.offset || 0) + this.state.loaded;
 		var filters = puffworldprops.view.filters;
-		var limit = 10;
+		var limit = 1; // think: 1 is enough since we are just checking
 		var puffs = PuffForum.getPuffList(query, filters, limit);
 		if ((!puffs) || (puffs.length == 0))
 			this.setState({noMorePuff: true});
@@ -584,6 +588,9 @@ var RowSingle = React.createClass({
             classArray.push('flagged');
             flagged = true;
         }	
+        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        if(envelope && envelope.keys)
+            classArray.push('encrypted');
 
         var additionStyle = {};
         if (!this.props.direction) {

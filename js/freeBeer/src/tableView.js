@@ -322,10 +322,12 @@ var TableView = React.createClass({
 		if (prevState.loaded != this.state.loaded) {
 			this.checkMorePuff();
 		}
-		/*var headerNode = this.refs.header.getDOMNode();
-		if (headerNode.offsetHeight != this.state.headerHeight) {
-			this.setState({headerHeight: headerNode.offsetHeight});
-		}*/
+		if (this.refs.header) {
+			var headerNode = this.refs.header.getDOMNode();
+			if (headerNode.offsetHeight != this.state.headerHeight) {
+				this.setState({headerHeight: headerNode.offsetHeight});
+			}
+		}
 	},
 	render: function() {
 		var self = this;
@@ -338,13 +340,6 @@ var TableView = React.createClass({
 			top: top, left:left, position: 'absolute'
 		}
 
-		var query = puffworldprops.view.query;
-		var filters = puffworldprops.view.filters;
-		var limit = this.state.loaded;
-		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
-		puffs = this.sortPuffs(puffs);
-
-		// var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
 			footer = <div className="listfooter listrow">End of puffs.</div>
@@ -353,7 +348,13 @@ var TableView = React.createClass({
 		} else {
 			footer = <div className="listfooter listrow"><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
 		}
-		if (puffworldprops.view.table.format == "list") {	
+		if (puffworldprops.view.table.format == "list") {
+			var query = puffworldprops.view.query;
+			var filters = puffworldprops.view.filters;
+			var limit = this.state.loaded;
+			var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
+			puffs = this.sortPuffs(puffs);	
+
 			return (
 				<div style={style} className="listview">
 					<RowHeader ref="header" />
@@ -547,6 +548,8 @@ var RowSingle = React.createClass({
 												 'view.filters': {}})
     },
     handleOverRow: function(e){
+    	if (!this.isMounted()) return false; // fix react warning when scrolling
+
     	var showBar = this.state.showBar;
     	if (e.type == "mouseleave") {
     		this.setState({showBar: false, showIcons: false})
@@ -619,7 +622,9 @@ var RowSingle = React.createClass({
 				{columns.map(function(col){
 					width = self.getColumnWidth(col);
 					return self.render_column(col, width, maxHeight)
-				})}</div>
+				})}
+			{ this.props.showArrow ? <div className="rowArrow"></div> : null }
+		</div>
 	}
 })
 
@@ -643,7 +648,7 @@ var RowBox = React.createClass({
 	getMoreGroups: function(sig, relation) {
 		var groupArray = [];
 		var group = this.getGroup(sig, relation);
-		var level = 1;
+		var level = 2; // start from 2 since 1st generation is the row that's changing itself
 		while (group.length != 0 && level < CONFIG.maxGeneration) {
 			var nextSig = group[0].sig; // default to first item in list
 			// groupArray.push(group.map(PuffForum.getPuffBySig));
@@ -772,7 +777,7 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = totalLevel - 1 - index;
-					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
+					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={true}/>
 				})}
 			</div>
 		}
@@ -814,7 +819,7 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = index;
-					return <RowGroup key={"child"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} />
+					return <RowGroup key={"child"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={level != childGroups.length-1}/>
 				})}
 			</div>
 		}
@@ -825,7 +830,7 @@ var RowBox = React.createClass({
         <div className="rowBox">
             {parentGroupsCombined}
             <div className="rowGroup" ref="main">
-				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" highlight={highlight} level={-1}/>
+				<RowSingle puff={this.props.puff} cntr={this.props.cntr} direction="main" highlight={highlight} level={-1} showArrow={childGroups.length}/>
             </div>
             {childGroupsCombined}
 		</div>
@@ -871,7 +876,7 @@ var RowGroup = React.createClass({
 		return (
             <div className='rowGroup' style={additionalStyle}>
                 {showPrev}
-                <RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} cntr={this.props.cntr} />
+                <RowSingle puff={puff} column={puffworldprops.view.table.column} bar={puffworldprops.view.table.bar}  view={puffworldprops.view} highlight={this.props.highlight} direction={this.props.direction} level={this.props.level} cntr={this.props.cntr} showArrow={this.props.showArrow}/>
                 {showNext}
 		    </div>
         )

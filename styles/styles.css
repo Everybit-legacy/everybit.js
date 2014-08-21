@@ -10,6 +10,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 275: scroll up/down;
 280: pulldown menu
 300: header bar
+300: tableView header;
 350: menu
 400: reply form
 500: puffball icon
@@ -1438,8 +1439,7 @@ a.deactive, a.deactive:hover {
 }
 .listrow {
     background-color: #fff;
-    /* border-radius: 5px; */
-    margin-bottom: 1px;
+    margin-bottom: 5px;
     padding-bottom: 7px;
     padding-top: 3px;
     position: relative;
@@ -1447,9 +1447,13 @@ a.deactive, a.deactive:hover {
 .animation .listrow{
     transition: all 1s;
 }
+.rowGroup .listrow {
+    margin-bottom: 0;
+}
 .listheader {
     position: fixed;
     z-index: 300;
+    border-bottom: 1px solid;
 }
 .listrow.listheader {
     margin-top: 0;
@@ -1558,6 +1562,7 @@ a.deactive, a.deactive:hover {
 }
 
 .rowReferencePreview {
+    color: black;
     position: absolute;
     z-index: 200;
     padding: .5em;
@@ -1697,4 +1702,12 @@ a.deactive, a.deactive:hover {
 }
 .rowGroupCollapse i {
     line-height: 1em;
+}
+
+.rowArrow {
+    position: absolute;
+    z-index: 350;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 20px solid rgba(0,128,0,.4);
 }

@@ -8,9 +8,17 @@ var ComputeDimensionMixin = {
             var margin = CONFIG.leftMargin
         }
 
-        return { width:  window.outerWidth - margin
-               , height: window.outerHeight - CONFIG.verticalPadding
+        return { width:  window.innerWidth - margin
+               , height: window.innerHeight - CONFIG.verticalPadding
                }
+	},
+	getRowWidth: function() {
+		var screenWidth = this.getScreenCoords().width;
+		var rowWidth = screenWidth - 40; // TODO : add this to config
+		if (puffworldprops.view.table.format == "generation") {
+			rowWidth = rowWidth - 28;
+		}
+		return rowWidth;
 	},
 	computeRowHeight: function() {
 		var row = (parseInt(puffworldprops.view.rows) || 1);
@@ -22,16 +30,10 @@ var ComputeDimensionMixin = {
 		var columnProps = puffworldprops.view.table.column;
 		var columnArr = Object.keys(columnProps);
 		columnArr = columnArr.filter(function(c){return columnProps[c].show});
-
 		if (columnArr.indexOf(c) == -1) return 0;
-		
-		var screenWidth = this.getScreenCoords().width;
-		var rowWidth = screenWidth - 74; // TODO : add this to config
-		// rowWidth = rowWidth - 28;// for generation view
-		if (puffworldprops.view.table.format == "generation") {
-			rowWidth = rowWidth - 28;
-		}
-		
+
+		var rowWidth = this.getRowWidth()-27;
+
 		var weightArr = columnArr.map(function(c){return +columnProps[c].weight});
 		var totalWeight = weightArr.reduce(function(prev, curr){return prev+curr});
 		
@@ -51,7 +53,7 @@ var RowRenderMixin = {
         );
     },
 
-	renderDefault: function(col) {
+	render_default: function(col) {
 		var metadata = this.props.puff.payload || {};
 		var content = metadata[col] || "";
 		return content;
@@ -92,7 +94,7 @@ var RowRenderMixin = {
 			{Object.keys(puff.payload).map(function(key){
 				var value = puff.payload[key];
 	            if (keysNotShow.indexOf(key)==-1 && value && value.length) {
-	                return <div><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
+	                return <div key={key}><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
 	            }
 			})}
 		</span>
@@ -130,11 +132,10 @@ var RowRenderMixin = {
             'view.filters.types': [type]
         });
     },
-
     renderType: function() {
         var puff = this.props.puff;
         var type = puff.payload.type;
-        return <span><a href="#" onClick={this.handleViewType.bind(this,type)}>{type}</a></span>;
+        return <a href="#" onClick={this.handleViewType.bind(this,type)}>{type}</a>;
     },
 
 	getReferenceIcon: function(sig, type) {
@@ -217,7 +218,7 @@ var RowRenderMixin = {
 		if (this[functionName]) {
 			content = this[functionName]();
 		} else {
-			content = this.renderDefault(col);
+			content = this.render_default(col);
 		}
 		return <span key={col} className={cls.join(' ')} style={style}>{content}</span>
 	}
@@ -254,13 +255,18 @@ var RowSortMixin = {
 
 
 var TableView = React.createClass({
-	mixins: [ViewKeybindingsMixin, GridLayoutMixin, RowSortMixin],
+	mixins: [ViewKeybindingsMixin, ComputeDimensionMixin, RowSortMixin],
 	getInitialState: function() {
-		return {loaded: 20, noMorePuff: false, headerHeight: 0};
+		return {loaded: 20, 
+				noMorePuff: false/*, 
+				headerHeight: 0*/};
 	},
 	loadMore: function() {
-		this.setState({loaded: this.state.loaded + 10,
-					   noMorePuff: false});
+		if (this.state.noMorePuff !== "true") {
+			this.setState({loaded: this.state.loaded + 10,
+					   	   noMorePuff: false});
+			this.refs.header.forceUpdate();
+		}
 		return false;
 	},
 	handleScroll: function() {
@@ -280,7 +286,6 @@ var TableView = React.createClass({
 			this.setState({noMorePuff: true});
 		else
 			this.setState({noMorePuff: false});
-
 	},
 	sortPuffs: function(puffs) {
 		var col = puffworldprops.view.table.sort.column;
@@ -317,10 +322,10 @@ var TableView = React.createClass({
 		if (prevState.loaded != this.state.loaded) {
 			this.checkMorePuff();
 		}
-		var headerNode = this.refs.header.getDOMNode();
+		/*var headerNode = this.refs.header.getDOMNode();
 		if (headerNode.offsetHeight != this.state.headerHeight) {
 			this.setState({headerHeight: headerNode.offsetHeight});
-		}
+		}*/
 	},
 	render: function() {
 		var self = this;
@@ -330,7 +335,7 @@ var TableView = React.createClass({
 		var top = CONFIG.verticalPadding - 20;
 		var left = CONFIG.leftMargin;
 		var style={
-			right:'30px', top: top, left:left, position: 'absolute'
+			top: top, left:left, position: 'absolute'
 		}
 
 		var query = puffworldprops.view.query;
@@ -339,7 +344,7 @@ var TableView = React.createClass({
 		var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
 		puffs = this.sortPuffs(puffs);
 
-		var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
+		// var containerHeight = this.getScreenCoords().height - this.state.headerHeight + 6;
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
 			footer = <div className="listfooter listrow">End of puffs.</div>
@@ -456,7 +461,7 @@ var RowHeader = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         var headerStyle = {}
         if (puffworldprops.view.table.format == 'generation') {
-        	headerStyle = {'paddingLeft': '14px'};
+        	headerStyle = {'paddingLeft': '14px', 'paddingRight': '14px'};
         }
 		return (
 			<div className="listrow listheader" key="listHeader" style={headerStyle} onMouseLeave={this.handleHideColOptions}>
@@ -599,6 +604,7 @@ var RowSingle = React.createClass({
             // additionStyle.borderRight = '14px solid #ABAAB5';
         }
 
+        // additionStyle.width = this.getRowWidth().toString() + 'px';
 		var showIcons = this.state.showIcons && this.state.showBar;
 		var barClass = ['listbar'];
 		if (!this.state.showBar) {barClass.push('hide')};
@@ -614,7 +620,6 @@ var RowSingle = React.createClass({
 					width = self.getColumnWidth(col);
 					return self.render_column(col, width, maxHeight)
 				})}</div>
-		
 	}
 })
 

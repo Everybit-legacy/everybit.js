@@ -342,7 +342,8 @@ var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
         return events.pub('ui/show/parents', { 'view.mode': 'list'
-                                             , 'view.query': puffworlddefaults.view.query
+                                             ,'view.filters': {}
+                                             ,'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
                                              , 'view.query.ancestors': 1
                                              })
@@ -577,6 +578,7 @@ var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
         return events.pub('ui/show/parents', { 'view.mode': 'list'
+                                             ,'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
                                              , 'view.query.descendants': 1

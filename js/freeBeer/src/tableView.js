@@ -359,8 +359,11 @@ var TableView = React.createClass({
 			var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
 			puffs = this.sortPuffs(puffs);	
 
+		var overlay = <span className="overlay" style={{backgroundColor: document.body.style.backgroundColor || "#"+CONFIG.defaultBgcolor}}></span>
+		var top = CONFIG.verticalPadding - 20;
 			return (
 				<div style={style} className="listview">
+					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 	                    {puffs.map(function(puff, index){
@@ -375,6 +378,7 @@ var TableView = React.createClass({
 			var focus = puffworldprops.view.query.focus;
 			return (
 				<div style={style} className="listview">
+					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 						<RowBox puff={PuffForum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />

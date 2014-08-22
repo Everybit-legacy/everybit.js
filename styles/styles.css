@@ -1461,8 +1461,17 @@ a.deactive, a.deactive:hover {
 }
 .listheader {
     position: fixed;
-    z-index: 300;
+    z-index: 250;
     border-bottom: 1px solid;
+}
+.overlay {
+    position: fixed;
+    z-index: 250;
+    display: block;
+    width: 100%;
+    top: 0;
+    height: 50px;
+    background-color: yellow;
 }
 .listrow.listheader {
     margin-top: 0;

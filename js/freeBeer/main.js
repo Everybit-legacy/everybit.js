@@ -215,7 +215,9 @@ events.sub('ui/*', function(data, path) {
 })
 
 events.sub("filter/*", function(data, path) {
+    // side effects: query set to default; view.table.format set to list
     data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
+    data['view.table.format'] = 'list';
     /*if(typeof data['view.mode'] == 'undefined')
         data['view.mode'] = 'list';*/  // TODO put this in config as default view
 

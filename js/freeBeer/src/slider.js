@@ -516,8 +516,8 @@ var ImportWizard = React.createClass({
                 )
             };
 
-            // var requestedUsername = importInfo.network + '.' + importInfo.username;
-            var requestedUsername = importInfo.username;
+            var requestedUsername = importInfo.network + '.' + importInfo.username;
+            // var requestedUsername = importInfo.username;
             this.setState({importInfo: importInfo, enableCheck: true, requestedUsername: requestedUsername})
         }
 
@@ -603,19 +603,7 @@ var PasswordWizard = React.createClass({
             adminKey: keys.adminKeyPublic,
             defaultKey: keys.defaultKeyPublic
         };
-        var importInfo = puffworldprops.slider.importInfo;
-        if (importInfo && importInfo.username && 
-            /*importInfo.network + '.' +*/importInfo.username == username) {
-            payload.importNetwork = importInfo.network;
-            payload.importToken = importInfo.token;
-            payload.importId = importInfo.id;          
-        }
 
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'requestUsername';
-
-        var self = this;
         var prefix = username.split('.')[0];  
         var prefixKey;
         if (CONFIG.users[prefix]) {
@@ -624,7 +612,26 @@ var PasswordWizard = React.createClass({
             prefixKey = CONFIG.users["anon"].adminKey;
             prefix = "anon";
         }
-       var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
+
+        var importInfo = puffworldprops.slider.importInfo;
+        if (importInfo && importInfo.username && 
+            importInfo.network + '.' +importInfo.username == username) {
+            payload.importNetwork = importInfo.network;
+            payload.importToken = importInfo.token;
+            payload.importId = importInfo.id;
+
+            prefix = username;
+            prefixKey = keys.adminKeyPrivate;          
+        }
+
+        var routes = [];
+        var type = 'updateUserRecord';
+        var content = 'requestUsername';
+
+        var self = this;
+        // console.log(prefix, prefixKey, routes, type, content, payload);
+        // return false;
+        var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
         // SUBMIT REQUEST
         var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) { 
@@ -676,14 +683,14 @@ var PasswordWizard = React.createClass({
                     <em>Remeber to save your keys!</em><br/>
                     <div style={keyColumnStyle}>
                         Private Keys: <br/>
-                        <span style={labelStyle}>admin:</span><input type="text" ref="adminKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'adminKey')}/><br/>
                         <span style={labelStyle}>root:</span><input type="text" ref="rootKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'rootKey')} /><br/>
+                        <span style={labelStyle}>admin:</span><input type="text" ref="adminKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'adminKey')}/><br/>
                         <span style={labelStyle}>default:</span><input type="text" ref="defaultKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'defaultKey')} />
                     </div>
                     <div style={keyColumnStyle}>
                         Public Keys: <br/>
-                        <span style={labelStyle}>admin:</span><input type="text" ref="adminKeyPublic" readOnly size="10"  /><br/>
                         <span style={labelStyle}>root:</span><input type="text" ref="rootKeyPublic" size="10" readOnly /><br/>
+                        <span style={labelStyle}>admin:</span><input type="text" ref="adminKeyPublic" readOnly size="10"  /><br/>
                         <span style={labelStyle}>default:</span><input type="text" ref="defaultKeyPublic" size="10" readOnly />
                     </div>
                     {registerLink}

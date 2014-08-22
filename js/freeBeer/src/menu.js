@@ -491,9 +491,11 @@ var PreferencesMenu = React.createClass({
         var colorDiv = this.refs.bgcolor.getDOMNode();
         var color = colorDiv.color;
         var body = document.getElementsByTagName("body")[0];
-        var overlay = document.getElementsByClassName("overlay")[0];
+        var overlay = document.getElementsByClassName("overlay");
         body.style.backgroundColor = color;
-        overlay.style.backgroundColor = color;
+        if (overlay && overlay.length) {
+            overlay[0].style.backgroundColor = color;
+        }
     },
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;

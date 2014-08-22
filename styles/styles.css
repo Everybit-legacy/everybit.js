@@ -1448,6 +1448,7 @@ a.deactive, a.deactive:hover {
     position: relative;
 }
 .listrow.encrypted {
+    outline: 1px solid black;
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
     background-position: left bottom;
@@ -1475,6 +1476,7 @@ a.deactive, a.deactive:hover {
 }
 .listrow.listheader {
     margin-top: 0;
+    margin-bottom: 0;
 }
 .listrowContainer{
     height: 100%;
@@ -1487,6 +1489,7 @@ a.deactive, a.deactive:hover {
     overflow-x: hidden;
     text-overflow: ellipsis;
     word-wrap: normal;
+    height: auto;
 }
 .listfooter {
     line-height: 3em;

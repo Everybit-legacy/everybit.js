@@ -716,7 +716,7 @@ var importContentWizard = React.createClass({
         var importInfo = puffworldprops.slider.importInfo;
         var network = importInfo.network;
         try {
-            UsernameImport[network].contentURL(importInfo.username, importInfo.id, importInfo.token);
+            UsernameImport[network].contentURL(network+'.'+importInfo.username, importInfo.id, importInfo.token);
         } catch (err) {
             this.setState({message: err.message});
         }

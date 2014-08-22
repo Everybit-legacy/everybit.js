@@ -16,7 +16,7 @@ var ComputeDimensionMixin = {
 		var screenWidth = this.getScreenCoords().width;
 		var rowWidth = screenWidth - 40; // TODO : add this to config
 		if (puffworldprops.view.table.format == "generation") {
-			rowWidth = rowWidth - 28;
+			rowWidth = rowWidth - 28; // 2 * borderWidth
 		}
 		return rowWidth;
 	},
@@ -24,7 +24,7 @@ var ComputeDimensionMixin = {
 		var row = (parseInt(puffworldprops.view.rows) || 1);
 		var screencoords = this.getScreenCoords();
 		var rowHeight = (screencoords.height-36) / row;
-		return rowHeight - 3; // TODO : add this to CONFIG
+		return rowHeight - 3; // remove marginBottom TODO : add this to CONFIG
 	},
 	getColumnWidth: function(c){
 		var columnProps = puffworldprops.view.table.column;
@@ -280,17 +280,6 @@ var TableView = React.createClass({
 			setTimeout(this.loadMore, 10);
 		}
 	},
-	checkMorePuff: function() {
-		var query = PB.shallow_copy(this.props.view.query);
-		query.offset = (+query.offset || 0) + this.state.loaded;
-		var filters = puffworldprops.view.filters;
-		var limit = 1; // think: 1 is enough since we are just checking
-		var puffs = PuffForum.getPuffList(query, filters, limit);
-		if ((!puffs) || (puffs.length == 0))
-			this.setState({noMorePuff: true});
-		else
-			this.setState({noMorePuff: false});
-	},
 	sortPuffs: function(puffs) {
 		var col = puffworldprops.view.table.sort.column;
 		var desc = puffworldprops.view.table.sort.desc;
@@ -323,8 +312,10 @@ var TableView = React.createClass({
 		window.addEventListener("scroll", this.handleScroll);
 	},
 	componentDidUpdate: function(prevProp, prevState) {
-		if (prevState.loaded != this.state.loaded) {
-			this.checkMorePuff();
+		if (prevProp.view.query != this.props.view.query || 
+			prevProp.view.filters != this.props.view.filters) {
+			// set noMorePuff back to false when filters/query has changed
+			this.setState({noMorePuff: false});
 		}
 		if (this.refs.header) {
 			var headerNode = this.refs.header.getDOMNode();
@@ -867,12 +858,10 @@ var RowGroup = React.createClass({
 		var showNext = <a className="rowGroupArrowRight" href="#" onClick={this.handleShowPrevNext.bind(this, 1)}><i className="fa fa-chevron-right"></i></a>;
 		if (puffList.indexOf(puff)-1 < 0) {
             additionalStyle.backgroundColor = '#ABAAB5';
-            // showPrev = <span className="rowGroupSideLeft" style={additionalStyle}></span>;
             var showPrev = <span></span>
         }
 		if (puffList.indexOf(puff)+1 >= puffList.length) {
             additionalStyle.backgroundColor = '#ABAAB5';
-            // showNext = <span className="rowGroupSideRight"style={additionalStyle}></span>
             var showNext = <span></span>
         }
 

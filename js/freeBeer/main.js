@@ -218,8 +218,12 @@ events.sub("filter/*", function(data, path) {
     // side effects: query set to default; view.table.format set to list
     data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
     data['view.table.format'] = 'list';
-    /*if(typeof data['view.mode'] == 'undefined')
-        data['view.mode'] = 'list';*/  // TODO put this in config as default view
+    
+    // TODO put this in config as default view
+    if (puffworldprops.view.mode != 'list' || 
+        puffworldprops.view.mode != 'tableView') {
+        data['view.mode'] = 'list';
+    } 
 
     events.pub('ui/query/default', data);
     PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers

@@ -10,11 +10,15 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 275: scroll up/down;
 280: pulldown menu
 300: header bar
-300: tableView header;
 350: menu
 400: reply form
 500: puffball icon
 
+
+--- for table view
+200: listcelloptions, tableViewColOptions, rowReferencePreview, listBarAllIcon
+250: tableView header, overlay
+300: rowGroupArrowLeft/Right
 
 */
 
@@ -1635,27 +1639,6 @@ a.deactive, a.deactive:hover {
     /* background-color: #fff; */
 }
 
-.rowGroupSideLeft {
-    position: absolute;
-    left: -14px;
-    top: 0px;
-    height: 100%;
-    display: block;
-    width: 14px;
-    z-index: 300;
-}
-
-.rowGroupSideRight {
-    position: absolute;
-    right: -14px;
-    top: 0px;
-    height: 100%;
-    display: block;
-    width: 14px;
-    z-index: 300;
-    background-color: #ABAAB5;
-}
-
 .rowGroupArrowLeft {
     position: absolute;
     left: -14px;
@@ -1689,6 +1672,7 @@ a.deactive, a.deactive:hover {
     color: #008800;
 }
 
+/* not in use 
 .rowGroupCollapse {
     position: absolute;
     z-index: 300;
@@ -1710,7 +1694,7 @@ a.deactive, a.deactive:hover {
 }
 .rowGroupCollapse i {
     line-height: 1em;
-}
+}*/
 
 .rowArrow {
     position: absolute;

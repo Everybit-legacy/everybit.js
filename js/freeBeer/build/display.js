@@ -434,14 +434,17 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
 
         if( viewprops.mode == 'focus' ) {
             view = PuffTallTree(    {view:viewprops, reply:this.props.reply} )
+            document.body.style.overflowY = "hidden"
         }
 
         else if( viewprops.mode == 'list' ) {
             view = PuffList(        {view:viewprops, reply:this.props.reply} )
+            document.body.style.overflowY = "hidden"
         }
 
         else if( viewprops.mode == 'PuffPacker' ) {
             view = PuffPacker(      {tools:this.props.tools} )
+            document.body.style.overflowY = "hidden"
         }
 
         else if ( viewprops.mode == 'tableView' ) {

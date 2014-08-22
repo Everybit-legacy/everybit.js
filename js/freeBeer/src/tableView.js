@@ -346,11 +346,11 @@ var TableView = React.createClass({
 
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
-			footer = <div className="listfooter listrow">End of puffs.</div>
+			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>End of puffs.</div>
 		} else if (this.state.noMorePuff === 'load') {
-			footer = <div className="listfooter listrow">Loading...</div>
+			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>Loading...</div>
 		} else {
-			footer = <div className="listfooter listrow"><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
+			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
 		}
 		if (puffworldprops.view.table.format == "list") {
 			var query = puffworldprops.view.query;

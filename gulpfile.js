@@ -14,6 +14,7 @@ var zip = require('gulp-zip');
 
 // Tasks
 var jsxList = [
+    "js/freeBeer/src/tableView.js",
     "js/freeBeer/src/display.js",
     "js/freeBeer/src/slider.js",
     "js/freeBeer/src/menu.js",
@@ -34,6 +35,7 @@ gulp.task('jsxFiles', function() {
 
 
 var ourOthersList = [
+              'js/helpers.js',
               'js/freeBeer/translate.js',
               'js/freeBeer/translate-zh.js',
               'js/libs/immutable.js',

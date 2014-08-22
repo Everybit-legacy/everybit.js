@@ -55,7 +55,7 @@ puffworldprops = {
 
 
     view: {
-        mode: 'tableView',
+        mode: 'list',
         
         filters: {
             tags: [],

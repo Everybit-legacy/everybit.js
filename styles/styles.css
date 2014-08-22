@@ -1436,6 +1436,9 @@ a.deactive, a.deactive:hover {
 
 /* list view stuff */
 .listview {
+    position: fixed;
+    top: 0;
+    background-image: url("bottom-fade.png");
 }
 .listrow {
     background-color: #fff;

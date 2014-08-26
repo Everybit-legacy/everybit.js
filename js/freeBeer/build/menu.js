@@ -177,7 +177,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(this.props.view.filters[type]);
+        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -219,12 +219,21 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         var icon = filterToIcon[type];
 
         var color = this.state.type == type ? 'green' : 'black';
-        return (
-            React.DOM.span( {key:type}, 
-                React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa fa-fw '+icon})),
-                Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"Filter")} )
-            )
-        )
+
+
+        // No buttons for non-arrays
+        if(puffworldprops.view.filters[type] instanceof Array) {
+            return (
+                React.DOM.span( {key:type}, 
+                    React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa '+icon})),
+                    Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"Filter")} )
+                )
+                )
+
+        } else {
+            return React.DOM.span(null)
+        }
+
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -233,14 +242,15 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
             width: '80px',
             display: 'inline-block'
         }
-        
+
+        // Note below filtering out of false stuff
         return (
             React.DOM.div( {className:"menuItem"}, 
                 React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.title"),":"),
                 React.DOM.input( {ref:"filter", type:"text", className:"btn narrowInputField", onKeyDown:this.handleKeyDown} ),React.DOM.a( {href:"#", onClick:this.handleAddFilter}, ' ',React.DOM.i( {className:"fa fa-plus-circle fa-fw"})),React.DOM.br(null),
                 React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.by"),":"),
                 React.DOM.span( {className:"relative"}, 
-                    Object.keys(puffworldprops.view.filters).sort().map(this.createEachFilter)
+                    Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).sort().map(this.createEachFilter)
                 )
             )
         );
@@ -249,8 +259,8 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 
 var CurrentFilters = React.createClass({displayName: 'CurrentFilters',
     render: function() {
-        var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
-            return FilterBubble( {key:key, filterName:key, filterValue:this.props.view.filters[key]} )
+        var filterNodes = Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).map(function(key) {
+            return FilterBubble( {key:key, filterName:key, filterValue:puffworldprops.view.filters[key]} )
         }.bind(this))
 
         return (
@@ -381,7 +391,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
         return (
             React.DOM.div(null, 
-                React.DOM.div(null, CurrentFilters( {view:this.props.view} ),FilterMenu( {view:this.props.view} )),
+                React.DOM.div(null, CurrentFilters(null ),FilterMenu( {view:this.props.view} )),
                 React.DOM.div( {className:"menuItem"}, 
                     React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
                     Tooltip( {content:polyglot.t("menu.tooltip.latest")} )

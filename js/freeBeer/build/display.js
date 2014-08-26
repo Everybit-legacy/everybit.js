@@ -916,7 +916,9 @@ var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
             React.DOM.div(null, 
-                React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+                React.DOM.a( {href:CONFIG.url}, 
+                    React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+                )
             )
             )
     }

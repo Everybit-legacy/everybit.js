@@ -916,7 +916,9 @@ var Logo = React.createClass({
     render: function() {
         return (
             <div>
-                <img src={CONFIG.logo} alt="Logo" className="logo" />
+                <a href={CONFIG.url}>
+                    <img src={CONFIG.logo} alt="Logo" className="logo" />
+                </a>
             </div>
             )
     }

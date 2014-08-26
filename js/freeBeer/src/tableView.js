@@ -150,7 +150,7 @@ var RowRenderMixin = {
 			classArray.push('highlight')
 		}
 		return <a key={sig} className={classArray.join(' ')} onClick={this.handleClickReference.bind(this, sig, type)}>
-			<img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(sig)}/>{preview}
+			<img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
 		</a>
 	},
 	renderRefs: function() {
@@ -173,10 +173,10 @@ var RowRenderMixin = {
 		if (parents.length) {
             parentsEle = (
                 <span>
-                    {parentIcons}
                     <span style={iconStyle}>
-                        <i className="fa fa-fw fa-arrow-right"></i>
-                    </span>
+                        <i className="fa fa-fw fa-dot-circle-o"></i>
+                    </span>{parentIcons}
+
                 </span>
                 )
         }
@@ -188,13 +188,19 @@ var RowRenderMixin = {
 						   .filter(function(s, i, array){return i == array.indexOf(s)});
 		var childrenIcons = children.map(function(sig) 
 							{return self.getReferenceIcon(sig, 'child')});
-		if (children.length) 
-			childrenEle = <span><span style={iconStyle}><i className="fa fa-fw fa-arrow-right"></i></span>{childrenIcons}</span>;
 
-		var mainEle = <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'tp'}} src={getImageCode(this.props.puff.sig)}/>
+
+
+
+		if (children.length) {
+
+                childrenEle = <div><i className="fa fa-fw">●</i>{childrenIcons}</div>;
+
+
+        }
+
 		return <span>
 			{parentsEle}
-			{mainEle}
 			{childrenEle}
 		</span>;
 	},
@@ -612,21 +618,44 @@ var RowSingle = React.createClass({
         // additionStyle.width = this.getRowWidth().toString() + 'px';
 		var showIcons = this.state.showIcons && this.state.showBar;
 		var barClass = ['listbar'];
-		if (!this.state.showBar) {barClass.push('hide')};
-		return <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
-				<span className="listcell" >
-					<span className={barClass.join(' ')} ref="bar"><a href="#" onClick={this.handleToggleShowIcons}>
-                        <i className="fa fa-fw fa-wrench"></i>
-					</a>
-					</span>
-					{showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
-				</span>
-				{columns.map(function(col){
-					width = self.getColumnWidth(col);
-					return self.render_column(col, width, maxHeight)
-				})}
-			{ this.props.showArrow ? <div className="rowArrow"></div> : null }
-		</div>
+        var pufficonClass = ['listbar'];
+		if (!this.state.showBar) {
+            barClass.push('hide');
+            var wrenchElement = (
+                    <span className="fa fa-fw">
+                        <img src={getImageCode(this.props.puff.sig)}/>
+                    </span>
+                )
+        } else {
+            pufficonClass.push('hide');
+            var wrenchElement = (
+                    <span className="listbar" ref="bar">
+                        <a href="#" onClick={this.handleToggleShowIcons}>
+                            <i className="fa fa-fw fa-wrench"></i>
+                        </a>
+                    </span>
+                )
+        };
+
+
+		return (
+            <span>
+                <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
+                    <span className="listcell" >
+                        {wrenchElement}
+                        {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+
+
+
+                    </span>
+                    {columns.map(function(col){
+                        width = self.getColumnWidth(col);
+                        return self.render_column(col, width, maxHeight)
+                    })}
+                    { this.props.showArrow ? <div className="rowArrow"></div> : null }
+                </div>
+            </span>
+            )
 	}
 })
 

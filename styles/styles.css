@@ -205,6 +205,11 @@ p {
     line-height: 1.4em;
 }
 
+.markdownP {
+    text-indent: 1.2em;
+    margin-bottom: 1em;
+}
+
 
 
 textarea {

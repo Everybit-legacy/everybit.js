@@ -177,7 +177,7 @@ var FilterMenu = React.createClass({
     
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(this.props.view.filters[type]);
+        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -219,12 +219,21 @@ var FilterMenu = React.createClass({
         var icon = filterToIcon[type];
 
         var color = this.state.type == type ? 'green' : 'black';
-        return (
-            <span key={type}>
-                <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa fa-fw '+icon}></i>}</button>
-                <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
-            </span>
-        )
+
+
+        // No buttons for non-arrays
+        if(puffworldprops.view.filters[type] instanceof Array) {
+            return (
+                <span key={type}>
+                    <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa '+icon}></i>}</button>
+                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+                </span>
+                )
+
+        } else {
+            return <span></span>
+        }
+
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -233,14 +242,15 @@ var FilterMenu = React.createClass({
             width: '80px',
             display: 'inline-block'
         }
-        
+
+        // Note below filtering out of false stuff
         return (
             <div className="menuItem">
                 <span style={leftColStyle}>{polyglot.t("menu.filters.title")}:</span>
                 <input ref="filter" type="text" className="btn narrowInputField" onKeyDown={this.handleKeyDown} /><a href="#" onClick={this.handleAddFilter}>{' '}<i className="fa fa-plus-circle fa-fw"></i></a><br/>
                 <span style={leftColStyle}>{polyglot.t("menu.filters.by")}:</span>
                 <span className="relative">
-                    {Object.keys(puffworldprops.view.filters).sort().map(this.createEachFilter)}
+                    {Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).sort().map(this.createEachFilter)}
                 </span>
             </div>
         );
@@ -249,8 +259,8 @@ var FilterMenu = React.createClass({
 
 var CurrentFilters = React.createClass({
     render: function() {
-        var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
-            return <FilterBubble key={key} filterName={key} filterValue={this.props.view.filters[key]} />
+        var filterNodes = Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).map(function(key) {
+            return <FilterBubble key={key} filterName={key} filterValue={puffworldprops.view.filters[key]} />
         }.bind(this))
 
         return (
@@ -381,7 +391,7 @@ var ViewMenu = React.createClass({
 
         return (
             <div>
-                <div><CurrentFilters view={this.props.view} /><FilterMenu view={this.props.view} /></div>
+                <div><CurrentFilters /><FilterMenu view={this.props.view} /></div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleViewLatest}>{polyglot.t("menu.view.latest")}</a>{' '}<span className="shortcut">[l]</span>
                     <Tooltip content={polyglot.t("menu.tooltip.latest")} />

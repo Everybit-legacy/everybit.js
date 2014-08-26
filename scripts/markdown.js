@@ -429,7 +429,7 @@ else
             text = _DoItalicsAndBold(text);
 
             // Do hard breaks:
-            text = text.replace(/  +\n/g, " <br>\n");
+            text = text.replace(/  +\n/g, " <br><br>\n");
 
             return text;
         }
@@ -1124,7 +1124,7 @@ else
                 }
                 else if (str.search(/\S/) >= 0) {
                     str = _RunSpanGamut(str);
-                    str = str.replace(/^([ \t]*)/g, "<p>");
+                    str = str.replace(/^([ \t]*)/g, "<p class='markdownP'>");
                     str += "</p>"
                     grafsOut.push(str);
                 }

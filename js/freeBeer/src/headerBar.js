@@ -29,8 +29,8 @@ var HeaderBar = React.createClass({
                 {' '} <HBviewType />
                 {' '} <HBscore />
                 {' '} <HBidentity />
-                {' '} <HBFilters view={this.props.view} />
-                {' '} <HBsort view={this.props.view} /><HBCurrentFilters view={this.props.view} />
+                {' '} <HBFilters />
+                {' '} <HBsort /><HBCurrentFilters />
             </div>
             )
     }
@@ -177,11 +177,10 @@ var HBCurrentFilters = React.createClass({
         /*var filterNodes = Object.keys(this.props.view.filters).map(function(key) {
             return <HBFilterBubble key={key} filterName={key} filterValue={this.props.view.filters[key]} />
         }.bind(this))*/
-        var self = this;
         return (
             <span>
-                {Object.keys(self.props.view.filters).map(function(key) {
-                    return <HBFilterBubble key={key} filterName={key} filterValue={self.props.view.filters[key]} />
+                {Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).map(function(key) {
+                    return <HBFilterBubble key={key} filterName={key} filterValue={puffworldprops.view.filters[key]} />
                 })}
             </span>
             );
@@ -268,7 +267,7 @@ var HBFilters = React.createClass({
 
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(this.props.view.filters[type]);
+        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -309,16 +308,25 @@ var HBFilters = React.createClass({
         var icon = filterToIcon[type];
 
         var color = this.state.type == type ? 'green' : 'black';
-        return (
-            <span key={type}>
-                <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa '+icon}></i>}</button>
-                <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
-            </span>
-            )
+
+        // No buttons for non-arrays
+        if(puffworldprops.view.filters[type] instanceof Array) {
+            return (
+                <span key={type}>
+                    <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa '+icon}></i>}</button>
+                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+                </span>
+                )
+
+        } else {
+            return <span></span>
+        }
+
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var all_filter = Object.keys(puffworldprops.view.filters).sort();
+        var all_filter = Object.keys(puffworldprops.view.filters).sort().filter(function(n){ return !!puffworldprops.view.filters[n] });
+
         var leftColStyle = {
             display: 'inline-block'
         }
@@ -418,7 +426,7 @@ var HBoffset = React.createClass({
         }
     },
     render: function() {
-        var offsetStart = this.props.view.query.offset || 0;
+        var offsetStart = puffworldprops.query.offset || 0;
         return (
             <span>
                 Showing {offsetStart} &em;
@@ -430,14 +438,14 @@ var HBoffset = React.createClass({
 var HBsort = React.createClass({
     mixins: [TooltipMixin],
     handleToggleSort: function() {
-        var sort = this.props.view.query.sort || 'DESC';
+        var sort = puffworldprops.view.query.sort || 'DESC';
         sort = (sort == 'DESC') ? 'ASC' : 'DESC';
         events.pub("ui/query/sort", {'view.query.sort': sort});
         return false;
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        var sort = this.props.view.query.sort || 'DESC';
+        var sort = puffworldprops.view.query.sort || 'DESC';
         var className = "fa btn blue fa-sort-amount-"+sort.toLowerCase();
         return (
             <span className="relative">

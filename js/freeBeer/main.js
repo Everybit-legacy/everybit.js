@@ -15,7 +15,7 @@ puffworldprops = {
     },
 
     menu: {
-        show: true,
+        show: false,
         prefs: false,
         profile: false,
         import: false,                                  // import username
@@ -55,20 +55,21 @@ puffworldprops = {
 
 
     view: {
-        mode: 'list',
+        mode: 'tableView',
         
         filters: {
             tags: [],
             types: [],
             users : [],
-            routes: []
+            routes: [],
+            roots: false // View puffs w/no parents
         },
 
         // TODO: move these options into view.layout
         arrows    : true,                              // true -> show relationship arrows between puffs
         rows      : 4,
         // cols      : 5,                               // THINK: not currently used...
-        boxRatio  : 1,
+        boxRatio  : 1.61,
         bigrows   : 2,
         bigcols   : 2,
         
@@ -101,17 +102,17 @@ puffworldprops = {
             column: {
                 refs: {
                     show: true,
-                    weight:1,
+                    weight:.8,
                     allowSort: false
                 },
                 user: {
                     show: true,
-                    weight: 1.5,
+                    weight: 1,
                     allowSort: false
                 },
                 content: {
                     show: true,
-                    weight: 3,
+                    weight: 3.5,
                     allowSort: false
                 },
                 date: {
@@ -120,13 +121,13 @@ puffworldprops = {
                     allowSort: true
                 },
                 tags: {
-                    show: true,
+                    show: false,
                     weight: 1.5,
                     allowSort: false
                 },
                 other: {
                     show: true,
-                    weight: 2,
+                    weight: 1.5,
                     allowSort: false
                 },
                 score: {

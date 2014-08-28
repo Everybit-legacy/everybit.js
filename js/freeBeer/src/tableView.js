@@ -154,16 +154,10 @@ var RowRenderMixin = {
 		</a>
 	},
 	renderRefs: function() {
-		var iconStyle = {
-			display: 'inline-block',
-			height: '20px',
-			verticalAlign: 'top',
-			marginBottom: '2px'
-		};
 		var sig = this.props.puff.sig;
 		var self = this;
 
-		var parentsEle = <span></span>;
+		var parentsEle = <div></div>;
 		var parents = PuffData.graph.v(sig).out('parent').run();
 		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
 						 .filter(Boolean)
@@ -172,16 +166,11 @@ var RowRenderMixin = {
 							{return self.getReferenceIcon(sig, 'parent')});
 		if (parents.length) {
             parentsEle = (
-                <span>
-                    <span style={iconStyle}>
-                        <i className="fa fa-fw fa-dot-circle-o"></i>
-                    </span>{parentIcons}
-
-                </span>
-                )
+                <div><i className="fa fa-fw fa-dot-circle-o"></i>{parentIcons}</div>
+            )
         }
 
-		var childrenEle = <span></span>;
+		var childrenEle = <div></div>
 		var children = PuffData.graph.v(sig).out('child').run();
 		children = children.map(function(v){if (v.shell) return v.shell.sig})
 						   .filter(Boolean)
@@ -193,16 +182,15 @@ var RowRenderMixin = {
 
 
 		if (children.length) {
-
-                childrenEle = <div><i className="fa fa-fw">●</i>{childrenIcons}</div>;
-
-
+                childrenEle = <div><i className="fa fa-fw">●</i>{childrenIcons}</div>
         }
 
-		return <span>
-			{parentsEle}
-			{childrenEle}
-		</span>;
+		return (
+            <span>
+			    {parentsEle}
+			    {childrenEle}
+		    </span>
+        )
 	},
 	renderScore: function() {
         var showStar = true;

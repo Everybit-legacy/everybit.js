@@ -140,6 +140,11 @@ section {
     animation: flash 1s;
 }
 
+.bigStart::first-line {
+    font-size: 150%;
+    font-family: Georgia, "Bookman", "Times New Roman", serif;
+}
+
 .block.focused .txt {
     overflow-x: auto;
 }
@@ -206,7 +211,7 @@ p {
 }
 
 .markdownP {
-    text-indent: 1.2em;
+    font-size: 1.2em;
     margin-bottom: 1em;
 }
 

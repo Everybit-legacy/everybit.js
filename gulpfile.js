@@ -48,12 +48,15 @@ var ourOthersList = [
               'js/core/PB.Net.js',
               'js/core/PB.Data.js',
               'js/core/PB.Crypto.js',
+              'js/core/PB.Persist.js',
 
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',
+              
               'js/freeBeer/usernameImport.js',
 
               'js/freeBeer/main.js']; 
+
 gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)
         //.pipe(sourcemaps.init())

@@ -250,3 +250,11 @@ PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     }, {})
 }
 
+
+// PB.Crypto.verifyBlock = function(block, publicKeyBase58) {
+//     return PB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
+// }
+
+// PB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+//     return PB.Crypto.signPayload(blockPayload, privateKeyWIF);
+// }

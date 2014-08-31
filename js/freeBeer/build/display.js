@@ -501,7 +501,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
     },
     */
     render: function() {
-        // if(!PuffData.stupidHorribleGlobalThing) return <div></div>
+        // if(!PB.Data.stupidHorribleGlobalThing) return <div></div>
         
         globalSillyPropsClone = Boron.shallow_copy(puffworldprops)
         
@@ -590,7 +590,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var parents = [], grandparents = [], greatgrandparents = []
         
         if(ancestorRows >= 1) {
-            parents = PuffData.graph.v(sig).out('parent')
+            parents = PB.Data.graph.v(sig).out('parent')
                               .unique().filter(propsfilter).take(cols)
                               .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -601,7 +601,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var notParent = graphize(difffilter([puff].concat(parents)))
 
         if(ancestorRows >= 2) {
-            grandparents = PuffData.graph.v(sig).out('parent').out('parent')
+            grandparents = PB.Data.graph.v(sig).out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notParent).take(cols)
                                    .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -612,7 +612,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var notGrandParent = graphize(difffilter([puff].concat(parents, grandparents)))
 
         if(ancestorRows >= 2) {
-            greatgrandparents = PuffData.graph.v(sig).out('parent').out('parent').out('parent')
+            greatgrandparents = PB.Data.graph.v(sig).out('parent').out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notGrandParent).take(cols)
                                    .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -631,7 +631,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var kids = [], gkids = [], ggkids = [], gggkids = []
         
         if(descendantRows >= 1) {
-            kids = PuffData.graph.v(sig).out('child')
+            kids = PB.Data.graph.v(sig).out('child')
                            .unique().filter(propsfilter).take(cols)
                            .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -642,7 +642,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var notKid = graphize(difffilter([puff].concat(kids)))
         
         if(descendantRows >= 2) {
-            gkids = PuffData.graph.v(sig).out('child').out('child')
+            gkids = PB.Data.graph.v(sig).out('child').out('child')
                             .unique().filter(propsfilter).filter(notKid).take(cols)
                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -653,7 +653,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var notGKid = graphize(difffilter([puff].concat(kids, gkids)))
         
         if(descendantRows >= 3) {
-            ggkids = PuffData.graph.v(sig).out('child').out('child').out('child')
+            ggkids = PB.Data.graph.v(sig).out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGKid).take(cols)
                              .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -664,7 +664,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var notGGKid = graphize(difffilter([puff].concat(kids, gkids, ggkids)))
         
         if(descendantRows >= 4) {
-            gggkids = PuffData.graph.v(sig).out('child').out('child').out('child').out('child')
+            gggkids = PB.Data.graph.v(sig).out('child').out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGGKid).take(cols)
                              .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
 
@@ -684,30 +684,30 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
         // var genLimit = 10
         // var notSelf  = graphize(difffilter([puff]))
-        // var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
+        // var ancestorPuffs = PB.Data.graph.v(sig).outAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notSelf)
         //                             .take(ancestorTotal).property('shell').run()
         //                             .map(PuffForum.getPuffBySig).filter(Boolean)
         //
         // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
         //
-        // var childrenPuffs = PuffData.graph.v(sig).inAllN('parent', genLimit)
+        // var childrenPuffs = PB.Data.graph.v(sig).inAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notAncestor)
         //                             .take(childrenTotal).property('shell').run()
         //                             .map(PuffForum.getPuffBySig).filter(Boolean)
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
-        var siblingPuffs  = PuffData.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
+        var siblingPuffs  = PB.Data.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
                                     .unique().filter(propsfilter).filter(notRelated)
                                     .take(siblingTotal).property('shell').run()
                                     .map(PuffForum.getPuffBySig).filter(Boolean)
         
         // fill remaining slots
         // TODO: this isn't right with the new stuff
-        PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, Boron.extend({}, query, {mode: 'ancestors'}), filters)
-        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, Boron.extend({}, query, {mode: 'descendants'}), filters)
-        PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, Boron.extend({}, query, {mode: 'siblings'}), filters)
+        PB.Data.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, Boron.extend({}, query, {mode: 'ancestors'}), filters)
+        PB.Data.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, Boron.extend({}, query, {mode: 'descendants'}), filters)
+        PB.Data.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, Boron.extend({}, query, {mode: 'siblings'}), filters)
         
         // special sorting for children puffs
         // TODO: bring this back for the new stuff

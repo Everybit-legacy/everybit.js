@@ -227,7 +227,7 @@ events.sub("filter/*", function(data, path) {
     } 
 
     events.pub('ui/query/default', data);
-    PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
+    PB.Data.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })
 
 // TODO: move these somewhere nicer
@@ -318,7 +318,7 @@ formatForDisplay = function(obj, style) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // PuffData.getShells().forEach(function(puff) {
+//   // PB.Data.getShells().forEach(function(puff) {
 //   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
@@ -474,7 +474,7 @@ function showPuff(sig) {
     if(puff)
         return showPuffDirectly(puff)                               // got it.
 
-    var prom = PuffData.pending[sig]                                // say what?
+    var prom = PB.Data.pending[sig]                                // say what?
     if(!prom)
         return PB.onError('Bad sig in pushstate')
 

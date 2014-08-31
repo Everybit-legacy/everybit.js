@@ -158,7 +158,7 @@ var RowRenderMixin = {
 		var self = this;
 
 		var parentsEle = <div></div>;
-		var parents = PuffData.graph.v(sig).out('parent').run();
+		var parents = PB.Data.graph.v(sig).out('parent').run();
 		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
 						 .filter(Boolean)
 						 .filter(function(s, i, array){return i == array.indexOf(s)});
@@ -171,7 +171,7 @@ var RowRenderMixin = {
         }
 
 		var childrenEle = <div></div>
-		var children = PuffData.graph.v(sig).out('child').run();
+		var children = PB.Data.graph.v(sig).out('child').run();
 		children = children.map(function(v){if (v.shell) return v.shell.sig})
 						   .filter(Boolean)
 						   .filter(function(s, i, array){return i == array.indexOf(s)});
@@ -194,7 +194,7 @@ var RowRenderMixin = {
 	},
 	renderScore: function() {
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 		return showStar ? <PuffStar sig={this.props.puff.sig}/> : '';
@@ -224,7 +224,7 @@ var RowSortMixin = {
 	}, 
 	getScore: function(puff) {
 		var score = 0;
-        var starStats = PuffData.getBonus({sig: puff.sig}, 'starStats');
+        var starStats = PB.Data.getBonus({sig: puff.sig}, 'starStats');
         if(starStats && starStats.from) {
             score = starStats.score
         }
@@ -571,13 +571,13 @@ var RowSingle = React.createClass({
 
         var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
-        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        var outerPuff = PB.Data.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
             (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
             flagged = true;
         }	
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             classArray.push('encrypted');
 
@@ -657,7 +657,7 @@ var RowBox = React.createClass({
 		}
 	},
 	getGroup: function(originSig, relation) {
-		var group = PuffData.graph.v(originSig).out(relation).run();
+		var group = PB.Data.graph.v(originSig).out(relation).run();
 		group = group
 				.map(function(v){return v.shell})
 				.filter(Boolean)
@@ -910,7 +910,7 @@ var RowBar = React.createClass({
 
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 

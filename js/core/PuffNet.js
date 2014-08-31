@@ -151,15 +151,15 @@ PuffNet.getAncestors = function(start, limit) {
             return getEm(todo.slice(1), done, remaining) // we've already done this one
         }
         
-        // TODO: set a callback in PuffNet instead of calling PuffData directly
-        var puff = PuffData.getPuffBySig(sig) // effectful
+        // TODO: set a callback in PuffNet instead of calling PB.Data directly
+        var puff = PB.Data.getPuffBySig(sig) // effectful
     
         if(puff) 
             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
 
         // no puff? that's ok. attach a then clause to its pending promise. // TODO: this is a major hack
         remaining-- // because we're adding a new puff, or at least new content
-        var prom = PuffData.pending[sig]
+        var prom = PB.Data.pending[sig]
         prom.then(function(puffs) {
             getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
         })
@@ -172,7 +172,7 @@ PuffNet.getAncestors = function(start, limit) {
     //     return Promise.resolve(results)             // all done
     //
     // var sig = todo[0]
-    // var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
+    // var shell = PB.Data.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
     //          || results.filter(function(result) {return result.sig == sig})[0]
     //
     // // if we already have a puff for sig, then we just need to put its parents on the todo stack
@@ -202,12 +202,12 @@ PuffNet.getDescendants = function(start, limit) {
             return getEm(todo.slice(1), done, remaining) // we've already done this one
         }
         
-        // TODO: set a callback in PuffNet instead of calling PuffData directly
-        var haveShell = PuffData.getCachedShellBySig(sig) 
+        // TODO: set a callback in PuffNet instead of calling PB.Data directly
+        var haveShell = PB.Data.getCachedShellBySig(sig) 
         
         if(!haveShell) { // we don't have the shell yet, so go get it
-            // TODO: callback PuffData erg merb lerb herp derp
-            PuffData.getPuffBySig(sig)  // effectful
+            // TODO: callback PB.Data erg merb lerb herp derp
+            PB.Data.getPuffBySig(sig)  // effectful
             remaining--
         }
         
@@ -304,7 +304,7 @@ PuffNet.sendPuffToServer = function(puff) {
  * @return {object}          on fullfilled passes the user record as object, otherwise re-throw error
  */
 PuffNet.getUserRecord = function(username) {
-    // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+    // TODO: call PuffNet.getUserRecordFile, add the returned users to PB.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
@@ -536,7 +536,7 @@ PuffNet.P2P.connection = function(connection) {
     PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        PuffData.addShellsThenMakeAvailable(data); // TODO: pass a callback in to PuffNet instead of calling this directly
+        PB.Data.addShellsThenMakeAvailable(data); // TODO: pass a callback in to PuffNet instead of calling this directly
     });
 };
 

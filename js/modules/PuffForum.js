@@ -68,7 +68,7 @@ PuffForum.filterShells = function(shells, query, filters) {
  * @returns {Shell[]}
  */
 PuffForum.getAllMyShells = function() {
-    var publicShells = PuffData.getPublicShells()
+    var publicShells = PB.Data.getPublicShells()
     var encryptedShells = PuffForum.getEncryptedShells()
     return publicShells.concat(encryptedShells)
 }
@@ -82,12 +82,12 @@ PuffForum.getEncryptedShells = function() {
 
     
     
-    return PuffData.getCurrentDecryptedShells()
+    return PB.Data.getCurrentDecryptedShells()
     
     
     
     var myUsername = PuffWardrobe.getCurrentUsername()
-    var encryptedShells = PuffData.getMyEncryptedShells(myUsername)
+    var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
                                   .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                   .filter(Boolean)
     
@@ -212,12 +212,12 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
         }
         PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
         PuffForum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
-        PuffData.addBonus(letter, 'envelope', envelope)                             // mark it for later
+        PB.Data.addBonus(letter, 'envelope', envelope)                             // mark it for later
         return letter
     }
     
     var yourUsername   = envelope.username
-    var yourUserRecord = PuffData.getCachedUserRecord(yourUsername)
+    var yourUserRecord = PB.Data.getCachedUserRecord(yourUsername)
     
     if(yourUserRecord) 
         return doit(envelope, yourUserRecord)
@@ -229,8 +229,8 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
         // puts it in the cache for next time
         
         // add for display (sepecrate from here?)
-        PuffData.currentDecryptedShells.push(decrypted)
-        PuffData.addToGraph([decrypted])
+        PB.Data.currentDecryptedShells.push(decrypted)
+        PB.Data.addToGraph([decrypted])
         PuffForum.addFamilialEdges([decrypted])
         
         updateUI()                                                                  // redraw everything once DHT responds
@@ -246,7 +246,7 @@ PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
     var myUsername = PuffWardrobe.getCurrentUsername()
   
-    var shell = PuffData.getCachedShellBySig(sig)                              // check in lower cache
+    var shell = PB.Data.getCachedShellBySig(sig)                              // check in lower cache
     
     if(!shell)
         shell = PuffForum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
@@ -306,7 +306,7 @@ PuffForum.getParentCount = function(puff, props) {
     
     var sig = puff.sig || puff
     
-    return PuffData.graph.v(sig).out('parent').run().length
+    return PB.Data.graph.v(sig).out('parent').run().length
 }
 
 /**
@@ -319,7 +319,7 @@ PuffForum.getChildCount = function(puff) {
     
     var sig = puff.sig || puff
     
-    return PuffData.graph.v(sig).out('child').run().length
+    return PB.Data.graph.v(sig).out('child').run().length
 }
 
 
@@ -357,7 +357,7 @@ PuffForum.getPuffList = function(query, filters, limit) {
     if(have >= limit)
         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 
-    PuffData.fillSomeSlotsPlease(limit, have, query, filters)
+    PB.Data.fillSomeSlotsPlease(limit, have, query, filters)
     
     return puffs;
 } 
@@ -411,11 +411,11 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
                        
     prom.then(function(puff) {
         if(puff.keys) { // TODO: this is hacky
-            PuffData.removeShellFromCache(puff.sig)
-            PuffData.addPrivateShells([puff])
+            PB.Data.removeShellFromCache(puff.sig)
+            PB.Data.addPrivateShells([puff])
             updateUI()
             // username = PuffWardrobe.getCurrentUsername()
-            // PuffData.importPrivateShells(username)
+            // PB.Data.importPrivateShells(username)
         }
         
         return puff
@@ -502,13 +502,13 @@ PuffForum.addFamilialEdgesForShell = function(child) {
 }
 
 PuffForum.addFamilialEdgesForParent = function(child) {
-    var existingParents = PuffData.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
+    var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
     
     return function(parentSig) {
         if(~existingParents.indexOf(parentSig)) return false                        // done?
-        PuffData.addSigAsVertex(parentSig)                                          // idempotent
-        PuffData.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
-        PuffData.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
+        PB.Data.addSigAsVertex(parentSig)                                          // idempotent
+        PB.Data.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
+        PB.Data.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
     }
 }
 

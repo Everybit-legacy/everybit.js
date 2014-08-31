@@ -44,9 +44,9 @@ PB.newPuffCallbacks = [];
  * @param  {array} zone array of zones
  */
 PB.init = function(zone) {
-    PuffData.depersistUserRecords()
+    PB.Data.depersistUserRecords()
     
-    PuffData.importShells()
+    PB.Data.importShells()
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
@@ -174,7 +174,7 @@ PB.processUserRecord = function(userRecord) {
     if(!userRecord)
         return PB.onError('That is not an acceptable user record', userRecord);
     
-    PuffData.cacheUserRecord(userRecord);
+    PB.Data.cacheUserRecord(userRecord);
     
     return userRecord;
 }
@@ -188,7 +188,7 @@ PB.processUserRecord = function(userRecord) {
 PB.getUserRecord = function(username) {
     //// This always checks the cache, and always returns a promise
     
-    var userRecord = PuffData.getCachedUserRecord(username);
+    var userRecord = PB.Data.getCachedUserRecord(username);
     
     if(userRecord)
         return Promise.resolve(userRecord);
@@ -221,7 +221,7 @@ PB.getPuffFromShell = function(shell_or_sig) {
     
     var sig = shell_or_sig.sig || shell_or_sig
     
-    return PuffData.getPuffBySig(sig) // returns a puff, or asks the network and returns false
+    return PB.Data.getPuffBySig(sig) // returns a puff, or asks the network and returns false
 }
 
 /**
@@ -230,9 +230,9 @@ PB.getPuffFromShell = function(shell_or_sig) {
  */
 PB.addPuffToSystem = function(puff) {
     
-    if(PuffData.getCachedShellBySig(puff.sig)) return false
+    if(PB.Data.getCachedShellBySig(puff.sig)) return false
     
-    PuffData.addShellsThenMakeAvailable(puff);
+    PB.Data.addShellsThenMakeAvailable(puff);
 
     PuffNet.distributePuff(puff);
     
@@ -247,7 +247,7 @@ PB.addPuffToSystem = function(puff) {
 PB.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
     
-    // TODO: this is only called from PuffData.makeShellsAvailable -- pull this down there or rethink it all
+    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
     
     puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
 

@@ -19,7 +19,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         if(this.props.view.cursor == puff.sig) {
             classArray.push('cursor')            
         }
-        if(PuffData.getBonus(puff, 'envelope'))
+        if(PB.Data.getBonus(puff, 'envelope'))
             classArray.push('encrypted')
         
         if (this.props.view.flash) {
@@ -28,7 +28,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         }
         var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
-        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        var outerPuff = PB.Data.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
             (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
@@ -53,7 +53,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         var replied = false;
         var countChildren = PuffForum.getChildCount(puff);
         if (countChildren > 0) {
-            var kids = PuffData.graph.v(puff.sig).out('child').run();
+            var kids = PB.Data.graph.v(puff.sig).out('child').run();
             var curUser = PuffWardrobe.getCurrentUsername();
             for (var i=0; i<countChildren; i++) {
                 if (kids[i].shell.username==curUser) {
@@ -186,7 +186,7 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 
@@ -296,7 +296,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 
         var self = this;
         var sig = this.props.puff.sig;
-        var env = PuffData.getBonus(self.props.puff, 'envelope');
+        var env = PB.Data.getBonus(self.props.puff, 'envelope');
         if (env)
             sig = env.sig;
         var prom = PuffForum.flagPuff(sig);
@@ -745,7 +745,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             
         var sig = this.props.sig
         var fauxShell = {sig: sig} // grumble grumble
-        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var starStats = PB.Data.getBonus(fauxShell, 'starStats');
         var iHaveStarredThis = ((starStats||{}).from||{})[username]
         
         if(iHaveStarredThis) {
@@ -753,7 +753,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var starSig = iHaveStarredThis;
             var prom = PuffForum.flagPuff(starSig);
             prom.then(function(result) {
-                    PuffData.removeStar(sig, username)
+                    PB.Data.removeStar(sig, username)
                 })
                 .catch(function(err) {
                    alert(err);
@@ -770,7 +770,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             prom.then(takeUserMakePuff)
                 .then(function(puff){
                     self.setState({ pending: false });
-                    PuffData.addStar(sig, username, puff.sig)
+                    PB.Data.addStar(sig, username, puff.sig)
                 })
                 .catch(PB.promiseError('Posting failed'));
         }
@@ -778,7 +778,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
     },
     render: function() {
         var fauxShell = {sig: this.props.sig} // grumble grumble
-        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var starStats = PB.Data.getBonus(fauxShell, 'starStats');
 
         var score = 0
         var color = 'black'
@@ -835,7 +835,7 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
         reply.state.meta = Boron.shallow_copy(puff.payload);
 
         reply.privacy = 'public';
-        var envelope = PuffData.getBonus(puff, 'envelope');
+        var envelope = PB.Data.getBonus(puff, 'envelope');
         if(envelope && envelope.keys)
             reply.privacy = "private";
         if (puff.payload.type == 'profile' || puff.payload.type == 'image') {

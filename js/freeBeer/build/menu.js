@@ -670,7 +670,7 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
 
     handleRefresh: function() {
         // TODO: this doesn't respect filters etc and should be websockets instead of a query
-        PuffData.importRemoteShells()
+        PB.Data.importRemoteShells()
         return false               // (like, sockets from a p2p node that links rtc-less browsers to the network)
     },
 

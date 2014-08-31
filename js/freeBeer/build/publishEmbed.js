@@ -549,7 +549,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 
         var usernames = this.state.usernames;
         
-        var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
         
         // if we haven't cached all the users, we'll need to grab them first
@@ -568,7 +568,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         prom = prom.then(function() {
             if(envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PuffData.getCachedUserRecord(envelopeUserKeys.username))
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PuffWardrobe.getCurrentUserRecord())
             }
@@ -843,7 +843,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             // type = parent.payload.type;
 
             // figure out reply privacy
-            var envelope = PuffData.getBonus(parent, 'envelope');
+            var envelope = PB.Data.getBonus(parent, 'envelope');
             if(envelope && envelope.keys)
                 privacyDefault = "private";
                 

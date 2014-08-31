@@ -69,7 +69,7 @@ PuffWardrobe.getCurrentUserRecord = function() {
     //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
     //        since after all we have stored the userRecord in our wardrobe, haven't we?
     
-    var userRecord = PuffData.userRecords[username]
+    var userRecord = PB.Data.userRecords[username]
     if(!userRecord)
         return PB.onError('That user does not exist in our records')
     
@@ -107,7 +107,7 @@ PuffWardrobe.switchCurrent = function(username) {
     PB.Persist.save('identity', username); // save to localStorage
     
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-    PuffData.importPrivateShells(username)
+    PB.Data.importPrivateShells(username)
     
     return PuffWardrobe.currentKeys = keys
 }

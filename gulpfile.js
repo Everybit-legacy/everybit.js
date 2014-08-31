@@ -45,8 +45,9 @@ var ourOthersList = [
               'js/libs/dagoba.js',
 
               'js/core/PB.js',
-              'js/core/PB.Data.js',
               'js/core/PB.Net.js',
+              'js/core/PB.Data.js',
+              'js/core/PB.Crypto.js',
 
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',

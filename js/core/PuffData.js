@@ -211,9 +211,9 @@ PuffData.makeShellsAvailable = function(shells) {
     //// alert everyone: new shells have arrived!
     
     // TODO: this isn't right -- fix this upper layer too
-    // Puffball.receiveNewPuffs(PuffData.shells) // may have to pass delta here
+    // PB.receiveNewPuffs(PuffData.shells) // may have to pass delta here
     
-    Puffball.receiveNewPuffs(shells) // may have to pass delta here
+    PB.receiveNewPuffs(shells) // may have to pass delta here
     
 }
 
@@ -245,7 +245,7 @@ PuffData.scoreStars = function(usernames) {
     // TODO: this doesn't belong here
     var tluScore = 0;
     var suScore = 0;
-    var scorePref = PB.shallow_copy(puffworldprops.view.score);
+    var scorePref = Boron.shallow_copy(puffworldprops.view.score);
     for (var k in scorePref) {
         if (scorePref[k]) {
             var s = parseFloat(scorePref[k]);
@@ -343,7 +343,7 @@ PuffData.persistShells = function(shells) {
     
     // shells = shells.filter(function(shell) { return !shell.payload.content || (shell.payload.content.length < 1000) })
     
-    Puffball.Persist.save('shells', shells)
+    PB.Persist.save('shells', shells)
 }
 
 /**
@@ -386,8 +386,8 @@ PuffData.importShells = function() {
  * to import local shells
  */
 PuffData.importLocalShells = function() {   // callback) {
-    // PuffData.shells = Puffball.Persist.get('shells') || []
-    var localShells = Puffball.Persist.get('shells') || []
+    // PuffData.shells = PB.Persist.get('shells') || []
+    var localShells = PB.Persist.get('shells') || []
     
     PuffData.addShellsThenMakeAvailable(localShells)
 }
@@ -628,7 +628,7 @@ PuffData.getPuffBySig = function(sig) {
             var fauxshell = {sig: sig}
             if(!PuffData.getBonus(fauxshell, 'envelope')) {
                 PuffData.removeShellFromCache(sig) // no updateUI call
-                return Puffball.throwError("Content can not be found for shell '" + sig + "'")
+                return PB.throwError("Content can not be found for shell '" + sig + "'")
                 // THINK: unlock PuffData.pending[sig]? probably not, but it might re-appear later...
             }
         }
@@ -683,10 +683,10 @@ PuffData.isGoodPuff = function(puff) {
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    var prom = Puffball.getUserRecord(puff.username);
+    var prom = PB.getUserRecord(puff.username);
     
     return prom.then(function(user) {
-        return Puffball.Crypto.verifyPuffSig(puff, user.defaultKey);
+        return PB.Crypto.verifyPuffSig(puff, user.defaultKey);
     });
 }
 
@@ -705,11 +705,11 @@ PuffData.getCachedUserRecord = function(username) {
  * @return {object}
  */
 PuffData.cacheUserRecord = function(userRecord) {
-    //// This caches with no validation -- don't use it directly, use Puffball.processUserRecord instead
+    //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
     
     PuffData.userRecords[userRecord.username] = userRecord;
     
-    Puffball.Persist.save('userRecords', PuffData.userRecords); // OPT: this could get expensive
+    PB.Persist.save('userRecords', PuffData.userRecords); // OPT: this could get expensive
     
     return userRecord;
     
@@ -729,7 +729,7 @@ PuffData.cacheUserRecord = function(userRecord) {
  */
 PuffData.depersistUserRecords = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    PuffData.userRecords = Puffball.Persist.get('userRecords') || {};
+    PuffData.userRecords = PB.Persist.get('userRecords') || {};
 }
 
 /**
@@ -937,7 +937,7 @@ PuffData.getShellsForLocalStorage = function() {
 
 PuffData.compactPuff = function(puff) {
     // THINK: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
-    var new_shell = PB.extend(puff)
+    var new_shell = Boron.extend(puff)
     var new_payload = {}
     for(var prop in puff.payload)
         if(prop != 'content')

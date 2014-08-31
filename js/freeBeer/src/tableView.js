@@ -290,7 +290,7 @@ var TableView = React.createClass({
 		return puffs;
 	},
 	handleForceLoad: function() {
-		var query = PB.shallow_copy(this.props.view.query);
+		var query = Boron.shallow_copy(this.props.view.query);
 		query.offset = (+query.offset || 0) + this.state.loaded;
 		var filters = puffworldprops.view.filters;
 		var limit = 10;
@@ -503,7 +503,7 @@ var RowSingle = React.createClass({
 				currentColumns.indexOf(col) == -1 &&
 				col != 'parents') {
 				var jsonToSet = {};
-				jsonToSet['view.table.column.'+col] = PB.shallow_copy(CONFIG.defaultColumn);
+				jsonToSet['view.table.column.'+col] = Boron.shallow_copy(CONFIG.defaultColumn);
 				update_puffworldprops(jsonToSet)
 			}
 		}
@@ -519,7 +519,7 @@ var RowSingle = React.createClass({
     handleShowRelationGroup: function(sig, type) {
     	if (this.props.inGroup) return false;
     	var rowSig = this.props.puff.sig;
-    	var relationGroup = PB.shallow_copy(puffworldprops.view.table.relationGroup) || {};
+    	var relationGroup = Boron.shallow_copy(puffworldprops.view.table.relationGroup) || {};
     	/*if (relationGroup.sig == rowSig) {
     		return events.pub('ui/hide-relation-group', {'view.table.relationGroup':false})
     	}*/
@@ -569,7 +569,7 @@ var RowSingle = React.createClass({
 
 		var classArray = ['listrow'];
 
-        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
         var outerPuff = PuffData.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
@@ -701,7 +701,7 @@ var RowBox = React.createClass({
 							.concat(additionGroups.map(function(){return 0}));
 		var groupArray = [group].concat(additionGroups);
 
-		var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
+		var newSelected = Boron.shallow_copy(this.state[dir+'Selected']);
 		if (originLevel != -1) {
 			newSelected = newSelected.slice(0, originLevel+1)			
 		} else {
@@ -709,7 +709,7 @@ var RowBox = React.createClass({
 		}
 		newSelected = newSelected.concat(indexArray);
 
-		var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
+		var newGroups = Boron.shallow_copy(this.state[dir+'Groups']);
 		if (originLevel != -1) {
 			newGroups = newGroups.slice(0, originLevel+1)
 		} else {
@@ -757,9 +757,9 @@ var RowBox = React.createClass({
 
 		// parent
 		var parentGroupsCombined = <span></span>;
-		var parentGroups = PB.shallow_copy(this.state.parentGroups);
+		var parentGroups = Boron.shallow_copy(this.state.parentGroups);
 		if (parentGroups.length) {
-			var parentSelected = PB.shallow_copy(this.state.parentSelected);
+			var parentSelected = Boron.shallow_copy(this.state.parentSelected);
 			if (!parentSelected || !parentSelected.length) {
 				parentSelected = parentGroups.map(function(){return 0});
 			}
@@ -803,9 +803,9 @@ var RowBox = React.createClass({
 
 		// child
 		var childGroupsCombined = <span></span>;
-		var childGroups = PB.shallow_copy(this.state.childGroups);
+		var childGroups = Boron.shallow_copy(this.state.childGroups);
 		if (childGroups.length) {
-			var childSelected = PB.shallow_copy(this.state.childSelected);
+			var childSelected = Boron.shallow_copy(this.state.childSelected);
 			if (!childSelected || !childSelected.length) {
 				childSelected = childGroups.map(function(){return 0});
 			}

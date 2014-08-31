@@ -56,7 +56,7 @@ var PuffPacker = React.createClass({
         var username = this.refs.username.getDOMNode().value;
         var self = this;
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(result) {
             self.state.result = result || "";
@@ -70,17 +70,17 @@ var PuffPacker = React.createClass({
 
     handleGeneratePrivateKeys: function() {
         // Get private keys
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey();
+        var adminKey = PB.Crypto.generatePrivateKey();
+        var defaultKey = PB.Crypto.generatePrivateKey();
 
         this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
         this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
         this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
 
-        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);
+        this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(defaultKey);
     },
 
     handleBuildRegisterUserPuff: function() {
@@ -112,7 +112,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {};
 
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+        var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this;
@@ -170,7 +170,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {}
 
-        var puff = Puffball.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
+        var puff = PB.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this;
@@ -241,7 +241,7 @@ var PuffPacker = React.createClass({
         var username = PuffWardrobe.getCurrentUsername();
         var self = this;
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(userRecord) {
             self.state.latest = userRecord.latest;
@@ -269,7 +269,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {}
 
-        var puff = Puffball.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
+        var puff = PB.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
 
         var self = this;
         self.state.puff = puff;
@@ -282,7 +282,7 @@ var PuffPacker = React.createClass({
         PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
         PuffWardrobe.switchCurrent('anon');
         events.pub('ui/puff-packer/set-identity-to-anon', {});
-        // var keys = Puffball.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
+        // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
         // PuffWardrobe.addUserReally('anon', keys);
     },
     handleImport: function() {

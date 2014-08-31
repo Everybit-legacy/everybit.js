@@ -28,7 +28,7 @@
 
 
   ---> register callback handlers for user record creation and modification
-  ---> PuffWardrobe.init registers those with Puffball.onUserCreation and Puffball.onUserModification
+  ---> PuffWardrobe.init registers those with PB.onUserCreation and PB.onUserModification
   ---> canonical identity object: username, keys.public.default, keys.private.admin, latest, etc. [or just use the spec... yeah. w/ .private for private key versions...]
   ---> always use CIO for everything; distinguish identities from users for all time. (...?)
   ---> 
@@ -63,7 +63,7 @@ PuffWardrobe.getCurrentUsername = function() {
 PuffWardrobe.getCurrentUserRecord = function() {
     var username = PuffWardrobe.getCurrentUsername()
     if(!username) 
-        return Puffball.onError('No current user in wardrobe')
+        return PB.onError('No current user in wardrobe')
     
     // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
     //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
@@ -71,7 +71,7 @@ PuffWardrobe.getCurrentUserRecord = function() {
     
     var userRecord = PuffData.userRecords[username]
     if(!userRecord)
-        return Puffball.onError('That user does not exist in our records')
+        return PB.onError('That user does not exist in our records')
     
     return userRecord
 }
@@ -82,7 +82,7 @@ PuffWardrobe.getCurrentUserRecord = function() {
  */
 PuffWardrobe.getAll = function() {
     if(!PuffWardrobe.keychain)
-        PuffWardrobe.keychain = Puffball.Persist.get('keychain') || {}
+        PuffWardrobe.keychain = PB.Persist.get('keychain') || {}
     
     return PuffWardrobe.keychain
 }
@@ -102,9 +102,9 @@ PuffWardrobe.switchCurrent = function(username) {
     var keys     = keychain[username]
 
     if(!keys)
-        return Puffball.onError('There are no keys in the wardrobe for that identity -- try adding it first')
+        return PB.onError('There are no keys in the wardrobe for that identity -- try adding it first')
 
-    Puffball.Persist.save('identity', username); // save to localStorage
+    PB.Persist.save('identity', username); // save to localStorage
     
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
     PuffData.importPrivateShells(username)
@@ -160,7 +160,7 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
         PuffWardrobe.keychain[username].default = defaultKey
     
     if(PuffWardrobe.getPref('storeKeychain'))
-        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
+        PB.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
 /**
@@ -175,19 +175,19 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
 PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
     //// Ensure keys match the userRecord
     
-    var prom = Puffball.getUserRecord(username)
+    var prom = PB.getUserRecord(username)
     
     return prom.then(function(userRecord) {
         // validate any provided private keys against the userRecord's public keys
-        if(rootKey    && Puffball.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
-            Puffball.throwError('That private root key does not match the public root key on record')
-        if(adminKey   && Puffball.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
-            Puffball.throwError('That private admin key does not match the public admin key on record')
-        if(defaultKey && Puffball.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
-            Puffball.throwError('That private default key does not match the public default key on record')
+        if(rootKey    && PB.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
+            PB.throwError('That private root key does not match the public root key on record')
+        if(adminKey   && PB.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
+            PB.throwError('That private admin key does not match the public admin key on record')
+        if(defaultKey && PB.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
+            PB.throwError('That private default key does not match the public default key on record')
         
         return userRecord
-    }, Puffball.promiseError('Could not store private keys due to faulty user record'))
+    }, PB.promiseError('Could not store private keys due to faulty user record'))
 }
 
 
@@ -205,7 +205,7 @@ PuffWardrobe.removeKeys = function(username) {
         PuffWardrobe.currentKeys = false
     
     if(PuffWardrobe.getPref('storeKeychain'))
-        Puffball.Persist.save('keychain', PuffWardrobe.keychain)
+        PB.Persist.save('keychain', PuffWardrobe.keychain)
 }
 
 /**
@@ -216,14 +216,14 @@ PuffWardrobe.addNewAnonUser = function() {
     //// it seems strange to have this in PuffWardrobe, but we have to keep the generated private keys here.
 
     // generate private keys
-    var privateRootKey    = Puffball.Crypto.generatePrivateKey();
-    var privateAdminKey   = Puffball.Crypto.generatePrivateKey();
-    var privateDefaultKey = Puffball.Crypto.generatePrivateKey();
+    var privateRootKey    = PB.Crypto.generatePrivateKey();
+    var privateAdminKey   = PB.Crypto.generatePrivateKey();
+    var privateDefaultKey = PB.Crypto.generatePrivateKey();
     
     // generate public keys
-    var rootKey    = Puffball.Crypto.privateToPublic(privateRootKey);
-    var adminKey   = Puffball.Crypto.privateToPublic(privateAdminKey);
-    var defaultKey = Puffball.Crypto.privateToPublic(privateDefaultKey);
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey);
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey);
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey);
 
     // build new username
     var anonUsername = PuffWardrobe.generateRandomUsername();
@@ -237,7 +237,7 @@ PuffWardrobe.addNewAnonUser = function() {
                    PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
                    return userRecord;
                },
-               Puffball.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
+               PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
 /**
@@ -263,7 +263,7 @@ PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     var username = PuffWardrobe.getCurrentUsername()
 
     if(username)
-        return Puffball.getUserRecordNoCache(username)
+        return PB.getUserRecordNoCache(username)
     
     var prom = PuffWardrobe.addNewAnonUser()
     
@@ -304,7 +304,7 @@ PuffWardrobe.getPref = function(key) {
  */
 PuffWardrobe.getAllPrefs = function() {
     if(!PuffWardrobe.prefsarray)
-        PuffWardrobe.prefsarray = Puffball.Persist.get('prefs') || {}
+        PuffWardrobe.prefsarray = PB.Persist.get('prefs') || {}
     
     return PuffWardrobe.prefsarray
 }
@@ -316,12 +316,12 @@ PuffWardrobe.getAllPrefs = function() {
  */
 PuffWardrobe.setPref = function(key, value) {
     var prefs = PuffWardrobe.getAllPrefs()
-    var newprefs = PB.set_deep_value(prefs, key, value); // allows dot-paths
+    var newprefs = Boron.set_deep_value(prefs, key, value); // allows dot-paths
 
     PuffWardrobe.prefsarray = newprefs
 
     var filename = 'prefs'
-    Puffball.Persist.save(filename, newprefs)
+    PB.Persist.save(filename, newprefs)
     
     return newprefs
 }
@@ -331,7 +331,7 @@ PuffWardrobe.setPref = function(key, value) {
  */
 PuffWardrobe.removePrefs = function() {
     var filename = 'prefs'
-    Puffball.Persist.remove(filename)
+    PB.Persist.remove(filename)
 }
 
 
@@ -397,7 +397,7 @@ PuffWardrobe.getAllUserProfileItems = function(username) {
     if(parray[username]) return parray[username]  // is this always right?
     
     var profilefile = 'profile::' + username
-    parray[username] = Puffball.Persist.get(profilefile) || {}
+    parray[username] = PB.Persist.get(profilefile) || {}
     
     return parray[username]
 }
@@ -412,12 +412,12 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
     var profile = PuffWardrobe.getAllUserProfileItems(username)
-    var newprofile = PB.set_deep_value(profile, key, value); // allows dot-paths
+    var newprofile = Boron.set_deep_value(profile, key, value); // allows dot-paths
 
     PuffWardrobe.profilearray[username] = newprofile
 
     var profilefile = 'profile::' + username;
-    Puffball.Persist.save(profilefile, newprofile)
+    PB.Persist.save(profilefile, newprofile)
     
     return newprofile
 }
@@ -433,5 +433,5 @@ PuffWardrobe.removeUserProfile = function(username) {
     PuffWardrobe.profilearray.delete(username)
     
     var profilefile = 'profile::' + username;
-    Puffball.Persist.remove(profilefile)
+    PB.Persist.remove(profilefile)
 }

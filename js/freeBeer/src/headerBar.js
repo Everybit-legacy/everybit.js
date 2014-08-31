@@ -192,7 +192,7 @@ var HBFilterBubble = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
         var filterPath  = 'view.filters.' + this.props.filterName;
-        var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
+        var filterValue = Boron.shallow_copy(this.props.filterValue);       // don't mutate props
         // var propPiece = puffworldprops.filter[this.props.filterName];
 
         var index = filterValue.indexOf(toRemove);
@@ -267,7 +267,7 @@ var HBFilters = React.createClass({
 
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
+        var currFilter = Boron.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');

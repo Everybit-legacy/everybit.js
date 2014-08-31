@@ -29,11 +29,11 @@ PuffForum.init = function() {
     // THINK: maybe you can only call this once?
     // THINK: maybe take a zone arg, but default to config
   
-    Puffball.onNewPuffs(PuffForum.receiveNewPuffs);
+    PB.onNewPuffs(PuffForum.receiveNewPuffs);
     
-    Puffball.addRelationship(PuffForum.addFamilialEdges);
+    PB.addRelationship(PuffForum.addFamilialEdges);
   
-    Puffball.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
+    PB.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }
 
 /**
@@ -60,7 +60,7 @@ PuffForum.getShells = function(query, filters) {
  * @returns {Shell[]}
  */
 PuffForum.filterShells = function(shells, query, filters) {
-    return shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+    return shells.filter(PuffForum.filterByFilters(Boron.extend({}, query, filters)))
 }
 
 /**
@@ -204,7 +204,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     if(PuffForum.badEnvelope(envelope.sig)) return false
     
     function doit(envelope, yourUserRecord) {
-        var letter = Puffball.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
+        var letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
         if(!letter) {
             PuffForum.horridStash[envelope.sig] = true
             events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
@@ -222,7 +222,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
     if(yourUserRecord) 
         return doit(envelope, yourUserRecord)
     
-    var yourUserRecordPromise = Puffball.getUserRecord(yourUsername)
+    var yourUserRecordPromise = PB.getUserRecord(yourUsername)
     yourUserRecordPromise.then(function(yourUserRecord) {
         var decrypted = doit(envelope, yourUserRecord)
         // events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
@@ -251,7 +251,7 @@ PuffForum.getPuffBySig = function(sig) {
     if(!shell)
         shell = PuffForum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
     
-    return Puffball.getPuffFromShell(shell || sig)
+    return PB.getPuffFromShell(shell || sig)
 }
 
 /**
@@ -344,12 +344,12 @@ PuffForum.getPuffList = function(query, filters, limit) {
 
     var shells = PuffForum.getShells(query, filters)
     
-    var filtered_shells = shells.filter(PuffForum.filterByFilters(PB.extend({}, query, filters)))
+    var filtered_shells = shells.filter(PuffForum.filterByFilters(Boron.extend({}, query, filters)))
                                 .sort(PuffForum.sortByPayload) // TODO: sort by query
 
     var sliced_shells = filtered_shells.slice(offset, offset+limit)
     
-    var puffs = sliced_shells.map(Puffball.getPuffFromShell)
+    var puffs = sliced_shells.map(PB.getPuffFromShell)
                              .filter(Boolean)
 
     var have = sliced_shells.length
@@ -382,7 +382,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     
     // ensure parents contains only puff ids
     if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
-        return Puffball.emptyPromise('Those are not good parents')
+        return PB.emptyPromise('Those are not good parents')
     
     // ensure parents are unique
     parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
@@ -404,9 +404,9 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     // get a user promise
     var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
     
-    var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'))
+    var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
-                       .catch(Puffball.promiseError('Posting failed'))
+                       .catch(PB.promiseError('Posting failed'))
                        
                        
     prom.then(function(puff) {
@@ -461,13 +461,13 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
 
         var privateKeys = PuffWardrobe.getCurrentKeys()
         if(!privateKeys || !privateKeys.default) {
-            // Puffball.onError('No valid private key found for signing the content')
+            // PB.onError('No valid private key found for signing the content')
             throw Error('No valid private key found for signing the content')
         }
 
-        var puff = Puffball.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+        var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
-        return Puffball.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
+        return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }
 }
 
@@ -697,7 +697,7 @@ PuffForum.flagPuff = function (sig) {
 
     payload.time = Date.now();
 
-    var puff = Puffball.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+    var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
 
     var data = { type: 'flagPuff'
                , puff: puff
@@ -705,13 +705,13 @@ PuffForum.flagPuff = function (sig) {
 
     var prom = PuffNet.post(CONFIG.puffApi, data);
     prom = prom.then(function(result){
-        // var storedShells = Puffball.Persist.get('shells');
+        // var storedShells = PB.Persist.get('shells');
         // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
-        var flaggedSig = Puffball.Persist.get('flagged') || [];
+        var flaggedSig = PB.Persist.get('flagged') || [];
         flaggedSig.push(content);
 
-        // Puffball.Persist.save('shells', filteredShells);
-        Puffball.Persist.save('flagged', flaggedSig);
+        // PB.Persist.save('shells', filteredShells);
+        PB.Persist.save('flagged', flaggedSig);
         // reload?
         // document.location.reload();
         events.pub('ui/flag', {})
@@ -738,14 +738,14 @@ PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
     if (typeof context == 'string') {
         context = [context];
     } else if (!Array.isArray(context)) {
-        return Puffball.onError('Invalid context.')
+        return PB.onError('Invalid context.')
     }
 
     excludeContext = excludeContext || [];
     if (typeof excludeContext == 'string') {
         excludeContext = [excludeContext];
     }else if (!Array.isArray(excludeContext)) {
-        return Puffball.onError('Invalid context.')
+        return PB.onError('Invalid context.')
     }
 
     PuffForum.metaFields.push(fieldInfo);

@@ -60,7 +60,7 @@ var MetaInputContent = React.createClass({
     },
     removeItem: function(value) {
         var self = this;
-        var array = PB.shallow_copy(self.state.array);
+        var array = Boron.shallow_copy(self.state.array);
         array = array.filter(function(v){return v != value});
         this.setState({array: array});
         return false;
@@ -76,7 +76,7 @@ var MetaInputContent = React.createClass({
             return false;
         }
         var self = this;
-        var array = PB.shallow_copy(self.state.array);
+        var array = Boron.shallow_copy(self.state.array);
         if (array.indexOf(value) == -1) {
             array.push(value);
         }
@@ -117,7 +117,7 @@ var MetaInputContent = React.createClass({
                     </select>;
                 break;
             case "array":
-                var inputStyle = PB.shallow_copy(contentStyle);
+                var inputStyle = Boron.shallow_copy(contentStyle);
                 inputStyle.width = "90%"
                 var newItemInput = <input ref="item" type="text" className="btn" placeholder="new item" style={inputStyle} onKeyDown={this.handleArrayKeyDown} onChange={this.handleInputChange}/>;
                 field = 
@@ -235,7 +235,7 @@ var MetaFields = React.createClass({
     },
     handleAddNewRow: function(type) {
         type = type || 'text'
-        var row = PB.shallow_copy(this.state.additionRows);
+        var row = Boron.shallow_copy(this.state.additionRows);
         if (row.length - this.state.deletedRows < 5) {
             row.push(type)
             this.setState({additionRows: row})
@@ -553,12 +553,12 @@ var PuffPublishFormEmbed = React.createClass({
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
         
         // if we haven't cached all the users, we'll need to grab them first
-        // THINK: maybe convert this to using Puffball.getUserRecords instead
+        // THINK: maybe convert this to using PB.getUserRecords instead
         if(userRecords.length < usernames.length) {
             usernames.forEach(function(username) {
                 if(!~userRecordUsernames.indexOf(username)) {
                     prom = prom.then(function() {
-                        return Puffball.getUserRecordNoCache(username).then(function(userRecord) {
+                        return PB.getUserRecordNoCache(username).then(function(userRecord) {
                             userRecords.push(userRecord);
                         })
                     })
@@ -608,7 +608,7 @@ var PuffPublishFormEmbed = React.createClass({
         var payload = {};
         payload.profile = puff.sig;
 
-        var update_puff = Puffball.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
+        var update_puff = PB.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
 
         var update_prom = PuffNet.updateUserRecord(update_puff);
         update_prom.then(function(userRecord){
@@ -650,7 +650,7 @@ var PuffPublishFormEmbed = React.createClass({
                         self.handleUpdateProfile(puff);
                         var sig = puff.sig;
                     })
-                    .catch(Puffball.promiseError('Posting failed'));    
+                    .catch(PB.promiseError('Posting failed'));    
         } else {
             // publish private profile
             var prom = Promise.resolve();
@@ -664,7 +664,7 @@ var PuffPublishFormEmbed = React.createClass({
                         self.refs.meta.handleCleanFields();
                         self.handleUpdateProfile(puff);
                     })
-                    .catch(Puffball.promiseError("Posting failed"));
+                    .catch(PB.promiseError("Posting failed"));
         }
 
         return false;
@@ -731,7 +731,7 @@ var PuffPublishFormEmbed = React.createClass({
         var newUsername = StringConversion.toActualUsername(usernameNode.value);
         if (newUsername.length == 0) return false;
         var usernames = this.state.usernames;
-        var prom = Puffball.getUserRecord(newUsername);
+        var prom = PB.getUserRecord(newUsername);
         prom.then(function(){
             self.setState({usernameError: ''});
             if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
@@ -803,7 +803,7 @@ var PuffPublishFormEmbed = React.createClass({
             })
 
             // add/remove those username from this.state.usernames
-            var usernames = PB.shallow_copy(this.state.usernames);
+            var usernames = Boron.shallow_copy(this.state.usernames);
             for (var i=0; i<usernameAdded.length; i++) {
                 if (usernames.indexOf(usernameAdded[i]) == -1)
                     usernames.push(usernameAdded[i])

@@ -26,7 +26,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
         }
-        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
         var outerPuff = PuffData.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
@@ -479,14 +479,14 @@ var TipButton = React.createClass({displayName: 'TipButton',
         // TODO: Get the link so have meta-data set, like "From puffball"
 
         var self = this;
-        var prom = Puffball.getUserRecord(this.props.username);
+        var prom = PB.getUserRecord(this.props.username);
 
         prom.then(function(result) {
 
             self.setState({publicKey: result.adminKey});
             console.log(result.adminKey);
 
-            var btcAddy = Puffball.Crypto.wifToPubKey(result.adminKey);
+            var btcAddy = PB.Crypto.wifToPubKey(result.adminKey);
 
             console.log(btcAddy);
 
@@ -654,7 +654,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
-        var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
+        var menu = Boron.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (puffworldprops.menu.popout != 'publish') {
             menu.show = openMenu;
             menu.section = 'publish';
@@ -766,13 +766,13 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
 
             var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
             var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
-            var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
+            var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
                     self.setState({ pending: false });
                     PuffData.addStar(sig, username, puff.sig)
                 })
-                .catch(Puffball.promiseError('Posting failed'));
+                .catch(PB.promiseError('Posting failed'));
         }
         return false;
     },
@@ -818,7 +818,7 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
     handleClick: function(){
         var puff = this.props.puff;
 
-        var menu = PB.shallow_copy(puffworlddefaults.menu);
+        var menu = Boron.shallow_copy(puffworlddefaults.menu);
         if (puffworldprops.menu.popout != "publish") {
             menu.show = true;
             menu.section = 'publish';
@@ -826,13 +826,13 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
             menu.popout = 'publish';
         }
 
-        var reply = PB.shallow_copy(puffworldprops.reply);
+        var reply = Boron.shallow_copy(puffworldprops.reply);
         reply.type = puff.payload.type;
 
         reply.showPreview = false;
         reply.state = {};
         reply.state.showAdvanced = true;
-        reply.state.meta = PB.shallow_copy(puff.payload);
+        reply.state.meta = Boron.shallow_copy(puff.payload);
 
         reply.privacy = 'public';
         var envelope = PuffData.getBonus(puff, 'envelope');

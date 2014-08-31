@@ -9,7 +9,7 @@
 
     - privateToPublic false condition
     - promise throw/catch errors 
-    - Puffball.checkUsername (pass through network response)
+    - PB.checkUsername (pass through network response)
     - firefox
 
 */
@@ -87,12 +87,12 @@ if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 
 // generate random private key
-var randomPrivateKey = Puffball.Crypto.generatePrivateKey()
+var randomPrivateKey = PB.Crypto.generatePrivateKey()
 if(!randomPrivateKey) 
     testfail('Private key gen failed: ', randomPrivateKey)
 
 // convert public to private
-var randomPublicKey = Puffball.Crypto.privateToPublic(randomPrivateKey)
+var randomPublicKey = PB.Crypto.privateToPublic(randomPrivateKey)
 if(!randomPublicKey) 
     testfail('Public key gen failed: ', randomPublicKey, randomPrivateKey)
 

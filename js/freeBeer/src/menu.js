@@ -177,7 +177,7 @@ var FilterMenu = React.createClass({
     
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
+        var currFilter = Boron.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -275,7 +275,7 @@ var FilterBubble = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
          var filterPath  = 'view.filters.' + this.props.filterName;
-         var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
+         var filterValue = Boron.shallow_copy(this.props.filterValue);       // don't mutate props
          // var propPiece = puffworldprops.filter[this.props.filterName]; 
 
          // THINK: do we still need this?
@@ -662,8 +662,8 @@ var ToolsMenu = React.createClass({
         return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
     clearPuffShells: function(){
-        Puffball.Persist.remove('shells');
-        Puffball.Persist.remove('flagged');
+        PB.Persist.remove('shells');
+        PB.Persist.remove('flagged');
         document.location.reload(true);
         return false;
     },
@@ -747,7 +747,7 @@ var AuthorPicker = React.createClass({
     },
 
     handlePublishProfile: function() {
-        var replyProps = PB.shallow_copy(puffworlddefaults.reply);
+        var replyProps = Boron.shallow_copy(puffworlddefaults.reply);
         replyProps.type = 'profile';
         return events.pub( 'ui/publish/profile',
                            { 'menu.show': true
@@ -874,7 +874,7 @@ var SetIdentity = React.createClass({
         if (username.slice(0, 1) == '.')
             username = username.slice(1);
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(result) {
             self.state.usernameStatus = true;
@@ -911,14 +911,14 @@ var SetIdentity = React.createClass({
         }
 
         // Convert to public key
-        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
+        var publicKey = PB.Crypto.privateToPublic(privateKey);
         if(!publicKey) {
             this.state[keyType] = 'Bad key';
             events.pub('ui/event', {});
             return false;
         }
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(userInfo) {
 
@@ -1411,7 +1411,7 @@ var NewIdentity = React.createClass({
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
-        var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
+        var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
         // SUBMIT REQUEST
         var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) {
@@ -1435,31 +1435,31 @@ var NewIdentity = React.createClass({
 
     handleRegenerateKeys: function() {
         console.log('here');
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey();
+        var adminKey = PB.Crypto.generatePrivateKey();
+        var defaultKey = PB.Crypto.generatePrivateKey();
 
         this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
         this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
         this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
 
-        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);   
+        this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(defaultKey);   
         return false;
     },
     handleGenerateKeys: function() {
         // Get private keys
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey();
+        var adminKey = PB.Crypto.generatePrivateKey();
+        var defaultKey = PB.Crypto.generatePrivateKey();
         var keys = {
             rootKeyPrivate   : rootKey,
             adminKeyPrivate  : adminKey,
             defaultKeyPrivate: defaultKey,
-            rootKeyPublic    : Puffball.Crypto.privateToPublic(rootKey),
-            adminKeyPublic   : Puffball.Crypto.privateToPublic(adminKey),
-            defaultKeyPublic : Puffball.Crypto.privateToPublic(defaultKey)
+            rootKeyPublic    : PB.Crypto.privateToPublic(rootKey),
+            adminKeyPublic   : PB.Crypto.privateToPublic(adminKey),
+            defaultKeyPublic : PB.Crypto.privateToPublic(defaultKey)
         };
         this.setState({keys: keys});
         
@@ -1467,7 +1467,7 @@ var NewIdentity = React.createClass({
     },
 
     handleConvertPrivatePublic: function() {
-        // NOTE: When blank, Puffball.Crypto.privateToPublic generates a new public key
+        // NOTE: When blank, PB.Crypto.privateToPublic generates a new public key
         var rP = this.refs.rootKeyPrivate.getDOMNode().value;
         var aP = this.refs.adminKeyPrivate.getDOMNode().value;
         var dP = this.refs.defaultKeyPrivate.getDOMNode().value;
@@ -1485,9 +1485,9 @@ var NewIdentity = React.createClass({
             return false;
         }
 
-        var rPublic = Puffball.Crypto.privateToPublic(rP);
-        var aPublic = Puffball.Crypto.privateToPublic(aP);
-        var dPublic = Puffball.Crypto.privateToPublic(dP);
+        var rPublic = PB.Crypto.privateToPublic(rP);
+        var aPublic = PB.Crypto.privateToPublic(aP);
+        var dPublic = PB.Crypto.privateToPublic(dP);
 
         rPublic ? this.refs.rootKeyPublic.getDOMNode().value = rPublic : this.setState({errorMessage: 'Invalid root key. '});
         aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({errorMessage: 'Invalid admin key. '});
@@ -1502,7 +1502,7 @@ var NewIdentity = React.createClass({
         this.state.usernameAvailable = 'checking';
         var username = this.refs.newUsername.getDOMNode().value;
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(result) {
             console.log(result);

@@ -43,7 +43,7 @@ PuffNet.getKidSigs = function(sig) {
     return PuffNet.getJSON(url, data);
 }
 
-PuffNet.getKidSigs = PB.memoize(PuffNet.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
+PuffNet.getKidSigs = Boron.memoize(PuffNet.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
 
 
 /**
@@ -57,7 +57,7 @@ PuffNet.getAllShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     
-    if(CONFIG.noNetwork) return Puffball.emptyPromise();    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return PB.emptyPromise();    // THINK: this is only for debugging and development
     
     return PuffNet.getJSON(url, data);
 }
@@ -130,7 +130,7 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     // data.descendants
     
     if(CONFIG.noNetwork)                                    // THINK: this is only for debugging and development
-        return Puffball.emptyPromise()
+        return PB.emptyPromise()
                        .then(function() {return []});    
     
     return PuffNet.getJSON(url, data)                       // always returns a valid array
@@ -139,7 +139,7 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
 
 PuffNet.getAncestors = function(start, limit) {
     getEm(start, [], limit)
-    return Puffball.emptyPromise()
+    return PB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false               // all done
@@ -190,7 +190,7 @@ PuffNet.getAncestors = function(start, limit) {
 
 PuffNet.getDescendants = function(start, limit) {
     getEm(start, [], limit)
-    return Puffball.emptyPromise()
+    return PB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false               // all done
@@ -220,7 +220,7 @@ PuffNet.getDescendants = function(start, limit) {
 
 PuffNet.getSiblings = function() {
     // this case is ugly, so we're leaving it until the client api can answer questions for us
-    return Puffball.emptyPromise() 
+    return PB.emptyPromise() 
 }
 
 /**
@@ -239,7 +239,7 @@ PuffNet.getAllPuffs = function() {
     
     
     if(CONFIG.noNetwork) 
-        return Puffball.emptyPromise();             // NOTE: this is only for debugging and development
+        return PB.emptyPromise();             // NOTE: this is only for debugging and development
     
     var url  = CONFIG.puffApi;
     // var data = {type: 'getPuffGeneration', gen: 0};
@@ -256,7 +256,7 @@ PuffNet.getAllPuffs = function() {
                .catch(function(err) {
                    rec(gen, resolve, reject);
                    // setTimeout(function() {rec(gen, resolve, reject)}, 100);
-                   // reject(Puffball.promiseError('Network error while accumulating puffs')(err))
+                   // reject(PB.promiseError('Network error while accumulating puffs')(err))
                });
     }
     
@@ -295,7 +295,7 @@ PuffNet.sendPuffToServer = function(puff) {
                , puff: JSON.stringify(puff) }
                
     return PuffNet.post(CONFIG.puffApi, data)
-                  .catch(Puffball.promiseError('Could not send puff to server'));
+                  .catch(PB.promiseError('Could not send puff to server'));
 }
 
 /**
@@ -312,11 +312,11 @@ PuffNet.getUserRecord = function(username) {
 
     return prom.then(
                 function(userRecord) {
-                    var userRecord = Puffball.processUserRecord(userRecord);
-                    if(!userRecord)  Puffball.throwError('Invalid user record returned');
+                    var userRecord = PB.processUserRecord(userRecord);
+                    if(!userRecord)  PB.throwError('Invalid user record returned');
                     return userRecord;
                 }
-                , Puffball.promiseError('Unable to access user information from the DHT'));
+                , PB.promiseError('Unable to access user information from the DHT'));
 }
 
 /**
@@ -331,10 +331,10 @@ PuffNet.getUserRecordFile = function(username) {
     
     return prom.then(
                 function(userRecords) {
-                    return userRecords.map(Puffball.processUserRecord)
+                    return userRecords.map(PB.processUserRecord)
                                       .filter(Boolean);
                 }
-                , Puffball.promiseError('Unable to access user file from the DHT'));
+                , PB.promiseError('Unable to access user file from the DHT'));
 }
 
 /**
@@ -361,7 +361,7 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     var type = 'updateUserRecord';
     var content = 'requestUsername';
 
-    var puff = Puffball.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
     return PuffNet.updateUserRecord(puff)
@@ -379,14 +379,14 @@ PuffNet.updateUserRecord = function(puff) {
 
     var prom = PuffNet.post(CONFIG.userApi, data);
     
-    return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(PB.promiseError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 
-                       Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                       PB.throwError('The DHT did not approve of your request', userRecord.FAIL);
                        
-                   return Puffball.processUserRecord(userRecord)
-                       || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
+                   return PB.processUserRecord(userRecord)
+                       || PB.throwError('Invalid user record', JSON.stringify(userRecord));
                })
 }
 

@@ -7,7 +7,7 @@ var SliderMixin = {
     handleCheckAvailability: function(username) {
         if (!this.state.enableCheck) return false;
         var self = this;
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
         prom.then(function(){
             self.setState({msg: "Not available.", enableCheck: false})
         })  .catch(function(err){
@@ -22,7 +22,7 @@ var Slider = React.createClass({
         return {wizard: false};
     },*/
     componentWillUnmount:function() {
-        var sliderDefault = PB.shallow_copy(puffworlddefaults.slider);
+        var sliderDefault = Boron.shallow_copy(puffworlddefaults.slider);
         return events.pub("ui/wizard/close", {'slider':sliderDefault});
     },
 
@@ -413,7 +413,7 @@ var RegisterSubuserWizard = React.createClass({
 
         if (!this.state.enableCheck) return false;
         var self = this;
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
         prom.then(function(){
             self.setState({msg: "Not available."})
         })  .catch(function(err){
@@ -486,7 +486,7 @@ var ImportWizard = React.createClass({
         if (!this.state.enableCheck) return false;
 
         var self = this;
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
         prom.then(function(){
             self.setState({msg: "Not available.", enableCheck: false})
         })  .catch(function(err){
@@ -543,13 +543,13 @@ var PasswordWizard = React.createClass({
     },
     populateKeys: function() {
         var keys = {};
-        keys.rootKeyPrivate    = Puffball.Crypto.generatePrivateKey();
-        keys.adminKeyPrivate   = Puffball.Crypto.generatePrivateKey();
-        keys.defaultKeyPrivate = Puffball.Crypto.generatePrivateKey();
+        keys.rootKeyPrivate    = PB.Crypto.generatePrivateKey();
+        keys.adminKeyPrivate   = PB.Crypto.generatePrivateKey();
+        keys.defaultKeyPrivate = PB.Crypto.generatePrivateKey();
 
-        keys.rootKeyPublic    = Puffball.Crypto.privateToPublic(keys.rootKeyPrivate);
-        keys.adminKeyPublic   = Puffball.Crypto.privateToPublic(keys.adminKeyPrivate);
-        keys.defaultKeyPublic = Puffball.Crypto.privateToPublic(keys.defaultKeyPrivate);  
+        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.rootKeyPrivate);
+        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.adminKeyPrivate);
+        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.defaultKeyPrivate);  
         for (var field in keys) {
             if (keys[field])
                 this.refs[field].getDOMNode().value = keys[field];
@@ -563,9 +563,9 @@ var PasswordWizard = React.createClass({
         keys.adminKeyPrivate   = this.refs.adminKeyPrivate.getDOMNode().value;
         keys.defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value;
 
-        keys.rootKeyPublic    = Puffball.Crypto.privateToPublic(keys.rootKeyPrivate);
-        keys.adminKeyPublic   = Puffball.Crypto.privateToPublic(keys.adminKeyPrivate);
-        keys.defaultKeyPublic = Puffball.Crypto.privateToPublic(keys.defaultKeyPrivate); 
+        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.rootKeyPrivate);
+        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.adminKeyPrivate);
+        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.defaultKeyPrivate); 
 
         for (var field in keys) {
             if (keys[field])
@@ -631,7 +631,7 @@ var PasswordWizard = React.createClass({
         var self = this;
         // console.log(prefix, prefixKey, routes, type, content, payload);
         // return false;
-        var puff = Puffball.buildPuff(prefix, prefixKey, routes, type, content, payload);
+        var puff = PB.buildPuff(prefix, prefixKey, routes, type, content, payload);
         // SUBMIT REQUEST
         var prom = PuffNet.updateUserRecord(puff);
         prom.then(function(userRecord) { 
@@ -747,7 +747,7 @@ var PublishWizard = React.createClass({
         var current = this.state.current;
         current = current + 1;
         if (current >= total) {
-            var sliderProp = PB.shallow_copy(puffworlddefaults.slider);
+            var sliderProp = Boron.shallow_copy(puffworlddefaults.slider);
             return events.pub("ui/wizard/close", {'slider':sliderProp});
         }
         this.setState({current: current});

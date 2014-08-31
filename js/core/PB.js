@@ -15,22 +15,27 @@
     
     Future file system idea:
     
-    puff.js
+    PB.js
     
     /data
-      data.js
-      puffValidator.js
+      Data.js
+      PuffValidator.js
     
-    /network
-      network.js
-      socket.js
-      rtc.js
-      localStorage.js
+    /net
+      Net.js
+      Socket.js
+      RTC.js
+      LocalStorage.js
+
+    /crypto
+      Crypto.js
+
+
 */
 
-Puffball = {};
+PB = {};
 
-Puffball.newPuffCallbacks = [];
+PB.newPuffCallbacks = [];
 
 /**
  * initialize the network layer;  
@@ -38,7 +43,7 @@ Puffball.newPuffCallbacks = [];
  * do other amazing things
  * @param  {array} zone array of zones
  */
-Puffball.init = function(zone) {
+PB.init = function(zone) {
     PuffData.depersistUserRecords()
     
     PuffData.importShells()
@@ -63,12 +68,12 @@ Puffball.init = function(zone) {
  * @param  {object} envelopeUserKeys
  * @return {object}                             the new puff object
  */
-Puffball.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
-    var puff = Puffball.packagePuffStructure(username, routes, type, content, payload, previous)
+PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+    var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
 
-    puff.sig = Puffball.Crypto.signPuff(puff, privatekey)
+    puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = Puffball.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
     }
     
     return puff
@@ -84,7 +89,7 @@ Puffball.buildPuff = function(username, privatekey, routes, type, content, paylo
  * @param  {string} previous 
  * @return {object}          object which has similar structure as a puff (without signature)
  */
-Puffball.packagePuffStructure = function(username, routes, type, content, payload, previous) {
+PB.packagePuffStructure = function(username, routes, type, content, payload, previous) {
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
@@ -112,14 +117,14 @@ Puffball.packagePuffStructure = function(username, routes, type, content, payloa
  * @param  {string} updated    date of the most recent update to the username
  * @return {object}            a canonical user object
  */
-Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile) {
+PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile) {
     latest = latest || ""
     updated = updated || ""
     profile = profile || ""
     
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
-    if(!Puffball.validateUsername(username))
+    if(!PB.validateUsername(username))
         return false; // already logged the error
     
     // these keys are PUBLIC. only public keys here. no other types of keys. 
@@ -140,18 +145,18 @@ Puffball.buildUserRecord = function(username, defaultKey, adminKey, rootKey, lat
  * @param  {string} username the string to be check
  * @return {boolean}          return true if  the parameter string is a valid username, otherwise throw error
  */
-Puffball.validateUsername = function(username) {
+PB.validateUsername = function(username) {
     if(!username) 
-        return Puffball.onError('Username is required', username)
+        return PB.onError('Username is required', username)
 
     if(username.length > 256) 
-        return Puffball.onError('Usernames must be shorter than 256 characters', username)
+        return PB.onError('Usernames must be shorter than 256 characters', username)
 
     if(username != username.toLowerCase()) 
-        return Puffball.onError('Usernames must be lowercase', username)
+        return PB.onError('Usernames must be lowercase', username)
     
     if(!/^[0-9a-z.]+$/.test(username))
-        return Puffball.onError('Usernames must be alphanumeric', username)
+        return PB.onError('Usernames must be alphanumeric', username)
     
     return true;
 }
@@ -161,13 +166,13 @@ Puffball.validateUsername = function(username) {
  * @param  {string} userRecord
  * @return {object}
  */
-Puffball.processUserRecord = function(userRecord) {
+PB.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
-    userRecord = Puffball.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
+    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
     
     if(!userRecord)
-        return Puffball.onError('That is not an acceptable user record', userRecord);
+        return PB.onError('That is not an acceptable user record', userRecord);
     
     PuffData.cacheUserRecord(userRecord);
     
@@ -180,7 +185,7 @@ Puffball.processUserRecord = function(userRecord) {
  * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
-Puffball.getUserRecord = function(username) {
+PB.getUserRecord = function(username) {
     //// This always checks the cache, and always returns a promise
     
     var userRecord = PuffData.getCachedUserRecord(username);
@@ -188,7 +193,7 @@ Puffball.getUserRecord = function(username) {
     if(userRecord)
         return Promise.resolve(userRecord);
     
-    return Puffball.getUserRecordNoCache(username);
+    return PB.getUserRecordNoCache(username);
 }
 
 /**
@@ -196,7 +201,7 @@ Puffball.getUserRecord = function(username) {
  * @param {string} username
  * @returns {object} Promise for a user record
  */
-Puffball.getUserRecordNoCache = function(username) {
+PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
     
     return PuffNet.getUserRecord(username);
@@ -207,7 +212,7 @@ Puffball.getUserRecordNoCache = function(username) {
  * @param  {(string|object)} shell a string which is a signature of a puff; or an object contains partial information of a puff
  * @return {object} returns a puff based on the shell; returns false if the shell is empty
  */
-Puffball.getPuffFromShell = function(shell_or_sig) {
+PB.getPuffFromShell = function(shell_or_sig) {
     if(!shell_or_sig)
         return false // false so we can filter empty shells out easily, while still loading them on demand
     
@@ -223,7 +228,7 @@ Puffball.getPuffFromShell = function(shell_or_sig) {
  * handle a newly created puff: add to our local cache and fire new content callbacks
  * @param {object} puff
  */
-Puffball.addPuffToSystem = function(puff) {
+PB.addPuffToSystem = function(puff) {
     
     if(PuffData.getCachedShellBySig(puff.sig)) return false
     
@@ -239,7 +244,7 @@ Puffball.addPuffToSystem = function(puff) {
  * @param  {Puff[]} puffs
  * @return {Puff[]}
  */
-Puffball.receiveNewPuffs = function(puffs) {
+PB.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
     
     // TODO: this is only called from PuffData.makeShellsAvailable -- pull this down there or rethink it all
@@ -251,7 +256,7 @@ Puffball.receiveNewPuffs = function(puffs) {
     // puffs = puffs.filter(function(puff) {
     //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
     
-    Puffball.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
     
     return puffs;
 }
@@ -260,14 +265,14 @@ Puffball.receiveNewPuffs = function(puffs) {
  * add new callback which is called when a new puff added to the system
  * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
  */
-Puffball.onNewPuffs = function(callback) {
+PB.onNewPuffs = function(callback) {
     //// use this to add a new hook into the receiveNewPuffs cycle
-    Puffball.newPuffCallbacks.push(callback);
+    PB.newPuffCallbacks.push(callback);
 }
 
-Puffball.addRelationship = function(callback) {
+PB.addRelationship = function(callback) {
     //// use this to add a new hook into the receiveNewPuffs cycle
-    Puffball.newPuffCallbacks.push(callback);
+    PB.newPuffCallbacks.push(callback);
 }
 
 /**
@@ -277,11 +282,11 @@ Puffball.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
-    var puffkey = Puffball.Crypto.getRandomKey()                                        // get a new random key
+    var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
-    var letterCipher = Puffball.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
+    var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var username = letter.username
     
     if(envelopeUserKeys) {
@@ -289,11 +294,11 @@ Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserK
         username = envelopeUserKeys.username
     }
     
-    var envelope = Puffball.packagePuffStructure(username, letter.routes                // envelope is also a puff
+    var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
                            , 'encryptedpuff', letterCipher, {}, letter.previous)        // it includes the letter
     
-    envelope.keys = Puffball.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
-    envelope.sig = Puffball.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
+    envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
+    envelope.sig = PB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
     
     return envelope
 }
@@ -306,28 +311,28 @@ Puffball.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserK
  * @param  {string} myPrivateWif
  * @return {object}
  */
-Puffball.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
+PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
     //// pull a letter out of the envelope
     if(!envelope.keys) return false
     var keyForMe = envelope.keys[myUsername]
-    var puffkey  = Puffball.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
-    var letterString = Puffball.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = Puffball.tryDecodeOyVey(escape(letterString)); // encoding
-    return Puffball.parseJSON(letterString)
+    var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
+    letterString = PB.tryDecodeOyVey(escape(letterString)); // encoding
+    return PB.parseJSON(letterString)
 }
 
-Puffball.tryDecodeOyVey = function(str) {
+PB.tryDecodeOyVey = function(str) {
     try {
         return decodeURIComponent(str)
     } catch(err) {
-        return Puffball.onError('Invalid URI string', err)
+        return PB.onError('Invalid URI string', err)
     }
 }
 
 
 /*
-  Puffball.Crypto
+  PB.Crypto
 
   Using bitcoin.js is pretty nightmarish for our purposes. 
   It pollutes everything with extraneous strings, always forces down to addresses, 
@@ -340,19 +345,19 @@ Puffball.tryDecodeOyVey = function(str) {
   leave this code alone.
 */
 
-Puffball.Crypto = {};
+PB.Crypto = {};
 
 /**
  * to generate private key
  * @return {string} 
  */
-Puffball.Crypto.generatePrivateKey = function() {
+PB.Crypto.generatePrivateKey = function() {
     // OPT: remove this test once Bitcoin.ECKey no longer generates invalid keys (about 1 in 1,000 right now)
     var prikey = new Bitcoin.ECKey().toWif()
-    if(Puffball.Crypto.wifToPriKey(prikey))
+    if(PB.Crypto.wifToPriKey(prikey))
         return prikey
     else
-        return Puffball.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
+        return PB.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
 }
 
 /**
@@ -360,15 +365,15 @@ Puffball.Crypto.generatePrivateKey = function() {
  * @param  {string} privateKeyWIF
  * @return {string}
  */
-Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
+PB.Crypto.privateToPublic = function(privateKeyWIF) {
     // TODO: This should return false if string is empty
     if(!privateKeyWIF)
-        return Puffball.onError('That private key contained no data')
+        return PB.onError('That private key contained no data')
         
     try {
-        return Puffball.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
+        return PB.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {
-        return Puffball.onError('Invalid private key: could not convert to public key', [privateKeyWIF, err])
+        return PB.onError('Invalid private key: could not convert to public key', [privateKeyWIF, err])
     }
 }
 
@@ -378,17 +383,17 @@ Puffball.Crypto.privateToPublic = function(privateKeyWIF) {
  * @param  {string} privateKeyWIF
  * @return {(boolean|error)}
  */
-Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
+PB.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     //// sign the hash of some data with a private key and return the sig in base 58
 
-    var prikey = Puffball.Crypto.wifToPriKey(privateKeyWIF)
-    var message = Puffball.Crypto.puffToSiglessString(unsignedPuff)
-    var messageHash = Puffball.Crypto.createMessageHash(message)
+    var prikey = PB.Crypto.wifToPriKey(privateKeyWIF)
+    var message = PB.Crypto.puffToSiglessString(unsignedPuff)
+    var messageHash = PB.Crypto.createMessageHash(message)
     
     try {
         return Bitcoin.base58.encode(prikey.sign(messageHash))
     } catch(err) {
-        return Puffball.onError('Could not properly encode signature', [prikey, messageHash, err])
+        return PB.onError('Could not properly encode signature', [prikey, messageHash, err])
     }
 }
 
@@ -398,9 +403,9 @@ Puffball.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
  * @param  {string} defaultKey
  * @return {boolean}
  */
-Puffball.Crypto.verifyPuffSig = function(puff, defaultKey) {
-    var puffString = Puffball.Crypto.puffToSiglessString(puff);
-    return Puffball.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
+PB.Crypto.verifyPuffSig = function(puff, defaultKey) {
+    var puffString = PB.Crypto.puffToSiglessString(puff);
+    return PB.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
 }
 
 /**
@@ -410,20 +415,20 @@ Puffball.Crypto.verifyPuffSig = function(puff, defaultKey) {
  * @param  {string} publicKeyWIF
  * @return {boolean}
  */
-Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
+PB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     //// accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
   
     try {
-        var pubkey = Puffball.Crypto.wifToPubKey(publicKeyWIF)
+        var pubkey = PB.Crypto.wifToPubKey(publicKeyWIF)
         
         var sigBytes = Bitcoin.base58.decode(sig).toJSON()
         sigBytes = sigBytes.data || sigBytes
         
-        var messageHash = Puffball.Crypto.createMessageHash(message)
+        var messageHash = PB.Crypto.createMessageHash(message)
         
         return pubkey.verify(messageHash, sigBytes)
     } catch(err) {
-        return Puffball.onError('Invalid key or sig: could not verify message', [messageHash, sig, publicKeyWIF, err])
+        return PB.onError('Invalid key or sig: could not verify message', [messageHash, sig, publicKeyWIF, err])
     }
 }
 
@@ -432,7 +437,7 @@ Puffball.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
  * @param  {string} message
  * @return {string}
  */
-Puffball.Crypto.createMessageHash = function(message) {
+PB.Crypto.createMessageHash = function(message) {
     return Bitcoin.Crypto.SHA256(message).toString()
 }
 
@@ -441,14 +446,14 @@ Puffball.Crypto.createMessageHash = function(message) {
  * @param  {string} privateKeyWIF
  * @return {boolean}
  */
-Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
+PB.Crypto.wifToPriKey = function(privateKeyWIF) {
     if(!privateKeyWIF)
-        return Puffball.onError('That private key wif contains no data')
+        return PB.onError('That private key wif contains no data')
 
     try {
         return new Bitcoin.ECKey(privateKeyWIF, true)
     } catch(err) {
-        return Puffball.onError('Invalid private key: are you sure it is properly WIFfed?', [privateKeyWIF, err])
+        return PB.onError('Invalid private key: are you sure it is properly WIFfed?', [privateKeyWIF, err])
     }
 }
 
@@ -457,16 +462,16 @@ Puffball.Crypto.wifToPriKey = function(privateKeyWIF) {
  * @param  {string} publicKeyWIF
  * @return {boolean}
  */
-Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
+PB.Crypto.wifToPubKey = function(publicKeyWIF) {
     if(!publicKeyWIF)
-        return Puffball.onError('That public key wif contains no data')
+        return PB.onError('That public key wif contains no data')
 
     try {
         var pubkeyBytes = Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON()
         pubkeyBytes = pubkeyBytes.data || pubkeyBytes
         return new Bitcoin.ECPubKey(pubkeyBytes, true)
     } catch(err) {
-        return Puffball.onError('Invalid public key: are you sure it is properly WIFfed?', [publicKeyWIF, err])
+        return PB.onError('Invalid public key: are you sure it is properly WIFfed?', [publicKeyWIF, err])
     }
 }
 
@@ -475,7 +480,7 @@ Puffball.Crypto.wifToPubKey = function(publicKeyWIF) {
  * @param  {object} puff
  * @return {string}
  */
-Puffball.Crypto.puffToSiglessString = function(puff) {
+PB.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
 
@@ -486,7 +491,7 @@ Puffball.Crypto.puffToSiglessString = function(puff) {
  * @param  {string} key
  * @return {string}
  */
-Puffball.Crypto.encryptWithAES = function(message, key) {
+PB.Crypto.encryptWithAES = function(message, key) {
     var enc = Bitcoin.Crypto.AES.encrypt(message, key)
     return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
 }
@@ -497,7 +502,7 @@ Puffball.Crypto.encryptWithAES = function(message, key) {
  * @param  {string} key
  * @return {string}
  */
-Puffball.Crypto.decryptWithAES = function(enc, key) {
+PB.Crypto.decryptWithAES = function(enc, key) {
     if(!key || !enc) return false
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
@@ -513,10 +518,10 @@ Puffball.Crypto.decryptWithAES = function(enc, key) {
  * @param  {string} myPrivateWif
  * @return {string}
  */
-Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
+PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     // TODO: check our ECDH maths
-    var pubkey = Puffball.Crypto.wifToPubKey(yourPublicWif)
-    var prikey = Puffball.Crypto.wifToPriKey(myPrivateWif)
+    var pubkey = PB.Crypto.wifToPubKey(yourPublicWif)
+    var prikey = PB.Crypto.wifToPriKey(myPrivateWif)
     if(!pubkey || !prikey) return false  
     var secret = pubkey.multiply(prikey).toWif()
     var key = Bitcoin.Crypto.SHA256(secret).toString()
@@ -531,10 +536,10 @@ Puffball.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
  * @param  {string} myPrivateWif
  * @return {string}
  */
-Puffball.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
-    var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+PB.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
+    var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key) return false
-    var ciphertext = Puffball.Crypto.encryptWithAES(plaintext, key)
+    var ciphertext = PB.Crypto.encryptWithAES(plaintext, key)
     return ciphertext
 }
 
@@ -545,10 +550,10 @@ Puffball.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPriv
  * @param  {string} myPrivateWif
  * @return {string}
  */
-Puffball.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
-    var key = Puffball.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+PB.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
+    var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key || !ciphertext) return false
-    var plaintext = Puffball.Crypto.decryptWithAES(ciphertext, key)
+    var plaintext = PB.Crypto.decryptWithAES(ciphertext, key)
     return plaintext // .replace(/\n+$/g, '')
 }
 
@@ -557,7 +562,7 @@ Puffball.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPri
  * @param  {number} size
  * @return {string}
  */
-Puffball.Crypto.getRandomKey = function(size) {
+PB.Crypto.getRandomKey = function(size) {
     size = size || 256/8 // AES key size is 256 bits
     var bytes = new Uint8Array(size);
     crypto.getRandomValues(bytes);
@@ -571,9 +576,9 @@ Puffball.Crypto.getRandomKey = function(size) {
  * @param  {object} userRecords
  * @return {object}
  */
-Puffball.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
+PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     return userRecords.reduce(function(acc, userRecord) {
-        acc[userRecord.username] = Puffball.Crypto.encodePrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
+        acc[userRecord.username] = PB.Crypto.encodePrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
         return acc
     }, {})
 }
@@ -582,12 +587,12 @@ Puffball.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
 
 
 
-// Puffball.Crypto.verifyBlock = function(block, publicKeyBase58) {
-//     return Puffball.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
+// PB.Crypto.verifyBlock = function(block, publicKeyBase58) {
+//     return PB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
 // }
 
-// Puffball.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
-//     return Puffball.Crypto.signPayload(blockPayload, privateKeyWIF);
+// PB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+//     return PB.Crypto.signPayload(blockPayload, privateKeyWIF);
 // }
 
 
@@ -597,32 +602,32 @@ Puffball.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     It's like a network on your hard drive... which probably implies this should live in PuffNet.
 */
 
-Puffball.Persist = {};
-Puffball.Persist.todo = {}
-Puffball.Persist.todoflag = false
+PB.Persist = {};
+PB.Persist.todo = {}
+PB.Persist.todoflag = false
 
 /**
  * to save key/value
  * @param  {string} key
  * @param  {string} value
  */
-Puffball.Persist.save = function(key, value) {
-    Puffball.Persist.todo[key] = value
-    if(!Puffball.Persist.todoflag) {
+PB.Persist.save = function(key, value) {
+    PB.Persist.todo[key] = value
+    if(!PB.Persist.todoflag) {
         onceInAwhile(function() {
-            for(var key in Puffball.Persist.todo) {
+            for(var key in PB.Persist.todo) {
                 var realkey = 'PUFF::' + key;                           // prepend PUFF:: so we're good neighbors
-                var value = Puffball.Persist.todo[key];
+                var value = PB.Persist.todo[key];
                 if(typeof value == 'function')                          // in case we're passed a thunk
                     value = value();
                 var str = JSON.stringify(value);                
                 localStorage.setItem(realkey, str);
             }
-            Puffball.Persist.todo = {};
-            Puffball.Persist.todoflag = false;
+            PB.Persist.todo = {};
+            PB.Persist.todoflag = false;
         }, 2500);                                                       // call at most every 100ms
     }
-    Puffball.Persist.todoflag = true
+    PB.Persist.todoflag = true
 }
 
 /**
@@ -630,18 +635,18 @@ Puffball.Persist.save = function(key, value) {
  * @param  {string} key
  * @return {(false|string)}
  */
-Puffball.Persist.get = function(key) {
+PB.Persist.get = function(key) {
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
     if(!str) return false;
-    return Puffball.parseJSON(str);
+    return PB.parseJSON(str);
 }
 
 /**
  * to remove the item according to the given key
  * @param  {string} key
  */
-Puffball.Persist.remove = function(key) {
+PB.Persist.remove = function(key) {
     var realkey = 'PUFF::' + key;
     localStorage.removeItem(realkey);
 }
@@ -654,7 +659,7 @@ Puffball.Persist.remove = function(key) {
  * @param  {object} obj 
  * @return {false}
  */
-Puffball.onError = function(msg, obj) {
+PB.onError = function(msg, obj) {
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)
@@ -669,9 +674,9 @@ Puffball.onError = function(msg, obj) {
  * @param  {string} mes
  * @return {boolean}
  */
-Puffball.promiseError = function(msg) {
+PB.promiseError = function(msg) {
     return function(err) {
-        Puffball.onError(msg, err)
+        PB.onError(msg, err)
         throw err
     }
 }
@@ -682,9 +687,9 @@ Puffball.promiseError = function(msg) {
  * @param  {string} errmsg 
  * @return {boolean}
  */
-Puffball.throwError = function(msg, errmsg) {
+PB.throwError = function(msg, errmsg) {
     var err = Error(errmsg || msg)
-    Puffball.onError(msg, err)
+    PB.onError(msg, err)
     throw err
 }
 
@@ -693,11 +698,11 @@ Puffball.throwError = function(msg, errmsg) {
  * @param  {string} str 
  * @return {boolean}
  */
-Puffball.parseJSON = function(str) {
+PB.parseJSON = function(str) {
     try {
         return JSON.parse(str)
     } catch(err) {
-        return Puffball.onError('Invalid JSON string', err)
+        return PB.onError('Invalid JSON string', err)
     }
 }
 
@@ -706,8 +711,8 @@ Puffball.parseJSON = function(str) {
  * @param  {string} msg     
  * @return {boolean}     
  */
-Puffball.emptyPromise = function(msg) {
-    if(msg) Puffball.onError(msg)
+PB.emptyPromise = function(msg) {
+    if(msg) PB.onError(msg)
     return Promise.reject(msg)
 }
 

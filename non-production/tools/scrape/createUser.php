@@ -12,7 +12,7 @@
 <script src="../../freebeer/js/freeBeer/config.js"></script>
 
 
-<script src="../../freebeer/js/core/Puffball.js"></script>
+<script src="../../freebeer/js/core/PB.js"></script>
 <script src="../../freebeer/js/core/PuffNet.js"></script>
 <script src="../../freebeer/js/modules/PuffForum.js"></script>
 <script src="../../freebeer/js/modules/PuffWardrobe.js"></script>

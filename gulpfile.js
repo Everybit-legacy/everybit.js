@@ -38,10 +38,10 @@ var ourOthersList = [
               'js/helpers.js',
               'js/freeBeer/translate.js',
               'js/freeBeer/translate-zh.js',
-              'js/libs/immutable.js',
+              'js/libs/boron.js',
               'js/libs/dagoba.js',
               'js/core/PuffData.js',
-              'js/core/Puffball.js',
+              'js/core/PB.js',
               'js/core/PuffNet.js',
 
               'js/modules/PuffForum.js',

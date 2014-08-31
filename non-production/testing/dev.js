@@ -406,7 +406,7 @@ events.sub('prefs/storeKeychain/toggle', function(data, path) {
 events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
-        return Puffball.onError('Invalid nickname')  // THINK: do this in React? use Puffball.validations?
+        return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
 
     PuffWardrobe.setProfileItem('nickname', nickname)
 

@@ -193,7 +193,7 @@ events.sub('prefs/storeKeychain/toggle', function(data, path) {
 events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
-        return Puffball.onError('Invalid nickname')         // THINK: do this in React? use Puffball.validations?
+        return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
 
     PuffWardrobe.setProfileItem('nickname', nickname)
 
@@ -217,7 +217,7 @@ events.sub('ui/*', function(data, path) {
 
 events.sub("filter/*", function(data, path) {
     // side effects: query set to default; view.table.format set to list
-    data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
+    data['view.query'] = Boron.shallow_copy(puffworlddefaults.view.query);
     data['view.table.format'] = 'list';
     
     // TODO put this in config as default view
@@ -381,7 +381,7 @@ function handleImportRedirect() {
         // update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
         update_puffworldprops({'slider.show': true, 'slider.wizard':true, 'slider.currentSlide': 3})
 
-        state = PB.shallow_copy(state)                                      // clone before delete
+        state = Boron.shallow_copy(state)                                      // clone before delete
         
         for(var key in state) {
             if(!~keysToStash.indexOf(key)) continue
@@ -395,7 +395,7 @@ function handleImportRedirect() {
 }
 
 function setURLfromViewProps() {
-    var viewprops = PB.shallow_copy(puffworldprops.view)    
+    var viewprops = Boron.shallow_copy(puffworldprops.view)    
     setURL(viewprops)
 }
 
@@ -413,7 +413,7 @@ function setURL(state, path) {
 
 function convertStateToURL(state) {
     // state = stashKeysFromURL(state)
-    state = PB.flatten(state)
+    state = Boron.flatten(state)
     
     var url = Object.keys(state)
                     .filter(function(key) {return key && state[key] && state[key].length !== 0})
@@ -429,7 +429,7 @@ function convertStateToURL(state) {
 function setPropsFromURL() {
     var qobj  = getQuerystringObject()
     Object.keys(qobj).forEach(function(key) {qobj[key] = !~qobj[key].indexOf('~') ? qobj[key] : qobj[key].split('~')})
-    var pushstate = PB.unflatten(qobj)
+    var pushstate = Boron.unflatten(qobj)
     setPropsFromPushstate(pushstate)
 }
 
@@ -476,7 +476,7 @@ function showPuff(sig) {
 
     var prom = PuffData.pending[sig]                                // say what?
     if(!prom)
-        return Puffball.onError('Bad sig in pushstate')
+        return PB.onError('Bad sig in pushstate')
 
     prom.then(function(puffs) {                                     // okay got it.
         showPuffDirectly(puffs[0])
@@ -503,13 +503,13 @@ function renderPuffWorld() {
                , profile: PuffWardrobe.getAllProfileItems()
                }
 
-    update_puffworldprops(PB.flatten(data))
+    update_puffworldprops(Boron.flatten(data))
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
 update_puffworldprops = function(data) {
-    puffworldprops = PB.persistent_merge(puffworldprops, data)
+    puffworldprops = Boron.persistent_merge(puffworldprops, data)
     
     // THINK: this is not the right place for this...
     // TODO: build a type system for javascript and use instead of this mess
@@ -594,7 +594,7 @@ window.addEventListener('load', function() {
         // set current identity
         var lastUsername = localStorage['PUFF::identity'];
         if (lastUsername) {
-            lastUsername = Puffball.parseJSON(lastUsername);
+            lastUsername = PB.parseJSON(lastUsername);
             PuffWardrobe.switchCurrent(lastUsername);
         }
         window.addEventListener('popstate', function(event) {

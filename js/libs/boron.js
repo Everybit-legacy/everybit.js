@@ -3,9 +3,9 @@
 */
 
 
-PB = {} // TODO: make this a proper library and give it a real name
+Boron = {} // TODO: make this a proper library and give it a real name
 
-PB.persistent_merge = function(props, data) {
+Boron.persistent_merge = function(props, data) {
     /// merges a 'flattened' data array into props in a persistent fashion
     /// the new object reuses old data where possible, so requires ~log N additional space
     
@@ -25,11 +25,11 @@ PB.persistent_merge = function(props, data) {
     // THINK: what about when data is {cat:{'ant.bear':0}} ?
     
     return Object.keys(data).reduce(function(props, key) {              // OPT: combine these instead of doing them separately
-        return PB.set_deep_value(props, key, data[key])
+        return Boron.set_deep_value(props, key, data[key])
     }, props)
 }
 
-PB.set_deep_value = function(props, path, value) {
+Boron.set_deep_value = function(props, path, value) {
     /// set a value from a flattened path
     
     /// given props {fun: {yay:123, ok:123}, cat:{dog:123}}
@@ -39,10 +39,10 @@ PB.set_deep_value = function(props, path, value) {
     
     var segs = path.split('.')
     var last = segs.pop()
-    var final = next = PB.shallow_copy(props)
+    var final = next = Boron.shallow_copy(props)
 
     segs.forEach(function(seg) {
-        next[seg] = PB.shallow_copy(next[seg])
+        next[seg] = Boron.shallow_copy(next[seg])
         next = next[seg]
     })
 
@@ -50,40 +50,40 @@ PB.set_deep_value = function(props, path, value) {
     return final
 }
 
-PB.shallow_copy = function(obj) {
+Boron.shallow_copy = function(obj) {
     if(Array.isArray(obj)) return obj.slice()
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
 }
 
-PB.flatten = function(obj, prefix) {
+Boron.flatten = function(obj, prefix) {
     /// convert {fun: {yay: 123}} into {'fun.yay': 123}
     
-    if(!PB.proper_object(obj)) return {}
+    if(!Boron.proper_object(obj)) return {}
     
     var newobj = {}
     prefix = prefix ? prefix + '.' : ''
     
     for(var key in obj) {
-        if(!PB.proper_object(obj[key])) {
+        if(!Boron.proper_object(obj[key])) {
             newobj[prefix+key] = obj[key]
         } else {
-            newobj = PB.extend(newobj, PB.flatten(obj[key], prefix+key)) // OPT: lotsa GC here
+            newobj = Boron.extend(newobj, Boron.flatten(obj[key], prefix+key)) // OPT: lotsa GC here
         }
     }
     
     return newobj
 }
 
-PB.unflatten = function(obj) {
+Boron.unflatten = function(obj) {
     /// convert {'fun.yay': 123} into {fun: {yay: 123}}
     
-    return PB.persistent_merge({}, obj) // OPT: GC
-    // return Object.keys(obj||{}).reduce(function(acc, key) {return PB.set_deep_value(acc, key, obj[key])}, {}) // OPT: GC
+    return Boron.persistent_merge({}, obj) // OPT: GC
+    // return Object.keys(obj||{}).reduce(function(acc, key) {return Boron.set_deep_value(acc, key, obj[key])}, {}) // OPT: GC
 }
 
-PB.proper_object = function(obj) { return typeof obj == 'object' && !Array.isArray(obj) } 
+Boron.proper_object = function(obj) { return typeof obj == 'object' && !Array.isArray(obj) } 
 
-PB.extend = function() {
+Boron.extend = function() {
     /// given ({fun:123, yay:123}, {yay:456, ok:789}) as args, returns a new object {fun:123, yay:456, ok:789}
     
     var newobj = {}
@@ -94,7 +94,7 @@ PB.extend = function() {
 }
 
 
-PB.memoize = function(f) {
+Boron.memoize = function(f) {
     var table = {}
     return function() {
         var args = Array.prototype.slice.call(arguments)

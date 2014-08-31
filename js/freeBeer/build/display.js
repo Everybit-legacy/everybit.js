@@ -48,7 +48,7 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('n', function() { 
             // if (puffworldprops.reply.preview) return false;
             
-            var menu = PB.shallow_copy(puffworlddefaults.menu);
+            var menu = Boron.shallow_copy(puffworlddefaults.menu);
             menu.show = true;
             menu.section = 'publish';
 
@@ -338,7 +338,7 @@ var GridLayoutMixin = {
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
             return function(puff) {
-                return PB.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
+                return Boron.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
                                              {puff: puff, className: className}) } } 
     },
     getPuffBoxList: function(puffs) {
@@ -503,7 +503,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
     render: function() {
         // if(!PuffData.stupidHorribleGlobalThing) return <div></div>
         
-        globalSillyPropsClone = PB.shallow_copy(puffworldprops)
+        globalSillyPropsClone = Boron.shallow_copy(puffworldprops)
         
         var dimensions = this.getDimensions()
         var limit = dimensions.cols * dimensions.rows
@@ -541,7 +541,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         var username = PuffWardrobe.getCurrentUsername()
         var filters = this.props.view.filters
         var query = this.props.view.query
-        var queryfilter = PB.extend({}, query, filters)
+        var queryfilter = Boron.extend({}, query, filters)
 
         // gridCoord params
         var screencoords = this.getScreenCoords()
@@ -705,9 +705,9 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         
         // fill remaining slots
         // TODO: this isn't right with the new stuff
-        PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, PB.extend({}, query, {mode: 'ancestors'}), filters)
-        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, PB.extend({}, query, {mode: 'descendants'}), filters)
-        PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, PB.extend({}, query, {mode: 'siblings'}), filters)
+        PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, Boron.extend({}, query, {mode: 'ancestors'}), filters)
+        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, Boron.extend({}, query, {mode: 'descendants'}), filters)
+        PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, Boron.extend({}, query, {mode: 'siblings'}), filters)
         
         // special sorting for children puffs
         // TODO: bring this back for the new stuff

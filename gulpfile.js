@@ -46,7 +46,7 @@ var ourOthersList = [
 
               'js/core/PB.js',
               'js/core/PB.Data.js',
-              'js/core/PuffNet.js',
+              'js/core/PB.Net.js',
 
               'js/modules/PuffForum.js',
               'js/modules/PuffWardrobe.js',

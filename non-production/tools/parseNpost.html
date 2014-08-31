@@ -15,7 +15,7 @@
 <script src="../../js/freeBeer/config.js"></script>
 <script src="../../js/freeBeer/config_dev.js"></script>
 <script src="../../js/core/PB.js"></script>
-<script src="../../js/core/PuffNet.js"></script>
+<script src="../../js/core/PB.Net.js"></script>
 <script src="../../js/modules/PuffForum.js"></script>
 <script src="../../js/modules/PuffWardrobe.js"></script>
 
@@ -34,7 +34,7 @@
         // Open json file
         var url   = 'http://localhost:8888/puffballApi/files/results.json';
         var data  = {};
-        var prom = PuffNet.getJSON(url, data);
+        var prom = PB.Net.getJSON(url, data);
         var type = 'text';
         var metadata = {};
         metadata.author = 'hermanmelville';

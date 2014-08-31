@@ -610,7 +610,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         var update_puff = PB.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
 
-        var update_prom = PuffNet.updateUserRecord(update_puff);
+        var update_prom = PB.Net.updateUserRecord(update_puff);
         update_prom.then(function(userRecord){
             self.setState({msg: 'Success!'});
             showPuff(userRecord.profile);

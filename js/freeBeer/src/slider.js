@@ -633,7 +633,7 @@ var PasswordWizard = React.createClass({
         // return false;
         var puff = PB.buildPuff(prefix, prefixKey, routes, type, content, payload);
         // SUBMIT REQUEST
-        var prom = PuffNet.updateUserRecord(puff);
+        var prom = PB.Net.updateUserRecord(puff);
         prom.then(function(userRecord) { 
                 PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
                 PuffWardrobe.switchCurrent(username);

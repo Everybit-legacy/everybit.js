@@ -394,7 +394,7 @@ PB.Data.importLocalShells = function() {   // callback) {
 
 
 PB.Data.importAllStars = function() {
-    var prom = PuffNet.getStarShells()
+    var prom = PB.Net.getStarShells()
     prom.then(PB.Data.addShellsThenMakeAvailable)
 }
 
@@ -408,10 +408,10 @@ PB.Data.importPrivateShells = function(username) {
     
     // FIXME: race condition while toggling identities
     
-    var promFromMe = PuffNet.getPrivatePuffsFromMe(username) 
+    var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
     promFromMe.then(PB.Data.addPrivateShells)
 
-    var promForMe = PuffNet.getPrivatePuffsForMe(username) 
+    var promForMe = PB.Net.getPrivatePuffsForMe(username) 
     promForMe.then(PB.Data.addPrivateShells)
 }
 
@@ -492,7 +492,7 @@ PB.Data.importRemoteShells = function() {
             return false
         }
         
-        var prom = PuffNet.getSomeShells({}, {}, limit, offset)
+        var prom = PB.Net.getSomeShells({}, {}, limit, offset)
         prom.then(getMeSomeShells)
 
         offset += limit
@@ -545,7 +545,7 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
     
     // var received_shells = 0
     
-    var prom = PuffNet.getSomeShells(query, filters, limit, query.offset)
+    var prom = PB.Net.getSomeShells(query, filters, limit, query.offset)
     // prom.then(function(shells) {received_shells = shells.length; return shells})
     prom.then(PB.Data.addShellsThenMakeAvailable)
         .then(function(delta) { 
@@ -593,7 +593,7 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
         var limit = need - have 
         // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
         
-        var prom = PuffNet.getSomeShells(query, filters, limit, my_offset)
+        var prom = PB.Net.getSomeShells(query, filters, limit, my_offset)
         prom.then(getMeSomeShells)
 
         my_offset += limit
@@ -635,7 +635,7 @@ PB.Data.getPuffBySig = function(sig) {
         return shells
     }
     
-    PB.Data.pending[sig] = PuffNet.getPuffBySig(sig)      // TODO: drop this down in to PuffNet instead
+    PB.Data.pending[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
     PB.Data.pending[sig].then(badShellClearCache)
                          .then(PB.Data.addShellsThenMakeAvailable)
                          .then(function() {                                                    // delay GC to prevent

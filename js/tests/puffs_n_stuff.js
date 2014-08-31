@@ -123,10 +123,10 @@ PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, 
 
 
 // user lookup 
-var badLookupPromise = PuffNet.getUserRecord(randomUsername)
+var badLookupPromise = PB.Net.getUserRecord(randomUsername)
 badLookupPromise.then(function(userRecord) { testfail("The user record lookup should have failed", userRecord) })
 
-var goodLookupPromise = PuffNet.getUserRecord('anon')
+var goodLookupPromise = PB.Net.getUserRecord('anon')
 goodLookupPromise.catch(function(err) { testfail("The user record lookup should have succeeded", err) })
 
 

@@ -767,7 +767,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
                 return showPuffDirectly(puff);
             }
 
-            var prom = PuffNet.getPuffBySig(profile);
+            var prom = PB.Net.getPuffBySig(profile);
             prom.then(function(p){
                 if (p.payload) {
                     self.setState({profileMsg: ''});
@@ -1413,7 +1413,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
         // SUBMIT REQUEST
-        var prom = PuffNet.updateUserRecord(puff);
+        var prom = PB.Net.updateUserRecord(puff);
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);

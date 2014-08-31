@@ -15,7 +15,7 @@ Scrape.userCreate = function(parent, signingKey, username, privateRk, privateAk,
             .catch(function(){
                 resultDiv.innerHTML += username + ' DNE <br>';
                 //Scrape.rec();
-                var res = PuffNet.registerSubuser(
+                var res = PB.Net.registerSubuser(
                     parent, signingKey, username, 
                     PB.Crypto.privateToPublic(privateRk),
                     PB.Crypto.privateToPublic(privateAk),

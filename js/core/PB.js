@@ -50,7 +50,7 @@ PB.init = function(zone) {
     
     if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
     
-    PuffNet.init()
+    PB.Net.init()
 }
 
 
@@ -204,7 +204,7 @@ PB.getUserRecord = function(username) {
 PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
     
-    return PuffNet.getUserRecord(username);
+    return PB.Net.getUserRecord(username);
 }
 
 /**
@@ -234,7 +234,7 @@ PB.addPuffToSystem = function(puff) {
     
     PB.Data.addShellsThenMakeAvailable(puff);
 
-    PuffNet.distributePuff(puff);
+    PB.Net.distributePuff(puff);
     
     return puff;
 }
@@ -599,7 +599,7 @@ PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
 /*
     Persistence layer
 
-    It's like a network on your hard drive... which probably implies this should live in PuffNet.
+    It's like a network on your hard drive... which probably implies this should live in PB.Net.
 */
 
 PB.Persist = {};
@@ -663,7 +663,7 @@ PB.onError = function(msg, obj) {
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)
-        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, toSend)
+        PB.Net.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, toSend)
 
     console.log(msg, obj) // adding this back in for debugging help
     return false

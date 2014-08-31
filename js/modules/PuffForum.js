@@ -703,7 +703,7 @@ PuffForum.flagPuff = function (sig) {
                , puff: puff
                };
 
-    var prom = PuffNet.post(CONFIG.puffApi, data);
+    var prom = PB.Net.post(CONFIG.puffApi, data);
     prom = prom.then(function(result){
         // var storedShells = PB.Persist.get('shells');
         // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});

@@ -614,7 +614,7 @@ events.sub('ui/*', function(data) {
 
     // XHR this bad boy!
     if(puffworldprops.prefs.reporting)
-        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
+        PB.Net.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 });
 
 // Hide slideshow from people with more than one identity

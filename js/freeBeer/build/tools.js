@@ -183,7 +183,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var puff = this.state.puff;
         var self = this;
 
-        var prom = PuffNet.updateUserRecord(puff)
+        var prom = PB.Net.updateUserRecord(puff)
 
         prom.then(function(result) {
             self.state.result = result;
@@ -201,7 +201,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var puffString = puffEl.value;
         var self = this;
 
-        var pprom = PuffNet.updateUserRecord(puffString);
+        var pprom = PB.Net.updateUserRecord(puffString);
 
         pprom.then(function(result) {
             self.state.result = result;

@@ -205,7 +205,7 @@ getScreenCoords = function() {
 var rows = 10
 var cols = 10
 var screencoords = getScreenCoords()
-var myGridbox = gridbox.getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+var myGridbox = Gridbox.getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
 
 var things = {}
 

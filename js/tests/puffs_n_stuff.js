@@ -205,7 +205,7 @@ getScreenCoords = function() {
 var rows = 10
 var cols = 10
 var screencoords = getScreenCoords()
-var gridBox = getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+var myGridbox = gridbox.getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
 
 var things = {}
 
@@ -217,7 +217,7 @@ var miny  = 3
 var maxx  = 7
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.foo)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.foo)
 
 things.bar = {bar: 321}
 var width  = 2
@@ -227,7 +227,7 @@ var miny  = 3
 var maxx  = 10
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.bar)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.bar)
 
 things.lala = {lala: 888}
 var width  = 2
@@ -237,7 +237,7 @@ var miny  = 3
 var maxx  = 10
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.lala)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.lala)
 
 
 function assert(value, expected) {

@@ -184,7 +184,7 @@ var ViewKeybindingsMixin = {
 
 var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
-        var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
+        var next = gridbox.findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
         if (next) {
             events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
             return true;
@@ -323,12 +323,12 @@ var GridLayoutMixin = {
             w = screencoords.width;
         }
         
-        var gridBox = getGridCoordBox(rows, nCol, w, screencoords.height)
+        var myGridbox = gridbox.getGridCoordBox(rows, nCol, w, screencoords.height)
 
 
-        // this.setState({gridBox: gridBox}) // ugh state but whaddyagonnado
-        globalGridBox = gridBox // ugh globals but whaddyagonnado
-        return gridBox
+        // this.setState({gridBox: myGridbox}) // ugh state but whaddyagonnado
+        globalGridBox = myGridbox // ugh globals but whaddyagonnado
+        return myGridbox
     },
     getStandardBox: function(rows, cols) {
         var gridbox = this.getGridBox(rows)

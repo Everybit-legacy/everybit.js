@@ -2,9 +2,9 @@
     gridbox: a simple system for putting things in places
 */
 
+gridbox = {}
 
-
-getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
+gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     var min = function(a, b) {return Math.min(a, b)}
     var max = function(a, b) {return Math.max(a, b)}
     var gridwidth  = outerwidth  / cols
@@ -37,19 +37,19 @@ getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
     }
 }
 
-function findNeighbor(grid, pointer, dir) {
-    var boxCoords = findBoxInGrid(grid, pointer)
+gridbox.findNeighbor = function(grid, pointer, dir) {
+    var boxCoords = gridbox.findBoxInGrid(grid, pointer)
     if(!boxCoords) return false
 
     // TODO: need to indicate if dirBox is outside of grid, versus pointer not found
 
-    var dirBox = makeDirBox(boxCoords, dir)
+    var dirBox = gridbox.makeDirBox(boxCoords, dir)
     if(!dirBox) return false
 
-    return firstThingInBox(grid, dirBox[0], dirBox[1])
+    return gridbox.firstThingInBox(grid, dirBox[0], dirBox[1])
 }
 
-function findBoxInGrid(grid, target, eq) {
+gridbox.findBoxInGrid = function(grid, target, eq) {
     /// find something in a grid box and return coords
     /// NOTE: this assumes rectilinear shapes
     eq = eq || function(a, b) {return a === b}
@@ -57,26 +57,26 @@ function findBoxInGrid(grid, target, eq) {
 
     top: for(var y = 0, ly = grid.length; y < ly; y++)
         for(var x = 0, lx = grid[y].length; x < lx; x++)
-            if(eq(grid[y][x], target)) break top                     // find top and left coords
+            if(eq(grid[y][x], target)) break top                        // find top and left coords
 
-    if(y == grid.length && x == grid[0].length) return false        // target not in box
+    if(y == grid.length && x == grid[0].length) return false            // target not in box
 
     for(var dy = 0, ly = grid.length-y; dy < ly; dy++)
-        if(!eq(grid[y+dy][x], target)) break                         // find bottom coord
+        if(!eq(grid[y+dy][x], target)) break                            // find bottom coord
 
     for(var dx = 0, lx = grid[y].length-x; dx < lx; dx++)
-        if(!eq(grid[y][x+dx], target)) break                         // find right coord
+        if(!eq(grid[y][x+dx], target)) break                            // find right coord
 
-    return [[x, y], [x+dx-1, y+dy-1]]                              // minus one because deltas always overshoot
+    return [[x, y], [x+dx-1, y+dy-1]]                                   // minus one because deltas always overshoot
 }
 
-function firstThingInBox(grid, topleft, botright) { // lteq because our boxes are inclusive; boundaries built in.
+gridbox.firstThingInBox = function(grid, topleft, botright) {
     for(var y = Math.max(topleft[1], 0), ly = Math.min(botright[1], grid.length-1); y <= ly; y++)
         for(var x = Math.max(topleft[0], 0), lx = Math.min(botright[0], grid[0].length-1); x <= lx; x++)
-            if(grid[y][x]) return grid[y][x]
-}
+            if(grid[y][x]) return grid[y][x]                            // lteq because our boxes are inclusive;
+}                                                                       // boundaries are built in.
 
-function makeDirBox(boxCoords, dir) {
+gridbox.makeDirBox = function(boxCoords, dir) {
     var top   = boxCoords[0][1]
     var left  = boxCoords[0][0]
     var bot   = boxCoords[1][1]

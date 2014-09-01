@@ -538,7 +538,7 @@ var PuffTallTree = React.createClass({
         
         // sundry miscellany
         var arrows = this.props.view.arrows
-        var username = PuffWardrobe.getCurrentUsername()
+        var username = PB.M.PuffWardrobe.getCurrentUsername()
         var filters = this.props.view.filters
         var query = this.props.view.query
         var queryfilter = Boron.extend({}, query, filters)

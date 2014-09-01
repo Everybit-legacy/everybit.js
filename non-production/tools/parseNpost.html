@@ -17,7 +17,7 @@
 <script src="../../js/core/PB.js"></script>
 <script src="../../js/core/PB.Net.js"></script>
 <script src="../../js/modules/PuffForum.js"></script>
-<script src="../../js/modules/PuffWardrobe.js"></script>
+<script src="../../js/modules/PB.M.PuffWardrobe.js"></script>
 
 <script>
     // Take a .json file, parse it, sign each puff, chain them together,
@@ -26,8 +26,8 @@
     var defaultKeyPrivate = '';
     var username = 'ishmael';
     // NOTE: does not confirm key validity in DHT
-    PuffWardrobe.storePrivateKeys(username, '', '', defaultKeyPrivate);
-    PuffWardrobe.switchCurrent(username);
+    PB.M.PuffWardrobe.storePrivateKeys(username, '', '', defaultKeyPrivate);
+    PB.M.PuffWardrobe.switchCurrent(username);
 
     function createPuffs() {
 

@@ -9,8 +9,8 @@
   A Puffball module for managing identities locally.
 
   Usage example:
-  PuffWardrobe.switchCurrent(user.username)
-  PuffWardrobe.getCurrentKeys()
+  PB.M.PuffWardrobe.switchCurrent(user.username)
+  PB.M.PuffWardrobe.getCurrentKeys()
 
 */
 
@@ -23,12 +23,12 @@
     PuffForum uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
     PuffIdentity is responsible for managing persistence of identities, keeping the core clean of such messy concerns.
 
-    -- Maybe call it PuffWardrobe? Is this just a place for local identity management, or also a place for managing user records?
+    -- Maybe call it PB.M.PuffWardrobe? Is this just a place for local identity management, or also a place for managing user records?
     -- We need to separate out these concerns...
 
 
   ---> register callback handlers for user record creation and modification
-  ---> PuffWardrobe.init registers those with PB.onUserCreation and PB.onUserModification
+  ---> PB.M.PuffWardrobe.init registers those with PB.onUserCreation and PB.onUserModification
   ---> canonical identity object: username, keys.public.default, keys.private.admin, latest, etc. [or just use the spec... yeah. w/ .private for private key versions...]
   ---> always use CIO for everything; distinguish identities from users for all time. (...?)
   ---> 
@@ -36,32 +36,32 @@
 
 */
 
-PuffWardrobe = {}
-PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
-PuffWardrobe.currentKeys = false    // false if not set, so watch out
+PB.M.PuffWardrobe = {}
+PB.M.PuffWardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
+PB.M.PuffWardrobe.currentKeys = false    // false if not set, so watch out
 
 /**
  * Get the current keys
  * @return {string}
  */
-PuffWardrobe.getCurrentKeys = function() {
-    return PuffWardrobe.currentKeys
+PB.M.PuffWardrobe.getCurrentKeys = function() {
+    return PB.M.PuffWardrobe.currentKeys
 }
 
 /**
  * get the current username
  * @return {string}
  */
-PuffWardrobe.getCurrentUsername = function() {
-    return (PuffWardrobe.currentKeys || {}).username || ''
+PB.M.PuffWardrobe.getCurrentUsername = function() {
+    return (PB.M.PuffWardrobe.currentKeys || {}).username || ''
 }
 
 /**
  * get the current user record
  * @return {string}
  */
-PuffWardrobe.getCurrentUserRecord = function() {
-    var username = PuffWardrobe.getCurrentUsername()
+PB.M.PuffWardrobe.getCurrentUserRecord = function() {
+    var username = PB.M.PuffWardrobe.getCurrentUsername()
     if(!username) 
         return PB.onError('No current user in wardrobe')
     
@@ -80,11 +80,11 @@ PuffWardrobe.getCurrentUserRecord = function() {
  * get all the username and keys
  * @return {Object[]}
  */
-PuffWardrobe.getAll = function() {
-    if(!PuffWardrobe.keychain)
-        PuffWardrobe.keychain = PB.Persist.get('keychain') || {}
+PB.M.PuffWardrobe.getAll = function() {
+    if(!PB.M.PuffWardrobe.keychain)
+        PB.M.PuffWardrobe.keychain = PB.Persist.get('keychain') || {}
     
-    return PuffWardrobe.keychain
+    return PB.M.PuffWardrobe.keychain
 }
 
 /**
@@ -92,13 +92,13 @@ PuffWardrobe.getAll = function() {
  * @param  {string} username
  * @return {string[]}
  */
-PuffWardrobe.switchCurrent = function(username) {
+PB.M.PuffWardrobe.switchCurrent = function(username) {
     //// Change current keyset. also used for clearing the current keyset (call with '')
 
     if(!username)
-        return PuffWardrobe.currentKeys = false
+        return PB.M.PuffWardrobe.currentKeys = false
     
-    var keychain = PuffWardrobe.getAll()
+    var keychain = PB.M.PuffWardrobe.getAll()
     var keys     = keychain[username]
 
     if(!keys)
@@ -109,7 +109,7 @@ PuffWardrobe.switchCurrent = function(username) {
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
     PB.Data.importPrivateShells(username)
     
-    return PuffWardrobe.currentKeys = keys
+    return PB.M.PuffWardrobe.currentKeys = keys
 }
 
 /**
@@ -117,8 +117,8 @@ PuffWardrobe.switchCurrent = function(username) {
  * @param  {string} username
  * @param  {string} rootKey
  */
-PuffWardrobe.storeRootKey = function(username, rootKey) {
-    PuffWardrobe.storePrivateKeys(username, rootKey)
+PB.M.PuffWardrobe.storeRootKey = function(username, rootKey) {
+    PB.M.PuffWardrobe.storePrivateKeys(username, rootKey)
 }
 
 /**
@@ -126,8 +126,8 @@ PuffWardrobe.storeRootKey = function(username, rootKey) {
  * @param  {string} username
  * @param  {string} rootKey
  */
-PuffWardrobe.storeAdminKey = function(username, adminKey) {
-    PuffWardrobe.storePrivateKeys(username, false, adminKey)
+PB.M.PuffWardrobe.storeAdminKey = function(username, adminKey) {
+    PB.M.PuffWardrobe.storePrivateKeys(username, false, adminKey)
 }
 
 /**
@@ -135,8 +135,8 @@ PuffWardrobe.storeAdminKey = function(username, adminKey) {
  * @param  {string} username
  * @param  {string} rootKey
  */
-PuffWardrobe.storeDefaultKey = function(username, defaultKey) {
-    PuffWardrobe.storePrivateKeys(username, false, false, defaultKey)
+PB.M.PuffWardrobe.storeDefaultKey = function(username, defaultKey) {
+    PB.M.PuffWardrobe.storePrivateKeys(username, false, false, defaultKey)
 }
 
 /**
@@ -146,21 +146,21 @@ PuffWardrobe.storeDefaultKey = function(username, defaultKey) {
  * @param  {string} adminKey
  * @param  {string} defaultKey
  */
-PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
+PB.M.PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
     //// Add keys to the wardrobe with no validation
-    PuffWardrobe.keychain = PuffWardrobe.getAll()
+    PB.M.PuffWardrobe.keychain = PB.M.PuffWardrobe.getAll()
     
-    PuffWardrobe.keychain[username] = PuffWardrobe.keychain[username] || {username: username}
+    PB.M.PuffWardrobe.keychain[username] = PB.M.PuffWardrobe.keychain[username] || {username: username}
     
     if(rootKey)
-        PuffWardrobe.keychain[username].root    = rootKey
+        PB.M.PuffWardrobe.keychain[username].root    = rootKey
     if(adminKey)
-        PuffWardrobe.keychain[username].admin   = adminKey
+        PB.M.PuffWardrobe.keychain[username].admin   = adminKey
     if(defaultKey)
-        PuffWardrobe.keychain[username].default = defaultKey
+        PB.M.PuffWardrobe.keychain[username].default = defaultKey
     
-    if(PuffWardrobe.getPref('storeKeychain'))
-        PB.Persist.save('keychain', PuffWardrobe.keychain)
+    if(PB.M.PuffWardrobe.getPref('storeKeychain'))
+        PB.Persist.save('keychain', PB.M.PuffWardrobe.keychain)
 }
 
 /**
@@ -172,7 +172,7 @@ PuffWardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey
  * @param  {Function} callback
  * @return {string}
  */
-PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
+PB.M.PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
     //// Ensure keys match the userRecord
     
     var prom = PB.getUserRecord(username)
@@ -195,25 +195,25 @@ PuffWardrobe.validatePrivateKeys = function(username, rootKey, adminKey, default
  * Clear the identity's private keys from the wardrobe
  * @param  {string} username
  */
-PuffWardrobe.removeKeys = function(username) {
+PB.M.PuffWardrobe.removeKeys = function(username) {
     //// clear the identity's private keys from the wardrobe
-    PuffWardrobe.keychain = PuffWardrobe.getAll()
+    PB.M.PuffWardrobe.keychain = PB.M.PuffWardrobe.getAll()
 
-    delete PuffWardrobe.keychain[username]
+    delete PB.M.PuffWardrobe.keychain[username]
     
-    if(PuffWardrobe.currentKeys.username == username)
-        PuffWardrobe.currentKeys = false
+    if(PB.M.PuffWardrobe.currentKeys.username == username)
+        PB.M.PuffWardrobe.currentKeys = false
     
-    if(PuffWardrobe.getPref('storeKeychain'))
-        PB.Persist.save('keychain', PuffWardrobe.keychain)
+    if(PB.M.PuffWardrobe.getPref('storeKeychain'))
+        PB.Persist.save('keychain', PB.M.PuffWardrobe.keychain)
 }
 
 /**
  * Create a new anonymous identity and add it to the local identity list
  */
-PuffWardrobe.addNewAnonUser = function() {
+PB.M.PuffWardrobe.addNewAnonUser = function() {
     //// create a new anonymous identity and add it to the local identity list
-    //// it seems strange to have this in PuffWardrobe, but we have to keep the generated private keys here.
+    //// it seems strange to have this in PB.M.PuffWardrobe, but we have to keep the generated private keys here.
 
     // generate private keys
     var privateRootKey    = PB.Crypto.generatePrivateKey();
@@ -226,7 +226,7 @@ PuffWardrobe.addNewAnonUser = function() {
     var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey);
 
     // build new username
-    var anonUsername = PuffWardrobe.generateRandomUsername();
+    var anonUsername = PB.M.PuffWardrobe.generateRandomUsername();
     var newUsername  = 'anon.' + anonUsername;
 
     // send it off
@@ -234,7 +234,7 @@ PuffWardrobe.addNewAnonUser = function() {
 
     return prom.then(function(userRecord) {
                    // store directly because we know they're valid, and so we don't get tangled up in more promises
-                   PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+                   PB.M.PuffWardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
                    return userRecord;
                },
                PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
@@ -244,7 +244,7 @@ PuffWardrobe.addNewAnonUser = function() {
  * Generate a random username
  * @return {string}
  */
-PuffWardrobe.generateRandomUsername = function() {
+PB.M.PuffWardrobe.generateRandomUsername = function() {
     var generatedName = '';
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
     for(var i=0; i<10; i++) {
@@ -257,18 +257,18 @@ PuffWardrobe.generateRandomUsername = function() {
  * Get the current user's DHT record, or create a new anon user, or die trying
  * @return {string}
  */
-PuffWardrobe.getUpToDateUserAtAnyCost = function() {
+PB.M.PuffWardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var username = PuffWardrobe.getCurrentUsername()
+    var username = PB.M.PuffWardrobe.getCurrentUsername()
 
     if(username)
         return PB.getUserRecordNoCache(username)
     
-    var prom = PuffWardrobe.addNewAnonUser()
+    var prom = PB.M.PuffWardrobe.addNewAnonUser()
     
     return prom.then(function(userRecord) {
-        PuffWardrobe.switchCurrent(userRecord.username)
+        PB.M.PuffWardrobe.switchCurrent(userRecord.username)
         console.log("Setting current user to " + userRecord.username);
         return userRecord
     })
@@ -286,15 +286,15 @@ PuffWardrobe.getUpToDateUserAtAnyCost = function() {
 */
 
 
-PuffWardrobe.prefsarray = false  // put this somewhere else
+PB.M.PuffWardrobe.prefsarray = false  // put this somewhere else
 
 /**
  * to get the preference 
  * @param  {string} key
  * @return {Prefs(String|Boolean)}
  */
-PuffWardrobe.getPref = function(key) {
-    var prefs = PuffWardrobe.getAllPrefs()
+PB.M.PuffWardrobe.getPref = function(key) {
+    var prefs = PB.M.PuffWardrobe.getAllPrefs()
     return prefs[key]
 }
 
@@ -302,11 +302,11 @@ PuffWardrobe.getPref = function(key) {
  * to get all the preferences
  * @return {Prefs(string|boolean)[]}
  */
-PuffWardrobe.getAllPrefs = function() {
-    if(!PuffWardrobe.prefsarray)
-        PuffWardrobe.prefsarray = PB.Persist.get('prefs') || {}
+PB.M.PuffWardrobe.getAllPrefs = function() {
+    if(!PB.M.PuffWardrobe.prefsarray)
+        PB.M.PuffWardrobe.prefsarray = PB.Persist.get('prefs') || {}
     
-    return PuffWardrobe.prefsarray
+    return PB.M.PuffWardrobe.prefsarray
 }
 
 /**
@@ -314,11 +314,11 @@ PuffWardrobe.getAllPrefs = function() {
  * @param {string} key
  * @param {string} value
  */
-PuffWardrobe.setPref = function(key, value) {
-    var prefs = PuffWardrobe.getAllPrefs()
+PB.M.PuffWardrobe.setPref = function(key, value) {
+    var prefs = PB.M.PuffWardrobe.getAllPrefs()
     var newprefs = Boron.set_deep_value(prefs, key, value); // allows dot-paths
 
-    PuffWardrobe.prefsarray = newprefs
+    PB.M.PuffWardrobe.prefsarray = newprefs
 
     var filename = 'prefs'
     PB.Persist.save(filename, newprefs)
@@ -329,7 +329,7 @@ PuffWardrobe.setPref = function(key, value) {
 /**
  * to remove the preferences
  */
-PuffWardrobe.removePrefs = function() {
+PB.M.PuffWardrobe.removePrefs = function() {
     var filename = 'prefs'
     PB.Persist.remove(filename)
 }
@@ -343,16 +343,16 @@ PuffWardrobe.removePrefs = function() {
     as part of the identity's presence in the user's identity wardrobe.
 */
 
-PuffWardrobe.profilearray = {}  // THINK: put this somewhere else
+PB.M.PuffWardrobe.profilearray = {}  // THINK: put this somewhere else
 
 /**
  * to get the profile item
  * @param  {string} key
  * @return {object}
  */
-PuffWardrobe.getProfileItem = function(key) {
-    var username = PuffWardrobe.currentKeys.username
-    return PuffWardrobe.getUserProfileItem(username, key)
+PB.M.PuffWardrobe.getProfileItem = function(key) {
+    var username = PB.M.PuffWardrobe.currentKeys.username
+    return PB.M.PuffWardrobe.getUserProfileItem(username, key)
 }
 
 /**
@@ -360,18 +360,18 @@ PuffWardrobe.getProfileItem = function(key) {
  * @param {string} key
  * @param {string} value
  */
-PuffWardrobe.setProfileItem = function(key, value) {
-    var username = PuffWardrobe.currentKeys.username
-    return PuffWardrobe.setUserProfileItems(username, key, value)
+PB.M.PuffWardrobe.setProfileItem = function(key, value) {
+    var username = PB.M.PuffWardrobe.currentKeys.username
+    return PB.M.PuffWardrobe.setUserProfileItems(username, key, value)
 }
 
 /** 
  * to get all profile items
  * @return {object}
  */
-PuffWardrobe.getAllProfileItems = function() {
-    var username = PuffWardrobe.currentKeys.username
-    return PuffWardrobe.getAllUserProfileItems(username)
+PB.M.PuffWardrobe.getAllProfileItems = function() {
+    var username = PB.M.PuffWardrobe.currentKeys.username
+    return PB.M.PuffWardrobe.getAllUserProfileItems(username)
 }
 
 /**
@@ -380,8 +380,8 @@ PuffWardrobe.getAllProfileItems = function() {
  * @param  {string} key
  * @return {object}
  */
-PuffWardrobe.getUserProfileItem = function(username, key) {
-    var profile = PuffWardrobe.getAllUserProfileItems(username)
+PB.M.PuffWardrobe.getUserProfileItem = function(username, key) {
+    var profile = PB.M.PuffWardrobe.getAllUserProfileItems(username)
     return profile[key]
 }
 
@@ -390,10 +390,10 @@ PuffWardrobe.getUserProfileItem = function(username, key) {
  * @param  {string} username
  * @return {object}
  */
-PuffWardrobe.getAllUserProfileItems = function(username) {
+PB.M.PuffWardrobe.getAllUserProfileItems = function(username) {
     if(!username) return {} // erm derp derp
     
-    var parray = PuffWardrobe.profilearray
+    var parray = PB.M.PuffWardrobe.profilearray
     if(parray[username]) return parray[username]  // is this always right?
     
     var profilefile = 'profile::' + username
@@ -408,13 +408,13 @@ PuffWardrobe.getAllUserProfileItems = function(username) {
  * @param {string} key
  * @param {string} value
  */
-PuffWardrobe.setUserProfileItems = function(username, key, value) {
+PB.M.PuffWardrobe.setUserProfileItems = function(username, key, value) {
     if(!username) return false
     
-    var profile = PuffWardrobe.getAllUserProfileItems(username)
+    var profile = PB.M.PuffWardrobe.getAllUserProfileItems(username)
     var newprofile = Boron.set_deep_value(profile, key, value); // allows dot-paths
 
-    PuffWardrobe.profilearray[username] = newprofile
+    PB.M.PuffWardrobe.profilearray[username] = newprofile
 
     var profilefile = 'profile::' + username;
     PB.Persist.save(profilefile, newprofile)
@@ -427,10 +427,10 @@ PuffWardrobe.setUserProfileItems = function(username, key, value) {
  * @param  {string} username
  * @return {(void|false)}
  */
-PuffWardrobe.removeUserProfile = function(username) {
+PB.M.PuffWardrobe.removeUserProfile = function(username) {
     if(!username) return false
     
-    PuffWardrobe.profilearray.delete(username)
+    PB.M.PuffWardrobe.profilearray.delete(username)
     
     var profilefile = 'profile::' + username;
     PB.Persist.remove(profilefile)

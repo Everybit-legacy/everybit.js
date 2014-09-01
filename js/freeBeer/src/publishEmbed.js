@@ -520,10 +520,10 @@ var PuffPublishFormEmbed = React.createClass({
         var prom = Promise.resolve() // a promise we use to string everything along 
         
         // are we currently anonymous? make a new user and switch.
-        if(!PuffWardrobe.getCurrentUsername()) {
+        if(!PB.M.PuffWardrobe.getCurrentUsername()) {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
-                    PuffWardrobe.switchCurrent(userRecord.username)
+                return PB.M.PuffWardrobe.addNewAnonUser().then(function(userRecord) {
+                    PB.M.PuffWardrobe.switchCurrent(userRecord.username)
                 })
             })
         }
@@ -532,8 +532,8 @@ var PuffPublishFormEmbed = React.createClass({
         var envelopeUserKeys = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
-                    envelopeUserKeys = PuffWardrobe.keychain[userRecord.username]
+                return PB.M.PuffWardrobe.addNewAnonUser().then(function(userRecord) {
+                    envelopeUserKeys = PB.M.PuffWardrobe.keychain[userRecord.username]
                 })
             })
         }
@@ -541,7 +541,7 @@ var PuffPublishFormEmbed = React.createClass({
         // are we paranoid? make another new user
         if(privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser(function(userRecord) {
+                return PB.M.PuffWardrobe.addNewAnonUser(function(userRecord) {
                     metadata.replyTo = userRecord.username
                 })
             })
@@ -570,7 +570,7 @@ var PuffPublishFormEmbed = React.createClass({
             if(envelopeUserKeys) {      // add our secret identity to the list of available keys
                 userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PuffWardrobe.getCurrentUserRecord())
+                userRecords.push(PB.M.PuffWardrobe.getCurrentUserRecord())
             }
 
             var post_prom = PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
@@ -601,8 +601,8 @@ var PuffPublishFormEmbed = React.createClass({
     /* functions for type = profile */
     handleUpdateProfile: function(puff){
         var self = this;
-        var currentKeys = PuffWardrobe.getCurrentKeys();
-        var oldProfile = PuffWardrobe.getCurrentUserRecord().profile;
+        var currentKeys = PB.M.PuffWardrobe.getCurrentKeys();
+        var oldProfile = PB.M.PuffWardrobe.getCurrentUserRecord().profile;
         var type = 'updateUserRecord';
         var content = "setProfile";
         var payload = {};
@@ -654,7 +654,7 @@ var PuffPublishFormEmbed = React.createClass({
         } else {
             // publish private profile
             var prom = Promise.resolve();
-            var currentUserRecord = PuffWardrobe.getCurrentUserRecord();
+            var currentUserRecord = PB.M.PuffWardrobe.getCurrentUserRecord();
             var userRecords = [];
             userRecords.push(currentUserRecord);
             var post_prom = PuffForum.addPost( type, content, [], metadata, userRecords );
@@ -830,7 +830,7 @@ var PuffPublishFormEmbed = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
         var contentTypeNames = Object.keys(PuffForum.contentTypes);
         var privacyDefault = this.props.reply.privacy || "public";
-        /*var author = PuffWardrobe.getCurrentUsername();
+        /*var author = PB.M.PuffWardrobe.getCurrentUsername();
         author = StringConversion.humanizeUsernames(author) || "anonymous";*/
 
         var defaultContent = puffworldprops.reply.content || '';

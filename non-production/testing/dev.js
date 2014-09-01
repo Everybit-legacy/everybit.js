@@ -396,8 +396,8 @@ events.sub('*', function(data, path) {
 //// event bindings for controlling core behavior from the display
 
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PuffWardrobe.getPref('storeKeychain')
-    PuffWardrobe.setPref('storeKeychain', new_state)
+    var new_state = !PB.M.PuffWardrobe.getPref('storeKeychain')
+    PB.M.PuffWardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeKeychain/' + dir)
@@ -408,7 +408,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname)
         return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
 
-    PuffWardrobe.setProfileItem('nickname', nickname)
+    PB.M.PuffWardrobe.setProfileItem('nickname', nickname)
 
     events.pub('ui/menu/profile/nickname/set')
 });

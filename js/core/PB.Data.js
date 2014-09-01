@@ -294,7 +294,7 @@ PB.Data.tryAddingShell = function(shell) {
     
     // TODO: fix this private pathway
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PuffWardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
+        var username = PB.M.PuffWardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
 
         if(!shell.keys[username]) return false
         

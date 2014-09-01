@@ -103,7 +103,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         payload.requestedUsername = this.refs.username.getDOMNode().value;
 
-        var privateKeys = PuffWardrobe.getCurrentKeys();
+        var privateKeys = PB.M.PuffWardrobe.getCurrentKeys();
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building registration requests."};
@@ -124,16 +124,16 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     handleBuildModifyUserKeysPuff: function() {
         // Stuff to register. These are public keys
 
-        var currentUser = PuffWardrobe.getCurrentUsername();
+        var currentUser = PB.M.PuffWardrobe.getCurrentUsername();
         if(!currentUser) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
             return events.pub('ui/puff-packer/user-modify-keys/error', {});
         }
 
         var payload = {};
-        var rootKey = PuffWardrobe.getCurrentKeys().root;
-        var adminKey = PuffWardrobe.getCurrentKeys().admin;
-        var defaultKey = PuffWardrobe.getCurrentKeys().default;
+        var rootKey = PB.M.PuffWardrobe.getCurrentKeys().root;
+        var adminKey = PB.M.PuffWardrobe.getCurrentKeys().admin;
+        var defaultKey = PB.M.PuffWardrobe.getCurrentKeys().default;
         var routes = [];
         var type = 'updateUserRecord';
         var content = 'modifyUserKey';
@@ -147,7 +147,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         payload.time = Date.now();
 
-        var privateKeys = PuffWardrobe.getCurrentKeys();
+        var privateKeys = PB.M.PuffWardrobe.getCurrentKeys();
 
 
         if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
@@ -238,7 +238,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleGetLatest: function() {
-        var username = PuffWardrobe.getCurrentUsername();
+        var username = PB.M.PuffWardrobe.getCurrentUsername();
         var self = this;
 
         var prom = PB.getUserRecord(username);
@@ -260,7 +260,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         payload.latest = this.refs.setLatestSigTo.getDOMNode().value;
 
-        var privateKeys = PuffWardrobe.getCurrentKeys();
+        var privateKeys = PB.M.PuffWardrobe.getCurrentKeys();
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building set latest request."}
@@ -279,11 +279,11 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleSetIdentityToAnon: function() {
-        PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
-        PuffWardrobe.switchCurrent('anon');
+        PB.M.PuffWardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
+        PB.M.PuffWardrobe.switchCurrent('anon');
         events.pub('ui/puff-packer/set-identity-to-anon', {});
         // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
-        // PuffWardrobe.addUserReally('anon', keys);
+        // PB.M.PuffWardrobe.addUserReally('anon', keys);
     },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value;
@@ -302,7 +302,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var username    = PuffWardrobe.getCurrentUsername();
+        var username    = PB.M.PuffWardrobe.getCurrentUsername();
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
         var setIdentityField = (React.DOM.div(null, "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
 
@@ -459,15 +459,15 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
 var PuffSwitchUser = React.createClass({displayName: 'PuffSwitchUser',
     handleUserPick: function() {
-        PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
+        PB.M.PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
         return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
-        var all_usernames = Object.keys(PuffWardrobe.getAll())
+        var all_usernames = Object.keys(PB.M.PuffWardrobe.getAll())
 
         if(!all_usernames.length) return React.DOM.div(null)
 
-        var username = PuffWardrobe.getCurrentUsername()
+        var username = PB.M.PuffWardrobe.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         return (

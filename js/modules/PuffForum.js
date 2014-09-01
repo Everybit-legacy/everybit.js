@@ -86,7 +86,7 @@ PuffForum.getEncryptedShells = function() {
     
     
     
-    var myUsername = PuffWardrobe.getCurrentUsername()
+    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
     var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
                                   .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                   .filter(Boolean)
@@ -195,8 +195,8 @@ PuffForum.badEnvelope = function(sig) {
  * @returns {Boolean|Shell[]}
  */
 PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
-    var myUsername = PuffWardrobe.getCurrentUsername()
-    var myKeys = PuffWardrobe.getCurrentKeys()
+    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
+    var myKeys = PB.M.PuffWardrobe.getCurrentKeys()
     var maybeShell = PuffForum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
 
     if(maybeShell) return maybeShell
@@ -244,7 +244,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
  */
 PuffForum.getPuffBySig = function(sig) {
     //// get a particular puff
-    var myUsername = PuffWardrobe.getCurrentUsername()
+    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
   
     var shell = PB.Data.getCachedShellBySig(sig)                              // check in lower cache
     
@@ -402,7 +402,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
     
     // get a user promise
-    var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
+    var userprom = PB.M.PuffWardrobe.getUpToDateUserAtAnyCost();
     
     var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
@@ -414,7 +414,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
             PB.Data.removeShellFromCache(puff.sig)
             PB.Data.addPrivateShells([puff])
             updateUI()
-            // username = PuffWardrobe.getCurrentUsername()
+            // username = PB.M.PuffWardrobe.getCurrentUsername()
             // PB.Data.importPrivateShells(username)
         }
         
@@ -459,7 +459,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         var previous   = userRecord.latest
         var username   = userRecord.username
 
-        var privateKeys = PuffWardrobe.getCurrentKeys()
+        var privateKeys = PB.M.PuffWardrobe.getCurrentKeys()
         if(!privateKeys || !privateKeys.default) {
             // PB.onError('No valid private key found for signing the content')
             throw Error('No valid private key found for signing the content')
@@ -677,7 +677,7 @@ PuffForum.addContentType('LaTex', {
 
 // flag a puff
 PuffForum.flagPuff = function (sig) {
-    var privateKeys = PuffWardrobe.getCurrentKeys();
+    var privateKeys = PB.M.PuffWardrobe.getCurrentKeys();
 
     if(!privateKeys.username) {
         alert("You must first set your username before you can flag content");

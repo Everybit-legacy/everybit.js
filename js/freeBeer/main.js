@@ -183,8 +183,8 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 //// event bindings for controlling core behavior from the display ////
 
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PuffWardrobe.getPref('storeKeychain')
-    PuffWardrobe.setPref('storeKeychain', new_state)
+    var new_state = !PB.M.PuffWardrobe.getPref('storeKeychain')
+    PB.M.PuffWardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeKeychain/' + dir)
@@ -195,7 +195,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname)
         return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
 
-    PuffWardrobe.setProfileItem('nickname', nickname)
+    PB.M.PuffWardrobe.setProfileItem('nickname', nickname)
 
     events.pub('ui/menu/profile/nickname/set')
 });
@@ -499,8 +499,8 @@ function renderPuffWorld() {
 
     // THINK: is this the right place for this? these probably belong in update_puffworldprops...
     // puffworldprops has to contain some important things like prefs
-    var data = { prefs: PuffWardrobe.getAllPrefs()
-               , profile: PuffWardrobe.getAllProfileItems()
+    var data = { prefs: PB.M.PuffWardrobe.getAllPrefs()
+               , profile: PB.M.PuffWardrobe.getAllProfileItems()
                }
 
     update_puffworldprops(Boron.flatten(data))
@@ -575,7 +575,7 @@ PuffForum.onNewPuffs(eatPuffs);                     // register our update funct
 
 PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
 
-PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
+PB.M.PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
 
 handleImportRedirect();                             // check if import
 
@@ -595,7 +595,7 @@ window.addEventListener('load', function() {
         var lastUsername = localStorage['PUFF::identity'];
         if (lastUsername) {
             lastUsername = PB.parseJSON(lastUsername);
-            PuffWardrobe.switchCurrent(lastUsername);
+            PB.M.PuffWardrobe.switchCurrent(lastUsername);
         }
         window.addEventListener('popstate', function(event) {
             if(event.state)
@@ -619,7 +619,7 @@ events.sub('ui/*', function(data) {
 
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
-if(Object.keys(PuffWardrobe.getAll()).length < 1)
+if(Object.keys(PB.M.PuffWardrobe.getAll()).length < 1)
     events.pub( 'ui/slider/close',{ 'slider.show': true});
     // console.log("hide silder cuz several users")
 

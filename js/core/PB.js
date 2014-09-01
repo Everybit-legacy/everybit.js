@@ -35,6 +35,9 @@
 
 PB = {};
 
+PB.Modules = {}
+PB.M = PB.Modules
+
 PB.newPuffCallbacks = [];
 
 /**

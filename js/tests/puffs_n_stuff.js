@@ -19,7 +19,7 @@
 // -- High level flows using user-facing API functions
 
 // create an anonymous user
-var userPromise = PuffWardrobe.addNewAnonUser()
+var userPromise = PB.M.PuffWardrobe.addNewAnonUser()
 userPromise.then(function(userRecord) {
                if(!userRecord)
                    throwfail('No user record in anon user creation', userRecord)
@@ -33,7 +33,7 @@ userPromise.then(function(userRecord) {
 
 // make the new identity the currently active one
 userPromise.then(function(userRecord) {
-               if(!PuffWardrobe.switchCurrent(userRecord.username))
+               if(!PB.M.PuffWardrobe.switchCurrent(userRecord.username))
                    throwfail('Could not set currently active user', userRecord)
            })
 
@@ -82,7 +82,7 @@ userPromise.then(function(userRecord) {
 // -- (in general the high level functions are preferred, as they have error handling baked in)
 
 // generate new random username
-var randomUsername = PuffWardrobe.generateRandomUsername()
+var randomUsername = PB.M.PuffWardrobe.generateRandomUsername()
 if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 
@@ -100,25 +100,25 @@ if(!randomPublicKey)
 //// Identity management
 
 // get current keys
-var keys = PuffWardrobe.getCurrentKeys() 
+var keys = PB.M.PuffWardrobe.getCurrentKeys() 
 
 // get current username
-var username = PuffWardrobe.getCurrentUsername()
+var username = PB.M.PuffWardrobe.getCurrentUsername()
 
 // get current user record
-var userRecord = PuffWardrobe.getCurrentUserRecord()
+var userRecord = PB.M.PuffWardrobe.getCurrentUserRecord()
 
 // get all of the identities being saved on this browser
-var keychain = PuffWardrobe.getAll()
+var keychain = PB.M.PuffWardrobe.getAll()
 
 // switch current user
-PuffWardrobe.switchCurrent(username)
+PB.M.PuffWardrobe.switchCurrent(username)
 
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*
 // note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
-PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
-// var newUserPromise = PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+PB.M.PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// var newUserPromise = PB.M.PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
 // newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 
 
@@ -132,7 +132,7 @@ goodLookupPromise.catch(function(err) { testfail("The user record lookup should 
 
 // use this style to interact with the anon user created above
 // userPromise.then(function(userRecord) {
-//     var keys = PuffWardrobe.getKeys(userRecord.username) 
+//     var keys = PB.M.PuffWardrobe.getKeys(userRecord.username) 
 // })
 // .catch(function(err) {
 //     testfail('Could not collect current keys', err) 

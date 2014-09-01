@@ -15,7 +15,7 @@
 <script src="../../freebeer/js/core/PB.js"></script>
 <script src="../../freebeer/js/core/PB.Net.js"></script>
 <script src="../../freebeer/js/modules/PuffForum.js"></script>
-<script src="../../freebeer/js/modules/PuffWardrobe.js"></script>
+<script src="../../freebeer/js/modules/PB.M.PuffWardrobe.js"></script>
 <script src="../../freebeer/js/freeBeer/display.js"></script>
 <script src="../../freebeer/js/freeBeer/menu.js"></script>
 <script src="../../freebeer/js/freeBeer/puffbox.js"></script>

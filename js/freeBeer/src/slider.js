@@ -431,7 +431,7 @@ var RegisterSubuserWizard = React.createClass({
         UsernameImport[network].requestAuthentication();
     },
     render: function() {
-        var generatedName = PuffWardrobe.generateRandomUsername();
+        var generatedName = PB.M.PuffWardrobe.generateRandomUsername();
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>;
         if (!this.state.nameAvailable)
             getUsername = "";
@@ -635,8 +635,8 @@ var PasswordWizard = React.createClass({
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff);
         prom.then(function(userRecord) { 
-                PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
-                PuffWardrobe.switchCurrent(username);
+                PB.M.PuffWardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate);
+                PB.M.PuffWardrobe.switchCurrent(username);
                 updateUI();
                 var enableImport = (payload.importNetwork && payload.importNetwork == 'instagram');
                 self.setState({errMsg: "","registerSuccess": true, enableImport: enableImport})

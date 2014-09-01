@@ -52,33 +52,33 @@ var ViewKeybindingsMixin = {
             menu.show = true;
             menu.section = 'publish';
 
-            return events.pub('ui/reply/open', { 'clusters.publish': true
+            return Events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
                                                 });
         }.bind(this));
 
         // a toggles animation
         Mousetrap.bind('a', function() {
-            return events.pub( 'ui/animation/toggle',
+            return Events.pub( 'ui/animation/toggle',
                              { 'view.animation': !this.props.view.animation })
         }.bind(this));
         
         // i toggles info boxes
         Mousetrap.bind('i', function() { 
-            return events.pub( 'ui/view/showinfo/toggle', 
+            return Events.pub( 'ui/view/showinfo/toggle', 
                              { 'view.showinfo': !this.props.view.showinfo })
         }.bind(this));
 
         // m toggles menu show
         Mousetrap.bind('m', function() {
-            return events.pub('ui/menu/toggle', 
+            return Events.pub('ui/menu/toggle', 
                               {'menu.show': !puffworldprops.menu.show});
         }.bind(this));
 
         // k go to keyboard shortcut
         Mousetrap.bind('k', function() {
             var polyglot = Translate.language[puffworldprops.view.language];
-            events.pub('ui/view/rows/1', {'view.rows': 1})
+            Events.pub('ui/view/rows/1', {'view.rows': 1})
             showPuff(polyglot.t("puff.shortcut"));
             return false;
         }.bind(this));
@@ -91,7 +91,7 @@ var ViewKeybindingsMixin = {
             else
                 var showRows = puffworldprops.view.rows
 
-            return events.pub('ui/show/latest', { 'view.mode': 'list'
+            return Events.pub('ui/show/latest', { 'view.mode': 'list'
                                                 , 'view.rows': showRows
                                                 , 'view.filters': {}
                                                 , 'view.query': puffworlddefaults.view.query
@@ -100,27 +100,27 @@ var ViewKeybindingsMixin = {
 
         // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
-            return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
+            return Events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
         }.bind(this));
 
         // Go with wide aspect ratio
         Mousetrap.bind('w', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
         }.bind(this));
 
         // Go with tall aspect ratio
         Mousetrap.bind('t', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
         }.bind(this));
 
         // Go square
         Mousetrap.bind('s', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
         }.bind(this));
         
         // spacebar toggles arrow display
         Mousetrap.bind('space', function(e) { 
-            return events.pub( 'ui/relationships/toggle', 
+            return Events.pub( 'ui/relationships/toggle', 
                              { 'view.arrows': !this.props.view.arrows })
         }.bind(this));
         
@@ -129,25 +129,25 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('esc', function(e) {
             if(puffworldprops.menu.popout) {
                 var section = puffworldprops.menu.popout;
-                return events.pub('ui/close-popout', {'menu.popout': false,
+                return Events.pub('ui/close-popout', {'menu.popout': false,
                                                       'menu.show': true,
                                                       'menu.section': section})
 
             };
 
             if(puffworldprops.slider.show)
-                return events.pub('ui/slider/close', {'slider.show': false})
+                return Events.pub('ui/slider/close', {'slider.show': false})
 
             if(puffworldprops.menu.show)
-                return events.pub('ui/menu/close', {'menu.show': false})
+                return Events.pub('ui/menu/close', {'menu.show': false})
 
             /*if(puffworldprops.reply.expand)
-                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
+                return Events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);
                 cursor.className = cursor.className.replace(' cursor', '');
-                return events.pub('ui/menu/close', {'view.cursor': false})
+                return Events.pub('ui/menu/close', {'view.cursor': false})
             }
 
             // alert("I'm afraid there's nothing left to close!")
@@ -186,7 +186,7 @@ var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
         var next = Gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
         if (next) {
-            events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            Events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
             return true;
         }
         return false;
@@ -455,7 +455,7 @@ var PuffWorld = React.createClass({
         
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
-            events.pub('ui/mode/default', { 'view': puffworlddefaults.view
+            Events.pub('ui/mode/default', { 'view': puffworlddefaults.view
                                           , 'view.mode': 'focus'
                                           , 'view.query.focus': defaultPuffSig })
             return <div></div>;
@@ -935,7 +935,7 @@ var PuffScroller = React.createClass({
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;
         offset = Math.max(offset, 0);
-        return events.pub("ui/scroll/down", {'view.query.offset': offset});
+        return Events.pub("ui/scroll/down", {'view.query.offset': offset});
     },
 
     render: function() {

@@ -49,7 +49,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
     },
 
     handleClose: function() {
-        return events.pub('ui/puff-packer/close', {'view.mode': 'list'})
+        return Events.pub('ui/puff-packer/close', {'view.mode': 'list'})
     },
 
     handleUsernameLookup: function() {
@@ -60,11 +60,11 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         prom.then(function(result) {
             self.state.result = result || "";
-            events.pub('ui/puff-packer/userlookup', {});
+            Events.pub('ui/puff-packer/userlookup', {});
         })
             .catch(function(err) {
                 self.state.result = {'FAIL': err.message};
-                events.pub('ui/puff-packer/userlookup/failed', {});
+                Events.pub('ui/puff-packer/userlookup/failed', {});
             })
     },
 
@@ -107,7 +107,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building registration requests."};
-            return events.pub('ui/puff-packer/user-registration/error', {});
+            return Events.pub('ui/puff-packer/user-registration/error', {});
         }
 
         this.state.result = {};
@@ -117,7 +117,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         var self = this;
         self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
+        return Events.pub('ui/puff-packer/build-register-puff', {});
     },
 
 
@@ -127,7 +127,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         var currentUser = PB.M.Wardrobe.getCurrentUsername();
         if(!currentUser) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
-            return events.pub('ui/puff-packer/user-modify-keys/error', {});
+            return Events.pub('ui/puff-packer/user-modify-keys/error', {});
         }
 
         var payload = {};
@@ -153,7 +153,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
             if(!rootKey) {
                 this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
-                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+                return Events.pub('ui/puff-packer/user-modify-keys/error', {});
             } else {
                 var signingUserKey = rootKey;
                 console.log("request will be signed with root key")
@@ -161,7 +161,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         } else if(keyToModify == 'defaultKey') {
             if(!adminKey) {
                 this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
-                return events.pub('ui/puff-packer/user-modify-keys/error', {});
+                return Events.pub('ui/puff-packer/user-modify-keys/error', {});
             } else {
                 var signingUserKey = adminKey;
                 console.log("request will be signed with admin key")
@@ -175,7 +175,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         var self = this;
         self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
+        return Events.pub('ui/puff-packer/build-register-puff', {});
     },
 
     handleSendPuffToServer: function() {
@@ -187,11 +187,11 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         prom.then(function(result) {
             self.state.result = result;
-            events.pub('ui/puff-packer/userlookup', {});
+            Events.pub('ui/puff-packer/userlookup', {});
         })
             .catch(function(err) {
                 self.state.result = {'FAIL': err.message};
-                events.pub('ui/puff-packer/userlookup/failed', {});
+                Events.pub('ui/puff-packer/userlookup/failed', {});
             })
     },
 
@@ -205,36 +205,36 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         pprom.then(function(result) {
             self.state.result = result;
-            events.pub('ui/puff-packer/userlookup', {});
+            Events.pub('ui/puff-packer/userlookup', {});
         })
             .catch(function(err) {
                 self.state.result = {'FAIL': err.message};
-                events.pub('ui/puff-packer/userlookup/failed', {});
+                Events.pub('ui/puff-packer/userlookup/failed', {});
             })
     },
 
     handleShowResultsFormatted: function() {
-        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
+        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
     },
 
     handleShowResultsRaw: function() {
-        return events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
     },
 
     handleShowPuffFormatted: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
     },
 
     handleShowPuffRaw: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
     },
 
     handleShowPuffEdit: function() {
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
     },
 
     handlePublishPuff: function() {
-        return events.pub('ui/puff-packer/publish-puff', {});
+        return Events.pub('ui/puff-packer/publish-puff', {});
     },
 
     handleGetLatest: function() {
@@ -245,7 +245,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         prom.then(function(userRecord) {
             self.state.latest = userRecord.latest;
-            events.pub('ui/puff-packer/getUserLatest', {});
+            Events.pub('ui/puff-packer/getUserLatest', {});
         })
     },
 
@@ -264,7 +264,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building set latest request."}
-            return events.pub('ui/puff-packer/user-set-latest/error', {});
+            return Events.pub('ui/puff-packer/user-set-latest/error', {});
         }
 
         this.state.result = {}
@@ -273,15 +273,15 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 
         var self = this;
         self.state.puff = puff;
-        return events.pub('ui/puff-packer/build-register-puff', {});
+        return Events.pub('ui/puff-packer/build-register-puff', {});
 
-        return events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
     },
 
     handleSetIdentityToAnon: function() {
         PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
         PB.M.Wardrobe.switchCurrent('anon');
-        events.pub('ui/puff-packer/set-identity-to-anon', {});
+        Events.pub('ui/puff-packer/set-identity-to-anon', {});
         // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
         // PB.M.Wardrobe.addUserReally('anon', keys);
     },
@@ -460,7 +460,7 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
 var PuffSwitchUser = React.createClass({displayName: 'PuffSwitchUser',
     handleUserPick: function() {
         PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+        return Events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
     },
     render: function() {
         var all_usernames = Object.keys(PB.M.Wardrobe.getAll())

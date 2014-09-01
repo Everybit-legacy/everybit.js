@@ -99,7 +99,7 @@ UsernameImport.instagram.importAllContent = function() {
 				if (createdCount == total) {
 					document.getElementById("importContent").innerHTML = "Import finished.<br>";
 					var username = PB.M.Wardrobe.getCurrentUsername();
-					events.pub("ui/show-imported-puff", {'view.mode': 'list',
+					Events.pub("ui/show-imported-puff", {'view.mode': 'list',
 														 'view.filters': {},  
 														 'view.filters.users': [username]});
 

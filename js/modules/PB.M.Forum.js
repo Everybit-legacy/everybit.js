@@ -208,7 +208,7 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
         var letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
         if(!letter) {
             PB.M.Forum.horridStash[envelope.sig] = true
-            events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
+            Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
             return false
         }
         PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
@@ -226,7 +226,7 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
     var yourUserRecordPromise = PB.getUserRecord(yourUsername)
     yourUserRecordPromise.then(function(yourUserRecord) {
         var decrypted = doit(envelope, yourUserRecord)
-        // events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
+        // Events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
         // puts it in the cache for next time
         
         // add for display (sepecrate from here?)
@@ -715,7 +715,7 @@ PB.M.Forum.flagPuff = function (sig) {
         PB.Persist.save('flagged', flaggedSig);
         // reload?
         // document.location.reload();
-        events.pub('ui/flag', {})
+        Events.pub('ui/flag', {})
         return result;
     })
     return prom;

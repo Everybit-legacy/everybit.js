@@ -182,28 +182,28 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 
 //// event bindings for controlling core behavior from the display ////
 
-events.sub('prefs/storeKeychain/toggle', function(data, path) {
+Events.sub('prefs/storeKeychain/toggle', function(data, path) {
     var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
     PB.M.Wardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
-    events.pub('ui/menu/prefs/storeKeychain/' + dir)
+    Events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
-events.sub('profile/nickname/set', function(data, path) {
+Events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
         return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
 
     PB.M.Wardrobe.setProfileItem('nickname', nickname)
 
-    events.pub('ui/menu/profile/nickname/set')
+    Events.pub('ui/menu/profile/nickname/set')
 });
 
 
 ///// event bindings that are specific to the GUI //////
 
-events.sub('ui/*', function(data, path) {
+Events.sub('ui/*', function(data, path) {
     //// rerender on all ui events
 
     // OPT: batch process recent log items on requestAnimationFrame
@@ -215,7 +215,7 @@ events.sub('ui/*', function(data, path) {
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
 
-events.sub("filter/*", function(data, path) {
+Events.sub("filter/*", function(data, path) {
     // side effects: query set to default; view.table.format set to list
     data['view.query'] = Boron.shallow_copy(puffworlddefaults.view.query);
     data['view.table.format'] = 'list';
@@ -226,7 +226,7 @@ events.sub("filter/*", function(data, path) {
         data['view.mode'] = 'list';
     } 
 
-    events.pub('ui/query/default', data);
+    Events.pub('ui/query/default', data);
     PB.Data.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })
 
@@ -485,7 +485,7 @@ function showPuff(sig) {
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', { 'view.mode' : 'focus'
+    Events.pub('ui/show/tree', { 'view.mode' : 'focus'
                                , 'view.filters' : {}
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
@@ -609,7 +609,7 @@ window.addEventListener('load', function() {
 
 // TODO: pull out of global, more fineness
 ACTIVITY = [];
-events.sub('ui/*', function(data) {
+Events.sub('ui/*', function(data) {
     ACTIVITY.push(data);
 
     // XHR this bad boy!
@@ -620,12 +620,12 @@ events.sub('ui/*', function(data) {
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
 if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
-    events.pub( 'ui/slider/close',{ 'slider.show': true});
+    Events.pub( 'ui/slider/close',{ 'slider.show': true});
     // console.log("hide silder cuz several users")
 
 
 
 TRACKINCOMEPUFF = [];
-events.sub('track/*', function(data, path) {
+Events.sub('track/*', function(data, path) {
     TRACKINCOMEPUFF.push({path: path, data:data});
 })

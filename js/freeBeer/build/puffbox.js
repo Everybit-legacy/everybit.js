@@ -83,7 +83,7 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
 
 var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
     clickUsername: function(username) {
-        return events.pub('ui/show/by-user', { 'view.mode': 'list'
+        return Events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
@@ -341,7 +341,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
 var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', { 'view.mode': 'list'
+        return Events.pub('ui/show/parents', { 'view.mode': 'list'
                                              ,'view.filters': {}
                                              ,'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
@@ -500,7 +500,7 @@ var TipButton = React.createClass({displayName: 'TipButton',
 
 
 
-            events.pub('ui/tipbutton/userlookup', {});
+            Events.pub('ui/tipbutton/userlookup', {});
 
             return false;
         })
@@ -510,7 +510,7 @@ var TipButton = React.createClass({displayName: 'TipButton',
                 self.setState({publicKey: false});
                 this.setState({btcAddy: 'Unknown :-('});
                 this.setState({akShort: 'FAIL'});
-                events.pub('ui/tipbutton/userlookup/failed', {});
+                Events.pub('ui/tipbutton/userlookup/failed', {});
                 return false;
             })
     },
@@ -542,7 +542,7 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
             rawPuff.splice(index, 1)
         }
 
-        return events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
+        return Events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
     },
     render: function() {
         var rawPuff = puffworldprops.raw.puffs
@@ -577,7 +577,7 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
 var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', { 'view.mode': 'list'
+        return Events.pub('ui/show/parents', { 'view.mode': 'list'
                                              ,'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
@@ -665,7 +665,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
             contentEle.focus();
         }
 
-        return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
+        return Events.pub('ui/reply/add-parent', { 'clusters.publish': true,
                                                    'reply.parents': parents,
                                                    'reply.type': type,
                                                    'menu': menu
@@ -708,7 +708,7 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
     handleClick: function() {
         var puff = this.props.puff;
         var row = puffworldprops.view.rows == 1 ? puffworlddefaults.view.rows : 1;
-        return events.pub("ui/expand-puff", { 'view.mode': 'focus'
+        return Events.pub("ui/expand-puff", { 'view.mode': 'focus'
                                             // , 'view.filters': {}
                                             // , 'view.query': puffworlddefaults.view.query
                                             , 'view.query.focus': puff.sig
@@ -844,7 +844,7 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
             reply.content = puff.payload.content;
         }
 
-        events.pub('ui/reply/open', { 'clusters.publish': true
+        Events.pub('ui/reply/open', { 'clusters.publish': true
                                     , 'menu': menu
                                     , 'reply': reply });
         

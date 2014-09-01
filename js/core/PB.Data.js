@@ -314,7 +314,7 @@ PB.Data.tryAddingShell = function(shell) {
 
     // only add the shell if it is supported content type
     if (!PB.M.Forum.contentTypes[shell.payload.type]) {
-        events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig});
+        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig});
         return false;        
     }
     
@@ -429,7 +429,7 @@ PB.Data.addPrivateShells = function(privateShells) {
     // FIXME: oh dear this is horrible oh dear oh dear get rid of PB.M.Forum call
     
     if (decryptedShells.length != privateShells.length) {
-        events.pub('track/decrypt/some-decrypt-fails', 
+        Events.pub('track/decrypt/some-decrypt-fails', 
                     {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
                      privateShells: privateShells.map(function(p){return p.sig})})
     }

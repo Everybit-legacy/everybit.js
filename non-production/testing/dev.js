@@ -304,22 +304,22 @@ puffworlddefaults = puffworldprops                  // it's immutable so we don'
 ///// event stuff. move this into either PB.M.Forum or Puff itself.
 
 events = {}
-events.subs = {}
+Events.subs = {}
 
-events.pub = function(path, data) {
-    return setImmediate(function() {events.start_pub(path, data)})              // do it next tick
+Events.pub = function(path, data) {
+    return setImmediate(function() {Events.start_pub(path, data)})              // do it next tick
 }
 
-events.sub = function(path, handler) {
-    path = events.scrub_path(path).join('/')
-    if(!events.subs[path]) events.subs[path] = []
-    events.subs[path].push(handler)
+Events.sub = function(path, handler) {
+    path = Events.scrub_path(path).join('/')
+    if(!Events.subs[path]) Events.subs[path] = []
+    Events.subs[path].push(handler)
 }
 
-events.unsub = function(path, handler) {
-    path = events.scrub_path(path).join('/')
+Events.unsub = function(path, handler) {
+    path = Events.scrub_path(path).join('/')
 
-    var subs = events.subs[path]
+    var subs = Events.subs[path]
     if(!subs) return false
 
     var index = subs.indexOf(handler)
@@ -328,24 +328,24 @@ events.unsub = function(path, handler) {
     subs.splice(index, 1)
 }
 
-events.start_pub = function(path, data) {
+Events.start_pub = function(path, data) {
     //// pub to * at each level and then to path itself
-    var pathlist = events.scrub_path(path)
+    var pathlist = Events.scrub_path(path)
     var realpath = pathlist.join('/')
 
-    events.try_pub('*', data, realpath)                                         // global catchall
+    Events.try_pub('*', data, realpath)                                         // global catchall
 
     pathlist.reduce(function(acc, seg) {                                        // channel catchalls
         var newacc = acc + seg + '/'
-        events.try_pub(newacc + '*', data, realpath)
+        Events.try_pub(newacc + '*', data, realpath)
         return newacc
     }, '')
 
-    events.try_pub(realpath, data, realpath)                                    // actual channel
+    Events.try_pub(realpath, data, realpath)                                    // actual channel
 }
 
-events.try_pub = function(path, data, realpath) {
-    var handlers = events.subs[path]
+Events.try_pub = function(path, data, realpath) {
+    var handlers = Events.subs[path]
     if(!handlers || !handlers.length) return false
     handlers.forEach(function(handler) {handler(data, realpath)})
     // THINK: use setImmediate here?
@@ -379,7 +379,7 @@ events.try_pub = function(path, data, realpath) {
 // }
 
 
-events.scrub_path = function(path) {
+Events.scrub_path = function(path) {
     return path.replace(/^[^\w*-]+/, '')                                        // trim leading slashes etc
         .replace(/[^\w*-]+$/, '')                                        // trim trailing gunk
         .split('/')                                                      // break out the path segments
@@ -388,35 +388,35 @@ events.scrub_path = function(path) {
 
 
 eventlog = [];
-events.sub('*', function(data, path) {
+Events.sub('*', function(data, path) {
     eventlog.push([path, data])
 })
 
 
 //// event bindings for controlling core behavior from the display
 
-events.sub('prefs/storeKeychain/toggle', function(data, path) {
+Events.sub('prefs/storeKeychain/toggle', function(data, path) {
     var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
     PB.M.Wardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
-    events.pub('ui/menu/prefs/storeKeychain/' + dir)
+    Events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
-events.sub('profile/nickname/set', function(data, path) {
+Events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
         return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
 
     PB.M.Wardrobe.setProfileItem('nickname', nickname)
 
-    events.pub('ui/menu/profile/nickname/set')
+    Events.pub('ui/menu/profile/nickname/set')
 });
 
 
 ///// event bindings that are specific to the GUI //////
 
-events.sub('ui/*', function(data, path) {
+Events.sub('ui/*', function(data, path) {
     //// rerender on all ui events
 
     // OPT: batch process recent log items on requestAnimationFrame

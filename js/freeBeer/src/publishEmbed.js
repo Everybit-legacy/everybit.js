@@ -446,7 +446,7 @@ var PuffPublishFormEmbed = React.createClass({
             sig = decrypted.sig;
         }
         showPuff(sig);
-        events.pub('ui/submit/success', 
+        Events.pub('ui/submit/success', 
                    { 'reply.parents': [],
                      'reply.lastType': puffworldprops.reply.type,
                      'view.cursor': sig, 
@@ -594,7 +594,7 @@ var PuffPublishFormEmbed = React.createClass({
             return false;
         } else {
             this.refs.content.getDOMNode().value = "";
-            return events.pub("ui/reply/clear-content", {'reply.content': ''});
+            return Events.pub("ui/reply/clear-content", {'reply.content': ''});
         }
     },
 
@@ -690,7 +690,7 @@ var PuffPublishFormEmbed = React.createClass({
         reader.onload = function(event) {
             self.state.zipSrc = event.target.result;
             console.log(event.target.result)
-            return events.pub("ui/reply/zip-upload");
+            return Events.pub("ui/reply/zip-upload");
         }
         reader.readAsDataURL(file);
 
@@ -719,7 +719,7 @@ var PuffPublishFormEmbed = React.createClass({
 
         reader.onload = function(event){
             self.state.imageSrc = event.target.result;
-            return events.pub('ui/reply/image-upload');
+            return Events.pub('ui/reply/image-upload');
         }
 
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
@@ -762,10 +762,10 @@ var PuffPublishFormEmbed = React.createClass({
         var type = this.refs.type.getDOMNode().value;
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
         this.setState({parentType: false});
-        return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
+        return Events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
     handlePickPrivacy: function(privacy) {
-        return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
+        return Events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
     },
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
@@ -773,7 +773,7 @@ var PuffPublishFormEmbed = React.createClass({
     /*
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
-        return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
+        return Events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },*/
     handleShowAdvanced: function() {
         this.setState({showAdvanced: !this.state.showAdvanced});

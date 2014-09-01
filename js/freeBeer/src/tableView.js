@@ -44,7 +44,7 @@ var ComputeDimensionMixin = {
 
 var RowRenderMixin = {
     handleViewUser: function(username) {
-        return events.pub( 'filter/show/by-user',
+        return Events.pub( 'filter/show/by-user',
             {
               'view.filters': {},
               'view.filters.users': [username],
@@ -109,7 +109,7 @@ var RowRenderMixin = {
 
     // TODO: Change the format of the links to be more normal
     handleShowTag: function(tag) {
-    	return events.pub('filter/show/tag', {
+    	return Events.pub('filter/show/tag', {
     							'view.mode': 'tableView',
     							'view.filters': {},
     							'view.filters.tags': [tag]
@@ -127,7 +127,7 @@ var RowRenderMixin = {
 
     handleViewType: function(type) {
       // do the filter
-        return events.pub('filter/show/type', {
+        return Events.pub('filter/show/type', {
             'view.filters': {},
             'view.filters.types': [type]
         });
@@ -382,7 +382,7 @@ var TableViewColOptions = React.createClass({
 		var currentShow = columnProp[col].show;
 		var jsonToSet = {};
 		jsonToSet['view.table.column.'+col+'.show'] = !currentShow;
-		return events.pub('ui/view/table/col', jsonToSet);
+		return Events.pub('ui/view/table/col', jsonToSet);
 	},
 	render: function() {
 		var columnProp = puffworldprops.view.table.column;
@@ -404,10 +404,10 @@ var RowSortIcon = React.createClass({
 	handleSort: function() {
 		var col = this.props.col;
 		if (puffworldprops.view.table.sort.column != col) {
-			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.column': col})
+			return Events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.column': col})
 		} else {
 			var desc = !puffworldprops.view.table.sort.desc;
-			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.desc': desc})
+			return Events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.desc': desc})
 		}
 	},
 	render: function() {
@@ -439,7 +439,7 @@ var RowHeader = React.createClass({
     handleRemove: function(col) {
         var jsonToSet = {};
         jsonToSet['view.table.column.'+col+'.show'] = false;
-        return events.pub('ui/view/table/show-hide/col', jsonToSet);
+        return Events.pub('ui/view/table/show-hide/col', jsonToSet);
     },
     handleHideColOptions: function() {
     	this.setState({showColOptions: false});
@@ -507,7 +507,7 @@ var RowSingle = React.createClass({
 				update_puffworldprops(jsonToSet)
 			}
 		}
-		return events.pub('ui/view/table/new-column', {});
+		return Events.pub('ui/view/table/new-column', {});
 	},
 	componentDidMount: function() {
 		this.addColumn();
@@ -521,7 +521,7 @@ var RowSingle = React.createClass({
     	var rowSig = this.props.puff.sig;
     	var relationGroup = Boron.shallow_copy(puffworldprops.view.table.relationGroup) || {};
     	/*if (relationGroup.sig == rowSig) {
-    		return events.pub('ui/hide-relation-group', {'view.table.relationGroup':false})
+    		return Events.pub('ui/hide-relation-group', {'view.table.relationGroup':false})
     	}*/
     	var parent, child;
     	if (type == 'parent') {
@@ -532,10 +532,10 @@ var RowSingle = React.createClass({
     		child = sig;
     	}
     	relationGroup = {"parent": parent, "child": child, "sig": rowSig}
-    	return events.pub('ui/view/show-relation-group', {'view.table.relationGroup': relationGroup} )
+    	return Events.pub('ui/view/show-relation-group', {'view.table.relationGroup': relationGroup} )
     },
     handleClickReference: function(sig) {
-		return events.pub('ui/show-generation', {'view.query.focus': this.props.puff.sig,
+		return Events.pub('ui/show-generation', {'view.query.focus': this.props.puff.sig,
 												 'view.table.lastClick': sig,
 												 'view.table.format': 'generation',
 												 'view.filters': {}})
@@ -749,7 +749,7 @@ var RowBox = React.createClass({
 		this.getInitialGroups();
 	},
 	handleClose: function() {
-		return events.pub('ui/switch-to-list', {'view.table.format': 'list'});
+		return Events.pub('ui/switch-to-list', {'view.table.format': 'list'});
 	},
 	render: function() {
 		var highlight = [];
@@ -951,10 +951,10 @@ var RowBar = React.createClass({
 var RowExpand = React.createClass({
 	handleClick: function() {
 		if (puffworldprops.view.table.bar.expand == this.props.puff.sig) {
-			events.pub('ui/view/table/collapse-row',
+			Events.pub('ui/view/table/collapse-row',
 						{'view.table.bar.expand': false});
 		} else {
-			events.pub('ui/view/table/collapse-row',
+			Events.pub('ui/view/table/collapse-row',
 						{'view.table.bar.expand': this.props.puff.sig});
 		}
 		return false;

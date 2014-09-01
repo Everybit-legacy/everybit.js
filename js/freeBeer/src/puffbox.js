@@ -19,16 +19,16 @@ var PuffFancyBox = React.createClass({
         if(this.props.view.cursor == puff.sig) {
             classArray.push('cursor')            
         }
-        if(PuffData.getBonus(puff, 'envelope'))
+        if(PB.Data.getBonus(puff, 'envelope'))
             classArray.push('encrypted')
         
         if (this.props.view.flash) {
             classArray.push('flashPuff');
             update_puffworldprops({'view.flash': false});
         }
-        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
-        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        var outerPuff = PB.Data.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
             (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
@@ -51,10 +51,10 @@ var PuffFancyBox = React.createClass({
         }
 
         var replied = false;
-        var countChildren = PuffForum.getChildCount(puff);
+        var countChildren = PB.M.Forum.getChildCount(puff);
         if (countChildren > 0) {
-            var kids = PuffData.graph.v(puff.sig).out('child').run();
-            var curUser = PuffWardrobe.getCurrentUsername();
+            var kids = PB.Data.graph.v(puff.sig).out('child').run();
+            var curUser = PB.M.Wardrobe.getCurrentUsername();
             for (var i=0; i<countChildren; i++) {
                 if (kids[i].shell.username==curUser) {
                     replied = true;
@@ -83,7 +83,7 @@ var PuffFancyBox = React.createClass({
 
 var PuffAuthor = React.createClass({
     clickUsername: function(username) {
-        return events.pub('ui/show/by-user', { 'view.mode': 'list'
+        return Events.pub('ui/show/by-user', { 'view.mode': 'list'
                                              , 'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.filters.users': [username]
@@ -133,7 +133,7 @@ var PuffContent = React.createClass({
         var rawPuffs = puffworldprops.raw.puffs || [];
         var puffcontent = '';
         if (rawPuffs.indexOf(puff.sig) == -1) {
-            puffcontent = PuffForum.getProcessedPuffContent(puff);
+            puffcontent = PB.M.Forum.getProcessedPuffContent(puff);
         } else {
             puffcontent = puff.payload.content;
             puffcontent = puffcontent
@@ -186,7 +186,7 @@ var PuffBar = React.createClass({
         var className = 'bar' + (this.props.hidden ? ' hidden' : '')
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 
@@ -284,7 +284,7 @@ var PuffFlagLink = React.createClass({
     },
 
     handleFlagRequest: function() {
-        if (PuffWardrobe.getCurrentUsername() != this.props.username &&PuffWardrobe.getCurrentUsername() != CONFIG.zone)
+        if (PB.M.Wardrobe.getCurrentUsername() != this.props.username &&PB.M.Wardrobe.getCurrentUsername() != CONFIG.zone)
             return false;
         if (this.props.flagged) return false;
 
@@ -296,10 +296,10 @@ var PuffFlagLink = React.createClass({
 
         var self = this;
         var sig = this.props.puff.sig;
-        var env = PuffData.getBonus(self.props.puff, 'envelope');
+        var env = PB.Data.getBonus(self.props.puff, 'envelope');
         if (env)
             sig = env.sig;
-        var prom = PuffForum.flagPuff(sig);
+        var prom = PB.M.Forum.flagPuff(sig);
 
         prom.then(function(result) {
                 console.log(result);
@@ -322,7 +322,7 @@ var PuffFlagLink = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language];
 
         // Does this user have right to flag?
-        if(PuffWardrobe.getCurrentUsername() == this.props.username || PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
+        if(PB.M.Wardrobe.getCurrentUsername() == this.props.username || PB.M.Wardrobe.getCurrentUsername() == CONFIG.zone) {
             return (
                 <span>
                     <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
@@ -341,7 +341,7 @@ var PuffFlagLink = React.createClass({
 var PuffParentCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', { 'view.mode': 'list'
+        return Events.pub('ui/show/parents', { 'view.mode': 'list'
                                              ,'view.filters': {}
                                              ,'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
@@ -350,7 +350,7 @@ var PuffParentCount = React.createClass({
     },
     render: function() {
         var puff = this.props.puff;
-        var parentCount = PuffForum.getParentCount(puff)
+        var parentCount = PB.M.Forum.getParentCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (!parentCount) {
             return (
@@ -479,14 +479,14 @@ var TipButton = React.createClass({
         // TODO: Get the link so have meta-data set, like "From puffball"
 
         var self = this;
-        var prom = Puffball.getUserRecord(this.props.username);
+        var prom = PB.getUserRecord(this.props.username);
 
         prom.then(function(result) {
 
             self.setState({publicKey: result.adminKey});
             console.log(result.adminKey);
 
-            var btcAddy = Puffball.Crypto.wifToPubKey(result.adminKey);
+            var btcAddy = PB.Crypto.wifToPubKey(result.adminKey);
 
             console.log(btcAddy);
 
@@ -500,7 +500,7 @@ var TipButton = React.createClass({
 
 
 
-            events.pub('ui/tipbutton/userlookup', {});
+            Events.pub('ui/tipbutton/userlookup', {});
 
             return false;
         })
@@ -510,7 +510,7 @@ var TipButton = React.createClass({
                 self.setState({publicKey: false});
                 this.setState({btcAddy: 'Unknown :-('});
                 this.setState({akShort: 'FAIL'});
-                events.pub('ui/tipbutton/userlookup/failed', {});
+                Events.pub('ui/tipbutton/userlookup/failed', {});
                 return false;
             })
     },
@@ -542,7 +542,7 @@ var PuffViewRaw = React.createClass({
             rawPuff.splice(index, 1)
         }
 
-        return events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
+        return Events.pub('ui/raw/add-raw', {'raw': {puffs: rawPuff}});
     },
     render: function() {
         var rawPuff = puffworldprops.raw.puffs
@@ -577,7 +577,7 @@ var PuffViewRaw = React.createClass({
 var PuffChildrenCount = React.createClass({
     handleClick: function() {
         var puff  = this.props.puff;
-        return events.pub('ui/show/parents', { 'view.mode': 'list'
+        return Events.pub('ui/show/parents', { 'view.mode': 'list'
                                              ,'view.filters': {}
                                              , 'view.query': puffworlddefaults.view.query
                                              , 'view.query.focus': puff.sig
@@ -586,7 +586,7 @@ var PuffChildrenCount = React.createClass({
     },
     render: function() {
         var puff = this.props.puff;
-        var childCount = PuffForum.getChildCount(puff)
+        var childCount = PB.M.Forum.getChildCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (!childCount) {
             return (
@@ -612,7 +612,7 @@ var PuffChildrenCount = React.createClass({
 var PuffPermaLink = React.createClass({
     handleClick: function() {
         var sig  = this.props.sig;
-        // var puff = PuffForum.getPuffBySig(sig);
+        // var puff = PB.M.Forum.getPuffBySig(sig);
         showPuff(sig);
         return false;
     },
@@ -645,7 +645,7 @@ var PuffReplyLink = React.createClass({
         var type = puffworldprops.reply.type;
         if(index == -1) {
             if (parents.length == 0)
-                type = PuffForum.getPuffBySig(sig).payload.type;
+                type = PB.M.Forum.getPuffBySig(sig).payload.type;
             parents.push(sig)
         } else {
             parents.splice(index, 1);
@@ -654,7 +654,7 @@ var PuffReplyLink = React.createClass({
             openMenu = puffworldprops.menu.show; // if removing a parent, then do not force menu open
         }
 
-        var menu = PB.shallow_copy(puffworldprops.menu);    // don't mutate directly!
+        var menu = Boron.shallow_copy(puffworldprops.menu);    // don't mutate directly!
         if (puffworldprops.menu.popout != 'publish') {
             menu.show = openMenu;
             menu.section = 'publish';
@@ -665,7 +665,7 @@ var PuffReplyLink = React.createClass({
             contentEle.focus();
         }
 
-        return events.pub('ui/reply/add-parent', { 'clusters.publish': true,
+        return Events.pub('ui/reply/add-parent', { 'clusters.publish': true,
                                                    'reply.parents': parents,
                                                    'reply.type': type,
                                                    'menu': menu
@@ -708,7 +708,7 @@ var PuffExpand = React.createClass({
     handleClick: function() {
         var puff = this.props.puff;
         var row = puffworldprops.view.rows == 1 ? puffworlddefaults.view.rows : 1;
-        return events.pub("ui/expand-puff", { 'view.mode': 'focus'
+        return Events.pub("ui/expand-puff", { 'view.mode': 'focus'
                                             // , 'view.filters': {}
                                             // , 'view.query': puffworlddefaults.view.query
                                             , 'view.query.focus': puff.sig
@@ -738,22 +738,22 @@ var PuffStar = React.createClass({
         return { pending: false }
     },
     handleClick: function() {
-        var username = PuffWardrobe.getCurrentUsername();
+        var username = PB.M.Wardrobe.getCurrentUsername();
         
-        if(username == PuffForum.getPuffBySig(this.props.sig).username)
+        if(username == PB.M.Forum.getPuffBySig(this.props.sig).username)
             return false; // can't star your own puff
             
         var sig = this.props.sig
         var fauxShell = {sig: sig} // grumble grumble
-        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var starStats = PB.Data.getBonus(fauxShell, 'starStats');
         var iHaveStarredThis = ((starStats||{}).from||{})[username]
         
         if(iHaveStarredThis) {
             var self = this;
             var starSig = iHaveStarredThis;
-            var prom = PuffForum.flagPuff(starSig);
+            var prom = PB.M.Forum.flagPuff(starSig);
             prom.then(function(result) {
-                    PuffData.removeStar(sig, username)
+                    PB.Data.removeStar(sig, username)
                 })
                 .catch(function(err) {
                    alert(err);
@@ -764,27 +764,27 @@ var PuffStar = React.createClass({
             var content = this.props.sig;
             var type = 'star';
 
-            var userprom = PuffWardrobe.getUpToDateUserAtAnyCost();
-            var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
-            var prom = userprom.catch(Puffball.promiseError('Failed to add post: could not access or create a valid user'));
+            var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost();
+            var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, []);
+            var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
                     self.setState({ pending: false });
-                    PuffData.addStar(sig, username, puff.sig)
+                    PB.Data.addStar(sig, username, puff.sig)
                 })
-                .catch(Puffball.promiseError('Posting failed'));
+                .catch(PB.promiseError('Posting failed'));
         }
         return false;
     },
     render: function() {
         var fauxShell = {sig: this.props.sig} // grumble grumble
-        var starStats = PuffData.getBonus(fauxShell, 'starStats');
+        var starStats = PB.Data.getBonus(fauxShell, 'starStats');
 
         var score = 0
         var color = 'black'
         
         if(starStats && starStats.from) {
-            var username = PuffWardrobe.getCurrentUsername();
+            var username = PB.M.Wardrobe.getCurrentUsername();
             var selfStar = starStats.from[username]
             score = starStats.score
             color = selfStar ? 'yellow' : 'black'
@@ -800,7 +800,7 @@ var PuffStar = React.createClass({
         );
         var pointerStyle = {};
         var self = this;
-        if (PuffWardrobe.getCurrentUsername() == PuffForum.getPuffBySig(this.props.sig).username) {
+        if (PB.M.Wardrobe.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'};
             link = <span style={pointerStyle}><i className={"fa fa-fw fa-star " + color}></i></span>;
         }
@@ -818,7 +818,7 @@ var PuffClone = React.createClass({
     handleClick: function(){
         var puff = this.props.puff;
 
-        var menu = PB.shallow_copy(puffworlddefaults.menu);
+        var menu = Boron.shallow_copy(puffworlddefaults.menu);
         if (puffworldprops.menu.popout != "publish") {
             menu.show = true;
             menu.section = 'publish';
@@ -826,16 +826,16 @@ var PuffClone = React.createClass({
             menu.popout = 'publish';
         }
 
-        var reply = PB.shallow_copy(puffworldprops.reply);
+        var reply = Boron.shallow_copy(puffworldprops.reply);
         reply.type = puff.payload.type;
 
         reply.showPreview = false;
         reply.state = {};
         reply.state.showAdvanced = true;
-        reply.state.meta = PB.shallow_copy(puff.payload);
+        reply.state.meta = Boron.shallow_copy(puff.payload);
 
         reply.privacy = 'public';
-        var envelope = PuffData.getBonus(puff, 'envelope');
+        var envelope = PB.Data.getBonus(puff, 'envelope');
         if(envelope && envelope.keys)
             reply.privacy = "private";
         if (puff.payload.type == 'profile' || puff.payload.type == 'image') {
@@ -844,7 +844,7 @@ var PuffClone = React.createClass({
             reply.content = puff.payload.content;
         }
 
-        events.pub('ui/reply/open', { 'clusters.publish': true
+        Events.pub('ui/reply/open', { 'clusters.publish': true
                                     , 'menu': menu
                                     , 'reply': reply });
         

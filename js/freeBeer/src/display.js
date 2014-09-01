@@ -48,37 +48,37 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('n', function() { 
             // if (puffworldprops.reply.preview) return false;
             
-            var menu = PB.shallow_copy(puffworlddefaults.menu);
+            var menu = Boron.shallow_copy(puffworlddefaults.menu);
             menu.show = true;
             menu.section = 'publish';
 
-            return events.pub('ui/reply/open', { 'clusters.publish': true
+            return Events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
                                                 });
         }.bind(this));
 
         // a toggles animation
         Mousetrap.bind('a', function() {
-            return events.pub( 'ui/animation/toggle',
+            return Events.pub( 'ui/animation/toggle',
                              { 'view.animation': !this.props.view.animation })
         }.bind(this));
         
         // i toggles info boxes
         Mousetrap.bind('i', function() { 
-            return events.pub( 'ui/view/showinfo/toggle', 
+            return Events.pub( 'ui/view/showinfo/toggle', 
                              { 'view.showinfo': !this.props.view.showinfo })
         }.bind(this));
 
         // m toggles menu show
         Mousetrap.bind('m', function() {
-            return events.pub('ui/menu/toggle', 
+            return Events.pub('ui/menu/toggle', 
                               {'menu.show': !puffworldprops.menu.show});
         }.bind(this));
 
         // k go to keyboard shortcut
         Mousetrap.bind('k', function() {
             var polyglot = Translate.language[puffworldprops.view.language];
-            events.pub('ui/view/rows/1', {'view.rows': 1})
+            Events.pub('ui/view/rows/1', {'view.rows': 1})
             showPuff(polyglot.t("puff.shortcut"));
             return false;
         }.bind(this));
@@ -91,7 +91,7 @@ var ViewKeybindingsMixin = {
             else
                 var showRows = puffworldprops.view.rows
 
-            return events.pub('ui/show/latest', { 'view.mode': 'list'
+            return Events.pub('ui/show/latest', { 'view.mode': 'list'
                                                 , 'view.rows': showRows
                                                 , 'view.filters': {}
                                                 , 'view.query': puffworlddefaults.view.query
@@ -100,27 +100,27 @@ var ViewKeybindingsMixin = {
 
         // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
-            return events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
+            return Events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
         }.bind(this));
 
         // Go with wide aspect ratio
         Mousetrap.bind('w', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
         }.bind(this));
 
         // Go with tall aspect ratio
         Mousetrap.bind('t', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
         }.bind(this));
 
         // Go square
         Mousetrap.bind('s', function(e) {
-            return events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
+            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
         }.bind(this));
         
         // spacebar toggles arrow display
         Mousetrap.bind('space', function(e) { 
-            return events.pub( 'ui/relationships/toggle', 
+            return Events.pub( 'ui/relationships/toggle', 
                              { 'view.arrows': !this.props.view.arrows })
         }.bind(this));
         
@@ -129,25 +129,25 @@ var ViewKeybindingsMixin = {
         Mousetrap.bind('esc', function(e) {
             if(puffworldprops.menu.popout) {
                 var section = puffworldprops.menu.popout;
-                return events.pub('ui/close-popout', {'menu.popout': false,
+                return Events.pub('ui/close-popout', {'menu.popout': false,
                                                       'menu.show': true,
                                                       'menu.section': section})
 
             };
 
             if(puffworldprops.slider.show)
-                return events.pub('ui/slider/close', {'slider.show': false})
+                return Events.pub('ui/slider/close', {'slider.show': false})
 
             if(puffworldprops.menu.show)
-                return events.pub('ui/menu/close', {'menu.show': false})
+                return Events.pub('ui/menu/close', {'menu.show': false})
 
             /*if(puffworldprops.reply.expand)
-                return events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
+                return Events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
 
             if(puffworldprops.view.cursor) {
                 var cursor = document.getElementById(puffworldprops.view.cursor);
                 cursor.className = cursor.className.replace(' cursor', '');
-                return events.pub('ui/menu/close', {'view.cursor': false})
+                return Events.pub('ui/menu/close', {'view.cursor': false})
             }
 
             // alert("I'm afraid there's nothing left to close!")
@@ -184,9 +184,9 @@ var ViewKeybindingsMixin = {
 
 var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
-        var next = findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
+        var next = Gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
         if (next) {
-            events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
+            Events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
             return true;
         }
         return false;
@@ -323,12 +323,11 @@ var GridLayoutMixin = {
             w = screencoords.width;
         }
         
-        var gridBox = getGridCoordBox(rows, nCol, w, screencoords.height)
+        var myGridbox = Gridbox.getGridCoordBox(rows, nCol, w, screencoords.height)
 
-
-        // this.setState({gridBox: gridBox}) // ugh state but whaddyagonnado
-        globalGridBox = gridBox // ugh globals but whaddyagonnado
-        return gridBox
+        // this.setState({gridBox: myGridbox}) // ugh state but whaddyagonnado
+        globalGridBox = myGridbox // ugh globals but whaddyagonnado
+        return myGridbox
     },
     getStandardBox: function(rows, cols) {
         var gridbox = this.getGridBox(rows)
@@ -338,7 +337,7 @@ var GridLayoutMixin = {
     applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
         return function(className) {
             return function(puff) {
-                return PB.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
+                return Boron.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
                                              {puff: puff, className: className}) } } 
     },
     getPuffBoxList: function(puffs) {
@@ -433,17 +432,12 @@ var PuffWorld = React.createClass({
         */
 
         if( viewprops.mode == 'focus' ) {
-            view = <PuffTallTree    view={viewprops} reply={this.props.reply} />
+            view = <PuffTallTree view={viewprops} reply={this.props.reply} />
             document.body.style.overflowY = "hidden"
         }
 
         else if( viewprops.mode == 'list' ) {
-            view = <PuffList        view={viewprops} reply={this.props.reply} />
-            document.body.style.overflowY = "hidden"
-        }
-
-        else if( viewprops.mode == 'PuffPacker' ) {
-            view = <PuffPacker      tools={this.props.tools} />
+            view = <PuffList view={viewprops} reply={this.props.reply} />
             document.body.style.overflowY = "hidden"
         }
 
@@ -452,10 +446,16 @@ var PuffWorld = React.createClass({
             document.body.style.overflowY = "auto"
         }
 
+        else if( viewprops.mode == 'PuffPacker' ) {
+            view = <PuffPacker      tools={this.props.tools} />
+            document.body.style.overflowY = "hidden"
+        }
 
+        // THINK: is this else clause being overridden somewhere? can we remove it?
+        
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
-            events.pub('ui/mode/default', { 'view': puffworlddefaults.view
+            Events.pub('ui/mode/default', { 'view': puffworlddefaults.view
                                           , 'view.mode': 'focus'
                                           , 'view.query.focus': defaultPuffSig })
             return <div></div>;
@@ -501,16 +501,16 @@ var PuffList = React.createClass({
     },
     */
     render: function() {
-        // if(!PuffData.stupidHorribleGlobalThing) return <div></div>
+        // if(!PB.Data.stupidHorribleGlobalThing) return <div></div>
         
-        globalSillyPropsClone = PB.shallow_copy(puffworldprops)
+        globalSillyPropsClone = Boron.shallow_copy(puffworldprops)
         
         var dimensions = this.getDimensions()
         var limit = dimensions.cols * dimensions.rows
         
         var query   = this.props.view.query
         var filters = this.props.view.filters
-        var puffs   = PuffForum.getPuffList(query, filters, limit)
+        var puffs   = PB.M.Forum.getPuffList(query, filters, limit)
         
         this.cursorPower(puffs)
 
@@ -532,16 +532,16 @@ var PuffTallTree = React.createClass({
     render: function() {
 
         var sig    = this.props.view.query.focus
-        var puff   = PuffForum.getPuffBySig(sig)
+        var puff   = PB.M.Forum.getPuffBySig(sig)
 
         if(!puff) return <div></div>
         
         // sundry miscellany
         var arrows = this.props.view.arrows
-        var username = PuffWardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.getCurrentUsername()
         var filters = this.props.view.filters
         var query = this.props.view.query
-        var queryfilter = PB.extend({}, query, filters)
+        var queryfilter = Boron.extend({}, query, filters)
 
         // gridCoord params
         var screencoords = this.getScreenCoords()
@@ -577,7 +577,7 @@ var PuffTallTree = React.createClass({
   
         // filters
         var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
-        var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
+        var propsfilter = graphize(PB.M.Forum.filterByFilters(queryfilter))
         var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
 
 
@@ -590,9 +590,9 @@ var PuffTallTree = React.createClass({
         var parents = [], grandparents = [], greatgrandparents = []
         
         if(ancestorRows >= 1) {
-            parents = PuffData.graph.v(sig).out('parent')
+            parents = PB.Data.graph.v(sig).out('parent')
                               .unique().filter(propsfilter).take(cols)
-                              .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                              .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             parentBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-1, 0, bigBoxStartRow-1, cols)
             ancestorBoxes = ancestorBoxes.concat(parents.map(parentBox('parent')))
@@ -601,9 +601,9 @@ var PuffTallTree = React.createClass({
         var notParent = graphize(difffilter([puff].concat(parents)))
 
         if(ancestorRows >= 2) {
-            grandparents = PuffData.graph.v(sig).out('parent').out('parent')
+            grandparents = PB.Data.graph.v(sig).out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notParent).take(cols)
-                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-2, 0, bigBoxStartRow-2, cols)
             ancestorBoxes = ancestorBoxes.concat(grandparents.map(gpBox('parent')))
@@ -612,9 +612,9 @@ var PuffTallTree = React.createClass({
         var notGrandParent = graphize(difffilter([puff].concat(parents, grandparents)))
 
         if(ancestorRows >= 2) {
-            greatgrandparents = PuffData.graph.v(sig).out('parent').out('parent').out('parent')
+            greatgrandparents = PB.Data.graph.v(sig).out('parent').out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notGrandParent).take(cols)
-                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             ggpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-3, 0, bigBoxStartRow-3, cols)
             ancestorBoxes = ancestorBoxes.concat(greatgrandparents.map(ggpBox('parent')))
@@ -631,9 +631,9 @@ var PuffTallTree = React.createClass({
         var kids = [], gkids = [], ggkids = [], gggkids = []
         
         if(descendantRows >= 1) {
-            kids = PuffData.graph.v(sig).out('child')
+            kids = PB.Data.graph.v(sig).out('child')
                            .unique().filter(propsfilter).take(cols)
-                           .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                           .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             kidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow, 0, childrenStartRow, cols)
             descendantBoxes = descendantBoxes.concat(kids.map(kidsBox('child')))
@@ -642,9 +642,9 @@ var PuffTallTree = React.createClass({
         var notKid = graphize(difffilter([puff].concat(kids)))
         
         if(descendantRows >= 2) {
-            gkids = PuffData.graph.v(sig).out('child').out('child')
+            gkids = PB.Data.graph.v(sig).out('child').out('child')
                             .unique().filter(propsfilter).filter(notKid).take(cols)
-                            .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                            .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+1, 0, childrenStartRow+1, cols)
             descendantBoxes = descendantBoxes.concat(gkids.map(gkidsBox('child')))
@@ -653,9 +653,9 @@ var PuffTallTree = React.createClass({
         var notGKid = graphize(difffilter([puff].concat(kids, gkids)))
         
         if(descendantRows >= 3) {
-            ggkids = PuffData.graph.v(sig).out('child').out('child').out('child')
+            ggkids = PB.Data.graph.v(sig).out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGKid).take(cols)
-                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             ggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+2, 0, childrenStartRow+2, cols)
             descendantBoxes = descendantBoxes.concat(ggkids.map(ggkidsBox('child')))
@@ -664,9 +664,9 @@ var PuffTallTree = React.createClass({
         var notGGKid = graphize(difffilter([puff].concat(kids, gkids, ggkids)))
         
         if(descendantRows >= 4) {
-            gggkids = PuffData.graph.v(sig).out('child').out('child').out('child').out('child')
+            gggkids = PB.Data.graph.v(sig).out('child').out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGGKid).take(cols)
-                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+3, 0, childrenStartRow+3, cols)
             descendantBoxes = descendantBoxes.concat(gggkids.map(gggkidsBox('child')))
@@ -684,30 +684,30 @@ var PuffTallTree = React.createClass({
         // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
         // var genLimit = 10
         // var notSelf  = graphize(difffilter([puff]))
-        // var ancestorPuffs = PuffData.graph.v(sig).outAllN('parent', genLimit)
+        // var ancestorPuffs = PB.Data.graph.v(sig).outAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notSelf)
         //                             .take(ancestorTotal).property('shell').run()
-        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         //
         // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
         //
-        // var childrenPuffs = PuffData.graph.v(sig).inAllN('parent', genLimit)
+        // var childrenPuffs = PB.Data.graph.v(sig).inAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notAncestor)
         //                             .take(childrenTotal).property('shell').run()
-        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
-        var siblingPuffs  = PuffData.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
+        var siblingPuffs  = PB.Data.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
                                     .unique().filter(propsfilter).filter(notRelated)
                                     .take(siblingTotal).property('shell').run()
-                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+                                    .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         
         // fill remaining slots
         // TODO: this isn't right with the new stuff
-        PuffData.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, PB.extend({}, query, {mode: 'ancestors'}), filters)
-        PuffData.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, PB.extend({}, query, {mode: 'descendants'}), filters)
-        PuffData.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, PB.extend({}, query, {mode: 'siblings'}), filters)
+        PB.Data.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, Boron.extend({}, query, {mode: 'ancestors'}), filters)
+        PB.Data.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, Boron.extend({}, query, {mode: 'descendants'}), filters)
+        PB.Data.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, Boron.extend({}, query, {mode: 'siblings'}), filters)
         
         // special sorting for children puffs
         // TODO: bring this back for the new stuff
@@ -717,7 +717,7 @@ var PuffTallTree = React.createClass({
         //                             || b.username == username ?  1 : 0
         //                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
         //                             || b.username == puff.username ?  1 : 0
-        //                             || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+        //                             || PB.M.Forum.sortByPayload(b, a) * -1    // regular temporal sort
         //                             })
         
         // box the puffs 
@@ -935,7 +935,7 @@ var PuffScroller = React.createClass({
         var offset = parseInt(this.props.view.query.offset) || 0;
         offset = this.props.position == "up" ? offset - col : offset + col;
         offset = Math.max(offset, 0);
-        return events.pub("ui/scroll/down", {'view.query.offset': offset});
+        return Events.pub("ui/scroll/down", {'view.query.offset': offset});
     },
 
     render: function() {

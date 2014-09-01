@@ -183,28 +183,28 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 
 //// event bindings for controlling core behavior from the display ////
 
-events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PuffWardrobe.getPref('storeKeychain')
-    PuffWardrobe.setPref('storeKeychain', new_state)
+Events.sub('prefs/storeKeychain/toggle', function(data, path) {
+    var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
+    PB.M.Wardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
-    events.pub('ui/menu/prefs/storeKeychain/' + dir)
+    Events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
-events.sub('profile/nickname/set', function(data, path) {
+Events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
-        return Puffball.onError('Invalid nickname')         // THINK: do this in React? use Puffball.validations?
+        return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
 
-    PuffWardrobe.setProfileItem('nickname', nickname)
+    PB.M.Wardrobe.setProfileItem('nickname', nickname)
 
-    events.pub('ui/menu/profile/nickname/set')
+    Events.pub('ui/menu/profile/nickname/set')
 });
 
 
 ///// event bindings that are specific to the GUI //////
 
-events.sub('ui/*', function(data, path) {
+Events.sub('ui/*', function(data, path) {
     //// rerender on all ui events
 
     // OPT: batch process recent log items on requestAnimationFrame
@@ -216,9 +216,9 @@ events.sub('ui/*', function(data, path) {
     updateUI()                                              // then re-render PuffWorld w/ the new props
 })
 
-events.sub("filter/*", function(data, path) {
+Events.sub("filter/*", function(data, path) {
     // side effects: query set to default; view.table.format set to list
-    data['view.query'] = PB.shallow_copy(puffworlddefaults.view.query);
+    data['view.query'] = Boron.shallow_copy(puffworlddefaults.view.query);
     data['view.table.format'] = 'list';
     
     // TODO put this in config as default view
@@ -227,8 +227,8 @@ events.sub("filter/*", function(data, path) {
         data['view.mode'] = 'list';
     } 
 
-    events.pub('ui/query/default', data);
-    PuffData.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
+    Events.pub('ui/query/default', data);
+    PB.Data.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })
 
 // TODO: move these somewhere nicer
@@ -319,8 +319,8 @@ formatForDisplay = function(obj, style) {
 // var updateMinimap = function() {  
 //   var mapdom = $('#minimap')
 //   
-//   // PuffData.getShells().forEach(function(puff) {
-//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
+//   // PB.Data.getShells().forEach(function(puff) {
+//   //   template = '<p><a href="#" onclick="showPuff(PB.M.Forum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
 //   //   mapdom.append($(template))
@@ -382,7 +382,7 @@ function handleImportRedirect() {
         // update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
         update_puffworldprops({'slider.show': true, 'slider.wizard':true, 'slider.currentSlide': 3})
 
-        state = PB.shallow_copy(state)                                      // clone before delete
+        state = Boron.shallow_copy(state)                                      // clone before delete
         
         for(var key in state) {
             if(!~keysToStash.indexOf(key)) continue
@@ -396,7 +396,7 @@ function handleImportRedirect() {
 }
 
 function setURLfromViewProps() {
-    var viewprops = PB.shallow_copy(puffworldprops.view)    
+    var viewprops = Boron.shallow_copy(puffworldprops.view)    
     setURL(viewprops)
 }
 
@@ -414,7 +414,7 @@ function setURL(state, path) {
 
 function convertStateToURL(state) {
     // state = stashKeysFromURL(state)
-    state = PB.flatten(state)
+    state = Boron.flatten(state)
     
     var url = Object.keys(state)
                     .filter(function(key) {return key && state[key] && state[key].length !== 0})
@@ -430,7 +430,7 @@ function convertStateToURL(state) {
 function setPropsFromURL() {
     var qobj  = getQuerystringObject()
     Object.keys(qobj).forEach(function(key) {qobj[key] = !~qobj[key].indexOf('~') ? qobj[key] : qobj[key].split('~')})
-    var pushstate = PB.unflatten(qobj)
+    var pushstate = Boron.unflatten(qobj)
     setPropsFromPushstate(pushstate)
 }
 
@@ -470,14 +470,14 @@ function showPuff(sig) {
     if(!sig)
         return false
 
-    var puff = PuffForum.getPuffBySig(sig)                          // get it?
+    var puff = PB.M.Forum.getPuffBySig(sig)                          // get it?
 
     if(puff)
         return showPuffDirectly(puff)                               // got it.
 
-    var prom = PuffData.pending[sig]                                // say what?
+    var prom = PB.Data.pending[sig]                                // say what?
     if(!prom)
-        return Puffball.onError('Bad sig in pushstate')
+        return PB.onError('Bad sig in pushstate')
 
     prom.then(function(puffs) {                                     // okay got it.
         showPuffDirectly(puffs[0])
@@ -486,7 +486,7 @@ function showPuff(sig) {
 
 function showPuffDirectly(puff) {
     //// show a puff with no checks or balances
-    events.pub('ui/show/tree', { 'view.mode' : 'focus'
+    Events.pub('ui/show/tree', { 'view.mode' : 'focus'
                                , 'view.filters' : {}
                                , 'view.query' : puffworlddefaults.view.query
                                , 'view.query.focus' : puff.sig
@@ -500,17 +500,17 @@ function renderPuffWorld() {
 
     // THINK: is this the right place for this? these probably belong in update_puffworldprops...
     // puffworldprops has to contain some important things like prefs
-    var data = { prefs: PuffWardrobe.getAllPrefs()
-               , profile: PuffWardrobe.getAllProfileItems()
+    var data = { prefs: PB.M.Wardrobe.getAllPrefs()
+               , profile: PB.M.Wardrobe.getAllProfileItems()
                }
 
-    update_puffworldprops(PB.flatten(data))
+    update_puffworldprops(Boron.flatten(data))
 
     React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
 }
 
 update_puffworldprops = function(data) {
-    puffworldprops = PB.persistent_merge(puffworldprops, data)
+    puffworldprops = Boron.persistent_merge(puffworldprops, data)
     
     // THINK: this is not the right place for this...
     // TODO: build a type system for javascript and use instead of this mess
@@ -556,7 +556,7 @@ update_puffworldprops = function(data) {
 
 
 
-///////// PuffForum Interface ////////////
+///////// PB.M.Forum Interface ////////////
 
 // NOTE: this has to load last, so keep it at the bottom
 
@@ -575,11 +575,11 @@ var eatPuffs = function(puffs) {
 
 
 ////
-PuffForum.onNewPuffs(eatPuffs);                     // register our update function
+PB.M.Forum.onNewPuffs(eatPuffs);                     // register our update function
 
-PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
+PB.M.Forum.init();                                   // initialize the forum module (and by extension the puffball network)
 
-PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
+PB.M.Wardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
 
 handleImportRedirect();                             // check if import
 
@@ -598,8 +598,8 @@ window.addEventListener('load', function() {
         // set current identity
         var lastUsername = localStorage['PUFF::identity'];
         if (lastUsername) {
-            lastUsername = Puffball.parseJSON(lastUsername);
-            PuffWardrobe.switchCurrent(lastUsername);
+            lastUsername = PB.parseJSON(lastUsername);
+            PB.M.Wardrobe.switchCurrent(lastUsername);
         }
         window.addEventListener('popstate', function(event) {
             if(event.state)
@@ -613,23 +613,23 @@ window.addEventListener('load', function() {
 
 // TODO: pull out of global, more fineness
 ACTIVITY = [];
-events.sub('ui/*', function(data) {
+Events.sub('ui/*', function(data) {
     ACTIVITY.push(data);
 
     // XHR this bad boy!
     if(puffworldprops.prefs.reporting)
-        PuffNet.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
+        PB.Net.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 });
 
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
-if(Object.keys(PuffWardrobe.getAll()).length < 1)
-    events.pub( 'ui/slider/close',{ 'slider.show': true});
+if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
+    Events.pub( 'ui/slider/close',{ 'slider.show': true});
     // console.log("hide silder cuz several users")
 
 
 
 TRACKINCOMEPUFF = [];
-events.sub('track/*', function(data, path) {
+Events.sub('track/*', function(data, path) {
     TRACKINCOMEPUFF.push({path: path, data:data});
 })

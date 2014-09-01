@@ -44,7 +44,7 @@ var ComputeDimensionMixin = {
 
 var RowRenderMixin = {
     handleViewUser: function(username) {
-        return events.pub( 'filter/show/by-user',
+        return Events.pub( 'filter/show/by-user',
             {
               'view.filters': {},
               'view.filters.users': [username],
@@ -64,7 +64,7 @@ var RowRenderMixin = {
         queryJSON.users = [this.props.puff.username];
         queryJSON.type = ['profile']
 
-        var prof = PuffForum.getPuffList(puffworldprops.view.query,queryJSON,1);
+        var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1);
 
         if(prof.length) {
             return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>;
@@ -74,7 +74,7 @@ var RowRenderMixin = {
 	},
 	renderContent: function() {
 		var puff = this.props.puff;
-		var puffcontent = PuffForum.getProcessedPuffContent(puff);
+		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff);
 		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 	},
 	renderOther: function() {
@@ -111,7 +111,7 @@ var RowRenderMixin = {
 
     // TODO: Change the format of the links to be more normal
     handleShowTag: function(tag) {
-    	return events.pub('filter/show/tag', {
+    	return Events.pub('filter/show/tag', {
     							'view.mode': 'tableView',
     							'view.filters': {},
     							'view.filters.tags': [tag]
@@ -129,7 +129,7 @@ var RowRenderMixin = {
 
     handleViewType: function(type) {
       // do the filter
-        return events.pub('filter/show/type', {
+        return Events.pub('filter/show/type', {
             'view.filters': {},
             'view.filters.types': [type]
         });
@@ -143,7 +143,7 @@ var RowRenderMixin = {
 	getReferenceIcon: function(sig, type) {
 		if (!sig) return <span></span>;
 		var preview = <span></span>;
-		var puff = PuffForum.getPuffBySig(sig);
+		var puff = PB.M.Forum.getPuffBySig(sig);
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
 		var highlight = this.props.highlight || [];
@@ -160,7 +160,7 @@ var RowRenderMixin = {
 		var self = this;
 
 		var parentsEle = <div></div>;
-		var parents = PuffData.graph.v(sig).out('parent').run();
+		var parents = PB.Data.graph.v(sig).out('parent').run();
 		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
 						 .filter(Boolean)
 						 .filter(function(s, i, array){return i == array.indexOf(s)});
@@ -173,7 +173,7 @@ var RowRenderMixin = {
         }
 
 		var childrenEle = <div></div>
-		var children = PuffData.graph.v(sig).out('child').run();
+		var children = PB.Data.graph.v(sig).out('child').run();
 		children = children.map(function(v){if (v.shell) return v.shell.sig})
 						   .filter(Boolean)
 						   .filter(function(s, i, array){return i == array.indexOf(s)});
@@ -196,7 +196,7 @@ var RowRenderMixin = {
 	},
 	renderScore: function() {
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 		return showStar ? <PuffStar sig={this.props.puff.sig}/> : '';
@@ -226,7 +226,7 @@ var RowSortMixin = {
 	}, 
 	getScore: function(puff) {
 		var score = 0;
-        var starStats = PuffData.getBonus({sig: puff.sig}, 'starStats');
+        var starStats = PB.Data.getBonus({sig: puff.sig}, 'starStats');
         if(starStats && starStats.from) {
             score = starStats.score
         }
@@ -292,11 +292,11 @@ var TableView = React.createClass({
 		return puffs;
 	},
 	handleForceLoad: function() {
-		var query = PB.shallow_copy(this.props.view.query);
+		var query = Boron.shallow_copy(this.props.view.query);
 		query.offset = (+query.offset || 0) + this.state.loaded;
 		var filters = puffworldprops.view.filters;
 		var limit = 10;
-		var puffs = PuffForum.getPuffList(query, filters, limit);
+		var puffs = PB.M.Forum.getPuffList(query, filters, limit);
 		if ((!puffs) || (puffs.length == 0)) {
 			this.setState({noMorePuff: true});
 		} else {
@@ -343,7 +343,7 @@ var TableView = React.createClass({
 			var query = puffworldprops.view.query;
 			var filters = puffworldprops.view.filters;
 			var limit = this.state.loaded;
-			var puffs = PuffForum.getPuffList(query, filters, limit).filter(Boolean);
+			var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean);
 			puffs = this.sortPuffs(puffs);	
 
 		var overlay = <span className="overlay" style={{backgroundColor: document.body.style.backgroundColor || "#"+CONFIG.defaultBgcolor}}></span>
@@ -368,7 +368,7 @@ var TableView = React.createClass({
 					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
-						<RowBox puff={PuffForum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
+						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
 					</div>
 				</div>
 			)
@@ -384,7 +384,7 @@ var TableViewColOptions = React.createClass({
 		var currentShow = columnProp[col].show;
 		var jsonToSet = {};
 		jsonToSet['view.table.column.'+col+'.show'] = !currentShow;
-		return events.pub('ui/view/table/col', jsonToSet);
+		return Events.pub('ui/view/table/col', jsonToSet);
 	},
 	render: function() {
 		var columnProp = puffworldprops.view.table.column;
@@ -406,10 +406,10 @@ var RowSortIcon = React.createClass({
 	handleSort: function() {
 		var col = this.props.col;
 		if (puffworldprops.view.table.sort.column != col) {
-			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.column': col})
+			return Events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.column': col})
 		} else {
 			var desc = !puffworldprops.view.table.sort.desc;
-			return events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.desc': desc})
+			return Events.pub('ui/view/table/sort-by/'+col, {'view.table.sort.desc': desc})
 		}
 	},
 	render: function() {
@@ -441,7 +441,7 @@ var RowHeader = React.createClass({
     handleRemove: function(col) {
         var jsonToSet = {};
         jsonToSet['view.table.column.'+col+'.show'] = false;
-        return events.pub('ui/view/table/show-hide/col', jsonToSet);
+        return Events.pub('ui/view/table/show-hide/col', jsonToSet);
     },
     handleHideColOptions: function() {
     	this.setState({showColOptions: false});
@@ -505,11 +505,11 @@ var RowSingle = React.createClass({
 				currentColumns.indexOf(col) == -1 &&
 				col != 'parents') {
 				var jsonToSet = {};
-				jsonToSet['view.table.column.'+col] = PB.shallow_copy(CONFIG.defaultColumn);
+				jsonToSet['view.table.column.'+col] = Boron.shallow_copy(CONFIG.defaultColumn);
 				update_puffworldprops(jsonToSet)
 			}
 		}
-		return events.pub('ui/view/table/new-column', {});
+		return Events.pub('ui/view/table/new-column', {});
 	},
 	componentDidMount: function() {
 		this.addColumn();
@@ -521,9 +521,9 @@ var RowSingle = React.createClass({
     handleShowRelationGroup: function(sig, type) {
     	if (this.props.inGroup) return false;
     	var rowSig = this.props.puff.sig;
-    	var relationGroup = PB.shallow_copy(puffworldprops.view.table.relationGroup) || {};
+    	var relationGroup = Boron.shallow_copy(puffworldprops.view.table.relationGroup) || {};
     	/*if (relationGroup.sig == rowSig) {
-    		return events.pub('ui/hide-relation-group', {'view.table.relationGroup':false})
+    		return Events.pub('ui/hide-relation-group', {'view.table.relationGroup':false})
     	}*/
     	var parent, child;
     	if (type == 'parent') {
@@ -534,10 +534,10 @@ var RowSingle = React.createClass({
     		child = sig;
     	}
     	relationGroup = {"parent": parent, "child": child, "sig": rowSig}
-    	return events.pub('ui/view/show-relation-group', {'view.table.relationGroup': relationGroup} )
+    	return Events.pub('ui/view/show-relation-group', {'view.table.relationGroup': relationGroup} )
     },
     handleClickReference: function(sig) {
-		return events.pub('ui/show-generation', {'view.query.focus': this.props.puff.sig,
+		return Events.pub('ui/show-generation', {'view.query.focus': this.props.puff.sig,
 												 'view.table.lastClick': sig,
 												 'view.table.format': 'generation',
 												 'view.filters': {}})
@@ -571,15 +571,15 @@ var RowSingle = React.createClass({
 
 		var classArray = ['listrow'];
 
-        var flaggedPuff = Puffball.Persist.get('flagged') || [];
+        var flaggedPuff = PB.Persist.get('flagged') || [];
         var flagged = false;
-        var outerPuff = PuffData.getBonus(puff, 'envelope');
+        var outerPuff = PB.Data.getBonus(puff, 'envelope');
         if (flaggedPuff.indexOf(puff.sig)!= -1 ||
             (outerPuff && flaggedPuff.indexOf(outerPuff.sig) != -1)) {
             classArray.push('flagged');
             flagged = true;
         }	
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             classArray.push('encrypted');
 
@@ -659,7 +659,7 @@ var RowBox = React.createClass({
 		}
 	},
 	getGroup: function(originSig, relation) {
-		var group = PuffData.graph.v(originSig).out(relation).run();
+		var group = PB.Data.graph.v(originSig).out(relation).run();
 		group = group
 				.map(function(v){return v.shell})
 				.filter(Boolean)
@@ -672,7 +672,7 @@ var RowBox = React.createClass({
 		var level = 2; // start from 2 since 1st generation is the row that's changing itself
 		while (group.length != 0 && level < CONFIG.maxGeneration) {
 			var nextSig = group[0].sig; // default to first item in list
-			// groupArray.push(group.map(PuffForum.getPuffBySig));
+			// groupArray.push(group.map(PB.M.Forum.getPuffBySig));
 			groupArray.push(group);
 			level = level + 1;
 			group = this.getGroup(nextSig, relation);
@@ -703,7 +703,7 @@ var RowBox = React.createClass({
 							.concat(additionGroups.map(function(){return 0}));
 		var groupArray = [group].concat(additionGroups);
 
-		var newSelected = PB.shallow_copy(this.state[dir+'Selected']);
+		var newSelected = Boron.shallow_copy(this.state[dir+'Selected']);
 		if (originLevel != -1) {
 			newSelected = newSelected.slice(0, originLevel+1)			
 		} else {
@@ -711,7 +711,7 @@ var RowBox = React.createClass({
 		}
 		newSelected = newSelected.concat(indexArray);
 
-		var newGroups = PB.shallow_copy(this.state[dir+'Groups']);
+		var newGroups = Boron.shallow_copy(this.state[dir+'Groups']);
 		if (originLevel != -1) {
 			newGroups = newGroups.slice(0, originLevel+1)
 		} else {
@@ -751,7 +751,7 @@ var RowBox = React.createClass({
 		this.getInitialGroups();
 	},
 	handleClose: function() {
-		return events.pub('ui/switch-to-list', {'view.table.format': 'list'});
+		return Events.pub('ui/switch-to-list', {'view.table.format': 'list'});
 	},
 	render: function() {
 		var highlight = [];
@@ -759,9 +759,9 @@ var RowBox = React.createClass({
 
 		// parent
 		var parentGroupsCombined = <span></span>;
-		var parentGroups = PB.shallow_copy(this.state.parentGroups);
+		var parentGroups = Boron.shallow_copy(this.state.parentGroups);
 		if (parentGroups.length) {
-			var parentSelected = PB.shallow_copy(this.state.parentSelected);
+			var parentSelected = Boron.shallow_copy(this.state.parentSelected);
 			if (!parentSelected || !parentSelected.length) {
 				parentSelected = parentGroups.map(function(){return 0});
 			}
@@ -798,16 +798,16 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = totalLevel - 1 - index;
-					return <RowGroup key={"parent"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={true}/>
+					return <RowGroup key={"parent"+index} puffs={group.map(PB.M.Forum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={true}/>
 				})}
 			</div>
 		}
 
 		// child
 		var childGroupsCombined = <span></span>;
-		var childGroups = PB.shallow_copy(this.state.childGroups);
+		var childGroups = Boron.shallow_copy(this.state.childGroups);
 		if (childGroups.length) {
-			var childSelected = PB.shallow_copy(this.state.childSelected);
+			var childSelected = Boron.shallow_copy(this.state.childSelected);
 			if (!childSelected || !childSelected.length) {
 				childSelected = childGroups.map(function(){return 0});
 			}
@@ -840,7 +840,7 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = index;
-					return <RowGroup key={"child"+index} puffs={group.map(PuffForum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={level != childGroups.length-1}/>
+					return <RowGroup key={"child"+index} puffs={group.map(PB.M.Forum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={level != childGroups.length-1}/>
 				})}
 			</div>
 		}
@@ -864,11 +864,11 @@ var RowGroup = React.createClass({
 		var boxShowPrevNext = this.props.boxShowPrevNext;
 		if (!boxShowPrevNext) return false;
 
-		return boxShowPrevNext(offset, PuffForum.getPuffBySig(this.props.sig), this.props.direction, this.props.level);
+		return boxShowPrevNext(offset, PB.M.Forum.getPuffBySig(this.props.sig), this.props.direction, this.props.level);
 	},
 	render: function() {
 		var puffList = this.props.puffs;
-		var puff = PuffForum.getPuffBySig(this.props.sig);
+		var puff = PB.M.Forum.getPuffBySig(this.props.sig);
 		if (!puffList || !puffList.length || !puff)
 			return <span></span>;
 
@@ -912,7 +912,7 @@ var RowBar = React.createClass({
 
         var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN';
         var showStar = true;
-        var envelope = PuffData.getBonus(this.props.puff, 'envelope');
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope');
         if(envelope && envelope.keys)
             showStar = false;
 
@@ -953,10 +953,10 @@ var RowBar = React.createClass({
 var RowExpand = React.createClass({
 	handleClick: function() {
 		if (puffworldprops.view.table.bar.expand == this.props.puff.sig) {
-			events.pub('ui/view/table/collapse-row',
+			Events.pub('ui/view/table/collapse-row',
 						{'view.table.bar.expand': false});
 		} else {
-			events.pub('ui/view/table/collapse-row',
+			Events.pub('ui/view/table/collapse-row',
 						{'view.table.bar.expand': this.props.puff.sig});
 		}
 		return false;

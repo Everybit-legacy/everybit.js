@@ -38,20 +38,25 @@ var ourOthersList = [
               'js/helpers.js',
               'js/freeBeer/translate.js',
               'js/freeBeer/translate-zh.js',
-              'js/libs/immutable.js',
-              'js/libs/dagoba.js',
-              'js/core/PuffData.js',
-              'js/core/Puffball.js',
-              'js/core/PuffNet.js',
 
-              'js/modules/PuffForum.js',
-              'js/modules/PuffWardrobe.js',
-              'js/freeBeer/usernameImport.js',
-
+              'js/libs/boron.js',
               'js/libs/events.js',
               'js/libs/gridbox.js',
+              'js/libs/dagoba.js',
+
+              'js/core/PB.js',
+              'js/core/PB.Net.js',
+              'js/core/PB.Data.js',
+              'js/core/PB.Crypto.js',
+              'js/core/PB.Persist.js',
+
+              'js/modules/PB.M.Forum.js',
+              'js/modules/PB.M.Wardrobe.js',
+              
+              'js/freeBeer/usernameImport.js',
 
               'js/freeBeer/main.js']; 
+
 gulp.task('ourOthers', function() {
     gulp.src(ourOthersList)
         //.pipe(sourcemaps.init())

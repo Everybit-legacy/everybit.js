@@ -58,7 +58,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
     mixins: [TooltipMixin],
     switchMenuSection: function() {
         var section = this.props.clusterName || false;
-        events.pub("ui/menu-section", {'menu.section': section});
+        Events.pub("ui/menu-section", {'menu.section': section});
     },
     componentDidMount: function() {
         this.getDOMNode().onclick = this.switchMenuSection;
@@ -72,7 +72,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
         var eventJSON = {};
         eventJSON[propPath] = changed;
 
-        return events.pub(path, eventJSON);
+        return Events.pub(path, eventJSON);
     },
     handlePopoutMenu:function() {
         var clusterName = this.props.clusterName;
@@ -90,7 +90,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
         eventJSON['menu.show'] = showMenu;
         eventJSON['menu.popout'] = popout;
-        return events.pub('ui/expand/menu', eventJSON);
+        return Events.pub('ui/expand/menu', eventJSON);
     },
 
     render: function() {
@@ -161,7 +161,7 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
 /*var ProfileMenu = React.createClass({
     render: function() {
-        var username = PuffWardrobe.getCurrentUsername();
+        var username = PB.M.Wardrobe.getCurrentUsername();
         if (!username) 
             return <span>You have to set your identity first.</span>;
         
@@ -177,7 +177,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
     
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
+        var currFilter = Boron.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -196,7 +196,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('filter/add', jsonToSet); 
+        return Events.pub('filter/add', jsonToSet); 
     },
     
     handleKeyDown: function(event) {
@@ -275,7 +275,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
          var filterPath  = 'view.filters.' + this.props.filterName;
-         var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
+         var filterValue = Boron.shallow_copy(this.props.filterValue);       // don't mutate props
          // var propPiece = puffworldprops.filter[this.props.filterName]; 
 
          // THINK: do we still need this?
@@ -287,7 +287,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
             filterValue.splice(index, 1);
             var propsMod = {};
             propsMod[filterPath] = filterValue;
-            return events.pub('filter/remove', propsMod);
+            return Events.pub('filter/remove', propsMod);
          }
 
         return false;
@@ -340,7 +340,7 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
 var ViewMenu = React.createClass({displayName: 'ViewMenu',
     mixins: [TooltipMixin],
     handleViewRoots: function() {
-        return events.pub('ui/show/roots', { 'view.mode': 'list'
+        return Events.pub('ui/show/roots', { 'view.mode': 'list'
                                            , 'view.query.roots': true
                                            , 'menu': puffworlddefaults.menu});
     },
@@ -351,7 +351,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
         else
             var showRows = puffworldprops.view.rows
 
-        return events.pub('ui/show/latest', { 'view.mode': 'list'
+        return Events.pub('ui/show/latest', { 'view.mode': 'list'
                                             , 'view.rows': showRows
                                             , 'menu': puffworlddefaults.menu
                                             , 'view.filters': {}
@@ -366,7 +366,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
             var showRows = puffworldprops.view.rows
 
 
-        return events.pub('filter/show/by-user', 
+        return Events.pub('filter/show/by-user', 
                             { 'view.filters': {}, 
                               'view.rows': showRows,
                               'view.filters.users': [username] })
@@ -374,7 +374,7 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
     handleShowShortcuts: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
-        events.pub('ui/view/rows/1', {'view.rows': 1})
+        Events.pub('ui/view/rows/1', {'view.rows': 1})
         showPuff(polyglot.t("puff.shortcut"));
         return false;
     },
@@ -418,7 +418,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
     mixins: [TooltipMixin],
     getInitialState: function() {
         return {
-            username: PuffWardrobe.getCurrentUsername(),
+            username: PB.M.Wardrobe.getCurrentUsername(),
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
@@ -437,7 +437,7 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
     },
 
     render: function() {
-        var currUser = PuffWardrobe.getCurrentUsername();
+        var currUser = PB.M.Wardrobe.getCurrentUsername();
 
         // TODO: Help icon takes you to tutorial related to this.
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -478,22 +478,22 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
     
     mixins: [TooltipMixin],
     handleShowHideRelationships: function() {
-        return events.pub( 'ui/relationships/hide', 
+        return Events.pub( 'ui/relationships/hide', 
                            {'view.arrows': !puffworldprops.view.arrows});
     },
 
     handleShowHideAnimations: function() {
-        return events.pub( 'ui/animation/hide', 
+        return Events.pub( 'ui/animation/hide', 
                            {'view.animation': !puffworldprops.view.animation});
     },
 
     handleToggleReporting: function() {
-        return events.pub( 'ui/prefs/reporting', 
+        return Events.pub( 'ui/prefs/reporting', 
                            {'prefs.reporting': !puffworldprops.prefs.reporting});
     },
 
     handleShowHideInfobar: function() {
-        return events.pub( 'ui/view/showinfo/toggle',
+        return Events.pub( 'ui/view/showinfo/toggle',
                             {'view.showinfo': !puffworldprops.view.showinfo})
     },
     
@@ -509,7 +509,7 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
     },
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value;
-        return events.pub('ui/view/language/set', {'view.language': language});
+        return Events.pub('ui/view/language/set', {'view.language': language});
     },
     componentDidMount: function() {
         if (this.refs.bgcolor) {
@@ -629,9 +629,9 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 
     handleToggleShowIntro: function() {
         if(puffworldprops.slider.show)
-            return events.pub('ui/slider/open', {'slider.show': false});
+            return Events.pub('ui/slider/open', {'slider.show': false});
 
-        return events.pub('ui/slider/open', {'slider.show': true,
+        return Events.pub('ui/slider/open', {'slider.show': true,
                                              'menu.show':   false});
     },
 
@@ -659,18 +659,18 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
 var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
     mixins: [TooltipMixin],
     handlePackPuffs: function() {
-        return events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
+        return Events.pub('ui/show/puffpacker', {'view.mode': 'PuffPacker', 'menu': puffworlddefaults.menu});
     },
     clearPuffShells: function(){
-        Puffball.Persist.remove('shells');
-        Puffball.Persist.remove('flagged');
+        PB.Persist.remove('shells');
+        PB.Persist.remove('flagged');
         document.location.reload(true);
         return false;
     },
 
     handleRefresh: function() {
         // TODO: this doesn't respect filters etc and should be websockets instead of a query
-        PuffData.importRemoteShells()
+        PB.Data.importRemoteShells()
         return false               // (like, sockets from a p2p node that links rtc-less browsers to the network)
     },
 
@@ -703,8 +703,8 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     },
     handleUserPick: function() {
         this.setState({profileMsg: ''});
-        PuffWardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
+        PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
+        return Events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
 
     handleRemoveUser: function() {
@@ -716,40 +716,40 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
             return false
         }
 
-        PuffWardrobe.removeKeys(userToRemove);
-        events.pub('user/'+userToRemove+'/remove', {});
-        var all_usernames = Object.keys(PuffWardrobe.getAll()).filter(function(u){return u!=userToRemove});
+        PB.M.Wardrobe.removeKeys(userToRemove);
+        Events.pub('user/'+userToRemove+'/remove', {});
+        var all_usernames = Object.keys(PB.M.Wardrobe.getAll()).filter(function(u){return u!=userToRemove});
         if (all_usernames.length != 0) {
-            PuffWardrobe.switchCurrent(all_usernames[0]);
+            PB.M.Wardrobe.switchCurrent(all_usernames[0]);
         }
-        events.pub('ui/user/'+userToRemove+'/remove', {}); // this should be generated by previous event
+        Events.pub('ui/user/'+userToRemove+'/remove', {}); // this should be generated by previous event
         return false;
     },
 
     handleViewUser: function() {
         var username = this.refs.switcher.getDOMNode().value;
-        return events.pub( 'filter/show/by-user', 
+        return Events.pub( 'filter/show/by-user', 
                            { 'view.filters': {}
                            , 'view.filters.users': [username] } );
     },
 
     handleShowPuffsForMe: function(){
         var polyglot = Translate.language[puffworldprops.view.language];
-        var username = PuffWardrobe.getCurrentUsername();
+        var username = PB.M.Wardrobe.getCurrentUsername();
         if(!username.length) {
             alert(polyglot.t("alert.noUserSet"));
             return false;
         }
         // var route = this.refs.pickroute.getDOMNode().value;
-        return events.pub( 'filter/show/for-user', 
+        return Events.pub( 'filter/show/for-user', 
                            { 'view.filters': {}
                            , 'view.filters.routes': [username] } );
     },
 
     handlePublishProfile: function() {
-        var replyProps = PB.shallow_copy(puffworlddefaults.reply);
+        var replyProps = Boron.shallow_copy(puffworlddefaults.reply);
         replyProps.type = 'profile';
-        return events.pub( 'ui/publish/profile',
+        return Events.pub( 'ui/publish/profile',
                            { 'menu.show': true
                            , 'menu.section': 'publish'
                            , 'clusters.publish': true
@@ -757,17 +757,17 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     },
 
     handleViewProfile: function() {
-        var userRecord = PuffWardrobe.getCurrentUserRecord();
+        var userRecord = PB.M.Wardrobe.getCurrentUserRecord();
         var profile = userRecord.profile;
         var self = this;
         if (profile.length) {
-            var puff = PuffForum.getPuffBySig(profile);
+            var puff = PB.M.Forum.getPuffBySig(profile);
             if (puff) {
                 this.setState({profileMsg: ''});
                 return showPuffDirectly(puff);
             }
 
-            var prom = PuffNet.getPuffBySig(profile);
+            var prom = PB.Net.getPuffBySig(profile);
             prom.then(function(p){
                 if (p.payload) {
                     self.setState({profileMsg: ''});
@@ -783,17 +783,17 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     },
 
     render: function() {
-        var all_usernames = Object.keys(PuffWardrobe.getAll())
+        var all_usernames = Object.keys(PB.M.Wardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language];
         if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, polyglot.t("menu.identity.current"),": ", polyglot.t("menu.identity.none"))
 
         // TODO: this creates an infinite loop, because switching the current user forces a check for private puffs, and importing private puffs forces a rerender. 
         // Force selection of the single user when just one
         // if(all_usernames.length == 1) {
-        //     PuffWardrobe.switchCurrent(all_usernames[0]);
+        //     PB.M.Wardrobe.switchCurrent(all_usernames[0]);
         // }
 
-        var username = PuffWardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
@@ -868,21 +868,21 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         // Check for zero length
         if(!username.length) {
             this.state.usernameStatus = 'Missing';
-            events.pub('ui/event', {});
+            Events.pub('ui/event', {});
             return false;
         }
         if (username.slice(0, 1) == '.')
             username = username.slice(1);
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(result) {
             self.state.usernameStatus = true;
-            events.pub('ui/puff-packer/userlookup', {});
+            Events.pub('ui/puff-packer/userlookup', {});
         })
             .catch(function(err) {
                 self.state.usernameStatus = 'Not found';
-                events.pub('ui/puff-packer/userlookup/failed', {});
+                Events.pub('ui/puff-packer/userlookup/failed', {});
             })
         return false;
     },
@@ -895,7 +895,7 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         // Reset state
         /*
          this.state[keyType] = false;
-         events.pub('ui/event', {});
+         Events.pub('ui/event', {});
          */
 
         var username = this.refs.username.getDOMNode().value;
@@ -906,25 +906,25 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
         // Check for zero length
         if(!privateKey.length) {
             this.state[keyType] = 'Key missing';
-            events.pub('ui/event', {});
+            Events.pub('ui/event', {});
             return false;
         }
 
         // Convert to public key
-        var publicKey = Puffball.Crypto.privateToPublic(privateKey);
+        var publicKey = PB.Crypto.privateToPublic(privateKey);
         if(!publicKey) {
             this.state[keyType] = 'Bad key';
-            events.pub('ui/event', {});
+            Events.pub('ui/event', {});
             return false;
         }
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(userInfo) {
 
             if(publicKey != userInfo[keyType]) {
                 self.state[keyType] = 'Incorrect key';
-                events.pub('ui/event', {});
+                Events.pub('ui/event', {});
                 return false;
             } else {
                 self.state[keyType] = true;
@@ -932,27 +932,27 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 
                 // Add this to wardrobe, set username to current
                 if(keyType == 'defaultKey') {
-                    PuffWardrobe.storeDefaultKey(username, privateKey);
+                    PB.M.Wardrobe.storeDefaultKey(username, privateKey);
                 }
 
                 if(keyType == 'adminKey') {
-                    PuffWardrobe.storeAdminKey(username, privateKey);
+                    PB.M.Wardrobe.storeAdminKey(username, privateKey);
                 }
 
                 if(keyType == 'rootKey') {
-                    PuffWardrobe.storeRootKey(username, privateKey);
+                    PB.M.Wardrobe.storeRootKey(username, privateKey);
                 }
 
                 // At least one good key, set this to current user
-                PuffWardrobe.switchCurrent(username);
+                PB.M.Wardrobe.switchCurrent(username);
 
-                events.pub('ui/event', {});
+                Events.pub('ui/event', {});
                 return false;
             }
         })
             .catch(function(err) {
                 self.state[keyType] = 'Not found';
-                events.pub('ui/event', {});
+                Events.pub('ui/event', {});
                 return false;
             })
         return false;
@@ -1044,7 +1044,7 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
     },
     handleClickQRCode: function(){
         // create the qr code
-        var key = PuffWardrobe.getCurrentKeys()[this.state.qrCode];
+        var key = PB.M.Wardrobe.getCurrentKeys()[this.state.qrCode];
         var qr = qrcode(4, 'M');
         qr.addData(key);
         qr.make();
@@ -1063,7 +1063,7 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
         var showQRCode = this.state.qrCode && this.state.qrCodeUser == currUser;
         if (showQRCode) {
             var keyType = this.state.qrCode;
-            var key = PuffWardrobe.getCurrentKeys()[keyType];
+            var key = PB.M.Wardrobe.getCurrentKeys()[keyType];
             if (key.length < 1) {
                 showQRCode = false;
             } else {
@@ -1078,11 +1078,11 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
 
         var qrcodeBaseStyle = "fa fa-qrcode fa-fw";
 
-        var defaultKey = PuffWardrobe.getCurrentKeys()['default'];
+        var defaultKey = PB.M.Wardrobe.getCurrentKeys()['default'];
         var defaultKeyQRStyle = (showQRCode && this.state.qrCode == 'default') ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
-        var adminKey = PuffWardrobe.getCurrentKeys()['admin'];
+        var adminKey = PB.M.Wardrobe.getCurrentKeys()['admin'];
         var adminKeyQRStyle   = (showQRCode && this.state.qrCode == 'admin')   ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
-        var rootKey = PuffWardrobe.getCurrentKeys()['root'];
+        var rootKey = PB.M.Wardrobe.getCurrentKeys()['root'];
         var rootKeyQRStyle    = (showQRCode && this.state.qrCode == 'root')    ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray";
 
         // TODO: make sure not None
@@ -1122,7 +1122,7 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
     /* not in use
     toggleShowRootKey: function() {
         if(this.state.rootKey == 'hidden') {
-            this.setState({rootKey: PuffWardrobe.getCurrentUserRecord().rootKey});
+            this.setState({rootKey: PB.M.Wardrobe.getCurrentUserRecord().rootKey});
         } else {
             this.setState({rootKey: 'hidden'});
         }
@@ -1204,7 +1204,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     render: function() {
         var showNext = true;
         var polyglot = Translate.language[puffworldprops.view.language];
-        var generatedName = PuffWardrobe.generateRandomUsername();
+        var generatedName = PB.M.Wardrobe.generateRandomUsername();
 
         var usernameField = (
             React.DOM.div(null, 
@@ -1324,7 +1324,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
 
     handleGenerateUsername: function() {
-        var generatedName = PuffWardrobe.generateRandomUsername();
+        var generatedName = PB.M.Wardrobe.generateRandomUsername();
         if (this.refs.newUsername) 
             this.refs.newUsername.getDOMNode().value = generatedName;
         return false;
@@ -1411,55 +1411,55 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
-        var puff = Puffball.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
+        var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload); 
         // SUBMIT REQUEST
-        var prom = PuffNet.updateUserRecord(puff);
+        var prom = PB.Net.updateUserRecord(puff);
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
-                PuffWardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate);
                 self.setState({step: 3,
                     errorMessage: polyglot.t("menu.identity.newIdentity.success")});
 
                 // Set this person as the current user
-                PuffWardrobe.switchCurrent(requestedUsername);
-                events.pub('ui/event', {});
+                PB.M.Wardrobe.switchCurrent(requestedUsername);
+                Events.pub('ui/event', {});
             },
             function(err) {
                 console.log("ERR")
                 self.setState({step: 3,
                     errorMessage: err.toString()});
-                events.pub('ui/event', {});
+                Events.pub('ui/event', {});
             });
         return false;
     },
 
     handleRegenerateKeys: function() {
         console.log('here');
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey();
+        var adminKey = PB.Crypto.generatePrivateKey();
+        var defaultKey = PB.Crypto.generatePrivateKey();
 
         this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
         this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
         this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
 
-        this.refs.rootKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = Puffball.Crypto.privateToPublic(defaultKey);   
+        this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey);
+        this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey);
+        this.refs.defaultKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(defaultKey);   
         return false;
     },
     handleGenerateKeys: function() {
         // Get private keys
-        var rootKey = Puffball.Crypto.generatePrivateKey();
-        var adminKey = Puffball.Crypto.generatePrivateKey();
-        var defaultKey = Puffball.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey();
+        var adminKey = PB.Crypto.generatePrivateKey();
+        var defaultKey = PB.Crypto.generatePrivateKey();
         var keys = {
             rootKeyPrivate   : rootKey,
             adminKeyPrivate  : adminKey,
             defaultKeyPrivate: defaultKey,
-            rootKeyPublic    : Puffball.Crypto.privateToPublic(rootKey),
-            adminKeyPublic   : Puffball.Crypto.privateToPublic(adminKey),
-            defaultKeyPublic : Puffball.Crypto.privateToPublic(defaultKey)
+            rootKeyPublic    : PB.Crypto.privateToPublic(rootKey),
+            adminKeyPublic   : PB.Crypto.privateToPublic(adminKey),
+            defaultKeyPublic : PB.Crypto.privateToPublic(defaultKey)
         };
         this.setState({keys: keys});
         
@@ -1467,7 +1467,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
     },
 
     handleConvertPrivatePublic: function() {
-        // NOTE: When blank, Puffball.Crypto.privateToPublic generates a new public key
+        // NOTE: When blank, PB.Crypto.privateToPublic generates a new public key
         var rP = this.refs.rootKeyPrivate.getDOMNode().value;
         var aP = this.refs.adminKeyPrivate.getDOMNode().value;
         var dP = this.refs.defaultKeyPrivate.getDOMNode().value;
@@ -1485,9 +1485,9 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             return false;
         }
 
-        var rPublic = Puffball.Crypto.privateToPublic(rP);
-        var aPublic = Puffball.Crypto.privateToPublic(aP);
-        var dPublic = Puffball.Crypto.privateToPublic(dP);
+        var rPublic = PB.Crypto.privateToPublic(rP);
+        var aPublic = PB.Crypto.privateToPublic(aP);
+        var dPublic = PB.Crypto.privateToPublic(dP);
 
         rPublic ? this.refs.rootKeyPublic.getDOMNode().value = rPublic : this.setState({errorMessage: 'Invalid root key. '});
         aPublic ? this.refs.adminKeyPublic.getDOMNode().value = aPublic : this.setState({errorMessage: 'Invalid admin key. '});
@@ -1502,7 +1502,7 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
         this.state.usernameAvailable = 'checking';
         var username = this.refs.newUsername.getDOMNode().value;
 
-        var prom = Puffball.getUserRecord(username);
+        var prom = PB.getUserRecord(username);
 
         prom.then(function(result) {
             console.log(result);

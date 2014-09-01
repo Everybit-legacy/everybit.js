@@ -60,7 +60,7 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
     },
     removeItem: function(value) {
         var self = this;
-        var array = PB.shallow_copy(self.state.array);
+        var array = Boron.shallow_copy(self.state.array);
         array = array.filter(function(v){return v != value});
         this.setState({array: array});
         return false;
@@ -76,7 +76,7 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
             return false;
         }
         var self = this;
-        var array = PB.shallow_copy(self.state.array);
+        var array = Boron.shallow_copy(self.state.array);
         if (array.indexOf(value) == -1) {
             array.push(value);
         }
@@ -117,7 +117,7 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
                     );
                 break;
             case "array":
-                var inputStyle = PB.shallow_copy(contentStyle);
+                var inputStyle = Boron.shallow_copy(contentStyle);
                 inputStyle.width = "90%"
                 var newItemInput = React.DOM.input( {ref:"item", type:"text", className:"btn", placeholder:"new item", style:inputStyle, onKeyDown:this.handleArrayKeyDown, onChange:this.handleInputChange});
                 field = 
@@ -206,7 +206,7 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
         var contentField = MetaInputContent( {ref:"content", fieldInfo:{type: type}})
 
         if (key) {
-            var fieldInfo = PuffForum.metaFields.filter(function(f){return f.name == key});
+            var fieldInfo = PB.M.Forum.metaFields.filter(function(f){return f.name == key});
             if (fieldInfo && fieldInfo.length) {
                 fieldInfo = fieldInfo[0];
                 keyField = React.DOM.label( {ref:"key", style:keyStyle}, key)
@@ -235,7 +235,7 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
     },
     handleAddNewRow: function(type) {
         type = type || 'text'
-        var row = PB.shallow_copy(this.state.additionRows);
+        var row = Boron.shallow_copy(this.state.additionRows);
         if (row.length - this.state.deletedRows < 5) {
             row.push(type)
             this.setState({additionRows: row})
@@ -329,7 +329,7 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
     },
     render: function() {
         var type = this.props.type;
-        var defaultFields = PuffForum.context[type] || [];
+        var defaultFields = PB.M.Forum.context[type] || [];
         var rows = [];
         var self = this;
         var deleteRowStyle = {
@@ -442,11 +442,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // go to the puff
         var sig = puff.sig;
         if (typeof puff.payload.parents == 'undefined') {
-            var decrypted = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
+            var decrypted = PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption(puff);
             sig = decrypted.sig;
         }
         showPuff(sig);
-        events.pub('ui/submit/success', 
+        Events.pub('ui/submit/success', 
                    { 'reply.parents': [],
                      'reply.lastType': puffworldprops.reply.type,
                      'view.cursor': sig, 
@@ -501,7 +501,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         if(privacy == 'public') {
             var self=this;
-            var post_prom = PuffForum.addPost( type, content, parents, metadata );
+            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata );
 
             post_prom
                 .then(self.handleSubmitSuccess.bind(self))
@@ -520,10 +520,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var prom = Promise.resolve() // a promise we use to string everything along 
         
         // are we currently anonymous? make a new user and switch.
-        if(!PuffWardrobe.getCurrentUsername()) {
+        if(!PB.M.Wardrobe.getCurrentUsername()) {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
-                    PuffWardrobe.switchCurrent(userRecord.username)
+                return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
+                    PB.M.Wardrobe.switchCurrent(userRecord.username)
                 })
             })
         }
@@ -532,8 +532,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var envelopeUserKeys = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser().then(function(userRecord) {
-                    envelopeUserKeys = PuffWardrobe.keychain[userRecord.username]
+                return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
+                    envelopeUserKeys = PB.M.Wardrobe.keychain[userRecord.username]
                 })
             })
         }
@@ -541,7 +541,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // are we paranoid? make another new user
         if(privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PuffWardrobe.addNewAnonUser(function(userRecord) {
+                return PB.M.Wardrobe.addNewAnonUser(function(userRecord) {
                     metadata.replyTo = userRecord.username
                 })
             })
@@ -549,16 +549,16 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 
         var usernames = this.state.usernames;
         
-        var userRecords = usernames.map(PuffData.getCachedUserRecord).filter(Boolean)
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
         
         // if we haven't cached all the users, we'll need to grab them first
-        // THINK: maybe convert this to using Puffball.getUserRecords instead
+        // THINK: maybe convert this to using PB.getUserRecords instead
         if(userRecords.length < usernames.length) {
             usernames.forEach(function(username) {
                 if(!~userRecordUsernames.indexOf(username)) {
                     prom = prom.then(function() {
-                        return Puffball.getUserRecordNoCache(username).then(function(userRecord) {
+                        return PB.getUserRecordNoCache(username).then(function(userRecord) {
                             userRecords.push(userRecord);
                         })
                     })
@@ -568,12 +568,12 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         prom = prom.then(function() {
             if(envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PuffData.getCachedUserRecord(envelopeUserKeys.username))
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PuffWardrobe.getCurrentUserRecord())
+                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
             }
 
-            var post_prom = PuffForum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
+            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys );
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom;
         }) .catch(function(err) {
@@ -594,30 +594,30 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             return false;
         } else {
             this.refs.content.getDOMNode().value = "";
-            return events.pub("ui/reply/clear-content", {'reply.content': ''});
+            return Events.pub("ui/reply/clear-content", {'reply.content': ''});
         }
     },
 
     /* functions for type = profile */
     handleUpdateProfile: function(puff){
         var self = this;
-        var currentKeys = PuffWardrobe.getCurrentKeys();
-        var oldProfile = PuffWardrobe.getCurrentUserRecord().profile;
+        var currentKeys = PB.M.Wardrobe.getCurrentKeys();
+        var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile;
         var type = 'updateUserRecord';
         var content = "setProfile";
         var payload = {};
         payload.profile = puff.sig;
 
-        var update_puff = Puffball.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
+        var update_puff = PB.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload);
 
-        var update_prom = PuffNet.updateUserRecord(update_puff);
+        var update_prom = PB.Net.updateUserRecord(update_puff);
         update_prom.then(function(userRecord){
             self.setState({msg: 'Success!'});
             showPuff(userRecord.profile);
             self.refs.meta.handleCleanFields();
 
             if (oldProfile) {
-                var prom = PuffForum.flagPuff(oldProfile);
+                var prom = PB.M.Forum.flagPuff(oldProfile);
                 prom.then(function() {
                     console.log('Old Profile flagged');
                 })
@@ -642,7 +642,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         if (privacy) {
             // publish public profile
-            var post_prom = PuffForum.addPost( type, content, [], metadata);
+            var post_prom = PB.M.Forum.addPost( type, content, [], metadata);
             post_prom
                     .then(function(puff){
                         self.cleanUpSubmit();
@@ -650,21 +650,21 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                         self.handleUpdateProfile(puff);
                         var sig = puff.sig;
                     })
-                    .catch(Puffball.promiseError('Posting failed'));    
+                    .catch(PB.promiseError('Posting failed'));    
         } else {
             // publish private profile
             var prom = Promise.resolve();
-            var currentUserRecord = PuffWardrobe.getCurrentUserRecord();
+            var currentUserRecord = PB.M.Wardrobe.getCurrentUserRecord();
             var userRecords = [];
             userRecords.push(currentUserRecord);
-            var post_prom = PuffForum.addPost( type, content, [], metadata, userRecords );
+            var post_prom = PB.M.Forum.addPost( type, content, [], metadata, userRecords );
             post_prom
                     .then(function(puff){
                         self.cleanUpSubmit();
                         self.refs.meta.handleCleanFields();
                         self.handleUpdateProfile(puff);
                     })
-                    .catch(Puffball.promiseError("Posting failed"));
+                    .catch(PB.promiseError("Posting failed"));
         }
 
         return false;
@@ -690,7 +690,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         reader.onload = function(event) {
             self.state.zipSrc = event.target.result;
             console.log(event.target.result)
-            return events.pub("ui/reply/zip-upload");
+            return Events.pub("ui/reply/zip-upload");
         }
         reader.readAsDataURL(file);
 
@@ -719,7 +719,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         reader.onload = function(event){
             self.state.imageSrc = event.target.result;
-            return events.pub('ui/reply/image-upload');
+            return Events.pub('ui/reply/image-upload');
         }
 
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0]);
@@ -731,7 +731,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var newUsername = StringConversion.toActualUsername(usernameNode.value);
         if (newUsername.length == 0) return false;
         var usernames = this.state.usernames;
-        var prom = Puffball.getUserRecord(newUsername);
+        var prom = PB.getUserRecord(newUsername);
         prom.then(function(){
             self.setState({usernameError: ''});
             if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
@@ -762,10 +762,10 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var type = this.refs.type.getDOMNode().value;
         var content = this.refs.content ? this.refs.content.getDOMNode().value : puffworldprops.reply.content;
         this.setState({parentType: false});
-        return events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
+        return Events.pub('ui/reply/set-type', {'reply.type': type, 'reply.content': content});
     },
     handlePickPrivacy: function(privacy) {
-        return events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
+        return Events.pub('ui/reply/set-privacy', {'reply.privacy': privacy});
     },
     handleTogglePreview: function() {
         this.setState({showPreview: !this.state.showPreview});
@@ -773,7 +773,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     /*
     handleChangeUsernames: function() {
         var usernames = this.refs.usernames.getDOMNode().value;
-        return events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
+        return Events.pub('ui/reply/set-usernames', {'reply.usernames': usernames});
     },*/
     handleShowAdvanced: function() {
         this.setState({showAdvanced: !this.state.showAdvanced});
@@ -786,7 +786,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         };
         var parentUsernames = [];
         if (parents.length) {
-            parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+            parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(function(item, index, array) { return array.indexOf(item) == index })
                                      .filter(Boolean)
@@ -803,7 +803,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             })
 
             // add/remove those username from this.state.usernames
-            var usernames = PB.shallow_copy(this.state.usernames);
+            var usernames = Boron.shallow_copy(this.state.usernames);
             for (var i=0; i<usernameAdded.length; i++) {
                 if (usernames.indexOf(usernameAdded[i]) == -1)
                     usernames.push(usernameAdded[i])
@@ -828,9 +828,9 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
     render: function() {
         /* variables, default value */
         var polyglot = Translate.language[puffworldprops.view.language];
-        var contentTypeNames = Object.keys(PuffForum.contentTypes);
+        var contentTypeNames = Object.keys(PB.M.Forum.contentTypes);
         var privacyDefault = this.props.reply.privacy || "public";
-        /*var author = PuffWardrobe.getCurrentUsername();
+        /*var author = PB.M.Wardrobe.getCurrentUsername();
         author = StringConversion.humanizeUsernames(author) || "anonymous";*/
 
         var defaultContent = puffworldprops.reply.content || '';
@@ -839,11 +839,11 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             parents = this.props.reply.parents;
         }
         if(parents.length) {
-            var parent = PuffForum.getPuffBySig(parents[0]);
+            var parent = PB.M.Forum.getPuffBySig(parents[0]);
             // type = parent.payload.type;
 
             // figure out reply privacy
-            var envelope = PuffData.getBonus(parent, 'envelope');
+            var envelope = PB.Data.getBonus(parent, 'envelope');
             if(envelope && envelope.keys)
                 privacyDefault = "private";
                 
@@ -851,17 +851,17 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 privacyDefault = parent.payload.replyPrivacy;
 
             // by default we include all parent users in the reply
-            /*var parentUsernames = parents.map(function(id) { return PuffForum.getPuffBySig(id) })
+            /*var parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
                                          .map(function(puff) { return puff.payload.replyTo || puff.username })
                                          .filter(function(item, index, array) { return array.indexOf(item) == index })
                                          .filter(Boolean)
                                          // .join(', ')*/
 
             // Should we quote the parent
-            if (typeof PuffForum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
-                if(PuffForum.getPuffBySig(parents[0]).payload.quote) {
+            if (typeof PB.M.Forum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
+                if(PB.M.Forum.getPuffBySig(parents[0]).payload.quote) {
                     if (!defaultContent)
-                        defaultContent = PuffForum.getPuffBySig(parents[0]).payload.content;
+                        defaultContent = PB.M.Forum.getPuffBySig(parents[0]).payload.content;
                 }
             }
         }
@@ -975,7 +975,7 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
                 update_puffworldprops({'reply.content': currentContent})
             };
 
-            currentContent = PuffForum.processContent(currentType, currentContent, {});
+            currentContent = PB.M.Forum.processContent(currentType, currentContent, {});
             contentField = (
                 React.DOM.div( {style:contentStyle, id:"preview", ref:"preview", name:"preview", dangerouslySetInnerHTML:{__html: currentContent}})
             )

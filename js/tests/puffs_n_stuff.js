@@ -9,7 +9,7 @@
 
     - privateToPublic false condition
     - promise throw/catch errors 
-    - Puffball.checkUsername (pass through network response)
+    - PB.checkUsername (pass through network response)
     - firefox
 
 */
@@ -19,7 +19,7 @@
 // -- High level flows using user-facing API functions
 
 // create an anonymous user
-var userPromise = PuffWardrobe.addNewAnonUser()
+var userPromise = PB.M.Wardrobe.addNewAnonUser()
 userPromise.then(function(userRecord) {
                if(!userRecord)
                    throwfail('No user record in anon user creation', userRecord)
@@ -33,7 +33,7 @@ userPromise.then(function(userRecord) {
 
 // make the new identity the currently active one
 userPromise.then(function(userRecord) {
-               if(!PuffWardrobe.switchCurrent(userRecord.username))
+               if(!PB.M.Wardrobe.switchCurrent(userRecord.username))
                    throwfail('Could not set currently active user', userRecord)
            })
 
@@ -43,7 +43,7 @@ userPromise.then(function(userRecord) {
                var content = 'some content'
                var parents = []
                var metadata = {}
-               var postPromise = PuffForum.addPost(type, content, parents, metadata)
+               var postPromise = PB.M.Forum.addPost(type, content, parents, metadata)
                
                postPromise.catch(function(err) { 
                    throwfail('Could not post new puff', err) 
@@ -51,7 +51,7 @@ userPromise.then(function(userRecord) {
                
                // post a reply puff to that first puff
                postPromise.then(function(puff) {
-                   var replyPromise = PuffForum.addPost('text', 'reply content', [puff.sig], {})
+                   var replyPromise = PB.M.Forum.addPost('text', 'reply content', [puff.sig], {})
                
                    replyPromise.catch(function(err) { 
                        throwfail('Could not post reply puff', err) 
@@ -82,17 +82,17 @@ userPromise.then(function(userRecord) {
 // -- (in general the high level functions are preferred, as they have error handling baked in)
 
 // generate new random username
-var randomUsername = PuffWardrobe.generateRandomUsername()
+var randomUsername = PB.M.Wardrobe.generateRandomUsername()
 if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 
 // generate random private key
-var randomPrivateKey = Puffball.Crypto.generatePrivateKey()
+var randomPrivateKey = PB.Crypto.generatePrivateKey()
 if(!randomPrivateKey) 
     testfail('Private key gen failed: ', randomPrivateKey)
 
 // convert public to private
-var randomPublicKey = Puffball.Crypto.privateToPublic(randomPrivateKey)
+var randomPublicKey = PB.Crypto.privateToPublic(randomPrivateKey)
 if(!randomPublicKey) 
     testfail('Public key gen failed: ', randomPublicKey, randomPrivateKey)
 
@@ -100,39 +100,39 @@ if(!randomPublicKey)
 //// Identity management
 
 // get current keys
-var keys = PuffWardrobe.getCurrentKeys() 
+var keys = PB.M.Wardrobe.getCurrentKeys() 
 
 // get current username
-var username = PuffWardrobe.getCurrentUsername()
+var username = PB.M.Wardrobe.getCurrentUsername()
 
 // get current user record
-var userRecord = PuffWardrobe.getCurrentUserRecord()
+var userRecord = PB.M.Wardrobe.getCurrentUserRecord()
 
 // get all of the identities being saved on this browser
-var keychain = PuffWardrobe.getAll()
+var keychain = PB.M.Wardrobe.getAll()
 
 // switch current user
-PuffWardrobe.switchCurrent(username)
+PB.M.Wardrobe.switchCurrent(username)
 
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*
 // note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
-PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
-// var newUserPromise = PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// var newUserPromise = PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
 // newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 
 
 // user lookup 
-var badLookupPromise = PuffNet.getUserRecord(randomUsername)
+var badLookupPromise = PB.Net.getUserRecord(randomUsername)
 badLookupPromise.then(function(userRecord) { testfail("The user record lookup should have failed", userRecord) })
 
-var goodLookupPromise = PuffNet.getUserRecord('anon')
+var goodLookupPromise = PB.Net.getUserRecord('anon')
 goodLookupPromise.catch(function(err) { testfail("The user record lookup should have succeeded", err) })
 
 
 // use this style to interact with the anon user created above
 // userPromise.then(function(userRecord) {
-//     var keys = PuffWardrobe.getKeys(userRecord.username) 
+//     var keys = PB.M.Wardrobe.getKeys(userRecord.username) 
 // })
 // .catch(function(err) {
 //     testfail('Could not collect current keys', err) 
@@ -205,7 +205,7 @@ getScreenCoords = function() {
 var rows = 10
 var cols = 10
 var screencoords = getScreenCoords()
-var gridBox = getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
+var myGridbox = Gridbox.getGridCoordBox(rows, cols, screencoords.width, screencoords.height)
 
 var things = {}
 
@@ -217,7 +217,7 @@ var miny  = 3
 var maxx  = 7
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.foo)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.foo)
 
 things.bar = {bar: 321}
 var width  = 2
@@ -227,7 +227,7 @@ var miny  = 3
 var maxx  = 10
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.bar)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.bar)
 
 things.lala = {lala: 888}
 var width  = 2
@@ -237,7 +237,7 @@ var miny  = 3
 var maxx  = 10
 var maxy  = 10
 
-gridBox.add(width, height, miny, minx, maxy, maxx, things.lala)
+myGridbox.add(width, height, miny, minx, maxy, maxx, things.lala)
 
 
 function assert(value, expected) {

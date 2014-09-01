@@ -15,13 +15,13 @@
 
 */
 
-PuffNet = {};
+PB.Net = {};
 
 /**
  * fire up networks (currently just the peer connections)
  */
-PuffNet.init = function() {
-    PuffNet.P2P.init();
+PB.Net.init = function() {
+    PB.Net.P2P.init();
 }
 
 /**
@@ -29,64 +29,64 @@ PuffNet.init = function() {
  * @param  {string} sig signature of a puff
  * @return {object}     puff corresponds to the specified signature
  */
-PuffNet.getPuffBySig = function(sig) {
+PB.Net.getPuffBySig = function(sig) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffBySig', sig: sig};
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
-PuffNet.getKidSigs = function(sig) {
+PB.Net.getKidSigs = function(sig) {
     var url  = CONFIG.puffApi;
     var data = {type: 'getChildrenBySig', sig: sig};
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
-PuffNet.getKidSigs = PB.memoize(PuffNet.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
+PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
 
 
 /**
  * get the shells of all puff as an array
  * @return {Puff[]}
  */
-PuffNet.getAllShells = function() {
+PB.Net.getAllShells = function() {
     
     // NOTE: don't use this in production!!
     
     var url  = CONFIG.puffApi;
     var data = {type: 'getAllPuffShells'};
     
-    if(CONFIG.noNetwork) return Puffball.emptyPromise();    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return PB.emptyPromise();    // THINK: this is only for debugging and development
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
-PuffNet.getStarShells = function() {
+PB.Net.getStarShells = function() {
     var url  = CONFIG.puffApi;
     var data = {type: 'getPuffs', contentType: 'star', numb: CONFIG.globalBigBatchLimit};
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
-PuffNet.getPrivatePuffsFromMe = function(username) {
+PB.Net.getPrivatePuffsFromMe = function(username) {
     var url  = CONFIG.puffApi;
     var data = { username: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
                , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
                };
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
-PuffNet.getPrivatePuffsForMe = function(username) {
+PB.Net.getPrivatePuffsForMe = function(username) {
     var url  = CONFIG.puffApi;
     var data = { route: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
                , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
                };
     
-    return PuffNet.getJSON(url, data);
+    return PB.Net.getJSON(url, data);
 }
 
 /**
@@ -97,13 +97,13 @@ PuffNet.getPrivatePuffsForMe = function(username) {
  * @param {number} offset
  * @returns {Shell[]}
  */
-PuffNet.getSomeShells = function(query, filters, limit, offset) {
+PB.Net.getSomeShells = function(query, filters, limit, offset) {
     // TODO: switching by query 'mode' is kind of a hack. we're doing it for now until the network api matches our local api (i.e. once we use browser p2p &headless clients to service requests)
     
     var mode = query.mode
-    if(mode == 'ancestors')   return PuffNet.getAncestors  ([query.focus], limit)
-    if(mode == 'descendants') return PuffNet.getDescendants([query.focus], limit)
-    if(mode == 'siblings')    return PuffNet.getSiblings   ([query.focus], limit)
+    if(mode == 'ancestors')   return PB.Net.getAncestors  ([query.focus], limit)
+    if(mode == 'descendants') return PB.Net.getDescendants([query.focus], limit)
+    if(mode == 'siblings')    return PB.Net.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
@@ -130,16 +130,16 @@ PuffNet.getSomeShells = function(query, filters, limit, offset) {
     // data.descendants
     
     if(CONFIG.noNetwork)                                    // THINK: this is only for debugging and development
-        return Puffball.emptyPromise()
+        return PB.emptyPromise()
                        .then(function() {return []});    
     
-    return PuffNet.getJSON(url, data)                       // always returns a valid array
+    return PB.Net.getJSON(url, data)                       // always returns a valid array
                   .then(function(x) {return x || []}, function() {return []})
 }
 
-PuffNet.getAncestors = function(start, limit) {
+PB.Net.getAncestors = function(start, limit) {
     getEm(start, [], limit)
-    return Puffball.emptyPromise()
+    return PB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false               // all done
@@ -151,15 +151,15 @@ PuffNet.getAncestors = function(start, limit) {
             return getEm(todo.slice(1), done, remaining) // we've already done this one
         }
         
-        // TODO: set a callback in PuffNet instead of calling PuffData directly
-        var puff = PuffData.getPuffBySig(sig) // effectful
+        // TODO: set a callback in PB.Net instead of calling PB.Data directly
+        var puff = PB.Data.getPuffBySig(sig) // effectful
     
         if(puff) 
             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
 
         // no puff? that's ok. attach a then clause to its pending promise. // TODO: this is a major hack
         remaining-- // because we're adding a new puff, or at least new content
-        var prom = PuffData.pending[sig]
+        var prom = PB.Data.pending[sig]
         prom.then(function(puffs) {
             getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
         })
@@ -172,25 +172,25 @@ PuffNet.getAncestors = function(start, limit) {
     //     return Promise.resolve(results)             // all done
     //
     // var sig = todo[0]
-    // var shell = PuffData.getCachedShellBySig(sig)   // TODO: set a callback in PuffNet instead of calling this directly
+    // var shell = PB.Data.getCachedShellBySig(sig)   // TODO: set a callback in PB.Net instead of calling this directly
     //          || results.filter(function(result) {return result.sig == sig})[0]
     //
     // // if we already have a puff for sig, then we just need to put its parents on the todo stack
     // if(shell) {
     //     todo.shift() // take off the shell we just worked on
-    //     return PuffNet.getAncestors(todo.concat(shell.payload.parents), limit, results)
+    //     return PB.Net.getAncestors(todo.concat(shell.payload.parents), limit, results)
     // }
     //
     // // otherwise, get a promise for the shell, then add it to results
-    // var prom = PuffNet.getPuffBySig(sig)
+    // var prom = PB.Net.getPuffBySig(sig)
     // return prom.then(function(puffs) {
-    //     return PuffNet.getAncestors(todo, limit, results.concat(puffs))
+    //     return PB.Net.getAncestors(todo, limit, results.concat(puffs))
     // })
 }
 
-PuffNet.getDescendants = function(start, limit) {
+PB.Net.getDescendants = function(start, limit) {
     getEm(start, [], limit)
-    return Puffball.emptyPromise()
+    return PB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false               // all done
@@ -202,32 +202,32 @@ PuffNet.getDescendants = function(start, limit) {
             return getEm(todo.slice(1), done, remaining) // we've already done this one
         }
         
-        // TODO: set a callback in PuffNet instead of calling PuffData directly
-        var haveShell = PuffData.getCachedShellBySig(sig) 
+        // TODO: set a callback in PB.Net instead of calling PB.Data directly
+        var haveShell = PB.Data.getCachedShellBySig(sig) 
         
         if(!haveShell) { // we don't have the shell yet, so go get it
-            // TODO: callback PuffData erg merb lerb herp derp
-            PuffData.getPuffBySig(sig)  // effectful
+            // TODO: callback PB.Data erg merb lerb herp derp
+            PB.Data.getPuffBySig(sig)  // effectful
             remaining--
         }
         
-        var kidsigprom = PuffNet.getKidSigs(sig) // get all its children
+        var kidsigprom = PB.Net.getKidSigs(sig) // get all its children
         return kidsigprom.then(function(kidsigs) {
             getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
         })
     }
 }
 
-PuffNet.getSiblings = function() {
+PB.Net.getSiblings = function() {
     // this case is ugly, so we're leaving it until the client api can answer questions for us
-    return Puffball.emptyPromise() 
+    return PB.emptyPromise() 
 }
 
 /**
  * get all puffs within the zone (default to CONFIG.zone)
  * @return {promise} on fulfilled passes lisst of puff objects
  */
-PuffNet.getAllPuffs = function() {
+PB.Net.getAllPuffs = function() {
     //// THIS FUNCTION IS DEPRECATED /////
   
     // TODO: add zone parameter (default to CONFIG.zone)
@@ -239,14 +239,14 @@ PuffNet.getAllPuffs = function() {
     
     
     if(CONFIG.noNetwork) 
-        return Puffball.emptyPromise();             // NOTE: this is only for debugging and development
+        return PB.emptyPromise();             // NOTE: this is only for debugging and development
     
     var url  = CONFIG.puffApi;
     // var data = {type: 'getPuffGeneration', gen: 0};
     var puffs = [];
     
     var rec = function(gen, resolve, reject) {
-        PuffNet.getJSON(url, {type: 'getPuffGeneration', gen: gen})
+        PB.Net.getJSON(url, {type: 'getPuffGeneration', gen: gen})
                .then(function(data) {
                    if(!Array.isArray(data))         // server error of some kind -- probably beginning of puffs
                        return resolve(puffs);
@@ -256,7 +256,7 @@ PuffNet.getAllPuffs = function() {
                .catch(function(err) {
                    rec(gen, resolve, reject);
                    // setTimeout(function() {rec(gen, resolve, reject)}, 100);
-                   // reject(Puffball.promiseError('Network error while accumulating puffs')(err))
+                   // reject(PB.promiseError('Network error while accumulating puffs')(err))
                });
     }
     
@@ -271,14 +271,14 @@ PuffNet.getAllPuffs = function() {
  * add puff to the server and broadcast to peers
  * @param  {object} puff the puff to be added to the server
  */
-PuffNet.distributePuff = function(puff) {
+PB.Net.distributePuff = function(puff) {
     //// distribute a puff to the network
 
     if(CONFIG.noNetwork) return false;              // THINK: this is only for debugging and development
 
-    PuffNet.sendPuffToServer(puff);                 // add it to the server's pufflist
+    PB.Net.sendPuffToServer(puff);                 // add it to the server's pufflist
 
-    PuffNet.P2P.sendPuffToPeers(puff);              // broadcast it to peers
+    PB.Net.P2P.sendPuffToPeers(puff);              // broadcast it to peers
 }
 
 /**
@@ -286,7 +286,7 @@ PuffNet.distributePuff = function(puff) {
  * @param  {object} puff
  * @return {object}
  */
-PuffNet.sendPuffToServer = function(puff) {
+PB.Net.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
     //        or manage it entirely with routing, even for server-sent puffs?
@@ -294,8 +294,8 @@ PuffNet.sendPuffToServer = function(puff) {
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
                
-    return PuffNet.post(CONFIG.puffApi, data)
-                  .catch(Puffball.promiseError('Could not send puff to server'));
+    return PB.Net.post(CONFIG.puffApi, data)
+                  .catch(PB.promiseError('Could not send puff to server'));
 }
 
 /**
@@ -303,20 +303,20 @@ PuffNet.sendPuffToServer = function(puff) {
  * @param  {string} username 
  * @return {object}          on fullfilled passes the user record as object, otherwise re-throw error
  */
-PuffNet.getUserRecord = function(username) {
-    // TODO: call PuffNet.getUserRecordFile, add the returned users to PuffData.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+PB.Net.getUserRecord = function(username) {
+    // TODO: call PB.Net.getUserRecordFile, add the returned users to PB.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
 
     var url   = CONFIG.userApi;
     var data  = {type: 'getUser', username: username};
-    var prom = PuffNet.getJSON(url, data);
+    var prom = PB.Net.getJSON(url, data);
 
     return prom.then(
                 function(userRecord) {
-                    var userRecord = Puffball.processUserRecord(userRecord);
-                    if(!userRecord)  Puffball.throwError('Invalid user record returned');
+                    var userRecord = PB.processUserRecord(userRecord);
+                    if(!userRecord)  PB.throwError('Invalid user record returned');
                     return userRecord;
                 }
-                , Puffball.promiseError('Unable to access user information from the DHT'));
+                , PB.promiseError('Unable to access user information from the DHT'));
 }
 
 /**
@@ -324,17 +324,17 @@ PuffNet.getUserRecord = function(username) {
  * @param {string} username
  * @returns {*}
  */
-PuffNet.getUserRecordFile = function(username) {
+PB.Net.getUserRecordFile = function(username) {
     var url   = CONFIG.userApi;
     var data  = {type: 'getUserFile', username: username};
-    var prom = PuffNet.getJSON(url, data);
+    var prom = PB.Net.getJSON(url, data);
     
     return prom.then(
                 function(userRecords) {
-                    return userRecords.map(Puffball.processUserRecord)
+                    return userRecords.map(PB.processUserRecord)
                                       .filter(Boolean);
                 }
-                , Puffball.promiseError('Unable to access user file from the DHT'));
+                , PB.promiseError('Unable to access user file from the DHT'));
 }
 
 /**
@@ -347,7 +347,7 @@ PuffNet.getUserRecordFile = function(username) {
  * @param  {string} defaultKey      public default key for the new subuser
  * @return {object}                user record for the newly created subuser
  */
-PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+PB.Net.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
     var payload = {};
     
     payload.rootKey = rootKey;
@@ -361,10 +361,10 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
     var type = 'updateUserRecord';
     var content = 'requestUsername';
 
-    var puff = Puffball.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
-    return PuffNet.updateUserRecord(puff)
+    return PB.Net.updateUserRecord(puff)
 }
 
 /**
@@ -372,28 +372,28 @@ PuffNet.registerSubuser = function(signingUsername, privateAdminKey, newUsername
  * @param  {puff} puff a signed puff containing information of modified user record
  * @return {object}      throw error when the update fails
  */
-PuffNet.updateUserRecord = function(puff) {
+PB.Net.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
                };
 
-    var prom = PuffNet.post(CONFIG.userApi, data);
+    var prom = PB.Net.post(CONFIG.userApi, data);
     
-    return prom.catch(Puffball.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(PB.promiseError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 
-                       Puffball.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                       PB.throwError('The DHT did not approve of your request', userRecord.FAIL);
                        
-                   return Puffball.processUserRecord(userRecord)
-                       || Puffball.throwError('Invalid user record', JSON.stringify(userRecord));
+                   return PB.processUserRecord(userRecord)
+                       || PB.throwError('Invalid user record', JSON.stringify(userRecord));
                })
 }
 
 
 
 /**
- * PuffNet promise-based XHR layer
+ * PB.Net promise-based XHR layer
  * 
  * We use promises as our default concurrency construct, 
  * because ultimately this platform is composed of a 
@@ -406,7 +406,7 @@ PuffNet.updateUserRecord = function(puff) {
  * @param  {object} data    
  * @return {object}
  */
-PuffNet.xhr = function(url, options, data) {
+PB.Net.xhr = function(url, options, data) {
     //// very simple promise-based XHR implementation
     
     return new Promise(function(resolve, reject) {
@@ -448,7 +448,7 @@ PuffNet.xhr = function(url, options, data) {
  * @param  {object} params 
  * @return {object}
  */
-PuffNet.getJSON = function(url, params) {
+PB.Net.getJSON = function(url, params) {
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'
                   ,    type: 'json'
@@ -458,7 +458,7 @@ PuffNet.getJSON = function(url, params) {
     var enc = function(param) {return !param && param!==0 ? '' : encodeURIComponent(param)}
     var qstring = Object.keys(params).reduce(function(acc, key) {return acc + enc(key) +'='+ enc(params[key]) +'&'}, '?')
 
-    return PuffNet.xhr(url + qstring, options) 
+    return PB.Net.xhr(url + qstring, options) 
 }
 
 /**
@@ -467,7 +467,7 @@ PuffNet.getJSON = function(url, params) {
  * @param  {object} data 
  * @return {object}
  */
-PuffNet.post = function(url, data) {
+PB.Net.post = function(url, data) {
     var options = { headers: {   
         // 'Content-type': 'application/x-www-form-urlencoded' 
 //                           , 'Content-length': params.length
@@ -476,7 +476,7 @@ PuffNet.post = function(url, data) {
                   ,  method: 'POST'
                   }
 
-    return PuffNet.xhr(url, options, data)
+    return PB.Net.xhr(url, options, data)
 }
 
 
@@ -484,36 +484,36 @@ PuffNet.post = function(url, data) {
 
 /*
 
-    PuffNet Peer-to-Peer layer
+    PB.Net Peer-to-Peer layer
 
     We're currently using peer.js to negotiate the WebRTC connection. There's a lot of work left to be done here.
 
 */
 
 
-PuffNet.P2P = {};
-PuffNet.P2P.peers = {};
+PB.Net.P2P = {};
+PB.Net.P2P.peers = {};
 
 /**
  * initialize the peer-to-peer layer
  */
-PuffNet.P2P.init = function() {
-    PuffNet.P2P.Peer = new Peer({   host: '162.219.162.56'
+PB.Net.P2P.init = function() {
+    PB.Net.P2P.Peer = new Peer({   host: '162.219.162.56'
                                  ,  port: 9000
                                  ,  path: '/'
                                  , debug: 1
                                  });
     
-    PuffNet.P2P.Peer.on('open', PuffNet.P2P.openPeerConnection);
-    PuffNet.P2P.Peer.on('connection', PuffNet.P2P.connection);
+    PB.Net.P2P.Peer.on('open', PB.Net.P2P.openPeerConnection);
+    PB.Net.P2P.Peer.on('connection', PB.Net.P2P.connection);
 }
 
 /**
  * to reload peers
  * @return {object} 
  */
-PuffNet.P2P.reloadPeers = function() {
-    return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
+PB.Net.P2P.reloadPeers = function() {
+    return PB.Net.P2P.Peer.listAllPeers(PB.Net.P2P.handlePeers);
 };
 
 /**
@@ -521,10 +521,10 @@ PuffNet.P2P.reloadPeers = function() {
  * @param  {string} id 
  * @return {object[]}
  */
-PuffNet.P2P.openPeerConnection = function(id) {
+PB.Net.P2P.openPeerConnection = function(id) {
     // OPT: do we really need this? 
-    // THINK: why not just call PuffNet.P2P.reloadPeers?
-    return PuffNet.P2P.Peer.listAllPeers(PuffNet.P2P.handlePeers);
+    // THINK: why not just call PB.Net.P2P.reloadPeers?
+    return PB.Net.P2P.Peer.listAllPeers(PB.Net.P2P.handlePeers);
 };
 
 /**
@@ -532,11 +532,11 @@ PuffNet.P2P.openPeerConnection = function(id) {
  * @param connection
  * @returns {*}
  */
-PuffNet.P2P.connection = function(connection) {
-    PuffNet.P2P.reloadPeers(); // OPT: do we really need this? 
+PB.Net.P2P.connection = function(connection) {
+    PB.Net.P2P.reloadPeers(); // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        PuffData.addShellsThenMakeAvailable(data); // TODO: pass a callback in to PuffNet instead of calling this directly
+        PB.Data.addShellsThenMakeAvailable(data); // TODO: pass a callback in to PB.Net instead of calling this directly
     });
 };
 
@@ -545,11 +545,11 @@ PuffNet.P2P.connection = function(connection) {
  * @param  {object} peers 
  * @return {boolean}   
  */
-PuffNet.P2P.handlePeers = function(peers) {
+PB.Net.P2P.handlePeers = function(peers) {
     peers.forEach(function(peer) {
-        if(PuffNet.P2P.peers[peer]) 
+        if(PB.Net.P2P.peers[peer]) 
             return false;
-        PuffNet.P2P.peers[peer] = PuffNet.P2P.Peer.connect(peer);
+        PB.Net.P2P.peers[peer] = PB.Net.P2P.Peer.connect(peer);
     });
 };
 
@@ -557,8 +557,8 @@ PuffNet.P2P.handlePeers = function(peers) {
  * to send puff to peers
  * @param  {object} puff
  */
-PuffNet.P2P.sendPuffToPeers = function(puff) {
-    for(var peer in PuffNet.P2P.peers) {
-        PuffNet.P2P.peers[peer].send(puff)
+PB.Net.P2P.sendPuffToPeers = function(puff) {
+    for(var peer in PB.Net.P2P.peers) {
+        PB.Net.P2P.peers[peer].send(puff)
     }
 }

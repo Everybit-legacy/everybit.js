@@ -3,9 +3,9 @@
 var HeaderHider = React.createClass({
     handleToggleShowHeader: function() {
         if(puffworldprops.header.show)
-            return events.pub('ui/header/close', {'header.show': false})
+            return Events.pub('ui/header/close', {'header.show': false})
         else
-            return events.pub('ui/header/open', {'header.show': true})
+            return Events.pub('ui/header/open', {'header.show': true})
     },
 
     render: function() {
@@ -44,14 +44,14 @@ var HBpublish = React.createClass({
     handleToggleShowPublish: function() {
         // Send event
         if(puffworldprops.header.publish.show)
-            return events.pub('ui/header/publish/close', {'header.publish.show': false})
+            return Events.pub('ui/header/publish/close', {'header.publish.show': false})
         else
-            return events.pub('ui/header/publish/open', {'header.publish.show': true})
+            return Events.pub('ui/header/publish/open', {'header.publish.show': true})
 
     },
 
     handleShowPublish: function() {
-        return events.pub('ui/publish/show', {'menu.popout': 'publish',
+        return Events.pub('ui/publish/show', {'menu.popout': 'publish',
                                              'clusters.publish': true})
     },
 
@@ -84,7 +84,7 @@ var HBviewType = React.createClass({
         if (mode == 'tableView') {
             jsonToSet['view.table.format'] = 'list';
         }
-        return events.pub('ui/view/mode', jsonToSet);
+        return Events.pub('ui/view/mode', jsonToSet);
     },
 
 
@@ -129,11 +129,11 @@ var PublishPulldown = React.createClass({
 var HBidentity = React.createClass({
     mixins: [TooltipMixin],
     handleShowIdentityPopout: function() {
-        return events.pub("ui/menu/popout", {'menu.popout': 'identity',
+        return Events.pub("ui/menu/popout", {'menu.popout': 'identity',
                                              'clusters.identity': true});
     },
     render: function() {
-        var name = PuffWardrobe.getCurrentUsername();
+        var name = PB.M.Wardrobe.getCurrentUsername();
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <span className="headerIcon relative">
@@ -148,8 +148,8 @@ var HBidentity = React.createClass({
 var HBscore = React.createClass({
 
     render: function() {
-        if(PuffWardrobe.getCurrentUsername() != "") {
-            var score = calculateScore(PuffWardrobe.getCurrentUsername());
+        if(PB.M.Wardrobe.getCurrentUsername() != "") {
+            var score = calculateScore(PB.M.Wardrobe.getCurrentUsername());
         } else {
             var score = 0;
         }
@@ -194,7 +194,7 @@ var HBFilterBubble = React.createClass({
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
         var filterPath  = 'view.filters.' + this.props.filterName;
-        var filterValue = PB.shallow_copy(this.props.filterValue);       // don't mutate props
+        var filterValue = Boron.shallow_copy(this.props.filterValue);       // don't mutate props
         // var propPiece = puffworldprops.filter[this.props.filterName];
 
         var index = filterValue.indexOf(toRemove);
@@ -203,7 +203,7 @@ var HBFilterBubble = React.createClass({
             var propsMod = {};
             propsMod[filterPath] = filterValue;
             propsMod['view.mode'] = puffworldprops.view.mode; // KEEP THE SAME!
-            return events.pub('filter/remove', propsMod);
+            return Events.pub('filter/remove', propsMod);
         }
 
         return false;
@@ -269,7 +269,7 @@ var HBFilters = React.createClass({
 
     handleAddFilter: function() {
         var type = this.state.type;
-        var currFilter = PB.shallow_copy(puffworldprops.view.filters[type]);
+        var currFilter = Boron.shallow_copy(puffworldprops.view.filters[type]);
         var newFilter = this.refs.filter.getDOMNode().value.replace(/\s+/g, '') || false;
         if (!newFilter){
             alert('Enter a ' + type.slice(0, -1) + ' in the box and click to add it)');
@@ -287,7 +287,7 @@ var HBFilters = React.createClass({
         var jsonToSet = {};
         jsonToSet['view.filters.'+type] = currFilter;
         this.refs.filter.getDOMNode().value = '';
-        return events.pub('filter/add', jsonToSet);
+        return Events.pub('filter/add', jsonToSet);
     },
 
     handleKeyDown: function(event) {
@@ -349,9 +349,9 @@ var HBPuffIcon = React.createClass({
     mixins: [TooltipMixin],
     handleClick: function() {
         if(puffworldprops.menu.show)
-            return events.pub('ui/menu/close', {'menu.show': false})
+            return Events.pub('ui/menu/close', {'menu.show': false})
         else
-            return events.pub('ui/menu/open', {'menu.show': true})
+            return Events.pub('ui/menu/open', {'menu.show': true})
     },
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language];
@@ -419,7 +419,7 @@ calculateScore = function(username) {
 var HBoffset = React.createClass({
     handleSetOffset: function() {
         var offset = this.refs.offset.getDOMNode().value || 0;
-        events.pub("ui/set-offset", {'view.query.offset': offset});
+        Events.pub("ui/set-offset", {'view.query.offset': offset});
         return false;
     },
     handleKeyDown: function(e) {
@@ -442,7 +442,7 @@ var HBsort = React.createClass({
     handleToggleSort: function() {
         var sort = puffworldprops.view.query.sort || 'DESC';
         sort = (sort == 'DESC') ? 'ASC' : 'DESC';
-        events.pub("ui/query/sort", {'view.query.sort': sort});
+        Events.pub("ui/query/sort", {'view.query.sort': sort});
         return false;
     },
     render: function() {

@@ -7,7 +7,7 @@ Scrape.userCreate = function(parent, signingKey, username, privateRk, privateAk,
     var resultDiv = document.getElementById('userCreateResult');
     //resultDiv.innerHTML += parent + '<br>';
     
-    var prom = Puffball.getUserRecord(username)
+    var prom = PB.getUserRecord(username)
             .then(function() {
                 resultDiv.innerHTML += username + ' exist <br>';
                 Scrape.rec();
@@ -15,11 +15,11 @@ Scrape.userCreate = function(parent, signingKey, username, privateRk, privateAk,
             .catch(function(){
                 resultDiv.innerHTML += username + ' DNE <br>';
                 //Scrape.rec();
-                var res = PuffNet.registerSubuser(
+                var res = PB.Net.registerSubuser(
                     parent, signingKey, username, 
-                    Puffball.Crypto.privateToPublic(privateRk),
-                    Puffball.Crypto.privateToPublic(privateAk),
-                    Puffball.Crypto.privateToPublic(privateDk));
+                    PB.Crypto.privateToPublic(privateRk),
+                    PB.Crypto.privateToPublic(privateAk),
+                    PB.Crypto.privateToPublic(privateDk));
                 if (resultDiv) {
                     res.then(function(userRecord) {
                             resultDiv.innerHTML += username + ' success ' + '<br>';

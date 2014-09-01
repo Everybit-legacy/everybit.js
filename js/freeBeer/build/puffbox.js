@@ -51,10 +51,10 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
         }
 
         var replied = false;
-        var countChildren = PuffForum.getChildCount(puff);
+        var countChildren = PB.M.Forum.getChildCount(puff);
         if (countChildren > 0) {
             var kids = PB.Data.graph.v(puff.sig).out('child').run();
-            var curUser = PB.M.PuffWardrobe.getCurrentUsername();
+            var curUser = PB.M.Wardrobe.getCurrentUsername();
             for (var i=0; i<countChildren; i++) {
                 if (kids[i].shell.username==curUser) {
                     replied = true;
@@ -133,7 +133,7 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
         var rawPuffs = puffworldprops.raw.puffs || [];
         var puffcontent = '';
         if (rawPuffs.indexOf(puff.sig) == -1) {
-            puffcontent = PuffForum.getProcessedPuffContent(puff);
+            puffcontent = PB.M.Forum.getProcessedPuffContent(puff);
         } else {
             puffcontent = puff.payload.content;
             puffcontent = puffcontent
@@ -284,7 +284,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
     },
 
     handleFlagRequest: function() {
-        if (PB.M.PuffWardrobe.getCurrentUsername() != this.props.username &&PB.M.PuffWardrobe.getCurrentUsername() != CONFIG.zone)
+        if (PB.M.Wardrobe.getCurrentUsername() != this.props.username &&PB.M.Wardrobe.getCurrentUsername() != CONFIG.zone)
             return false;
         if (this.props.flagged) return false;
 
@@ -299,7 +299,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var env = PB.Data.getBonus(self.props.puff, 'envelope');
         if (env)
             sig = env.sig;
-        var prom = PuffForum.flagPuff(sig);
+        var prom = PB.M.Forum.flagPuff(sig);
 
         prom.then(function(result) {
                 console.log(result);
@@ -322,7 +322,7 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         var polyglot = Translate.language[puffworldprops.view.language];
 
         // Does this user have right to flag?
-        if(PB.M.PuffWardrobe.getCurrentUsername() == this.props.username || PB.M.PuffWardrobe.getCurrentUsername() == CONFIG.zone) {
+        if(PB.M.Wardrobe.getCurrentUsername() == this.props.username || PB.M.Wardrobe.getCurrentUsername() == CONFIG.zone) {
             return (
                 React.DOM.span(null, 
                     React.DOM.a( {href:"#", onClick:this.handleFlagRequest}, React.DOM.i( {className:newClass} )),
@@ -350,7 +350,7 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
     },
     render: function() {
         var puff = this.props.puff;
-        var parentCount = PuffForum.getParentCount(puff)
+        var parentCount = PB.M.Forum.getParentCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (!parentCount) {
             return (
@@ -586,7 +586,7 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
     },
     render: function() {
         var puff = this.props.puff;
-        var childCount = PuffForum.getChildCount(puff)
+        var childCount = PB.M.Forum.getChildCount(puff)
         var polyglot = Translate.language[puffworldprops.view.language];
         if (!childCount) {
             return (
@@ -612,7 +612,7 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
 var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
     handleClick: function() {
         var sig  = this.props.sig;
-        // var puff = PuffForum.getPuffBySig(sig);
+        // var puff = PB.M.Forum.getPuffBySig(sig);
         showPuff(sig);
         return false;
     },
@@ -645,7 +645,7 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
         var type = puffworldprops.reply.type;
         if(index == -1) {
             if (parents.length == 0)
-                type = PuffForum.getPuffBySig(sig).payload.type;
+                type = PB.M.Forum.getPuffBySig(sig).payload.type;
             parents.push(sig)
         } else {
             parents.splice(index, 1);
@@ -738,9 +738,9 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         return { pending: false }
     },
     handleClick: function() {
-        var username = PB.M.PuffWardrobe.getCurrentUsername();
+        var username = PB.M.Wardrobe.getCurrentUsername();
         
-        if(username == PuffForum.getPuffBySig(this.props.sig).username)
+        if(username == PB.M.Forum.getPuffBySig(this.props.sig).username)
             return false; // can't star your own puff
             
         var sig = this.props.sig
@@ -751,7 +751,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         if(iHaveStarredThis) {
             var self = this;
             var starSig = iHaveStarredThis;
-            var prom = PuffForum.flagPuff(starSig);
+            var prom = PB.M.Forum.flagPuff(starSig);
             prom.then(function(result) {
                     PB.Data.removeStar(sig, username)
                 })
@@ -764,8 +764,8 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             var content = this.props.sig;
             var type = 'star';
 
-            var userprom = PB.M.PuffWardrobe.getUpToDateUserAtAnyCost();
-            var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, [], {}, []);
+            var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost();
+            var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, []);
             var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'));
             prom.then(takeUserMakePuff)
                 .then(function(puff){
@@ -784,7 +784,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         var color = 'black'
         
         if(starStats && starStats.from) {
-            var username = PB.M.PuffWardrobe.getCurrentUsername();
+            var username = PB.M.Wardrobe.getCurrentUsername();
             var selfStar = starStats.from[username]
             score = starStats.score
             color = selfStar ? 'yellow' : 'black'
@@ -800,7 +800,7 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
         );
         var pointerStyle = {};
         var self = this;
-        if (PB.M.PuffWardrobe.getCurrentUsername() == PuffForum.getPuffBySig(this.props.sig).username) {
+        if (PB.M.Wardrobe.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'};
             link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star " + color}));
         }

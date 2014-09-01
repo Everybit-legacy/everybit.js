@@ -16,8 +16,8 @@
 <script src="../../js/freeBeer/config_dev.js"></script>
 <script src="../../js/core/PB.js"></script>
 <script src="../../js/core/PB.Net.js"></script>
-<script src="../../js/modules/PuffForum.js"></script>
-<script src="../../js/modules/PB.M.PuffWardrobe.js"></script>
+<script src="../../js/modules/PB.M.Forum.js"></script>
+<script src="../../js/modules/PB.M.Wardrobe.js"></script>
 
 <script>
     // Take a .json file, parse it, sign each puff, chain them together,
@@ -26,8 +26,8 @@
     var defaultKeyPrivate = '';
     var username = 'ishmael';
     // NOTE: does not confirm key validity in DHT
-    PB.M.PuffWardrobe.storePrivateKeys(username, '', '', defaultKeyPrivate);
-    PB.M.PuffWardrobe.switchCurrent(username);
+    PB.M.Wardrobe.storePrivateKeys(username, '', '', defaultKeyPrivate);
+    PB.M.Wardrobe.switchCurrent(username);
 
     function createPuffs() {
 
@@ -55,7 +55,7 @@
                 return key2sig[parentId];
             });
 
-            var puffprom = PuffForum.addPost(type, content, parents, metadata);
+            var puffprom = PB.M.Forum.addPost(type, content, parents, metadata);
             puffprom.then(function(puff) {
                 key2sig[id] = puff.sig;
                 setTimeout(function() {rec(results)}, 1000)

@@ -8,7 +8,7 @@ rec(ppuffs)
 function rec(ppuffs) {
     ppuff = ppuffs.shift()
     
-    prom = PuffForum.addPost( 'image', ppuff[0], choose(sigs, 5), ppuff[1] )
+    prom = PB.M.Forum.addPost( 'image', ppuff[0], choose(sigs, 5), ppuff[1] )
     prom.then(function(puff) {
         sigs.push(puff.sig)
         rec(ppuffs)

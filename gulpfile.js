@@ -50,8 +50,8 @@ var ourOthersList = [
               'js/core/PB.Crypto.js',
               'js/core/PB.Persist.js',
 
-              'js/modules/PuffForum.js',
-              'js/modules/PB.M.PuffWardrobe.js',
+              'js/modules/PB.M.Forum.js',
+              'js/modules/PB.M.Wardrobe.js',
               
               'js/freeBeer/usernameImport.js',
 

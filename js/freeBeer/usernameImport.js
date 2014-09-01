@@ -18,7 +18,7 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.collectData";
 	username = StringConversion.toActualUsername(username);
 		console.log(username);
-	if (PB.M.PuffWardrobe.switchCurrent(username)) {
+	if (PB.M.Wardrobe.switchCurrent(username)) {
 		var newScript_el = document.createElement('script');
 		newScript_el.setAttribute("src", content_url);
 		newScript_el.setAttribute("class", "instagramContent");
@@ -91,14 +91,14 @@ UsernameImport.instagram.importAllContent = function() {
 			}
 			if (entry.caption)
 				metadata.caption = entry.caption.text;
-			var post_prom = PuffForum.addPost('image', img, [], metadata);
+			var post_prom = PB.M.Forum.addPost('image', img, [], metadata);
 			post_prom.then(function(puff){
 				createdCount++;
 				UsernameImport.update(loadedCount, createdCount, total);
 				// if all are created, redirect all contents published by this user
 				if (createdCount == total) {
 					document.getElementById("importContent").innerHTML = "Import finished.<br>";
-					var username = PB.M.PuffWardrobe.getCurrentUsername();
+					var username = PB.M.Wardrobe.getCurrentUsername();
 					events.pub("ui/show-imported-puff", {'view.mode': 'list',
 														 'view.filters': {},  
 														 'view.filters.users': [username]});

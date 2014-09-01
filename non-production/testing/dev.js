@@ -301,7 +301,7 @@ puffworldprops = {
 
 puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
-///// event stuff. move this into either PuffForum or Puff itself.
+///// event stuff. move this into either PB.M.Forum or Puff itself.
 
 events = {}
 events.subs = {}
@@ -396,8 +396,8 @@ events.sub('*', function(data, path) {
 //// event bindings for controlling core behavior from the display
 
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PB.M.PuffWardrobe.getPref('storeKeychain')
-    PB.M.PuffWardrobe.setPref('storeKeychain', new_state)
+    var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
+    PB.M.Wardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeKeychain/' + dir)
@@ -408,7 +408,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname)
         return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
 
-    PB.M.PuffWardrobe.setProfileItem('nickname', nickname)
+    PB.M.Wardrobe.setProfileItem('nickname', nickname)
 
     events.pub('ui/menu/profile/nickname/set')
 });

@@ -184,7 +184,7 @@ var ViewKeybindingsMixin = {
 
 var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
-        var next = gridbox.findNeighbor(globalGridBox.get(), PuffForum.getPuffBySig(current), dir)
+        var next = gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
         if (next) {
             events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
             return true;
@@ -510,7 +510,7 @@ var PuffList = React.createClass({displayName: 'PuffList',
         
         var query   = this.props.view.query
         var filters = this.props.view.filters
-        var puffs   = PuffForum.getPuffList(query, filters, limit)
+        var puffs   = PB.M.Forum.getPuffList(query, filters, limit)
         
         this.cursorPower(puffs)
 
@@ -532,13 +532,13 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
     render: function() {
 
         var sig    = this.props.view.query.focus
-        var puff   = PuffForum.getPuffBySig(sig)
+        var puff   = PB.M.Forum.getPuffBySig(sig)
 
         if(!puff) return React.DOM.div(null)
         
         // sundry miscellany
         var arrows = this.props.view.arrows
-        var username = PB.M.PuffWardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.getCurrentUsername()
         var filters = this.props.view.filters
         var query = this.props.view.query
         var queryfilter = Boron.extend({}, query, filters)
@@ -577,7 +577,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
   
         // filters
         var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
-        var propsfilter = graphize(PuffForum.filterByFilters(queryfilter))
+        var propsfilter = graphize(PB.M.Forum.filterByFilters(queryfilter))
         var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
 
 
@@ -592,7 +592,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(ancestorRows >= 1) {
             parents = PB.Data.graph.v(sig).out('parent')
                               .unique().filter(propsfilter).take(cols)
-                              .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                              .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             parentBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-1, 0, bigBoxStartRow-1, cols)
             ancestorBoxes = ancestorBoxes.concat(parents.map(parentBox('parent')))
@@ -603,7 +603,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(ancestorRows >= 2) {
             grandparents = PB.Data.graph.v(sig).out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notParent).take(cols)
-                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-2, 0, bigBoxStartRow-2, cols)
             ancestorBoxes = ancestorBoxes.concat(grandparents.map(gpBox('parent')))
@@ -614,7 +614,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(ancestorRows >= 2) {
             greatgrandparents = PB.Data.graph.v(sig).out('parent').out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notGrandParent).take(cols)
-                                   .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             ggpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-3, 0, bigBoxStartRow-3, cols)
             ancestorBoxes = ancestorBoxes.concat(greatgrandparents.map(ggpBox('parent')))
@@ -633,7 +633,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(descendantRows >= 1) {
             kids = PB.Data.graph.v(sig).out('child')
                            .unique().filter(propsfilter).take(cols)
-                           .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                           .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             kidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow, 0, childrenStartRow, cols)
             descendantBoxes = descendantBoxes.concat(kids.map(kidsBox('child')))
@@ -644,7 +644,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(descendantRows >= 2) {
             gkids = PB.Data.graph.v(sig).out('child').out('child')
                             .unique().filter(propsfilter).filter(notKid).take(cols)
-                            .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                            .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+1, 0, childrenStartRow+1, cols)
             descendantBoxes = descendantBoxes.concat(gkids.map(gkidsBox('child')))
@@ -655,7 +655,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(descendantRows >= 3) {
             ggkids = PB.Data.graph.v(sig).out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGKid).take(cols)
-                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             ggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+2, 0, childrenStartRow+2, cols)
             descendantBoxes = descendantBoxes.concat(ggkids.map(ggkidsBox('child')))
@@ -666,7 +666,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         if(descendantRows >= 4) {
             gggkids = PB.Data.graph.v(sig).out('child').out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGGKid).take(cols)
-                             .property('shell').run().map(PuffForum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
 
             gggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+3, 0, childrenStartRow+3, cols)
             descendantBoxes = descendantBoxes.concat(gggkids.map(gggkidsBox('child')))
@@ -687,21 +687,21 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         // var ancestorPuffs = PB.Data.graph.v(sig).outAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notSelf)
         //                             .take(ancestorTotal).property('shell').run()
-        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         //
         // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
         //
         // var childrenPuffs = PB.Data.graph.v(sig).inAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notAncestor)
         //                             .take(childrenTotal).property('shell').run()
-        //                             .map(PuffForum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
         var siblingPuffs  = PB.Data.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
                                     .unique().filter(propsfilter).filter(notRelated)
                                     .take(siblingTotal).property('shell').run()
-                                    .map(PuffForum.getPuffBySig).filter(Boolean)
+                                    .map(PB.M.Forum.getPuffBySig).filter(Boolean)
         
         // fill remaining slots
         // TODO: this isn't right with the new stuff
@@ -717,7 +717,7 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
         //                             || b.username == username ?  1 : 0
         //                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
         //                             || b.username == puff.username ?  1 : 0
-        //                             || PuffForum.sortByPayload(b, a) * -1    // regular temporal sort
+        //                             || PB.M.Forum.sortByPayload(b, a) * -1    // regular temporal sort
         //                             })
         
         // box the puffs 

@@ -294,7 +294,7 @@ PB.Data.tryAddingShell = function(shell) {
     
     // TODO: fix this private pathway
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PB.M.PuffWardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
+        var username = PB.M.Wardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
 
         if(!shell.keys[username]) return false
         
@@ -313,7 +313,7 @@ PB.Data.tryAddingShell = function(shell) {
     }
 
     // only add the shell if it is supported content type
-    if (!PuffForum.contentTypes[shell.payload.type]) {
+    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
         events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig});
         return false;        
     }
@@ -424,9 +424,9 @@ PB.Data.clearExistingPrivateShells = function() {
 }
 
 PB.Data.addPrivateShells = function(privateShells) {
-    var decryptedShells = privateShells.map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+    var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
                             .filter(Boolean)
-    // FIXME: oh dear this is horrible oh dear oh dear get rid of PuffForum call
+    // FIXME: oh dear this is horrible oh dear oh dear get rid of PB.M.Forum call
     
     if (decryptedShells.length != privateShells.length) {
         events.pub('track/decrypt/some-decrypt-fails', 
@@ -442,7 +442,7 @@ PB.Data.addPrivateShells = function(privateShells) {
     PB.Data.currentDecryptedShells = PB.Data.currentDecryptedShells.concat(decryptedShells)
     
     PB.Data.addToGraph(decryptedShells)
-    PuffForum.addFamilialEdges(decryptedShells) // FIXME: ugh seriously do not use PuffForum here!
+    PB.M.Forum.addFamilialEdges(decryptedShells) // FIXME: ugh seriously do not use PB.M.Forum here!
     
     updateUI() // FIXME: this is definitely not the right place for this
 }
@@ -745,7 +745,7 @@ PB.Data.getMyPuffChain = function(username) {
     var shells = PB.Data.getShells()
     
     return shells.filter(function(puff) { return puff && puff.username == username }) // TODO: use the graph
-    // return PuffForum.getByUser(username) // TODO: test this 
+    // return PB.M.Forum.getByUser(username) // TODO: test this 
 }
 
 

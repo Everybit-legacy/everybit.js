@@ -19,7 +19,7 @@
 // -- High level flows using user-facing API functions
 
 // create an anonymous user
-var userPromise = PB.M.PuffWardrobe.addNewAnonUser()
+var userPromise = PB.M.Wardrobe.addNewAnonUser()
 userPromise.then(function(userRecord) {
                if(!userRecord)
                    throwfail('No user record in anon user creation', userRecord)
@@ -33,7 +33,7 @@ userPromise.then(function(userRecord) {
 
 // make the new identity the currently active one
 userPromise.then(function(userRecord) {
-               if(!PB.M.PuffWardrobe.switchCurrent(userRecord.username))
+               if(!PB.M.Wardrobe.switchCurrent(userRecord.username))
                    throwfail('Could not set currently active user', userRecord)
            })
 
@@ -43,7 +43,7 @@ userPromise.then(function(userRecord) {
                var content = 'some content'
                var parents = []
                var metadata = {}
-               var postPromise = PuffForum.addPost(type, content, parents, metadata)
+               var postPromise = PB.M.Forum.addPost(type, content, parents, metadata)
                
                postPromise.catch(function(err) { 
                    throwfail('Could not post new puff', err) 
@@ -51,7 +51,7 @@ userPromise.then(function(userRecord) {
                
                // post a reply puff to that first puff
                postPromise.then(function(puff) {
-                   var replyPromise = PuffForum.addPost('text', 'reply content', [puff.sig], {})
+                   var replyPromise = PB.M.Forum.addPost('text', 'reply content', [puff.sig], {})
                
                    replyPromise.catch(function(err) { 
                        throwfail('Could not post reply puff', err) 
@@ -82,7 +82,7 @@ userPromise.then(function(userRecord) {
 // -- (in general the high level functions are preferred, as they have error handling baked in)
 
 // generate new random username
-var randomUsername = PB.M.PuffWardrobe.generateRandomUsername()
+var randomUsername = PB.M.Wardrobe.generateRandomUsername()
 if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 
@@ -100,25 +100,25 @@ if(!randomPublicKey)
 //// Identity management
 
 // get current keys
-var keys = PB.M.PuffWardrobe.getCurrentKeys() 
+var keys = PB.M.Wardrobe.getCurrentKeys() 
 
 // get current username
-var username = PB.M.PuffWardrobe.getCurrentUsername()
+var username = PB.M.Wardrobe.getCurrentUsername()
 
 // get current user record
-var userRecord = PB.M.PuffWardrobe.getCurrentUserRecord()
+var userRecord = PB.M.Wardrobe.getCurrentUserRecord()
 
 // get all of the identities being saved on this browser
-var keychain = PB.M.PuffWardrobe.getAll()
+var keychain = PB.M.Wardrobe.getAll()
 
 // switch current user
-PB.M.PuffWardrobe.switchCurrent(username)
+PB.M.Wardrobe.switchCurrent(username)
 
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*
 // note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
-PB.M.PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
-// var newUserPromise = PB.M.PuffWardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// var newUserPromise = PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
 // newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 
 
@@ -132,7 +132,7 @@ goodLookupPromise.catch(function(err) { testfail("The user record lookup should 
 
 // use this style to interact with the anon user created above
 // userPromise.then(function(userRecord) {
-//     var keys = PB.M.PuffWardrobe.getKeys(userRecord.username) 
+//     var keys = PB.M.Wardrobe.getKeys(userRecord.username) 
 // })
 // .catch(function(err) {
 //     testfail('Could not collect current keys', err) 

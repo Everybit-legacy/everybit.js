@@ -183,8 +183,8 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 //// event bindings for controlling core behavior from the display ////
 
 events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PB.M.PuffWardrobe.getPref('storeKeychain')
-    PB.M.PuffWardrobe.setPref('storeKeychain', new_state)
+    var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
+    PB.M.Wardrobe.setPref('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
     events.pub('ui/menu/prefs/storeKeychain/' + dir)
@@ -195,7 +195,7 @@ events.sub('profile/nickname/set', function(data, path) {
     if(!nickname)
         return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
 
-    PB.M.PuffWardrobe.setProfileItem('nickname', nickname)
+    PB.M.Wardrobe.setProfileItem('nickname', nickname)
 
     events.pub('ui/menu/profile/nickname/set')
 });
@@ -319,7 +319,7 @@ formatForDisplay = function(obj, style) {
 //   var mapdom = $('#minimap')
 //   
 //   // PB.Data.getShells().forEach(function(puff) {
-//   //   template = '<p><a href="#" onclick="showPuff(PuffForum.getPuffBySig(\'' 
+//   //   template = '<p><a href="#" onclick="showPuff(PB.M.Forum.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
 //   //   mapdom.append($(template))
@@ -469,7 +469,7 @@ function showPuff(sig) {
     if(!sig)
         return false
 
-    var puff = PuffForum.getPuffBySig(sig)                          // get it?
+    var puff = PB.M.Forum.getPuffBySig(sig)                          // get it?
 
     if(puff)
         return showPuffDirectly(puff)                               // got it.
@@ -499,8 +499,8 @@ function renderPuffWorld() {
 
     // THINK: is this the right place for this? these probably belong in update_puffworldprops...
     // puffworldprops has to contain some important things like prefs
-    var data = { prefs: PB.M.PuffWardrobe.getAllPrefs()
-               , profile: PB.M.PuffWardrobe.getAllProfileItems()
+    var data = { prefs: PB.M.Wardrobe.getAllPrefs()
+               , profile: PB.M.Wardrobe.getAllProfileItems()
                }
 
     update_puffworldprops(Boron.flatten(data))
@@ -552,7 +552,7 @@ update_puffworldprops = function(data) {
 
 
 
-///////// PuffForum Interface ////////////
+///////// PB.M.Forum Interface ////////////
 
 // NOTE: this has to load last, so keep it at the bottom
 
@@ -571,11 +571,11 @@ var eatPuffs = function(puffs) {
 
 
 ////
-PuffForum.onNewPuffs(eatPuffs);                     // register our update function
+PB.M.Forum.onNewPuffs(eatPuffs);                     // register our update function
 
-PuffForum.init();                                   // initialize the forum module (and by extension the puffball network)
+PB.M.Forum.init();                                   // initialize the forum module (and by extension the puffball network)
 
-PB.M.PuffWardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
+PB.M.Wardrobe.setPref('storeKeychain', true);        // TODO: make this based on config, and changeable
 
 handleImportRedirect();                             // check if import
 
@@ -595,7 +595,7 @@ window.addEventListener('load', function() {
         var lastUsername = localStorage['PUFF::identity'];
         if (lastUsername) {
             lastUsername = PB.parseJSON(lastUsername);
-            PB.M.PuffWardrobe.switchCurrent(lastUsername);
+            PB.M.Wardrobe.switchCurrent(lastUsername);
         }
         window.addEventListener('popstate', function(event) {
             if(event.state)
@@ -619,7 +619,7 @@ events.sub('ui/*', function(data) {
 
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
-if(Object.keys(PB.M.PuffWardrobe.getAll()).length < 1)
+if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
     events.pub( 'ui/slider/close',{ 'slider.show': true});
     // console.log("hide silder cuz several users")
 

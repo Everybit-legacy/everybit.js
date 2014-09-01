@@ -10,28 +10,28 @@
   A Puffball module for managing forum-style puffs. Wraps the core Puffball API in a fluffy layer of syntactic spun sugar.
 
   Usage example:
-  PuffForum.onNewPuffs( function(puffs) { console.log(puffs) } )
-  PuffForum.init()
+  PB.M.Forum.onNewPuffs( function(puffs) { console.log(puffs) } )
+  PB.M.Forum.init()
 
 */
 
-PuffForum = {};
+PB.M.Forum = {};
 
-PuffForum.graph = {};
-PuffForum.newPuffCallbacks = [];
-PuffForum.contentTypes = {}
+PB.M.Forum.graph = {};
+PB.M.Forum.newPuffCallbacks = [];
+PB.M.Forum.contentTypes = {}
 
 /**
  * set up everything
  */
-PuffForum.init = function() {
+PB.M.Forum.init = function() {
     //// set up everything. 
     // THINK: maybe you can only call this once?
     // THINK: maybe take a zone arg, but default to config
   
-    PB.onNewPuffs(PuffForum.receiveNewPuffs);
+    PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);
     
-    PB.addRelationship(PuffForum.addFamilialEdges);
+    PB.addRelationship(PB.M.Forum.addFamilialEdges);
   
     PB.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }
@@ -42,14 +42,14 @@ PuffForum.init = function() {
  * @param {string} filters
  * @returns {Shell[]}
  */
-PuffForum.getShells = function(query, filters) {
+PB.M.Forum.getShells = function(query, filters) {
     /// get shells, filtered by a query and queried by filters
     //  NOTE: we include query and filters here so this layer can grow more sophisticated over time
     //  TODO: actually make this more sophisticated (probably via Dagoba)
     
-    var shells = PuffForum.getAllMyShells()
+    var shells = PB.M.Forum.getAllMyShells()
     
-    return PuffForum.filterShells(shells, query, filters)   
+    return PB.M.Forum.filterShells(shells, query, filters)   
 }
 
 /**
@@ -59,17 +59,17 @@ PuffForum.getShells = function(query, filters) {
  * @param {string} filters
  * @returns {Shell[]}
  */
-PuffForum.filterShells = function(shells, query, filters) {
-    return shells.filter(PuffForum.filterByFilters(Boron.extend({}, query, filters)))
+PB.M.Forum.filterShells = function(shells, query, filters) {
+    return shells.filter(PB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
 }
 
 /**
  * to get all my shells
  * @returns {Shell[]}
  */
-PuffForum.getAllMyShells = function() {
+PB.M.Forum.getAllMyShells = function() {
     var publicShells = PB.Data.getPublicShells()
-    var encryptedShells = PuffForum.getEncryptedShells()
+    var encryptedShells = PB.M.Forum.getEncryptedShells()
     return publicShells.concat(encryptedShells)
 }
 
@@ -77,7 +77,7 @@ PuffForum.getAllMyShells = function() {
  * to get encrypted shells
  * @returns {Shell[]}
  */
-PuffForum.getEncryptedShells = function() {
+PB.M.Forum.getEncryptedShells = function() {
     // TODO: check 'all or one' wardrobe toggle, if true get for all wardrobe users
 
     
@@ -86,9 +86,9 @@ PuffForum.getEncryptedShells = function() {
     
     
     
-    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
+    var myUsername = PB.M.Wardrobe.getCurrentUsername()
     var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
-                                  .map(PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption)
+                                  .map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                   .filter(Boolean)
     
     return encryptedShells    
@@ -99,7 +99,7 @@ PuffForum.getEncryptedShells = function() {
  * @param  {string} filters
  * @return {boolean}
  */
-PuffForum.filterByFilters = function(filters) {
+PB.M.Forum.filterByFilters = function(filters) {
     /// filter puffs by prop filters
     
     if(!filters) return function() {return true}
@@ -146,7 +146,7 @@ PuffForum.filterByFilters = function(filters) {
             if((shell.payload.parents||[]).length) return false
 
         if(filters.ancestors && filters.focus) {
-            var focus = PuffForum.getPuffBySig(filters.focus) // TODO: this is wrong
+            var focus = PB.M.Forum.getPuffBySig(filters.focus) // TODO: this is wrong
             if(focus.payload && !~focus.payload.parents.indexOf(shell.sig)) return false
         }
 
@@ -163,8 +163,8 @@ PuffForum.filterByFilters = function(filters) {
 
 
 
-PuffForum.secretStash = {}
-PuffForum.horridStash = {}
+PB.M.Forum.secretStash = {}
+PB.M.Forum.horridStash = {}
 
 /**
  * get stashed shells by sig
@@ -172,12 +172,12 @@ PuffForum.horridStash = {}
  * @param {string} sig
  * @returns {Shell[]}
  */
-PuffForum.getStashedShellBySig = function(username, sig) {
-    if(!PuffForum.secretStash[username])
-        PuffForum.secretStash[username] = {}
+PB.M.Forum.getStashedShellBySig = function(username, sig) {
+    if(!PB.M.Forum.secretStash[username])
+        PB.M.Forum.secretStash[username] = {}
     
-    if(PuffForum.secretStash[username][sig])
-        return PuffForum.secretStash[username][sig]
+    if(PB.M.Forum.secretStash[username][sig])
+        return PB.M.Forum.secretStash[username][sig]
 }
 
 /**
@@ -185,8 +185,8 @@ PuffForum.getStashedShellBySig = function(username, sig) {
  * @param {string} sig
  * @returns {Object}
  */
-PuffForum.badEnvelope = function(sig) {
-    return PuffForum.horridStash[sig]
+PB.M.Forum.badEnvelope = function(sig) {
+    return PB.M.Forum.horridStash[sig]
 }
 
 /**
@@ -194,24 +194,24 @@ PuffForum.badEnvelope = function(sig) {
  * @param {Object} envelope
  * @returns {Boolean|Shell[]}
  */
-PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
-    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
-    var myKeys = PB.M.PuffWardrobe.getCurrentKeys()
-    var maybeShell = PuffForum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
+PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
+    var myUsername = PB.M.Wardrobe.getCurrentUsername()
+    var myKeys = PB.M.Wardrobe.getCurrentKeys()
+    var maybeShell = PB.M.Forum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
 
     if(maybeShell) return maybeShell
         
-    if(PuffForum.badEnvelope(envelope.sig)) return false
+    if(PB.M.Forum.badEnvelope(envelope.sig)) return false
     
     function doit(envelope, yourUserRecord) {
         var letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
         if(!letter) {
-            PuffForum.horridStash[envelope.sig] = true
+            PB.M.Forum.horridStash[envelope.sig] = true
             events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
             return false
         }
-        PuffForum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
-        PuffForum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
+        PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
+        PB.M.Forum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
         PB.Data.addBonus(letter, 'envelope', envelope)                             // mark it for later
         return letter
     }
@@ -231,7 +231,7 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
         // add for display (sepecrate from here?)
         PB.Data.currentDecryptedShells.push(decrypted)
         PB.Data.addToGraph([decrypted])
-        PuffForum.addFamilialEdges([decrypted])
+        PB.M.Forum.addFamilialEdges([decrypted])
         
         updateUI()                                                                  // redraw everything once DHT responds
     })  .catch(function(err){console.log(err)});
@@ -242,14 +242,14 @@ PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {  
  * @param  {String} sig
  * @return {Object}
  */
-PuffForum.getPuffBySig = function(sig) {
+PB.M.Forum.getPuffBySig = function(sig) {
     //// get a particular puff
-    var myUsername = PB.M.PuffWardrobe.getCurrentUsername()
+    var myUsername = PB.M.Wardrobe.getCurrentUsername()
   
     var shell = PB.Data.getCachedShellBySig(sig)                              // check in lower cache
     
     if(!shell)
-        shell = PuffForum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
+        shell = PB.M.Forum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
     
     return PB.getPuffFromShell(shell || sig)
 }
@@ -260,7 +260,7 @@ PuffForum.getPuffBySig = function(sig) {
  * @param  {object} b
  * @return {number}
  */
-PuffForum.sortByPayload = function(a,b) {
+PB.M.Forum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
     if(puffworldprops.view.query.sort == 'DESC')
         return b.payload.time - a.payload.time;
@@ -273,7 +273,7 @@ PuffForum.sortByPayload = function(a,b) {
  * @param  {Object} props
  * @return {boolean}
  */		
-PuffForum.getPropsFilter = function(props) {
+PB.M.Forum.getPropsFilter = function(props) {
     if(!props) return function() {return true}
     
     // props = props.view ? props.view : props
@@ -301,7 +301,7 @@ PuffForum.getPropsFilter = function(props) {
  * @param  {Object} props
  * @return {Puff[]}
  */
-PuffForum.getParentCount = function(puff, props) {
+PB.M.Forum.getParentCount = function(puff, props) {
     if(!puff) return 0
     
     var sig = puff.sig || puff
@@ -314,7 +314,7 @@ PuffForum.getParentCount = function(puff, props) {
  * @param  {Object} puff
  * @return {Puff[]}
  */
-PuffForum.getChildCount = function(puff) {
+PB.M.Forum.getChildCount = function(puff) {
     if(!puff) return 0
     
     var sig = puff.sig || puff
@@ -334,7 +334,7 @@ PuffForum.getChildCount = function(puff) {
  * @param  {object} props
  * @return {array}
  */
-PuffForum.getPuffList = function(query, filters, limit) {
+PB.M.Forum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
 
     // THINK: the graph can help us here, but only if we're more clever about forming relationships and using those in our filters.
@@ -342,10 +342,10 @@ PuffForum.getPuffList = function(query, filters, limit) {
     limit = limit || Infinity
     var offset = +query.offset||0
 
-    var shells = PuffForum.getShells(query, filters)
+    var shells = PB.M.Forum.getShells(query, filters)
     
-    var filtered_shells = shells.filter(PuffForum.filterByFilters(Boron.extend({}, query, filters)))
-                                .sort(PuffForum.sortByPayload) // TODO: sort by query
+    var filtered_shells = shells.filter(PB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
+                                .sort(PB.M.Forum.sortByPayload) // TODO: sort by query
 
     var sliced_shells = filtered_shells.slice(offset, offset+limit)
     
@@ -373,7 +373,7 @@ PuffForum.getPuffList = function(query, filters, limit) {
  * @param {string[]} envelopeUserKeys
  * @returns {*}
  */
-PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -381,7 +381,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     if(!Array.isArray(parents)) parents = [parents]
     
     // ensure parents contains only puff ids
-    if(parents.map(PuffForum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
+    if(parents.map(PB.M.Forum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
         return PB.emptyPromise('Those are not good parents')
     
     // ensure parents are unique
@@ -389,7 +389,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
 
     // find the routes using parents
     var routes = parents.map(function(id) {
-        return PuffForum.getPuffBySig(id).username;
+        return PB.M.Forum.getPuffBySig(id).username;
     });
     if (metadata.routes) {
         routes = metadata.routes;
@@ -399,10 +399,10 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
     // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PuffForum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
+    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
     
     // get a user promise
-    var userprom = PB.M.PuffWardrobe.getUpToDateUserAtAnyCost();
+    var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost();
     
     var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
@@ -414,7 +414,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
             PB.Data.removeShellFromCache(puff.sig)
             PB.Data.addPrivateShells([puff])
             updateUI()
-            // username = PB.M.PuffWardrobe.getCurrentUsername()
+            // username = PB.M.Wardrobe.getCurrentUsername()
             // PB.Data.importPrivateShells(username)
         }
         
@@ -439,7 +439,7 @@ PuffForum.addPost = function(type, content, parents, metadata, userRecordsForWho
  * @param {string[]} envelopeUserKeys
  * @returns {Function}
  */
-PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -459,7 +459,7 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
         var previous   = userRecord.latest
         var username   = userRecord.username
 
-        var privateKeys = PB.M.PuffWardrobe.getCurrentKeys()
+        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
         if(!privateKeys || !privateKeys.default) {
             // PB.onError('No valid private key found for signing the content')
             throw Error('No valid private key found for signing the content')
@@ -475,33 +475,33 @@ PuffForum.partiallyApplyPuffMaker = function(type, content, parents, metadata, r
  * callback takes an array of puffs as its argument, and is called each time puffs are added to the system
  * @param  {function} callback
  */
-PuffForum.onNewPuffs = function(callback) {
+PB.M.Forum.onNewPuffs = function(callback) {
     //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
   
-    PuffForum.newPuffCallbacks.push(callback)
+    PB.M.Forum.newPuffCallbacks.push(callback)
 }
 
 /**
  * called by core Puff library any time puffs are added to the system
  * @param  {Puff[]} puffs
  */
-PuffForum.receiveNewPuffs = function(puffs) {
+PB.M.Forum.receiveNewPuffs = function(puffs) {
     //// called by core Puff library any time puffs are added to the system
   
-    PuffForum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
+    PB.M.Forum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
 }
 
 
-PuffForum.addFamilialEdges = function(shells) {
-    shells.forEach(PuffForum.addFamilialEdgesForShell)
+PB.M.Forum.addFamilialEdges = function(shells) {
+    shells.forEach(PB.M.Forum.addFamilialEdgesForShell)
 }
 
-PuffForum.addFamilialEdgesForShell = function(child) {
-    var addParentEdges = PuffForum.addFamilialEdgesForParent(child);
+PB.M.Forum.addFamilialEdgesForShell = function(child) {
+    var addParentEdges = PB.M.Forum.addFamilialEdgesForParent(child);
     (child.payload.parents||[]).forEach(addParentEdges);
 }
 
-PuffForum.addFamilialEdgesForParent = function(child) {
+PB.M.Forum.addFamilialEdgesForParent = function(child) {
     var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
     
     return function(parentSig) {
@@ -520,7 +520,7 @@ PuffForum.addFamilialEdgesForParent = function(child) {
  * @param {string} name
  * @param {string} type
  */
-PuffForum.addContentType = function(name, type) {
+PB.M.Forum.addContentType = function(name, type) {
     if(!name) 
         return console.log('Invalid content type name');
     if (CONFIG.supportedContentTypes.indexOf(name) == -1) 
@@ -529,7 +529,7 @@ PuffForum.addContentType = function(name, type) {
         return console.log('Invalid content type: object is missing toHtml method', name);
     
     // TODO: add more thorough name/type checks
-    PuffForum.contentTypes[name] = type
+    PB.M.Forum.contentTypes[name] = type
 }
 
 /**
@@ -539,31 +539,31 @@ PuffForum.addContentType = function(name, type) {
  * @param  {puff} puff
  * @return {string}
  */
-PuffForum.processContent = function(type, content, puff) {
-    var typeObj = PuffForum.contentTypes[type]
+PB.M.Forum.processContent = function(type, content, puff) {
+    var typeObj = PB.M.Forum.contentTypes[type]
     
     if(!typeObj)
-        typeObj = PuffForum.contentTypes['text']
+        typeObj = PB.M.Forum.contentTypes['text']
 
     return typeObj.toHtml(content, puff)
 }
 
 
 // THINK: this might get big, need some GC here
-PuffForum.puffContentStash = {}
+PB.M.Forum.puffContentStash = {}
 
 /**
  * to the the processed puff content
  * @param  {puff} puff
  * @return {string}
  */
-PuffForum.getProcessedPuffContent = function(puff) {
+PB.M.Forum.getProcessedPuffContent = function(puff) {
     // THINK: we've already ensured these are proper puffs, so we don't have to check for payload... right?
-    if(PuffForum.puffContentStash[puff.sig])
-        return PuffForum.puffContentStash[puff.sig]
+    if(PB.M.Forum.puffContentStash[puff.sig])
+        return PB.M.Forum.puffContentStash[puff.sig]
     
-    var content = PuffForum.processContent(puff.payload.type, puff.payload.content, puff)
-    PuffForum.puffContentStash[puff.sig] = content
+    var content = PB.M.Forum.processContent(puff.payload.type, puff.payload.content, puff)
+    PB.M.Forum.puffContentStash[puff.sig] = content
     
     return content
 }
@@ -574,7 +574,7 @@ PuffForum.getProcessedPuffContent = function(puff) {
  * @param  {string} content
  * @return {string}
  */
-PuffForum.addContentType('text', {
+PB.M.Forum.addContentType('text', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
         return '<div class="bigStart"><p class="markdownP">' + safe_content.html + '</p></div>'               // THINK: is this really safe?
@@ -586,7 +586,7 @@ PuffForum.addContentType('text', {
  * @param  {string} content
  * @return {string}
  */
-PuffForum.addContentType('bbcode', {
+PB.M.Forum.addContentType('bbcode', {
     toHtml: function(content) {
         var bbcodeParse = XBBCODE.process({ text: content });
         var parsedText  = bbcodeParse.html.replace(/\n/g, '<br />'); 
@@ -599,7 +599,7 @@ PuffForum.addContentType('bbcode', {
  * @param  {string} content
  * @return {string}
  */
-PuffForum.addContentType('image', {
+PB.M.Forum.addContentType('image', {
     toHtml: function(content) {
         if(puffworldprops.view.mode == "tableView")
             return '<img src=' + content + ' />';
@@ -613,7 +613,7 @@ PuffForum.addContentType('image', {
  * @param  {string} content
  * @return {string}
  */
-PuffForum.addContentType('markdown', {
+PB.M.Forum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
         return '<div class="bigStart">'+converter.makeHtml(content)+'</div>';
@@ -625,14 +625,14 @@ PuffForum.addContentType('markdown', {
  * @param  {string} content
  * @return {string}
  */
-PuffForum.addContentType('PGN', {
+PB.M.Forum.addContentType('PGN', {
     toHtml: function(content) {
         return chessBoard(content);
     }
 })
 
 
-PuffForum.addContentType('profile', {
+PB.M.Forum.addContentType('profile', {
     toHtml: function(content, puff) {
         if(puffworldprops.view.mode == "tableView")
             return '<img src=' + content + ' />';
@@ -653,7 +653,7 @@ PuffForum.addContentType('profile', {
  * @param  {string} content
  * @return {string}
 
-PuffForum.addContentType('LaTex', {
+PB.M.Forum.addContentType('LaTex', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
@@ -666,23 +666,23 @@ PuffForum.addContentType('LaTex', {
  * @param  {object} Content type methods
  * @return {string}
  */
-// PuffForum.addContentType('encryptedpuff', {
+// PB.M.Forum.addContentType('encryptedpuff', {
 //     toHtml: function(content, envelope) {                                                 // the envelope is a puff
-//         var letter = PuffForum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
+//         var letter = PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
 //         if(!letter) return 'This is encrypted';                                           // can't read the letter
-//         return PuffForum.getProcessedPuffContent(letter);                                 // show the letter
+//         return PB.M.Forum.getProcessedPuffContent(letter);                                 // show the letter
 //     }
 // })
 
 
 // flag a puff
-PuffForum.flagPuff = function (sig) {
-    var privateKeys = PB.M.PuffWardrobe.getCurrentKeys();
+PB.M.Forum.flagPuff = function (sig) {
+    var privateKeys = PB.M.Wardrobe.getCurrentKeys();
 
     if(!privateKeys.username) {
         alert("You must first set your username before you can flag content");
     }
-    /*if(!privateKeys.username == PuffForum.getPuffBySig(sig).username) {
+    /*if(!privateKeys.username == PB.M.Forum.getPuffBySig(sig).username) {
         alert("You must set your identity to the author of the puff you want to flag");
     }*/
     if(!privateKeys.admin) {
@@ -722,9 +722,9 @@ PuffForum.flagPuff = function (sig) {
 
 
 // adding default metafields to included in a puff
-PuffForum.metaFields = []
-PuffForum.context = {};
-PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
+PB.M.Forum.metaFields = []
+PB.M.Forum.context = {};
+PB.M.Forum.addMetaFields = function(fieldInfo, context, excludeContext) {
     if (!fieldInfo.name) return console.log('Invalid meta field name.');
 
     // supported type: text, textarea, pulldown, array
@@ -734,7 +734,7 @@ PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
         fieldInfo.validator = false;
     }
 
-    context = context || Object.keys(PuffForum.contentTypes);
+    context = context || Object.keys(PB.M.Forum.contentTypes);
     if (typeof context == 'string') {
         context = [context];
     } else if (!Array.isArray(context)) {
@@ -748,41 +748,41 @@ PuffForum.addMetaFields = function(fieldInfo, context, excludeContext) {
         return PB.onError('Invalid context.')
     }
 
-    PuffForum.metaFields.push(fieldInfo);
+    PB.M.Forum.metaFields.push(fieldInfo);
     for (var i=0; i<context.length; i++) {
         if (excludeContext.indexOf(context[i]) != -1)
             continue;
-        var contextFields = PuffForum.context[context[i]] || [];
+        var contextFields = PB.M.Forum.context[context[i]] || [];
         contextFields.push(fieldInfo.name);
-        PuffForum.context[context[i]] = contextFields;
+        PB.M.Forum.context[context[i]] = contextFields;
     }
 }
 
-PuffForum.addMetaFields(
+PB.M.Forum.addMetaFields(
     {name: 'reply privacy',
      type: 'pulldown',
      enum: ['', 'public', 'private', 'anonymous', 'invisible'],
      defaultValue: ''});
 
-PuffForum.addMetaFields(
+PB.M.Forum.addMetaFields(
     {name: 'content license',
      type: 'pulldown',
      enum: ['', 'CreativeCommonsAttribution', 'GNUPublicLicense', 'Publicdomain', 'Rights-managed', 'Royalty-free'],
      defaultValue: ''});
 
-PuffForum.addMetaFields(
+PB.M.Forum.addMetaFields(
     {name: 'tags',
      type: 'array',
      validator: function(v){return /^[a-z0-9]+$/i.test(v)}
      },
     false, 'profile');
 
-PuffForum.addMetaFields(
+PB.M.Forum.addMetaFields(
     {name: 'language',
      type: 'text',
      defaultValue: function(){return puffworldprops.view.language}});
 
-PuffForum.addMetaFields(
+PB.M.Forum.addMetaFields(
     {name: 'name',
      type: 'text'},
     'profile');

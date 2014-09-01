@@ -131,7 +131,7 @@ var HBidentity = React.createClass({
                                              'clusters.identity': true});
     },
     render: function() {
-        var name = PB.M.PuffWardrobe.getCurrentUsername();
+        var name = PB.M.Wardrobe.getCurrentUsername();
         var polyglot = Translate.language[puffworldprops.view.language];
         return (
             <span className="headerIcon relative">
@@ -146,8 +146,8 @@ var HBidentity = React.createClass({
 var HBscore = React.createClass({
 
     render: function() {
-        if(PB.M.PuffWardrobe.getCurrentUsername() != "") {
-            var score = calculateScore(PB.M.PuffWardrobe.getCurrentUsername());
+        if(PB.M.Wardrobe.getCurrentUsername() != "") {
+            var score = calculateScore(PB.M.Wardrobe.getCurrentUsername());
         } else {
             var score = 0;
         }

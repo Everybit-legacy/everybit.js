@@ -21,6 +21,7 @@ PB.M.Forum.graph = {};
 PB.M.Forum.newPuffCallbacks = [];
 PB.M.Forum.contentTypes = {}
 
+
 /**
  * set up everything
  */

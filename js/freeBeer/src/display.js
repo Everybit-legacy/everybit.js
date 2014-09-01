@@ -433,17 +433,12 @@ var PuffWorld = React.createClass({
         */
 
         if( viewprops.mode == 'focus' ) {
-            view = <PuffTallTree    view={viewprops} reply={this.props.reply} />
+            view = <PuffTallTree view={viewprops} reply={this.props.reply} />
             document.body.style.overflowY = "hidden"
         }
 
         else if( viewprops.mode == 'list' ) {
-            view = <PuffList        view={viewprops} reply={this.props.reply} />
-            document.body.style.overflowY = "hidden"
-        }
-
-        else if( viewprops.mode == 'PuffPacker' ) {
-            view = <PuffPacker      tools={this.props.tools} />
+            view = <PuffList view={viewprops} reply={this.props.reply} />
             document.body.style.overflowY = "hidden"
         }
 
@@ -452,7 +447,13 @@ var PuffWorld = React.createClass({
             document.body.style.overflowY = "auto"
         }
 
+        else if( viewprops.mode == 'PuffPacker' ) {
+            view = <PuffPacker      tools={this.props.tools} />
+            document.body.style.overflowY = "hidden"
+        }
 
+        // THINK: is this else clause being overridden somewhere? can we remove it?
+        
         else {  // no mode? smash cut to default puff.
             var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
             events.pub('ui/mode/default', { 'view': puffworlddefaults.view

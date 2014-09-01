@@ -30,7 +30,9 @@ var HeaderBar = React.createClass({
                 {' '} <HBscore />
                 {' '} <HBidentity />
                 {' '} <HBFilters />
-                {' '} <HBsort /><HBCurrentFilters />
+                {' '} <HBsort />
+                {' '} <HBroots />
+                <HBCurrentFilters />
             </div>
             )
     }
@@ -456,5 +458,33 @@ var HBsort = React.createClass({
     }
 })
 
+
+var HBroots = React.createClass({
+    mixins: [TooltipMixin],
+    handleToggleShowRoots: function() {
+        var showRoots = puffworldprops.view.query.roots
+        events.pub("ui/query/roots", {'view.query.roots': !showRoots});
+        return false;
+    },
+    render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language];
+        var showRoots = puffworldprops.view.query.roots
+        if(showRoots) {
+            var className = "fa btn green fa-dot-circle-o"
+            var tooltipId = 'menu.tooltip.show_roots_true'
+        } else {
+            var className = "fa btn gray fa-dot-circle-o"
+            var tooltipId = 'menu.tooltip.show_roots_false'
+        }
+
+
+        return (
+            <span className="relative">
+                <a href="#" onClick={this.handleToggleShowRoots}><i className={className}></i></a>{' '}
+                <Tooltip position="under" content={polyglot.t(tooltipId)} />
+            </span>
+            )
+    }
+})
 
 

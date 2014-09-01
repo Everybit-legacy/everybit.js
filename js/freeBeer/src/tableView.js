@@ -100,10 +100,12 @@ var RowRenderMixin = {
 		</span>
 	},
 	renderDate: function() {
-		var puff = this.props.puff;
-		var date = new Date(puff.payload.time);
+		var puff = this.props.puff
+		var date = new Date(puff.payload.time)
 
-        return <span>{date.yyyymmdd()}</span>;
+        return <span>{timeSince(date)} ago</span>
+
+        // return <span>{date.yyyymmdd()}</span>;
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString();
 	},
 
@@ -562,7 +564,7 @@ var RowSingle = React.createClass({
 		var self = this;
 
 		// var height = this.computeRowHeight();
-		var maxHeight = (puffworldprops.view.rows * 1.4) + 1; // +1 for padding
+		var maxHeight = puffworldprops.view.table.maxRowHeight;
 		if (puffworldprops.view.table.bar.expand == puff.sig) {
 			maxHeight = 0;
 		}

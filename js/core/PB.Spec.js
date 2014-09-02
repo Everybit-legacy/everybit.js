@@ -19,6 +19,7 @@ PB.Spec.Puff.validateUsername = function(username) {
 
 }
 
+
 /**
  * to validate the payload key
  * @param  {string} key
@@ -64,7 +65,7 @@ PB.Spec.Puff.validate = function(puff) {
  * @param {string} username
  * @returns {boolean}
  */
-PB.Spec.isValidUsername function(username) {
+PB.Spec.isValidUsername = function(username) {
     if (!username.match(/^[A-Za-z0-9]+$/)) {
         return false;
     } else {
@@ -77,7 +78,7 @@ PB.Spec.isValidUsername function(username) {
  * @param {string} publicKey
  * @returns {boolean}
  */
-PB.Spec.isValidPublicKey function(publicKey) {
+PB.Spec.isValidPublicKey = function(publicKey) {
     if(!isset(publicKey)) {
         return false;
     } else {
@@ -91,7 +92,7 @@ PB.Spec.isValidPublicKey function(publicKey) {
  * @param {string} privateKey
  * @returns {boolean}
  */
-PB.Spec.isValidPrivateKey function(privateKey) {
+PB.Spec.isValidPrivateKey = function(privateKey) {
     if(!isset(privateKey)) {
         return false;
     } else {
@@ -100,7 +101,7 @@ PB.Spec.isValidPrivateKey function(privateKey) {
 }
 
 // TODO implement
-PB.Spec.isValidPid function(pid) {
+PB.Spec.isValidPid = function(pid) {
     // Validate puff id in terms of characters
 
 }

@@ -56,7 +56,7 @@ var HBpublish = React.createClass({
     },
 
     render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language]
         if(puffworldprops.header.publish.show)
             var pulldown = <PublishPulldown />
         else
@@ -79,12 +79,12 @@ var HBviewType = React.createClass({
     mixins: [TooltipMixin],
 
     handleShowView: function (mode) {
-        var jsonToSet = {};
+        var jsonToSet = {}
         jsonToSet['view.mode'] = mode;
         if (mode == 'tableView') {
-            jsonToSet['view.table.format'] = 'list';
+            jsonToSet['view.table.format'] = 'list'
         }
-        return Events.pub('ui/view/mode', jsonToSet);
+        return Events.pub('ui/view/mode', jsonToSet)
     },
 
 
@@ -193,39 +193,39 @@ var HBFilterBubble = React.createClass({
     mixins: [TooltipMixin],
     handleRemoveFilter: function(toRemove) {
         // TODO: Remove this value from the props array
-        var filterPath  = 'view.filters.' + this.props.filterName;
-        var filterValue = Boron.shallow_copy(this.props.filterValue);       // don't mutate props
+        var filterPath  = 'view.filters.' + this.props.filterName
+        var filterValue = Boron.shallow_copy(this.props.filterValue)       // don't mutate props
         // var propPiece = puffworldprops.filter[this.props.filterName];
 
-        var index = filterValue.indexOf(toRemove);
+        var index = filterValue.indexOf(toRemove)
         if(index >= 0) {
-            filterValue.splice(index, 1);
-            var propsMod = {};
-            propsMod[filterPath] = filterValue;
-            propsMod['view.mode'] = puffworldprops.view.mode; // KEEP THE SAME!
-            return Events.pub('filter/remove', propsMod);
+            filterValue.splice(index, 1)
+            var propsMod = {}
+            propsMod[filterPath] = filterValue
+            propsMod['view.mode'] = puffworldprops.view.mode // KEEP THE SAME!
+            return Events.pub('filter/remove', propsMod)
         }
 
         return false;
     },
     componentDidUpdate: function(prevProp) {
         if (prevProp.filterValue != this.props.filterValue) {
-            TooltipMixin.componentDidMount.bind(this)();
+            TooltipMixin.componentDidMount.bind(this)()
         }
     },
 
     render: function() {
         if(Array.isArray(this.props.filterValue))
-            var filterArray = this.props.filterValue;
+            var filterArray = this.props.filterValue
         else
             var filterArray = [this.props.filterValue]
 
-        if (filterArray.length == 0) return <span></span>;
+        if (filterArray.length == 0) return <span></span>
 
-        var polyglot = Translate.language[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language]
         
-        var self = this;
-        var isUsername = this.props.filterName == "routes" || this.props.filterName == "users";
+        var self = this
+        var isUsername = this.props.filterName == "routes" || this.props.filterName == "users"
         return (
             <span>
                 {filterArray.map(function(value) {
@@ -463,7 +463,7 @@ var HBroots = React.createClass({
     mixins: [TooltipMixin],
     handleToggleShowRoots: function() {
         var showRoots = puffworldprops.view.query.roots
-        events.pub("ui/query/roots", {'view.query.roots': !showRoots});
+        Events.pub("ui/query/roots", {'view.query.roots': !showRoots})
         return false;
     },
     render: function() {

@@ -122,7 +122,7 @@ Translate.language["zh"].extend({
             expand: '扩大puff以单行显示',
             compress: '将puff缩回默认大小',
             copy:'将此puff加工前的内容拷贝到回复框',
-            disable_reporting: "我们追踪您对本网站的使用。选中禁止追踪。",
+            disable_reporting: "我们追踪您对本网站的使用。选中禁止追踪。"
         }
 	},
 	replyForm: {

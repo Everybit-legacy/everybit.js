@@ -249,7 +249,7 @@ var HBFilterBubble = React.createClass({
                                 <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                                     <i className="fa fa-times-circle-o fa-fw"></i>
                                 </a>
-                                <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
+                                <Tooltip position="under" content={polyglot.t("menu.tooltip.remove_filter")} />
                             </span>
                         </span>
                     )

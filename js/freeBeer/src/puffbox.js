@@ -206,7 +206,7 @@ var PuffBar = React.createClass({
                         else return <span key={i}>•</span>
                     })}
                 </a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.seeMore")} />
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.see_more")} />
             </span>
         )
 
@@ -255,7 +255,7 @@ var PuffViewImage = React.createClass({
         return (
             <span className ="icon">
                 <a href={puff.payload.content} target="new"><i className="fa fa-search-plus fa-fw"></i></a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.viewImage")}/>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.view_image")}/>
             </span>
         )
     }
@@ -326,7 +326,7 @@ var PuffFlagLink = React.createClass({
             return (
                 <span>
                     <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
-                    <Tooltip position="above" content={polyglot.t("menu.tooltip.flagLink")} />
+                    <Tooltip position="above" content={polyglot.t("menu.tooltip.flag_link")} />
                 </span>
             )
         } else {
@@ -567,7 +567,7 @@ var PuffViewRaw = React.createClass({
                 <a href="#" onClick={this.handleClick}>
                     <i className={newClass}></i>
                 </a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.viewRaw")}/>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.view_raw")}/>
             </span>
         )
     }
@@ -623,7 +623,7 @@ var PuffPermaLink = React.createClass({
                 <a href={'#' + this.props.sig} onClick={this.handleClick}>
                     <i className="fa fa-link fa-fw"></i>
                 </a>
-                <Tooltip position="above" content={polyglot.t("menu.tooltip.permaLink")}/>
+                <Tooltip position="above" content={polyglot.t("menu.tooltip.permalink")}/>
             </span>
         )
     }

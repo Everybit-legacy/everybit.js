@@ -847,8 +847,8 @@ var PuffPublishFormEmbed = React.createClass({
             if(envelope && envelope.keys)
                 privacyDefault = "private"
                 
-            if(parent.payload.replyPrivacy)
-                privacyDefault = parent.payload.replyPrivacy
+            if(parent.payload.reply_privacy)
+                privacyDefault = parent.payload.reply_privacy
 
             // by default we include all parent users in the reply
             /*var parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
@@ -905,7 +905,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var sendtoInput = (
             <span>
-                <input type="text" className="btn" style={sendtoInputStyle} name="username" ref="username" placeholder={polyglot.t("replyForm.sendToPh")} onKeyDown={this.handleSendtoInput} onBlur={this.addUsername}></input>
+                <input type="text" className="btn" style={sendtoInputStyle} name="username" ref="username" placeholder={polyglot.t("replyForm.send_to_ph")} onKeyDown={this.handleSendtoInput} onBlur={this.addUsername}></input>
             </span>
         )
         var self = this
@@ -923,7 +923,7 @@ var PuffPublishFormEmbed = React.createClass({
                         </span>
                     )
                 })}<br/>
-                <span style={leftColStyle}>{polyglot.t("replyForm.sendTo")}: </span>
+                <span style={leftColStyle}>{polyglot.t("replyForm.send_to")}: </span>
                 {sendtoInput}
                 <a href="#" onClick={this.addUsername}><i className="fa fa-fw fa-plus-circle"></i></a>
                 <div className="message red">{this.state.usernameError}</div>
@@ -952,20 +952,20 @@ var PuffPublishFormEmbed = React.createClass({
             supportedPrivacy = ['public', 'private']
         var privacyOption = (
             <span ref="privacy" id="privacyDiv" className="icon">
-                {polyglot.t("replyForm.privacyOption")}: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
+                {polyglot.t("replyForm.privacy_option")}: <span className="relative" style={{width: '150px', display: 'inline-block'}}>
                 {supportedPrivacy.map(function(p){
                     var color = privacyDefault == p ? 'green' : 'black'
                     return (
                         <span key={p}>
                             <button className={'btn ' + color} value={p}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
-                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
+                            <Tooltip position="above" content={polyglot.t("replyForm.p_options."+p)} />
                         </span>)
                 })}</span>
             </span>
         )
 
         var contentField = (
-            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.textareaPh')} defaultValue={defaultContent} style={contentStyle} onChange={this.updateContent} />
+            <textarea id="content" ref="content" name="content" className="mousetrap" placeholder={polyglot.t('replyForm.text_area_ph')} defaultValue={defaultContent} style={contentStyle} onChange={this.updateContent} />
         )
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value
@@ -1017,28 +1017,28 @@ var PuffPublishFormEmbed = React.createClass({
         if (this.state.err) errorField =  <span className="red" style={{fontWeight: 'bold'}}>{this.state.err}<br /></span>
 
         /*
-        var replyPrivacy = this.state.advancedOpt.replyPrivacy;
+        var reply_privacy = this.state.advancedOpt.reply_privacy;
         var replyPrivacyOption = (
-            <span ref="replyPrivacy" className="icon" style={{display: 'block'}}>
-                {polyglot.t("replyForm.advanced.replyPrivacy")}: 
+            <span ref="reply_privacy" className="icon" style={{display: 'block'}}>
+                {polyglot.t("replyForm.advanced.reply_privacy")}:
                 <span className="relative" style={{display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
-                    var color = replyPrivacy == p ? 'green' : 'black';
+                    var color = reply_privacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
                     return (
                         <span>
                             <button className={'btn ' + color} value={p} onClick={handleClick}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
-                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
+                            <Tooltip position="above" content={polyglot.t("replyForm.p_options."+p)} />
                         </span>)
                 })}
                 </span>
             </span>
             );
-        var licenseDefault = this.state.advancedOpt.contentLicense || "";
+        var licenseDefault = this.state.advancedOpt.content_license || "";
         var licenseOption = (
             <div>
-                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
-                <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.content_license")}</span>
+                <select style={rightColStyle} ref="content_license" className="btn" name="content_license" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
                     <option value=""></option>
                     <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
                     <option value="GNUPublicLicense">GNU Public License</option>
@@ -1071,7 +1071,7 @@ var PuffPublishFormEmbed = React.createClass({
                 <div className='replyFormBox relative'>
                     {contentTab}{previewTab} {sendButton}
                     {contentField}
-                    {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bbcodeMsg")}<br/></span>) : ""}
+                    {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bb_code_msg")}<br/></span>) : ""}
                     {errorField}
                     Type: {typeOption}{' '}{this.state.showPreview ? "" : discardBtn}
                     {advancedField}

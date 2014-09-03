@@ -468,7 +468,7 @@ var RowHeader = React.createClass({
 						</a>
 					</span>
 				</span>
-					<Tooltip content={polyglot.t("tableview.tooltip.colOptions")} />
+					<Tooltip content={polyglot.t("tableview.tooltip.col_options")} />
 				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
@@ -969,7 +969,7 @@ var RowExpand = React.createClass({
                 <a href="#" onClick={this.handleClick}>
                     <i className={"fa fa-fw fa-"+expand}></i>
                 </a>
-                <Tooltip position="above" content={polyglot.t("tableview.tooltip.rowExpand")} />
+                <Tooltip position="above" content={polyglot.t("tableview.tooltip.row_expand")} />
             </span>
         )
     }

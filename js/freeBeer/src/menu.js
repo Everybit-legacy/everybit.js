@@ -321,7 +321,7 @@ var FilterBubble = React.createClass({
                             <a href="#" onClick={self.handleRemoveFilter.bind(self, value)}>
                             <i className="fa fa-times-circle-o fa-fw"></i>
                             </a>
-                            <Tooltip position="under" content={polyglot.t("menu.tooltip.removeFilter")} />
+                            <Tooltip position="under" content={polyglot.t("menu.tooltip.remove_filter")} />
                         </span>
                     </span>
                 )
@@ -606,7 +606,7 @@ var PreferencesMenu = React.createClass({
                 <div className="menuItem">
                 {polyglot.t("menu.preferences.language")}: <select ref="picklanguage" onChange={this.handlePickLanguage} defaultValue={language}>
                     {all_languages.map(function(lang) {
-                        return <option key={lang} value={lang}>{Translate.language[lang].t("dropdownDisplay")}</option>
+                        return <option key={lang} value={lang}>{Translate.language[lang].t("drop_down_display")}</option>
                     })}
                 </select>
                 </div>
@@ -680,14 +680,14 @@ var ToolsMenu = React.createClass({
             <div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handlePackPuffs}>{polyglot.t("menu.tools.builder")}</a>
-                    <Tooltip content={polyglot.t("menu.tooltip.puffBuilder")} />
+                    <Tooltip content={polyglot.t("menu.tooltip.puff_builder")} />
                 </div>
                 <div className="menuItem">
                     <a href="#" onClick={this.handleRefresh}>Force update of content</a>
                 </div>
                 <Tooltip position='under' content={polyglot.t('header.tooltip.refresh')} />
                 <div className="menuItem">
-                    <a href="#" onClick={this.clearPuffShells}>{polyglot.t("menu.tools.clearCache")}</a>
+                    <a href="#" onClick={this.clearPuffShells}>{polyglot.t("menu.tools.clear_cache")}</a>
                 </div>
             </div>
         )
@@ -799,7 +799,7 @@ var AuthorPicker = React.createClass({
         // TODO: Need 2-way bind to prevent select from changing back every time you change it
         /*
         
-                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.usersFilter')} /></span>
+                    {' '}<span style={relativeStyle}><a href="#" onClick={this.handleViewUser}><i className="fa fa-search fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.users_filter')} /></span>
          */
         return (
             <div>
@@ -809,15 +809,15 @@ var AuthorPicker = React.createClass({
                             return <option key={username} value={username}>.{username}</option>
                         })}
                         </select>
-                    {' '}<span className="relative"><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.currentDelete')} /></span>
+                    {' '}<span className="relative"><a href="#" onClick={this.handleRemoveUser}><i className="fa fa-trash-o fa-fw"></i></a><Tooltip position="under" content={polyglot.t('menu.tooltip.current_delete')} /></span>
                 </div>
 
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleViewUser}>{polyglot.t("menu.view.showMine")}</a>
-                    <Tooltip content={polyglot.t("menu.tooltip.showMine")} />
+                    <a href="#" onClick={this.handleViewUser}>{polyglot.t("menu.view.show_mine")}</a>
+                    <Tooltip content={polyglot.t("menu.tooltip.show_mine")} />
                 </div>
                 <div className="menuItem">
-                    <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.showpuffs")}</a>
+                    <a href="#" onClick={this.handleShowPuffsForMe}>{polyglot.t("menu.view.show_puffs")}</a>
                     <Tooltip content={polyglot.t("menu.tooltip.showPuffs")} />
                 </div>
                 <div className="menuItem">
@@ -978,7 +978,7 @@ var SetIdentity = React.createClass({
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup'
         return (
             <div className={slide}>
-                <div className="message red">{polyglot.t("menu.identity.setIdentity.msg")}</div>
+                <div className="message red">{polyglot.t("menu.identity.set_identity.msg")}</div>
                 <div className="menuLabel">{polyglot.t("menu.identity.username")}:</div>
                 <div className="menuInput">
                     <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" />
@@ -1091,7 +1091,7 @@ var ViewIdentity = React.createClass({
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup'
         return (
             <div className={slide}>
-                <div className="message">{polyglot.t("menu.identity.viewIdentity.msg")}: <span className="authorSpan">.{currUser}</span>
+                <div className="message">{polyglot.t("menu.identity.view_identity.msg")}: <span className="authorSpan">.{currUser}</span>
                 </div>
 
                 <div><i className="fa fa-lock fa-fw gray"></i> {polyglot.t("menu.identity.private")}</div>
@@ -1208,7 +1208,7 @@ var NewIdentity = React.createClass({
 
         var usernameField = (
             <div>
-                <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.newIdentity.msg")}:</span></div><br/>
+                <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.new_identity.msg")}:</span></div><br/>
                 <div className = "menuItem">
                     <select ref="prefix">
                     {CONFIG.users.map(function(u) {
@@ -1270,7 +1270,7 @@ var NewIdentity = React.createClass({
                 <div>
                     <div className="message red">{polyglot.t("menu.identity.step.remember")}</div>
                 {publicKeyField}
-                    <a href="#" onClick={this.handleRegenerateKeys} >{polyglot.t("menu.identity.newIdentity.generate")}</a> {polyglot.t("menu.identity.newIdentity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
+                    <a href="#" onClick={this.handleRegenerateKeys} >{polyglot.t("menu.identity.new_identity.generate")}</a> {polyglot.t("menu.identity.new_identity.or")} <a href="#" onClick={this.handleConvertPrivatePublic} >{polyglot.t("menu.identity.private")}<span className="fa fa-long-arrow-right fa-fw"></span>{polyglot.t("menu.identity.public")}</a><br />
                 {privateKeyField}
                 </div>
                 )
@@ -1292,7 +1292,7 @@ var NewIdentity = React.createClass({
                 )
             if (!showNext || this.state.step > 1) nextField = ""
             if (this.state.step == 2) nextField = (
-                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.newIdentity.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
+                <a href="#" className="floatRight steps" onClick={this.handleUsernameRequest}>{polyglot.t("menu.identity.new_identity.submit")}<i className="fa fa-chevron-right fa-fw"></i></a>
                 )
 
             var backField = (
@@ -1357,7 +1357,7 @@ var NewIdentity = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language]
         if(!rootKeyPublic || !adminKeyPublic || !defaultKeyPublic) {
-            this.setState({errorMessage: polyglot.t("menu.identity.newIdentity.errorMissing")})
+            this.setState({errorMessage: polyglot.t("menu.identity.new_identity.error_missing")})
             return false
         }
 
@@ -1418,7 +1418,7 @@ var NewIdentity = React.createClass({
                 // store directly because we know they're valid
                 PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
                 self.setState({step: 3,
-                    errorMessage: polyglot.t("menu.identity.newIdentity.success")})
+                    errorMessage: polyglot.t("menu.identity.new_identity.success")})
 
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)

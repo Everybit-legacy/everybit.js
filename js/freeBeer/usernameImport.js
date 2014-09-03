@@ -1,6 +1,6 @@
 var UsernameImport = {};
 UsernameImport.update = function(loaded, created, total) {
-	document.getElementById("importContent").innerHTML = 
+	document.getElementById("import_content").innerHTML =
 			"Start import content...<br>" 
 			+ "Loaded: " + loaded + "/" + total + "<br>Created: " 
 			+ created + "/" + total + "<br>";
@@ -46,7 +46,7 @@ UsernameImport.instagram.collectData = function(result) {
 			this.importAllContent();
 		}
 	} else {
-		document.getElementById("importContent").innerHTML = "HTTP status code: " + result.meta.code;
+		document.getElementById("import_content").innerHTML = "HTTP status code: " + result.meta.code;
 		console.log(result.meta);
 	}
 }
@@ -97,7 +97,7 @@ UsernameImport.instagram.importAllContent = function() {
 				UsernameImport.update(loadedCount, createdCount, total);
 				// if all are created, redirect all contents published by this user
 				if (createdCount == total) {
-					document.getElementById("importContent").innerHTML = "Import finished.<br>";
+					document.getElementById("import_content").innerHTML = "Import finished.<br>";
 					var username = PB.M.Wardrobe.getCurrentUsername();
 					Events.pub("ui/show-imported-puff", {'view.mode': 'list',
 														 'view.filters': {},  

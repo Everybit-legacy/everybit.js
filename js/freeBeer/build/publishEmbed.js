@@ -102,44 +102,44 @@ var MetaInputContent = React.createClass({displayName: 'MetaInputContent',
             defaultValue = defaultValue()
 
         var contentStyle = {width: '100%', border: '1px solid'}
-        var field = React.DOM.input( {ref:"content", type:"text", className:"btn", placeholder:"content", style:contentStyle, defaultValue:defaultValue, onChange:this.handleInputChange})
+        var field = React.DOM.input({ref: "content", type: "text", className: "btn", placeholder: "content", style: contentStyle, defaultValue: defaultValue, onChange: this.handleInputChange})
         var self = this
         switch (type) {
             case "textarea":
-                field = React.DOM.textarea( {ref:"content", className:"btn", placeholder:"content", style:contentStyle})
+                field = React.DOM.textarea({ref: "content", className: "btn", placeholder: "content", style: contentStyle})
                 break
             case "pulldown":
                 field = 
-                    React.DOM.select( {ref:"content", className:"btn", defaultValue:defaultValue, style:contentStyle}, 
+                    React.DOM.select({ref: "content", className: "btn", defaultValue: defaultValue, style: contentStyle}, 
                         self.props.fieldInfo.enum.map(function(v){
-                            return React.DOM.option( {key:v, value:v}, v)
+                            return React.DOM.option({key: v, value: v}, v)
                         })
                     )
                 break
             case "array":
                 var inputStyle = Boron.shallow_copy(contentStyle)
                 inputStyle.width = "90%"
-                var newItemInput = React.DOM.input( {ref:"item", type:"text", className:"btn", placeholder:"new item", style:inputStyle, onKeyDown:this.handleArrayKeyDown, onChange:this.handleInputChange})
+                var newItemInput = React.DOM.input({ref: "item", type: "text", className: "btn", placeholder: "new item", style: inputStyle, onKeyDown: this.handleArrayKeyDown, onChange: this.handleInputChange})
                 field = 
                     React.DOM.div(null, 
                         self.state.array.map(function(value){
                             return (
-                                React.DOM.span( {key:value, className:"bubbleNode"}, 
-                                    value,
-                                    React.DOM.a( {href:"#", onClick:self.removeItem.bind(self, value)}, 
-                                        React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
+                                React.DOM.span({key: value, className: "bubbleNode"}, 
+                                    value, 
+                                    React.DOM.a({href: "#", onClick: self.removeItem.bind(self, value)}, 
+                                        React.DOM.i({className: "fa fa-times-circle-o fa-fw"})
                                     )
                                 )
                             )
-                        }),self.state.array.length ? React.DOM.br(null) : "",
-                        newItemInput,
-                        React.DOM.a( {href:"#", onClick:self.addItem}, React.DOM.i( {className:"fa fa-fw fa-plus-circle"}))
+                        }), self.state.array.length ? React.DOM.br(null) : "", 
+                        newItemInput, 
+                        React.DOM.a({href: "#", onClick: self.addItem}, React.DOM.i({className: "fa fa-fw fa-plus-circle"}))
                     )
                 break
             default:
                 break
         }
-        return React.DOM.span(null, field,React.DOM.span( {className:"red"}, this.state.msg))
+        return React.DOM.span(null, field, React.DOM.span({className: "red"}, this.state.msg))
     }
 })
 
@@ -200,23 +200,23 @@ var MetaInput = React.createClass({displayName: 'MetaInput',
         var contentStyle = {width: '100%', border: '1px solid'}
         var keyStyle = {marginRight: '5%', float: 'left', minWidth: '25%'}
         var key = this.props.metaKey
-        var keyField = React.DOM.input( {ref:"key", type:"text", className:"btn", placeholder:"key", size:"6", style:keyStyle, onChange:this.handleCheckKey})
+        var keyField = React.DOM.input({ref: "key", type: "text", className: "btn", placeholder: "key", size: "6", style: keyStyle, onChange: this.handleCheckKey})
         var type = this.props.type || 'text'
 
-        var contentField = MetaInputContent( {ref:"content", fieldInfo:{type: type}})
+        var contentField = MetaInputContent({ref: "content", fieldInfo: {type: type}})
 
         if (key) {
             var fieldInfo = PB.M.Forum.metaFields.filter(function(f){return f.name == key})
             if (fieldInfo && fieldInfo.length) {
                 fieldInfo = fieldInfo[0]
-                keyField = React.DOM.label( {ref:"key", style:keyStyle}, key)
-                contentField = MetaInputContent( {ref:"content", fieldInfo:fieldInfo} )
+                keyField = React.DOM.label({ref: "key", style: keyStyle}, key)
+                contentField = MetaInputContent({ref: "content", fieldInfo: fieldInfo})
             } 
         }
         return (
-            React.DOM.div( {className:"metaInput"}, 
-                keyField,' ',React.DOM.span( {style:{display: 'block', overflow: 'hidden', paddingRight: '5%'}}, contentField),
-                React.DOM.span( {className:"red"}, this.state.msg)
+            React.DOM.div({className: "metaInput"}, 
+                keyField, ' ', React.DOM.span({style: {display: 'block', overflow: 'hidden', paddingRight: '5%'}}, contentField), 
+                React.DOM.span({className: "red"}, this.state.msg)
             )
         )
     }
@@ -340,26 +340,26 @@ var MetaFields = React.createClass({displayName: 'MetaFields',
             var type = this.state.additionRows[i]
             var ref = "row"+i
             rows.push(
-                React.DOM.span( {key:ref}, 
-                    React.DOM.a( {href:"#", style:deleteRowStyle, onClick:self.handleDeleteRow.bind(self, ref)}, "X"),MetaInput( {key:ref, ref:ref, type:type} )
+                React.DOM.span({key: ref}, 
+                    React.DOM.a({href: "#", style: deleteRowStyle, onClick: self.handleDeleteRow.bind(self, ref)}, "X"), MetaInput({key: ref, ref: ref, type: type})
                 )
             )
         }
 
-        var addNewText = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'text'), value:"Add text", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
+        var addNewText = React.DOM.input({type: "button", className: "btn", onClick: this.handleAddNewRow.bind(this, 'text'), value: "Add text", style: {minWidth: '30%', marginRight: '3%', float: 'left'}})
 
-        var addNewTextarea = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'textarea'), value:"Add textarea", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
+        var addNewTextarea = React.DOM.input({type: "button", className: "btn", onClick: this.handleAddNewRow.bind(this, 'textarea'), value: "Add textarea", style: {minWidth: '30%', marginRight: '3%', float: 'left'}})
 
-        var addNewArray = React.DOM.input( {type:"button", className:"btn", onClick:this.handleAddNewRow.bind(this, 'array'), value:"Add array", style:{minWidth: '30%', marginRight: '3%', float: 'left'}})
+        var addNewArray = React.DOM.input({type: "button", className: "btn", onClick: this.handleAddNewRow.bind(this, 'array'), value: "Add array", style: {minWidth: '30%', marginRight: '3%', float: 'left'}})
         
         return (
             React.DOM.div(null, 
                 defaultFields.map(function(key){
                     var ref = StringConversion.toLowerCamelCase(key)
-                    return MetaInput( {key:ref, metaKey:key, ref:ref} )
-                }),
-                rows,
-                addNewText,addNewTextarea,addNewArray
+                    return MetaInput({key: ref, metaKey: key, ref: ref})
+                }), 
+                rows, 
+                addNewText, addNewTextarea, addNewArray
             )
         )
     }
@@ -847,8 +847,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
             if(envelope && envelope.keys)
                 privacyDefault = "private"
                 
-            if(parent.payload.replyPrivacy)
-                privacyDefault = parent.payload.replyPrivacy
+            if(parent.payload.reply_privacy)
+                privacyDefault = parent.payload.reply_privacy
 
             // by default we include all parent users in the reply
             /*var parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
@@ -892,8 +892,8 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
         /* components */
         var sendButton = (
-            React.DOM.span( {className:"linkTab"}, 
-            React.DOM.a( {href:"#", ref:"send", onClick:this.handleSubmit}, React.DOM.i( {className:"fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send"))
+            React.DOM.span({className: "linkTab"}, 
+            React.DOM.a({href: "#", ref: "send", onClick: this.handleSubmit}, React.DOM.i({className: "fa fa-paper-plane fa-fw"}), " ", polyglot.t("replyForm.send"))
             )
         )
         /* Recipient: username bubbles
@@ -905,41 +905,41 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         }
         var sendtoInput = (
             React.DOM.span(null, 
-                React.DOM.input( {type:"text", className:"btn", style:sendtoInputStyle, name:"username", ref:"username", placeholder:polyglot.t("replyForm.sendToPh"), onKeyDown:this.handleSendtoInput, onBlur:this.addUsername})
+                React.DOM.input({type: "text", className: "btn", style: sendtoInputStyle, name: "username", ref: "username", placeholder: polyglot.t("replyForm.send_to_ph"), onKeyDown: this.handleSendtoInput, onBlur: this.addUsername})
             )
         )
         var self = this
         var recipients = this.state.usernames.map(StringConversion.toDisplayUsername)
         var sendToField = (
             React.DOM.div(null, 
-                React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.recipient"),": " ),
+                React.DOM.span({style: leftColStyle}, polyglot.t("replyForm.recipient"), ": "), 
                 recipients.map(function(value){
                     return (
-                        React.DOM.span( {key:value, className:"bubbleNode"}, 
-                            value,
-                            React.DOM.a( {href:"#", onClick:self.removeUsername.bind(self, value)}, 
-                                React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
+                        React.DOM.span({key: value, className: "bubbleNode"}, 
+                            value, 
+                            React.DOM.a({href: "#", onClick: self.removeUsername.bind(self, value)}, 
+                                React.DOM.i({className: "fa fa-times-circle-o fa-fw"})
                             )
                         )
                     )
-                }),React.DOM.br(null),
-                React.DOM.span( {style:leftColStyle}, polyglot.t("replyForm.sendTo"),": " ),
-                sendtoInput,
-                React.DOM.a( {href:"#", onClick:this.addUsername}, React.DOM.i( {className:"fa fa-fw fa-plus-circle"})),
-                React.DOM.div( {className:"message red"}, this.state.usernameError)
+                }), React.DOM.br(null), 
+                React.DOM.span({style: leftColStyle}, polyglot.t("replyForm.send_to"), ": "), 
+                sendtoInput, 
+                React.DOM.a({href: "#", onClick: this.addUsername}, React.DOM.i({className: "fa fa-fw fa-plus-circle"})), 
+                React.DOM.div({className: "message red"}, this.state.usernameError)
             )
         )
 
         var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType
         var typeOption = (
-            React.DOM.select( {className:"btn", ref:"type", value:type, disabled:this.state.showPreview, onChange:this.handlePickType} , 
+            React.DOM.select({className: "btn", ref: "type", value: type, disabled: this.state.showPreview, onChange: this.handlePickType}, 
                 contentTypeNames.map(function(type) {
-                    return React.DOM.option( {key:type, value:type}, type)
+                    return React.DOM.option({key: type, value: type}, type)
                 })
             )
         )
         var discardBtn = (
-            React.DOM.a( {onClick:this.handleDiscard, href:"#"}, "Discard")
+            React.DOM.a({onClick: this.handleDiscard, href: "#"}, "Discard")
         )
         var privacyToIcon = {
             'public': 'fa-bullhorn',
@@ -951,21 +951,21 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         if (type == 'profile')
             supportedPrivacy = ['public', 'private']
         var privacyOption = (
-            React.DOM.span( {ref:"privacy", id:"privacyDiv", className:"icon"}, 
-                polyglot.t("replyForm.privacyOption"),": ", React.DOM.span( {className:"relative", style:{width: '150px', display: 'inline-block'}}, 
+            React.DOM.span({ref: "privacy", id: "privacyDiv", className: "icon"}, 
+                polyglot.t("replyForm.privacy_option"), ": ", React.DOM.span({className: "relative", style: {width: '150px', display: 'inline-block'}}, 
                 supportedPrivacy.map(function(p){
                     var color = privacyDefault == p ? 'green' : 'black'
                     return (
-                        React.DOM.span( {key:p}, 
-                            React.DOM.button( {className:'btn ' + color, value:p}, React.DOM.i( {className:"fa fa-fw "+privacyToIcon[p]})),
-                            Tooltip( {position:"above", content:polyglot.t("replyForm.pOptions."+p)} )
+                        React.DOM.span({key: p}, 
+                            React.DOM.button({className: 'btn ' + color, value: p}, React.DOM.i({className: "fa fa-fw "+privacyToIcon[p]})), 
+                            Tooltip({position: "above", content: polyglot.t("replyForm.p_options."+p)})
                         ))
                 }))
             )
         )
 
         var contentField = (
-            React.DOM.textarea( {id:"content", ref:"content", name:"content", className:"mousetrap", placeholder:polyglot.t('replyForm.textareaPh'), defaultValue:defaultContent, style:contentStyle, onChange:this.updateContent} )
+            React.DOM.textarea({id: "content", ref: "content", name: "content", className: "mousetrap", placeholder: polyglot.t('replyForm.text_area_ph'), defaultValue: defaultContent, style: contentStyle, onChange: this.updateContent})
         )
         if (this.state.showPreview) {
             var currentType = this.props.reply.type || this.refs.type.getDOMNode().value
@@ -977,24 +977,24 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
 
             currentContent = PB.M.Forum.processContent(currentType, currentContent, {})
             contentField = (
-                React.DOM.div( {style:contentStyle, id:"preview", ref:"preview", name:"preview", dangerouslySetInnerHTML:{__html: currentContent}})
+                React.DOM.div({style: contentStyle, id: "preview", ref: "preview", name: "preview", dangerouslySetInnerHTML: {__html: currentContent}})
             )
         }
         // TODO: Did I hear someone say switch?
         // TODO: move this in to the content type handlers
         if (type == 'image' || type == 'profile') {
             // emply src will show no image icon in firefox
-            var imageField = (React.DOM.img( {id:"preview_image", width:"100%", height:"1px"}))
+            var imageField = (React.DOM.img({id: "preview_image", width: "100%", height: "1px"}))
             if (this.state.imageSrc) {
-                imageField = (React.DOM.img( {src:this.state.imageSrc, id:"preview_image"} ))
+                imageField = (React.DOM.img({src: this.state.imageSrc, id: "preview_image"}))
             }
             contentField = (
                 React.DOM.div(null, 
-                    React.DOM.div( {style:{marginLeft: '10px'}}, 
-                        React.DOM.div( {style:{display: 'inline-block'}}, polyglot.t("replyForm.format." + type+'File'),":",
-                        React.DOM.input( {type:"file", id:"imageLoader", name:"imageLoader", ref:"imageLoader", onChange:this.handleImageLoad}))
-                    ),
-                    React.DOM.br(null ),imageField
+                    React.DOM.div({style: {marginLeft: '10px'}}, 
+                        React.DOM.div({style: {display: 'inline-block'}}, polyglot.t("replyForm.format." + type+'File'), ":", 
+                        React.DOM.input({type: "file", id: "imageLoader", name: "imageLoader", ref: "imageLoader", onChange: this.handleImageLoad}))
+                    ), 
+                    React.DOM.br(null), imageField
                 )
             )
         }
@@ -1002,43 +1002,43 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         // tabs
         /* content | preview |   send to */
         var contentTab = (
-            React.DOM.span( {className:this.state.showPreview ? "linkTab" : "linkTabHighlighted", onClick:this.handleContentTab}, 
+            React.DOM.span({className: this.state.showPreview ? "linkTab" : "linkTabHighlighted", onClick: this.handleContentTab}, 
                 "Content"
             )
         )
         var previewTab = (
-            React.DOM.span( {className:this.state.showPreview ? "linkTabHighlighted" : "linkTab", onClick:this.handlePreviewTab}, 
+            React.DOM.span({className: this.state.showPreview ? "linkTabHighlighted" : "linkTab", onClick: this.handlePreviewTab}, 
                 "Preview"
             )
         )
         if (type == 'image' || type == 'profile') previewTab = React.DOM.span(null)
 
         var errorField = ""
-        if (this.state.err) errorField =  React.DOM.span( {className:"red", style:{fontWeight: 'bold'}}, this.state.err,React.DOM.br(null ))
+        if (this.state.err) errorField =  React.DOM.span({className: "red", style: {fontWeight: 'bold'}}, this.state.err, React.DOM.br(null))
 
         /*
-        var replyPrivacy = this.state.advancedOpt.replyPrivacy;
+        var reply_privacy = this.state.advancedOpt.reply_privacy;
         var replyPrivacyOption = (
-            <span ref="replyPrivacy" className="icon" style={{display: 'block'}}>
-                {polyglot.t("replyForm.advanced.replyPrivacy")}: 
+            <span ref="reply_privacy" className="icon" style={{display: 'block'}}>
+                {polyglot.t("replyForm.advanced.reply_privacy")}:
                 <span className="relative" style={{display: 'inline-block'}}>
                 {Object.keys(privacyToIcon).map(function(p){
-                    var color = replyPrivacy == p ? 'green' : 'black';
+                    var color = reply_privacy == p ? 'green' : 'black';
                     var handleClick = self.handlePickReplyPrivacy.bind(self, p);
                     return (
                         <span>
                             <button className={'btn ' + color} value={p} onClick={handleClick}><i className={"fa fa-fw "+privacyToIcon[p]}></i></button>
-                            <Tooltip position="above" content={polyglot.t("replyForm.pOptions."+p)} />
+                            <Tooltip position="above" content={polyglot.t("replyForm.p_options."+p)} />
                         </span>)
                 })}
                 </span>
             </span>
             );
-        var licenseDefault = this.state.advancedOpt.contentLicense || "";
+        var licenseDefault = this.state.advancedOpt.content_license || "";
         var licenseOption = (
             <div>
-                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.contentLicense")}</span>
-                <select style={rightColStyle} ref="contentLicense" className="btn" name="contentLicense" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
+                <span style={leftColStyle}>{polyglot.t("replyForm.advanced.content_license")}</span>
+                <select style={rightColStyle} ref="content_license" className="btn" name="content_license" defaultValue={licenseDefault} onChange={this.handlePickAdvancedOpt}>
                     <option value=""></option>
                     <option value="CreativeCommonsAttribution">Creative Commons Attribution</option>
                     <option value="GNUPublicLicense">GNU Public License</option>
@@ -1056,24 +1056,24 @@ var PuffPublishFormEmbed = React.createClass({displayName: 'PuffPublishFormEmbed
         var chevronIcon = this.state.showAdvanced ? 'fa-chevron-circle-down' : 'fa-chevron-circle-left'
         var advancedField = (
             React.DOM.div(null, 
-                React.DOM.span(null, polyglot.t("replyForm.advanced.title"),React.DOM.a( {href:"#", onClick:this.handleShowAdvanced}, React.DOM.i( {className:"fa fa-fw "+chevronIcon}))),React.DOM.br(null),
-                React.DOM.div( {style:{display: this.state.showAdvanced ? 'block' : 'none'}}, 
-                    sendToField,
-                    privacyOption,
-                    MetaFields(  {ref:"meta", type:type} )
+                React.DOM.span(null, polyglot.t("replyForm.advanced.title"), React.DOM.a({href: "#", onClick: this.handleShowAdvanced}, React.DOM.i({className: "fa fa-fw "+chevronIcon}))), React.DOM.br(null), 
+                React.DOM.div({style: {display: this.state.showAdvanced ? 'block' : 'none'}}, 
+                    sendToField, 
+                    privacyOption, 
+                    MetaFields({ref: "meta", type: type})
                 )
             )
         )
 
         var className = privacyDefault == 'public' ? "replyFormEmbed" : "replyFormEmbed encrypted"
         return (
-            React.DOM.div( {className:className}, 
-                React.DOM.div( {className:"replyFormBox relative"}, 
-                    contentTab,previewTab, " ", sendButton,
-                    contentField,
-                    type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bbcodeMsg"),React.DOM.br(null))) : "",
-                    errorField,
-                    "Type: ", typeOption,' ',this.state.showPreview ? "" : discardBtn,
+            React.DOM.div({className: className}, 
+                React.DOM.div({className: "replyFormBox relative"}, 
+                    contentTab, previewTab, " ", sendButton, 
+                    contentField, 
+                    type == "bbcode" ? (React.DOM.span(null, polyglot.t("replyForm.format.bb_code_msg"), React.DOM.br(null))) : "", 
+                    errorField, 
+                    "Type: ", typeOption, ' ', this.state.showPreview ? "" : discardBtn, 
                     advancedField
                 )
             )

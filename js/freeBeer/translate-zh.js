@@ -1,7 +1,7 @@
 
 Translate.language["zh"] = new Polyglot({locale:"zh"});
 Translate.language["zh"].extend({
-	dropdownDisplay: '中文'
+	drop_down_display: '中文'
 });
 Translate.language["zh"].extend({
 	alert: {
@@ -15,8 +15,8 @@ Translate.language["zh"].extend({
 			latest: "最近",
 			collection: '特别收藏',
 			shortcut: "快捷键",
-			showMine: '我发送的puff',
-            showpuffs:"发送给我的puff"
+			show_mine: '我发送的puff',
+            show_puffs:"发送给我的puff"
 		},
 		filters: {
 			title: '筛选',
@@ -35,7 +35,7 @@ Translate.language["zh"].extend({
 		},
 		publish: {
 			title: '发布',
-			newPuff: "新建"
+			new_puff: "新建"
 		},
 		identity: {
 			title: '身份',
@@ -47,21 +47,21 @@ Translate.language["zh"].extend({
 			default: '默认',
 			admin: '管理',
 			root: '根',
-			newIdentity: {
+			new_identity: {
 				title: '新建身份',
 				msg: '新用户名',
 				generate: '生成',
 				or: '或者',
-				errorMissing: '在提交之前必须设定好所有的公钥。',
+				error_missing: '在提交之前必须设定好所有的公钥。',
 				success: '成功!',
 				submit: '提交新用户名',
-				importContent: '导入内容'
+				import_content: '导入内容'
 			},
 			editIdentity: {
 				title: '查看身份',
 				msg: '已储存的用户密钥'
 			},
-			setIdentity: {
+			set_identity: {
 				title: '设定身份',
 				msg: '将密匙储存在当前浏览器里。若想发布信息只需要设置默认密钥。'
 			},
@@ -85,7 +85,7 @@ Translate.language["zh"].extend({
 		tools: {
 			title: '高级工具',
 			builder: "生成",
-			clearCache: '清除已缓存的puff'
+			clear_cache: '清除已缓存的puff'
 		},
         tooltip:{
             roots:'显示最新的根puff',
@@ -93,32 +93,32 @@ Translate.language["zh"].extend({
             collection:'显示特别收藏',
             shortcut:'查看本站的所有快捷鍵',
             showPuffs:'显示发送给我的puff',
-            showMine: '显示我发送的puff',
+            show_mine: '显示我发送的puff',
             relationship:'显示/隐藏puff之间的关联',
             animation:'启用/禁止动画',
             infobar:'显示/隐藏所有puff的信息栏',
-            setIdentity: '贮存密钥',
+            set_identity: '贮存密钥',
             editIdentity: '查看当前密钥',
-            newIdentity: '创建新身份',
-            newPuff:'发布一个新的puff',
+            new_identity: '创建新身份',
+            new_puff:'发布一个新的puff',
             generate: '随机生成一个新用户名',
             code:'在GitHub查看源代码',
-            puffBuilder:'显示puff生成器',
-            tagsFilter: '显示有此标记的puff',
-            routesFilter: '显示此路径的puff',
+            puff_builder:'显示puff生成器',
+            tags_filter: '显示有此标记的puff',
+            routes_filter: '显示此路径的puff',
             routeErase: '取消选择本路径',
-            usersFilter: '显示此用户的所有puff',
+            users_filter: '显示此用户的所有puff',
             userErase: '取消选择本用户名',
-            currentDelete:'在本浏览器中删除此用户',
-            viewImage: '显示大图',
+            current_delete:'在本浏览器中删除此用户',
+            view_image: '显示大图',
             parent:'显示本puff的上级',
             children:'显示本puff的下级',
             reply:'回复本puff',
-            seeMore:'显示更多选项',
-            viewRaw:'显示未加工前的代码',
+            see_more:'显示更多选项',
+            view_raw:'显示未加工前的代码',
             json:'显示本puff的JSON代码',
-            permaLink:'本puff的文本链接',
-            flagLink: '标记为移除。如果你生成了这个puff，这将发送移除申请。',
+            permalink:'本puff的文本链接',
+            flag_link: '标记为移除。如果你生成了这个puff，这将发送移除申请。',
             expand: '扩大puff以单行显示',
             compress: '将puff缩回默认大小',
             copy:'将此puff加工前的内容拷贝到回复框',
@@ -127,21 +127,21 @@ Translate.language["zh"].extend({
 	},
 	replyForm: {
 		recipient: '收件人',
-        sendTo: '发送给',
-        sendToPh: '所有人',
-		textareaPh: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
+        send_to: '发送给',
+        send_to_ph: '所有人',
+		text_area_ph: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
 		send: '发送',
 		preview: '预览',
 		format: {
 			text: '文字',
 			image: '图片',
-			bbcodeMsg: '你可以使用BBCode格式的标签',
-			imageFile: '图片文件',
-			imageChosen: '没有选中文件',
-			contentLicense: '内容许可'
+			bb_code_msg: '你可以使用BBCode格式的标签',
+			image_file: '图片文件',
+			image_chosen: '没有选中文件',
+			content_license: '内容许可'
 		},
-        privacyOption: '隐私',
-        pOptions: {
+        privacy_option: '隐私',
+        p_options: {
             public: '公开 (所有人可见)',
             private: '私密 (内容是加密的)',
             anonymous: '匿名 (加密及匿名的)',
@@ -149,8 +149,8 @@ Translate.language["zh"].extend({
         },
         advanced: {
         	title: '高级选项',
-			contentLicense: '内容许可',
-			replyPrivacy: '回复隐私'
+			content_license: '内容许可',
+			reply_privacy: '回复隐私'
         }
 	},
 	footer: {

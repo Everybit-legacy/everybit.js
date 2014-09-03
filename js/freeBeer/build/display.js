@@ -5,83 +5,83 @@ var PuffBarShortcutMixin = {
     componentDidMount: function() {
         // shift+f bomb the cursor puff
         Mousetrap.bind(['shift+f'], function(){
-            var cursor = puffworldprops.view.cursor;
-            var bar = this.refs[cursor].refs['bar'];
+            var cursor = puffworldprops.view.cursor
+            var bar = this.refs[cursor].refs['bar']
             if (bar.refs.flag)
-                bar.refs.flag.handleFlagRequest();
-        }.bind(this));
+                bar.refs.flag.handleFlagRequest()
+        }.bind(this))
 
         // shift+i toggle the infobar for the cursored puff only
         Mousetrap.bind(['shift+i'], function(){
-            var cursor = puffworldprops.view.cursor;
-            var bar = this.refs[cursor].refs['bar'];
-            var author = this.refs[cursor].refs['author'];
-            var className = ' ' + bar.getDOMNode().className + ' ';
+            var cursor = puffworldprops.view.cursor
+            var bar = this.refs[cursor].refs['bar']
+            var author = this.refs[cursor].refs['author']
+            var className = ' ' + bar.getDOMNode().className + ' '
             if (className.indexOf(' hidden ') == -1) {
-                bar.getDOMNode().className += ' hidden';
-                author.getDOMNode().className += ' hidden';
+                bar.getDOMNode().className += ' hidden'
+                author.getDOMNode().className += ' hidden'
             } else {
-                bar.getDOMNode().className = className.replace(' hidden ', '');
-                var authorClassName = ' ' + author.getDOMNode().className + ' ';
-                author.getDOMNode().className = authorClassName.replace(' hidden ', '');
+                bar.getDOMNode().className = className.replace(' hidden ', '')
+                var authorClassName = ' ' + author.getDOMNode().className + ' '
+                author.getDOMNode().className = authorClassName.replace(' hidden ', '')
             }
-        }.bind(this));
+        }.bind(this))
 
         // r replies to the cursored puff
         Mousetrap.bind('r', function() {
-            // if (puffworldprops.reply.preview) return false;
+            // if (puffworldprops.reply.preview) return false
             
-            var cursor = puffworldprops.view.cursor;
-            var bar = this.refs[cursor].refs['bar'];
+            var cursor = puffworldprops.view.cursor
+            var bar = this.refs[cursor].refs['bar']
             if (bar.refs.reply) {
-                bar.refs.reply.handleClick();
+                bar.refs.reply.handleClick()
             }
-            return false;
-        }.bind(this));
+            return false
+        }.bind(this))
     }
-};
+}
 
 var ViewKeybindingsMixin = {
     componentDidMount: function() {
         
         // n shows new puff form
         Mousetrap.bind('n', function() { 
-            // if (puffworldprops.reply.preview) return false;
+            // if (puffworldprops.reply.preview) return false
             
-            var menu = Boron.shallow_copy(puffworlddefaults.menu);
-            menu.show = true;
-            menu.section = 'publish';
+            var menu = Boron.shallow_copy(puffworlddefaults.menu)
+            menu.show = true
+            menu.section = 'publish'
 
             return Events.pub('ui/reply/open', { 'clusters.publish': true
                                                , 'menu': menu
-                                                });
-        }.bind(this));
+                                                })
+        }.bind(this))
 
         // a toggles animation
         Mousetrap.bind('a', function() {
             return Events.pub( 'ui/animation/toggle',
                              { 'view.animation': !this.props.view.animation })
-        }.bind(this));
+        }.bind(this))
         
         // i toggles info boxes
         Mousetrap.bind('i', function() { 
             return Events.pub( 'ui/view/showinfo/toggle', 
                              { 'view.showinfo': !this.props.view.showinfo })
-        }.bind(this));
+        }.bind(this))
 
         // m toggles menu show
         Mousetrap.bind('m', function() {
             return Events.pub('ui/menu/toggle', 
-                              {'menu.show': !puffworldprops.menu.show});
-        }.bind(this));
+                              {'menu.show': !puffworldprops.menu.show})
+        }.bind(this))
 
         // k go to keyboard shortcut
         Mousetrap.bind('k', function() {
-            var polyglot = Translate.language[puffworldprops.view.language];
+            var polyglot = Translate.language[puffworldprops.view.language]
             Events.pub('ui/view/rows/1', {'view.rows': 1})
-            showPuff(polyglot.t("puff.shortcut"));
-            return false;
-        }.bind(this));
+            showPuff(polyglot.t("puff.shortcut"))
+            return false
+        }.bind(this))
         
 
         // l shows latest puffs
@@ -95,45 +95,45 @@ var ViewKeybindingsMixin = {
                                                 , 'view.rows': showRows
                                                 , 'view.filters': {}
                                                 , 'view.query': puffworlddefaults.view.query
-                                                , 'menu': puffworlddefaults.menu});
-        }.bind(this));
+                                                , 'menu': puffworlddefaults.menu})
+        }.bind(this))
 
         // 1-9 controls number of rows
         Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) { 
             return Events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
-        }.bind(this));
+        }.bind(this))
 
         // Go with wide aspect ratio
         Mousetrap.bind('w', function(e) {
             return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
-        }.bind(this));
+        }.bind(this))
 
         // Go with tall aspect ratio
         Mousetrap.bind('t', function(e) {
             return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
-        }.bind(this));
+        }.bind(this))
 
         // Go square
         Mousetrap.bind('s', function(e) {
             return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
-        }.bind(this));
+        }.bind(this))
         
         // spacebar toggles arrow display
         Mousetrap.bind('space', function(e) { 
             return Events.pub( 'ui/relationships/toggle', 
                              { 'view.arrows': !this.props.view.arrows })
-        }.bind(this));
+        }.bind(this))
         
         // escape closes expand, else closes menu, else set cursor back to default (topleft for list mode, or focused puff for focus mode)
             //// NOT removes cursor, else pops up 'nothing to close' alert since we are setting the cursor to a default position when it is false
         Mousetrap.bind('esc', function(e) {
             if(puffworldprops.menu.popout) {
-                var section = puffworldprops.menu.popout;
+                var section = puffworldprops.menu.popout
                 return Events.pub('ui/close-popout', {'menu.popout': false,
                                                       'menu.show': true,
                                                       'menu.section': section})
 
-            };
+            }
 
             if(puffworldprops.slider.show)
                 return Events.pub('ui/slider/close', {'slider.show': false})
@@ -145,13 +145,13 @@ var ViewKeybindingsMixin = {
                 return Events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
 
             if(puffworldprops.view.cursor) {
-                var cursor = document.getElementById(puffworldprops.view.cursor);
-                cursor.className = cursor.className.replace(' cursor', '');
+                var cursor = document.getElementById(puffworldprops.view.cursor)
+                cursor.className = cursor.className.replace(' cursor', '')
                 return Events.pub('ui/menu/close', {'view.cursor': false})
             }
 
             // alert("I'm afraid there's nothing left to close!")
-        }.bind(this));
+        }.bind(this))
         
         // cmd-enter submits the reply box
         Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
@@ -162,7 +162,7 @@ var ViewKeybindingsMixin = {
             
             if(typeof globalReplyFormSubmitArg == 'function')
                 globalReplyFormSubmitArg()
-        }.bind(this));
+        }.bind(this))
         
         
         // we have to customize stopCallback to make cmd-enter work inside reply boxes
@@ -170,26 +170,26 @@ var ViewKeybindingsMixin = {
 
             // if the element has the class "mousetrap" AND the combo is command+enter or esc, then no need to stop
             if(~['command+enter', 'esc','ctrl+enter'].indexOf(combo) && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
-                return false;
+                return false
             }
 
             // stop for input, select, and textarea
-            return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || (element.contentEditable && element.contentEditable == 'true');
+            return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || (element.contentEditable && element.contentEditable == 'true')
         }
     },
     componentWillUnmount: function() {
-        Mousetrap.reset();
+        Mousetrap.reset()
     }
-};
+}
 
 var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
         var next = Gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
         if (next) {
-            Events.pub('ui/view/cursor/set', {'view.cursor': next.sig});
-            return true;
+            Events.pub('ui/view/cursor/set', {'view.cursor': next.sig})
+            return true
         }
-        return false;
+        return false
     },
     componentDidMount: function() {
         
@@ -201,61 +201,61 @@ var CursorBindingsMixin = {
         // arrows move the selection cursor
         // THINK: wasd?
         Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) { 
-            var current = this.props.view.cursor;
-            var dir = arrowToDir[e.which];
+            var current = this.props.view.cursor
+            var dir = arrowToDir[e.which]
             
             if (!current)                              // default cursors handled elsewhere (there should always 
                 return false                           // be an active cursor, if we are in a cursorable mode)
             
-            var nextFn = this.gotoNext.bind(this, current, dir);
-            var success = nextFn();
+            var nextFn = this.gotoNext.bind(this, current, dir)
+            var success = nextFn()
             if (!success){
                 if (e.which == 38 && this.refs.scrollup) {
-                    this.refs.scrollup.handleScroll();
-                    var success = false;
+                    this.refs.scrollup.handleScroll()
+                    var success = false
                     var readyStateCheckInterval = setInterval(function() {
-                        success = nextFn();
+                        success = nextFn()
                         if (success) {
-                            clearInterval(readyStateCheckInterval);
+                            clearInterval(readyStateCheckInterval)
                         }
-                    }, 25);
+                    }, 25)
                 }
                 if (e.which == 40 && this.refs.scrolldown) {
-                    this.refs.scrolldown.handleScroll();
+                    this.refs.scrolldown.handleScroll()
                     // may need a limit on this
-                    var limit = 40;
-                    var success = false;
+                    var limit = 40
+                    var success = false
                     var readyStateCheckInterval = setInterval(function() {
-                        success = nextFn();
-                        limit--;
+                        success = nextFn()
+                        limit--
                         if (success || limit < 0) {
-                            clearInterval(readyStateCheckInterval);
+                            clearInterval(readyStateCheckInterval)
                         }
-                    }, 25);
+                    }, 25)
                 }
             }
             
             return false
-        }.bind(this));
+        }.bind(this))
         
         // enter focuses the selected puff
         Mousetrap.bind('enter', function(e) { 
             // don't refocus if there's nothing selected
             if (!this.props.view.cursor)
-                return false;
+                return false
             
             // don't refocus if we're selecting the focused puff 
             if (this.props.view.cursor == this.props.view.query.focus)
-                return false;
+                return false
             
-            showPuff(this.props.view.cursor);
-            return false;
-        }.bind(this));
+            showPuff(this.props.view.cursor)
+            return false
+        }.bind(this))
 
 
     },
     componentWillUnmount: function() {
-        Mousetrap.reset();
+        Mousetrap.reset()
     },
     cursorPower: function(puffs, defaultPuff) {
         // set the cursor to default when cursor puff is outside the view or cursor is set to false
@@ -275,7 +275,7 @@ var CursorBindingsMixin = {
             updateUI()
         }
     }
-};
+}
 
 var GridLayoutMixin = {
     getScreenCoords: function() {
@@ -297,30 +297,30 @@ var GridLayoutMixin = {
                }
     },
     getCols: function(rows) {
-        var screencoords = this.getScreenCoords();
-        var boxHeight = (screencoords.height / rows);
+        var screencoords = this.getScreenCoords()
+        var boxHeight = (screencoords.height / rows)
 
 
-        var boxWidth = this.props.view.boxRatio * boxHeight;
+        var boxWidth = this.props.view.boxRatio * boxHeight
         // Make sure this is not too big for page!
         if (boxWidth > screencoords.width) {
-            boxWidth = screencoords.width;
+            boxWidth = screencoords.width
         }
 
-        var nCol = Math.floor(screencoords.width/boxWidth);
+        var nCol = Math.floor(screencoords.width/boxWidth)
 
-        return nCol;
+        return nCol
 
     },
     getGridBox: function(rows) {
         var screencoords = this.getScreenCoords()
-        var boxHeight = screencoords.height / rows;
+        var boxHeight = screencoords.height / rows
 
         // How many cols fit in this page
-        var nCol = this.getCols(rows);
-        var w = nCol * this.props.view.boxRatio* boxHeight;
+        var nCol = this.getCols(rows)
+        var w = nCol * this.props.view.boxRatio* boxHeight
         if(w > screencoords.width) {
-            w = screencoords.width;
+            w = screencoords.width
         }
         
         var myGridbox = Gridbox.getGridCoordBox(rows, nCol, w, screencoords.height)
@@ -396,37 +396,37 @@ var GridLayoutMixin = {
             )
         )
     }
-};
+}
 
 
 // MAIN VIEWS
 var PuffWorld = React.createClass({displayName: 'PuffWorld',
     render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language];
+        var polyglot = Translate.language[puffworldprops.view.language]
         
-        var view;
-        var viewprops = this.props.view || {};
+        var view
+        var viewprops = this.props.view || {}
 
         if(this.props.menu.show) {
-            CONFIG.rightMargin = 420;
-            CONFIG.leftMargin = 420;
+            CONFIG.rightMargin = 420
+            CONFIG.leftMargin = 420
         } else {
-            CONFIG.rightMargin = 60;
-            CONFIG.leftMargin = 40;
+            CONFIG.rightMargin = 60
+            CONFIG.leftMargin = 40
         }
 
         /*
         if(CONFIG.menuRight) {
             if(this.props.menu.show) {
-                CONFIG.leftMargin = 460;
+                CONFIG.leftMargin = 460
             } else {
-                CONFIG.leftMargin = 60;
+                CONFIG.leftMargin = 60
             }
         } else {
             if(this.props.menu.show) {
-                CONFIG.leftMargin = 460;
+                CONFIG.leftMargin = 460
             } else {
-                CONFIG.leftMargin = 60;
+                CONFIG.leftMargin = 60
             }
         }
         */
@@ -454,11 +454,11 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         // THINK: is this else clause being overridden somewhere? can we remove it?
         
         else {  // no mode? smash cut to default puff.
-            var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff;
+            var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff
             Events.pub('ui/mode/default', { 'view': puffworlddefaults.view
                                           , 'view.mode': 'focus'
                                           , 'view.query.focus': defaultPuffSig })
-            return React.DOM.div(null);
+            return React.DOM.div(null)
         }
         
         
@@ -467,13 +467,13 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         var popout = PopoutCluster( {section:this.props.menu.popout, view:this.props.view})
         var menu = this.props.menu.show 
                  ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile, view:this.props.view})) 
-                 : '';
+                 : ''
 
-        var animateClass = this.props.view.animation ? "animation" : '';
+        var animateClass = this.props.view.animation ? "animation" : ''
 
         // <PuffHeader menu={this.props.menu} />
 
-        var hb = puffworldprops.header.show ? HeaderBar( {view:this.props.view} ) : '';
+        var hb = puffworldprops.header.show ? HeaderBar( {view:this.props.view} ) : ''
 
         return (
             React.DOM.div( {className:animateClass}, 
@@ -487,7 +487,7 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
             )
         )
     }
-});
+})
 
 var PuffList = React.createClass({displayName: 'PuffList',
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
@@ -514,17 +514,17 @@ var PuffList = React.createClass({displayName: 'PuffList',
         
         this.cursorPower(puffs)
 
-        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset;
-        var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit;
+        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset
+        var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit
         return (
             React.DOM.div(null, 
                 this.standardGridify(puffs),
                 PuffScroller( {ref:"scrollup", position:"up", view:this.props.view, show:showScrollUp} ),
                 PuffScroller( {ref:"scrolldown", position:"down", view:this.props.view, show:showScrollDown} )
             )
-        );
+        )
     }
-});
+})
 
 
 var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
@@ -730,9 +730,9 @@ var PuffTallTree = React.createClass({displayName: 'PuffTallTree',
                                 )
                           .filter(function(x) {return x.width})               // remove nodes that don't fit in the grid 
                           .sort(function(a, b) {                              // sort required so React doesn't have  
-                              if(a.puff.sig+'' < b.puff.sig+'') return -1;    //   to remove and re-add DOM nodes   
-                              if(a.puff.sig+'' > b.puff.sig+'') return 1;     //   in order to order them properly
-                             return 0; })
+                              if(a.puff.sig+'' < b.puff.sig+'') return -1    //   to remove and re-add DOM nodes   
+                              if(a.puff.sig+'' > b.puff.sig+'') return 1     //   in order to order them properly
+                             return 0 })
         
         // ensure cursor is set
         this.cursorPower(puffBoxes.map(function(pbox) {return pbox.puff}), puff)
@@ -864,8 +864,8 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
 
         // Use mod of sig, so we can do same for arrowheads!
         // TODO: Make mini-helper function
-        var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16);
-        colNumber = colNumber % CONFIG.arrowColors.length;
+        var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16)
+        colNumber = colNumber % CONFIG.arrowColors.length
 
         var stroke = CONFIG.arrowColors[colNumber]
         return Arrow( {x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke, fill:stroke} )
@@ -894,8 +894,8 @@ var Arrow = React.createClass({displayName: 'Arrow',
 
 var PuffFooter = React.createClass({displayName: 'PuffFooter',
     render: function() {
-        var width = (window.innerHeight-66)+'px';
-        var polyglot = Translate.language[puffworldprops.view.language];
+        var width = (window.innerHeight-66)+'px'
+        var polyglot = Translate.language[puffworldprops.view.language]
         // TODO: Is this a very bad idea?
 
         return (
@@ -906,9 +906,9 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
                 polyglot.t("footer.rest")
                 )
             )
-        );
+        )
     }
-});
+})
 
 
 
@@ -922,20 +922,20 @@ var Logo = React.createClass({displayName: 'Logo',
             )
             )
     }
-});
+})
 
 
 var PuffScroller = React.createClass({displayName: 'PuffScroller',
     mixins: [GridLayoutMixin],
 
     handleScroll: function() {
-        if (!this.props.show) return false;
+        if (!this.props.show) return false
 
-        var col   = this.getDimensions().cols;
-        var offset = parseInt(this.props.view.query.offset) || 0;
-        offset = this.props.position == "up" ? offset - col : offset + col;
-        offset = Math.max(offset, 0);
-        return Events.pub("ui/scroll/down", {'view.query.offset': offset});
+        var col   = this.getDimensions().cols
+        var offset = parseInt(this.props.view.query.offset) || 0
+        offset = this.props.position == "up" ? offset - col : offset + col
+        offset = Math.max(offset, 0)
+        return Events.pub("ui/scroll/down", {'view.query.offset': offset})
     },
 
     render: function() {
@@ -943,19 +943,19 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
             return (React.DOM.span(null))
         }
 
-        var left = CONFIG.leftMargin;
+        var left = CONFIG.leftMargin
 
-        var col   = this.getDimensions().cols;
-        var screencoords = this.getScreenCoords();
-        var boxHeight = screencoords.height / this.getDimensions().rows;
-        var w = col * this.props.view.boxRatio* boxHeight;
+        var col   = this.getDimensions().cols
+        var screencoords = this.getScreenCoords()
+        var boxHeight = screencoords.height / this.getDimensions().rows
+        var w = col * this.props.view.boxRatio* boxHeight
         if(w > screencoords.width) {
-            w = screencoords.width;
+            w = screencoords.width
         }
 
-        var style = {left: left, width: w};
-        var className = "scroller gray " + this.props.position;
-        var iconClass = "fa fa-fw fa-chevron-"+this.props.position;
+        var style = {left: left, width: w}
+        var className = "scroller gray " + this.props.position
+        var iconClass = "fa fa-fw fa-chevron-"+this.props.position
         return (
             React.DOM.div( {className:className, style:style}, 
                 React.DOM.a( {href:"#", onClick:this.handleScroll}, 
@@ -966,4 +966,4 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
             )
         )
     }
-});
+})

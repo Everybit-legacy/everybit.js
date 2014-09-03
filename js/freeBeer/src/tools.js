@@ -459,8 +459,9 @@ var PuffPacker = React.createClass({
 
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
+        this.setState({profileMsg: ''});
         PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return Events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+        return Events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
     render: function() {
         var all_usernames = Object.keys(PB.M.Wardrobe.getAll())

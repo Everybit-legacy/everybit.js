@@ -71,10 +71,10 @@ var PuffFancyBox = React.createClass({displayName: 'PuffFancyBox',
             style = {position: 'absolute', width: width, height: height, left: left, top: top, backgroundColor: 'rgba(220,255,220,.9)'}
 
         return (
-            React.DOM.div({className: className, id: puff.sig, key: puff.sig, style: style}, 
-                PuffAuthor({ref: "author", puff: puff, hidden: hidden}), 
-                PuffContent({puff: puff, height: height}), 
-                PuffBar({ref: "bar", puff: puff, hidden: hidden, flagged: flagged})
+            React.DOM.div( {className:className, id:puff.sig, key:puff.sig, style:style}, 
+                PuffAuthor( {ref:"author", puff:puff, hidden:hidden} ),
+                PuffContent( {puff:puff, height:height} ),
+                PuffBar( {ref:"bar", puff:puff, hidden:hidden, flagged:flagged})
             )
         )
     }
@@ -108,17 +108,17 @@ var PuffAuthor = React.createClass({displayName: 'PuffAuthor',
         if (total != 0) 
             sendTo = (
                 React.DOM.span(null, 
-                    " > ", 
+                    " > ",
                     routes.map(function(value, index){
-                        var link = React.DOM.a({href: "", onClick: self.clickUsername.bind(self, value)}, ".", value)
-                        return React.DOM.span({key: value}, link, 
+                        var link = React.DOM.a( {href:"", onClick:self.clickUsername.bind(self, value)}, ".",value)
+                        return React.DOM.span( {key:value}, link,
                                     (index != total-1) ? ', ' : '')
                     })
                 )
             )
 
         return (
-            React.DOM.div({className: className}, React.DOM.a({href: "", onClick: this.handleClick}, ".", username), sendTo)
+            React.DOM.div( {className:className}, React.DOM.a( {href:"", onClick:this.handleClick}, ".",username),sendTo)
         )
     }
 })
@@ -165,7 +165,7 @@ var PuffContent = React.createClass({displayName: 'PuffContent',
         */
 
         // FIXME: this is bad and stupid because user content becomes unescaped html don't do this really seriously
-        return React.DOM.div({style: {height: this.props.height}, className: "txt", onClick: this.handleClick, dangerouslySetInnerHTML: {__html: puffcontent}})
+        return React.DOM.div( {style:{height: this.props.height}, className:"txt", onClick:this.handleClick, dangerouslySetInnerHTML:{__html: puffcontent}})
     }
 })
 
@@ -199,49 +199,49 @@ var PuffBar = React.createClass({displayName: 'PuffBar',
             color: '#00aa00'
         }
         var moreButton = (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({style: boldStyle, onClick: this.handleShowMore}, 
+            React.DOM.span( {className: "icon"}, 
+                React.DOM.a( {style:boldStyle, onClick:this.handleShowMore}, 
                     [0,1,2].map(function(i){
-                        if (i == iconSet) return React.DOM.span({key: i, style: selectedStyle}, "•")
-                        else return React.DOM.span({key: i}, "•")
+                        if (i == iconSet) return React.DOM.span( {key:i, style:selectedStyle}, "•")
+                        else return React.DOM.span( {key:i}, "•")
                     })
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.see_more")})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.see_more")} )
             )
         )
 
 
         // ICON SETS
         var iconSetOne = (
-            React.DOM.span({className: iconSet == 0 ? "" : "hidden"}, 
-                PuffFlagLink({ref: "flag", puff: puff, username: puff.username, flagged: this.props.flagged}), 
-                PuffInfoLink({puff: puff}), 
-                PuffParentCount({puff: puff}), 
-                PuffChildrenCount({puff: puff}), 
-                showStar ? PuffStar({show: showStar, sig: puff.sig}) : '', 
-                PuffReplyLink({ref: "reply", sig: puff.sig})
+            React.DOM.span( {className:iconSet == 0 ? "" : "hidden"}, 
+                PuffFlagLink( {ref:"flag", puff:puff, username:puff.username, flagged:this.props.flagged}),
+                PuffInfoLink( {puff:puff} ),
+                PuffParentCount( {puff:puff} ),
+                PuffChildrenCount( {puff:puff} ),
+                showStar ? PuffStar( {show:showStar, sig:puff.sig} ) : '',
+                PuffReplyLink( {ref:"reply", sig:puff.sig} )
             )
         )
         var iconSetTwo = (
-            React.DOM.span({className: iconSet == 1 ? "" : "hidden"}, 
-                canViewRaw ? PuffViewRaw({sig: puff.sig}) : '', 
-                puff.payload.type == 'image' ? PuffViewImage({puff: puff}) : "", 
-                PuffExpand({puff: puff}), 
-                PuffTipLink({username: puff.username})
+            React.DOM.span( {className:iconSet == 1 ? "" : "hidden"}, 
+                canViewRaw ? PuffViewRaw( {sig:puff.sig} ) : '',
+                puff.payload.type == 'image' ? PuffViewImage( {puff:puff} ) : "",
+                PuffExpand( {puff:puff} ),
+                PuffTipLink( {username:puff.username} )
             )
         )
         var iconSetThree = (
-            React.DOM.span({className: iconSet == 2 ? "" : "hidden"}, 
-                PuffJson({puff: puff}), 
-                PuffPermaLink({sig: puff.sig}), 
-                PuffClone({puff: puff})
+            React.DOM.span( {className:iconSet == 2 ? "" : "hidden"}, 
+                PuffJson( {puff:puff} ),
+                PuffPermaLink( {sig:puff.sig} ),
+                PuffClone( {puff:puff} )
             )
         )
         return (
-        React.DOM.div({className: className}, 
-            iconSetOne, 
-            iconSetTwo, 
-            iconSetThree, 
+        React.DOM.div( {className:className}, 
+            iconSetOne,
+            iconSetTwo,
+            iconSetThree,
             moreButton
         )
         )
@@ -253,9 +253,9 @@ var PuffViewImage = React.createClass({displayName: 'PuffViewImage',
         var puff = this.props.puff
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: puff.payload.content, target: "new"}, React.DOM.i({className: "fa fa-search-plus fa-fw"})), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.view_image")})
+            React.DOM.span( {className: "icon"}, 
+                React.DOM.a( {href:puff.payload.content, target:"new"}, React.DOM.i( {className:"fa fa-search-plus fa-fw"})),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.view_image")})
             )
         )
     }
@@ -270,9 +270,9 @@ var PuffJson = React.createClass({displayName: 'PuffJson',
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon", onClick: this.handleClick}, 
-                React.DOM.a(null, React.DOM.i({className: "fa fa-cubes fa-fw"})), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.json")})
+            React.DOM.span( {className: "icon", onClick:this.handleClick}, 
+                React.DOM.a(null, React.DOM.i( {className:"fa fa-cubes fa-fw"})),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.json")})
             )
         )
     }
@@ -325,8 +325,8 @@ var PuffFlagLink = React.createClass({displayName: 'PuffFlagLink',
         if(PB.M.Wardrobe.getCurrentUsername() == this.props.username || PB.M.Wardrobe.getCurrentUsername() == CONFIG.zone) {
             return (
                 React.DOM.span(null, 
-                    React.DOM.a({href: "#", onClick: this.handleFlagRequest}, React.DOM.i({className: newClass})), 
-                    Tooltip({position: "above", content: polyglot.t("menu.tooltip.flag_link")})
+                    React.DOM.a( {href:"#", onClick:this.handleFlagRequest}, React.DOM.i( {className:newClass} )),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.flag_link")} )
                 )
             )
         } else {
@@ -355,18 +355,18 @@ var PuffParentCount = React.createClass({displayName: 'PuffParentCount',
         if (!parentCount) {
             return (
                     React.DOM.span(null, 
-                        React.DOM.span({className: "click droid"}, React.DOM.span({ref: "count"}, "0"), " "), 
-                        Tooltip({position: "above", content: polyglot.t("menu.tooltip.parent")})
+                        React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"} , "0"), " " ),
+                        Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")} )
                     )
            )
         }
         else {
             return (
                 React.DOM.span(null, 
-                    React.DOM.a({href: '#' + this.props.sig, onClick: this.handleClick}, 
-                        React.DOM.span({ref: "count droid"}, parentCount, " ")
-                    ), 
-                    Tooltip({position: "above", content: polyglot.t("menu.tooltip.parent")})
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        React.DOM.span( {ref:"count droid"}, parentCount, " " )
+                    ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.parent")})
                 )
             )
         }
@@ -394,24 +394,24 @@ var PuffInfoLink = React.createClass({displayName: 'PuffInfoLink',
         var puff = this.props.puff
         var date = new Date(puff.payload.time)
         var formattedTime = React.DOM.span(null, "Created ", timeSince(date), " ago")
-        var lisc = puff.payload.license ?  React.DOM.span(null, React.DOM.br(null), "License: ", puff.payload.license) : ''
+        var lisc = puff.payload.license ?  React.DOM.span(null, React.DOM.br(null),"License: ", puff.payload.license) : ''
 
-        var type = React.DOM.span(null, React.DOM.br(null), "Type: ", puff.payload.type)
+        var type = React.DOM.span(null, React.DOM.br(null),"Type: ", puff.payload.type)
 
         // var quote = puff.payload.quote ?  <span><br/>Quote: {puff.payload.quote}</span> : ''
 
-        var photographer = puff.photographer ? React.DOM.span(null, React.DOM.br(null), "Photographer: ", puff.photographer) : ''
+        var photographer = puff.photographer ? React.DOM.span(null, React.DOM.br(null),"Photographer: ", puff.photographer) : ''
         var version = React.DOM.span(null, React.DOM.br(null), " Version: ", puff.version)
    //     var altText = formattedTime + ' ' + lisc + ' ' + photographer + ' ' + version;
 
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a(null, React.DOM.span({className: "infoLink"}, 
-                    React.DOM.i({className: "fa fa-info fa-fw"}), 
-                    React.DOM.span({className: "detailInfo"}, 
-                    formattedTime, 
-                    type, 
-                    lisc, 
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a(null, React.DOM.span( {className:"infoLink"}, 
+                    React.DOM.i( {className:"fa fa-info fa-fw"}),
+                    React.DOM.span( {className:"detailInfo"}, 
+                    formattedTime,
+                    type,
+                    lisc,
                     photographer
                     )
                 ))
@@ -445,18 +445,18 @@ var PuffTipLink = React.createClass({displayName: 'PuffTipLink',
     render: function() {
         if(this.state.showTipButtons) {
 
-            var tipButtons = TipButton({currency: "BTC", username: this.props.username})
+            var tipButtons = TipButton( {currency:"BTC", username:this.props.username} )
         } else {
             var tipButtons = ''
         }
 
         return (
-            React.DOM.span({className: "icon"}, 
-            React.DOM.span({className: "walletLink"}, 
-                React.DOM.a({href: "#", onClick: this.handleToggleTipInfo}, 
-                    React.DOM.i({className: "fa fa-gittip fa-fw"})
-                ), 
-                React.DOM.span({className: "walletInfo"}, 
+            React.DOM.span( {className:"icon"}, 
+            React.DOM.span( {className:"walletLink"}, 
+                React.DOM.a( {href:"#", onClick:this.handleToggleTipInfo}, 
+                    React.DOM.i( {className:"fa fa-gittip fa-fw"})
+                ),
+                React.DOM.span( {className:"walletInfo"}, 
                     tipButtons
                 )
             )
@@ -518,12 +518,12 @@ var TipButton = React.createClass({displayName: 'TipButton',
     render: function() {
         if(this.state.btcAddy)
             return (
-                    React.DOM.div({className: "tip"}, 
-                        "Tip user: ", React.DOM.a({href: "bitcoin:" + this.state.btcAddy}, React.DOM.i({className: "fa fa-bitcoin fa-fw"}))
+                    React.DOM.div( {className:"tip"}, 
+                        "Tip user: ", React.DOM.a( {href:"bitcoin:" + this.state.btcAddy}, React.DOM.i( {className:"fa fa-bitcoin fa-fw"}))
                     )
             )
 
-        return React.DOM.i({className: "fa fa-fw fa-spinner"})
+        return React.DOM.i( {className:"fa fa-fw fa-spinner"})
     }
 
 })
@@ -563,11 +563,11 @@ var PuffViewRaw = React.createClass({displayName: 'PuffViewRaw',
 
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: "#", onClick: this.handleClick}, 
-                    React.DOM.i({className: newClass})
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.view_raw")})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:newClass})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.view_raw")})
             )
         )
     }
@@ -591,18 +591,18 @@ var PuffChildrenCount = React.createClass({displayName: 'PuffChildrenCount',
         if (!childCount) {
             return (
                 React.DOM.span(null, 
-                    React.DOM.span({className: "click droid"}, React.DOM.span({ref: "count"}, "0"), " "), 
-                    Tooltip({position: "above", content: polyglot.t("menu.tooltip.children")})
+                    React.DOM.span( {className:"click droid"}, React.DOM.span( {ref:"count"}, "0"), " " ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )
             )
         }
         else {
             return (
                 React.DOM.span(null, 
-                    React.DOM.a({href: '#' + this.props.sig, onClick: this.handleClick}, 
-                        React.DOM.span({ref: "count droid"}, childCount, " ")
-                    ), 
-                    Tooltip({position: "above", content: polyglot.t("menu.tooltip.children")})
+                    React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                        React.DOM.span( {ref:"count droid"}, childCount, " " )
+                    ),
+                    Tooltip( {position:"above", content:polyglot.t("menu.tooltip.children")})
                 )
             )
         }
@@ -619,11 +619,11 @@ var PuffPermaLink = React.createClass({displayName: 'PuffPermaLink',
     render: function() {
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: '#' + this.props.sig, onClick: this.handleClick}, 
-                    React.DOM.i({className: "fa fa-link fa-fw"})
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.permalink")})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:'#' + this.props.sig, onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-link fa-fw"})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.permalink")})
             )
         )
     }
@@ -693,11 +693,11 @@ var PuffReplyLink = React.createClass({displayName: 'PuffReplyLink',
 
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: "#", onClick: this.handleClick}, 
-                    React.DOM.i({className: newClass})
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.reply")})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:newClass})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.reply")})
             )
         )
     }
@@ -722,11 +722,11 @@ var PuffExpand = React.createClass({displayName: 'PuffExpand',
         var expand = puffworldprops.view.rows == 1 ? "compress" : "expand"
         // var iconClass = puffworldprops.view.rows == 1 ? "fa fa-compress fa-fw" : "fa fa-expand fa-fw"
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: "#", onClick: this.handleClick}, 
-                    React.DOM.i({className: "fa fa-fw fa-"+expand})
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip."+expand)})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-fw fa-"+expand})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip."+expand)})
             )
         )
     }
@@ -794,21 +794,21 @@ var PuffStar = React.createClass({displayName: 'PuffStar',
             color = 'gray'
         
         var link = (
-            React.DOM.a({href: "#", onClick: this.handleClick}, 
-                React.DOM.i({className: "fa fa-fw fa-star " + color})
+            React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                React.DOM.i( {className:"fa fa-fw fa-star " + color})
             )
         )
         var pointerStyle = {}
         var self = this
         if (PB.M.Wardrobe.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'}
-            link = React.DOM.span({style: pointerStyle}, React.DOM.i({className: "fa fa-fw fa-star " + color}))
+            link = React.DOM.span( {style:pointerStyle}, React.DOM.i( {className:"fa fa-fw fa-star " + color}))
         }
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                link, React.DOM.span({style: pointerStyle}, score), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.star")})
+            React.DOM.span( {className:"icon"}, 
+                link,React.DOM.span( {style:pointerStyle}, score),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.star")})
             )
         )
     }
@@ -858,11 +858,11 @@ var PuffClone = React.createClass({displayName: 'PuffClone',
     render: function(){
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
-            React.DOM.span({className: "icon"}, 
-                React.DOM.a({href: "#", onClick: this.handleClick}, 
-                    React.DOM.i({className: "fa fa-fw fa-copy"})
-                ), 
-                Tooltip({position: "above", content: polyglot.t("menu.tooltip.copy")})
+            React.DOM.span( {className:"icon"}, 
+                React.DOM.a( {href:"#", onClick:this.handleClick}, 
+                    React.DOM.i( {className:"fa fa-fw fa-copy"})
+                ),
+                Tooltip( {position:"above", content:polyglot.t("menu.tooltip.copy")})
             )
         )
     }

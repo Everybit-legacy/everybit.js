@@ -25,6 +25,8 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 
 @charset "utf-8";
 
+/* Custom Fonts */
+
 @font-face {
     font-family: Gudea;
     src: url("fonts/Gudea-Regular.otf");
@@ -51,6 +53,8 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
     src: url("fonts/DroidSansMono.ttf");
 }
 
+/* HTML tags */
+
 a {
     text-decoration:none;
     color: #1616A8;
@@ -61,6 +65,9 @@ a.under {
     text-decoration:underline;
 }
 
+a.deactive, a.deactive:hover {
+    color: #888888;
+}
 
 body,
 html {
@@ -89,6 +96,70 @@ path {
 
 section {
     text-align: center;
+}
+
+img {
+    max-width:100%;
+    max-height:95%;
+}
+
+p {
+    padding: 0;
+    margin: 0;
+    display: block;
+    width: 100%;
+    clear:both;
+    line-height: 1.4em;
+}
+
+textarea {
+    font-family: Gudea, sans-serif;
+    border: 0px solid #006738;
+    padding: 10px;
+    margin-bottom: 10px;
+    vertical-align: top;
+}
+
+em {
+    font-family: GudeaBold, sans-serif;
+}
+
+h2 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h3 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.5em;
+    margin-top: 0;
+    margin-bottom: 0;
+    text-transform: uppercase;
+}
+
+h4 {
+    font-family: GudeaBold, sans-serif;
+    font-size: 1.4em;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+header {
+    background-color: #fff;
+    height: 70px;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    display: inline-block;
+    text-align: center;
+    color: #333;
+    height: 70px;
+    line-height: 70px;
+    vertical-align: middle;
+    margin: 0 70px;
 }
 
 /* BEGIN New Tall Tree Styles */
@@ -132,6 +203,7 @@ section {
     /*   transition: all .5s;*/
     z-index: 200;
 }
+
 .animation .cursor.flashPuff {
     -webkit-animation: flash 1s; /* Safari and Chrome */
     -moz-animation: flash 1s; /* Firefox */
@@ -184,16 +256,59 @@ section {
     padding: 0px 12px 12px 12px;
 }
 
+#parents {
+}
+
+#main-content {
+    margin-bottom: 80px;
+}
+
+#children {
+}
+
+#imageLoader {
+    width: 100%;
+}
+
+#puffballIcon {
+    display: inline;
+    vertical-align: text-top;
+    padding-right: 10px;
+    padding-left: 6px;
+    z-index: 500;
+    height: 20px;
+}
+
+#puffballIcon:hover {
+    cursor: pointer;
+}
+
+#replyForm {
+    -webkit-animation: fadein 1s; /* Safari and Chrome */
+    -moz-animation: fadein 1s; /* Firefox */
+    -ms-animation: fadein 1s; /* Internet Explorer */
+    -o-animation: fadein 1s; /* Opera */
+    animation: fadein 1s;
+}
+
+#adminForm {
+    position: absolute;
+    background-color: #F0F0F0;
+    padding: 10px 20px 10px 15px;
+    font-family: Gudea, sans-serif;
+    font-size: 1.1em;
+    line-height: 1.8em;
+    top: 45px;
+    max-height: 90%;
+    overflow-y: auto;
+    overflow-x: auto;
+
+}
+
 .example-enter {
     opacity: 0.01;
     /* transition: opacity 5s;*/
 }
-
-img {
-    max-width:100%;
-    max-height:95%;
-}
-
 
 .imgInBox {
     display: block;
@@ -201,14 +316,6 @@ img {
 }
 
 
-p {
-    padding: 0;
-    margin: 0;
-    display: block;
-    width: 100%;
-    clear:both;
-    line-height: 1.4em;
-}
 
 .markdownP {
     font-size: 1.2em;
@@ -217,39 +324,7 @@ p {
 
 
 
-textarea {
-    font-family: Gudea, sans-serif;
-    border: 0px solid #006738;
-    padding: 10px;
-    margin-bottom: 10px;
-    vertical-align: top;
-}
 
-em {
-    font-family: GudeaBold, sans-serif;
-}
-
-h2 {
-    font-family: GudeaBold, sans-serif;
-    font-size: 1.1em;
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-h3 {
-    font-family: GudeaBold, sans-serif;
-    font-size: 1.5em;
-    margin-top: 0;
-    margin-bottom: 0;
-    text-transform: uppercase;
-}
-
-h4 {
-    font-family: GudeaBold, sans-serif;
-    font-size: 1.4em;
-    margin-top: 0;
-    margin-bottom: 0;
-}
 
 
 
@@ -403,14 +478,14 @@ h4 {
     color: #1616A8;
 }
 
-#authorDiv {
+/*#authorDiv {
     font-family: GudeaBold, sans-serif;
     font-size: 1.1em;
     padding: 2px;
     text-align: center;
     color: #1616A8;
 }
-
+*/
 .bar {
     text-align: right;
     padding-right: 10px;
@@ -480,35 +555,13 @@ h4 {
     display: block;
 }
 
-header {
-    background-color: #fff;
-    height: 70px;
-    margin-bottom: 20px;
-}
 
-#cancelreply {
+
+/*#cancelreply {
     margin-right: 0.5em;
 }
+*/
 
-header h1 {
-    display: inline-block;
-    text-align: center;
-    color: #333;
-    height: 70px;
-    line-height: 70px;
-    vertical-align: middle;
-    margin: 0 70px;
-}
-
-#parents {
-}
-
-#main-content {
-    margin-bottom: 80px;
-}
-
-#children {
-}
 
 
 /* via bootstrap */
@@ -613,17 +666,17 @@ select:disabled {
     background-color: #ddd;
 }
 
-#text-zoom {
+/*#text-zoom {
     width: 50px;
     border: 2px;
     color: black;
     font-weight: bold;
-}
+}*/
 
 
-#replyFormExpand {
+/*#replyFormExpand {
     left: 50%;
-    /*    margin-left: -250px;*/
+    margin-left: -250px;
     z-index: 400;
     position: absolute;
     top: 200px;
@@ -632,14 +685,12 @@ select:disabled {
     text-align: center;
     padding: 8px;
     border: 2px solid #555;
-    /*
     max-width: 60%;
     height: 350px;
     max-height: 80%;
-    */
-    /* overflow-y: auto;
-    // overflow-x: auto; */
-}
+    overflow-y: auto;
+    overflow-x: auto;
+}*/
 
 .expand {
     left: 15%;
@@ -679,7 +730,7 @@ select:disabled {
 }
 
 /*#replyForm:hover, form:hover {*/
-#replyFormExpand:hover {
+/*#replyFormExpand:hover {
     cursor: all-scroll;
 }
 
@@ -689,7 +740,7 @@ select:disabled {
 
 #replyFormExpand form > a {
     cursor: pointer; /* for firefox */
-}
+/*}
 
 #replyFormExpand form button,
 #replyFormExpand form input {
@@ -700,33 +751,20 @@ select:disabled {
     margin-left: 15px;
     cursor: pointer;
     vertical-align: middle;
-}
+}*/
 
-#imageLoader {
-    width: 100%;
-}
+
 
 .logo {
     width: 60%;
     margin-bottom: .3em;
 }
 
-.tagline {
+/*.tagline {
     height: 20px;
-}
+}*/
 
-#puffballIcon {
-    display: inline;
-    vertical-align: text-top;
-    padding-right: 10px;
-    padding-left: 6px;
-    z-index: 500;
-    height: 20px;
-}
 
-#puffballIcon:hover {
-    cursor: pointer;
-}
 
 .menu {
     font-family: Gudea;
@@ -940,22 +978,14 @@ select:disabled {
     animation: slidein .5s;
 }
 
-#replyForm {
-    -webkit-animation: fadein 1s; /* Safari and Chrome */
-    -moz-animation: fadein 1s; /* Firefox */
-    -ms-animation: fadein 1s; /* Internet Explorer */
-    -o-animation: fadein 1s; /* Opera */
-    animation: fadein 1s;
-}
-
 .menuItem {
     padding-left: 32px;
     position: relative;
 }
 
-.leftIndent {
+/*.leftIndent {
     margin-left: 24px;
-}
+}*/
 
 .menuHeader {
     font-family: Gudea;
@@ -1117,10 +1147,10 @@ select:disabled {
     border: 1px solid #333;
 }
 
-.midpoint {
+/*.midpoint {
     text-align: center;
     margin: 0 auto;
-}
+}*/
 
 .message {
     /*color: #ff0000;*/
@@ -1258,20 +1288,6 @@ a.footerText {
     transition: all 1s;
 }
 
-#adminForm {
-    position: absolute;
-    background-color: #F0F0F0;
-    padding: 10px 20px 10px 15px;
-    font-family: Gudea, sans-serif;
-    font-size: 1.1em;
-    line-height: 1.8em;
-    top: 45px;
-    max-height: 90%;
-    overflow-y: auto;
-    overflow-x: auto;
-
-}
-
 .fixedLeft {
     position: absolute;
     left: 100px;
@@ -1299,9 +1315,7 @@ a.footerText {
     -o-transform: rotate(90deg);
 }
 
-a.deactive, a.deactive:hover {
-    color: #888888;
-}
+
 
 .red {
     color: #FF0000;
@@ -1627,7 +1641,7 @@ a.deactive, a.deactive:hover {
     /*margin: 14px 0px;*/
     background-color: #fff;
 }
-.rowBoxMain {
+/*.rowBoxMain {
     margin: 14px 0px;
     background-color: #fff;
 }
@@ -1637,7 +1651,7 @@ a.deactive, a.deactive:hover {
     width: 10px;
     border: 1px solid #000000;
     left: -10px;
-}
+}*/
 
 .rowGroup {
     position: relative;

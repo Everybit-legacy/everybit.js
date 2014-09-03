@@ -1,4 +1,4 @@
-// TODO: Rename into P. namespace
+// TODO: Rename into PB. namespace
 
 function getImageCode(sig) {
     // Create an empty canvas element

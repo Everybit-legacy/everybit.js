@@ -83,7 +83,7 @@ gulp.task('theirOthers', function() {
 });
 
 
-gulp.task('copyBinaries', function() {
+gulp.task('copyFiles', function() {
     gulp.src('styles/fonts/*',{base: '.'})
         .pipe(gulp.dest('build'));
 
@@ -101,10 +101,7 @@ gulp.task('copyBinaries', function() {
 
     gulp.src('config.js',{base: '.'})
         .pipe(gulp.dest('build'));
-
-
 });
-
 
 
 gulp.task('css', function() {
@@ -128,4 +125,4 @@ gulp.task('doDocs', function() {
 });
 
 
-gulp.task('default', ['jsxFiles','css','ourOthers','theirOthers','copyBinaries','zip']);
+gulp.task('default', ['jsxFiles','css','ourOthers','theirOthers','copyFiles','zip']);

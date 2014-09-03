@@ -55,7 +55,7 @@ puffworldprops = {
 
 
     view: {
-        mode: 'tableView',
+        mode: 'list',
         
         filters: {
             tags: [],
@@ -146,7 +146,8 @@ puffworldprops = {
                 desc: true
             },
             lastClick: "",
-            format: 'list'
+            format: 'list',
+            maxRowHeight: 4
         }
     },
 
@@ -546,6 +547,9 @@ update_puffworldprops = function(data) {
         else
             puffworldprops.view.filters.types = [puffworldprops.view.filters.types]
     }
+
+    // ROOTS
+
 
 
 }

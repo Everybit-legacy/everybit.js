@@ -3,7 +3,7 @@ Translate.language = {};
 
 Translate.language["en"] = new Polyglot({locale:"en"});
 Translate.language["en"].extend({
-	dropdownDisplay: 'English'
+	drop_down_display: 'English'
 });
 Translate.language["en"].extend({
 	alert: {
@@ -17,8 +17,8 @@ Translate.language["en"].extend({
 			latest: "Latest puffs",
 			collection: 'Choices collection',
 			shortcut: "Keyboard shortcuts",
-			showMine: 'Show my puffs',
-            showpuffs:"Show puffs for me"
+			show_mine: 'Show my puffs',
+            show_puffs:"Show puffs for me"
 		},
 		filters: {
 			title: 'Filter',
@@ -38,7 +38,7 @@ Translate.language["en"].extend({
         },
 		publish: {
 			title: 'Publish',
-			newPuff: "New puff"
+			new_puff: "New puff"
 		},
 		identity: {
 			title: 'Identity',
@@ -50,21 +50,21 @@ Translate.language["en"].extend({
 			default: 'default',
 			admin: 'admin',
 			root: 'root',
-			newIdentity: {
+			new_identity: {
 				title: 'Create',
 				msg: 'Desired username',
 				generate: 'Regenerate',
 				or: 'or',
-				errorMissing: 'You must set all of your public keys before making a registration request.',
+				error_missing: 'You must set all of your public keys before making a registration request.',
 				success: 'Success!',
 				submit: 'Submit request',
-				importContent: 'Import Content'
+				import_content: 'Import Content'
 			},
-			viewIdentity: {
+			view_identity: {
 				title: 'View',
 				msg: 'Stored keys for'
 			},
-			setIdentity: {
+			set_identity: {
 				title: 'Store',
 				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
 			},
@@ -91,7 +91,7 @@ Translate.language["en"].extend({
 		tools: {
 			title: 'ADVANCED TOOLS',
 			builder: "Puff builder",
-			clearCache: 'Clear cached puffs'
+			clear_cache: 'Clear cached puffs'
 		},
         tooltip:{
             roots:'View latest conversation starters',
@@ -99,40 +99,42 @@ Translate.language["en"].extend({
             collection:'View the Choices Collection',
             shortcut:'View a list of shortcuts for this website',
             showPuffs:'View puffs that were sent to me',
-            showMine: 'View puffs that were sent by me',
+            show_mine: 'View puffs that were sent by me',
             relationship:'Display/hide relationships between puffs',
             animation:'Enable/disable animations',
             infobar:'Display/hide the information bars for each puff',
-            setIdentity: 'Store your private keys',
-            viewIdentity: 'View stored keys for current identity',
-            newIdentity: 'Create a new identity',
+            set_identity: 'Store your private keys',
+            view_identity: 'View stored keys for current identity',
+            new_identity: 'Create a new identity',
 			generate: 'randomly generate new username',
-            newPuff:'Create a new puff',
+            new_puff:'Create a new puff',
             code:'View source code on GitHub',
-            puffBuilder:'Show the puff builder',
-            tagsFilter: 'Add a tag to filters',
-            typesFilter: 'Add a content type to filters',
-            routesFilter: 'Add a route to filters',
-            usersFilter: 'Add a user to filters',
-            typesFilter: 'Add a type to filters',
-            removeFilter: 'Remove this filter',
-            currentDelete:'To delete this user from the browser',
-            flagLink: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
-            viewImage: 'View large',
+            puff_builder:'Show the puff builder',
+            tags_filter: 'Add a tag to filters',
+            types_filter: 'Add a content type to filters',
+            routes_filter: 'Add a route to filters',
+            users_filter: 'Add a user to filters',
+            types_filter: 'Add a type to filters',
+            remove_filter: 'Remove this filter',
+            current_delete:'To delete this user from the browser',
+            flag_link: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
+            view_image: 'View large',
             parent:'Show the parents of this puff',
             children:'Show the children of this puff',
             reply:'Reply to this puff',
-            seeMore:'Show more options',
-            viewRaw:'Show the raw code of this puff',
+            see_more:'Show more options',
+            view_raw:'Show the raw code of this puff',
             json:'Show the JSON string of this puff',
-            permaLink:'Permalink to this puff',
+            permalink:'Permalink to this puff',
             expand: 'Expand puff to one row',
             compress: 'Compress puff size to default setting',
             copy:'Copy the raw content of this puff to the reply box',
             star:'Star this puff',
             disable_reporting: "We track how you use our website. Click to disable.",
-            sortDESC: "Sorted by most recent. Click to change.",
-            sortASC: "Sorted by least recent. Click to change.",
+            sort_DESC: "Sorted by most recent. Click to change.",
+            sort_ASC: "Sorted by least recent. Click to change.",
+            show_roots_true: "Showing only puffs with no parents  (topic starters). Click to change.",
+            show_roots_false: "Showing topic starters and replies. Click to show only puffs with no parents (topic starters)."
         }
 	},
 	header: {
@@ -145,21 +147,21 @@ Translate.language["en"].extend({
 	},
 	replyForm: {
 		recipient: 'Recipients',
-        sendTo: 'Send to',
-		sendToPh: 'Add new user to receive', /*placeholder*/
-		textareaPh: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
+        send_to: 'Send to',
+		send_to_ph: 'Add new user to receive', /*placeholder*/
+		text_area_ph: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
 		send: 'Send',
 		preview: 'preview',
 		format: {
 			text: 'text',
 			image: 'image',
-			bbcodeMsg: 'You can use BBCode-style tags',
-			imageFile: 'Image File',
-			profileFile: 'Profile image*',
-			imageChosen: 'No file chosen',
+			bb_code_msg: 'You can use BBCode-style tags',
+			image_file: 'Image File',
+			profile_image: 'Profile image*',
+			image_chosen: 'No file chosen',
 		},
-        privacyOption: 'Privacy',
-        pOptions: {
+        privacy_option: 'Privacy',
+        p_options: {
             public: 'Public (everyone can see this)',
             private: 'Private (content is encrypted)',
             anonymous: 'Anonymous (encrypted and anonymous)',
@@ -167,8 +169,8 @@ Translate.language["en"].extend({
         },
         advanced: {
 			title: 'Advanced Options',
-			contentLicense: 'Content License',
-			replyPrivacy: 'Reply privacy level'
+			content_license: 'Content License',
+			reply_privacy: 'Reply privacy level'
         }
 	},
 	wizard: {
@@ -186,8 +188,8 @@ Translate.language["en"].extend({
 	},
 	tableview: {
 		tooltip: {
-            rowExpand: "Expand/collapse this row.",
-            colOptions: "Add/remove columns.",
+            row_expand: "Expand/collapse this row.",
+            col_options: "Add/remove columns.",
 		}
 	}
 });
@@ -212,10 +214,10 @@ Translate.checkMissingKey = function() {
 	for (var i=0; i<all_language.length; i++) {
 		var name = all_language[i];
 		var lang = Translate.language[name];
-		// check if dropdownDisplay is set
-		if (!lang.phrases['dropdownDisplay']) {
+		// check if drop_down_display is set
+		if (!lang.phrases['drop_down_display']) {
 			lang.extend({
-				dropdownDisplay: name
+				drop_down_display: name
 			})
 		}
 		for (var j=0; j<requiredKeys.length; j++) {

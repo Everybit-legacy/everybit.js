@@ -9,20 +9,20 @@
 
 var PuffToolsPuffDisplay = React.createClass({
     getInitialState: function() {
-        return {value: '', oldpuff: ''};
+        return {value: '', oldpuff: ''}
     },
     handleChange: function(event) {
-        this.setState({value: event.target.value});
+        this.setState({value: event.target.value})
     },
     render: function() {
         if(this.state.oldpuff != this.props.puff) {
-            this.state.value = formatForDisplay(this.props.puff, 'edit');
-            this.state.oldpuff = this.props.puff;
+            this.state.value = formatForDisplay(this.props.puff, 'edit')
+            this.state.oldpuff = this.props.puff
         }
 
 
         if(this.props.style == 'edit') {
-            var puffString = this.state.value;
+            var puffString = this.state.value
 
             return (
                 <textarea ref="puffString" name="puffString" id="puffString" cols="50" value={puffString} onChange={this.handleChange} />
@@ -30,13 +30,13 @@ var PuffToolsPuffDisplay = React.createClass({
         }
 
         // for raw or formatted styles:
-        var puffString = formatForDisplay(this.props.puff, this.props.style);
+        var puffString = formatForDisplay(this.props.puff, this.props.style)
 
         return (
             <textarea ref="puffString" name="puffString" rows="5" cols="50" value={puffString}></textarea>
             )
     }
-});
+})
 
 
 var PuffPacker = React.createClass({
@@ -45,7 +45,7 @@ var PuffPacker = React.createClass({
         return { result: {}
             , latest: ''
             ,   puff: {}
-        };
+        }
     },
 
     handleClose: function() {
@@ -53,241 +53,241 @@ var PuffPacker = React.createClass({
     },
 
     handleUsernameLookup: function() {
-        var username = this.refs.username.getDOMNode().value;
-        var self = this;
+        var username = this.refs.username.getDOMNode().value
+        var self = this
 
-        var prom = PB.getUserRecord(username);
+        var prom = PB.getUserRecord(username)
 
         prom.then(function(result) {
-            self.state.result = result || "";
-            Events.pub('ui/puff-packer/userlookup', {});
+            self.state.result = result || ""
+            Events.pub('ui/puff-packer/userlookup', {})
         })
             .catch(function(err) {
-                self.state.result = {'FAIL': err.message};
-                Events.pub('ui/puff-packer/userlookup/failed', {});
+                self.state.result = {'FAIL': err.message}
+                Events.pub('ui/puff-packer/userlookup/failed', {})
             })
     },
 
     handleGeneratePrivateKeys: function() {
         // Get private keys
-        var rootKey = PB.Crypto.generatePrivateKey();
-        var adminKey = PB.Crypto.generatePrivateKey();
-        var defaultKey = PB.Crypto.generatePrivateKey();
+        var rootKey = PB.Crypto.generatePrivateKey()
+        var adminKey = PB.Crypto.generatePrivateKey()
+        var defaultKey = PB.Crypto.generatePrivateKey()
 
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey;
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey;
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey;
+        this.refs.rootKeyPrivate.getDOMNode().value = rootKey
+        this.refs.adminKeyPrivate.getDOMNode().value = adminKey
+        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey
 
-        this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey);
-        this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey);
-        this.refs.defaultKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(defaultKey);
+        this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey)
+        this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey)
+        this.refs.defaultKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(defaultKey)
     },
 
     handleBuildRegisterUserPuff: function() {
         // Stuff to register. These are public keys
-        var payload = {};
-        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value;
-        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value;
-        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value;
+        var payload = {}
+        payload.rootKey = this.refs.rootKeyPublic.getDOMNode().value
+        payload.adminKey = this.refs.adminKeyPublic.getDOMNode().value
+        payload.defaultKey = this.refs.defaultKeyPublic.getDOMNode().value
 
         // import
-        if (this.props.importNetwork) payload.importNetwork = this.props.importNetwork;
-        if (this.props.importToken) payload.importToken = this.props.importToken;
-        if (this.props.importId) payload.importId = this.props.importId; 
+        if (this.props.importNetwork) payload.importNetwork = this.props.importNetwork
+        if (this.props.importToken) payload.importToken = this.props.importToken
+        if (this.props.importId) payload.importId = this.props.importId 
 
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'requestUsername';
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'requestUsername'
 
-        payload.time = Date.now();
+        payload.time = Date.now()
 
-        payload.requestedUsername = this.refs.username.getDOMNode().value;
+        payload.requestedUsername = this.refs.username.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys();
+        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
 
         if(!privateKeys.username) {
-            this.state.result = {"FAIL": "You must set your identity before building registration requests."};
-            return Events.pub('ui/puff-packer/user-registration/error', {});
+            this.state.result = {"FAIL": "You must set your identity before building registration requests."}
+            return Events.pub('ui/puff-packer/user-registration/error', {})
         }
 
-        this.state.result = {};
+        this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+        var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload)
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
-        var self = this;
-        self.state.puff = puff;
-        return Events.pub('ui/puff-packer/build-register-puff', {});
+        var self = this
+        self.state.puff = puff
+        return Events.pub('ui/puff-packer/build-register-puff', {})
     },
 
 
     handleBuildModifyUserKeysPuff: function() {
         // Stuff to register. These are public keys
 
-        var currentUser = PB.M.Wardrobe.getCurrentUsername();
+        var currentUser = PB.M.Wardrobe.getCurrentUsername()
         if(!currentUser) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
-            return Events.pub('ui/puff-packer/user-modify-keys/error', {});
+            return Events.pub('ui/puff-packer/user-modify-keys/error', {})
         }
 
-        var payload = {};
-        var rootKey = PB.M.Wardrobe.getCurrentKeys().root;
-        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin;
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default;
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'modifyUserKey';
+        var payload = {}
+        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
+        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
+        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'modifyUserKey'
 
         // What key do they want to modify?
-        var keyToModify = this.refs.keyToModify.getDOMNode().value;
-        payload.keyToModify = keyToModify;
+        var keyToModify = this.refs.keyToModify.getDOMNode().value
+        payload.keyToModify = keyToModify
 
-        var newKey = this.refs.newKey.getDOMNode().value;
-        payload.newKey = newKey;
+        var newKey = this.refs.newKey.getDOMNode().value
+        payload.newKey = newKey
 
-        payload.time = Date.now();
+        payload.time = Date.now()
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys();
+        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
 
 
         if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
             if(!rootKey) {
                 this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
-                return Events.pub('ui/puff-packer/user-modify-keys/error', {});
+                return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = rootKey;
+                var signingUserKey = rootKey
                 console.log("request will be signed with root key")
             }
         } else if(keyToModify == 'defaultKey') {
             if(!adminKey) {
                 this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
-                return Events.pub('ui/puff-packer/user-modify-keys/error', {});
+                return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = adminKey;
+                var signingUserKey = adminKey
                 console.log("request will be signed with admin key")
             }
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(currentUser, signingUserKey, routes, type, content, payload);
+        var puff = PB.buildPuff(currentUser, signingUserKey, routes, type, content, payload)
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
-        var self = this;
-        self.state.puff = puff;
-        return Events.pub('ui/puff-packer/build-register-puff', {});
+        var self = this
+        self.state.puff = puff
+        return Events.pub('ui/puff-packer/build-register-puff', {})
     },
 
     handleSendPuffToServer: function() {
         // Send the contents of the puff off to userApi with type=updateUsingPuff and post['puff']
-        var puff = this.state.puff;
-        var self = this;
+        var puff = this.state.puff
+        var self = this
 
         var prom = PB.Net.updateUserRecord(puff)
 
         prom.then(function(result) {
-            self.state.result = result;
-            Events.pub('ui/puff-packer/userlookup', {});
+            self.state.result = result
+            Events.pub('ui/puff-packer/userlookup', {})
         })
             .catch(function(err) {
-                self.state.result = {'FAIL': err.message};
-                Events.pub('ui/puff-packer/userlookup/failed', {});
+                self.state.result = {'FAIL': err.message}
+                Events.pub('ui/puff-packer/userlookup/failed', {})
             })
     },
 
     handleSendRawEditedPuff: function() {
         // Send the raw contents of the edited puff as a string to the server
-        var puffEl = document.getElementById('puffString');
-        var puffString = puffEl.value;
-        var self = this;
+        var puffEl = document.getElementById('puffString')
+        var puffString = puffEl.value
+        var self = this
 
-        var pprom = PB.Net.updateUserRecord(puffString);
+        var pprom = PB.Net.updateUserRecord(puffString)
 
         pprom.then(function(result) {
-            self.state.result = result;
-            Events.pub('ui/puff-packer/userlookup', {});
+            self.state.result = result
+            Events.pub('ui/puff-packer/userlookup', {})
         })
             .catch(function(err) {
-                self.state.result = {'FAIL': err.message};
-                Events.pub('ui/puff-packer/userlookup/failed', {});
+                self.state.result = {'FAIL': err.message}
+                Events.pub('ui/puff-packer/userlookup/failed', {})
             })
     },
 
     handleShowResultsFormatted: function() {
-        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'});
+        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'formatted'})
     },
 
     handleShowResultsRaw: function() {
-        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-result-style', {'tools.users.resultstyle': 'raw'})
     },
 
     handleShowPuffFormatted: function() {
-        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'formatted'})
     },
 
     handleShowPuffRaw: function() {
-        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'})
     },
 
     handleShowPuffEdit: function() {
-        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'edit'})
     },
 
     handlePublishPuff: function() {
-        return Events.pub('ui/puff-packer/publish-puff', {});
+        return Events.pub('ui/puff-packer/publish-puff', {})
     },
 
     handleGetLatest: function() {
-        var username = PB.M.Wardrobe.getCurrentUsername();
-        var self = this;
+        var username = PB.M.Wardrobe.getCurrentUsername()
+        var self = this
 
-        var prom = PB.getUserRecord(username);
+        var prom = PB.getUserRecord(username)
 
         prom.then(function(userRecord) {
-            self.state.latest = userRecord.latest;
-            Events.pub('ui/puff-packer/getUserLatest', {});
+            self.state.latest = userRecord.latest
+            Events.pub('ui/puff-packer/getUserLatest', {})
         })
     },
 
     handleBuildSetLatest: function() {
         // Stuff to register. These are public keys
-        var payload = {};
-        var routes = [];
-        var type = 'updateUserRecord';
-        var content = 'setLatest';
+        var payload = {}
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'setLatest'
 
-        payload.time = Date.now();
+        payload.time = Date.now()
 
-        payload.latest = this.refs.setLatestSigTo.getDOMNode().value;
+        payload.latest = this.refs.setLatestSigTo.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys();
+        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building set latest request."}
-            return Events.pub('ui/puff-packer/user-set-latest/error', {});
+            return Events.pub('ui/puff-packer/user-set-latest/error', {})
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload);
+        var puff = PB.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload)
 
-        var self = this;
-        self.state.puff = puff;
-        return Events.pub('ui/puff-packer/build-register-puff', {});
+        var self = this
+        self.state.puff = puff
+        return Events.pub('ui/puff-packer/build-register-puff', {})
 
-        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'});
+        return Events.pub('ui/puff-packer/set-puff-style', {'tools.users.puffstyle': 'raw'})
     },
 
     handleSetIdentityToAnon: function() {
-        PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0);
-        PB.M.Wardrobe.switchCurrent('anon');
-        Events.pub('ui/puff-packer/set-identity-to-anon', {});
-        // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0);
-        // PB.M.Wardrobe.addUserReally('anon', keys);
+        PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0)
+        PB.M.Wardrobe.switchCurrent('anon')
+        Events.pub('ui/puff-packer/set-identity-to-anon', {})
+        // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0)
+        // PB.M.Wardrobe.addUserReally('anon', keys)
     },
     handleImport: function() {
-        var network = this.refs.import.getDOMNode().value;
-        UsernameImport[network].requestAuthentication();
+        var network = this.refs.import.getDOMNode().value
+        UsernameImport[network].requestAuthentication()
     },
 
 
@@ -296,54 +296,54 @@ var PuffPacker = React.createClass({
             return JSON.stringify(obj, null, 2)
                 .replace(/[{}",\[\]]/g, '')
                 .replace(/^\n/, '')
-                .replace(/\n$/, '');
+                .replace(/\n$/, '')
         }
     },
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var username    = PB.M.Wardrobe.getCurrentUsername();
-        var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle);
+        var username    = PB.M.Wardrobe.getCurrentUsername()
+        var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle)
         var setIdentityField = (<div>To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
                         <PuffSwitchUser />
                         <input className="btn-link" type="button" value="Set identity to anon" onClick={this.handleSetIdentityToAnon} /><br /><br />
-                        </div>);
+                        </div>)
 
 
-        // var params = getQuerystringObject();
-        var params = getStashedKeysFromURL();
-        var importUser = false;
-        var requestedUsername = username;
+        // var params = getQuerystringObject()
+        var params = getStashedKeysFromURL()
+        var importUser = false
+        var requestedUsername = username
         if (params['requestedUsername']) {
             // Check if import username
 
             // Request has to come from anon user
-            this.handleSetIdentityToAnon();
-            importUser  = true;
-            requestedUsername = StringConversion.reduceUsernameToAlphanumeric(params['requestedUsername']);
+            this.handleSetIdentityToAnon()
+            importUser  = true
+            requestedUsername = StringConversion.reduceUsernameToAlphanumeric(params['requestedUsername'])
             // TODO: don't mutate props!
-            this.props.importToken = params['token'];
-            this.props.importId = params['requestedUserId'];
-            this.props.importNetwork = params['network'];
-            setIdentityField = "";
+            this.props.importToken = params['token']
+            this.props.importId = params['requestedUserId']
+            this.props.importNetwork = params['network']
+            setIdentityField = ""
         }
-        var disabled = importUser ? "disabled" : "";
+        var disabled = importUser ? "disabled" : ""
 
         // Where is our menu?
-        var menuSideSpace = CONFIG.menuWidth + 20;
-        var nonMenuSideSpace = 10;
+        var menuSideSpace = CONFIG.menuWidth + 20
+        var nonMenuSideSpace = 10
 
         if(CONFIG.menuRight) {
-            var rightSpacing = menuSideSpace + 'px';
-            var leftSpacing = nonMenuSideSpace + 'px';
+            var rightSpacing = menuSideSpace + 'px'
+            var leftSpacing = nonMenuSideSpace + 'px'
         } else {
-            var leftSpacing = menuSideSpace + 'px';
+            var leftSpacing = menuSideSpace + 'px'
             var rightSpacing = nonMenuSideSpace + 'px'
         }
 
-        var width = window.innerWidth - menuSideSpace - nonMenuSideSpace;
-        width = width < CONFIG.minWidthAdvancedTools ? CONFIG.minWidthAdvancedTools : width;
+        var width = window.innerWidth - menuSideSpace - nonMenuSideSpace
+        width = width < CONFIG.minWidthAdvancedTools ? CONFIG.minWidthAdvancedTools : width
 
         var styleInfo = {
                             left: leftSpacing,
@@ -455,12 +455,13 @@ var PuffPacker = React.createClass({
             </div>
             )
     }
-});
+})
 
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
+        this.setState({profileMsg: ''});
         PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
-        return Events.pub('ui/menu/user/pick-one/hide', {'menu.user.pick_one': false})
+        return Events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
     render: function() {
         var all_usernames = Object.keys(PB.M.Wardrobe.getAll())
@@ -479,8 +480,8 @@ var PuffSwitchUser = React.createClass({
                     })}
                 </select>
             </div>
-            );
+            )
     }
-});
+})
 
 // END ADVANCED TOOLS

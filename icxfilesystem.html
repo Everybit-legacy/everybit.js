@@ -16,14 +16,26 @@
 
     <textarea id="textbox">Some sample content</textarea>
     <button id="createLink">Create file</button>
-    <a id="link" download="icx.puff" style="display:none">Download</a>
+    <a id="link" download="icx.puff" style="display:none">Save encrypted message</a>
     
     <div>
-        <p>Decrypt message file:</p>
-        <input id="file" type="file" />
+        <p>Encrypt file:</p>
+        <input id="encryptFile" type="file" />
+    </div>
+    
+    <a id="encryptedLink" download="blahblah" style="display:none">Save encrypted file</a>
+    
+    
+    <hr />
+    
+    <div>
+        <p>Decrypt file:</p>
+        <input id="decryptFile" type="file" />
     </div>
     
     <textarea id="resultbox">Results</textarea>
+    
+    <a id="resultLink" download="icxfilefile" style="display:none">Save as unencrypted file</a>
     
     
     <script>
@@ -48,10 +60,14 @@
             
             var el = document.getElementById.bind(document)
             
-            var createLink = el('createLink')
-            var  resultbox = el('resultbox')
-            var    textbox = el('textbox')
-            var       link = el('link')
+            var encryptedLink = el('encryptedLink')
+            var   decryptFile = el('decryptFile')
+            var   encryptFile = el('encryptFile')
+            var    resultLink = el('resultLink')
+            var    createLink = el('createLink')
+            var     resultbox = el('resultbox')
+            var       textbox = el('textbox')
+            var          link = el('link')
             
             // saving
             
@@ -60,6 +76,24 @@
                 var puff = createPuff(content)
                 link.href = prepBlob(puff)
                 link.style.display = ""
+            })
+            
+            encryptFile.addEventListener('change', function(event) {
+                var element = event.target
+                var fileprom = handleFileOpen(element)
+                fileprom.then(function(fileguts) {
+                    var content = extractFileContent(fileguts)
+                    var puff = createPuff(content)
+
+                    var filelist = element.files
+                    var file     = filelist[0]
+                    var filename = file.name
+                    var new_filename = filename + '.puff'
+                    
+                    encryptedLink.href = prepBlob(puff)
+                    encryptedLink.style.display = ""
+                    encryptedLink.download = new_filename
+                })
             })
             
             var createPuff = function(content) {
@@ -97,14 +131,25 @@
             
             // opening
 
-            file.addEventListener('change', function(event) {
-                var el = event.target
-                var fileprom = handleFileOpen(el)
+            decryptFile.addEventListener('change', function(event) {
+                var element = event.target
+                var fileprom = handleFileOpen(element)
                 fileprom.then(function(fileguts) {
                     console.log(fileguts)
                     var content = extractFileContent(fileguts)
                     console.log(content)
                     resultbox.value = content
+                    
+
+                    var filelist = decryptFile.files
+                    var file     = filelist[0]
+                    var filename = file.name
+                    if(/\.puff/.test(filename))
+                        filename = filename.slice(0, -5)
+                    
+                    resultLink.href = prepBlob(content)
+                    resultLink.style.display = ""
+                    resultLink.download = filename
                 })
             })
             
@@ -130,7 +175,8 @@
                 return new Promise(function(resolve, reject) {
                     var reader = new FileReader()
 
-                    reader.onload = function(event){
+                    reader.onload = function(event) {
+                        console.log(reader)
                         var content = event.target.result
                         resolve(content)
                     }

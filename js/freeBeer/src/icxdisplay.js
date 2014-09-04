@@ -1,5 +1,142 @@
 /** @jsx React.DOM */
 
+var ICXWorld = React.createClass({
+    // Get dimensions
+    // Render compoents
+
+
+    render: function () {
+        return <ICXBorder />
+    }
+});
+
+
+var ICXBorder = React.createClass({
+    // Set color based on props
+
+
+
+    render: function () {
+
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        // TODO put in config for this module
+        ICX.options = {
+            minBorder: 1,
+            maxBorder: 100,
+            borderRatio:.5
+        }
+
+        ICX.screens = [
+            {left: 0*w, color: 'rgba(123,23,43,.3)'},
+            {left: 1*w, color: 'rgba(23,44,32,.3)'},
+            {left: 2*w, color: 'rgba(23,23,255,.3)'},
+            {left: 3*w, color: 'rgba(44,12,122,.3)'},
+            {left: 4*w, color: 'rgba(55,75,72,.3)'}
+        ]
+
+
+        var mainPages = ICX.screens.map(function(data) {
+            var borderWidth
+
+            if( w/ICX.options.borderRatio > ICX.options.maxBorder) {
+                borderWidth =  ICX.options.maxBorder
+            } else if(w/ICX.options.borderRatio < ICX.options.minBorder) {
+                borderWidth =  ICX.options.minBorder
+            } else {
+                borderWidth = Math.floor(w/ICX.options.borderRatio)
+            }
+
+            var screenStyles = {
+                position: "absolute",
+                width: w,
+                height: h,
+                top:0,
+                left: data.left,
+                borderWidth: borderWidth,
+                borderColor: data.color,
+                borderStyle: 'solid'
+            }
+            return <div id="s1" style={screenStyles} />
+
+        });
+
+        return (
+            <span>
+                {mainPages}
+            </span>
+            );
+
+
+    }
+});
+
+var ICXLogo = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+var ICXMain = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+var ICXButtons = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+var ICXAboutButton = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+var ICXStoreContentButton = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+var ICXFooter = React.createClass({
+
+    render: function () {
+        return
+    }
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
 var PuffBarShortcutMixin = {
     // call methods from PuffBar of cursor puff directly for shortcuts
     componentDidMount: function() {

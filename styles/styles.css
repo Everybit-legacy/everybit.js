@@ -95,9 +95,8 @@ body {
     font-size: 1em;
     margin-right: 0;
     margin-top: 0;
-    margin-bottom: 0px;
+    margin-bottom: 0;
     overflow-y: hidden;
-    overflow-x: hidden;
 }
 
 path {

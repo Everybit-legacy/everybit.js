@@ -506,7 +506,9 @@ function renderPuffWorld() {
 
     update_puffworldprops(Boron.flatten(data))
 
-    React.renderComponent(PuffWorld(puffworldprops), puffworlddiv)
+    ICX = {}
+
+    React.renderComponent(ICXWorld(puffworldprops), puffworlddiv)
 }
 
 update_puffworldprops = function(data) {

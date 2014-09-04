@@ -226,7 +226,7 @@ var FilterMenu = React.createClass({
             return (
                 <span key={type}>
                     <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa '+icon}></i>}</button>
-                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"_filter")} />
                 </span>
                 )
 
@@ -454,8 +454,8 @@ var IdentityMenu = React.createClass({
                         var tabClassName = show ? "linkTabHighlighted" : "linkTab"
                         return (
                             <span className={tabClassName} key={key}>
-                                <a href="#" onClick={self.handleToggleShowSection.bind(self, key)}><i className={"fa fa-fw "+sectionToIcon[key]}></i>{polyglot.t("menu.identity."+key+"Identity.title")}</a>
-                                <Tooltip position="under" content={polyglot.t("menu.tooltip."+key+"Identity")} />
+                                <a href="#" onClick={self.handleToggleShowSection.bind(self, key)}><i className={"fa fa-fw "+sectionToIcon[key]}></i>{polyglot.t("menu.identity."+key+"_identity.title")}</a>
+                                <Tooltip position="under" content={polyglot.t("menu.tooltip."+key+"_identity")} />
                             </span>
                         )
                     })}

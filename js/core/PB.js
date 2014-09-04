@@ -196,6 +196,11 @@ PB.getUserRecord = function(username) {
     if(userRecord)
         return Promise.resolve(userRecord);
     
+    var userPromise = PB.Data.userPromises[username];
+    
+    if(userPromise)
+        return userPromise;
+    
     return PB.getUserRecordNoCache(username);
 }
 
@@ -207,7 +212,11 @@ PB.getUserRecord = function(username) {
 PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
     
-    return PB.Net.getUserRecord(username);
+    var prom = PB.Net.getUserRecord(username);
+    
+    PB.Data.userPromises[username] = prom
+    
+    return prom;
 }
 
 /**
@@ -298,7 +307,7 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
     }
     
     var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
-                           , 'encryptedpuff', letterCipher, {}, letter.previous)        // it includes the letter
+                           , 'encryptedpuff', letterCipher, {}, letter.previous)  // it includes the letter
     
     envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
     envelope.sig = PB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
@@ -326,6 +335,7 @@ PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
 }
 
 PB.tryDecodeOyVey = function(str) {
+    //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.
     try {
         return decodeURIComponent(str)
     } catch(err) {

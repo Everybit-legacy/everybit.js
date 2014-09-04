@@ -316,7 +316,7 @@ var HBFilters = React.createClass({
             return (
                 <span key={type}>
                     <button value={type} className={"btn " + color} onClick={this.handlePickFilter.bind(this, type)}>{icon.indexOf('fa-')!=0 ? icon : <i className={'fa '+icon}></i>}</button>
-                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"Filter")} />
+                    <Tooltip position="under" content={polyglot.t("menu.tooltip."+type+"_filter")} />
                 </span>
                 )
 

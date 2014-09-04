@@ -931,6 +931,9 @@ var PuffPublishFormEmbed = React.createClass({
         )
 
         var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType
+        var typeLabel = (
+            <span>{polyglot.t("replyForm.type_text")}: </span>
+        )
         var typeOption = (
             <select className="btn" ref="type" value={type} disabled={this.state.showPreview} onChange={this.handlePickType} >
                 {contentTypeNames.map(function(type) {
@@ -1003,12 +1006,12 @@ var PuffPublishFormEmbed = React.createClass({
         /* content | preview |   send to */
         var contentTab = (
             <span className={this.state.showPreview ? "linkTab" : "linkTabHighlighted"} onClick={this.handleContentTab}>
-                Content
+                {polyglot.t("replyForm.content_text")}
             </span>
         )
         var previewTab = (
             <span className={this.state.showPreview ? "linkTabHighlighted" : "linkTab"} onClick={this.handlePreviewTab}>
-                Preview
+                {polyglot.t("replyForm.preview_text")}
             </span>
         )
         if (type == 'image' || type == 'profile') previewTab = <span></span>
@@ -1073,7 +1076,7 @@ var PuffPublishFormEmbed = React.createClass({
                     {contentField}
                     {type == "bbcode" ? (<span>{polyglot.t("replyForm.format.bb_code_msg")}<br/></span>) : ""}
                     {errorField}
-                    Type: {typeOption}{' '}{this.state.showPreview ? "" : discardBtn}
+                    {typeLabel}{typeOption}{' '}{this.state.showPreview ? "" : discardBtn}
                     {advancedField}
                 </div>
             </div>

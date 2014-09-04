@@ -359,10 +359,10 @@ var GridLayoutMixin = {
                                                 .filter(function(pair) {return pair[0]})
 
         return (
-            React.DOM.svg( {width:screencoords.width, height:screencoords.height, style:{position:'absolute', top:'0px', left:CONFIG.leftMargin}}, 
-                React.DOM.defs( {dangerouslySetInnerHTML:{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ),
+            React.DOM.svg({width: screencoords.width, height: screencoords.height, style: {position:'absolute', top:'0px', left:CONFIG.leftMargin}}, 
+                React.DOM.defs({dangerouslySetInnerHTML: {__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}}), 
                 arrows.map(function(arrow) {
-                    return PuffArrow( {key:'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig, arrow:arrow} )
+                    return PuffArrow({key: 'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig, arrow: arrow})
                 })
             )
         )        
@@ -381,16 +381,16 @@ var GridLayoutMixin = {
                 var stats = puffplus
                 var puff  = puffplus.puff
                 var view  = viewprops
-                return PuffFancyBox( {puff:puff, key:puff.sig, extraClassy:className, stats:stats, view:view, ref:puff.sig} )
+                return PuffFancyBox({puff: puff, key: puff.sig, extraClassy: className, stats: stats, view: view, ref: puff.sig})
             }
         })()
         
         
         return (
             React.DOM.div(null, 
-                React.DOM.div( {id:"talltree"}, 
+                React.DOM.div({id: "talltree"}, 
                     puffBoxList.map(fancyWrapper)
-                ),
+                ), 
 
                 arrowList
             )
@@ -432,22 +432,22 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         */
 
         if( viewprops.mode == 'focus' ) {
-            view = PuffTallTree( {view:viewprops, reply:this.props.reply} )
+            view = PuffTallTree({view: viewprops, reply: this.props.reply})
             document.body.style.overflowY = "hidden"
         }
 
         else if( viewprops.mode == 'list' ) {
-            view = PuffList( {view:viewprops, reply:this.props.reply} )
+            view = PuffList({view: viewprops, reply: this.props.reply})
             document.body.style.overflowY = "hidden"
         }
 
         else if ( viewprops.mode == 'tableView' ) {
-            view = TableView( {view:viewprops, table:this.props.view.table})
+            view = TableView({view: viewprops, table: this.props.view.table})
             document.body.style.overflowY = "auto"
         }
 
         else if( viewprops.mode == 'PuffPacker' ) {
-            view = PuffPacker(      {tools:this.props.tools} )
+            view = PuffPacker({tools: this.props.tools})
             document.body.style.overflowY = "hidden"
         }
 
@@ -464,26 +464,26 @@ var PuffWorld = React.createClass({displayName: 'PuffWorld',
         
         // TODO: Focus the reply box when arrow clicked
         // var replyExpand = this.props.reply.expand ? <PuffPublishFormExpand reply={this.props.reply} /> : ''
-        var popout = PopoutCluster( {section:this.props.menu.popout, view:this.props.view})
+        var popout = PopoutCluster({section: this.props.menu.popout, view: this.props.view})
         var menu = this.props.menu.show 
-                 ? React.DOM.div(null, Menu( {prefs:this.props.prefs, profile:this.props.profile, view:this.props.view})) 
+                 ? React.DOM.div(null, Menu({prefs: this.props.prefs, profile: this.props.profile, view: this.props.view})) 
                  : ''
 
         var animateClass = this.props.view.animation ? "animation" : ''
 
         // <PuffHeader menu={this.props.menu} />
 
-        var hb = puffworldprops.header.show ? HeaderBar( {view:this.props.view} ) : ''
+        var hb = puffworldprops.header.show ? HeaderBar({view: this.props.view}) : ''
 
         return (
-            React.DOM.div( {className:animateClass}, 
-                puffworldprops.slider.show ? Slider(null ) : "",
-                HeaderHider(null ),
-                hb,
-                menu,
-                view,
-                popout,
-                PuffFooter(null )
+            React.DOM.div({className: animateClass}, 
+                puffworldprops.slider.show ? Slider(null) : "", 
+                HeaderHider(null), 
+                hb, 
+                menu, 
+                view, 
+                popout, 
+                PuffFooter(null)
             )
         )
     }
@@ -518,9 +518,9 @@ var PuffList = React.createClass({displayName: 'PuffList',
         var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit
         return (
             React.DOM.div(null, 
-                this.standardGridify(puffs),
-                PuffScroller( {ref:"scrollup", position:"up", view:this.props.view, show:showScrollUp} ),
-                PuffScroller( {ref:"scrolldown", position:"down", view:this.props.view, show:showScrollDown} )
+                this.standardGridify(puffs), 
+                PuffScroller({ref: "scrollup", position: "up", view: this.props.view, show: showScrollUp}), 
+                PuffScroller({ref: "scrolldown", position: "down", view: this.props.view, show: showScrollDown})
             )
         )
     }
@@ -868,7 +868,7 @@ var PuffArrow =  React.createClass({displayName: 'PuffArrow',
         colNumber = colNumber % CONFIG.arrowColors.length
 
         var stroke = CONFIG.arrowColors[colNumber]
-        return Arrow( {x1:x1, y1:y1, x2:x2, y2:y2, stroke:stroke, fill:stroke} )
+        return Arrow({x1: x1, y1: y1, x2: x2, y2: y2, stroke: stroke, fill: stroke})
     }
 })
 
@@ -886,7 +886,7 @@ var Arrow = React.createClass({displayName: 'Arrow',
         //
 
         return (
-            React.DOM.line( {x1:this.props.x1, y1:this.props.y1, x2:this.props.x2, y2:this.props.y2, stroke:this.props.stroke, strokeWidth:"2", fill:this.props.fill} )
+            React.DOM.line({x1: this.props.x1, y1: this.props.y1, x2: this.props.x2, y2: this.props.y2, stroke: this.props.stroke, strokeWidth: "2", fill: this.props.fill})
         )
     }
 })
@@ -900,9 +900,9 @@ var PuffFooter = React.createClass({displayName: 'PuffFooter',
 
         return (
 
-            React.DOM.div( {className:"footer", style:{maxWidth: width}}, 
-                React.DOM.div( {className:"footerText"}, 
-                polyglot.t("footer.powered"), " ", React.DOM.a( {href:CONFIG.url, className:"footerText"}, "puffball"),".",
+            React.DOM.div({className: "footer", style: {maxWidth: width}}, 
+                React.DOM.div({className: "footerText"}, 
+                polyglot.t("footer.powered"), " ", React.DOM.a({href: CONFIG.url, className: "footerText"}, "puffball"), ".", 
                 polyglot.t("footer.rest")
                 )
             )
@@ -916,8 +916,8 @@ var Logo = React.createClass({displayName: 'Logo',
     render: function() {
         return (
             React.DOM.div(null, 
-                React.DOM.a( {href:CONFIG.url}, 
-                    React.DOM.img( {src:CONFIG.logo, alt:"Logo", className:"logo"} )
+                React.DOM.a({href: CONFIG.url}, 
+                    React.DOM.img({src: CONFIG.logo, alt: "Logo", className: "logo"})
                 )
             )
             )
@@ -957,11 +957,11 @@ var PuffScroller = React.createClass({displayName: 'PuffScroller',
         var className = "scroller gray " + this.props.position
         var iconClass = "fa fa-fw fa-chevron-"+this.props.position
         return (
-            React.DOM.div( {className:className, style:style}, 
-                React.DOM.a( {href:"#", onClick:this.handleScroll}, 
-                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
-                    React.DOM.i( {className:iconClass}),React.DOM.br(null),
-                    React.DOM.i( {className:iconClass}),React.DOM.br(null)
+            React.DOM.div({className: className, style: style}, 
+                React.DOM.a({href: "#", onClick: this.handleScroll}, 
+                    React.DOM.i({className: iconClass}), React.DOM.br(null), 
+                    React.DOM.i({className: iconClass}), React.DOM.br(null), 
+                    React.DOM.i({className: iconClass}), React.DOM.br(null)
                 )
             )
         )

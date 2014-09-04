@@ -148,6 +148,11 @@ puffworldprops = {
             lastClick: "",
             format: 'list',
             maxRowHeight: 4
+        },
+
+        // ICX related
+        icx: {
+            screen: 'home'
         }
     },
 

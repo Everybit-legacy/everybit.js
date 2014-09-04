@@ -3,49 +3,67 @@
 var ICXWorld = React.createClass({
     // Get dimensions
     // Render compoents
+    componentDidMount: function() {
+        // Take them to where they need to go
+        thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == puffworldprops.view.icx.screen;
+        });
 
+        xOffset = thisScreen[0].left;
+        window.scrollTo(xOffset,0);
 
-    render: function () {
-        return <ICXBorder />
-    }
-});
+    },
 
+    componentDidUpdate: function() {
+        // Take them to where they need to go
+        thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == puffworldprops.view.icx.screen;
+        });
 
-var ICXBorder = React.createClass({
-    // Set color based on props
+        xOffset = thisScreen[0].left;
+        window.scrollTo(xOffset,0);
 
+    },
 
 
     render: function () {
 
         var w = window.innerWidth
         var h = window.innerHeight
+        var env = {w: w, h: h}
 
         // TODO put in config for this module
         ICX.options = {
             minBorder: 1,
             maxBorder: 100,
-            borderRatio:.5
+            borderRatio:.03,
+            logoBigRatio:.2,
+            logoYFromTop:.05,
+            logoSmallRatio:.1,
+            buttonHeightRatio:.1,
+            buttonWidthRatio:.6
+
         }
 
         ICX.screens = [
-            {left: 0*w, color: 'rgba(123,23,43,.3)'},
-            {left: 1*w, color: 'rgba(23,44,32,.3)'},
-            {left: 2*w, color: 'rgba(23,23,255,.3)'},
-            {left: 3*w, color: 'rgba(44,12,122,.3)'},
-            {left: 4*w, color: 'rgba(55,75,72,.3)'}
+            {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', fullText: 'HOME page'},
+            {order: 1, name: 'send',  left: 1*w, color: 'rgba(226, 160, 79, .8)', fullText: 'SEND a private message or file'},
+            {order: 2, name: 'store', left: 2*w, color: 'rgba(93,  128, 90, .8)', fullText: 'STORE your content privately'},
+            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', fullText: 'LOG IN to view your files or messages'},
+            {order: 4, name: 'how',   left: 4*w, color: 'rgba(49,  68,  92, .8)', fullText: 'HOW it works'},
+            {order: 5, name: 'learn', left: 5*w, color: 'rgba(85,  65,  94, .8)', fullText: 'LEARN more about i.cx'}
         ]
 
 
         var mainPages = ICX.screens.map(function(data) {
             var borderWidth
 
-            if( w/ICX.options.borderRatio > ICX.options.maxBorder) {
+            if( w*ICX.options.borderRatio > ICX.options.maxBorder) {
                 borderWidth =  ICX.options.maxBorder
-            } else if(w/ICX.options.borderRatio < ICX.options.minBorder) {
+            } else if(w*ICX.options.borderRatio < ICX.options.minBorder) {
                 borderWidth =  ICX.options.minBorder
             } else {
-                borderWidth = Math.floor(w/ICX.options.borderRatio)
+                borderWidth = Math.floor(w*ICX.options.borderRatio)
             }
 
             var screenStyles = {
@@ -58,7 +76,9 @@ var ICXBorder = React.createClass({
                 borderColor: data.color,
                 borderStyle: 'solid'
             }
-            return <div id="s1" style={screenStyles} />
+
+            // TODO make this a component, that contains all others
+            return <ICXFrame key={'frame'+data.name} styleInfo={screenStyles} screenInfo={data} env={env} />
 
         });
 
@@ -66,16 +86,148 @@ var ICXBorder = React.createClass({
             <span>
                 {mainPages}
             </span>
-            );
+        );
+    }
+});
 
+var ICXFrame = React.createClass({
+    // Set color based on props
+    render: function() {
+        return (
+              <div style={this.props.styleInfo}>
+                <ICXPage screenInfo={this.props.screenInfo} env={this.props.env} />
+              </div>
+            )
+    }
+});
 
+var ICXPage = React.createClass({
+
+    render: function () {
+        var content
+        switch(this.props.screenInfo.name) {
+            case "home":
+                content = 'HOME PAGE'
+                break;
+            default:
+                content = 'NOT HOME PAGE'
+        }
+        return <div><ICXLogo screenInfo={this.props.screenInfo} env={this.props.env}/><ICXLinks screenInfo={this.props.screenInfo} key={'buttons'+this.props.screenInfo.name} /> Links<br />Content for {this.props.screenInfo.name}</div>
     }
 });
 
 var ICXLogo = React.createClass({
 
+    handleGoHome: function() {
+        Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+    },
+
+    // TODO clean up redefining w and h everywhere
     render: function () {
-        return
+        var w = this.props.env.w
+        var h = this.props.env.h
+
+        if(this.props.screenInfo.name == 'home') {
+            var logoW = w*ICX.options.logoBigRatio
+            var logoX = Math.floor( (w-logoW)/2 ) + "px"
+            var logoY = Math.floor( h*ICX.options.logoYFromTop ) + "px"
+            logoW = logoW + "px"
+
+            return <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
+        } else {
+            var logoW = w*ICX.options.logoSmallRatio
+            var logoX = Math.floor( (w-logoW)/2 ) + "px"
+            var logoY = Math.floor( h*ICX.options.logoYFromTop ) + "px"
+            logoW = logoW + "px"
+
+            return (
+                <a href="#" onClick={this.handleGoHome}>
+                        <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
+                </a>
+                )
+        }
+    }
+
+
+});
+
+var ICXLinks = React.createClass({
+    handleGoTo: function(screen) {
+        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+
+    render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+
+        var self = this
+        var buttonLinks = ICX.screens.map(function(data) {
+            var buttonStyle = {
+                backgroundColor: data.color,
+                height: Math.floor( ICX.options.buttonHeightRatio*h ) + 'px',
+                width: Math.floor( ICX.options.buttonWidthRatio*w ) + 'px',
+                position: 'absolute',
+                right: 0,
+                top: Math.floor( (h*.3) + data.order*Math.floor( ICX.options.buttonHeightRatio*h )) + 'px'
+            }
+
+
+            if(data.name == 'home') {
+                return <ICXBigLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
+
+            } else {
+                return <ICXSmallLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
+            }
+
+        });
+
+        return <span>{buttonLinks}</span>
+
+    }
+});
+
+var ICXBigLink = React.createClass({
+    handleGoTo: function(screen) {
+        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+    render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        var styleToUse = this.props.styleInfo
+
+        return (
+            <div style={styleToUse}>
+                <a href="#"  onClick={this.handleGoTo.bind(this, this.props.screenInfo.name)} className="ICXbuttonLink">
+                        {this.props.screenInfo.full}
+                </a>
+            </div>
+        )
+    }
+});
+
+var ICXSmallLink = React.createClass({
+    handleGoTo: function(screen) {
+        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+
+    render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        var styleToUse = this.props.styleInfo
+
+        return (
+            <div style={styleToUse}>
+                <a href="#"  onClick={this.handleGoTo.bind(self, this.props.screenInfo.name)}>
+                        {this.props.screenInfo.name}
+                </a>
+            </div>
+            )
     }
 
 
@@ -90,14 +242,7 @@ var ICXMain = React.createClass({
 
 });
 
-var ICXButtons = React.createClass({
 
-    render: function () {
-        return
-    }
-
-
-});
 
 var ICXAboutButton = React.createClass({
 

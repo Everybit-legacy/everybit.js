@@ -818,6 +818,11 @@ fieldset[disabled] .btn-link {
     max-height: 24px;
 }
 
+a.ICXbuttonLink {
+    color: white;
+}
+
+
 .identitySection {
     background: #d6d6ff;
 }

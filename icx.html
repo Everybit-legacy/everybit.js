@@ -10,10 +10,39 @@
     <link rel="stylesheet" href="styles/xbbcode.css" />
     <link rel="stylesheet" href="styles/styles.css" />
     <link rel="stylesheet" href="styles/font-awesome.css" />
-	  <link rel="stylesheet" href="styles/chess.css" />
+    <link rel="stylesheet" href="styles/chess.css" />
 
 </head>
 
+    <!--
+    <textarea id="textbox">Some sample content</textarea>
+    <a id="link" download="name.file.txt">Download</a>
+    
+    <script>
+        ~(function () {
+            var oldFile = null
+            
+            var textbox = document.getElementById('textbox')
+            var link = document.getElementById('link')
+            
+            textbox.addEventListener('change', function() {
+                link.href = prepBlob(textbox.value)
+            })
+            
+            var prepBlob = function(text) {
+                var data = new Blob([text], {type: 'text/plain'})
+                
+                if(oldFile)
+                  window.URL.revokeObjectURL(oldFile)
+
+                oldFile = window.URL.createObjectURL(data)
+
+                return oldFile
+            }
+        })()
+    </script>
+    -->
+        
     <div id="puffworld"></div>
 
     <!-- polyfills -->

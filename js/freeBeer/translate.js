@@ -131,8 +131,8 @@ Translate.language["en"].extend({
             copy:'Copy the raw content of this puff to the reply box',
             star:'Star this puff',
             disable_reporting: "We track how you use our website. Click to disable.",
-            sort_DESC: "Sorted by most recent. Click to change.",
-            sort_ASC: "Sorted by least recent. Click to change.",
+            sortDESC: "Sorted by most recent. Click to change.",
+            sortASC: "Sorted by least recent. Click to change.",
             show_roots_true: "Showing only puffs with no parents  (topic starters). Click to change.",
             show_roots_false: "Showing topic starters and replies. Click to show only puffs with no parents (topic starters)."
         }

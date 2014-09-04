@@ -23,16 +23,19 @@
         <input id="file" type="file" />
     </div>
     
+    <textarea id="resultbox">Results</textarea>
+    
+    
     <script>
         /*
         
             -- encode message as puff
             -- extract puff content
-            - encrypt message puff
-            - decrypt message puff on opening
+            -- encrypt message puff
+            -- decrypt message puff on opening
             - encode files in addition to messages
             - download decrypted files
-        
+            
             - bonus: allow keys to be stored as files
             - bonus: move decryption into a worker
 
@@ -46,6 +49,7 @@
             var el = document.getElementById.bind(document)
             
             var createLink = el('createLink')
+            var  resultbox = el('resultbox')
             var    textbox = el('textbox')
             var       link = el('link')
             
@@ -69,7 +73,8 @@
                 var username    = userRecord.username
                 var privateKeys = PB.M.Wardrobe.getCurrentKeys()
 
-                var previous, userRecordsForWhomToEncrypt, envelopeUserKeys
+                var previous, envelopeUserKeys
+                var userRecordsForWhomToEncrypt = [userRecord]
                 
                 var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
@@ -95,14 +100,31 @@
             file.addEventListener('change', function(event) {
                 var el = event.target
                 var fileprom = handleFileOpen(el)
-                fileprom.then(function(content) {
+                fileprom.then(function(fileguts) {
+                    console.log(fileguts)
+                    var content = extractFileContent(fileguts)
                     console.log(content)
-                    var obj = PB.parseJSON(content) 
-                    var puffcontent = (obj.payload||{}).content
-                    if(puffcontent)
-                        console.log(puffcontent)
+                    resultbox.value = content
                 })
             })
+            
+            var extractFileContent = function(content) {
+                var puff = PB.parseJSON(content)
+                if(!puff) return content
+                
+                if(!puff.keys) return (puff.payload||{}).content
+                
+                var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
+                var username    = userRecord.username
+                var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+
+                var pubkey = userRecord.defaultKey
+                var prikey = privateKeys.default
+                
+                var letter = PB.decryptPuff(puff, pubkey, username, prikey)
+                
+                return (letter.payload||{}).content
+            }
             
             var handleFileOpen = function(element) {                
                 return new Promise(function(resolve, reject) {

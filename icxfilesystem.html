@@ -1,0 +1,185 @@
+<!doctype>
+<html>
+<head>
+    <title>
+        I.CX
+    </title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="styles/normalize.css" />
+    <link rel="stylesheet" href="styles/layout.css" />
+    <link rel="stylesheet" href="styles/xbbcode.css" />
+    <link rel="stylesheet" href="styles/styles.css" />
+    <link rel="stylesheet" href="styles/font-awesome.css" />
+
+</head>
+<body>
+
+    <textarea id="textbox">Some sample content</textarea>
+    <button id="createLink">Create file</button>
+    <a id="link" download="icx.puff" style="display:none">Download</a>
+    
+    <div>
+        <p>Decrypt message file:</p>
+        <input id="file" type="file" />
+    </div>
+    
+    <script>
+        /*
+        
+            -- encode message as puff
+            -- extract puff content
+            - encrypt message puff
+            - decrypt message puff on opening
+            - encode files in addition to messages
+            - download decrypted files
+        
+            - bonus: allow keys to be stored as files
+            - bonus: move decryption into a worker
+
+        */
+    
+    
+    
+        ~(function () {
+            var oldFile = null
+            
+            var el = document.getElementById.bind(document)
+            
+            var createLink = el('createLink')
+            var    textbox = el('textbox')
+            var       link = el('link')
+            
+            // saving
+            
+            createLink.addEventListener('click', function() {
+                var content = textbox.value
+                var puff = createPuff(content)
+                link.href = prepBlob(puff)
+                link.style.display = ""
+            })
+            
+            var createPuff = function(content) {
+                var payload = {}
+                payload.time = Date.now()
+                
+                var type  = 'text'
+                var routes = ['local'];
+
+                var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
+                var username    = userRecord.username
+                var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+
+                var previous, userRecordsForWhomToEncrypt, envelopeUserKeys
+                
+                var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+
+                return puff
+            }
+            
+            var prepBlob = function(text) {
+                if(typeof text != 'string')
+                    text = JSON.stringify(text)
+                
+                var data = new Blob([text], {type: 'text/plain'})
+                
+                if(oldFile)
+                  window.URL.revokeObjectURL(oldFile)
+
+                oldFile = window.URL.createObjectURL(data)
+
+                return oldFile
+            }
+            
+            // opening
+
+            file.addEventListener('change', function(event) {
+                var el = event.target
+                var fileprom = handleFileOpen(el)
+                fileprom.then(function(content) {
+                    console.log(content)
+                    var obj = PB.parseJSON(content) 
+                    var puffcontent = (obj.payload||{}).content
+                    if(puffcontent)
+                        console.log(puffcontent)
+                })
+            })
+            
+            var handleFileOpen = function(element) {                
+                return new Promise(function(resolve, reject) {
+                    var reader = new FileReader()
+
+                    reader.onload = function(event){
+                        var content = event.target.result
+                        resolve(content)
+                    }
+
+                    reader.readAsText(element.files[0])
+                    // reader.readAsDataURL(el.files[0])
+                    
+                })
+            }
+            
+        })()
+    </script>
+        
+    <div id="puffworld" style="display:none"></div>
+
+    <!-- polyfills -->
+    <script src="scripts/promise.min.js"></script>
+
+    <!-- i18n -->
+    <script src="scripts/polyglot.min.js"></script>
+    <script src="js/icx/translate.js"></script>
+    <script src="js/icx/translate-zh.js"></script>
+
+    <!-- content type libs -->
+    <script src="scripts/xbbcode.js"></script>
+    <script src="scripts/markdown.js"></script>
+
+    <!-- libraries -->
+    <script src="scripts/qrcode.js"></script>
+    <script src="scripts/timeSince.js"></script>
+    <script src="scripts/mousetrap.js"></script>
+
+    <script src="scripts/bitcoinjs-min.js"></script>
+    <script src="scripts/peer.js"></script>
+    <script src="scripts/jscolor.js"></script>
+
+    <!-- react.js -->
+    <script src="scripts/react/build/react-with-addons.js"></script>
+    <!--Swap with above for debugging
+    <script src="scripts/react.js"></script>
+    -->
+
+    <!-- configuration file -->
+    <script src="config.js"></script>
+
+    <!-- local libraries -->
+    <script src="js/libs/dagoba.js"></script>
+    <script src="js/libs/events.js"></script>
+    <script src="js/libs/gridbox.js"></script>
+    <script src="js/libs/boron.js"></script>
+
+    <!-- platform -->
+    <script src="js/helpers.js"></script>
+    <script src="js/core/PB.js"></script>
+    <script src="js/core/PB.Net.js"></script>
+    <script src="js/core/PB.Data.js"></script>
+    <script src="js/core/PB.Crypto.js"></script>
+    <script src="js/core/PB.Persist.js"></script>
+    
+    <!-- modules -->
+    <script src="js/modules/PB.M.Forum.js"></script>
+    <script src="js/modules/PB.M.Wardrobe.js"></script>
+
+    <!-- icx -->
+    <script src="js/freeBeer/build/icxdisplay.js"></script>
+    <script src="js/freeBeer/build/menu.js"></script>
+    <script src="js/freeBeer/build/tableView.js"></script>
+    <script src="js/freeBeer/build/puffbox.js"></script>
+    <script src="js/icx/main.js"></script>
+
+    <script src="config_dev.js"></script> <!-- private config: don't commit it, don't remove this -->
+
+</body>
+</html>

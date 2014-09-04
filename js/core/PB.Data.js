@@ -8,7 +8,7 @@ PB.Data.shellSort = {};
 // PB.Data.shelf = [];
 PB.Data.pending = {};
 PB.Data.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
-
+PB.Data.userPromises = {};
 
 
 ///////////////// new graph stuff ////////////////////
@@ -708,6 +708,8 @@ PB.Data.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
     
     PB.Data.userRecords[userRecord.username] = userRecord;
+
+    delete PB.Data.userPromises[userRecord.username];
     
     PB.Persist.save('userRecords', PB.Data.userRecords); // OPT: this could get expensive
     

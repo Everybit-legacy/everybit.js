@@ -196,6 +196,11 @@ PB.getUserRecord = function(username) {
     if(userRecord)
         return Promise.resolve(userRecord);
     
+    var userPromise = PB.Data.userPromises[username];
+    
+    if(userPromise)
+        return userPromise;
+    
     return PB.getUserRecordNoCache(username);
 }
 
@@ -207,7 +212,11 @@ PB.getUserRecord = function(username) {
 PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
     
-    return PB.Net.getUserRecord(username);
+    var prom = PB.Net.getUserRecord(username);
+    
+    PB.Data.userPromises[username] = prom
+    
+    return prom;
 }
 
 /**

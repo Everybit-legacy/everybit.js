@@ -30,7 +30,7 @@ Translate.language["zh"].extend({
 			relationship: "显示关联",
 			animation: "显示动画",
 			infobar: "显示信息栏",
-			disable_reporting: "停止上传活动信息",
+			disable_reporting: "停止上传使用信息",
 			language: "语言"
 		},
 		publish: {
@@ -79,8 +79,8 @@ Translate.language["zh"].extend({
 		about: {
 			title: '关于',
 			introduction: '介绍',
-			faq: "Puffball问与答",
-			code: '源代码'
+			faq: "常见问题",
+			code: '源码'
 		},
 		tools: {
 			title: '高级工具',
@@ -125,6 +125,14 @@ Translate.language["zh"].extend({
             disable_reporting: "我们追踪您对本网站的使用。选中禁止追踪。"
         }
 	},
+	header: {
+		tooltip: {
+            publish: '发送新puff',
+            identity: '账户管理',
+            icon: '显示/隐藏目录',
+            refresh: '更新'
+		}
+	},
 	replyForm: {
 		recipient: '收件人',
         send_to: '发送给',
@@ -156,8 +164,8 @@ Translate.language["zh"].extend({
         }
 	},
 	footer: {
-		powered: '基于',
-		rest: '所有内容责任在于所发布用户。本网站不对任何用户所发布内容负责。'
+		powered: '技术支持',
+		rest: '本站所有内容的责任在于作者。本站不对任何发布的内容负责。'
 	}
 });
 Translate.language["zh"].extend({

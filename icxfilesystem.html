@@ -25,7 +25,6 @@
     
     <a id="encryptedLink" download="blahblah" style="display:none">Save encrypted file</a>
     
-    
     <hr />
     
     <div>
@@ -36,7 +35,6 @@
     <textarea id="resultbox">Results</textarea>
     
     <a id="resultLink" download="icxfilefile" style="display:none">Save as unencrypted file</a>
-    
     
     <script>
         /*
@@ -73,17 +71,16 @@
             
             createLink.addEventListener('click', function() {
                 var content = textbox.value
-                var puff = createPuff(content)
+                var puff = createPuff(content, 'text')
                 link.href = prepBlob(puff)
                 link.style.display = ""
             })
             
             encryptFile.addEventListener('change', function(event) {
                 var element = event.target
-                var fileprom = handleFileOpen(element)
-                fileprom.then(function(fileguts) {
-                    var content = extractFileContent(fileguts)
-                    var puff = createPuff(content)
+                var fileprom = openFile(element)
+                fileprom.then(function(blob) {
+                    var puff = createPuff(blob, 'file')
 
                     var filelist = element.files
                     var file     = filelist[0]
@@ -96,11 +93,11 @@
                 })
             })
             
-            var createPuff = function(content) {
+            var createPuff = function(content, type) {
                 var payload = {}
                 payload.time = Date.now()
                 
-                var type  = 'text'
+                var type  = type || 'file'
                 var routes = ['local'];
 
                 var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
@@ -115,16 +112,21 @@
                 return puff
             }
             
-            var prepBlob = function(text) {
-                if(typeof text != 'string')
-                    text = JSON.stringify(text)
+            var prepBlob = function(str, type) {
+                if(typeof str != 'string')
+                    str = JSON.stringify(str)
                 
-                var data = new Blob([text], {type: 'text/plain'})
+                var blob
+                
+                if(type == 'file')
+                    blob = dataURItoBlob(str)
+                else
+                    blob = new Blob([str], {type: 'text/plain'})
                 
                 if(oldFile)
                   window.URL.revokeObjectURL(oldFile)
 
-                oldFile = window.URL.createObjectURL(data)
+                oldFile = window.URL.createObjectURL(blob)
 
                 return oldFile
             }
@@ -133,13 +135,17 @@
 
             decryptFile.addEventListener('change', function(event) {
                 var element = event.target
-                var fileprom = handleFileOpen(element)
+                var fileprom = openPuffFile(element)
                 fileprom.then(function(fileguts) {
                     console.log(fileguts)
-                    var content = extractFileContent(fileguts)
-                    console.log(content)
-                    resultbox.value = content
                     
+                    var letterPuff = extractLetterPuff(fileguts)
+                    var content = (letterPuff.payload||{}).content
+                    var type = (letterPuff.payload||{}).type
+                    
+                    console.log(letterPuff)
+                    
+                    resultbox.value = content
 
                     var filelist = decryptFile.files
                     var file     = filelist[0]
@@ -147,13 +153,13 @@
                     if(/\.puff/.test(filename))
                         filename = filename.slice(0, -5)
                     
-                    resultLink.href = prepBlob(content)
+                    resultLink.href = prepBlob(content, type)
                     resultLink.style.display = ""
                     resultLink.download = filename
                 })
             })
             
-            var extractFileContent = function(content) {
+            var extractLetterPuff = function(content) {
                 var puff = PB.parseJSON(content)
                 if(!puff) return content
                 
@@ -162,29 +168,60 @@
                 var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
                 var username    = userRecord.username
                 var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
+                
                 var pubkey = userRecord.defaultKey
                 var prikey = privateKeys.default
                 
                 var letter = PB.decryptPuff(puff, pubkey, username, prikey)
                 
-                return (letter.payload||{}).content
+                return letter
             }
             
-            var handleFileOpen = function(element) {                
+            var openPuffFile = function(element) {                
+                return handleFileOpen(element)
+            }
+            
+            var openFile = function(element) {                
+                return handleFileOpen(element, 'asDataURI')
+            }
+            
+            var handleFileOpen = function(element, asDataURI) {                
                 return new Promise(function(resolve, reject) {
                     var reader = new FileReader()
 
                     reader.onload = function(event) {
                         console.log(reader)
-                        var content = event.target.result
-                        resolve(content)
+                        var dataURIContent = event.target.result
+                        // var blob = dataURItoBlob(dataURIContent)
+                        resolve(dataURIContent)
                     }
 
-                    reader.readAsText(element.files[0])
-                    // reader.readAsDataURL(el.files[0])
-                    
+                    if(asDataURI)
+                        reader.readAsDataURL(element.files[0])
+                    else
+                        reader.readAsText(element.files[0])
                 })
+            }
+            
+            // via http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
+            var dataURItoBlob = function(dataURI) {
+                // convert base64/URLEncoded data component to raw binary data held in a Blob
+                var byteString;
+                if (dataURI.split(',')[0].indexOf('base64') >= 0)
+                    byteString = atob(dataURI.split(',')[1]);
+                else
+                    byteString = unescape(dataURI.split(',')[1]);
+
+                // separate out the mime component
+                var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+                // write the bytes of the string to a typed array
+                var ia = new Uint8Array(byteString.length);
+                for (var i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
+                }
+
+                return new Blob([ia], {type:mimeString});
             }
             
         })()

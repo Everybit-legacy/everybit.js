@@ -66,6 +66,10 @@ a.footerText {
     font-size: .9em;
 }
 
+a.ICXbuttonLink {
+    color: #ffffff;
+}
+
 a.under {
     text-decoration:underline;
 }
@@ -818,9 +822,7 @@ fieldset[disabled] .btn-link {
     max-height: 24px;
 }
 
-a.ICXbuttonLink {
-    color: white;
-}
+
 
 
 .identitySection {
@@ -1161,6 +1163,15 @@ a.ICXbuttonLink {
     height: 19px;
     background-size: 100% 100%;
     margin-right: 8px;
+}
+
+.puffballIconFooter {
+    display: inline;
+    vertical-align: text-top;
+    padding-right: 6px;
+    padding-left: 0;
+    z-index: 500;
+    height: 20px;
 }
 
 .qrcode {

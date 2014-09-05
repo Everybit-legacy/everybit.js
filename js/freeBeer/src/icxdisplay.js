@@ -1,5 +1,9 @@
 /** @jsx React.DOM */
 
+// TODO: Add hover effect for buttons
+// TODO: Make whole button clickable
+// TODO: Do text size based on overall area as well as logo size
+
 var ICXWorld = React.createClass({
     // Get dimensions
     // Render compoents
@@ -30,10 +34,42 @@ var ICXWorld = React.createClass({
 
         var w = window.innerWidth
         var h = window.innerHeight
+        var p = w*h
+
+
         var env = {w: w, h: h}
 
         // TODO put in config for this module
-        ICX.options = {
+        ICX.config = {
+            rightBorder: {
+                min: 2,
+                max: 100,
+                ratio:.06
+            },
+            logo: {
+                originalW: 643,
+                originalH: 279,
+                areaRatio:.02,
+                minW: 32,
+                maxW: 1000,
+                insets: {
+                    top:.08
+                }
+            },
+            text: {
+                areaRatio: 0.001,
+                default: 14,
+                min: 5,
+                max: 100
+            },
+            content: {
+                insets: {
+                    top:.1,
+                    right:.25,
+                    left:.1,
+                    bottom:.1
+                }
+            },
             minBorder: 1,
             maxBorder: 100,
             borderRatio:.03,
@@ -41,30 +77,41 @@ var ICXWorld = React.createClass({
             logoYFromTop:.05,
             logoSmallRatio:.1,
             buttonHeightRatio:.1,
-            buttonWidthRatio:.6
+            buttonWidthRatio:.6,
+            buttonSmallWidthRatio:.15,
+            buttonFontHeightRatio:.03,
+            mainPageFontHeightRatio:.03,
+            contentLeftInset: .02,
+            contentRightInset: 0.15,
+            contentBottomInset:.04
+        }
+
+        var l = ICX.config.logo.originalW*ICX.config.logo.originalH
+        var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
+
+        ICX.calculated = {
+
+            rightBorder: keepNumberBetween(w*ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
+
+            logoW: keepNumberBetween(ICX.config.logo.originalW*logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
+
+            fontSizeMultiplier: Math.sqrt(p*ICX.config.text.areaRatio)
 
         }
 
         ICX.screens = [
-            {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', fullText: 'HOME page'},
-            {order: 1, name: 'send',  left: 1*w, color: 'rgba(226, 160, 79, .8)', fullText: 'SEND a private message or file'},
-            {order: 2, name: 'store', left: 2*w, color: 'rgba(93,  128, 90, .8)', fullText: 'STORE your content privately'},
-            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', fullText: 'LOG IN to view your files or messages'},
-            {order: 4, name: 'how',   left: 4*w, color: 'rgba(49,  68,  92, .8)', fullText: 'HOW it works'},
-            {order: 5, name: 'learn', left: 5*w, color: 'rgba(85,  65,  94, .8)', fullText: 'LEARN more about i.cx'}
+            {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {order: 1, name: 'send',  left: 1*w, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
+            {order: 2, name: 'store', left: 2*w, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN to view your files or messages'},
+            {order: 4, name: 'how',   left: 4*w, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'HOW it works'},
+            {order: 5, name: 'learn', left: 5*w, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'LEARN more about i.cx'}
         ]
 
 
         var mainPages = ICX.screens.map(function(data) {
-            var borderWidth
 
-            if( w*ICX.options.borderRatio > ICX.options.maxBorder) {
-                borderWidth =  ICX.options.maxBorder
-            } else if(w*ICX.options.borderRatio < ICX.options.minBorder) {
-                borderWidth =  ICX.options.minBorder
-            } else {
-                borderWidth = Math.floor(w*ICX.options.borderRatio)
-            }
+            borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
             var screenStyles = {
                 position: "absolute",
@@ -72,9 +119,9 @@ var ICXWorld = React.createClass({
                 height: h,
                 top:0,
                 left: data.left,
-                borderWidth: borderWidth,
-                borderColor: data.color,
-                borderStyle: 'solid'
+                borderRightWidth: borderWidth,
+                borderRightColor: data.color,
+                borderRightStyle: 'solid'
             }
 
             // TODO make this a component, that contains all others
@@ -112,38 +159,59 @@ var ICXPage = React.createClass({
             default:
                 content = 'NOT HOME PAGE'
         }
-        return <div><ICXLogo screenInfo={this.props.screenInfo} env={this.props.env}/><ICXLinks screenInfo={this.props.screenInfo} key={'buttons'+this.props.screenInfo.name} /> Links<br />Content for {this.props.screenInfo.name}</div>
+        return <div><ICXLogo screenInfo={this.props.screenInfo} env={this.props.env}/><ICXLinks screenInfo={this.props.screenInfo} key={'buttons'+this.props.screenInfo.name} /><ICXContentSwitch screenInfo={this.props.screenInfo} /><ICXFooter /></div>
     }
 });
 
 var ICXLogo = React.createClass({
 
     handleGoHome: function() {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+        Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+    },
+
+    handleGoHow: function() {
+        Events.pub('/ui/icx/screen', {"view.icx.screen": 'how'})
     },
 
     // TODO clean up redefining w and h everywhere
     render: function () {
-        var w = this.props.env.w
-        var h = this.props.env.h
+        var w = window.innerWidth
+        var h = window.innerHeight
+
 
         if(this.props.screenInfo.name == 'home') {
-            var logoW = w*ICX.options.logoBigRatio
-            var logoX = Math.floor( (w-logoW)/2 ) + "px"
-            var logoY = Math.floor( h*ICX.options.logoYFromTop ) + "px"
-            logoW = logoW + "px"
 
-            return <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
+
+            var logoW = ICX.calculated.logoW
+
+            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
+            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
+            logoW = Math.floor(logoW) + 'px';
+
+            var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
+
+
+
+            // return <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
+            return (
+                <div key="mainLogo" style={{width: '100%'}}>
+                    <div><img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt={this.props.screenInfo.name} /></div><br />
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
+                    </div>
+                </div>
+            )
         } else {
-            var logoW = w*ICX.options.logoSmallRatio
-            var logoX = Math.floor( (w-logoW)/2 ) + "px"
-            var logoY = Math.floor( h*ICX.options.logoYFromTop ) + "px"
+            var logoW = w*ICX.config.logoSmallRatio
+            var logoY = Math.floor( h*ICX.config.logoYFromTop ) + "px"
             logoW = logoW + "px"
+            var divW = w*ICX.config.buttonSmallWidthRatio
 
             return (
-                <a href="#" onClick={this.handleGoHome}>
-                        <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
-                </a>
+                <div style={{position: 'absolute', top: logoY, width: divW, right: 0, textAlign: 'center'}}>
+                    <a href="#" onClick={this.handleGoHome}>
+                            <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={this.props.screenInfo.name} />
+                    </a>
+                </div>
                 )
         }
     }
@@ -158,27 +226,40 @@ var ICXLinks = React.createClass({
 
 
     render: function () {
+
+
         var w = window.innerWidth
         var h = window.innerHeight
 
 
         var self = this
         var buttonLinks = ICX.screens.map(function(data) {
+
+            var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
+
             var buttonStyle = {
                 backgroundColor: data.color,
-                height: Math.floor( ICX.options.buttonHeightRatio*h ) + 'px',
-                width: Math.floor( ICX.options.buttonWidthRatio*w ) + 'px',
+                height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
                 position: 'absolute',
                 right: 0,
-                top: Math.floor( (h*.3) + data.order*Math.floor( ICX.options.buttonHeightRatio*h )) + 'px'
+                fontSize:  fontSize + 'px',
+                top: Math.floor( (h*.3) + data.order*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
+                lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+                color: 'white',
+                paddingLeft: Math.floor(fontSize/2.5)+'px'
+            }
+
+            if(self.props.screenInfo.name == 'home') {
+                buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+            } else {
+                buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
             }
 
 
             if(data.name == 'home') {
-                return <ICXBigLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
-
+                return <span></span>
             } else {
-                return <ICXSmallLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
+                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
             }
 
         });
@@ -188,28 +269,7 @@ var ICXLinks = React.createClass({
     }
 });
 
-var ICXBigLink = React.createClass({
-    handleGoTo: function(screen) {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
-    },
-
-    render: function () {
-        var w = window.innerWidth
-        var h = window.innerHeight
-
-        var styleToUse = this.props.styleInfo
-
-        return (
-            <div style={styleToUse}>
-                <a href="#"  onClick={this.handleGoTo.bind(this, this.props.screenInfo.name)} className="ICXbuttonLink">
-                        {this.props.screenInfo.full}
-                </a>
-            </div>
-        )
-    }
-});
-
-var ICXSmallLink = React.createClass({
+var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
         Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
@@ -221,10 +281,17 @@ var ICXSmallLink = React.createClass({
 
         var styleToUse = this.props.styleInfo
 
+        if(puffworldprops.view.icx.screen == 'home') {
+            var linkText = this.props.screenInfo.fullText
+        } else {
+            var linkText = this.props.screenInfo.name.toUpperCase()
+        }
+
         return (
             <div style={styleToUse}>
-                <a href="#"  onClick={this.handleGoTo.bind(self, this.props.screenInfo.name)}>
-                        {this.props.screenInfo.name}
+                <a href="#"  onClick={this.handleGoTo.bind(self, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
+                <i className={this.props.screenInfo.icon}></i>{' '}
+                    {linkText} <i className="fa fa-chevron-right" />
                 </a>
             </div>
             )
@@ -233,43 +300,167 @@ var ICXSmallLink = React.createClass({
 
 });
 
-var ICXMain = React.createClass({
+var ICXContentSwitch = React.createClass({
+
+
+    // TODO: Position div for this right in here, then wrap return in a div with these specs
+
 
     render: function () {
-        return
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        var contentDivStyles = {
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            borderWidth: 1,
+            borderColor: 'red',
+            borderStyle: 'solid',
+            backgroundColor: 'rgba(23,56,45,.1)'
+        }
+
+
+
+        switch (this.props.screenInfo.name) {
+            case 'home':
+                return <div><ICXHomeContent /></div>
+                break;
+
+            case 'send':
+                return <div style={contentDivStyles}><ICXSendContent /></div>
+                break;
+
+            case 'store':
+                return <div style={contentDivStyles}><ICXStoreContent /></div>
+                break;
+
+            case 'login':
+                return <div style={contentDivStyles}><ICXLoginContent /></div>
+                break;
+
+            case 'how':
+                return <div style={contentDivStyles}><ICXHowContent /></div>
+                break;
+
+            case 'learn':
+                return <div style={contentDivStyles}><ICXLearnContent /></div>
+                break;
+
+            default:
+                return <span></span>
+
+        }
     }
 
 
 });
 
 
-
-var ICXAboutButton = React.createClass({
+var ICXHomeContent = React.createClass({
 
     render: function () {
-        return
+        return (
+            <span></span>
+            )
     }
-
 
 });
 
-var ICXStoreContentButton = React.createClass({
+var ICXSendContent = React.createClass({
 
     render: function () {
-        return
+        var fontH = keepNumberBetween( Math.floor( 1.5*ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={{fontSize: fontH, fontFamily: "GudeaBold"}}>
+                    Send a private message or file
+                </div>
+            </div>
+            )
     }
 
+});
+
+var ICXStoreContent = React.createClass({
+
+    render: function () {
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+            STORE!
+            </div>
+            )
+    }
 
 });
+
+var ICXLoginContent = React.createClass({
+
+    render: function () {
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+            LOGIN!
+            </div>
+            )
+    }
+
+});
+
+
+
+var ICXHowContent = React.createClass({
+
+    render: function () {
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+            HOW!
+            </div>
+            )
+    }
+
+});
+
+
+var ICXLearnContent = React.createClass({
+
+    render: function () {
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+            LEARN!
+            </div>
+            )
+    }
+
+});
+
+
+
+
 
 var ICXFooter = React.createClass({
 
+
     render: function () {
-        return
+        var w = window.innerWidth
+
+        // Same as logoX
+        var footerX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-ICX.calculated.logoW ),0,10000) + "px"
+
+        return (
+            <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
+                <img className="puffballIconFooter" src="img/blueAnimated.gif" />
+                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>.
+            </div>
+        )
     }
 
 
 });
+
+
 
 
 

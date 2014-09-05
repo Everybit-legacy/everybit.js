@@ -6,7 +6,7 @@ var Tooltip = React.createClass({displayName: 'Tooltip',
         if (this.props.position) className += " " + this.props.position
         else className += " right"
         return (
-            React.DOM.div({className: className}, this.props.content)
+            React.DOM.div( {className:className}, this.props.content)
             )
     }
 })
@@ -37,16 +37,16 @@ var TooltipMixin = {
 var Menu = React.createClass({displayName: 'Menu',
     render: function() {
         return (
-            React.DOM.div({className: "menu"}, 
-                Cluster({clusterName: "publish", clusterMenu: "PuffPublishFormEmbed", clusterIcon: "fa-paper-plane", view: this.props.view}), 
-                Cluster({clusterName: "view", clusterMenu: "ViewMenu", clusterIcon: "fa-search", view: this.props.view}), 
-                Cluster({clusterName: "identity", clusterMenu: "IdentityMenu", clusterIcon: "fa-user", view: this.props.view}), 
-                Cluster({clusterName: "preferences", clusterMenu: "PreferencesMenu", 
-                         clusterIcon: "fa-gears", view: this.props.view}), 
-                Cluster({clusterName: "about", clusterMenu: "AboutMenu", clusterIcon: "fa-info-circle", view: this.props.view}), 
-                Cluster({clusterName: "tools", clusterMenu: "ToolsMenu", clusterIcon: "fa-wrench", view: this.props.view}), 
+            React.DOM.div( {className:"menu"}, 
+                Cluster( {clusterName:"publish", clusterMenu:"PuffPublishFormEmbed", clusterIcon:"fa-paper-plane", view:this.props.view}),
+                Cluster( {clusterName:"view", clusterMenu:"ViewMenu", clusterIcon:"fa-search", view:this.props.view} ),
+                Cluster( {clusterName:"identity", clusterMenu:"IdentityMenu", clusterIcon:"fa-user", view:this.props.view} ),
+                Cluster( {clusterName:"preferences", clusterMenu:"PreferencesMenu", 
+                         clusterIcon:"fa-gears", view:this.props.view} ),
+                Cluster( {clusterName:"about", clusterMenu:"AboutMenu", clusterIcon:"fa-info-circle", view:this.props.view} ),
+                Cluster( {clusterName:"tools", clusterMenu:"ToolsMenu", clusterIcon:"fa-wrench", view:this.props.view} ),
 
-                Logo(null)
+                Logo(null )
             )
         )
     }
@@ -108,22 +108,22 @@ var Cluster = React.createClass({displayName: 'Cluster',
 
         switch (this.props.clusterName) {
         case "publish":
-            clusterMenu = PuffPublishFormEmbed({reply: puffworldprops.reply})
+            clusterMenu = PuffPublishFormEmbed( {reply:puffworldprops.reply} )
             break;
         case "view":
-            clusterMenu = ViewMenu({view: this.props.view})
+            clusterMenu = ViewMenu( {view:this.props.view})
             break;
         case "identity":
-            clusterMenu = IdentityMenu(null)
+            clusterMenu = IdentityMenu(null )
             break;
         case "preferences":
-            clusterMenu = PreferencesMenu(null)
+            clusterMenu = PreferencesMenu(null )
             break;
         case "about":
-            clusterMenu = AboutMenu(null)
+            clusterMenu = AboutMenu(null )
             break;
         case "tools":
-            clusterMenu = ToolsMenu(null)
+            clusterMenu = ToolsMenu(null )
             break;
         default:
             break;
@@ -140,19 +140,19 @@ var Cluster = React.createClass({displayName: 'Cluster',
         var slide = puffworldprops.clusters[this.props.clusterName] ? 'slidedown' : 'slideup'
         var popoutClassName = this.props.isPopout ? "fa fa-fw fa-compress gray" : "fa fa-fw fa-expand gray"
         return (
-            React.DOM.div({className: "menuCluster"}, 
-                React.DOM.div({className: className}, 
-                    React.DOM.div({className: "menuHeader"}, 
-                        React.DOM.a({href: "#", onClick: this.handleToggleShowMenu}, 
-                            React.DOM.i({className: "fa " + this.props.clusterIcon + " fa-fw gray"}), 
+            React.DOM.div( {className:"menuCluster"}, 
+                React.DOM.div( {className:className}, 
+                    React.DOM.div( {className:"menuHeader"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleToggleShowMenu}, 
+                            React.DOM.i( {className:"fa " + this.props.clusterIcon + " fa-fw gray"}),
                             polyglot.t(menuTitle)
-                        ), 
-                        React.DOM.a({className: "floatRight", href: "#", onClick: this.handlePopoutMenu}, 
-                            React.DOM.i({className: popoutClassName})
+                        ),
+                        React.DOM.a( {className:"floatRight", href:"#", onClick:this.handlePopoutMenu}, 
+                            React.DOM.i( {className:popoutClassName})
                         )
-                    ), 
+                    ),
                     
-                    React.DOM.div({className: slide}, clusterMenu)
+                    React.DOM.div( {className:slide}, clusterMenu)
                 )
             )
         )
@@ -224,9 +224,9 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
         // No buttons for non-arrays
         if(puffworldprops.view.filters[type] instanceof Array) {
             return (
-                React.DOM.span({key: type}, 
-                    React.DOM.button({value: type, className: "btn " + color, onClick: this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i({className: 'fa '+icon})), 
-                    Tooltip({position: "under", content: polyglot.t("menu.tooltip."+type+"_filter")})
+                React.DOM.span( {key:type}, 
+                    React.DOM.button( {value:type, className:"btn " + color, onClick:this.handlePickFilter.bind(this, type)}, icon.indexOf('fa-')!=0 ? icon : React.DOM.i( {className:'fa '+icon})),
+                    Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+type+"_filter")} )
                 )
                 )
 
@@ -245,11 +245,11 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 
         // Note below filtering out of false stuff
         return (
-            React.DOM.div({className: "menuItem"}, 
-                React.DOM.span({style: leftColStyle}, polyglot.t("menu.filters.title"), ":"), 
-                React.DOM.input({ref: "filter", type: "text", className: "btn narrowInputField", onKeyDown: this.handleKeyDown}), React.DOM.a({href: "#", onClick: this.handleAddFilter}, ' ', React.DOM.i({className: "fa fa-plus-circle fa-fw"})), React.DOM.br(null), 
-                React.DOM.span({style: leftColStyle}, polyglot.t("menu.filters.by"), ":"), 
-                React.DOM.span({className: "relative"}, 
+            React.DOM.div( {className:"menuItem"}, 
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.title"),":"),
+                React.DOM.input( {ref:"filter", type:"text", className:"btn narrowInputField", onKeyDown:this.handleKeyDown} ),React.DOM.a( {href:"#", onClick:this.handleAddFilter}, ' ',React.DOM.i( {className:"fa fa-plus-circle fa-fw"})),React.DOM.br(null),
+                React.DOM.span( {style:leftColStyle}, polyglot.t("menu.filters.by"),":"),
+                React.DOM.span( {className:"relative"}, 
                     Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).sort().map(this.createEachFilter)
                 )
             )
@@ -260,7 +260,7 @@ var FilterMenu = React.createClass({displayName: 'FilterMenu',
 var CurrentFilters = React.createClass({displayName: 'CurrentFilters',
     render: function() {
         var filterNodes = Object.keys(puffworldprops.view.filters).filter(function(n){ return !!puffworldprops.view.filters[n] }).map(function(key) {
-            return FilterBubble({key: key, filterName: key, filterValue: puffworldprops.view.filters[key]})
+            return FilterBubble( {key:key, filterName:key, filterValue:puffworldprops.view.filters[key]} )
         }.bind(this))
 
         return (
@@ -311,17 +311,17 @@ var FilterBubble = React.createClass({displayName: 'FilterBubble',
         var isUsername = this.props.filterName == "routes" || this.props.filterName == "users"
 
         return (
-            React.DOM.div({className: "menuItem"}, 
-                this.props.filterName, ":", ' ', 
+            React.DOM.div( {className:"menuItem"}, 
+                this.props.filterName,":",' ',
                 filterArray.map(function(value) {
                 return (
-                    React.DOM.span({key: value, className: "bubbleNode relative"}, 
-                        isUsername ? StringConversion.toDisplayUsername(value) : value, 
-                        React.DOM.span(null, 
-                            React.DOM.a({href: "#", onClick: self.handleRemoveFilter.bind(self, value)}, 
-                            React.DOM.i({className: "fa fa-times-circle-o fa-fw"})
-                            ), 
-                            Tooltip({position: "under", content: polyglot.t("menu.tooltip.remove_filter")})
+                    React.DOM.span( {key:value, className:"bubbleNode relative"}, 
+                        isUsername ? StringConversion.toDisplayUsername(value) : value,
+                        React.DOM.span(null , 
+                            React.DOM.a( {href:"#", onClick:self.handleRemoveFilter.bind(self, value)}, 
+                            React.DOM.i( {className:"fa fa-times-circle-o fa-fw"})
+                            ),
+                            Tooltip( {position:"under", content:polyglot.t("menu.tooltip.remove_filter")} )
                         )
                     )
                 )
@@ -391,20 +391,20 @@ var ViewMenu = React.createClass({displayName: 'ViewMenu',
 
         return (
             React.DOM.div(null, 
-                React.DOM.div(null, CurrentFilters(null), FilterMenu({view: this.props.view})), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleViewLatest}, polyglot.t("menu.view.latest")), ' ', React.DOM.span({className: "shortcut"}, "[l]"), 
-                    Tooltip({content: polyglot.t("menu.tooltip.latest")})
-                ), 
+                React.DOM.div(null, CurrentFilters(null ),FilterMenu( {view:this.props.view} )),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewLatest}, polyglot.t("menu.view.latest")),' ',React.DOM.span( {className:"shortcut"}, "[l]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.latest")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.collection")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowUserPuffs.bind(this,'choices.book')}, polyglot.t("menu.view.collection")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.collection")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")), ' ', React.DOM.span({className: "shortcut"}, "[k]"), 
-                    Tooltip({content: polyglot.t("menu.tooltip.shortcut")})
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowShortcuts}, polyglot.t("menu.view.shortcut")),' ',React.DOM.span( {className:"shortcut"}, "[k]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.shortcut")} )
                 )
 
             )
@@ -447,24 +447,24 @@ var IdentityMenu = React.createClass({displayName: 'IdentityMenu',
         }
         return (
             React.DOM.div(null, 
-                AuthorPicker(null), 
-                React.DOM.div({style: {display:'inline-block'}, className: "menuItem"}, 
+                AuthorPicker(null ),
+                React.DOM.div( {style:{display:'inline-block'}, className:"menuItem"}, 
                     ['new', 'set', 'view'].map(function(key){
                         var show = self.state.section == key
                         var tabClassName = show ? "linkTabHighlighted" : "linkTab"
                         return (
-                            React.DOM.span({className: tabClassName, key: key}, 
-                                React.DOM.a({href: "#", onClick: self.handleToggleShowSection.bind(self, key)}, React.DOM.i({className: "fa fa-fw "+sectionToIcon[key]}), polyglot.t("menu.identity."+key+"_identity.title")), 
-                                Tooltip({position: "under", content: polyglot.t("menu.tooltip."+key+"_identity")})
+                            React.DOM.span( {className:tabClassName, key:key}, 
+                                React.DOM.a( {href:"#", onClick:self.handleToggleShowSection.bind(self, key)}, React.DOM.i( {className:"fa fa-fw "+sectionToIcon[key]}),polyglot.t("menu.identity."+key+"_identity.title")),
+                                Tooltip( {position:"under", content:polyglot.t("menu.tooltip."+key+"_identity")} )
                             )
                         )
                     })
-                ), 
-                React.DOM.div({className: "menuItem"}, 
-                    NewIdentity({show: this.state.section == "new"}), 
-                    SetIdentity({show: this.state.section == "set", username: currUser}), 
-                    ViewIdentity({show: this.state.section == 'view', username: currUser})
-                ), 
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    NewIdentity( {show:this.state.section == "new"} ),
+                    SetIdentity( {show:this.state.section == "set", username:currUser} ),
+                    ViewIdentity( {show:this.state.section == 'view', username:currUser} )
+                ),
                 React.DOM.br(null)
             )
             )
@@ -573,40 +573,40 @@ var PreferencesMenu = React.createClass({displayName: 'PreferencesMenu',
 
         return(
             React.DOM.div(null, 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.span({className: "floatingCheckbox"}, React.DOM.i({className: cbClass, onClick: this.handleShowHideRelationships})), 
-                    React.DOM.a({href: "#", onClick: this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship")), ' ', React.DOM.span({className: "shortcut"}, "[space]"), 
-                    Tooltip({content: polyglot.t("menu.tooltip.relationship")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass,  onClick:this.handleShowHideRelationships} )),
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideRelationships}, polyglot.t("menu.preferences.relationship")),' ',React.DOM.span( {className:"shortcut"}, "[space]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.relationship")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.span({className: "floatingCheckbox"}, React.DOM.i({className: cbClass2, onClick: this.handleShowHideAnimations})), 
-                    React.DOM.a({href: "#", onClick: this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation")), ' ', React.DOM.span({className: "shortcut"}, "[a]"), 
-                    Tooltip({content: polyglot.t("menu.tooltip.animation")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass2, onClick:this.handleShowHideAnimations} )),
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideAnimations}, polyglot.t("menu.preferences.animation")),' ',React.DOM.span( {className:"shortcut"}, "[a]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.animation")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.span({className: "floatingCheckbox"}, React.DOM.i({className: cbClass3, onClick: this.handleShowHideInfobar})), 
-                    React.DOM.a({href: "#", onClick: this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")), ' ', React.DOM.span({className: "shortcut"}, "[i]"), 
-                    Tooltip({content: polyglot.t("menu.tooltip.infobar")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass3, onClick:this.handleShowHideInfobar} )),
+                    React.DOM.a( {href:"#", onClick:this.handleShowHideInfobar}, polyglot.t("menu.preferences.infobar")),' ',React.DOM.span( {className:"shortcut"}, "[i]"),
+                    Tooltip( {content:polyglot.t("menu.tooltip.infobar")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.span({className: "floatingCheckbox"}, React.DOM.i({className: cbClass4, onClick: this.handleToggleReporting})), 
-                    React.DOM.a({href: "#", onClick: this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.disable_reporting")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.span( {className:"floatingCheckbox"}, React.DOM.i( {className:cbClass4, onClick:this.handleToggleReporting} )),
+                    React.DOM.a( {href:"#", onClick:this.handleToggleReporting}, polyglot.t("menu.preferences.disable_reporting")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.disable_reporting")} )
+                ),
 
 
-                React.DOM.div({className: "menuItem"}, 
-                polyglot.t("menu.preferences.bgcolor"), ":", ' ', 
-                    React.DOM.input({className: "colorPicker btn", size: "6", ref: "bgcolor"})
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                polyglot.t("menu.preferences.bgcolor"),":",' ',
+                    React.DOM.input( {className:"colorPicker btn", size:"6", ref:"bgcolor"} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                polyglot.t("menu.preferences.language"), ": ", React.DOM.select({ref: "picklanguage", onChange: this.handlePickLanguage, defaultValue: language}, 
+                React.DOM.div( {className:"menuItem"}, 
+                polyglot.t("menu.preferences.language"),": ", React.DOM.select( {ref:"picklanguage", onChange:this.handlePickLanguage, defaultValue:language}, 
                     all_languages.map(function(lang) {
-                        return React.DOM.option({key: lang, value: lang}, Translate.language[lang].t("drop_down_display"))
+                        return React.DOM.option( {key:lang, value:lang}, Translate.language[lang].t("drop_down_display"))
                     })
                 )
                 )
@@ -639,16 +639,16 @@ var AboutMenu = React.createClass({displayName: 'AboutMenu',
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
             React.DOM.div(null, 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleToggleShowIntro}, polyglot.t("menu.about.introduction"))
-                ), 
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleToggleShowIntro}, polyglot.t("menu.about.introduction"))
+                ),
 
-                React.DOM.div({className: "menuItem"}, React.DOM.a({href: "https://github.com/puffball/freebeer/", target: "_new"}, polyglot.t("menu.about.code")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.code")})
-                ), 
+                React.DOM.div( {className:"menuItem"}, React.DOM.a( {href:"https://github.com/puffball/freebeer/", target:"_new"}, polyglot.t("menu.about.code")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.code")} )
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleShowFaq}, polyglot.t("menu.about.faq"))
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowFaq}, polyglot.t("menu.about.faq"))
                 )
             )
         )
@@ -678,16 +678,16 @@ var ToolsMenu = React.createClass({displayName: 'ToolsMenu',
         var polyglot = Translate.language[puffworldprops.view.language]
         return (
             React.DOM.div(null, 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handlePackPuffs}, polyglot.t("menu.tools.builder")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.puff_builder")})
-                ), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleRefresh}, "Force update of content")
-                ), 
-                Tooltip({position: "under", content: polyglot.t('header.tooltip.refresh')}), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.clearPuffShells}, polyglot.t("menu.tools.clear_cache"))
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handlePackPuffs}, polyglot.t("menu.tools.builder")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.puff_builder")} )
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleRefresh}, "Force update of content")
+                ),
+                Tooltip( {position:"under", content:polyglot.t('header.tooltip.refresh')} ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.clearPuffShells}, polyglot.t("menu.tools.clear_cache"))
                 )
             )
         )
@@ -785,7 +785,7 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
     render: function() {
         var all_usernames = Object.keys(PB.M.Wardrobe.getAll())
         var polyglot = Translate.language[puffworldprops.view.language]
-        if(!all_usernames.length) return React.DOM.div({className: "menuItem"}, polyglot.t("menu.identity.current"), ": ", polyglot.t("menu.identity.none"))
+        if(!all_usernames.length) return React.DOM.div( {className:"menuItem"}, polyglot.t("menu.identity.current"),": ", polyglot.t("menu.identity.none"))
 
         // TODO: this creates an infinite loop, because switching the current user forces a check for private puffs, and importing private puffs forces a rerender. 
         // Force selection of the single user when just one
@@ -803,29 +803,29 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
          */
         return (
             React.DOM.div(null, 
-                React.DOM.div({className: "menuItem"}, 
-                    polyglot.t("menu.identity.current"), ": ", React.DOM.select({ref: "switcher", onChange: this.handleUserPick, value: username}, 
+                React.DOM.div( {className:"menuItem"}, 
+                    polyglot.t("menu.identity.current"),": ", React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, value:username}, 
                         all_usernames.map(function(username) {
-                            return React.DOM.option({key: username, value: username}, ".", username)
+                            return React.DOM.option( {key:username, value:username}, ".",username)
                         })
-                        ), 
-                    ' ', React.DOM.span({className: "relative"}, React.DOM.a({href: "#", onClick: this.handleRemoveUser}, React.DOM.i({className: "fa fa-trash-o fa-fw"})), Tooltip({position: "under", content: polyglot.t('menu.tooltip.current_delete')}))
-                ), 
+                        ),
+                    ' ',React.DOM.span( {className:"relative"}, React.DOM.a( {href:"#", onClick:this.handleRemoveUser}, React.DOM.i( {className:"fa fa-trash-o fa-fw"})),Tooltip( {position:"under", content:polyglot.t('menu.tooltip.current_delete')} ))
+                ),
 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleViewUser}, polyglot.t("menu.view.show_mine")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.show_mine")})
-                ), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleShowPuffsForMe}, polyglot.t("menu.view.show_puffs")), 
-                    Tooltip({content: polyglot.t("menu.tooltip.showPuffs")})
-                ), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handlePublishProfile}, "Publish Profile")
-                ), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.a({href: "#", onClick: this.handleViewProfile}, "View profile"), 
-                    ' ', React.DOM.span({className: "red"}, this.state.profileMsg)
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewUser}, polyglot.t("menu.view.show_mine")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.show_mine")} )
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleShowPuffsForMe}, polyglot.t("menu.view.show_puffs")),
+                    Tooltip( {content:polyglot.t("menu.tooltip.showPuffs")} )
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handlePublishProfile}, "Publish Profile")
+                ),
+                React.DOM.div( {className:"menuItem"}, 
+                    React.DOM.a( {href:"#", onClick:this.handleViewProfile}, "View profile"),
+                    ' ',React.DOM.span( {className:"red"}, this.state.profileMsg)
                 )
             )
             )
@@ -837,11 +837,11 @@ var AuthorPicker = React.createClass({displayName: 'AuthorPicker',
 var Checkmark = React.createClass({displayName: 'Checkmark',
     render: function() {
         if(this.props.show === false) {
-            return React.DOM.i({className: "fa fa-check-circle fa-fw gray"})
+            return React.DOM.i( {className:"fa fa-check-circle fa-fw gray"})
         } else if(this.props.show === true) {
-            return React.DOM.i({className: "fa fa-check-circle fa-fw green"})
+            return React.DOM.i( {className:"fa fa-check-circle fa-fw green"})
         } else {
-            return React.DOM.span(null, React.DOM.i({className: "fa fa-check-circle fa-fw red"}))
+            return React.DOM.span(null, React.DOM.i( {className:"fa fa-check-circle fa-fw red"}))
         }
 
     }
@@ -977,39 +977,39 @@ var SetIdentity = React.createClass({displayName: 'SetIdentity',
 
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup'
         return (
-            React.DOM.div({className: slide}, 
-                React.DOM.div({className: "message red"}, polyglot.t("menu.identity.set_identity.msg")), 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.username"), ":"), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "username", ref: "username", defaultValue: currUser, onBlur: this.verifyUsername, size: "12"}), 
-                    ' ', React.DOM.a({href: "#", onClick: this.handleUsernameLookup}, Checkmark({show: this.state.usernameStatus})), 
-                    React.DOM.span({className: "message"}, this.state.usernameStatus)
-                ), React.DOM.br(null), 
-                React.DOM.div(null, React.DOM.i({className: "fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")), 
+            React.DOM.div( {className:slide}, 
+                React.DOM.div( {className:"message red"}, polyglot.t("menu.identity.set_identity.msg")),
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.username"),":"),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"username", ref:"username", defaultValue:currUser, onBlur:this.verifyUsername, size:"12"} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleUsernameLookup}, Checkmark( {show:this.state.usernameStatus} )),
+                    React.DOM.span( {className:"message"}, this.state.usernameStatus)
+                ),React.DOM.br(null ),
+                React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.default"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "defaultKey", ref: "defaultKey", size: "12"}), 
-                    ' ', React.DOM.a({href: "#", onClick: this.handleKeyCheck.bind(this,'defaultKey')}, 
-                    Checkmark({show: this.state.defaultKey})), 
-                    React.DOM.span({className: "message"}, this.state.defaultKey)
-                ), React.DOM.br(null), 
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.default"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12"} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'defaultKey')}, 
+                    Checkmark( {show:this.state.defaultKey} )),
+                    React.DOM.span( {className:"message"}, this.state.defaultKey)
+                ),React.DOM.br(null ),
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.admin"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "adminKey", ref: "adminKey", size: "12"}), 
-                    ' ', React.DOM.a({href: "#", onClick: this.handleKeyCheck.bind(this,'adminKey')}, 
-                    Checkmark({show: this.state.adminKey})), 
-                    React.DOM.span({className: "message"}, this.state.adminKey)
-                ), React.DOM.br(null), 
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.admin"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12"} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'adminKey')}, 
+                    Checkmark( {show:this.state.adminKey} )),
+                    React.DOM.span( {className:"message"}, this.state.adminKey)
+                ),React.DOM.br(null ),
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.root"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "rootKey", ref: "rootKey", size: "12"}), 
-                    ' ', React.DOM.a({href: "#", onClick: this.handleKeyCheck.bind(this,'rootKey')}, 
-                    Checkmark({show: this.state.rootKey})), 
-                    React.DOM.span({className: "message"}, this.state.rootKey)
-                ), React.DOM.br(null)
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.root"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12"} ),
+                    ' ',React.DOM.a( {href:"#", onClick:this.handleKeyCheck.bind(this,'rootKey')}, 
+                    Checkmark( {show:this.state.rootKey} )),
+                    React.DOM.span( {className:"message"}, this.state.rootKey)
+                ),React.DOM.br(null )
             )
             )
        //}
@@ -1072,7 +1072,7 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
                 qr.make()
                 var image_data = qr.createImgTag() || {}
                 var data = 'data:image/gif;base64,' + image_data.base64
-                qrcodeField = (React.DOM.img({className: "qrcode", src: data, width: image_data.width, height: image_data.height, onClick: this.handleClickQRCode}))
+                qrcodeField = (React.DOM.img( {className:"qrcode", src:data, width:image_data.width, height:image_data.height, onClick:this.handleClickQRCode}))
             }
         }
 
@@ -1090,30 +1090,30 @@ var ViewIdentity = React.createClass({displayName: 'ViewIdentity',
         var polyglot = Translate.language[puffworldprops.view.language]
         var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup'
         return (
-            React.DOM.div({className: slide}, 
-                React.DOM.div({className: "message"}, polyglot.t("menu.identity.view_identity.msg"), ": ", React.DOM.span({className: "authorSpan"}, ".", currUser)
-                ), 
+            React.DOM.div( {className:slide}, 
+                React.DOM.div( {className:"message"}, polyglot.t("menu.identity.view_identity.msg"),": ", React.DOM.span( {className:"authorSpan"}, ".",currUser)
+                ),
 
-                React.DOM.div(null, React.DOM.i({className: "fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")), 
-                qrcodeField, 
+                React.DOM.div(null, React.DOM.i( {className:"fa fa-lock fa-fw gray"}), " ", polyglot.t("menu.identity.private")),
+                qrcodeField,
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.default"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "defaultKey", ref: "defaultKey", size: "12", value: defaultKey, onFocus: this.handleFocus, readOnly: true}), 
-                    React.DOM.i({className: defaultKeyQRStyle, name: "default", onClick: this.handleShowQRCode})
-                ), React.DOM.br(null), 
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.default"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"defaultKey", ref:"defaultKey", size:"12", value:defaultKey, onFocus:this.handleFocus, readOnly:true} ),
+                    React.DOM.i( {className:defaultKeyQRStyle, name:"default", onClick:this.handleShowQRCode} )
+                ),React.DOM.br(null ),
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.admin"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "adminKey", ref: "adminKey", size: "12", value: adminKey, onFocus: this.handleFocus, readOnly: true}), 
-                    React.DOM.i({className: adminKeyQRStyle, name: "admin", onClick: this.handleShowQRCode})
-                ), React.DOM.br(null), 
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.admin"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"adminKey", ref:"adminKey", size:"12", value:adminKey, onFocus:this.handleFocus, readOnly:true} ),
+                    React.DOM.i( {className:adminKeyQRStyle, name:"admin", onClick:this.handleShowQRCode})
+                ),React.DOM.br(null ),
 
-                React.DOM.div({className: "menuLabel"}, polyglot.t("menu.identity.root"), ": "), 
-                React.DOM.div({className: "menuInput"}, 
-                    React.DOM.input({type: "text", name: "rootKey", ref: "rootKey", size: "12", value: rootKey, onFocus: this.handleFocus, readOnly: true}), 
-                    React.DOM.i({className: rootKeyQRStyle, name: "root", onClick: this.handleShowQRCode})
-                ), React.DOM.br(null)
+                React.DOM.div( {className:"menuLabel"}, polyglot.t("menu.identity.root"),": " ),
+                React.DOM.div( {className:"menuInput"}, 
+                    React.DOM.input( {type:"text", name:"rootKey", ref:"rootKey", size:"12", value:rootKey, onFocus:this.handleFocus, readOnly:true} ),
+                    React.DOM.i( {className:rootKeyQRStyle, name:"root", onClick:this.handleShowQRCode})
+                ),React.DOM.br(null )
 
             )
             )
@@ -1208,24 +1208,24 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
 
         var usernameField = (
             React.DOM.div(null, 
-                React.DOM.div({className: "menuLabel"}, React.DOM.span({className: "message"}, polyglot.t("menu.identity.new_identity.msg"), ":")), React.DOM.br(null), 
-                React.DOM.div({className: "menuItem"}, 
-                    React.DOM.select({ref: "prefix"}, 
+                React.DOM.div( {className:"menuLabel"}, React.DOM.span( {className:"message"}, polyglot.t("menu.identity.new_identity.msg"),":")),React.DOM.br(null),
+                React.DOM.div( {className:  "menuItem"}, 
+                    React.DOM.select( {ref:"prefix"}, 
                     CONFIG.users.map(function(u) {
-                        return React.DOM.option({key: u.username, value: u.username}, ".", u.username)
+                        return React.DOM.option( {key:u.username, value:u.username}, ".",u.username)
                     })
-                    ), " ", React.DOM.em(null, "."), ' ', 
-                    React.DOM.input({type: "text", name: "newUsername", ref: "newUsername", defaultValue: generatedName, size: "12"}), 
-                    React.DOM.span({className: "relative"}, 
-                        React.DOM.a({href: "#", onClick: this.handleGenerateUsername}, React.DOM.i({className: "fa fa-question-circle fa-fw", rel: "tooltip"})), 
-                        Tooltip({position: "under", content: polyglot.t("menu.tooltip.generate")})
+                    ), " ", React.DOM.em(null, "."),' ',
+                    React.DOM.input( {type:"text", name:"newUsername", ref:"newUsername",  defaultValue:generatedName, size:"12"} ),
+                    React.DOM.span( {className:"relative"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleGenerateUsername}, React.DOM.i( {className:"fa fa-question-circle fa-fw", rel:"tooltip"})),
+                        Tooltip( {position:"under", content:polyglot.t("menu.tooltip.generate")})
                     )
-                ), 
-            polyglot.t("menu.identity.step.import"), 
-            ' ', React.DOM.select({id: "import", ref: "import", onChange: this.handleImport}, 
-                React.DOM.option({value: ""}), 
-                React.DOM.option({value: "instagram"}, "Instagram"), 
-                React.DOM.option({value: "reddit"}, "Reddit")
+                ),
+            polyglot.t("menu.identity.step.import"),
+            ' ',React.DOM.select( {id:"import", ref:"import", onChange:this.handleImport}, 
+                React.DOM.option( {value:""}),
+                React.DOM.option( {value:"instagram"}, "Instagram"),
+                React.DOM.option( {value:"reddit"}, "Reddit")
             )
             ))
 
@@ -1233,16 +1233,16 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             var self=this
             var publicKeyField= (
                 React.DOM.div(null, 
-                    React.DOM.div({className: "menuHeader"}, React.DOM.i({className: "fa fa-unlock-alt"}), " ", polyglot.t("menu.identity.public")), 
+                    React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-unlock-alt"}), " ", polyglot.t("menu.identity.public")),
                     keyArray.map(function(k){
                         var name = k + 'KeyPublic'
                         return (
-                            React.DOM.div({key: name}, 
-                                React.DOM.div({className: "menuLabel"}, React.DOM.sup(null, "*"), polyglot.t("menu.identity."+k), ": "), 
-                                React.DOM.div({className: "menuInput"}, 
-                                    React.DOM.input({type: "text", name: name, ref: name, size: "18", defaultValue: self.state.keys[name], onFocus: self.handleFocus})
-                                ), 
-                                React.DOM.br(null)
+                            React.DOM.div( {key:name}, 
+                                React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity."+k),": " ),
+                                React.DOM.div( {className:"menuInput"}, 
+                                    React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus} )
+                                ),
+                                React.DOM.br(null )
                             )
                         )
                     })
@@ -1250,16 +1250,16 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 )
             var privateKeyField = (
                 React.DOM.div(null, 
-                    React.DOM.div({className: "menuHeader"}, React.DOM.i({className: "fa fa-lock"}), " ", polyglot.t("menu.identity.private")), 
+                    React.DOM.div( {className:"menuHeader"}, React.DOM.i( {className:"fa fa-lock"}), " ", polyglot.t("menu.identity.private")),
                     keyArray.map(function(k){
                         var name = k + 'KeyPrivate'
                         return (
-                            React.DOM.div({key: name}, 
-                                React.DOM.div({className: "menuLabel"}, React.DOM.sup(null, "*"), polyglot.t("menu.identity."+k), ": "), 
-                                React.DOM.div({className: "menuInput"}, 
-                                    React.DOM.input({type: "text", name: name, ref: name, size: "18", defaultValue: self.state.keys[name], onFocus: self.handleFocus, onChange: self.handlePrivateKeyChange.bind(self, k)})
-                                ), 
-                                React.DOM.br(null)
+                            React.DOM.div( {key:name}, 
+                                React.DOM.div( {className:"menuLabel"}, React.DOM.sup(null, "*"),polyglot.t("menu.identity."+k),": " ),
+                                React.DOM.div( {className:"menuInput"}, 
+                                    React.DOM.input( {type:"text", name:name, ref:name, size:"18", defaultValue:self.state.keys[name], onFocus:self.handleFocus, onChange:self.handlePrivateKeyChange.bind(self, k)} )
+                                ),
+                                React.DOM.br(null )
 
                             )
                         )
@@ -1268,15 +1268,15 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
                 )
             var keyField = (
                 React.DOM.div(null, 
-                    React.DOM.div({className: "message red"}, polyglot.t("menu.identity.step.remember")), 
-                publicKeyField, 
-                    React.DOM.a({href: "#", onClick: this.handleRegenerateKeys}, polyglot.t("menu.identity.new_identity.generate")), " ", polyglot.t("menu.identity.new_identity.or"), " ", React.DOM.a({href: "#", onClick: this.handleConvertPrivatePublic}, polyglot.t("menu.identity.private"), React.DOM.span({className: "fa fa-long-arrow-right fa-fw"}), polyglot.t("menu.identity.public")), React.DOM.br(null), 
+                    React.DOM.div( {className:"message red"}, polyglot.t("menu.identity.step.remember")),
+                publicKeyField,
+                    React.DOM.a( {href:"#", onClick:this.handleRegenerateKeys} , polyglot.t("menu.identity.new_identity.generate")), " ", polyglot.t("menu.identity.new_identity.or"), " ", React.DOM.a( {href:"#", onClick:this.handleConvertPrivatePublic} , polyglot.t("menu.identity.private"),React.DOM.span( {className:"fa fa-long-arrow-right fa-fw"}),polyglot.t("menu.identity.public")),React.DOM.br(null ),
                 privateKeyField
                 )
                 )
 
             var requestedUsernameField = (
-                React.DOM.div(null, ".", this.state.desiredUsername)
+                React.DOM.div(null, ".",this.state.desiredUsername)
             )
 
             var mainField = [usernameField, keyField, requestedUsernameField, ""]
@@ -1288,36 +1288,36 @@ var NewIdentity = React.createClass({displayName: 'NewIdentity',
             ]
 
             var nextField = (
-                React.DOM.a({className: "floatRight steps", onClick: this.handleNext}, polyglot.t("menu.identity.step.next"), React.DOM.i({className: "fa fa-chevron-right fa-fw"}))
+                React.DOM.a( {className:"floatRight steps", onClick:this.handleNext}, polyglot.t("menu.identity.step.next"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 )
             if (!showNext || this.state.step > 1) nextField = ""
             if (this.state.step == 2) nextField = (
-                React.DOM.a({href: "#", className: "floatRight steps", onClick: this.handleUsernameRequest}, polyglot.t("menu.identity.new_identity.submit"), React.DOM.i({className: "fa fa-chevron-right fa-fw"}))
+                React.DOM.a( {href:"#", className:"floatRight steps", onClick:this.handleUsernameRequest}, polyglot.t("menu.identity.new_identity.submit"),React.DOM.i( {className:"fa fa-chevron-right fa-fw"}))
                 )
 
             var backField = (
-                React.DOM.a({className: "floatLeft steps", onClick: this.handleBack}, React.DOM.i({className: "fa fa-chevron-left fa-fw"}), polyglot.t("menu.identity.step.back"))
+                React.DOM.a( {className:"floatLeft steps", onClick:this.handleBack}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),polyglot.t("menu.identity.step.back"))
                 )
             if (this.state.step == 0) backField=""
             if (this.state.step == 3) backField=(
-                React.DOM.a({className: "floatLeft steps", onClick: this.handleStartOver}, React.DOM.i({className: "fa fa-chevron-left fa-fw"}), "Start Over")
+                React.DOM.a( {className:"floatLeft steps", onClick:this.handleStartOver}, React.DOM.i( {className:"fa fa-chevron-left fa-fw"}),"Start Over")
                 )
 
-            var messageField = this.state.errorMessage ? (React.DOM.div({className: "message red"}, this.state.errorMessage)) : ""
+            var messageField = this.state.errorMessage ? (React.DOM.div( {className:"message red"}, this.state.errorMessage)) : ""
 
             var slide = this.props.show ? 'identitySection menuSection slidedown' : 'identitySection menuSection slideup'
             return (
-                React.DOM.div({className: slide}, 
-                    React.DOM.div({className: "menuLabel"}, 
-                        polyglot.t("menu.identity.step.title", {n:this.state.step+1}), 
-                        ': ', 
+                React.DOM.div( {className:slide}, 
+                    React.DOM.div( {className:"menuLabel"}, 
+                        polyglot.t("menu.identity.step.title", {n:this.state.step+1}),
+                        ': ',
                         stepMessage[this.state.step]
-                    ), React.DOM.br(null), 
-                    mainField[this.state.step], 
-                    messageField, 
-                    backField, 
-                    nextField, 
-                    React.DOM.div({className: "clear"}), React.DOM.br(null)
+                    ),React.DOM.br(null),
+                    mainField[this.state.step],
+                    messageField,
+                    backField,
+                    nextField,
+                    React.DOM.div( {className:"clear"}),React.DOM.br(null)
                 )
                 )
        // }
@@ -1552,7 +1552,7 @@ var UsernameCheckbox = React.createClass({displayName: 'UsernameCheckbox',
 
         return (
             React.DOM.span(null, 
-                React.DOM.div({className: checkboxClass, rel: "tooltip", title: "Check availability"}), 
+                React.DOM.div( {className:checkboxClass, rel:"tooltip", title:"Check availability"}),
             usernameNotice
             )
             )
@@ -1567,9 +1567,9 @@ var PopoutCluster = React.createClass({displayName: 'PopoutCluster',
             return React.DOM.span(null)
         } 
         var section = this.props.section
-        var cluster = Cluster({clusterName: section, view: this.props.view, isPopout: true})
+        var cluster = Cluster( {clusterName:section, view:this.props.view, isPopout:true})
         return (
-            React.DOM.div({className: "expand"}, 
+            React.DOM.div( {className:"expand"}, 
                 cluster
             )
         )

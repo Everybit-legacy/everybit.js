@@ -25,7 +25,7 @@ var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay
             var puffString = this.state.value
 
             return (
-                React.DOM.textarea({ref: "puffString", name: "puffString", id: "puffString", cols: "50", value: puffString, onChange: this.handleChange})
+                React.DOM.textarea( {ref:"puffString", name:"puffString", id:"puffString", cols:"50", value:puffString, onChange:this.handleChange} )
             )
         }
 
@@ -33,7 +33,7 @@ var PuffToolsPuffDisplay = React.createClass({displayName: 'PuffToolsPuffDisplay
         var puffString = formatForDisplay(this.props.puff, this.props.style)
 
         return (
-            React.DOM.textarea({ref: "puffString", name: "puffString", rows: "5", cols: "50", value: puffString})
+            React.DOM.textarea( {ref:"puffString", name:"puffString", rows:"5", cols:"50", value:puffString})
             )
     }
 })
@@ -304,10 +304,10 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
         // Pre-fill with current user information if exists in memory
         var username    = PB.M.Wardrobe.getCurrentUsername()
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle)
-        var setIdentityField = (React.DOM.div(null, "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.", React.DOM.br(null), 
+        var setIdentityField = (React.DOM.div(null, "To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.",React.DOM.br(null ),
 
-                        PuffSwitchUser(null), 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Set identity to anon", onClick: this.handleSetIdentityToAnon}), React.DOM.br(null), React.DOM.br(null)
+                        PuffSwitchUser(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Set identity to anon", onClick:this.handleSetIdentityToAnon} ),React.DOM.br(null ),React.DOM.br(null )
                         ))
 
 
@@ -352,100 +352,100 @@ var PuffPacker = React.createClass({displayName: 'PuffPacker',
                         }
 
         return (
-            React.DOM.div({id: "adminForm", style: styleInfo}, 
-                React.DOM.form({id: "PuffPacker"}, 
-                    React.DOM.div({className: "closeBox"}, 
-                        React.DOM.a({href: "#", onClick: this.handleClose}, React.DOM.i({className: "fa fa-fw fa-times-circle"})
+            React.DOM.div( {id:"adminForm", style:styleInfo}, 
+                React.DOM.form( {id:"PuffPacker"}, 
+                    React.DOM.div( {className:"closeBox"}, 
+                        React.DOM.a( {href:"#", onClick:this.handleClose}, React.DOM.i( {className:"fa fa-fw fa-times-circle"} )
                         )
-                    ), 
-                    React.DOM.div({className: "col1"}, 
-                        React.DOM.div({className: "menuHeader"}, "Advanced tools"), 
-                        React.DOM.br(null), 
-                        "username:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "username", ref: "username", defaultValue: requestedUsername, disabled: disabled}), " ", React.DOM.br(null), 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Lookup", onClick: this.handleUsernameLookup}), 
+                    ),
+                    React.DOM.div( {className:"col1"}, 
+                        React.DOM.div( {className:"menuHeader"}, "Advanced tools"),
+                        React.DOM.br(null ),
+                        "username:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"username", ref:"username", defaultValue:requestedUsername, disabled:disabled}), " ", React.DOM.br(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Lookup", onClick:this.handleUsernameLookup} ),
 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Build registration request", onClick: this.handleBuildRegisterUserPuff}), React.DOM.br(null), 
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Build registration request", onClick:this.handleBuildRegisterUserPuff} ),React.DOM.br(null ),
 
-                        "Import from: ", React.DOM.select({id: "import", ref: "import"}, 
-                                React.DOM.option({value: "instagram"}, "Instagram"), 
-                                React.DOM.option({value: "reddit"}, "Reddit")
-                            ), ' ', React.DOM.input({className: "btn-link", type: "button", value: "Go", onClick: this.handleImport}), React.DOM.br(null), 
+                        "Import from: ", React.DOM.select( {id:"import", ref:"import"}, 
+                                React.DOM.option( {value:"instagram"}, "Instagram"),
+                                React.DOM.option( {value:"reddit"}, "Reddit")
+                            ),' ',React.DOM.input( {className:"btn-link", type:"button", value:"Go", onClick:this.handleImport} ),React.DOM.br(null ),
 
-                        React.DOM.b(null, "Current identity:"), " ", React.DOM.span({className: "authorSpan"}, username), React.DOM.br(null), 
-                        setIdentityField, 
+                        React.DOM.b(null, "Current identity:"), " ", React.DOM.span( {className:"authorSpan"}, username),React.DOM.br(null ),
+                        setIdentityField,
 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Generate keys", onClick: this.handleGeneratePrivateKeys}), React.DOM.br(null), 
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Generate keys", onClick:this.handleGeneratePrivateKeys} ),React.DOM.br(null ),
 
-                    "New private keys", React.DOM.br(null), 
-                    "root:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "rootKeyPrivate", ref: "rootKeyPrivate"}), React.DOM.br(null), 
+                    "New private keys",React.DOM.br(null ),
+                    "root:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPrivate", ref:"rootKeyPrivate"} ),React.DOM.br(null ),
 
-                    "admin:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "adminKeyPrivate", ref: "adminKeyPrivate"}), React.DOM.br(null), 
+                    "admin:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPrivate", ref:"adminKeyPrivate"} ),React.DOM.br(null ),
 
-                    "default:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "defaultKeyPrivate", ref: "defaultKeyPrivate"}), React.DOM.br(null), React.DOM.br(null), 
+                    "default:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPrivate", ref:"defaultKeyPrivate"} ),React.DOM.br(null ),React.DOM.br(null ),
 
-                    "Corresponding public keys", React.DOM.br(null), 
+                    "Corresponding public keys",React.DOM.br(null ),
 
-                    "root:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "rootKeyPublic", ref: "rootKeyPublic"}), React.DOM.br(null), 
+                    "root:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"rootKeyPublic", ref:"rootKeyPublic"} ),React.DOM.br(null ),
 
-                    "admin:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "adminKeyPublic", ref: "adminKeyPublic"}), React.DOM.br(null), 
+                    "admin:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"adminKeyPublic", ref:"adminKeyPublic"} ),React.DOM.br(null ),
 
-                    "default:", 
-                        React.DOM.input({className: "fixedLeft", type: "text", name: "defaultKeyPublic", ref: "defaultKeyPublic"}), React.DOM.br(null), React.DOM.br(null), 
-
-
-                    "Key to modify: ", React.DOM.br(null), React.DOM.select({id: "keyToModify", ref: "keyToModify"}, 
-                        React.DOM.option({value: "defaultKey"}, "default"), 
-                        React.DOM.option({value: "adminKey"}, "admin"), 
-                        React.DOM.option({value: "rootKey"}, "root")
-                    ), React.DOM.br(null), 
-                    "New PUBLIC key: ", React.DOM.br(null), React.DOM.input({className: "fixedLeft", type: "text", name: "newKey", ref: "newKey"}), React.DOM.br(null), 
-                        React.DOM.a({href: "#", onClick: this.handleBuildModifyUserKeysPuff}, "Build modify user keys DHT puff")
-
-                    ), 
-
-                    React.DOM.div({className: "col2"}, 
-
-                        React.DOM.label({htmlFor: "result"}, "Results:"), 
-                        React.DOM.a({href: "#", onClick: this.handleShowResultsRaw}, "Raw"), 
-                        ' | ', 
-                        React.DOM.a({href: "#", onClick: this.handleShowResultsFormatted}, "Formatted"), 
-                        React.DOM.br(null), 
-                        React.DOM.textarea({ref: "result", name: "result", rows: "5", cols: "50", value: result, readOnly: "true"}), React.DOM.br(null), 
+                    "default:",
+                        React.DOM.input( {className:"fixedLeft", type:"text", name:"defaultKeyPublic", ref:"defaultKeyPublic"} ),React.DOM.br(null ),React.DOM.br(null ),
 
 
-                        React.DOM.label({htmlFor: "puffString"}, "Puff:"), 
-                        React.DOM.a({href: "#", onClick: this.handleShowPuffRaw}, "Raw"), 
-                        ' | ', 
-                        React.DOM.a({href: "#", onClick: this.handleShowPuffFormatted}, "Formatted"), 
-                           ' | ', 
-                        React.DOM.a({href: "#", onClick: this.handleShowPuffEdit}, "Edit"), 
-                        React.DOM.br(null), 
-                        PuffToolsPuffDisplay({style: this.props.tools.users.puffstyle, puff: this.state.puff}), 
-                        React.DOM.br(null), 
+                    "Key to modify: ", React.DOM.br(null ),React.DOM.select( {id:"keyToModify", ref:"keyToModify"}, 
+                        React.DOM.option( {value:"defaultKey"}, "default"),
+                        React.DOM.option( {value:"adminKey"}  , "admin"),
+                        React.DOM.option( {value:"rootKey"}   , "root")
+                    ),React.DOM.br(null ),
+                    "New PUBLIC key: ", React.DOM.br(null ),React.DOM.input( {className:"fixedLeft", type:"text", name:"newKey", ref:"newKey"} ),React.DOM.br(null ),
+                        React.DOM.a( {href:"#", onClick:this.handleBuildModifyUserKeysPuff}, "Build modify user keys DHT puff")
 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Send user request", onClick: this.handleSendPuffToServer}), 
+                    ),
 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Send EDITED puff user request", onClick: this.handleSendRawEditedPuff}), 
+                    React.DOM.div( {className:"col2"}, 
+
+                        React.DOM.label( {htmlFor:"result"}, "Results:"),
+                        React.DOM.a( {href:"#", onClick:this.handleShowResultsRaw}, "Raw"),
+                        ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowResultsFormatted}, "Formatted"),
+                        React.DOM.br(null ),
+                        React.DOM.textarea( {ref:"result", name:"result", rows:"5", cols:"50", value:result, readOnly:"true"}),React.DOM.br(null ),
 
 
-                        React.DOM.br(null), 
-                        React.DOM.input({className: "btn-link", type: "button", value: "Publish puff", onClick: this.handlePublishPuff}), 
+                        React.DOM.label( {htmlFor:"puffString"}, "Puff:"),
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffRaw}, "Raw"),
+                        ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffFormatted}, "Formatted"),
+                           ' | ',
+                        React.DOM.a( {href:"#", onClick:this.handleShowPuffEdit}, "Edit"),
+                        React.DOM.br(null ),
+                        PuffToolsPuffDisplay( {style:this.props.tools.users.puffstyle, puff:this.state.puff} ),
+                        React.DOM.br(null ),
 
-                        React.DOM.br(null), 
-                    "username: ", React.DOM.input({className: "fixedLeft", type: "text", name: "contentPuffUsername", ref: "contentPuffUsername", value: username}), React.DOM.br(null), 
-                    "routes: ", React.DOM.input({className: "fixedLeft", type: "text", name: "contentPuffRoutes", ref: "contentPuffRoutes"}), React.DOM.br(null), 
-                    "previous: ", React.DOM.input({className: "fixedLeft", type: "text", name: "contentPuffPrevious", ref: "contentPuffPrevious"}), React.DOM.br(null), 
-                    "version: ", React.DOM.input({className: "fixedLeft", type: "text", name: "contentPuffVersion", ref: "contentPuffVersion"}), React.DOM.br(null), 
-                    "payload: ", React.DOM.br(null), 
-                    "type: ", React.DOM.input({className: "fixedLeft", type: "text", name: "contentPuffType", ref: "contentPuffType"}), React.DOM.br(null), 
-                    "content: ", React.DOM.br(null), 
-                        React.DOM.textarea({ref: "contentPuffContent", name: "contentPuffContent", rows: "5", cols: "50"}), React.DOM.br(null)
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Send user request", onClick:this.handleSendPuffToServer} ),
+
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Send EDITED puff user request", onClick:this.handleSendRawEditedPuff} ),
+
+
+                        React.DOM.br(null ),
+                        React.DOM.input( {className:"btn-link", type:"button", value:"Publish puff", onClick:this.handlePublishPuff} ),
+
+                        React.DOM.br(null ),
+                    "username: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffUsername", ref:"contentPuffUsername", value:username} ),React.DOM.br(null ),
+                    "routes: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffRoutes", ref:"contentPuffRoutes"} ),React.DOM.br(null ),
+                    "previous: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffPrevious", ref:"contentPuffPrevious"} ),React.DOM.br(null ),
+                    "version: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffVersion", ref:"contentPuffVersion"} ),React.DOM.br(null ),
+                    "payload: ", React.DOM.br(null ),
+                    "type: ", React.DOM.input( {className:"fixedLeft", type:"text", name:"contentPuffType", ref:"contentPuffType"} ),React.DOM.br(null ),
+                    "content: ", React.DOM.br(null ),
+                        React.DOM.textarea( {ref:"contentPuffContent", name:"contentPuffContent", rows:"5", cols:"50"}),React.DOM.br(null )
 
 
 
@@ -472,11 +472,11 @@ var PuffSwitchUser = React.createClass({displayName: 'PuffSwitchUser',
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         return (
-            React.DOM.div({className: "menuItem"}, 
-            "Change user:", 
-                React.DOM.select({ref: "switcher", onChange: this.handleUserPick, value: username}, 
+            React.DOM.div( {className:"menuItem"}, 
+            "Change user:",
+                React.DOM.select( {ref:"switcher", onChange:this.handleUserPick, value:username}, 
                     all_usernames.map(function(username) {
-                        return React.DOM.option({key: username, value: username}, username)
+                        return React.DOM.option( {key:username, value:username}, username)
                     })
                 )
             )

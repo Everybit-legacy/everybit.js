@@ -149,7 +149,7 @@ Translate.language["en"].extend({
 		recipient: 'Recipients',
         send_to: 'Send to',
 		send_to_ph: 'Add new user to receive', /*placeholder*/
-		text_area_ph: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
+		text_area_ph: 'Add your content here. Click on the reply buttons of other puffs to reply to those.',
 		send: 'Send',
 		preview_text: 'Preview',
 		content_text: 'Content',

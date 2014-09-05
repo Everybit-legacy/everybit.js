@@ -11,12 +11,12 @@ Translate.language["zh"].extend({
 	menu: {
 		view: {
 			title: '查看',
-			roots: "根puffs",
-			latest: "最近",
-			collection: '特别收藏',
-			shortcut: "快捷键",
-			show_mine: '我发送的puff',
-            show_puffs:"发送给我的puff"
+			roots: '话题',
+			latest: '最新',
+			collection: '收藏',
+			shortcut: '快捷键',
+			show_mine: '我的puff',
+            show_puffs:'收件箱'
 		},
 		filters: {
 			title: '筛选',
@@ -26,11 +26,11 @@ Translate.language["zh"].extend({
 			users: '用户名'
 		},
 		preferences: {
-			title: '偏好设置',
+			title: '设置',
 			relationship: "显示关联",
 			animation: "显示动画",
 			infobar: "显示信息栏",
-			disable_reporting: "禁止提交報告",
+			disable_reporting: "停止上传活动信息",
 			language: "语言"
 		},
 		publish: {
@@ -46,15 +46,15 @@ Translate.language["zh"].extend({
 			public: '公钥',
 			default: '默认',
 			admin: '管理',
-			root: '根',
+			root: '总管',
 			new_identity: {
 				title: '新建身份',
 				msg: '新用户名',
-				generate: '生成',
-				or: '或者',
-				error_missing: '在提交之前必须设定好所有的公钥。',
+				generate: '建立',
+				or: '或',
+				error_missing: '在提交之前必须设定好所有的公钥！',
 				success: '成功!',
-				submit: '提交新用户名',
+				submit: '提交',
 				import_content: '导入内容'
 			},
 			editIdentity: {
@@ -129,7 +129,7 @@ Translate.language["zh"].extend({
 		recipient: '收件人',
         send_to: '发送给',
         send_to_ph: '所有人',
-		text_area_ph: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
+		text_area_ph: '在此添加内容。 若回复其他puff请选择回复。',
 		send: '发送',
 		preview_text: '预览',
 		content_text: '内容',
@@ -147,7 +147,7 @@ Translate.language["zh"].extend({
             public: '公开 (所有人可见)',
             private: '私密 (内容是加密的)',
             anonymous: '匿名 (加密及匿名的)',
-            paranoid: '偏执狂 (每次都会重新生成用户名)'
+            paranoid: '警惕 (每次都会重新生成用户名)'
         },
         advanced: {
         	title: '高级选项',

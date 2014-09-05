@@ -1,4 +1,13 @@
 // TODO: Rename into PB. namespace
+function keepNumberBetween(x,a,b) {
+    if(x < a)
+        return a
+    if(x > b)
+        return b
+
+    return x
+}
+
 
 function getImageCode(sig) {
     // Create an empty canvas element

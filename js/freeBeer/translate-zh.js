@@ -131,7 +131,9 @@ Translate.language["zh"].extend({
         send_to_ph: '所有人',
 		text_area_ph: '在此处添加内容。 点击其他puff的回复按钮来回复他们。',
 		send: '发送',
-		preview: '预览',
+		preview_text: '预览',
+		content_text: '内容',
+		type_text: '类',
 		format: {
 			text: '文字',
 			image: '图片',

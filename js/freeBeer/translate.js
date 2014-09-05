@@ -151,7 +151,9 @@ Translate.language["en"].extend({
 		send_to_ph: 'Add new user to receive', /*placeholder*/
 		text_area_ph: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
 		send: 'Send',
-		preview: 'preview',
+		preview_text: 'Preview',
+		content_text: 'Content',
+		type_text: 'Type',
 		format: {
 			text: 'text',
 			image: 'image',

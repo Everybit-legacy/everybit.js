@@ -4,10 +4,13 @@
 // TODO: Make whole button clickable
 // TODO: Make login button half as tall, extend out as much as big buttons.
 // TODO: when entering username, if no network give different error
+// TODO: Add "thinking" state for checkboxes, when verifying stuff on network
+// BUG: Firefox login button not working from non-homepage
+// TODO: Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
 
 var ICSWorldMixins = {
-    handleGotoScreen: function(goTo) {
-        return Events.pub( 'ui/icx/screen',{ 'view.icx.screen': goTo})
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
     getScreenDims: function() {
@@ -17,6 +20,42 @@ var ICSWorldMixins = {
                 h: window.innerHeight
             }
         )
+    }
+}
+
+var Tooltip = React.createClass({
+    render: function() {
+        var className = "menuTooltip"  + " black"
+        if (this.props.position)
+            className += " " + this.props.position
+        else
+            className += " right"
+
+        return (
+            <div className={className}>{this.props.content}</div>
+            )
+    }
+})
+
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "block"
+    },
+    handleHideTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "none"
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode()
+        var tooltips = current.getElementsByClassName('menuTooltip')
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent)
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent)
+        }
     }
 }
 
@@ -31,15 +70,35 @@ var ICXWorld = React.createClass({
         var l = ICX.config.logo.originalW*ICX.config.logo.originalH
         var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
 
+        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
+
+        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
+
+
         ICX.calculated = {
 
-            rightBorder: keepNumberBetween(w*ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
+            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
 
-            logoW: keepNumberBetween(ICX.config.logo.originalW*logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
+            logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
 
-            fontSizeMultiplier: Math.sqrt(p*ICX.config.text.areaRatio)
+            fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
+
+            baseFontH: baseFontH,
+
+            pageHeaderTextStyle: {
+                fontFamily: "Gudea, helvetica, arial",
+                fontSize: (1.1 * baseFontH) + 'px',
+                width: '100%',
+                textAlign: 'center',
+                padding: '5px',
+                color: 'white'
+            },
+
+            baseTextStyle: {
+                fontFamily: "Gudea",
+                fontSize: baseFontH+'px'
+            }
         }
-
 
         ICX.screens = [
             {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
@@ -84,7 +143,7 @@ var ICXWorld = React.createClass({
                 break;
 
             case 'store':
-                var pageComponent = <ICXStoreContent />
+                var pageComponent = <ICXStoreContent screenInfo={ICX.screens[2]} />
                 contentDivStyles.backgroundColor = 'rgba(93,  128, 90, .08)'
                 break;
 
@@ -239,12 +298,18 @@ var ICXButtonLink = React.createClass({
             var linkText = this.props.screenInfo.name.toUpperCase()
         }
 
+        // Special case login
         if(this.props.screenInfo.name == 'login') {
             buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
             buttonStyle.position = 'absolute'
             buttonStyle.top = 0
             buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            return (
+                    <div style={buttonStyle}>
+                        <ICXLoginButton />
+                    </div>
+                )
         }
 
         return (
@@ -258,6 +323,64 @@ var ICXButtonLink = React.createClass({
     }
 });
 
+// TODO: Way for people to logout (with warning if haven't saved passpharse)
+// and to save their passphrase. Way to view puffs too
+var ICXLoginButton = React.createClass({
+    mixins: [TooltipMixin],
+
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+    handleSignOut: function() {
+        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+
+        // Confirm alert first
+        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
+
+        var r = confirm(msg)
+        if (r == false) {
+            return false
+        }
+
+        PB.M.Wardrobe.removeKeys(userToRemove)
+        Events.pub('user/'+userToRemove+'/remove', {})
+        return false
+    },
+
+    render: function() {
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == 'login';
+        })[0] // NOTE RETURNS ARRAY
+
+        var username = PB.M.Wardrobe.getCurrentUsername()
+        if (!username) {
+            return(
+                <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                    <i className={thisScreen.icon}></i>{' '}
+                    {thisScreen.fullText} <i className="fa fa-chevron-right" />
+                </a>
+            )
+        } else {
+            return(
+                <span>
+                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}}>
+                        <i className="fa fa-fw fa-sign-out"></i>
+                    </a>
+                    <Tooltip position="under" content="Remove identity from this device" color="black" />
+                    {' '}
+                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+
+                        {username} <i className="fa fa-chevron-right" />
+                    </a>
+                </span>
+            )
+
+
+        }
+    }
+
+})
 
 
 var ICXHomeContent = React.createClass({
@@ -289,9 +412,19 @@ var ICXSendContent = React.createClass({
 var ICXStoreContent = React.createClass({
 
     render: function () {
+        // Link to previously encrypted/stored files
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
         return (
             <div style={{width: '100%', height: '100%'}}>
-            STORE!
+                <div style={headerStyle}>Encrypt and store files</div><br />
+                Select a file. It will be encrypted right in your web browser.<br />
+                <input type="file" id="fileToUplaod" />
+
+
+
             </div>
             )
     }
@@ -359,8 +492,8 @@ var ICXSetIdentity = React.createClass({
             Events.pub('ui/event', {})
             return false
         }
-        if (username.slice(0, 1) == '.')
-            username = username.slice(1)
+
+        username = 'icx.' + username
 
         var prom = PB.getUserRecord(username)
 
@@ -375,28 +508,38 @@ var ICXSetIdentity = React.createClass({
         return false
     },
 
-    handleKeyCheck: function(keyType) {
-        // console.log(keyType);
+    // TODO: Once successfully logged in, take them to their messages page.
+    // TODO: WHen you change text of pive passpahas, set button to gray.
+    handlePassphraseCheck: function(keyType) {
+        // Will check against default key
+        // First convert to private key, then to public, then verify against DHT
 
         var self = this
 
-        // Reset state
-        /*
-         this.state[keyType] = false;
-         Events.pub('ui/event', {});
-         */
-
         var username = this.refs.username.getDOMNode().value
-        if (username.slice(0, 1) == '.')
-            username = username.slice(1)
-        var privateKey = this.refs[keyType].getDOMNode().value
 
         // Check for zero length
-        if(!privateKey.length) {
-            this.state[keyType] = 'Key missing'
+        if(!username.length) {
+            this.state.usernameStatus = 'Missing'
             Events.pub('ui/event', {})
             return false
         }
+
+        username = 'icx.' + username
+
+        var passphrase = this.refs[keyType].getDOMNode().value
+
+        // Check for zero length
+        if(!passphrase.length) {
+            this.state[keyType] = 'Missing'
+            Events.pub('ui/event', {})
+            return false
+        }
+
+
+        // Convert to private key
+        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        console.log(privateKey)
 
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
@@ -423,6 +566,7 @@ var ICXSetIdentity = React.createClass({
                     PB.M.Wardrobe.storeDefaultKey(username, privateKey)
                 }
 
+                /*
                 if(keyType == 'adminKey') {
                     PB.M.Wardrobe.storeAdminKey(username, privateKey)
                 }
@@ -430,6 +574,7 @@ var ICXSetIdentity = React.createClass({
                 if(keyType == 'rootKey') {
                     PB.M.Wardrobe.storeRootKey(username, privateKey)
                 }
+                */
 
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
@@ -454,10 +599,10 @@ var ICXSetIdentity = React.createClass({
         this.refs.username.getDOMNode().value = username
     },
 
-    handleResetUsernameCheckbox: function() {
+    handleResetCheckboxes: function() {
         this.setState({usernameStatus: false})
+        this.setState({defaultKey: false})
     },
-
 
     handleIdentityFileLoad: function() {
         var self   = this
@@ -472,7 +617,7 @@ var ICXSetIdentity = React.createClass({
     },
 
     render: function() {
-        var baseFontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max);
+        var baseFontH = ICX.calculated.baseFontH
 
         var currUser = PB.M.Wardrobe.getCurrentUsername()
         if (currUser)
@@ -485,11 +630,6 @@ var ICXSetIdentity = React.createClass({
         })[0] // NOTE RETURNS ARRAY
 
 
-        var baseStyle = {
-            fontFamily: "Gudea",
-            fontSize: baseFontH+'px'
-        }
-
         var labelStyle = {
             display: 'inline-block',
             marginRight: baseFontH+'px'
@@ -497,19 +637,21 @@ var ICXSetIdentity = React.createClass({
 
         var  inputStyle = {
             display: 'inline-block'
-
         }
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = thisScreen.color
 
 
         return (
-            <div style={baseStyle}>
-                <div style={{fontSize: (1.1*baseFontH)+'px', backgroundColor: thisScreen.color, width: '100%', textAlign: 'center', padding: '5px', color: 'white'}}>Save your identity on this web browser</div>
+            <div style={ICX.calculated.baseTextStyle}>
+                <div style={headerStyle}>Save your identity on this web browser</div>
                 <br />
-                <div style={labelStyle}>Username:</div>
+                <div style={labelStyle}>Username:</div><br />
                 <div style={inputStyle}>
 
 
-                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange ={this.handleResetUsernameCheckbox} />
+                    .icx.<input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
                     {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                 </div>
 
@@ -521,13 +663,11 @@ var ICXSetIdentity = React.createClass({
                 Private passphrase<sup>&#63;</sup></div>
 
 
-
-
                 <div style={inputStyle}>
-                    <textarea type="text" name="adminKey" ref="adminKey" size="12" />
-                    {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
-                    <Checkmark show={this.state.adminKey} /></a>
-                    <span className="message">{this.state.adminKey}</span>
+                    <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
+                    {' '}<a href="#" onClick={this.handlePassphraseCheck.bind(this,'defaultKey')}>
+                    <Checkmark show={this.state.defaultKey} /></a>
+                    <span className="message">{this.state.defaultKey}</span>
                 </div>
                 <br /><br /><i><em>or</em></i><br /><br />
 
@@ -561,7 +701,16 @@ var ICXHowContent = React.createClass({
 
 var ICXLearnContent = React.createClass({
 
+
+
     render: function () {
+        var baseFontH = ICX.calculated.baseFontH
+
+        var baseStyle = {
+            fontFamily: "Gudea",
+            fontSize: baseFontH+'px'
+        }
+
         return (
             <div style={{width: '100%', height: '100%'}}>
             LEARN!

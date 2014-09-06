@@ -2,7 +2,6 @@
 
 // TODO: Add hover effect for buttons
 // TODO: Make whole button clickable
-// TODO: Make login button half as tall, extend out as much as big buttons.
 // TODO: when entering username, if no network give different error
 // TODO: Add "thinking" state for checkboxes, when verifying stuff on network
 // BUG: Firefox login button not working from non-homepage
@@ -59,7 +58,7 @@ var TooltipMixin = {
     }
 }
 
-
+// MAIN COMPONENT, ROUTES TRAFFIC
 var ICXWorld = React.createClass({
     render: function () {
 
@@ -131,7 +130,8 @@ var ICXWorld = React.createClass({
             width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
             height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
             top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            padding: '10px' // Testing...
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
 
         }
 
@@ -153,7 +153,7 @@ var ICXWorld = React.createClass({
                 break;
 
             case 'how':
-                var pageComponent = <ICXHowContent />
+                var pageComponent = <ICXHowContent screenInfo={ICX.screens[4]} />
                 contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
                 break;
 
@@ -214,12 +214,13 @@ var ICXLogo = React.createClass({
             });
 
             var logoW = w*ICX.config.logoSmallRatio
-            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
+            var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
+            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left ) + "px"
             logoW = logoW + "px"
             var divW = w*ICX.config.buttonSmallWidthRatio
 
             return (
-                <div style={{position: 'absolute', top: logoY, width: divW, left: 0, textAlign: 'center'}}>
+                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
                     <a href="#" onClick={this.handleGoHome}>
                         <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
                     </a>
@@ -689,9 +690,24 @@ var ICXSetIdentity = React.createClass({
 var ICXHowContent = React.createClass({
 
     render: function () {
+        // Link to previously encrypted/stored files
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
         return (
             <div style={{width: '100%', height: '100%'}}>
-            HOW!
+                <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
+                <ul>
+                    <li>No passwords sent over network</li>
+                    <li>Encrypt files right on your own computer</li>
+                    <li>Is there a catch. (yes, we don't store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
+                    <li>Tech details of p2p network</li>
+                    <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
+                </ul>
+
+
+
             </div>
             )
     }

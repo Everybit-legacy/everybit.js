@@ -135,8 +135,8 @@ var ViewKeybindingsMixin = {
 
             }
 
-            if(puffworldprops.slider.show)
-                return Events.pub('ui/slider/close', {'slider.show': false})
+            if(puffworldprops.view.slider.show)
+                return Events.pub('ui/slider/close', {'view.slider.show': false})
 
             if(puffworldprops.menu.show)
                 return Events.pub('ui/menu/close', {'menu.show': false})
@@ -477,7 +477,7 @@ var PuffWorld = React.createClass({
 
         return (
             <div className={animateClass}>
-                {puffworldprops.slider.show ? <Slider /> : ""}
+                {puffworldprops.view.slider.show ? <Slider /> : ""}
                 <HeaderHider />
                 {hb}
                 {menu}

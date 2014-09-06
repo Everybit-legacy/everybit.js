@@ -8,6 +8,24 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+// From brainwallet
+function passphraseToPrivateKeyWif(passphrase) {
+    var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString();
+    // hash = Bitcoin.Crypto.util.bytesToHex(hash);
+    // var hash_str = pad(hash, 64, '0');
+    hash = Bitcoin.convert.hexToBytes(hashStr);
+
+    return Bitcoin.ECKey(hash).toWif()
+}
+
+function pad(str, len, ch) {
+    padding = '';
+    for (var i = 0; i < len - str.length; i++) {
+        padding += ch;
+    }
+    return padding + str;
+}
+
 
 function getImageCode(sig) {
     // Create an empty canvas element

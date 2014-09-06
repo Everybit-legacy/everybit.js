@@ -43,15 +43,7 @@ puffworldprops = {
         }
     },
 
-    slider: {
-        show: false,
-        wizard: false,
-        currentSlide: 1,
-        totalSlides: 7,
-        username: '',
-        importInfo: {},
-        totalWizardSlides: 4
-    },
+
 
 
     view: {
@@ -90,6 +82,16 @@ puffworldprops = {
             suValue: 0.1,
             tluValue: 1,
             maxSuValue: 1
+        },
+
+        slider: {
+            show: false,
+            wizard: false,
+            currentSlide: 1,
+            totalSlides: 7,
+            username: '',
+            importInfo: {},
+            totalWizardSlides: 4
         },
         
         // THINK: consider taking this out of view (or filtering it out of the url, at least)
@@ -380,7 +382,7 @@ function handleImportRedirect() {
     var keysToStash = ['requestedUsername', 'network', 'token', 'requestedUserId']
     if (state['requestedUsername']) {
         // update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
-        update_puffworldprops({'slider.show': true, 'slider.wizard':true, 'slider.currentSlide': 3})
+        update_puffworldprops({'view.slider.show': true, 'view.slider.wizard':true, 'view.slider.currentSlide': 3})
 
         state = Boron.shallow_copy(state)                                      // clone before delete
         
@@ -624,7 +626,7 @@ Events.sub('ui/*', function(data) {
 // Hide slideshow from people with more than one identity
 // Make sure not problem if empty
 if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
-    Events.pub( 'ui/slider/close',{ 'slider.show': true});
+    Events.pub( 'ui/slider/close',{ 'view.slider.show': true});
     // console.log("hide silder cuz several users")
 
 

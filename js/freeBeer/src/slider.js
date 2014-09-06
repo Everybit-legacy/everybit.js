@@ -2,7 +2,7 @@
 
 var SliderMixin = {
     handleGotoSlide: function(goTo) {
-        return Events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': goTo})
+        return Events.pub( 'ui/slider/currSlide',{ 'view.slider.currentSlide': goTo})
     }/*,
     handleCheckAvailability: function(username) {
         if (!this.state.enableCheck) return false
@@ -22,37 +22,37 @@ var Slider = React.createClass({
         return {wizard: false};
     },*/
     componentWillUnmount:function() {
-        var sliderDefault = Boron.shallow_copy(puffworlddefaults.slider)
-        return Events.pub("ui/wizard/close", {'slider':sliderDefault})
+        var sliderDefault = Boron.shallow_copy(puffworlddefaults.view.slider)
+        return Events.pub("ui/wizard/close", {'view.slider':sliderDefault})
     },
 
     handleChangeSlide: function() {
-        var curr = puffworldprops.slider.currentSlide + 1
-        var wizard = puffworldprops.slider.wizard
-        var totalSlides = wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides
+        var curr = puffworldprops.view.slider.currentSlide + 1
+        var wizard = puffworldprops.view.slider.wizard
+        var totalSlides = wizard ? puffworldprops.view.slider.totalWizardSlides : puffworldprops.view.slider.totalSlides
         if (curr == totalSlides && !wizard) {
-            return Events.pub('ui/wizard/show', {'slider.currentSlide': 1, 'slider.wizard': true})
+            return Events.pub('ui/wizard/show', {'view.slider.currentSlide': 1, 'view.slider.wizard': true})
         }
 
-        return Events.pub( 'ui/slider/currSlide',{ 'slider.currentSlide': curr})
+        return Events.pub( 'ui/slider/currSlide',{ 'view.slider.currentSlide': curr})
     },
 
     handleHideSlider: function() {
-        return Events.pub( 'ui/slider/close',{ 'slider.show': false})
+        return Events.pub( 'ui/slider/close',{ 'view.slider.show': false})
     },
 
     handleGetStarted: function() {
         // Live version goes right to publish until the wizard is done
         this.setState({wizard: true})
-        Events.pub('ui/slider/get-start', {'slider.currentSlide': 1, 'slider.wizard': true})
+        Events.pub('ui/slider/get-start', {'view.slider.currentSlide': 1, 'view.slider.wizard': true})
         return false
 
     },
 
     render: function() {
-        var wizard = puffworldprops.slider.wizard
+        var wizard = puffworldprops.view.slider.wizard
         var slidesArr = new Array()
-        var totalSlides = wizard ? puffworldprops.slider.totalWizardSlides : puffworldprops.slider.totalSlides
+        var totalSlides = wizard ? puffworldprops.view.slider.totalWizardSlides : puffworldprops.view.slider.totalSlides
         for (var i=1;i<=totalSlides;i++) {
             slidesArr.push(i)
         }
@@ -77,9 +77,9 @@ var Slider = React.createClass({
         var self = this
 
         var slideName
-        var currentSlide = puffworldprops.slider.currentSlide
+        var currentSlide = parseInt(puffworldprops.view.slider.currentSlide)
         if (wizard) {
-            switch (puffworldprops.slider.currentSlide) {
+            switch (currentSlide) {
                 case 1:
                     slideName = <PickStepWizard />
                     break
@@ -103,7 +103,7 @@ var Slider = React.createClass({
                     break
             }
         } else {
-            switch (puffworldprops.slider.currentSlide) {
+            switch (currentSlide) {
                 case 1:
                     slideName = <WelcomeSlide />
                     break
@@ -144,7 +144,7 @@ var Slider = React.createClass({
 
                 <div className={wizard ? "hidden" : "sliderDots"}>
                         <span>{slidesArr.map(function(i) {
-                            return <SliderBullet key={i} active={i == puffworldprops.slider.currentSlide} numb={i} />
+                            return <SliderBullet key={i} active={i == puffworldprops.view.slider.currentSlide} numb={i} />
                         })}</span><a href="#" onClick={this.handleGetStarted}><em>Get started!</em></a>
                 </div>
 
@@ -198,7 +198,7 @@ var ShortcutsSlide = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
         Events.pub('ui/view/rows/1', {'view.rows': 1})
         showPuff(polyglot.t("puff.shortcut"))
-        return Events.pub( 'ui/slider/close',{ 'slider.show': false})
+        return Events.pub( 'ui/slider/close',{ 'view.slider.show': false})
     },
 
     render: function() {
@@ -328,7 +328,7 @@ var IdentitySlide = React.createClass({
 
 var DecentralizedSlide = React.createClass({
     handleShowFaq: function() {
-        Events.pub( 'ui/slider/close',{ 'slider.show': false})
+        Events.pub( 'ui/slider/close',{ 'view.slider.show': false})
         showPuff('AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di')
         return false
     },
@@ -360,10 +360,10 @@ var DecentralizedSlide = React.createClass({
 /* wizard slides */
 var PickStepWizard = React.createClass({
     handleJumpPost: function() {
-        return Events.pub("ui/wizard/post", {"slider.currentSlide": 6})
+        return Events.pub("ui/wizard/post", {"view.slider.currentSlide": 6})
     },
     handleJumpCreate: function() {
-        return Events.pub("ui/wizard/create", {"slider.currentSlide": 2})
+        return Events.pub("ui/wizard/create", {"view.slider.currentSlide": 2})
     },
     render: function() {
         return (
@@ -424,7 +424,7 @@ var RegisterSubuserWizard = React.createClass({
     },
     handleRegisterSubuser: function() {
         var username = this.state.username
-        return Events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username})
+        return Events.pub('ui/wizard/password', {"view.slider.currentSlide":4, "view.slider.username":username})
     },
     handleImport: function() {
         var network = this.refs.import.getDOMNode().value
@@ -475,10 +475,10 @@ var ImportWizard = React.createClass({
     },
     handleRegisterSubuser: function() {
         var username = this.state.username
-        return Events.pub('ui/wizard/password', {"slider.currentSlide":4, "slider.username":username, 'slider.importInfo': this.state.importInfo})
+        return Events.pub('ui/wizard/password', {"view.slider.currentSlide":4, "view.slider.username":username, 'view.slider.importInfo': this.state.importInfo})
     },
     handleImportContent: function() {
-        return Events.pub("ui/wizard/import", {"slider.currentSlide": 5, "slider.importInfo": this.state.importInfo})
+        return Events.pub("ui/wizard/import", {"view.slider.currentSlide": 5, "view.slider.importInfo": this.state.importInfo})
     },
     handleCheck: function() {
         // var username = this.state.importInfo.username
@@ -586,7 +586,7 @@ var PasswordWizard = React.createClass({
         return false
     },
     handleRegisterUser: function() {
-        var username = puffworldprops.slider.username
+        var username = puffworldprops.view.slider.username
 
         var keys = {}
         keys.rootKeyPrivate    = this.refs.rootKeyPrivate.getDOMNode().value
@@ -613,7 +613,7 @@ var PasswordWizard = React.createClass({
             prefix = "anon"
         }
 
-        var importInfo = puffworldprops.slider.importInfo
+        var importInfo = puffworldprops.view.slider.importInfo
         if (importInfo && importInfo.username && 
             importInfo.network + '.' +importInfo.username == username) {
             payload.importNetwork = importInfo.network
@@ -648,14 +648,14 @@ var PasswordWizard = React.createClass({
         return false
     },
     handlePublish: function() {
-        Events.pub("ui/wizard/publish", {"slider.currentSlide": 6})
+        Events.pub("ui/wizard/publish", {"view.slider.currentSlide": 6})
         return false
     },
     handleGotoMain: function() {
-        return Events.pub("ui/wizard/exit", {"slider.show": false})
+        return Events.pub("ui/wizard/exit", {"view.slider.show": false})
     },
     handleImportContent: function() {
-        return Events.pub("ui/wizard/import", {"slider.currentSlide": 5})
+        return Events.pub("ui/wizard/import", {"view.slider.currentSlide": 5})
     },
     componentDidMount: function() {
         this.populateKeys()
@@ -677,7 +677,7 @@ var PasswordWizard = React.createClass({
         var importContentLink = (<a href="#" onClick={this.handleImportContent}>Import Content, </a>)
         return (
             <div className="slideContent">
-                Username: .{puffworldprops.slider.username} <br/>
+                Username: .{puffworldprops.view.slider.username} <br/>
                 <div ref="keyFields" className={this.state.registerSuccess ? "hidden" : ""}>
                     <a href="#" onClick={this.populateKeys}>Regenerate keys</a> or <a href="#" onClick={this.handleConvert}>Convert your private keys</a><br/>
                     <em>Remeber to save your keys!</em><br/>
@@ -713,7 +713,7 @@ var importContentWizard = React.createClass({
     },
     handleContentImport: function() {
         this.setState({errorMessage: ""})
-        var importInfo = puffworldprops.slider.importInfo
+        var importInfo = puffworldprops.view.slider.importInfo
         var network = importInfo.network
         try {
             UsernameImport[network].contentURL(network+'.'+importInfo.username, importInfo.id, importInfo.token)
@@ -748,7 +748,7 @@ var PublishWizard = React.createClass({
         current = current + 1
         if (current >= total) {
             var sliderProp = Boron.shallow_copy(puffworlddefaults.slider)
-            return Events.pub("ui/wizard/close", {'slider':sliderProp})
+            return Events.pub("ui/wizard/close", {'view.slider':sliderProp})
         }
         this.setState({current: current})
         if (current >= 2) {

@@ -2,89 +2,31 @@
 
 // TODO: Add hover effect for buttons
 // TODO: Make whole button clickable
-// TODO: Do text size based on overall area as well as logo size
+// TODO: Make login button half as tall, extend out as much as big buttons.
+// TODO: when entering username, if no network give different error
+
+var ICSWorldMixins = {
+    handleGotoScreen: function(goTo) {
+        return Events.pub( 'ui/icx/screen',{ 'view.icx.screen': goTo})
+    },
+
+    getScreenDims: function() {
+        return (
+            {
+                w: window.innerWidth,
+                h: window.innerHeight
+            }
+        )
+    }
+}
+
 
 var ICXWorld = React.createClass({
-    // Get dimensions
-    // Render compoents
-    componentDidMount: function() {
-        // Take them to where they need to go
-        thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == puffworldprops.view.icx.screen;
-        });
-
-        xOffset = thisScreen[0].left;
-        window.scrollTo(xOffset,0);
-
-    },
-
-    componentDidUpdate: function() {
-        // Take them to where they need to go
-        thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == puffworldprops.view.icx.screen;
-        });
-
-        xOffset = thisScreen[0].left;
-        window.scrollTo(xOffset,0);
-
-    },
-
-
     render: function () {
 
         var w = window.innerWidth
         var h = window.innerHeight
         var p = w*h
-
-
-        var env = {w: w, h: h}
-
-        // TODO put in config for this module
-        ICX.config = {
-            rightBorder: {
-                min: 2,
-                max: 100,
-                ratio:.06
-            },
-            logo: {
-                originalW: 643,
-                originalH: 279,
-                areaRatio:.02,
-                minW: 32,
-                maxW: 1000,
-                insets: {
-                    top:.08
-                }
-            },
-            text: {
-                areaRatio: 0.001,
-                default: 14,
-                min: 5,
-                max: 100
-            },
-            content: {
-                insets: {
-                    top:.1,
-                    right:.25,
-                    left:.1,
-                    bottom:.1
-                }
-            },
-            minBorder: 1,
-            maxBorder: 100,
-            borderRatio:.03,
-            logoBigRatio:.2,
-            logoYFromTop:.05,
-            logoSmallRatio:.1,
-            buttonHeightRatio:.1,
-            buttonWidthRatio:.6,
-            buttonSmallWidthRatio:.15,
-            buttonFontHeightRatio:.03,
-            mainPageFontHeightRatio:.03,
-            contentLeftInset: .02,
-            contentRightInset: 0.15,
-            contentBottomInset:.04
-        }
 
         var l = ICX.config.logo.originalW*ICX.config.logo.originalH
         var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
@@ -96,92 +38,98 @@ var ICXWorld = React.createClass({
             logoW: keepNumberBetween(ICX.config.logo.originalW*logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
 
             fontSizeMultiplier: Math.sqrt(p*ICX.config.text.areaRatio)
-
         }
+
 
         ICX.screens = [
             {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {order: 1, name: 'send',  left: 1*w, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
             {order: 2, name: 'store', left: 2*w, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN to view your files or messages'},
+            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
             {order: 4, name: 'how',   left: 4*w, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'HOW it works'},
             {order: 5, name: 'learn', left: 5*w, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'LEARN more about i.cx'}
         ]
 
 
-        var mainPages = ICX.screens.map(function(data) {
+        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
-            borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == puffworldprops.view.icx.screen;
+        })[0]; // NOTE RETURNS ARRAY
 
-            var screenStyles = {
-                position: "absolute",
-                width: w,
-                height: h,
-                top:0,
-                left: data.left,
-                borderRightWidth: borderWidth,
-                borderRightColor: data.color,
-                borderRightStyle: 'solid'
-            }
-
-            // TODO make this a component, that contains all others
-            return <ICXFrame key={'frame'+data.name} styleInfo={screenStyles} screenInfo={data} env={env} />
-
-        });
-
-        return (
-            <span>
-                {mainPages}
-            </span>
-        );
-    }
-});
-
-var ICXFrame = React.createClass({
-    // Set color based on props
-    render: function() {
-        return (
-              <div style={this.props.styleInfo}>
-                <ICXPage screenInfo={this.props.screenInfo} env={this.props.env} />
-              </div>
-            )
-    }
-});
-
-var ICXPage = React.createClass({
-
-    render: function () {
-        var content
-        switch(this.props.screenInfo.name) {
-            case "home":
-                content = 'HOME PAGE'
-                break;
-            default:
-                content = 'NOT HOME PAGE'
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            borderRightWidth: borderWidth,
+            borderRightColor: thisScreen.color,
+            borderRightStyle: 'solid'
         }
-        return <div><ICXLogo screenInfo={this.props.screenInfo} env={this.props.env}/><ICXLinks screenInfo={this.props.screenInfo} key={'buttons'+this.props.screenInfo.name} /><ICXContentSwitch screenInfo={this.props.screenInfo} /><ICXFooter /></div>
+
+        var contentDivStyles = {
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px' // Testing...
+
+        }
+
+
+        switch(puffworldprops.view.icx.screen) {
+            case('send'):
+                var pageComponent = <ICXSendContent />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case 'store':
+                var pageComponent = <ICXStoreContent />
+                contentDivStyles.backgroundColor = 'rgba(93,  128, 90, .08)'
+                break;
+
+            case 'login':
+                var pageComponent = <ICXLoginContent />
+                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
+                break;
+
+            case 'how':
+                var pageComponent = <ICXHowContent />
+                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
+                break;
+
+            case 'learn':
+                var pageComponent = <ICXLearnContent />
+                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08))'
+                break;
+
+            default:
+                // Home page
+                // Force no styling on div
+                contentDivStyles = {}
+                var pageComponent = <ICXHomeContent />
+        }
+
+        return (
+            <div style={screenStyle}>
+                <ICXLogo />
+                <ICXLinks screenInfo={thisScreen} />
+                <div style={contentDivStyles}>
+                    {pageComponent}
+                </div>
+                <ICXFooter />
+            </div>
+        )
     }
 });
 
 var ICXLogo = React.createClass({
-
-    handleGoHome: function() {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
-    },
-
-    handleGoHow: function() {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": 'how'})
-    },
-
-    // TODO clean up redefining w and h everywhere
-    render: function () {
+    render: function() {
         var w = window.innerWidth
         var h = window.innerHeight
 
 
-        if(this.props.screenInfo.name == 'home') {
-
-
+        if(puffworldprops.view.icx.screen == 'home') {
             var logoW = ICX.calculated.logoW
 
             var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
@@ -190,44 +138,46 @@ var ICXLogo = React.createClass({
 
             var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
 
-
-
-            // return <img src="img/icx/icxLogo.png" style={{position: 'absolute', top: logoY, left: logoX, width: logoW}} alt={this.props.screenInfo.name} />
             return (
                 <div key="mainLogo" style={{width: '100%'}}>
-                    <div><img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt={this.props.screenInfo.name} /></div><br />
+                    <div>
+                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
+                    </div>
+                    <br />
                     <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
                     </div>
                 </div>
-            )
+                )
         } else {
+
+            var thisScreen = ICX.screens.filter(function( obj ) {
+                return obj.name == puffworldprops.view.icx.screen;
+            });
+
             var logoW = w*ICX.config.logoSmallRatio
-            var logoY = Math.floor( h*ICX.config.logoYFromTop ) + "px"
+            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
             logoW = logoW + "px"
             var divW = w*ICX.config.buttonSmallWidthRatio
 
             return (
-                <div style={{position: 'absolute', top: logoY, width: divW, right: 0, textAlign: 'center'}}>
+                <div style={{position: 'absolute', top: logoY, width: divW, left: 0, textAlign: 'center'}}>
                     <a href="#" onClick={this.handleGoHome}>
-                            <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={this.props.screenInfo.name} />
+                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
                     </a>
                 </div>
-                )
-        }
-    }
+            )
 
+        }
+
+
+    }
 
 });
 
-var ICXLinks = React.createClass({
-    handleGoTo: function(screen) {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
-    },
 
+var ICXLinks = React.createClass({
 
     render: function () {
-
-
         var w = window.innerWidth
         var h = window.innerHeight
 
@@ -235,31 +185,11 @@ var ICXLinks = React.createClass({
         var self = this
         var buttonLinks = ICX.screens.map(function(data) {
 
-            var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
-
-            var buttonStyle = {
-                backgroundColor: data.color,
-                height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-                position: 'absolute',
-                right: 0,
-                fontSize:  fontSize + 'px',
-                top: Math.floor( (h*.3) + data.order*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
-                lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-                color: 'white',
-                paddingLeft: Math.floor(fontSize/2.5)+'px'
-            }
-
-            if(self.props.screenInfo.name == 'home') {
-                buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
-            } else {
-                buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
-            }
-
 
             if(data.name == 'home') {
-                return <span></span>
+                return <span key={self.props.screenInfo + '_' + data.name}></span>
             } else {
-                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} styleInfo={buttonStyle} screenInfo={data} />
+                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} screenInfo={data} />
             }
 
         });
@@ -271,15 +201,37 @@ var ICXLinks = React.createClass({
 
 var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
-        Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
 
     render: function () {
         var w = window.innerWidth
         var h = window.innerHeight
+        var screenInfo = this.props.screenInfo
 
-        var styleToUse = this.props.styleInfo
+        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
+
+        var buttonStyle = {
+            backgroundColor: screenInfo.color,
+            height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+            position: 'absolute',
+            right: 0,
+            fontSize:  fontSize + 'px',
+            top: Math.floor( (h*.3) + screenInfo.order*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
+            lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+            color: 'white',
+            paddingLeft: Math.floor(fontSize/2.5)+'px'
+        }
+
+
+
+        if(puffworldprops.view.icx.screen == 'home') {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+        } else  {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
+        }
+
 
         if(puffworldprops.view.icx.screen == 'home') {
             var linkText = this.props.screenInfo.fullText
@@ -287,76 +239,25 @@ var ICXButtonLink = React.createClass({
             var linkText = this.props.screenInfo.name.toUpperCase()
         }
 
+        if(this.props.screenInfo.name == 'login') {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+            buttonStyle.position = 'absolute'
+            buttonStyle.top = 0
+            buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+        }
+
         return (
-            <div style={styleToUse}>
-                <a href="#"  onClick={this.handleGoTo.bind(self, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
+            <div style={buttonStyle}>
+                <a href="#"  onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
                 <i className={this.props.screenInfo.icon}></i>{' '}
                     {linkText} <i className="fa fa-chevron-right" />
                 </a>
             </div>
             )
     }
-
-
 });
 
-var ICXContentSwitch = React.createClass({
-
-
-    // TODO: Position div for this right in here, then wrap return in a div with these specs
-
-
-    render: function () {
-        var w = window.innerWidth
-        var h = window.innerHeight
-
-        var contentDivStyles = {
-            position: "absolute",
-            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
-            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            borderWidth: 1,
-            borderColor: 'red',
-            borderStyle: 'solid',
-            backgroundColor: 'rgba(23,56,45,.1)'
-        }
-
-
-
-        switch (this.props.screenInfo.name) {
-            case 'home':
-                return <div><ICXHomeContent /></div>
-                break;
-
-            case 'send':
-                return <div style={contentDivStyles}><ICXSendContent /></div>
-                break;
-
-            case 'store':
-                return <div style={contentDivStyles}><ICXStoreContent /></div>
-                break;
-
-            case 'login':
-                return <div style={contentDivStyles}><ICXLoginContent /></div>
-                break;
-
-            case 'how':
-                return <div style={contentDivStyles}><ICXHowContent /></div>
-                break;
-
-            case 'learn':
-                return <div style={contentDivStyles}><ICXLearnContent /></div>
-                break;
-
-            default:
-                return <span></span>
-
-        }
-    }
-
-
-});
 
 
 var ICXHomeContent = React.createClass({
@@ -376,7 +277,7 @@ var ICXSendContent = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={{fontSize: fontH, fontFamily: "GudeaBold"}}>
+                <div style={{fontSize: fontH, fontFamily: "Gudea"}}>
                     Send a private message or file
                 </div>
             </div>
@@ -398,16 +299,250 @@ var ICXStoreContent = React.createClass({
 });
 
 var ICXLoginContent = React.createClass({
+    // TODO: Deal with bad key
+    // TODO: Allow upload of passphrase
+    // TODO: Mention that if created at everybit need to modify there
+
+    handleLogin: function() {
+
+    },
+
 
     render: function () {
         return (
             <div style={{width: '100%', height: '100%'}}>
-            LOGIN!
+            <ICXSetIdentity />
             </div>
             )
     }
 
 });
+
+
+var Checkmark = React.createClass({
+    render: function() {
+        if(this.props.show === false) {
+            return <i className="fa fa-check-circle fa-fw gray"></i>
+        } else if(this.props.show === true) {
+            return <i className="fa fa-check-circle fa-fw green"></i>
+        } else {
+            return <span><i className="fa fa-check-circle fa-fw red"></i></span>
+        }
+
+    }
+})
+
+// TODO: Merge with todo's from login
+// TODO: use passphraseToPrivateKeyWif to gen key for later download
+var ICXSetIdentity = React.createClass({
+    getInitialState: function() {
+        return {
+            rootKeyStatus: false,
+            adminKeyStatus: false,
+            defaultKeyStatus: false,
+
+            usernameStatus: false,
+            rootKey: false,
+            adminKey: false,
+            defaultKey: false
+        }
+    },
+
+
+    handleUsernameLookup: function() {
+        var username = this.refs.username.getDOMNode().value
+        var self = this
+
+        // Check for zero length
+        if(!username.length) {
+            this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {})
+            return false
+        }
+        if (username.slice(0, 1) == '.')
+            username = username.slice(1)
+
+        var prom = PB.getUserRecord(username)
+
+        prom.then(function(result) {
+            self.state.usernameStatus = true
+            Events.pub('ui/puff-packer/userlookup', {})
+        })
+            .catch(function(err) {
+                self.state.usernameStatus = 'Not found'
+                Events.pub('ui/puff-packer/userlookup/failed', {})
+            })
+        return false
+    },
+
+    handleKeyCheck: function(keyType) {
+        // console.log(keyType);
+
+        var self = this
+
+        // Reset state
+        /*
+         this.state[keyType] = false;
+         Events.pub('ui/event', {});
+         */
+
+        var username = this.refs.username.getDOMNode().value
+        if (username.slice(0, 1) == '.')
+            username = username.slice(1)
+        var privateKey = this.refs[keyType].getDOMNode().value
+
+        // Check for zero length
+        if(!privateKey.length) {
+            this.state[keyType] = 'Key missing'
+            Events.pub('ui/event', {})
+            return false
+        }
+
+        // Convert to public key
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
+        if(!publicKey) {
+            this.state[keyType] = 'Bad key'
+            Events.pub('ui/event', {})
+            return false
+        }
+
+        var prom = PB.getUserRecord(username)
+
+        prom.then(function(userInfo) {
+
+            if(publicKey != userInfo[keyType]) {
+                self.state[keyType] = 'Incorrect key'
+                Events.pub('ui/event', {})
+                return false
+            } else {
+                self.state[keyType] = true
+                self.state.usernameStatus = true
+
+                // Add this to wardrobe, set username to current
+                if(keyType == 'defaultKey') {
+                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+                }
+
+                if(keyType == 'adminKey') {
+                    PB.M.Wardrobe.storeAdminKey(username, privateKey)
+                }
+
+                if(keyType == 'rootKey') {
+                    PB.M.Wardrobe.storeRootKey(username, privateKey)
+                }
+
+                // At least one good key, set this to current user
+                PB.M.Wardrobe.switchCurrent(username)
+
+                Events.pub('ui/event', {})
+                return false
+            }
+        })
+            .catch(function(err) {
+                self.state[keyType] = 'Not found'
+                Events.pub('ui/event', {})
+                return false
+            })
+        return false
+
+    },
+
+    verifyUsername: function() {
+        var username = this.refs.username.getDOMNode().value
+        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+            .toLowerCase()
+        this.refs.username.getDOMNode().value = username
+    },
+
+    handleResetUsernameCheckbox: function() {
+        this.setState({usernameStatus: false})
+    },
+
+
+    handleIdentityFileLoad: function() {
+        var self   = this
+        var reader = new FileReader()
+
+        reader.onload = function(event){
+            self.state.imageSrc = event.target.result
+        }
+
+        reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
+        return false
+    },
+
+    render: function() {
+        var baseFontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max);
+
+        var currUser = PB.M.Wardrobe.getCurrentUsername()
+        if (currUser)
+            currUser = '.' + currUser
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == puffworldprops.view.icx.screen;
+        })[0] // NOTE RETURNS ARRAY
+
+
+        var baseStyle = {
+            fontFamily: "Gudea",
+            fontSize: baseFontH+'px'
+        }
+
+        var labelStyle = {
+            display: 'inline-block',
+            marginRight: baseFontH+'px'
+        }
+
+        var  inputStyle = {
+            display: 'inline-block'
+
+        }
+
+
+        return (
+            <div style={baseStyle}>
+                <div style={{fontSize: (1.1*baseFontH)+'px', backgroundColor: thisScreen.color, width: '100%', textAlign: 'center', padding: '5px', color: 'white'}}>Save your identity on this web browser</div>
+                <br />
+                <div style={labelStyle}>Username:</div>
+                <div style={inputStyle}>
+
+
+                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange ={this.handleResetUsernameCheckbox} />
+                    {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                </div>
+
+                    <span className="message">{this.state.usernameStatus}</span>
+
+
+                <br /><br />
+                <div>
+                Private passphrase<sup>&#63;</sup></div>
+
+
+
+
+                <div style={inputStyle}>
+                    <textarea type="text" name="adminKey" ref="adminKey" size="12" />
+                    {' '}<a href="#" onClick={this.handleKeyCheck.bind(this,'adminKey')}>
+                    <Checkmark show={this.state.adminKey} /></a>
+                    <span className="message">{this.state.adminKey}</span>
+                </div>
+                <br /><br /><i><em>or</em></i><br /><br />
+
+                    Select an identity file<sup>&#63;</sup>
+                <br />
+                        <input type="file" className="fileUpload btn btn-primary" />
+
+
+                </div>
+
+
+            )
+        //}
+    }
+})
 
 
 
@@ -452,7 +587,7 @@ var ICXFooter = React.createClass({
         return (
             <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
                 <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>.
+                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. The website owner cannot view it.
             </div>
         )
     }

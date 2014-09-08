@@ -111,7 +111,8 @@ var ICXWorld = React.createClass({
             {name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
             {name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
             {name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'}
+            {name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
         ]
 
         
@@ -190,14 +191,19 @@ var ICXWorld = React.createClass({
                 contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08))'
                 break;
 
-
             case 'dashboard':
                 var pageComponent = <ICXDashboard  screenInfo={ICX.screens[9]} />
                 contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
+                break;
 
             case 'about':
                 var pageComponent = <ICXHowContent screenInfo={ICX.screens[4]} />
                 contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
+                break;
+
+            case 'newuser':
+                var pageComponent = <ICXNewUser screenInfo={ICX.screens[10]} />
+                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
                 break;
 
             default:
@@ -596,23 +602,15 @@ var Checkmark = React.createClass({
     }
 })
 
-var RandomUsername = React.createClass({
-    generateRandomUsername: function() {
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-    },
 
-    render: function() {
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-
-        return <span>{adj + ' ' + color}</span>
-    }
-})
 
 // TODO: Merge with todo's from login
 // TODO: use passphraseToPrivateKeyWif to gen key for later download
 var ICXSetIdentity = React.createClass({
+    componentDidMount: function() {
+        this.handleGenerateRandomUsername()
+    },
+
     getInitialState: function() {
         return {
             rootKeyStatus: false,
@@ -626,6 +624,12 @@ var ICXSetIdentity = React.createClass({
         }
     },
 
+    handleGenerateRandomUsername: function() {
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+        this.refs.username.getDOMNode().value = adj + color
+        return false
+    },
 
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
@@ -799,11 +803,10 @@ var ICXSetIdentity = React.createClass({
 
                     .icx.<input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
                     {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                    {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>refresh</a>
                 </div>
 
                     <span className="message">{this.state.usernameStatus}</span>
-
-                    <RandomUsername/>
 
 
                 <br /><br />
@@ -859,6 +862,27 @@ var ICXHowContent = React.createClass({
     }
 
 });
+
+var ICXNewUser = React.createClass({
+
+
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>New user form</div>
+            username: input
+                
+            </div>
+            )
+    }
+
+});
+
 
 
 var ICXLearnContent = React.createClass({

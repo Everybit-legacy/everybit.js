@@ -6,6 +6,8 @@
 // TODO: Add "thinking" state for checkboxes, when verifying stuff on network
 // BUG: Firefox login button not working from non-homepage
 // TODO: Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
+// TODO: make sure usernames are autoconverted to lowercase, strip out bad chars on the fly
+
 
 var ICSWorldMixins = {
     handleGoTo: function(screen) {
@@ -100,20 +102,32 @@ var ICXWorld = React.createClass({
         }
 
         ICX.screens = [
-            {order: 0, name: 'home',  left: 0*w, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {order: 1, name: 'send',  left: 1*w, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
-            {order: 2, name: 'store', left: 2*w, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {order: 3, name: 'login', left: 3*w, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
-            {order: 4, name: 'how',   left: 4*w, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'HOW it works'},
-            {order: 5, name: 'learn', left: 5*w, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'LEARN more about i.cx'}
+            {order: 0, name: 'home',  color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {order: 1, name: 'send',  color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
+            {order: 2, name: 'store', color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {order: 3, name: 'login', color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
+            {order: 4, name: 'how',   color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'HOW it works'},
+            {order: 5, name: 'learn', color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'LEARN more about i.cx'}
+        ]
+
+        ICX.subScreens = [
+            {name: 'send.message', color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'}
         ]
 
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
         var thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == puffworldprops.view.icx.screen;
+            return (obj.name == puffworldprops.view.icx.screen);
         })[0]; // NOTE RETURNS ARRAY
+
+
+        // Check for subscreens
+        if(!thisScreen) {
+            var thisScreen = ICX.subScreens.filter(function( obj ) {
+                return (obj.name == puffworldprops.view.icx.screen);
+            })[0];
+        }
 
         var screenStyle = {
             position: "absolute",
@@ -135,10 +149,27 @@ var ICXWorld = React.createClass({
 
         }
 
+        var username = PB.M.Wardrobe.getCurrentUsername()
+
 
         switch(puffworldprops.view.icx.screen) {
             case('send'):
-                var pageComponent = <ICXSendContent />
+                var pageComponent = <ICXSendContent screenInfo={ICX.screens[1]} />
+
+                /*
+                if(username) {
+                    var pageComponent = <ICXSendContent screenInfo={ICX.screens[1]} />
+                } else {
+                    var pageComponent = <ICXNewUser screenInfo={ICX.screens[1]} />
+                }
+                */
+
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.message'):
+                var pageComponent = <ICXSendMessage screenInfo={ICX.subScreens[0]} />
+
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
@@ -394,21 +425,78 @@ var ICXHomeContent = React.createClass({
 
 });
 
-var ICXSendContent = React.createClass({
+var ICXNewUser = React.createClass({
 
     render: function () {
-        var fontH = keepNumberBetween( Math.floor( 1.5*ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
+
+        // TODO: Prepopulate username field with avalable name, checkboxes to verify some other alternative, or recreate another
+        // TODO: Ability to change passphrase or regen another
+        // TODO: Show animal icon next to chosen username
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={{fontSize: fontH, fontFamily: "Gudea"}}>
-                    Send a private message or file
-                </div>
+                <div style={headerStyle}>Setup a new account</div><br />
+                Username: icx.<input type="text" ref="username" />
+
+                <br />
+                Next ->
+
+
+
             </div>
             )
     }
 
 });
+
+
+var ICXSendContent = React.createClass({
+    handleSendMessage: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": "send.message"});
+    },
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send a private message or file</div>
+            To: <input type="text" ref="toUsername" /> (Checkbox verifies)<br />
+
+                <a href="#" onClick={this.handleSendMessage}>Message</a> or File
+
+            </div>
+            )
+    }
+
+});
+
+var ICXSendMessage = React.createClass({
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send a private message: enter text </div>
+                   <input type="textarea" />
+                    Preview and Send tabs needed.
+
+            </div>
+            )
+
+
+    }
+
+});
+
 
 var ICXStoreContent = React.createClass({
 
@@ -704,6 +792,7 @@ var ICXHowContent = React.createClass({
                     <li>Is there a catch. (yes, we don't store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
                     <li>Tech details of p2p network</li>
                     <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
+                    <li>Nothing to install, open source</li>
                 </ul>
 
 

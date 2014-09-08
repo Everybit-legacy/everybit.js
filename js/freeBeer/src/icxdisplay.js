@@ -112,7 +112,7 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
             {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 0, name: 'newuser',    button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
+            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
         ]
 
         
@@ -167,12 +167,11 @@ var ICXWorld = React.createClass({
                 break;
 
             case('home.table'):
-                var pageComponent = <ICXTableView screenInfo={ICX.subScreens[1]} />
+                var pageComponent = <ICXTableView screenInfo={thisScreen} />
                 break;
 
             case('send.message'):
-                var pageComponent = <ICXSendMessage screenInfo={ICX.subScreens[0]} />
-
+                var pageComponent = <ICXSendMessage screenInfo={thisScreen} />
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
@@ -474,10 +473,72 @@ var ICXHomeContent = React.createClass({
 
 
 var ICXSendContent = React.createClass({
-    handleSendMessage: function() {
+
+    getInitialState: function() {
+        return {
+            toUserStatus: false
+        }
+    },
+
+    // TODO: make type a radio box, put in NEXT button
+    handleNext: function() {
+        // Make sure username lookup is done first, then go to send message
+        // handleUsernameLookup
+        if(!this.state.toUserStatus) {
+            this.handleUsernameLookup()
+        }
+        if(this.state.toUserStatus !== true) {
+            return false
+        }
+        var toUser = this.refs.toUser.getDOMNode().value
+        if (toUser.slice(0, 1) == '.')
+            toUser = toUser.slice(1)
+
+        // Global for now, could be put into props
+        ICX.message = {}
+        ICX.message.toUser = toUser
         return Events.pub('/ui/icx/screen', {"view.icx.screen": "send.message"});
     },
 
+    verifyUsername: function() {
+        var toUser = this.refs.toUser.getDOMNode().value
+        toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
+            .toLowerCase()
+        this.refs.toUser.getDOMNode().value = toUser
+        this.setState({toUserStatus: false})
+    },
+
+    handleUsernameLookup: function() {
+      // remove initial . if it exists
+
+        var toUser = this.refs.toUser.getDOMNode().value
+        var self = this
+
+        // Check for zero length
+        if(!toUser.length) {
+            this.state.toUserStatus = 'Missing'
+            Events.pub('ui/event', {})
+            return false
+        }
+
+        if (toUser.slice(0, 1) == '.')
+            toUser = toUser.slice(1)
+
+        var prom = PB.getUserRecord(toUser)
+
+        prom.then(function(result) {
+            self.state.toUserStatus = true
+            Events.pub('ui/puff-packer/userlookup', {})
+        })
+            .catch(function(err) {
+                self.state.toUserStatus = 'Not found'
+                Events.pub('ui/puff-packer/userlookup/failed', {})
+            })
+        return false
+
+    },
+
+    // TODO: Gray out NEXT until username is checked
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
@@ -486,9 +547,13 @@ var ICXSendContent = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message or file</div>
-            To: <input type="text" ref="toUsername" /> (Checkbox verifies)<br />
+            To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
 
-                <a href="#" onClick={this.handleSendMessage}>Message</a> or File
+
+                <input type="radio" name="type" ref="message" defaultChecked />message
+                or <input type="radio" name="type" ref="file" />file
+                <br />
+                <a href="#" onClick={this.handleNext}>Next<i className="fa fa-chevron-right" /></a>
 
             </div>
             )

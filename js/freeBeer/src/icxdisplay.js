@@ -193,14 +193,14 @@ var ICXWorld = React.createClass({
                 contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
                 break;
 
-            case 'how':
-                var pageComponent = <ICXHowContent screenInfo={ICX.screens[4]} />
-                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
-                break;
-
             case 'learn':
                 var pageComponent = <ICXLearnContent />
                 contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08))'
+                break;
+
+            case 'about':
+                var pageComponent = <ICXHowContent screenInfo={ICX.screens[4]} />
+                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
                 break;
 
             default:
@@ -579,6 +579,20 @@ var Checkmark = React.createClass({
     }
 })
 
+var RandomUsername = React.createClass({
+    generateRandomUsername: function() {
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+    },
+
+    render: function() {
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+
+        return <span>{adj + ' ' + color}</span>
+    }
+})
+
 // TODO: Merge with todo's from login
 // TODO: use passphraseToPrivateKeyWif to gen key for later download
 var ICXSetIdentity = React.createClass({
@@ -758,6 +772,7 @@ var ICXSetIdentity = React.createClass({
 
 
         return (
+
             <div style={ICX.calculated.baseTextStyle}>
                 <div style={headerStyle}>Save your identity on this web browser</div>
                 <br />
@@ -771,11 +786,13 @@ var ICXSetIdentity = React.createClass({
 
                     <span className="message">{this.state.usernameStatus}</span>
 
+                    <RandomUsername/>
+
 
                 <br /><br />
                 <div>
-                Private passphrase<sup>&#63;</sup></div>
-
+                    Private passphrase<sup>&#63;</sup>
+                </div>
 
                 <div style={inputStyle}>
                     <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
@@ -787,13 +804,11 @@ var ICXSetIdentity = React.createClass({
 
                     Select an identity file<sup>&#63;</sup>
                 <br />
-                        <input type="file" className="fileUpload btn btn-primary" />
+                
+                <input type="file" className="fileUpload btn btn-primary" />
 
-
-                </div>
-
-
-            )
+            </div>
+        )
         //}
     }
 })
@@ -814,7 +829,7 @@ var ICXHowContent = React.createClass({
                 <ul>
                     <li>No passwords sent over network</li>
                     <li>Encrypt files right on your own computer</li>
-                    <li>Is there a catch. (yes, we don't store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
+                    <li>Is there a catch. (yes, we don&#39;t store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
                     <li>Tech details of p2p network</li>
                     <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
                     <li>Nothing to install, open source</li>

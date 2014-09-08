@@ -1,4 +1,4 @@
-icx.colornames = [
+ICX.colornames = [
     "aliceblue",
     "antiquewhite",
     "aqua",

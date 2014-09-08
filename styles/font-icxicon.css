@@ -1,0 +1,331 @@
+@font-face {
+	font-family: 'icxicon';
+	src:url('fonts/icxicon.eot?-ps7toj');
+	src:url('fonts/icxicon.eot?#iefix-ps7toj') format('embedded-opentype'),
+		url('fonts/icxicon.woff?-ps7toj') format('woff'),
+		url('fonts/icxicon.ttf?-ps7toj') format('truetype'),
+		url('fonts/icxicon.svg?-ps7toj#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+	font-family: 'icxicon';
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-gavia:before {
+	content: "\21";
+}
+.icon-duck:before {
+	content: "\22";
+}
+.icon-tiercel:before {
+	content: "\23";
+}
+.icon-bird:before {
+	content: "\24";
+}
+.icon-loon:before {
+	content: "\25";
+}
+.icon-magpie:before {
+	content: "\26";
+}
+.icon-kiwi:before {
+	content: "\27";
+}
+.icon-hawk:before {
+	content: "\28";
+}
+.icon-rooster:before {
+	content: "\29";
+}
+.icon-eagle:before {
+	content: "\2a";
+}
+.icon-hen:before {
+	content: "\2b";
+}
+.icon-swan:before {
+	content: "\2c";
+}
+.icon-vulture:before {
+	content: "\2d";
+}
+.icon-dove:before {
+	content: "\2e";
+}
+.icon-duckling:before {
+	content: "\2f";
+}
+.icon-buzzard:before {
+	content: "\30";
+}
+.icon-kite:before {
+	content: "\31";
+}
+.icon-pardalote:before {
+	content: "\32";
+}
+.icon-parrot:before {
+	content: "\33";
+}
+.icon-puffer:before {
+	content: "\34";
+}
+.icon-ogopogo:before {
+	content: "\35";
+}
+.icon-stingray:before {
+	content: "\36";
+}
+.icon-shark:before {
+	content: "\37";
+}
+.icon-dogfish:before {
+	content: "\38";
+}
+.icon-nessie:before {
+	content: "\39";
+}
+.icon-turtle:before {
+	content: "\3a";
+}
+.icon-deer:before {
+	content: "\3b";
+}
+.icon-camel:before {
+	content: "\3c";
+}
+.icon-bull:before {
+	content: "\3d";
+}
+.icon-gekko:before {
+	content: "\3e";
+}
+.icon-fox:before {
+	content: "\3f";
+}
+.icon-flammingo:before {
+	content: "\40";
+}
+.icon-chick:before {
+	content: "\41";
+}
+.icon-coyote:before {
+	content: "\42";
+}
+.icon-horse:before {
+	content: "\43";
+}
+.icon-vixen:before {
+	content: "\44";
+}
+.icon-cat:before {
+	content: "\45";
+}
+.icon-dog:before {
+	content: "\46";
+}
+.icon-rat:before {
+	content: "\47";
+}
+.icon-pub:before {
+	content: "\48";
+}
+.icon-kitten:before {
+	content: "\49";
+}
+.icon-rabbit:before {
+	content: "\4a";
+}
+.icon-watchdog:before {
+	content: "\4b";
+}
+.icon-dino:before {
+	content: "\4c";
+}
+.icon-retriever:before {
+	content: "\4d";
+}
+.icon-shepherd:before {
+	content: "\4e";
+}
+.icon-mule:before {
+	content: "\4f";
+}
+.icon-stalion:before {
+	content: "\50";
+}
+.icon-kangaroo:before {
+	content: "\51";
+}
+.icon-playboy:before {
+	content: "\52";
+}
+.icon-cow:before {
+	content: "\53";
+}
+.icon-wolf:before {
+	content: "\54";
+}
+.icon-crocodile:before {
+	content: "\55";
+}
+.icon-alligator:before {
+	content: "\56";
+}
+.icon-bat:before {
+	content: "\57";
+}
+.icon-zebra:before {
+	content: "\58";
+}
+.icon-boar:before {
+	content: "\59";
+}
+.icon-polarbear:before {
+	content: "\5a";
+}
+.icon-mire:before {
+	content: "\5b";
+}
+.icon-lion:before {
+	content: "\5c";
+}
+.icon-chimp:before {
+	content: "\5d";
+}
+.icon-bobcat:before {
+	content: "\5e";
+}
+.icon-moose:before {
+	content: "\5f";
+}
+.icon-donkey:before {
+	content: "\60";
+}
+.icon-seal:before {
+	content: "\61";
+}
+.icon-butterfly:before {
+	content: "\62";
+}
+.icon-reindeer:before {
+	content: "\63";
+}
+.icon-leopard:before {
+	content: "\64";
+}
+.icon-heron:before {
+	content: "\65";
+}
+.icon-bunny:before {
+	content: "\66";
+}
+.icon-penguin:before {
+	content: "\67";
+}
+.icon-skipper:before {
+	content: "\68";
+}
+.icon-unicorn:before {
+	content: "\69";
+}
+.icon-goat:before {
+	content: "\6a";
+}
+.icon-jill:before {
+	content: "\6b";
+}
+.icon-tiger:before {
+	content: "\6c";
+}
+.icon-hare:before {
+	content: "\6d";
+}
+.icon-hippo:before {
+	content: "\6e";
+}
+.icon-elephant:before {
+	content: "\6f";
+}
+.icon-giraffe:before {
+	content: "\70";
+}
+.icon-grizzly:before {
+	content: "\71";
+}
+.icon-squirrel:before {
+	content: "\72";
+}
+.icon-hummingbird:before {
+	content: "\73";
+}
+.icon-doe:before {
+	content: "\74";
+}
+.icon-seahorse:before {
+	content: "\75";
+}
+.icon-crow:before {
+	content: "\76";
+}
+.icon-pig:before {
+	content: "\77";
+}
+.icon-bear:before {
+	content: "\78";
+}
+.icon-macaw:before {
+	content: "\79";
+}
+.icon-cardinal:before {
+	content: "\7a";
+}
+.icon-spermwhale:before {
+	content: "\7b";
+}
+.icon-killerwhale:before {
+	content: "\7c";
+}
+.icon-bluewhale:before {
+	content: "\7d";
+}
+.icon-manatee:before {
+	content: "\7e";
+}
+.icon-swordfish:before {
+	content: "\7f";
+}
+.icon-sheep:before {
+	content: "\85";
+}
+.icon-angelfish:before {
+	content: "\80";
+}
+.icon-wienerdog:before {
+	content: "\81";
+}
+.icon-terrier:before {
+	content: "\82";
+}
+.icon-poodle:before {
+	content: "\83";
+}
+.icon-anteater:before {
+	content: "\84";
+}
+.icon-armadillo:before {
+	content: "\87";
+}

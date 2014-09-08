@@ -152,7 +152,7 @@ puffworldprops = {
 
         // ICX related
         icx: {
-            screen: 'home'
+            screen: 'init'
         }
     },
 

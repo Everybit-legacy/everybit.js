@@ -224,3 +224,19 @@ function murmurhash3_32_gc(key, seed) {
 
     return h1 >>> 0;
 }
+
+/* Function to construct a random passphrase from an array of words*/
+var generatePassphrase = function(dict,numWords) {
+    var passphrase = "";
+    for(var i=0; i < numWords; i++) {
+        var randWordNumber = Math.floor((Math.random() * dict.length));
+        var randWord = dict[randWordNumber];
+
+        if (i == 0) {
+            passphrase +=randWord;
+        } else {
+            passphrase = passphrase + " " + randWord;
+        }
+    }
+    return passphrase;
+}

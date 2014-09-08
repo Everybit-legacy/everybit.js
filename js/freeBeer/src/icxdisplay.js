@@ -102,17 +102,17 @@ var ICXWorld = React.createClass({
         }
 
         ICX.screens = [
-            {name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
-            {name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
-            {name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works'},
-            {name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX'},
-            {name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
-            {name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
+            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
+            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
+            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works'},
+            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX'},
+            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
+            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
         ]
 
         
@@ -182,12 +182,12 @@ var ICXWorld = React.createClass({
                 break;
 
             case 'login':
-                var pageComponent = <ICXLoginContent />
+                var pageComponent = <ICXLoginContent screenInfo={ICX.screens[3]} />
                 contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
                 break;
 
             case 'learn':
-                var pageComponent = <ICXLearnContent />
+                var pageComponent = <ICXLearnContent screenInfo={ICX.screens[4]} />
                 contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08))'
                 break;
 
@@ -197,7 +197,7 @@ var ICXWorld = React.createClass({
                 break;
 
             case 'about':
-                var pageComponent = <ICXHowContent screenInfo={ICX.screens[4]} />
+                var pageComponent = <ICXHowContent screenInfo={ICX.screens[5]} />
                 contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
                 break;
 
@@ -217,7 +217,7 @@ var ICXWorld = React.createClass({
 
         return (
             <div style={screenStyle}>
-                <ICXLogo />
+                <ICXLogo screenInfo={thisScreen} />
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
                     {pageComponent}
@@ -234,7 +234,7 @@ var ICXLogo = React.createClass({
         var h = window.innerHeight
 
 
-        if(puffworldprops.view.icx.screen == 'home' || puffworldprops.view.icx.screen == 'init') {
+        if(this.props.screenInfo.name == 'home' || this.props.screenInfo.name == 'init') {
             var logoW = ICX.calculated.logoW
 
             var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
@@ -294,7 +294,7 @@ var ICXLinks = React.createClass({
             if(!data.button) {
                 return // <span key={self.props.screenInfo + '_' + data.name}></span>
             } else {
-                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} screenInfo={data} />
+                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
             }
 
         });
@@ -324,7 +324,7 @@ var ICXButtonLink = React.createClass({
             right: 0,
             fontSize:  fontSize + 'px',
             // FIXME not order TODO BUG
-            top: Math.floor( (h*.3) + screenInfo.order*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
+            top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             color: 'white',
             paddingLeft: Math.floor(fontSize/2.5)+'px'
@@ -332,14 +332,14 @@ var ICXButtonLink = React.createClass({
 
 
 
-        if(puffworldprops.view.icx.screen == 'home' || puffworldprops.view.icx.screen == 'init') {
+        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
             buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
         } else  {
             buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
         }
 
 
-        if(puffworldprops.view.icx.screen == 'home' || puffworldprops.view.icx.screen == 'init') {
+        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
             var linkText = this.props.screenInfo.fullText
         } else {
             var linkText = this.props.screenInfo.name.toUpperCase()

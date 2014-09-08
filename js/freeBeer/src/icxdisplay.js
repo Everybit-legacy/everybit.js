@@ -112,7 +112,7 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
             {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
+            {position: 0, name: 'newuser',    button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
         ]
 
         
@@ -480,33 +480,6 @@ var ICXHomeContent = React.createClass({
 
 });
 
-var ICXNewUser = React.createClass({
-
-    render: function () {
-
-        // TODO: Prepopulate username field with avalable name, checkboxes to verify some other alternative, or recreate another
-        // TODO: Ability to change passphrase or regen another
-        // TODO: Show animal icon next to chosen username
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Setup a new account</div><br />
-                Username: icx.<input type="text" ref="username" />
-
-                <br />
-                Next ->
-
-
-
-            </div>
-            )
-    }
-
-});
-
 
 var ICXSendContent = React.createClass({
     handleSendMessage: function() {
@@ -576,6 +549,36 @@ var ICXStoreContent = React.createClass({
 
 });
 
+var ICXNewUser = React.createClass({
+
+    componentDidMount: function() {
+        this.handleGenerateRandomUsername()
+    },
+
+    handleGenerateRandomUsername: function() {
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+        this.refs.username.getDOMNode().value = adj + color
+        return false
+    },
+
+    render: function () {
+        return (
+            <div>
+            <div>Reigster for a new username</div>
+            <br />
+            <div>Username:</div>
+            <div>
+                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" />
+                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>Refresh</a>
+
+            </div>
+            </div>
+        )
+    }
+
+});
+
 var ICXLoginContent = React.createClass({
     // TODO: Deal with bad key
     // TODO: Allow upload of passphrase
@@ -615,9 +618,6 @@ var Checkmark = React.createClass({
 // TODO: Merge with todo's from login
 // TODO: use passphraseToPrivateKeyWif to gen key for later download
 var ICXSetIdentity = React.createClass({
-    componentDidMount: function() {
-        this.handleGenerateRandomUsername()
-    },
 
     getInitialState: function() {
         return {
@@ -630,13 +630,6 @@ var ICXSetIdentity = React.createClass({
             adminKey: false,
             defaultKey: false
         }
-    },
-
-    handleGenerateRandomUsername: function() {
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-        this.refs.username.getDOMNode().value = adj + color
-        return false
     },
 
     handleUsernameLookup: function() {
@@ -811,7 +804,6 @@ var ICXSetIdentity = React.createClass({
 
                     .icx.<input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
                     {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                    {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>refresh</a>
                 </div>
 
                     <span className="message">{this.state.usernameStatus}</span>
@@ -870,27 +862,6 @@ var ICXHowContent = React.createClass({
     }
 
 });
-
-var ICXNewUser = React.createClass({
-
-
-
-    render: function () {
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>New user form</div>
-            username: input
-
-            </div>
-            )
-    }
-
-});
-
 
 
 var ICXLearnContent = React.createClass({

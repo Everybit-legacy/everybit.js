@@ -4,9 +4,9 @@
 // TODO: Make whole button clickable
 // TODO: when entering username, if no network give different error
 // TODO: Add "thinking" state for checkboxes, when verifying stuff on network
-// BUG: Firefox login button not working from non-homepage
-// TODO: Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
+// (P) Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
 // TODO: make sure usernames are autoconverted to lowercase, strip out bad chars on the fly
+// TODO: Store passphrase in wardrobe
 
 
 var ICSWorldMixins = {
@@ -322,7 +322,6 @@ var ICXButtonLink = React.createClass({
             position: 'absolute',
             right: 0,
             fontSize:  fontSize + 'px',
-            // FIXME not order TODO BUG
             top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             color: 'white',
@@ -377,8 +376,7 @@ var ICXButtonLink = React.createClass({
     }
 });
 
-// TODO: Way for people to logout (with warning if haven't saved passpharse)
-// and to save their passphrase. Way to view puffs too
+// TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
 var ICXLoginButton = React.createClass({
     mixins: [TooltipMixin],
 
@@ -488,7 +486,7 @@ var ICXSendContent = React.createClass({
         }
     },
 
-    // TODO: make type a radio box, put in NEXT button
+
     handleNext: function() {
         // Make sure username lookup is done first, then go to send message
         // handleUsernameLookup
@@ -723,7 +721,7 @@ var ICXSetIdentity = React.createClass({
         return false
     },
 
-    // TODO: Once successfully logged in, take them to their messages page.
+    // TODO: Once successfully logged in, take them to their dashboard
     // TODO: WHen you change text of pive passpahas, set button to gray.
     handlePassphraseCheck: function(keyType) {
         // Will check against default key

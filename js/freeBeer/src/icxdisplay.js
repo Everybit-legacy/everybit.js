@@ -359,13 +359,21 @@ var ICXButtonLink = React.createClass({
                 )
         }
 
-        return (
+        /*return (
             <div style={buttonStyle}>
                 <a href="#"  onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
                 <i className={this.props.screenInfo.icon}></i>{' '}
                     {linkText} <i className="fa fa-chevron-right" />
                 </a>
             </div>
+            )*/
+        return (
+            <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
+                <div style={buttonStyle}>
+                    <i className={this.props.screenInfo.icon}></i>{' '}
+                        {linkText} <i className="fa fa-chevron-right" />
+                </div>
+            </a>
             )
     }
 });

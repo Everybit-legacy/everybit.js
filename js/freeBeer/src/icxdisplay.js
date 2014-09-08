@@ -106,13 +106,17 @@ var ICXWorld = React.createClass({
             {order: 1, name: 'send',  color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
             {order: 2, name: 'store', color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
             {order: 3, name: 'login', color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
-            {order: 4, name: 'how',   color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'HOW it works'},
-            {order: 5, name: 'learn', color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'LEARN more about i.cx'}
+            {order: 4, name: 'learn',   color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works'},
+            {order: 5, name: 'about', color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX'}
         ]
 
         ICX.subScreens = [
-            {name: 'send.message', color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'}
+            {name: 'send.message', color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
+            {name: 'store.encrypt', color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {name: 'home.table', color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'}
         ]
+
+
 
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
@@ -150,7 +154,9 @@ var ICXWorld = React.createClass({
         }
 
         var username = PB.M.Wardrobe.getCurrentUsername()
-
+        if(username && puffworldprops.view.icx.screen=='home') {
+            Events.pub('ui/view/screen', ({'view.icx.screen': 'home.table'}))
+        }
 
         switch(puffworldprops.view.icx.screen) {
             case('send'):
@@ -165,6 +171,10 @@ var ICXWorld = React.createClass({
                 */
 
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('home.table'):
+                var pageComponent = <ICXTableView screenInfo={ICX.subScreens[1]} />
                 break;
 
             case('send.message'):
@@ -198,6 +208,8 @@ var ICXWorld = React.createClass({
                 // Force no styling on div
                 contentDivStyles = {}
                 var pageComponent = <ICXHomeContent />
+                
+
         }
 
         return (
@@ -415,6 +427,18 @@ var ICXLoginButton = React.createClass({
 })
 
 
+
+
+var ICXTableView = React.createClass({
+
+    render: function () {
+        return (
+            <span>TABLE VIEW GOES HERE</span>
+            )
+    }
+
+});
+
 var ICXHomeContent = React.createClass({
 
     render: function () {
@@ -511,7 +535,8 @@ var ICXStoreContent = React.createClass({
                 <div style={headerStyle}>Encrypt and store files</div><br />
                 Select a file. It will be encrypted right in your web browser.<br />
                 <input type="file" id="fileToUplaod" />
-
+                <br />
+                <input type="checkbox" ref="backupToCloud" checked="true" />Once encrypted, backup to the net
 
 
             </div>

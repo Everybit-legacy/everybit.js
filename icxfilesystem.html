@@ -36,23 +36,24 @@
     
     <a id="resultLink" download="icxfilefile" style="display:none">Save as unencrypted file</a>
     
-    <script>
-        /*
-        
-            -- encode message as puff
-            -- extract puff content
-            -- encrypt message puff
-            -- decrypt message puff on opening
-            -- encode files in addition to messages
-            -- download decrypted files
-            
-            - bonus: allow keys to be stored as files
-            - bonus: move decryption into a worker
-
-        */
+    
+    <hr />
+    
+    <div>
+        <p>Open text file</p>
+        <input id="textFile" type="file" />
+    </div>
+    
+    <div>
+        <textarea id="textFileContent"></textarea>
+        <button id="createFileButton">Save as text file</button>
+        <a id="fileLink" download="icx.text" style="display:none">Save encrypted message</a>
+    </div>
+    
+    <!-- code for these down at the bottom of the IIFE -->
     
     
-    
+    <script>    
         ~(function () {
             var oldFile = null
             
@@ -181,6 +182,10 @@
                 return handleFileOpen(element)
             }
             
+            var openTextFile = function(element) {                
+                return handleFileOpen(element)
+            }
+            
             var openFile = function(element) {                
                 return handleFileOpen(element, 'asDataURI')
             }
@@ -224,9 +229,40 @@
                 return new Blob([ia], {type:mimeString});
             }
             
+            
+            /////////////// code for text upload / download
+    
+            var textFile = el('textFile')
+            var textFileContent = el('textFileContent')
+            var createFileButton = el('createFileButton')
+            var fileLink = el('fileLink')
+            
+            
+            textFile.addEventListener('change', function(e) {
+                var fileprom = openTextFile(e.target)
+                fileprom.then(function(content) {
+                    console.log(content)
+                    textFileContent.value = content
+                })
+            })
+            
+            createFileButton.addEventListener('click', function() {
+                var content  = textFileContent.value // could be anything
+                var filename = "filename.txt"
+                
+                fileLink.href = prepBlob(content)
+                fileLink.download = filename
+                fileLink.click()
+                // fileLink.style.display = "" // NOTE: Safari has trouble handling blob downloads -- may need to show the link to Safari users. Firefox and Chrome are fine. Haven't tested other browsers.
+                // compat tables: http://caniuse.com/#search=blob
+                // http://caniuse.com/#feat=download
+            })
+            
+            
+            
         })()
     </script>
-        
+
     <div id="puffworld" style="display:none"></div>
 
     <!-- polyfills -->

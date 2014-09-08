@@ -432,9 +432,11 @@ var ICXLoginButton = React.createClass({
 var ICXTableView = React.createClass({
 
     render: function () {
-        return (
-            <span>TABLE VIEW GOES HERE</span>
-            )
+        var viewprops = this.props.view || {}
+        var view = <TableView view={viewprops} table={viewprops.table}/>
+        document.body.style.overflowY = "auto"
+        
+        return view
     }
 
 });

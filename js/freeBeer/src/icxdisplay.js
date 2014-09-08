@@ -543,6 +543,12 @@ var ICXStoreContent = React.createClass({
 
 var ICXNewUser = React.createClass({
 
+    getInitialState: function() {
+        return {
+            usernameStatus: false,
+        }
+    },
+
     componentDidMount: function() {
         this.handleGenerateRandomUsername()
     },
@@ -554,6 +560,37 @@ var ICXNewUser = React.createClass({
         return false
     },
 
+    handleResetCheckboxes: function() {
+        this.setState({usernameStatus: false})
+        this.setState({defaultKey: false})
+    },
+
+    handleUsernameLookup: function() {
+        var username = this.refs.username.getDOMNode().value
+        var self = this
+
+        // Check for zero length
+        if(!username.length) {
+            this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {})
+            return false
+        }
+
+        username = 'icx.' + username
+
+        var prom = PB.getUserRecord(username)
+
+        prom.then(function(result) {
+            self.state.usernameStatus = false
+            Events.pub('ui/puff-packer/userlookup', {})
+        })
+            .catch(function(err) {
+                self.state.usernameStatus = 'Not Available'
+                Events.pub('ui/puff-packer/userlookup/failed', {})
+            })
+        return false
+    },
+
     render: function () {
         return (
             <div>
@@ -561,8 +598,12 @@ var ICXNewUser = React.createClass({
             <br />
             <div>Username:</div>
             <div>
-                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" />
+                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                 {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>Refresh</a>
+
+
+                <span className="message">{this.state.usernameStatus}</span>
 
             </div>
             </div>

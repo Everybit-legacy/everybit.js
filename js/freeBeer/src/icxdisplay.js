@@ -740,11 +740,35 @@ var ICXFinishSendMessage = React.createClass({
     }
 
 });
+var ICXFileSelection = React.createClass({
+    render: function(placeholder) {
+        var placehold = placeholder || 'No File Selected'
+        return (
+            <p style={{display: 'inline','font-size':'90%'}}>
+                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
+            </p>
+            )
+    }
+});
+
+var ICXChooseFileButton = React.createClass({
+    handleDisplaySelectedFile: function() {
+
+    },
+    render: function() {
+        return (
+            <div className="fileUpload btn btn-primary">
+                <span>Choose File</span>
+                <br />
+                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            </div>
+            )
+    }
+});
 
 var ICXStoreContent = React.createClass({
     getInitialState: function() {
         return {
-            backupToCloud: true
         }
     },
 
@@ -782,11 +806,18 @@ var ICXStoreContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        return (
+        /*return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div>Select a file. It will be encrypted right in your web browser.</div>
-                <input type="file" id="fileToUplaod" />
+                <p style={{display: 'inline','font-size':'90%'}}>
+                    <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
+                </p>
+                <div className="fileUpload btn btn-primary">
+                    <span>Choose File</span>
+                    <br />
+                    <input type="file" id="fileToUplaod" />
+                </div>
                 <br />
                 <small>
                     <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
@@ -794,11 +825,22 @@ var ICXStoreContent = React.createClass({
                 </small>
                 <br />
                 <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-
-
-
-
-
+            </div>
+            )
+            */
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and store files</div>
+                <div>Select a file. It will be encrypted right in your web browser.</div>
+                <ICXFileSelection />
+                <ICXChooseFileButton />
+                <br />
+                <small>
+                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                Once encrypted, backup to the net
+                </small>
+                <br />
+                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
             </div>
             )
     }

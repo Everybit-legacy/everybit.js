@@ -828,8 +828,11 @@ var ICXNewUser = React.createClass({
     handleGenerateRandomUsername: function() {
         // Get animals
         var animalCSS = document.styleSheets[5].rules;
+
+        var animals = []
+        // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
         for(i=0; i<animalCSS.length; i++) {
-            consolor.log(animalCSS.)
+            var something = document.styleSheets[5].rules[i].selectorText
 
 
         }

@@ -403,9 +403,7 @@ PB.Data.getCurrentDecryptedShells = function() {
     return PB.Data.currentDecryptedShells
 }
 
-PB.Data.importPrivateShells = function(username) {
-    PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
-    
+PB.Data.importPrivateShells = function(username) {    
     // FIXME: race condition while toggling identities
     
     var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
@@ -427,6 +425,8 @@ PB.Data.addPrivateShells = function(privateShells) {
     var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                        .filter(Boolean)
     // FIXME: oh dear this is horrible oh dear oh dear get rid of PB.M.Forum call
+    // THINK: decryptedShells is the empty array here, and PB.Data.currentDecryptedShells is actually set inside extractL...
+    //        switch that so the promises are eaten here, once pan-wardrobe browsing is a reality
     
     if (decryptedShells.length != privateShells.length) {
         Events.pub('track/decrypt/some-decrypt-fails', 
@@ -437,7 +437,7 @@ PB.Data.addPrivateShells = function(privateShells) {
     decryptedShells = decryptedShells
         .filter(function(puff) { 
             return !PB.Data.currentDecryptedShells.filter(                           // don't repeat yourself
-                       function(otherpuff) { return otherpuff.sig == puff.sig}).length})
+                function(otherpuff) { return otherpuff.sig == puff.sig}).length})
     
     PB.Data.currentDecryptedShells = PB.Data.currentDecryptedShells.concat(decryptedShells)
     

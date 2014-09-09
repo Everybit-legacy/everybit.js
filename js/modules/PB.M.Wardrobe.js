@@ -107,6 +107,7 @@ PB.M.Wardrobe.switchCurrent = function(username) {
     PB.Persist.save('identity', username); // save to localStorage
     
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
+    PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
     PB.Data.importPrivateShells(username)
     
     return PB.M.Wardrobe.currentKeys = keys

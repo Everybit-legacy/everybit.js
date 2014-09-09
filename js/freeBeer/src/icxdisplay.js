@@ -179,9 +179,9 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
         ]
 
-     //   ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
-     //       acc[screen.name] = screen
-      //  }, {})
+        ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
+            acc[screen.name] = screen
+        }, {})
         
         var currScreen = puffworldprops.view.icx.screen
 

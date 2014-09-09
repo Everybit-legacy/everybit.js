@@ -181,7 +181,6 @@ var ICXWorld = React.createClass({
 
         ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
             acc[screen.name] = screen
-            return acc
         }, {})
         
         var currScreen = puffworldprops.view.icx.screen
@@ -848,27 +847,23 @@ var ICXFinishSendMessage = React.createClass({
     }
 
 });
-var ICXFileSelection = React.createClass({
-    render: function(placeholder) {
-        var placehold = placeholder || 'No File Selected'
-        return (
-            <p style={{display: 'inline','font-size':'90%'}}>
-                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
-            </p>
-            )
-    }
-});
 
-var ICXChooseFileButton = React.createClass({
+var ICXFileSelector = React.createClass({
     handleDisplaySelectedFile: function() {
-
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
     },
     render: function() {
         return (
-            <div className="fileUpload btn btn-primary">
-                <span>Choose File</span>
-                <br />
-                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            <div style={{width:'100%'}}>
+                <div className="fileUpload btn btn-primary">
+                    <span>Choose File</span>
+                    <br />
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                </div>
+                <p style={{display: 'inline','font-size':'90%'}}>
+                    <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                    defaultValue="No file Selected"/>
+                </p>
             </div>
             )
     }
@@ -914,34 +909,11 @@ var ICXStoreContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        /*return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <p style={{display: 'inline','font-size':'90%'}}>
-                    <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
-                </p>
-                <div className="fileUpload btn btn-primary">
-                    <span>Choose File</span>
-                    <br />
-                    <input type="file" id="fileToUplaod" />
-                </div>
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                    Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-            </div>
-            )
-            */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div>Select a file. It will be encrypted right in your web browser.</div>
-                <ICXFileSelection />
-                <ICXChooseFileButton />
+                <ICXFileSelector />
                 <br />
                 <small>
                     <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
@@ -959,9 +931,7 @@ var ICXNewUser = React.createClass({
 
     getInitialState: function() {
         return {
-            usernameStatus: false,
-            msg: '',
-            username: ''
+            usernameStatus: false
         }
     },
 
@@ -977,7 +947,7 @@ var ICXNewUser = React.createClass({
         var j = 0
         // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
         for(var i=0; i<animalCSS.length; i++) {
-            var selector = animalCSS[i].selectorText
+            var selector = document.styleSheets[5].rules[i].selectorText
 
             if(typeof selector != 'undefined') {
 
@@ -998,13 +968,8 @@ var ICXNewUser = React.createClass({
     },
 
     handleResetCheckboxes: function() {
-        this.setState({usernameStatus: false, msg: ''})
-    },
-
-    handleRandomize: function() {
-        this.handleResetCheckboxes()
-        this.handleGenerateRandomUsername()
-        return false
+        this.setState({usernameStatus: false})
+        this.setState({defaultKey: false})
     },
 
     handleUsernameCheck: function() {
@@ -1013,7 +978,7 @@ var ICXNewUser = React.createClass({
 
         // Check for zero length
         if(!username.length) {
-            self.setState({msg: "Missing"})
+            this.state.usernameStatus = 'Missing'
             Events.pub('ui/event', {})
             return false
         }
@@ -1022,11 +987,14 @@ var ICXNewUser = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function(result){
-            self.setState({msg: "Not Available", usernameStatus: false})
-        })  .catch(function(err){
-            self.setState({msg: "Available", usernameStatus: true, username: username})
+        prom.then(function(result) {
+            self.state.usernameStatus = false
+            Events.pub('ui/puff-packer/userlookup', {})
         })
+            .catch(function(err) {
+                self.state.usernameStatus = 'Not Available'
+                Events.pub('ui/puff-packer/userlookup/failed', {})
+            })
         return false
     },
 
@@ -1324,7 +1292,7 @@ var ICXSetIdentity = React.createClass({
                     Select an identity file<sup>&#63;</sup>
                 <br />
                 
-                <input type="file" className="fileUpload btn btn-primary" />
+                <ICXFileSelector />
 
             </div>
         )

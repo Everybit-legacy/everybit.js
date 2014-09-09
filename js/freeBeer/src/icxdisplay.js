@@ -12,6 +12,29 @@
 // TODO: Focus To field in send message first step, message itself in second
 // TODO: Space bar invokes check of valid username, Enter invokes NEXT if available.
 // TODO: Make adding recipients nice, like it's done at everybit
+// APPROACH: Store state of process in ICX.send or ICX.store, with vars. After complete send, set back to defaults
+/*
+ ICX: {
+    wizard: 'store' | 'send'
+
+    store: {
+        type: 'file' | 'message'
+        content:
+        saveToNet: true | false
+        step: 'first' | 'newuser' | 'finishnewuser' | 'final'
+
+    send: {
+        type: 'message' | 'file'
+        sendTo: []
+        content:
+        file:
+        step: 'first' | 'newuser' | 'finishnewuser' | 'final'
+
+
+    username:
+ }
+
+  */
 
 var ICSWorldMixins = {
     handleGoTo: function(screen) {
@@ -719,20 +742,61 @@ var ICXFinishSendMessage = React.createClass({
 });
 
 var ICXStoreContent = React.createClass({
+    getInitialState: function() {
+        return {
+            backupToCloud: true
+        }
+    },
+
+    handleToggleBackupToCloud: function() {
+        this.setState({backupToCloud: !this.state.backupToCloud})
+    },
+
+    componentDidMount: function() {
+
+    },
 
     render: function () {
         // Link to previously encrypted/stored files
+
+        // CSS for checkboxes
+        var cb = React.addons.classSet
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': this.state.backupToCloud,
+            'fa-square-o': !this.state.backupToCloud,
+            'green': this.state.backupToCloud
+        })
+
+
+        if(ICX.username) {
+            var buttonText = 'SEND'
+            var nextStep = 'store.finish'
+
+        } else {
+            var buttonText = 'NEXT'
+            var nextStep = 'newuser'
+        }
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div><br />
-                Select a file. It will be encrypted right in your web browser.<br />
+                <div style={headerStyle}>Encrypt and store files</div>
+                <div>Select a file. It will be encrypted right in your web browser.</div>
                 <input type="file" id="fileToUplaod" />
                 <br />
-                <input type="checkbox" ref="backupToCloud" checked="true" />Once encrypted, backup to the net
+                <small>
+                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                    Once encrypted, backup to the net
+                </small>
+                <br />
+                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+
+
+
 
 
             </div>

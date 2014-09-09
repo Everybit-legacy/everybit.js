@@ -494,7 +494,7 @@ var ICXUserButton = React.createClass({
                     </a>
                     {' '}or{' '}
                     <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                        <i className="fa fa-meh-o"></i>  SIGN UP <i className="fa fa-chevron-right" />
+                        <i className="fa fa-chevron-circle-up"></i>  SIGN UP
                     </a>
 
                 </span>
@@ -679,9 +679,9 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            return <button onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
         } else {
-            return <button onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
         }
     }
 });
@@ -1007,7 +1007,7 @@ var ICXNewUser = React.createClass({
         return false
     },
 
-    handleUsernameLookup: function() {
+    handleUsernameCheck: function() {
         var username = this.refs.username.getDOMNode().value
         var self = this
 
@@ -1030,26 +1030,48 @@ var ICXNewUser = React.createClass({
         return false
     },
 
+    handleRegister: function() {
+        // TODO: Password Wizard
+        this.setState({usernameStatus: false})
+        return Events.pub('ui/wizard/password')
+    },
+
     render: function () {
 
-        var  inputStyle = {
-            width: '300px'
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == puffworldprops.view.icx.screen;
+        })[0] // NOTE RETURNS ARRAY
+
+        var inputStyle = {
+            width: '40%'
         }
 
+        var buttonStyle = {
+            textAlign: 'center',
+            marginTop: '5%'
+        }
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = thisScreen.color
+
+
         return (
-            <div>
-            <div>Reigster for a new username</div>
-            <br />
-            <div>Username:</div>
-            <div>
-                .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
-                {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                {' '}<a href="#" onClick={this.handleRandomize}>Randomize</a>
+            <div style={ICX.calculated.baseTextStyle}>
+                <div style={headerStyle}>Reigster for a new username</div>
+                <br />
+                <div>Username:</div>
+                <div>
+                    .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                    {' '}<a href="#" onClick={this.handleUsernameCheck}><Checkmark show={this.state.usernameStatus} /></a>
+                    {' '}<a href="#" onClick={this.handleRandomize}>Randomize</a>
 
 
-                {' '}<span className="message">{' '}<em>{this.state.msg}</em></span>
+                    {' '}<span className="message">{' '}<em>{this.state.msg}</em></span>
+                </div>
 
-            </div>
+                <div style={buttonStyle}>
+                    <ICXNextButton enabled={this.state.usernameStatus} text="Register" />
+                </div>
             </div>
         )
     }

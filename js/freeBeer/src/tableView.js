@@ -151,9 +151,15 @@ var RowRenderMixin = {
 		if (highlight.indexOf(sig) != -1) {
 			classArray.push('highlight')
 		}
-		return <a key={sig} className={classArray.join(' ')} onClick={this.handleClickReference.bind(this, sig, type)}>
-			<img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
-		</a>
+        // TODO: wrapping this in a span squelches the DANGER error message, but any previews with anchor tags still don't show up. the underlying issue is that an anchor inside an anchor gets split into two consecutive anchors in the DOM.
+        
+		return (
+            <span>
+                <a key={sig} className={classArray.join(' ')} onClick={this.handleClickReference.bind(this, sig, type)}>
+			        <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
+		        </a>
+            </span>
+        )
 	},
 	renderRefs: function() {
 		var sig = this.props.puff.sig

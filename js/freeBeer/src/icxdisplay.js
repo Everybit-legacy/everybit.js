@@ -926,19 +926,29 @@ var ICXNewUser = React.createClass({
 
     handleGenerateRandomUsername: function() {
         // Get animals
-        var animalCSS = document.styleSheets[5].rules;
+        var animalCSS = document.styleSheets[5].rules
 
         var animals = []
+        var j = 0
         // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
-        for(i=0; i<animalCSS.length; i++) {
-            var something = document.styleSheets[5].rules[i].selectorText
+        for(var i=0; i<animalCSS.length; i++) {
+            var selector = document.styleSheets[5].rules[i].selectorText
 
+            if(typeof selector != 'undefined') {
 
+                splitResult = selector.replace("::","-").split("-")
+
+                if( splitResult[0] == '.icon') {
+                    animals[j] = splitResult[1]
+                    j++
+                }
+            }
         }
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        this.refs.username.getDOMNode().value = adj + color
+        var animal = animals[Math.floor(Math.random() * animals.length)]
+        this.refs.username.getDOMNode().value = adj + color + animal
         return false
     },
 
@@ -1286,11 +1296,6 @@ var ICXAboutContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        // var className = "icon-duck"
-        // var  inputStyle = {
-        //     font-family: 'icxicon'
-        // }
-
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
@@ -1299,7 +1304,6 @@ var ICXAboutContent = React.createClass({
                     <li>Built on the puffball.io platform</li>
                     <li>Help us grow! If you like the service, share a link to our site...</li>
                     <li>Contribute to our codebase</li>
-                    <span className="icon-duck"></span>
                 </ul>
             </div>
             )

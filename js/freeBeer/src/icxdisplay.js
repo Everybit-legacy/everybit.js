@@ -7,7 +7,11 @@
 // (P) Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
 // TODO: make sure usernames are autoconverted to lowercase, strip out bad chars on the fly
 // TODO: Store passphrase in wardrobe
-
+// TODO: Full tooltip review, put everywhere
+// TODO: Lock some screens from direct access
+// TODO: Focus To field in send message first step, message itself in second
+// TODO: Space bar invokes check of valid username, Enter invokes NEXT if available.
+// TODO: Make adding recipients nice, like it's done at everybit
 
 var ICSWorldMixins = {
     handleGoTo: function(screen) {
@@ -112,7 +116,8 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
             {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'}
+            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'},
+            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"}
         ]
 
         
@@ -121,7 +126,7 @@ var ICXWorld = React.createClass({
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
         var username = PB.M.Wardrobe.getCurrentUsername()
-
+        ICX.username = username
         
         
         if (currScreen == 'init') {
@@ -166,13 +171,18 @@ var ICXWorld = React.createClass({
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
-            case('home.table'):
-                var pageComponent = <ICXTableView screenInfo={thisScreen} />
+            case('send.message'):
+                var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
-            case('send.message'):
-                var pageComponent = <ICXSendMessage screenInfo={thisScreen} />
+            case('send.finish'):
+                var pageComponent = <ICXFinishSendMessage screenInfo={ICX.screens[11]} />
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('home.table'):
+                var pageComponent = <ICXTableView screenInfo={thisScreen} />
                 break;
 
             case 'store':
@@ -187,7 +197,7 @@ var ICXWorld = React.createClass({
 
             case 'learn':
                 var pageComponent = <ICXLearnContent screenInfo={ICX.screens[4]} />
-                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08))'
+                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
                 break;
 
             case 'dashboard':
@@ -196,8 +206,8 @@ var ICXWorld = React.createClass({
                 break;
 
             case 'about':
-                var pageComponent = <ICXHowContent screenInfo={ICX.screens[5]} />
-                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
+                var pageComponent = <ICXAboutContent screenInfo={ICX.screens[5]} />
+                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08)'
                 break;
 
             case 'newuser':
@@ -396,6 +406,7 @@ var ICXLoginButton = React.createClass({
         }
 
         PB.M.Wardrobe.removeKeys(userToRemove)
+        ICX.username = ''
         Events.pub('user/'+userToRemove+'/remove', {})
         return false
     },
@@ -405,7 +416,7 @@ var ICXLoginButton = React.createClass({
             return obj.name == 'login';
         })[0] // NOTE RETURNS ARRAY
 
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = ICX.username
         if (!username) {
             return(
                 <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
@@ -438,7 +449,7 @@ var ICXDashboard = React.createClass({
 
 
     render: function () {
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = ICX.username
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
@@ -482,36 +493,27 @@ var ICXSendContent = React.createClass({
 
     getInitialState: function() {
         return {
-            toUserStatus: false
+            toUserStatus: false,
+            nextStatus: false
         }
-    },
-
-
-    handleNext: function() {
-        // Make sure username lookup is done first, then go to send message
-        // handleUsernameLookup
-        if(!this.state.toUserStatus) {
-            this.handleUsernameLookup()
-        }
-        if(this.state.toUserStatus !== true) {
-            return false
-        }
-        var toUser = this.refs.toUser.getDOMNode().value
-        if (toUser.slice(0, 1) == '.')
-            toUser = toUser.slice(1)
-
-        // Global for now, could be put into props
-        ICX.message = {}
-        ICX.message.toUser = toUser
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": "send.message"});
     },
 
     verifyUsername: function() {
         var toUser = this.refs.toUser.getDOMNode().value
+        var finalChar = toUser.charAt(toUser.length-1)
+
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
         this.setState({toUserStatus: false})
+        this.setState({nextStatus: false})
+
+        // If the last character is a space, then trigger usernameLookup
+        if(finalChar == ' ') {
+            this.handleUsernameLookup()
+            return false
+        }
+
     },
 
     handleUsernameLookup: function() {
@@ -534,17 +536,21 @@ var ICXSendContent = React.createClass({
 
         prom.then(function(result) {
             self.state.toUserStatus = true
+            self.state.nextStatus = true
+            ICX.message = {}
+            ICX.message.toUser = toUser
             Events.pub('ui/puff-packer/userlookup', {})
         })
             .catch(function(err) {
                 self.state.toUserStatus = 'Not found'
+                self.state.nextStatus = false
                 Events.pub('ui/puff-packer/userlookup/failed', {})
             })
         return false
 
     },
 
-    // TODO: Gray out NEXT until username is checked
+
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
@@ -559,7 +565,7 @@ var ICXSendContent = React.createClass({
                 <input type="radio" name="type" ref="message" defaultChecked />message
                 or <input type="radio" name="type" ref="file" />file
                 <br />
-                <a href="#" onClick={this.handleNext}>Next<i className="fa fa-chevron-right" /></a>
+                <ICXNextButton enabled={this.state.nextStatus} goto="send.message" key="nextToSend" buttonText="NEXT" />
 
             </div>
             )
@@ -567,19 +573,143 @@ var ICXSendContent = React.createClass({
 
 });
 
+var ICXNextButton = React.createClass({
+    handleNext: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
+    },
+
+    render: function() {
+        if(this.props.text) {
+            var buttonText = this.props.text
+        } else {
+            var buttonText = "NEXT"
+        }
+
+        if(this.props.enabled) {
+            return <button onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
+        } else {
+            return <button onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+        }
+    }
+});
+
+// After this, see if user is new
+// TODO: If registered user, then "SEND", otherwise "NEXT"
 var ICXSendMessage = React.createClass({
+    getInitialState: function() {
+        return {
+            nextStatus: false
+        }
+    },
+
+    handleMessageText: function () {
+        ICX.messageText = this.refs.messageText.getDOMNode().value
+        if(ICX.messageText.length > 1) {
+            this.setState({nextStatus: true})
+        } else {
+            this.setState({nextStatus: false})
+        }
+    },
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
+        if(ICX.username) {
+            var buttonText = 'SEND'
+            var nextStep = 'send.finish'
+
+        } else {
+            var buttonText = 'NEXT'
+            var nextStep = 'newuser'
+        }
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message: enter text </div>
-                   <input type="textarea" />
-                    Preview and Send tabs needed.
+                <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
+                Your message: <br />
+                <textarea ref="messageText" style={{rows: 10, cols: 30}} onChange={this.handleMessageText} />
+                <br />
+                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
 
+            </div>
+            )
+    }
+
+});
+
+var ICXFinishSendMessage = React.createClass({
+    getInitialState: function() {
+        return {
+            messageSent: false,
+            successMessage: ''
+        }
+    },
+
+    handleSubmitSuccess: function() {
+        this.setState({messageSent: true})
+        this.setState({successMessage: 'Message sent!'})
+    },
+
+    componentDidMount: function() {
+        // Set information for this send
+        var type='text'
+        var content=ICX.messageText
+        var parents=[]
+        var metadata = {}
+        metadata.routes = [ICX.message.toUser]
+        var envelopeUserKeys = ''
+
+
+        // Bundle into puff and send this bad boy off
+        var prom = Promise.resolve() // a promise we use to string everything along
+
+        var usernames = [ICX.message.toUser]
+
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
+
+        // if we haven't cached all the users, we'll need to grab them first
+        // THINK: maybe convert this to using PB.getUserRecords instead
+        if(userRecords.length < usernames.length) {
+            usernames.forEach(function(username) {
+                if(!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function() {
+                        return PB.getUserRecordNoCache(username).then(function(userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
+                }
+            })
+        }
+
+        prom = prom.then(function() {
+            if(envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                    // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            }
+
+            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys )
+            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            return post_prom
+        }) .catch(function(err) {
+            self.cleanUpSubmit()
+            self.setState({err: err.message})
+            console.log(err)
+        })
+
+        return false
+    },
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send of message</div><br />
+                <div>{this.state.successMessage}</div>
             </div>
             )
 
@@ -587,7 +717,6 @@ var ICXSendMessage = React.createClass({
     }
 
 });
-
 
 var ICXStoreContent = React.createClass({
 
@@ -616,7 +745,7 @@ var ICXNewUser = React.createClass({
 
     getInitialState: function() {
         return {
-            usernameStatus: false,
+            usernameStatus: false
         }
     },
 
@@ -939,7 +1068,7 @@ var ICXSetIdentity = React.createClass({
 
 
 
-var ICXHowContent = React.createClass({
+var ICXLearnContent = React.createClass({
 
     render: function () {
         // Link to previously encrypted/stored files
@@ -967,34 +1096,31 @@ var ICXHowContent = React.createClass({
 
 });
 
-
-var ICXLearnContent = React.createClass({
-
-
+var ICXAboutContent = React.createClass({
 
     render: function () {
-        var baseFontH = ICX.calculated.baseFontH
+        // Link to previously encrypted/stored files
 
-        var baseStyle = {
-            fontFamily: "Gudea",
-            fontSize: baseFontH+'px'
-        }
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-            LEARN!
+                <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
+                <ul>
+                    <li>I.CX (Pronounced "I see X")</li>
+                    <li>Built on the puffball.io platform</li>
+                    <li>Help us grow! If you like the service, share a link to our site...</li>
+                    <li>Contribute to our codebase</li>
+                </ul>
             </div>
             )
     }
-
 });
 
 
 
-
-
 var ICXFooter = React.createClass({
-
 
     render: function () {
         var w = window.innerWidth
@@ -1005,12 +1131,10 @@ var ICXFooter = React.createClass({
         return (
             <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
                 <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. The website owner cannot view it.
+                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. Only the sender and recipient can decode it.
             </div>
         )
     }
-
-
 });
 
 

@@ -61,7 +61,7 @@ PB.M.Wardrobe.getCurrentUsername = function() {
  * @return {string}
  */
 PB.M.Wardrobe.getCurrentUserRecord = function() {
-    var username = PB.M.Wardrobe.getCurrentUsername()
+    var username = userRecord = PB.Data.userRecords[username]
     if(!username) 
         return PB.onError('No current user in wardrobe')
     

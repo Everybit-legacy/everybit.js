@@ -121,17 +121,17 @@ puffworldprops = {
                     allowSort: true
                 },
                 tags: {
-                    show: false,
+                    show: true,
                     weight: 1.5,
                     allowSort: false
                 },
                 other: {
-                    show: true,
+                    show: false,
                     weight: 1.5,
                     allowSort: false
                 },
                 score: {
-                    show: true,
+                    show: false,
                     weight: 0.5,
                     allowSort: false
                 }

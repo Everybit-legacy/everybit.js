@@ -129,19 +129,20 @@ var ICXStore = React.createClass({
          )
          */
         return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <ICXFileSelection />
-                <ICXChooseFileButton />
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-            </div>
+                <div style={{width: '100%', height: '100%'}}>
+                    <div style={headerStyle}>Encrypt and store files</div>
+                    <div className="contentWindow">
+                        <div>Select a file. It will be encrypted right in your web browser.</div>
+                        <ICXFileSelector />
+                        <br />
+                        <small>
+                            <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                        Once encrypted, backup to the net
+                        </small>
+                        <br />
+                        <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+                    </div>
+                </div>
             )
     }
 
@@ -235,14 +236,15 @@ var ICXSend = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message or file</div>
-            To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
-
-
-                <input type="radio" name="type" ref="message" defaultChecked />message
-            or <input type="radio" name="type" ref="file" />file
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
-
+                <div className="contentWindow">
+                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
+                    <div className="radioHolder">
+                        <input type="radio" name="type" ref="message" defaultChecked />message<br />
+                        <input type="radio" name="type" ref="file" />file
+                        <br />
+                    </div>
+                    <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
+                </div>
             </div>
             )
     }
@@ -417,9 +419,7 @@ var ICXNewUser = React.createClass({
 
     getInitialState: function() {
         return {
-            usernameStatus: false,
-            msg: '',
-            username: ''
+            usernameStatus: false
         }
     },
 
@@ -435,7 +435,7 @@ var ICXNewUser = React.createClass({
         var j = 0
         // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
         for(var i=0; i<animalCSS.length; i++) {
-            var selector = animalCSS[i].selectorText
+            var selector = document.styleSheets[5].rules[i].selectorText
 
             if(typeof selector != 'undefined') {
 
@@ -456,22 +456,17 @@ var ICXNewUser = React.createClass({
     },
 
     handleResetCheckboxes: function() {
-        this.setState({usernameStatus: false, msg: ''})
+        this.setState({usernameStatus: false})
+        this.setState({defaultKey: false})
     },
 
-    handleRandomize: function() {
-        this.handleResetCheckboxes()
-        this.handleGenerateRandomUsername()
-        return false
-    },
-
-    handleUsernameCheck: function() {
+    handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
         var self = this
 
         // Check for zero length
         if(!username.length) {
-            self.setState({msg: "Missing"})
+            this.state.usernameStatus = 'Missing'
             Events.pub('ui/event', {})
             return false
         }
@@ -480,55 +475,31 @@ var ICXNewUser = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function(result){
-            self.setState({msg: "Not Available", usernameStatus: false})
-        })  .catch(function(err){
-            self.setState({msg: "Available", usernameStatus: true, username: username})
+        prom.then(function(result) {
+            self.state.usernameStatus = false
+            Events.pub('ui/puff-packer/userlookup', {})
         })
+            .catch(function(err) {
+                self.state.usernameStatus = 'Not Available'
+                Events.pub('ui/puff-packer/userlookup/failed', {})
+            })
         return false
     },
 
-    handleRegister: function() {
-        // TODO: Password Wizard
-        this.setState({usernameStatus: false})
-        return Events.pub('ui/wizard/password')
-    },
-
     render: function () {
-
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == puffworldprops.view.icx.screen;
-        })[0] // NOTE RETURNS ARRAY
-
-        var inputStyle = {
-            width: '40%'
-        }
-
-        var buttonStyle = {
-            textAlign: 'center',
-            marginTop: '5%'
-        }
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
-
-
         return (
-            <div style={ICX.calculated.baseTextStyle}>
-                <div style={headerStyle}>Reigster for a new username</div>
+            <div>
+                <div>Reigster for a new username</div>
                 <br />
                 <div>Username:</div>
                 <div>
-                .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
-                    {' '}<a href="#" onClick={this.handleUsernameCheck}><Checkmark show={this.state.usernameStatus} /></a>
-                    {' '}<a href="#" onClick={this.handleRandomize}>Randomize</a>
+                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>Refresh</a>
 
 
-                    {' '}<span className="message">{' '}<em>{this.state.msg}</em></span>
-                </div>
+                    <span className="message">{this.state.usernameStatus}</span>
 
-                <div style={buttonStyle}>
-                    <ICXNextButton enabled={this.state.usernameStatus} text="Register" />
                 </div>
             </div>
             )
@@ -772,7 +743,7 @@ var ICXLogin = React.createClass({
                 <sup>&#63;</sup>
                 <br />
 
-                <input type="file" className="fileUpload btn btn-primary" />
+                <ICXFileSelector />
 
             </div>
             )
@@ -1311,34 +1282,30 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            return <button onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
+            return <button className ="btn btn-primary" onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
+
         } else {
-            return <button onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
+            return <button className ="btn btn-primary" onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
         }
     }
 });
 
-var ICXFileSelection = React.createClass({
-    render: function(placeholder) {
-        var placehold = placeholder || 'No File Selected'
-        return (
-            <p style={{display: 'inline','font-size':'90%'}}>
-                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
-            </p>
-            )
-    }
-});
-
-var ICXChooseFileButton = React.createClass({
+var ICXFileSelector = React.createClass({
     handleDisplaySelectedFile: function() {
-
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
     },
     render: function() {
         return (
-            <div className="fileUpload btn btn-primary">
-                <span>Choose File</span>
-                <br />
-                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            <div style={{width:'100%'}}>
+                <div className="fileUpload btn btn-primary">
+                    <span>Choose File</span>
+                    <br />
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                </div>
+                <p style={{display: 'inline','font-size':'90%'}}>
+                    <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                    defaultValue="No file Selected"/>
+                </p>
             </div>
             )
     }

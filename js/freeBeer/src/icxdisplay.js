@@ -445,7 +445,7 @@ var ICXButtonLink = React.createClass({
             )*/
         return (
             <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
-                <div style={buttonStyle}>
+                <div className="navBtn" style={buttonStyle}>
                     <i className={this.props.screenInfo.icon}></i>{' '}
                         {linkText} <i className="fa fa-chevron-right" />
                 </div>
@@ -480,6 +480,7 @@ var ICXUserButton = React.createClass({
     },
 
     render: function() {
+
         var thisScreen = ICX.screens.filter(function( obj ) {
             return obj.name == 'login';
         })[0] // NOTE RETURNS ARRAY
@@ -487,17 +488,20 @@ var ICXUserButton = React.createClass({
         var username = ICX.username
         if (!username) {
             return(
-                <span>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
-                        <i className={thisScreen.icon}></i>{' '}
-                        {thisScreen.fullText}
-                    </a>
-                    {' '}or{' '}
-                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                        <i className="fa fa-chevron-circle-up"></i>  SIGN UP
-                    </a>
+                <div>
+                    <div className="navBtn user">
+                        <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                            <i className={thisScreen.icon}></i>{' '}
+                            {thisScreen.fullText}
+                        </a>
+                    </div>
+                    <div className="navBtn user">
+                        <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
+                            <i className="fa fa-chevron-circle-up"></i>  SIGN UP
+                        </a>
+                    </div>
 
-                </span>
+                </div>
             )
         } else {
             return(

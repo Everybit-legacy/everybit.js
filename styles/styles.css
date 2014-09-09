@@ -1197,6 +1197,19 @@ fieldset[disabled] .btn-primary.active {
     width: 10em;
 }
 
+.navBtn:hover {
+    opacity: 0.75;
+}
+
+.navBtn.user {
+    width: 150px;
+    float: left;
+}
+
+.navBtn.user:hover {
+    font-style: italic;
+}
+
 .overlay {
     position: fixed;
     z-index: 250;

@@ -84,7 +84,6 @@ button.btn:hover {
 button.btn:focus {
     outline: 0;
 }
-
 body,
 html {
     height: 100%;
@@ -520,6 +519,7 @@ header h1 {
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
+  cursor:pointer;
 }
 
 .btn:focus,
@@ -710,8 +710,10 @@ fieldset[disabled] .btn-primary.active {
     position: relative;
     overflow: hidden;
     margin: 10px;
+    font-size:90%;
+
 }
-.fileUpload input.upload {
+.fileUpload input{
     position: absolute;
     top: 0;
     right: 0;

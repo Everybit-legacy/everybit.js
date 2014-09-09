@@ -552,7 +552,7 @@ CONFIG.icxmode   = true
 
 PB.M.Forum.onNewPuffs(eatPuffs);                     // register our update function
 
-// PB.M.Forum.init();                                   // initialize the forum module (and by extension the puffball network)
+// PB.M.Forum.init();                                // initialize the forum module (and by extension the puffball network)
 PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);
 PB.addRelationship(PB.M.Forum.addFamilialEdges);
 
@@ -564,7 +564,18 @@ PB.M.Wardrobe.setPref('storeKeychain', true);        // TODO: make this based on
 handleImportRedirect();                             // check if import
 
 setPropsFromURL();                                  // handle pushstate hash
-////
+
+
+//// PRIVATE PUFF GATHERER
+
+var getMyPrivateShells = function() {
+    var username = PB.M.Wardrobe.getCurrentUsername()
+    PB.Data.importPrivateShells(username)
+}
+
+setInterval(getMyPrivateShells, 60*1000)
+
+//// END PRIVATE PUFF GATHERER
 
 
 window.addEventListener('resize', function() {

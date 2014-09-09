@@ -87,12 +87,12 @@ PB.M.Forum.getEncryptedShells = function() {
     
     
     
-    var myUsername = PB.M.Wardrobe.getCurrentUsername()
-    var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
-                                  .map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
-                                  .filter(Boolean)
-    
-    return encryptedShells    
+    // var myUsername = PB.M.Wardrobe.getCurrentUsername()
+    // var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
+    //                              .map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
+    //                              .filter(Boolean)
+    //
+    // return encryptedShells
 }
 
 /**
@@ -213,7 +213,7 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
         }
         PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
         PB.M.Forum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
-        PB.Data.addBonus(letter, 'envelope', envelope)                             // mark it for later
+        PB.Data.addBonus(letter, 'envelope', envelope)                               // mark it for later
         return letter
     }
     
@@ -227,15 +227,15 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
     yourUserRecordPromise.then(function(yourUserRecord) {
         var decrypted = doit(envelope, yourUserRecord)
         // Events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
-        // puts it in the cache for next time
         
-        // add for display (sepecrate from here?)
+        if(!decrypted) return false
+        
         PB.Data.currentDecryptedShells.push(decrypted)
         PB.Data.addToGraph([decrypted])
         PB.M.Forum.addFamilialEdges([decrypted])
         
-        updateUI()                                                                  // redraw everything once DHT responds
-    })  .catch(function(err){console.log(err)});
+        updateUI()                                                                   // redraw everything once DHT responds
+    }).catch(function(err){console.log(err)});
 }
 
 /**

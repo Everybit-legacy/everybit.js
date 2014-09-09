@@ -36,6 +36,38 @@ ICX: {
     username:
  }
 
+ // COMPONENT NAMES
+ <ICX
+    +Store
+        +File
+            +Select
+    (+NewUser)
+            +Finish
+
+    +Send
+        +Initial
+        +(SendFile | SendMessage)
+    (+NewUser)
+        +Finish
+
+    +NewUser
+        +Initial
+        +Finish
+
+    +Login
+
+    +Dashboard
+
+    +TableView
+
+    +
+
+
+ +/>
+
+ // STATE ISSUES
+
+
   */
 
 var ICSWorldMixins = {
@@ -91,6 +123,7 @@ var TooltipMixin = {
 
 // MAIN COMPONENT, ROUTES TRAFFIC
 var ICXWorld = React.createClass({
+
     render: function () {
 
         var w = window.innerWidth
@@ -142,9 +175,13 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'},
-            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"}
+            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"},
+            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
         ]
 
+        ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
+            acc[screen.name] = screen
+        }, {})
         
         var currScreen = puffworldprops.view.icx.screen
 
@@ -198,6 +235,11 @@ var ICXWorld = React.createClass({
 
             case('send.message'):
                 var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.file'):
+                var pageComponent = <ICXSendFile screenInfo={ICX.screens[12]} />
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
@@ -529,10 +571,15 @@ var ICXHomeContent = React.createClass({
 
 var ICXSendContent = React.createClass({
 
+    componentDidMount: function() {
+        ICX.wizard = 'send'
+    },
+
     getInitialState: function() {
         return {
             toUserStatus: false,
-            nextStatus: false
+            nextStatus: false,
+            nextStep: 'send.message'
         }
     },
 
@@ -588,6 +635,13 @@ var ICXSendContent = React.createClass({
 
     },
 
+    handleChangeRadio: function() {
+        if(this.refs.message.getDOMNode().value)
+            this.setState({nextStep: 'send.message'})
+        else
+            this.setState({nextStep: 'send.file'})
+    },
+
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -603,7 +657,7 @@ var ICXSendContent = React.createClass({
                 <input type="radio" name="type" ref="message" defaultChecked />message
                 or <input type="radio" name="type" ref="file" />file
                 <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto="send.message" key="nextToSend" buttonText="NEXT" />
+                <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
 
             </div>
             )
@@ -630,6 +684,39 @@ var ICXNextButton = React.createClass({
         }
     }
 });
+
+var ICXSendFile = React.createClass({
+    getInitialState: function() {
+        return {
+            nextStatus: false,
+            nextStep: 'send.file',
+            buttonText: 'NEXT'
+        }
+    },
+
+    componentDidMount: function() {
+        ICX.send = {type: 'file'}
+    },
+
+    render: function() {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
+            Your file: <br />
+                <input type="file" ref="fileToSend" className="fileUpload btn btn-primary" />
+                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+
+            </div>
+        )
+    }
+
+
+})
 
 // After this, see if user is new
 // TODO: If registered user, then "SEND", otherwise "NEXT"
@@ -760,11 +847,35 @@ var ICXFinishSendMessage = React.createClass({
     }
 
 });
+var ICXFileSelection = React.createClass({
+    render: function(placeholder) {
+        var placehold = placeholder || 'No File Selected'
+        return (
+            <p style={{display: 'inline','font-size':'90%'}}>
+                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
+            </p>
+            )
+    }
+});
+
+var ICXChooseFileButton = React.createClass({
+    handleDisplaySelectedFile: function() {
+
+    },
+    render: function() {
+        return (
+            <div className="fileUpload btn btn-primary">
+                <span>Choose File</span>
+                <br />
+                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            </div>
+            )
+    }
+});
 
 var ICXStoreContent = React.createClass({
     getInitialState: function() {
         return {
-            backupToCloud: true
         }
     },
 
@@ -802,11 +913,18 @@ var ICXStoreContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        return (
+        /*return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div>Select a file. It will be encrypted right in your web browser.</div>
-                <input type="file" id="fileToUplaod" />
+                <p style={{display: 'inline','font-size':'90%'}}>
+                    <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
+                </p>
+                <div className="fileUpload btn btn-primary">
+                    <span>Choose File</span>
+                    <br />
+                    <input type="file" id="fileToUplaod" />
+                </div>
                 <br />
                 <small>
                     <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
@@ -814,11 +932,22 @@ var ICXStoreContent = React.createClass({
                 </small>
                 <br />
                 <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-
-
-
-
-
+            </div>
+            )
+            */
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and store files</div>
+                <div>Select a file. It will be encrypted right in your web browser.</div>
+                <ICXFileSelection />
+                <ICXChooseFileButton />
+                <br />
+                <small>
+                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                Once encrypted, backup to the net
+                </small>
+                <br />
+                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
             </div>
             )
     }

@@ -179,9 +179,9 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
         ]
 
-        ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
-            acc[screen.name] = screen
-        }, {})
+     //   ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
+     //       acc[screen.name] = screen
+      //  }, {})
         
         var currScreen = puffworldprops.view.icx.screen
 
@@ -847,27 +847,23 @@ var ICXFinishSendMessage = React.createClass({
     }
 
 });
-var ICXFileSelection = React.createClass({
-    render: function(placeholder) {
-        var placehold = placeholder || 'No File Selected'
-        return (
-            <p style={{display: 'inline','font-size':'90%'}}>
-                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
-            </p>
-            )
-    }
-});
 
-var ICXChooseFileButton = React.createClass({
+var ICXFileSelector = React.createClass({
     handleDisplaySelectedFile: function() {
-
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
     },
     render: function() {
         return (
-            <div className="fileUpload btn btn-primary">
-                <span>Choose File</span>
-                <br />
-                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            <div style={{width:'100%'}}>
+                <div className="fileUpload btn btn-primary">
+                    <span>Choose File</span>
+                    <br />
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                </div>
+                <p style={{display: 'inline','font-size':'90%'}}>
+                    <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                    defaultValue="No file Selected"/>
+                </p>
             </div>
             )
     }
@@ -913,34 +909,11 @@ var ICXStoreContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        /*return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <p style={{display: 'inline','font-size':'90%'}}>
-                    <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
-                </p>
-                <div className="fileUpload btn btn-primary">
-                    <span>Choose File</span>
-                    <br />
-                    <input type="file" id="fileToUplaod" />
-                </div>
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                    Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-            </div>
-            )
-            */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div>Select a file. It will be encrypted right in your web browser.</div>
-                <ICXFileSelection />
-                <ICXChooseFileButton />
+                <ICXFileSelector />
                 <br />
                 <small>
                     <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
@@ -1292,7 +1265,7 @@ var ICXSetIdentity = React.createClass({
                     Select an identity file<sup>&#63;</sup>
                 <br />
                 
-                <input type="file" className="fileUpload btn btn-primary" />
+                <ICXFileSelector />
 
             </div>
         )

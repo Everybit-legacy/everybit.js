@@ -674,6 +674,12 @@ fieldset[disabled] .btn-primary.active {
     width: 400px;
 }
 
+.contentWindow {
+    margin:10px;
+    width:100%;
+    padding:5px;
+
+}
 .downloadIcon {
     text-align: right;
     padding-top: 5px;
@@ -712,6 +718,10 @@ fieldset[disabled] .btn-primary.active {
     margin: 10px;
     font-size:90%;
 
+}
+
+.fileUpload.btn.btn-primary {
+    margin-left:0;
 }
 .fileUpload input{
     position: absolute;
@@ -1247,6 +1257,9 @@ fieldset[disabled] .btn-primary.active {
     left: 15em;
 }
 
+.radioHolder {
+    margin:10px;
+}
 .rowBox {
     background-color: #fff;
 }

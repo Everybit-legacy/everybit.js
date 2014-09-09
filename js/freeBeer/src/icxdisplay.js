@@ -178,11 +178,11 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"},
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
         ]
-
+/*
         ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
             acc[screen.name] = screen
         }, {})
-        
+        */
         var currScreen = puffworldprops.view.icx.screen
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
@@ -651,14 +651,15 @@ var ICXSendContent = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message or file</div>
-            To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
-
-
-                <input type="radio" name="type" ref="message" defaultChecked />message
-                or <input type="radio" name="type" ref="file" />file
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
-
+                <div className="contentWindow">
+                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
+                    <div className="radioHolder">
+                        <input type="radio" name="type" ref="message" defaultChecked />message<br />
+                        <input type="radio" name="type" ref="file" />file
+                        <br />
+                    </div>
+                    <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
+                </div>
             </div>
             )
     }
@@ -678,9 +679,9 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            return <button onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button className ="btn btn-primary" onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
         } else {
-            return <button onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button className ="btn btn-primary" onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
         }
     }
 });
@@ -912,15 +913,17 @@ var ICXStoreContent = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <ICXFileSelector />
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+                <div className="contentWindow">
+                    <div>Select a file. It will be encrypted right in your web browser.</div>
+                    <ICXFileSelector />
+                    <br />
+                    <small>
+                        <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                        Once encrypted, backup to the net
+                    </small>
+                    <br />
+                    <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+                </div>
             </div>
             )
     }
@@ -1286,18 +1289,15 @@ var ICXLearnContent = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
-                <ul>
-                    <li>No passwords sent over network</li>
-                    <li>Encrypt files right on your own computer</li>
-                    <li>Is there a catch. (yes, we don&#39;t store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
-                    <li>Tech details of p2p network</li>
-                    <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
-                    <li>Nothing to install, open source</li>
-                </ul>
-
-
-
-            </div>
+                    <ul>
+                        <li>No passwords sent over network</li>
+                        <li>Encrypt files right on your own computer</li>
+                        <li>Is there a catch. (yes, we don&#39;t store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
+                        <li>Tech details of p2p network</li>
+                        <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
+                        <li>Nothing to install, open source</li>
+                    </ul>
+                </div>
             )
     }
 

@@ -829,7 +829,9 @@ var ICXNewUser = React.createClass({
 
     getInitialState: function() {
         return {
-            usernameStatus: false
+            usernameStatus: false,
+            msg: '',
+            username: ''
         }
     },
 
@@ -845,7 +847,7 @@ var ICXNewUser = React.createClass({
         var j = 0
         // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
         for(var i=0; i<animalCSS.length; i++) {
-            var selector = document.styleSheets[5].rules[i].selectorText
+            var selector = animalCSS[i].selectorText
 
             if(typeof selector != 'undefined') {
 
@@ -866,8 +868,13 @@ var ICXNewUser = React.createClass({
     },
 
     handleResetCheckboxes: function() {
-        this.setState({usernameStatus: false})
-        this.setState({defaultKey: false})
+        this.setState({usernameStatus: false, msg: ''})
+    },
+
+    handleRandomize: function() {
+        this.handleResetCheckboxes()
+        this.handleGenerateRandomUsername()
+        return false
     },
 
     handleUsernameLookup: function() {
@@ -876,7 +883,7 @@ var ICXNewUser = React.createClass({
 
         // Check for zero length
         if(!username.length) {
-            this.state.usernameStatus = 'Missing'
+            self.setState({msg: "Missing"})
             Events.pub('ui/event', {})
             return false
         }
@@ -885,30 +892,32 @@ var ICXNewUser = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function(result) {
-            self.state.usernameStatus = false
-            Events.pub('ui/puff-packer/userlookup', {})
+        prom.then(function(result){
+            self.setState({msg: "Not Available", usernameStatus: false})
+        })  .catch(function(err){
+            self.setState({msg: "Available", usernameStatus: true, username: username})
         })
-            .catch(function(err) {
-                self.state.usernameStatus = 'Not Available'
-                Events.pub('ui/puff-packer/userlookup/failed', {})
-            })
         return false
     },
 
     render: function () {
+
+        var  inputStyle = {
+            width: '300px'
+        }
+
         return (
             <div>
             <div>Reigster for a new username</div>
             <br />
             <div>Username:</div>
             <div>
-                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
                 {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>Refresh</a>
+                {' '}<a href="#" onClick={this.handleRandomize}>Randomize</a>
 
 
-                <span className="message">{this.state.usernameStatus}</span>
+                {' '}<span className="message">{' '}<em>{this.state.msg}</em></span>
 
             </div>
             </div>

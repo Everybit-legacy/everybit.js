@@ -468,6 +468,12 @@ var ICXUserButton = React.createClass({
 
                         {username} <i className="fa fa-chevron-right" />
                     </a>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-search" /> Conversations
+                    </a>
+
+
+
                 </span>
             )
 

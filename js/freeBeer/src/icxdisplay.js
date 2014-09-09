@@ -23,6 +23,7 @@ ICX: {
         content:
         saveToNet: true | false
         step: 'first' | 'newuser' | 'finishnewuser' | 'final'
+    }
 
     send: {
         type: 'message' | 'file'
@@ -30,7 +31,7 @@ ICX: {
         content:
         file:
         step: 'first' | 'newuser' | 'finishnewuser' | 'final'
-
+    }
 
     username:
  }
@@ -467,6 +468,12 @@ var ICXUserButton = React.createClass({
 
                         {username} <i className="fa fa-chevron-right" />
                     </a>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-search" /> Conversations
+                    </a>
+
+
+
                 </span>
             )
 
@@ -682,6 +689,10 @@ var ICXFinishSendMessage = React.createClass({
         this.setState({successMessage: 'Message sent!'})
     },
 
+    cleanUpSubmit: function() {
+        // do something fancy
+    },
+
     componentDidMount: function() {
         // Set information for this send
         var type='text'
@@ -690,6 +701,7 @@ var ICXFinishSendMessage = React.createClass({
         var metadata = {}
         metadata.routes = [ICX.message.toUser]
         var envelopeUserKeys = ''
+        var self = this
 
 
         // Bundle into puff and send this bad boy off

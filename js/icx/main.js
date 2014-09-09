@@ -548,6 +548,7 @@ var eatPuffs = function(puffs) {
 // ONLY RECEIVE PRIVATE PUFFS FOR/FROM THE CURRENT USER
 
 CONFIG.noNetwork = true
+CONFIG.icxmode   = true
 
 PB.M.Forum.onNewPuffs(eatPuffs);                     // register our update function
 

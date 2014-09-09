@@ -425,7 +425,7 @@ PB.Data.clearExistingPrivateShells = function() {
 
 PB.Data.addPrivateShells = function(privateShells) {
     var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
-                            .filter(Boolean)
+                                       .filter(Boolean)
     // FIXME: oh dear this is horrible oh dear oh dear get rid of PB.M.Forum call
     
     if (decryptedShells.length != privateShells.length) {

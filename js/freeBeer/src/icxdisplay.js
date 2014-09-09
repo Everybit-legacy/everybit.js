@@ -14,7 +14,8 @@
 // TODO: Make adding recipients nice, like it's done at everybit
 // APPROACH: Store state of process in ICX.send or ICX.store, with vars. After complete send, set back to defaults
 /*
- ICX: {
+
+ICX: {
     wizard: 'store' | 'send'
 
     store: {
@@ -22,6 +23,7 @@
         content:
         saveToNet: true | false
         step: 'first' | 'newuser' | 'finishnewuser' | 'final'
+    }
 
     send: {
         type: 'message' | 'file'
@@ -29,10 +31,42 @@
         content:
         file:
         step: 'first' | 'newuser' | 'finishnewuser' | 'final'
-
+    }
 
     username:
  }
+
+ // COMPONENT NAMES
+ <ICX
+    +Store
+        +File
+            +Select
+    (+NewUser)
+            +Finish
+
+    +Send
+        +Initial
+        +(SendFile | SendMessage)
+    (+NewUser)
+        +Finish
+
+    +NewUser
+        +Initial
+        +Finish
+
+    +Login
+
+    +Dashboard
+
+    +TableView
+
+    +
+
+
+ +/>
+
+ // STATE ISSUES
+
 
   */
 
@@ -89,6 +123,7 @@ var TooltipMixin = {
 
 // MAIN COMPONENT, ROUTES TRAFFIC
 var ICXWorld = React.createClass({
+
     render: function () {
 
         var w = window.innerWidth
@@ -140,9 +175,13 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'},
-            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"}
+            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"},
+            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
         ]
 
+        ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
+            acc[screen.name] = screen
+        }, {})
         
         var currScreen = puffworldprops.view.icx.screen
 
@@ -196,6 +235,11 @@ var ICXWorld = React.createClass({
 
             case('send.message'):
                 var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.file'):
+                var pageComponent = <ICXSendFile screenInfo={ICX.screens[12]} />
                 contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
                 break;
 
@@ -385,7 +429,7 @@ var ICXButtonLink = React.createClass({
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             return (
                     <div style={buttonStyle}>
-                        <ICXLoginButton />
+                        <ICXUserButton />
                     </div>
                 )
         }
@@ -410,7 +454,7 @@ var ICXButtonLink = React.createClass({
 });
 
 // TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
-var ICXLoginButton = React.createClass({
+var ICXUserButton = React.createClass({
     mixins: [TooltipMixin],
 
     handleGoTo: function(screen) {
@@ -442,10 +486,17 @@ var ICXLoginButton = React.createClass({
         var username = ICX.username
         if (!username) {
             return(
-                <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
-                    <i className={thisScreen.icon}></i>{' '}
-                    {thisScreen.fullText} <i className="fa fa-chevron-right" />
-                </a>
+                <span>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                        <i className={thisScreen.icon}></i>{' '}
+                        {thisScreen.fullText}
+                    </a>
+                    {' '}or{' '}
+                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
+                        <i className="fa fa-meh-o"></i>  SIGN UP <i className="fa fa-chevron-right" />
+                    </a>
+
+                </span>
             )
         } else {
             return(
@@ -459,6 +510,12 @@ var ICXLoginButton = React.createClass({
 
                         {username} <i className="fa fa-chevron-right" />
                     </a>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-search" /> Conversations
+                    </a>
+
+
+
                 </span>
             )
 
@@ -514,10 +571,15 @@ var ICXHomeContent = React.createClass({
 
 var ICXSendContent = React.createClass({
 
+    componentDidMount: function() {
+        ICX.wizard = 'send'
+    },
+
     getInitialState: function() {
         return {
             toUserStatus: false,
-            nextStatus: false
+            nextStatus: false,
+            nextStep: 'send.message'
         }
     },
 
@@ -573,6 +635,13 @@ var ICXSendContent = React.createClass({
 
     },
 
+    handleChangeRadio: function() {
+        if(this.refs.message.getDOMNode().value)
+            this.setState({nextStep: 'send.message'})
+        else
+            this.setState({nextStep: 'send.file'})
+    },
+
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -588,7 +657,7 @@ var ICXSendContent = React.createClass({
                 <input type="radio" name="type" ref="message" defaultChecked />message
                 or <input type="radio" name="type" ref="file" />file
                 <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto="send.message" key="nextToSend" buttonText="NEXT" />
+                <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
 
             </div>
             )
@@ -615,6 +684,39 @@ var ICXNextButton = React.createClass({
         }
     }
 });
+
+var ICXSendFile = React.createClass({
+    getInitialState: function() {
+        return {
+            nextStatus: false,
+            nextStep: 'send.file',
+            buttonText: 'NEXT'
+        }
+    },
+
+    componentDidMount: function() {
+        ICX.send = {type: 'file'}
+    },
+
+    render: function() {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
+            Your file: <br />
+                <input type="file" ref="fileToSend" className="fileUpload btn btn-primary" />
+                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+
+            </div>
+        )
+    }
+
+
+})
 
 // After this, see if user is new
 // TODO: If registered user, then "SEND", otherwise "NEXT"
@@ -674,6 +776,10 @@ var ICXFinishSendMessage = React.createClass({
         this.setState({successMessage: 'Message sent!'})
     },
 
+    cleanUpSubmit: function() {
+        // do something fancy
+    },
+
     componentDidMount: function() {
         // Set information for this send
         var type='text'
@@ -682,6 +788,7 @@ var ICXFinishSendMessage = React.createClass({
         var metadata = {}
         metadata.routes = [ICX.message.toUser]
         var envelopeUserKeys = ''
+        var self = this
 
 
         // Bundle into puff and send this bad boy off
@@ -860,9 +967,30 @@ var ICXNewUser = React.createClass({
     },
 
     handleGenerateRandomUsername: function() {
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        // Get animals
+        var animalCSS = document.styleSheets[5].rules
+
+        var animals = []
+        var j = 0
+        // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
+        for(var i=0; i<animalCSS.length; i++) {
+            var selector = document.styleSheets[5].rules[i].selectorText
+
+            if(typeof selector != 'undefined') {
+
+                splitResult = selector.replace("::","-").split("-")
+
+                if( splitResult[0] == '.icon') {
+                    animals[j] = splitResult[1]
+                    j++
+                }
+            }
+        }
+
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-        this.refs.username.getDOMNode().value = adj + color
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        var animal = animals[Math.floor(Math.random() * animals.length)]
+        this.refs.username.getDOMNode().value = adj + color + animal
         return false
     },
 

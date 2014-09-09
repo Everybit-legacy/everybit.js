@@ -274,11 +274,11 @@ PB.Net.getAllPuffs = function() {
 PB.Net.distributePuff = function(puff) {
     //// distribute a puff to the network
 
-    if(CONFIG.noNetwork) return false;              // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork && !CONFIG.icxmode) return false; // THINK: this is only for debugging and development
 
-    PB.Net.sendPuffToServer(puff);                 // add it to the server's pufflist
+    PB.Net.sendPuffToServer(puff);                        // add it to the server's pufflist
 
-    PB.Net.P2P.sendPuffToPeers(puff);              // broadcast it to peers
+    PB.Net.P2P.sendPuffToPeers(puff);                     // broadcast it to peers
 }
 
 /**

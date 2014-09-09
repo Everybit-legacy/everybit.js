@@ -13,6 +13,10 @@
 // TODO: Space bar invokes check of valid username, Enter invokes NEXT if available.
 // TODO: Make adding recipients nice, like it's done at everybit
 // APPROACH: Store state of process in ICX.send or ICX.store, with vars. After complete send, set back to defaults
+
+// TODO: Merge with todo's from login
+// TODO: use passphraseToPrivateKeyWif to gen key for later download
+
 /*
 
 ICX: {
@@ -39,19 +43,16 @@ ICX: {
  // COMPONENT NAMES
  <ICX
     +Store
-        +File
-            +Select
+        +Select
     (+NewUser)
-            +Finish
+        +Finish
 
     +Send
-        +Initial
-        +(SendFile | SendMessage)
+        +(File | Message)
     (+NewUser)
         +Finish
 
     +NewUser
-        +Initial
         +Finish
 
     +Login
@@ -60,517 +61,99 @@ ICX: {
 
     +TableView
 
-    +
-
 
  +/>
 
- // STATE ISSUES
-
-
   */
 
-var ICSWorldMixins = {
-    handleGoTo: function(screen) {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+var ICXStore = React.createClass({
+    getInitialState: function() {
+        return {
+        }
     },
 
-    getScreenDims: function() {
-        return (
-            {
-                w: window.innerWidth,
-                h: window.innerHeight
-            }
-        )
-    }
-}
-
-var Tooltip = React.createClass({
-    render: function() {
-        var className = "menuTooltip"  + " black"
-        if (this.props.position)
-            className += " " + this.props.position
-        else
-            className += " right"
-
-        return (
-            <div className={className}>{this.props.content}</div>
-            )
-    }
-})
-
-var TooltipMixin = {
-    handleShowTooltip: function() {
-        var parent = this
-        var tooltip = this.getElementsByClassName('menuTooltip')[0]
-        tooltip.style.display = "block"
+    handleToggleBackupToCloud: function() {
+        this.setState({backupToCloud: !this.state.backupToCloud})
     },
-    handleHideTooltip: function() {
-        var parent = this
-        var tooltip = this.getElementsByClassName('menuTooltip')[0]
-        tooltip.style.display = "none"
-    },
+
     componentDidMount: function() {
-        var current = this.getDOMNode()
-        var tooltips = current.getElementsByClassName('menuTooltip')
-        for (var i=0; i<tooltips.length; i++) {
-            var parent = tooltips[i].parentNode
-            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent)
-            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent)
-        }
-    }
-}
 
-// MAIN COMPONENT, ROUTES TRAFFIC
-var ICXWorld = React.createClass({
-
-    render: function () {
-
-        var w = window.innerWidth
-        var h = window.innerHeight
-        var p = w*h
-
-        var l = ICX.config.logo.originalW*ICX.config.logo.originalH
-        var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
-
-        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
-
-        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
-
-
-        ICX.calculated = {
-
-            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
-
-            logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
-
-            fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
-
-            baseFontH: baseFontH,
-
-            pageHeaderTextStyle: {
-                fontFamily: "Gudea, helvetica, arial",
-                fontSize: (1.1 * baseFontH) + 'px',
-                width: '100%',
-                textAlign: 'center',
-                padding: '5px',
-                color: 'white'
-            },
-
-            baseTextStyle: {
-                fontFamily: "Gudea",
-                fontSize: baseFontH+'px'
-            }
-        }
-
-        ICX.screens = [
-            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
-            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
-            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works'},
-            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX'},
-            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
-            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
-            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'},
-            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"},
-            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
-        ]
-
-        ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
-            acc[screen.name] = screen
-            return acc
-        }, {})
-        
-        var currScreen = puffworldprops.view.icx.screen
-
-        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
-
-        var username = PB.M.Wardrobe.getCurrentUsername()
-        ICX.username = username
-        
-        
-        if (currScreen == 'init') {
-            if(username) {
-                currScreen = 'dashboard'
-            } else {
-                currScreen = 'home'
-            }
-        }
-        
-        
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == currScreen);
-        })[0];
-
-
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            borderRightWidth: borderWidth,
-            borderRightColor: thisScreen.color,
-            borderRightStyle: 'solid'
-        }
-
-        var contentDivStyles = {
-            position: "absolute",
-            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
-            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            padding: '10px', // Testing...
-            fontSize: ICX.calculated.baseFontH + 'px'
-
-        }
-
-
-
-        switch(currScreen) {
-            case('send'):
-                var pageComponent = <ICXSendContent screenInfo={ICX.screens[1]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('send.message'):
-                var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('send.file'):
-                var pageComponent = <ICXSendFile screenInfo={ICX.screens[12]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('send.finish'):
-                var pageComponent = <ICXFinishSendMessage screenInfo={ICX.screens[11]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('home.table'):
-                var pageComponent = <ICXTableView screenInfo={thisScreen} />
-                break;
-
-            case 'store':
-                var pageComponent = <ICXStoreContent screenInfo={ICX.screens[2]} />
-                contentDivStyles.backgroundColor = 'rgba(93,  128, 90, .08)'
-                break;
-
-            case 'login':
-                var pageComponent = <ICXLoginContent screenInfo={ICX.screens[3]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            case 'learn':
-                var pageComponent = <ICXLearnContent screenInfo={ICX.screens[4]} />
-                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
-                break;
-
-            case 'dashboard':
-                var pageComponent = <ICXDashboard  screenInfo={ICX.screens[9]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            case 'about':
-                var pageComponent = <ICXAboutContent screenInfo={ICX.screens[5]} />
-                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08)'
-                break;
-
-            case 'newuser':
-                var pageComponent = <ICXNewUser screenInfo={ICX.screens[10]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            default:
-                // Home page
-                // Force no styling on div
-                contentDivStyles = {}
-                var pageComponent = <ICXHomeContent />
-
-
-        }
-
-        return (
-            <div style={screenStyle}>
-                <ICXLogo screenInfo={thisScreen} />
-                <ICXLinks screenInfo={thisScreen} />
-                <div style={contentDivStyles}>
-                    {pageComponent}
-                </div>
-                <ICXFooter />
-            </div>
-        )
-    }
-});
-
-var ICXLogo = React.createClass({
-    render: function() {
-        var w = window.innerWidth
-        var h = window.innerHeight
-
-
-        if(this.props.screenInfo.name == 'home' || this.props.screenInfo.name == 'init') {
-            var logoW = ICX.calculated.logoW
-
-            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
-            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
-            logoW = Math.floor(logoW) + 'px';
-
-            var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
-
-            return (
-                <div key="mainLogo" style={{width: '100%'}}>
-                    <div>
-                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
-                    </div>
-                    <br />
-                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
-                    </div>
-                </div>
-                )
-        } else {
-
-            var thisScreen = ICX.screens.filter(function( obj ) {
-                return obj.name == puffworldprops.view.icx.screen;
-            });
-
-            var logoW = w*ICX.config.logoSmallRatio
-            var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
-            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left ) + "px"
-            logoW = logoW + "px"
-            var divW = w*ICX.config.buttonSmallWidthRatio
-
-            return (
-                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
-                    <a href="#" onClick={this.handleGoHome}>
-                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
-                    </a>
-                </div>
-            )
-
-        }
-
-
-    }
-
-});
-
-
-var ICXLinks = React.createClass({
-
-    render: function () {
-        var w = window.innerWidth
-        var h = window.innerHeight
-
-
-        var self = this
-        var buttonLinks = ICX.screens.map(function(data) {
-
-            if(!data.button) {
-                return // <span key={self.props.screenInfo + '_' + data.name}></span>
-            } else {
-                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
-            }
-
-        });
-
-        return <span>{buttonLinks}</span>
-
-    }
-});
-
-var ICXButtonLink = React.createClass({
-    handleGoTo: function(screen) {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
-
     render: function () {
-        var w = window.innerWidth
-        var h = window.innerHeight
-        var screenInfo = this.props.screenInfo
+        // Link to previously encrypted/stored files
 
-        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
-
-        var buttonStyle = {
-            backgroundColor: screenInfo.color,
-            height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-            position: 'absolute',
-            right: 0,
-            fontSize:  fontSize + 'px',
-            top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
-            lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-            color: 'white',
-            paddingLeft: Math.floor(fontSize/2.5)+'px'
-        }
+        // CSS for checkboxes
+        var cb = React.addons.classSet
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-check-square-o': this.state.backupToCloud,
+            'fa-square-o': !this.state.backupToCloud,
+            'green': this.state.backupToCloud
+        })
 
 
+        if(ICX.username) {
+            var buttonText = 'SEND'
+            var nextStep = 'store.finish'
 
-        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
-        } else  {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
-        }
-
-
-        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
-            var linkText = this.props.screenInfo.fullText
         } else {
-            var linkText = this.props.screenInfo.name.toUpperCase()
+            var buttonText = 'NEXT'
+            var nextStep = 'newuser'
         }
-
-        // Special case login
-        if(this.props.screenInfo.name == 'login') {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
-            buttonStyle.position = 'absolute'
-            buttonStyle.top = 0
-            buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
-            buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
-            return (
-                    <div style={buttonStyle}>
-                        <ICXUserButton />
-                    </div>
-                )
-        }
-
-        /*return (
-            <div style={buttonStyle}>
-                <a href="#"  onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
-                <i className={this.props.screenInfo.icon}></i>{' '}
-                    {linkText} <i className="fa fa-chevron-right" />
-                </a>
-            </div>
-            )*/
-        return (
-            <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
-                <div style={buttonStyle}>
-                    <i className={this.props.screenInfo.icon}></i>{' '}
-                        {linkText} <i className="fa fa-chevron-right" />
-                </div>
-            </a>
-            )
-    }
-});
-
-// TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
-var ICXUserButton = React.createClass({
-    mixins: [TooltipMixin],
-
-    handleGoTo: function(screen) {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
-    },
-
-    handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
-
-        // Confirm alert first
-        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
-
-        var r = confirm(msg)
-        if (r == false) {
-            return false
-        }
-
-        PB.M.Wardrobe.removeKeys(userToRemove)
-        ICX.username = ''
-        Events.pub('user/'+userToRemove+'/remove', {})
-        return false
-    },
-
-    render: function() {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == 'login';
-        })[0] // NOTE RETURNS ARRAY
-
-        var username = ICX.username
-        if (!username) {
-            return(
-                <span>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
-                        <i className={thisScreen.icon}></i>{' '}
-                        {thisScreen.fullText}
-                    </a>
-                    {' '}or{' '}
-                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                        <i className="fa fa-chevron-circle-up"></i>  SIGN UP
-                    </a>
-
-                </span>
-            )
-        } else {
-            return(
-                <span>
-                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}}>
-                        <i className="fa fa-fw fa-sign-out"></i>
-                    </a>
-                    <Tooltip position="under" content="Remove identity from this device" color="black" />
-                    {' '}
-                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
-
-                        {username} <i className="fa fa-chevron-right" />
-                    </a>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-search" /> Conversations
-                    </a>
-
-
-
-                </span>
-            )
-
-
-        }
-    }
-
-})
-
-var ICXDashboard = React.createClass({
-
-
-    render: function () {
-        var username = ICX.username
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
+        /*return (
+         <div style={{width: '100%', height: '100%'}}>
+         <div style={headerStyle}>Encrypt and store files</div>
+         <div>Select a file. It will be encrypted right in your web browser.</div>
+         <p style={{display: 'inline','font-size':'90%'}}>
+         <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
+         </p>
+         <div className="fileUpload btn btn-primary">
+         <span>Choose File</span>
+         <br />
+         <input type="file" id="fileToUplaod" />
+         </div>
+         <br />
+         <small>
+         <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+         Once encrypted, backup to the net
+         </small>
+         <br />
+         <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+         </div>
+         )
+         */
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Dashboard for {username}</div><br />
-                • View your messages<br />
-                • ((YOU AVATAR)) change this at everybit<br />
-                • Download your passpharse<br />
-                • Logout
+                <div style={headerStyle}>Encrypt and store files</div>
+                <div>Select a file. It will be encrypted right in your web browser.</div>
+                <ICXFileSelection />
+                <ICXChooseFileButton />
+                <br />
+                <small>
+                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                Once encrypted, backup to the net
+                </small>
+                <br />
+                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
             </div>
-        )
-    }
-});
-
-var ICXTableView = React.createClass({
-
-    render: function () {
-        var viewprops = this.props.view || {}
-        var view = <TableView view={viewprops} table={viewprops.table}/>
-        document.body.style.overflowY = "auto"
-        
-        return view
-    }
-
-});
-
-var ICXHomeContent = React.createClass({
-
-    render: function () {
-        return (
-            <span></span>
             )
     }
 
-});
+})
 
+var ICXStoreFinish = React.createClass({
+    render: function () {
+        return <span>FinishStore</span>
+    }
+})
 
-var ICXSendContent = React.createClass({
+var ICXSend = React.createClass({
 
     componentDidMount: function() {
         ICX.wizard = 'send'
@@ -603,7 +186,7 @@ var ICXSendContent = React.createClass({
     },
 
     handleUsernameLookup: function() {
-      // remove initial . if it exists
+        // remove initial . if it exists
 
         var toUser = this.refs.toUser.getDOMNode().value
         var self = this
@@ -656,7 +239,7 @@ var ICXSendContent = React.createClass({
 
 
                 <input type="radio" name="type" ref="message" defaultChecked />message
-                or <input type="radio" name="type" ref="file" />file
+            or <input type="radio" name="type" ref="file" />file
                 <br />
                 <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
 
@@ -664,26 +247,6 @@ var ICXSendContent = React.createClass({
             )
     }
 
-});
-
-var ICXNextButton = React.createClass({
-    handleNext: function() {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
-    },
-
-    render: function() {
-        if(this.props.text) {
-            var buttonText = this.props.text
-        } else {
-            var buttonText = "NEXT"
-        }
-
-        if(this.props.enabled) {
-            return <button onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
-        } else {
-            return <button onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
-        }
-    }
 });
 
 var ICXSendFile = React.createClass({
@@ -713,14 +276,12 @@ var ICXSendFile = React.createClass({
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
 
             </div>
-        )
+            )
     }
 
 
 })
 
-// After this, see if user is new
-// TODO: If registered user, then "SEND", otherwise "NEXT"
 var ICXSendMessage = React.createClass({
     getInitialState: function() {
         return {
@@ -753,7 +314,7 @@ var ICXSendMessage = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
-                Your message: <br />
+            Your message: <br />
                 <textarea ref="messageText" style={{rows: 10, cols: 30}} onChange={this.handleMessageText} />
                 <br />
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
@@ -764,28 +325,29 @@ var ICXSendMessage = React.createClass({
 
 });
 
-var ICXFinishSendMessage = React.createClass({
-    getInitialState: function() {
+var ICXSendMessageFinish = React.createClass({
+
+    getInitialState: function () {
         return {
             messageSent: false,
             successMessage: ''
         }
     },
 
-    handleSubmitSuccess: function() {
+    handleSubmitSuccess: function () {
         this.setState({messageSent: true})
         this.setState({successMessage: 'Message sent!'})
     },
 
-    cleanUpSubmit: function() {
+    cleanUpSubmit: function () {
         // do something fancy
     },
 
-    componentDidMount: function() {
+    componentDidMount: function () {
         // Set information for this send
-        var type='text'
-        var content=ICX.messageText
-        var parents=[]
+        var type = 'text'
+        var content = ICX.messageText
+        var parents = []
         var metadata = {}
         metadata.routes = [ICX.message.toUser]
         var envelopeUserKeys = ''
@@ -798,15 +360,17 @@ var ICXFinishSendMessage = React.createClass({
         var usernames = [ICX.message.toUser]
 
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
+        var userRecordUsernames = userRecords.map(function (userRecord) {
+            return userRecord.username
+        })
 
         // if we haven't cached all the users, we'll need to grab them first
         // THINK: maybe convert this to using PB.getUserRecords instead
-        if(userRecords.length < usernames.length) {
-            usernames.forEach(function(username) {
-                if(!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function() {
-                        return PB.getUserRecordNoCache(username).then(function(userRecord) {
+        if (userRecords.length < usernames.length) {
+            usernames.forEach(function (username) {
+                if (!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function () {
+                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
                             userRecords.push(userRecord)
                         })
                     })
@@ -814,17 +378,17 @@ var ICXFinishSendMessage = React.createClass({
             })
         }
 
-        prom = prom.then(function() {
-            if(envelopeUserKeys) {      // add our secret identity to the list of available keys
+        prom = prom.then(function () {
+            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
                 userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys )
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
-        }) .catch(function(err) {
+        }).catch(function (err) {
             self.cleanUpSubmit()
             self.setState({err: err.message})
             console.log(err)
@@ -839,121 +403,15 @@ var ICXFinishSendMessage = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send of message</div><br />
+                <div style={headerStyle}>Send of message</div>
+                <br />
                 <div>{this.state.successMessage}</div>
             </div>
             )
 
 
     }
-
-});
-var ICXFileSelection = React.createClass({
-    render: function(placeholder) {
-        var placehold = placeholder || 'No File Selected'
-        return (
-            <p style={{display: 'inline','font-size':'90%'}}>
-                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
-            </p>
-            )
-    }
-});
-
-var ICXChooseFileButton = React.createClass({
-    handleDisplaySelectedFile: function() {
-
-    },
-    render: function() {
-        return (
-            <div className="fileUpload btn btn-primary">
-                <span>Choose File</span>
-                <br />
-                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
-            </div>
-            )
-    }
-});
-
-var ICXStoreContent = React.createClass({
-    getInitialState: function() {
-        return {
-        }
-    },
-
-    handleToggleBackupToCloud: function() {
-        this.setState({backupToCloud: !this.state.backupToCloud})
-    },
-
-    componentDidMount: function() {
-
-    },
-
-    render: function () {
-        // Link to previously encrypted/stored files
-
-        // CSS for checkboxes
-        var cb = React.addons.classSet
-        var cbClass = cb({
-            'fa': true,
-            'fa-fw': true,
-            'fa-check-square-o': this.state.backupToCloud,
-            'fa-square-o': !this.state.backupToCloud,
-            'green': this.state.backupToCloud
-        })
-
-
-        if(ICX.username) {
-            var buttonText = 'SEND'
-            var nextStep = 'store.finish'
-
-        } else {
-            var buttonText = 'NEXT'
-            var nextStep = 'newuser'
-        }
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-        /*return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <p style={{display: 'inline','font-size':'90%'}}>
-                    <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
-                </p>
-                <div className="fileUpload btn btn-primary">
-                    <span>Choose File</span>
-                    <br />
-                    <input type="file" id="fileToUplaod" />
-                </div>
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                    Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-            </div>
-            )
-            */
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
-                <div>Select a file. It will be encrypted right in your web browser.</div>
-                <ICXFileSelection />
-                <ICXChooseFileButton />
-                <br />
-                <small>
-                    <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-                Once encrypted, backup to the net
-                </small>
-                <br />
-                <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-            </div>
-            )
-    }
-
-});
+})
 
 var ICXNewUser = React.createClass({
 
@@ -1061,7 +519,7 @@ var ICXNewUser = React.createClass({
                 <br />
                 <div>Username:</div>
                 <div>
-                    .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                .icx.<input style={inputStyle} type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
                     {' '}<a href="#" onClick={this.handleUsernameCheck}><Checkmark show={this.state.usernameStatus} /></a>
                     {' '}<a href="#" onClick={this.handleRandomize}>Randomize</a>
 
@@ -1073,52 +531,26 @@ var ICXNewUser = React.createClass({
                     <ICXNextButton enabled={this.state.usernameStatus} text="Register" />
                 </div>
             </div>
-        )
-    }
-
-});
-
-var ICXLoginContent = React.createClass({
-    // TODO: Deal with bad key
-    // TODO: Allow upload of passphrase
-    // TODO: Mention that if created at everybit need to modify there
-
-    handleLogin: function() {
-
-    },
-
-
-    render: function () {
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-            <ICXSetIdentity />
-            </div>
             )
     }
 
 });
 
-
-var Checkmark = React.createClass({
+var ICXNewUserFinish = React.createClass({
     render: function() {
-        if(this.props.show === false) {
-            return <i className="fa fa-check-circle fa-fw gray"></i>
-        } else if(this.props.show === true) {
-            return <i className="fa fa-check-circle fa-fw green"></i>
-        } else {
-            return <span><i className="fa fa-check-circle fa-fw red"></i></span>
-        }
 
+        return <span>User created</span>
     }
 })
 
+var ICXLogin = React.createClass({
+    // TODO: Deal with bad key
+    // TODO: Allow upload of passphrase
+    // TODO: Mention that if created at everybit need to modify there
 
 
-// TODO: Merge with todo's from login
-// TODO: use passphraseToPrivateKeyWif to gen key for later download
-var ICXSetIdentity = React.createClass({
 
-    getInitialState: function() {
+    getInitialState: function () {
         return {
             rootKeyStatus: false,
             adminKeyStatus: false,
@@ -1131,12 +563,12 @@ var ICXSetIdentity = React.createClass({
         }
     },
 
-    handleUsernameLookup: function() {
+    handleUsernameLookup: function () {
         var username = this.refs.username.getDOMNode().value
         var self = this
 
         // Check for zero length
-        if(!username.length) {
+        if (!username.length) {
             this.state.usernameStatus = 'Missing'
             Events.pub('ui/event', {})
             return false
@@ -1146,11 +578,11 @@ var ICXSetIdentity = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function(result) {
+        prom.then(function (result) {
             self.state.usernameStatus = true
             Events.pub('ui/puff-packer/userlookup', {})
         })
-            .catch(function(err) {
+            .catch(function (err) {
                 self.state.usernameStatus = 'Not found'
                 Events.pub('ui/puff-packer/userlookup/failed', {})
             })
@@ -1159,7 +591,7 @@ var ICXSetIdentity = React.createClass({
 
     // TODO: Once successfully logged in, take them to their dashboard
     // TODO: WHen you change text of pive passpahas, set button to gray.
-    handlePassphraseCheck: function(keyType) {
+    handlePassphraseCheck: function (keyType) {
         // Will check against default key
         // First convert to private key, then to public, then verify against DHT
 
@@ -1168,7 +600,7 @@ var ICXSetIdentity = React.createClass({
         var username = this.refs.username.getDOMNode().value
 
         // Check for zero length
-        if(!username.length) {
+        if (!username.length) {
             this.state.usernameStatus = 'Missing'
             Events.pub('ui/event', {})
             return false
@@ -1179,7 +611,7 @@ var ICXSetIdentity = React.createClass({
         var passphrase = this.refs[keyType].getDOMNode().value
 
         // Check for zero length
-        if(!passphrase.length) {
+        if (!passphrase.length) {
             this.state[keyType] = 'Missing'
             Events.pub('ui/event', {})
             return false
@@ -1192,7 +624,7 @@ var ICXSetIdentity = React.createClass({
 
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
-        if(!publicKey) {
+        if (!publicKey) {
             this.state[keyType] = 'Bad key'
             Events.pub('ui/event', {})
             return false
@@ -1200,9 +632,9 @@ var ICXSetIdentity = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function(userInfo) {
+        prom.then(function (userInfo) {
 
-            if(publicKey != userInfo[keyType]) {
+            if (publicKey != userInfo[keyType]) {
                 self.state[keyType] = 'Incorrect key'
                 Events.pub('ui/event', {})
                 return false
@@ -1211,19 +643,19 @@ var ICXSetIdentity = React.createClass({
                 self.state.usernameStatus = true
 
                 // Add this to wardrobe, set username to current
-                if(keyType == 'defaultKey') {
+                if (keyType == 'defaultKey') {
                     PB.M.Wardrobe.storeDefaultKey(username, privateKey)
                 }
 
                 /*
-                if(keyType == 'adminKey') {
-                    PB.M.Wardrobe.storeAdminKey(username, privateKey)
-                }
+                 if(keyType == 'adminKey') {
+                 PB.M.Wardrobe.storeAdminKey(username, privateKey)
+                 }
 
-                if(keyType == 'rootKey') {
-                    PB.M.Wardrobe.storeRootKey(username, privateKey)
-                }
-                */
+                 if(keyType == 'rootKey') {
+                 PB.M.Wardrobe.storeRootKey(username, privateKey)
+                 }
+                 */
 
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
@@ -1232,7 +664,7 @@ var ICXSetIdentity = React.createClass({
                 return false
             }
         })
-            .catch(function(err) {
+            .catch(function (err) {
                 self.state[keyType] = 'Not found'
                 Events.pub('ui/event', {})
                 return false
@@ -1241,23 +673,23 @@ var ICXSetIdentity = React.createClass({
 
     },
 
-    verifyUsername: function() {
+    verifyUsername: function () {
         var username = this.refs.username.getDOMNode().value
         username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
             .toLowerCase()
         this.refs.username.getDOMNode().value = username
     },
 
-    handleResetCheckboxes: function() {
+    handleResetCheckboxes: function () {
         this.setState({usernameStatus: false})
         this.setState({defaultKey: false})
     },
 
-    handleIdentityFileLoad: function() {
-        var self   = this
+    handleIdentityFileLoad: function () {
+        var self = this
         var reader = new FileReader()
 
-        reader.onload = function(event){
+        reader.onload = function (event) {
             self.state.imageSrc = event.target.result
         }
 
@@ -1265,7 +697,7 @@ var ICXSetIdentity = React.createClass({
         return false
     },
 
-    render: function() {
+    render: function () {
         var baseFontH = ICX.calculated.baseFontH
 
         var currUser = PB.M.Wardrobe.getCurrentUsername()
@@ -1274,17 +706,17 @@ var ICXSetIdentity = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
-        var thisScreen = ICX.screens.filter(function( obj ) {
+        var thisScreen = ICX.screens.filter(function (obj) {
             return obj.name == puffworldprops.view.icx.screen;
         })[0] // NOTE RETURNS ARRAY
 
 
         var labelStyle = {
             display: 'inline-block',
-            marginRight: baseFontH+'px'
+            marginRight: baseFontH + 'px'
         }
 
-        var  inputStyle = {
+        var inputStyle = {
             display: 'inline-block'
         }
 
@@ -1297,44 +729,91 @@ var ICXSetIdentity = React.createClass({
             <div style={ICX.calculated.baseTextStyle}>
                 <div style={headerStyle}>Save your identity on this web browser</div>
                 <br />
-                <div style={labelStyle}>Username:</div><br />
+                <div style={labelStyle}>Username:</div>
+                <br />
                 <div style={inputStyle}>
 
 
-                    .icx.<input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
-                    {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                .icx.
+                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
+                {' '}
+                    <a href="#" onClick={this.handleUsernameLookup}>
+                        <Checkmark show={this.state.usernameStatus} />
+                    </a>
                 </div>
 
-                    <span className="message">{this.state.usernameStatus}</span>
+                <span className="message">{this.state.usernameStatus}</span>
 
 
-                <br /><br />
+                <br />
+                <br />
                 <div>
-                    Private passphrase<sup>&#63;</sup>
+                Private passphrase
+                    <sup>&#63;</sup>
                 </div>
 
                 <div style={inputStyle}>
                     <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
-                    {' '}<a href="#" onClick={this.handlePassphraseCheck.bind(this,'defaultKey')}>
-                    <Checkmark show={this.state.defaultKey} /></a>
+                {' '}
+                    <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
+                        <Checkmark show={this.state.defaultKey} />
+                    </a>
                     <span className="message">{this.state.defaultKey}</span>
                 </div>
-                <br /><br /><i><em>or</em></i><br /><br />
-
-                    Select an identity file<sup>&#63;</sup>
                 <br />
-                
+                <br />
+                <i>
+                    <em>or</em>
+                </i>
+                <br />
+                <br />
+
+            Select an identity file
+                <sup>&#63;</sup>
+                <br />
+
                 <input type="file" className="fileUpload btn btn-primary" />
 
             </div>
-        )
+            )
         //}
     }
 })
 
+var ICXDashboard = React.createClass({
 
 
-var ICXLearnContent = React.createClass({
+    render: function () {
+        var username = ICX.username
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Dashboard for {username}</div><br />
+            • View your messages<br />
+            • ((YOU AVATAR)) change this at everybit<br />
+            • Download your passpharse<br />
+            • Logout
+            </div>
+            )
+    }
+});
+
+var ICXTableView = React.createClass({
+
+    render: function () {
+        var viewprops = this.props.view || {}
+        var view = <TableView view={viewprops} table={viewprops.table}/>
+        document.body.style.overflowY = "auto"
+
+        return view
+    }
+
+});
+
+var ICXLearn = React.createClass({
 
     render: function () {
         // Link to previously encrypted/stored files
@@ -1362,7 +841,7 @@ var ICXLearnContent = React.createClass({
 
 });
 
-var ICXAboutContent = React.createClass({
+var ICXAbout = React.createClass({
 
     render: function () {
         // Link to previously encrypted/stored files
@@ -1384,7 +863,351 @@ var ICXAboutContent = React.createClass({
     }
 });
 
+var ICXHome = React.createClass({
 
+    render: function () {
+        return (
+            <span></span>
+            )
+    }
+
+});
+
+// MAIN COMPONENT, ROUTES TRAFFIC
+var ICXWorld = React.createClass({
+
+    render: function () {
+
+        var w = window.innerWidth
+        var h = window.innerHeight
+        var p = w*h
+
+        var l = ICX.config.logo.originalW*ICX.config.logo.originalH
+        var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
+
+        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
+
+        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
+
+
+        ICX.calculated = {
+
+            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
+
+            logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
+
+            fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
+
+            baseFontH: baseFontH,
+
+            pageHeaderTextStyle: {
+                fontFamily: "Gudea, helvetica, arial",
+                fontSize: (1.1 * baseFontH) + 'px',
+                width: '100%',
+                textAlign: 'center',
+                padding: '5px',
+                color: 'white'
+            },
+
+            baseTextStyle: {
+                fontFamily: "Gudea",
+                fontSize: baseFontH+'px'
+            }
+        }
+
+        ICX.screens = [
+            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file'},
+            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN'},
+            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works'},
+            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX'},
+            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message'},
+            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page'},
+            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username'},
+            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message"},
+            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file'}
+        ]
+
+
+        /*
+         ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
+         acc[screen.name] = screen
+         return acc
+         }, {})
+         */
+
+        var currScreen = puffworldprops.view.icx.screen
+
+        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
+
+        var username = PB.M.Wardrobe.getCurrentUsername()
+        ICX.username = username
+
+
+        if (currScreen == 'init') {
+            if(username) {
+                currScreen = 'dashboard'
+            } else {
+                currScreen = 'home'
+            }
+        }
+
+
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return (obj.name == currScreen);
+        })[0];
+
+
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            borderRightWidth: borderWidth,
+            borderRightColor: thisScreen.color,
+            borderRightStyle: 'solid'
+        }
+
+        var contentDivStyles = {
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
+
+        }
+
+
+
+        switch(currScreen) {
+            case('send'):
+                var pageComponent = <ICXSend screenInfo={ICX.screens[1]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.message'):
+                var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.file'):
+                var pageComponent = <ICXSendFile screenInfo={ICX.screens[12]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('send.finish'):
+                var pageComponent = <ICXSendMessageFinish screenInfo={ICX.screens[11]} />
+                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
+                break;
+
+            case('home.table'):
+                var pageComponent = <ICXTableView screenInfo={thisScreen} />
+                break;
+
+            case 'store':
+                var pageComponent = <ICXStore screenInfo={ICX.screens[2]} />
+                contentDivStyles.backgroundColor = 'rgba(93,  128, 90, .08)'
+                break;
+
+            case 'login':
+                var pageComponent = <ICXLogin screenInfo={ICX.screens[3]} />
+                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
+                break;
+
+            case 'learn':
+                var pageComponent = <ICXLearn screenInfo={ICX.screens[4]} />
+                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
+                break;
+
+            case 'dashboard':
+                var pageComponent = <ICXDashboard  screenInfo={ICX.screens[9]} />
+                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
+                break;
+
+            case 'about':
+                var pageComponent = <ICXAbout screenInfo={ICX.screens[5]} />
+                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08)'
+                break;
+
+            case 'newuser':
+                var pageComponent = <ICXNewUser screenInfo={ICX.screens[10]} />
+                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
+                break;
+
+            default:
+                // Home page
+                // Force no styling on div
+                contentDivStyles = {}
+                var pageComponent = <ICXHome />
+
+
+        }
+
+        return (
+            <div style={screenStyle}>
+                <ICXLogo screenInfo={thisScreen} />
+                <ICXLinks screenInfo={thisScreen} />
+                <div style={contentDivStyles}>
+                    {pageComponent}
+                </div>
+                <ICXFooter />
+            </div>
+            )
+    }
+});
+
+// SUBCOMPONENTS
+var ICXLogo = React.createClass({
+    render: function() {
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+
+        if(this.props.screenInfo.name == 'home' || this.props.screenInfo.name == 'init') {
+            var logoW = ICX.calculated.logoW
+
+            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
+            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
+            logoW = Math.floor(logoW) + 'px';
+
+            var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
+
+            return (
+                <div key="mainLogo" style={{width: '100%'}}>
+                    <div>
+                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
+                    </div>
+                    <br />
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
+                    </div>
+                </div>
+                )
+        } else {
+
+            var thisScreen = ICX.screens.filter(function( obj ) {
+                return obj.name == puffworldprops.view.icx.screen;
+            });
+
+            var logoW = w*ICX.config.logoSmallRatio
+            var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
+            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left ) + "px"
+            logoW = logoW + "px"
+            var divW = w*ICX.config.buttonSmallWidthRatio
+
+            return (
+                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
+                    <a href="#" onClick={this.handleGoHome}>
+                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
+                    </a>
+                </div>
+            )
+
+        }
+
+
+    }
+
+});
+
+var ICXLinks = React.createClass({
+
+    render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+
+        var self = this
+        var buttonLinks = ICX.screens.map(function(data) {
+
+            if(!data.button) {
+                return // <span key={self.props.screenInfo + '_' + data.name}></span>
+            } else {
+                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
+            }
+
+        });
+
+        return <span>{buttonLinks}</span>
+
+    }
+});
+
+var ICXButtonLink = React.createClass({
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+
+    render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
+        var screenInfo = this.props.screenInfo
+
+        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
+
+        var buttonStyle = {
+            backgroundColor: screenInfo.color,
+            height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+            position: 'absolute',
+            right: 0,
+            fontSize:  fontSize + 'px',
+            top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
+            lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+            color: 'white',
+            paddingLeft: Math.floor(fontSize/2.5)+'px'
+        }
+
+
+
+        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+        } else  {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
+        }
+
+
+        if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
+            var linkText = this.props.screenInfo.fullText
+        } else {
+            var linkText = this.props.screenInfo.name.toUpperCase()
+        }
+
+        // Special case login
+        if(this.props.screenInfo.name == 'login') {
+            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+            buttonStyle.position = 'absolute'
+            buttonStyle.top = 0
+            buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            return (
+                    <div style={buttonStyle}>
+                        <ICXUserButton />
+                    </div>
+                )
+        }
+
+        /*return (
+            <div style={buttonStyle}>
+                <a href="#"  onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style={{color: '#ffffff'}}>
+                <i className={this.props.screenInfo.icon}></i>{' '}
+                    {linkText} <i className="fa fa-chevron-right" />
+                </a>
+            </div>
+            )*/
+        return (
+            <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
+                <div style={buttonStyle}>
+                    <i className={this.props.screenInfo.icon}></i>{' '}
+                        {linkText} <i className="fa fa-chevron-right" />
+                </div>
+            </a>
+            )
+    }
+});
 
 var ICXFooter = React.createClass({
 
@@ -1397,11 +1220,192 @@ var ICXFooter = React.createClass({
         return (
             <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
                 <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-                Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. Only the sender and recipient can decode it.
+            Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. Only the sender and recipient can decode it.
             </div>
-        )
+            )
     }
 });
+
+// TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
+var ICXUserButton = React.createClass({
+    mixins: [TooltipMixin],
+
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
+
+    handleSignOut: function() {
+        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+
+        // Confirm alert first
+        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
+
+        var r = confirm(msg)
+        if (r == false) {
+            return false
+        }
+
+        PB.M.Wardrobe.removeKeys(userToRemove)
+        ICX.username = ''
+        Events.pub('user/'+userToRemove+'/remove', {})
+        return false
+    },
+
+    render: function() {
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return obj.name == 'login';
+        })[0] // NOTE RETURNS ARRAY
+
+        var username = ICX.username
+        if (!username) {
+            return(
+                <span>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                        <i className={thisScreen.icon}></i>{' '}
+                        {thisScreen.fullText}
+                    </a>
+                    {' '}or{' '}
+                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
+                        <i className="fa fa-chevron-circle-up"></i>  SIGN UP
+                    </a>
+
+                </span>
+            )
+        } else {
+            return(
+                <span>
+                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}}>
+                        <i className="fa fa-fw fa-sign-out"></i>
+                    </a>
+                    <Tooltip position="under" content="Remove identity from this device" color="black" />
+                    {' '}
+                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+
+                        {username} <i className="fa fa-chevron-right" />
+                    </a>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-search" /> Conversations
+                    </a>
+
+
+
+                </span>
+            )
+
+
+        }
+    }
+
+})
+
+var ICXNextButton = React.createClass({
+    handleNext: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
+    },
+
+    render: function() {
+        if(this.props.text) {
+            var buttonText = this.props.text
+        } else {
+            var buttonText = "NEXT"
+        }
+
+        if(this.props.enabled) {
+            return <button onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
+        } else {
+            return <button onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
+        }
+    }
+});
+
+var ICXFileSelection = React.createClass({
+    render: function(placeholder) {
+        var placehold = placeholder || 'No File Selected'
+        return (
+            <p style={{display: 'inline','font-size':'90%'}}>
+                <input id="showFileName" type="text" disabled="disabled" placeholder={placehold} />
+            </p>
+            )
+    }
+});
+
+var ICXChooseFileButton = React.createClass({
+    handleDisplaySelectedFile: function() {
+
+    },
+    render: function() {
+        return (
+            <div className="fileUpload btn btn-primary">
+                <span>Choose File</span>
+                <br />
+                <input type="file" id="fileToUplaod" onChange={this.handleDisplaySelectedFile} />
+            </div>
+            )
+    }
+});
+
+// TODO: Make ICXCheckmark
+var Checkmark = React.createClass({
+    render: function() {
+        if(this.props.show === false) {
+            return <i className="fa fa-check-circle fa-fw gray"></i>
+        } else if(this.props.show === true) {
+            return <i className="fa fa-check-circle fa-fw green"></i>
+        } else {
+            return <span><i className="fa fa-check-circle fa-fw red"></i></span>
+        }
+
+    }
+})
+
+
+
+
+
+
+// ICX MIXINS
+
+var Tooltip = React.createClass({
+    render: function() {
+        var className = "menuTooltip"  + " black"
+        if (this.props.position)
+            className += " " + this.props.position
+        else
+            className += " right"
+
+        return (
+            <div className={className}>{this.props.content}</div>
+            )
+    }
+})
+
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "block"
+    },
+    handleHideTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "none"
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode()
+        var tooltips = current.getElementsByClassName('menuTooltip')
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent)
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent)
+        }
+    }
+}
+
+
+
+
+
+
 
 
 

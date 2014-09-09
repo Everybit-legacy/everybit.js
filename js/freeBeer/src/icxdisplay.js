@@ -1168,11 +1168,6 @@ var ICXAboutContent = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        // var className = "icon-duck"
-        // var  inputStyle = {
-        //     font-family: 'icxicon'
-        // }
-
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
@@ -1181,7 +1176,6 @@ var ICXAboutContent = React.createClass({
                     <li>Built on the puffball.io platform</li>
                     <li>Help us grow! If you like the service, share a link to our site...</li>
                     <li>Contribute to our codebase</li>
-                    <span className="icon-duck"></span>
                 </ul>
             </div>
             )

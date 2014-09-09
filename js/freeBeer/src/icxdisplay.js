@@ -181,6 +181,7 @@ var ICXWorld = React.createClass({
 
         ICX.screenMap = ICX.screens.reduce(function(acc,screen) {
             acc[screen.name] = screen
+            return acc
         }, {})
         
         var currScreen = puffworldprops.view.icx.screen

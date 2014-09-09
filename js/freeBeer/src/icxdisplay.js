@@ -14,7 +14,8 @@
 // TODO: Make adding recipients nice, like it's done at everybit
 // APPROACH: Store state of process in ICX.send or ICX.store, with vars. After complete send, set back to defaults
 /*
- ICX: {
+
+ICX: {
     wizard: 'store' | 'send'
 
     store: {
@@ -385,7 +386,7 @@ var ICXButtonLink = React.createClass({
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             return (
                     <div style={buttonStyle}>
-                        <ICXLoginButton />
+                        <ICXUserButton />
                     </div>
                 )
         }
@@ -410,7 +411,7 @@ var ICXButtonLink = React.createClass({
 });
 
 // TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
-var ICXLoginButton = React.createClass({
+var ICXUserButton = React.createClass({
     mixins: [TooltipMixin],
 
     handleGoTo: function(screen) {
@@ -442,10 +443,17 @@ var ICXLoginButton = React.createClass({
         var username = ICX.username
         if (!username) {
             return(
-                <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
-                    <i className={thisScreen.icon}></i>{' '}
-                    {thisScreen.fullText} <i className="fa fa-chevron-right" />
-                </a>
+                <span>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                        <i className={thisScreen.icon}></i>{' '}
+                        {thisScreen.fullText}
+                    </a>
+                    {' '}or{' '}
+                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
+                        <i className="fa fa-meh-o"></i>  SIGN UP <i className="fa fa-chevron-right" />
+                    </a>
+
+                </span>
             )
         } else {
             return(
@@ -818,8 +826,16 @@ var ICXNewUser = React.createClass({
     },
 
     handleGenerateRandomUsername: function() {
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        // Get animals
+        var animalCSS = document.styleSheets[5].rules;
+        for(i=0; i<animalCSS.length; i++) {
+            consolor.log(animalCSS.)
+
+
+        }
+
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
         this.refs.username.getDOMNode().value = adj + color
         return false
     },

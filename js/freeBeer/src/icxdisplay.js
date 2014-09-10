@@ -260,12 +260,14 @@ var ICXSend = React.createClass({
                 <div style={headerStyle}>Send a private message or file</div>
                 <div className="contentWindow">
                 To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
-                    <div className="radioHolder">
-                        <input type="radio" name="type" ref="message" defaultChecked />message<br />
-                        <input type="radio" name="type" ref="file" />file
+
+                        <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
+                    {' '}
+
+                        <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
+
                         <br />
-                    </div>
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToSend" buttonText="NEXT" />
+
                 </div>
             </div>
             )
@@ -290,13 +292,18 @@ var ICXSendFile = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-
+        if(ICX.username) {
+            var nextStep = 'send.file.finish'
+        } else {
+            var nextStep = 'newuser'
+        }
 
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
             Your file: <br />
-                <input type="file" ref="fileToSend" className="fileUpload btn btn-primary" />
+                <ICXFileSelector />
+                
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
 
             </div>
@@ -641,15 +648,15 @@ var ICXNewUser = React.createClass({
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
                 if(!ICX.wizard.inProcess) {
-                    console.log("send to dashboard")
+                    // console.log("send to dashboard")
                     return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
                 } else {
                     if(ICX.wizard.sequence == 'send') {
-                        console.log("send to confirm send")
+                        // console.log("send to confirm send")
                         return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
                     } else {
-                        console.log("send to confirm store")
+                        // console.log("send to confirm store")
                         return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.confirm'})
 
                     }

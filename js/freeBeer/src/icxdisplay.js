@@ -45,6 +45,48 @@
 
  */
 
+/* ICX MIXINS */
+/* Warning - All Mixins must be defined PRIOR to being referenced */
+
+var Tooltip = React.createClass({
+    render: function() {
+        var className = "menuTooltip"  + " black"
+        if (this.props.position)
+            className += " " + this.props.position
+        else
+            className += " right"
+
+        return (
+            <div className={className}>{this.props.content}</div>
+            )
+    }
+})
+
+var TooltipMixin = {
+    handleShowTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "block"
+    },
+    handleHideTooltip: function() {
+        var parent = this
+        var tooltip = this.getElementsByClassName('menuTooltip')[0]
+        tooltip.style.display = "none"
+    },
+    componentDidMount: function() {
+        var current = this.getDOMNode()
+        var tooltips = current.getElementsByClassName('menuTooltip')
+        for (var i=0; i<tooltips.length; i++) {
+            var parent = tooltips[i].parentNode
+            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent)
+            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent)
+        }
+    }
+}
+
+
+/* END ICX MIXINS */
+
 var ICXStore = React.createClass({
     getInitialState: function() {
         return {
@@ -636,7 +678,7 @@ var ICXNewUser = React.createClass({
                 <b>Username:</b>
                 <br />
 
-                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
+                .icx.<input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
                 {' '}
                 <span className="relative">
                     <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
@@ -1459,65 +1501,6 @@ var Checkmark = React.createClass({
 
     }
 })
-
-
-
-
-
-
-// ICX MIXINS
-
-var Tooltip = React.createClass({
-    render: function() {
-        var className = "menuTooltip"  + " black"
-        if (this.props.position)
-            className += " " + this.props.position
-        else
-            className += " right"
-
-        return (
-            <div className={className}>{this.props.content}</div>
-            )
-    }
-})
-
-var TooltipMixin = {
-    handleShowTooltip: function() {
-        var parent = this
-        var tooltip = this.getElementsByClassName('menuTooltip')[0]
-        tooltip.style.display = "block"
-    },
-    handleHideTooltip: function() {
-        var parent = this
-        var tooltip = this.getElementsByClassName('menuTooltip')[0]
-        tooltip.style.display = "none"
-    },
-    componentDidMount: function() {
-        var current = this.getDOMNode()
-        var tooltips = current.getElementsByClassName('menuTooltip')
-        for (var i=0; i<tooltips.length; i++) {
-            var parent = tooltips[i].parentNode
-            parent.firstChild.onmouseover = TooltipMixin.handleShowTooltip.bind(parent)
-            parent.firstChild.onmouseout  = TooltipMixin.handleHideTooltip.bind(parent)
-        }
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

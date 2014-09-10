@@ -141,13 +141,23 @@ PB.M.Wardrobe.storeDefaultKey = function(username, defaultKey) {
 }
 
 /**
+ * Store some extra information
+ * @param  {string} username
+ * @param  {string} rootKey
+ */
+PB.M.Wardrobe.storePrivateBonus = function(username, bonusInfo) {
+    // TODO: this should probably merge with existing bonuses instead of overwriting them
+    PB.M.Wardrobe.storePrivateKeys(username, false, false, false, bonusInfo)
+}
+
+/**
  * Add keys to the wardrobe with no validation
  * @param  {string} username
  * @param  {string} rootKey
  * @param  {string} adminKey
  * @param  {string} defaultKey
  */
-PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey) {
+PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey, bonusInfo) {
     //// Add keys to the wardrobe with no validation
     PB.M.Wardrobe.keychain = PB.M.Wardrobe.getAll()
     
@@ -159,6 +169,8 @@ PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKe
         PB.M.Wardrobe.keychain[username].admin   = adminKey
     if(defaultKey)
         PB.M.Wardrobe.keychain[username].default = defaultKey
+    if(bonusInfo)
+        PB.M.Wardrobe.keychain[username].bonus   = bonusInfo
     
     if(PB.M.Wardrobe.getPref('storeKeychain'))
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)

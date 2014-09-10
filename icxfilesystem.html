@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="styles/styles.css" />
     <link rel="stylesheet" href="styles/font-awesome.css" />
 
+    <script src="js/libs/filestuff.js"></script>
 </head>
 <body>
 
@@ -55,7 +56,6 @@
     
     <script>    
         ~(function () {
-            var oldFile = null
             
             var el = document.getElementById.bind(document)
             
@@ -72,75 +72,37 @@
             
             createLink.addEventListener('click', function() {
                 var content = textbox.value
-                var puff = createPuff(content, 'text')
-                link.href = prepBlob(puff)
+                var puff = PBFiles.createPuff(content, 'text')
+                link.href = PBFiles.prepBlob(puff)
                 link.style.display = ""
             })
             
             encryptFile.addEventListener('change', function(event) {
                 var element = event.target
-                var fileprom = openFile(element)
+                var fileprom = PBFiles.openBinaryFile(element)
                 fileprom.then(function(blob) {
-                    var puff = createPuff(blob, 'file')
+                    var puff = PBFiles.createPuff(blob, 'file')
 
                     var filelist = element.files
                     var file     = filelist[0]
                     var filename = file.name
                     var new_filename = filename + '.puff'
                     
-                    encryptedLink.href = prepBlob(puff)
+                    encryptedLink.href = PBFiles.prepBlob(puff)
                     encryptedLink.style.display = ""
                     encryptedLink.download = new_filename
                 })
             })
-            
-            var createPuff = function(content, type) {
-                var payload = {}
-                payload.time = Date.now()
-                
-                var type  = type || 'file'
-                var routes = ['local'];
-
-                var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-                var username    = userRecord.username
-                var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-                var previous, envelopeUserKeys
-                var userRecordsForWhomToEncrypt = [userRecord]
-                
-                var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
-
-                return puff
-            }
-            
-            var prepBlob = function(str, type) {
-                if(typeof str != 'string')
-                    str = JSON.stringify(str)
-                
-                var blob
-                
-                if(type == 'file')
-                    blob = dataURItoBlob(str)
-                else
-                    blob = new Blob([str], {type: 'text/plain'})
-                
-                if(oldFile)
-                  window.URL.revokeObjectURL(oldFile)
-
-                oldFile = window.URL.createObjectURL(blob)
-
-                return oldFile
-            }
-            
+                        
             // opening
 
             decryptFile.addEventListener('change', function(event) {
                 var element = event.target
-                var fileprom = openPuffFile(element)
+                var fileprom = PBFiles.openPuffFile(element)
                 fileprom.then(function(fileguts) {
                     console.log(fileguts)
                     
-                    var letterPuff = extractLetterPuff(fileguts)
+                    var letterPuff = PBFiles.extractLetterPuff(fileguts)
                     var content = (letterPuff.payload||{}).content
                     var type = (letterPuff.payload||{}).type
                     
@@ -154,82 +116,13 @@
                     if(/\.puff/.test(filename))
                         filename = filename.slice(0, -5)
                     
-                    resultLink.href = prepBlob(content, type)
+                    resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.style.display = ""
                     resultLink.download = filename
                 })
             })
             
-            var extractLetterPuff = function(content) {
-                var puff = PB.parseJSON(content)
-                if(!puff) return content
-                
-                if(!puff.keys) return (puff.payload||{}).content
-                
-                var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-                var username    = userRecord.username
-                var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-                
-                var pubkey = userRecord.defaultKey
-                var prikey = privateKeys.default
-                
-                var letter = PB.decryptPuff(puff, pubkey, username, prikey)
-                
-                return letter
-            }
-            
-            var openPuffFile = function(element) {                
-                return handleFileOpen(element)
-            }
-            
-            var openTextFile = function(element) {                
-                return handleFileOpen(element)
-            }
-            
-            var openFile = function(element) {                
-                return handleFileOpen(element, 'asDataURI')
-            }
-            
-            var handleFileOpen = function(element, asDataURI) {                
-                return new Promise(function(resolve, reject) {
-                    var reader = new FileReader()
 
-                    reader.onload = function(event) {
-                        console.log(reader)
-                        var dataURIContent = event.target.result
-                        // var blob = dataURItoBlob(dataURIContent)
-                        resolve(dataURIContent)
-                    }
-
-                    if(asDataURI)
-                        reader.readAsDataURL(element.files[0])
-                    else
-                        reader.readAsText(element.files[0])
-                })
-            }
-            
-            // via http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
-            var dataURItoBlob = function(dataURI) {
-                // convert base64/URLEncoded data component to raw binary data held in a Blob
-                var byteString;
-                if (dataURI.split(',')[0].indexOf('base64') >= 0)
-                    byteString = atob(dataURI.split(',')[1]);
-                else
-                    byteString = unescape(dataURI.split(',')[1]);
-
-                // separate out the mime component
-                var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
-
-                // write the bytes of the string to a typed array
-                var ia = new Uint8Array(byteString.length);
-                for (var i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-
-                return new Blob([ia], {type:mimeString});
-            }
-            
-            
             /////////////// code for text upload / download
     
             var textFile = el('textFile')
@@ -239,7 +132,7 @@
             
             
             textFile.addEventListener('change', function(e) {
-                var fileprom = openTextFile(e.target)
+                var fileprom = PBFiles.openTextFile(e.target)
                 fileprom.then(function(content) {
                     console.log(content)
                     textFileContent.value = content
@@ -250,7 +143,7 @@
                 var content  = textFileContent.value // could be anything
                 var filename = "filename.txt"
                 
-                fileLink.href = prepBlob(content)
+                fileLink.href = PBFiles.prepBlob(content)
                 fileLink.download = filename
                 fileLink.click()
                 // fileLink.style.display = "" // NOTE: Safari has trouble handling blob downloads -- may need to show the link to Safari users. Firefox and Chrome are fine. Haven't tested other browsers.
@@ -314,6 +207,9 @@
     <script src="js/modules/PB.M.Wardrobe.js"></script>
 
     <!-- icx -->
+    <script src="js/icx/config.js"></script>
+    <script src="js/icx/arrays.js"></script> <!-- temporary dropping this here -->
+    <script src="js/icx/words.js"></script>
     <script src="js/freeBeer/build/icxdisplay.js"></script>
     <script src="js/freeBeer/build/menu.js"></script>
     <script src="js/freeBeer/build/tableView.js"></script>

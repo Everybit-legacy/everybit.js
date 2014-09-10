@@ -890,6 +890,11 @@ fieldset[disabled] .btn-primary.active {
 .icx-newuser {
 }
 
+.icx-screen .listview {
+    max-height: 100%;
+    overflow: scroll;
+}
+
 .icx-screen .listview,.listheader,.listfooter {
     position: static!important;
 }
@@ -900,6 +905,18 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .listview .overlay {
     display: none; /* an overlay that contains nothing? */
+}
+
+.icx-screen .listrowContainer {
+    margin-top: 3px!important;
+}
+
+.icx-screen .listrow .listcell {
+    display: table-cell;
+}
+
+.icx-screen .listrow .listcell .bigStart::first-line {
+    font-size: 100%;
 }
 
 

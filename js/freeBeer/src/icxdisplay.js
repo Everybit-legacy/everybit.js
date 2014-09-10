@@ -477,6 +477,27 @@ var ICXNewUser = React.createClass({
         }
     },
 
+    handleUsernameFieldChange: function() {
+        var username = this.refs.username.getDOMNode().value
+        var finalChar = username.charAt(username.length-1)
+
+        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+            .toLowerCase()
+
+        // Strip out dots as well
+        username = username.replace('.','')
+
+        this.refs.username.getDOMNode().value = username
+        this.setState({usernameStatus: false})
+        this.setState({usernameMessage: ''})
+
+        if(finalChar == ' ') {
+            this.handleUsernameLookup()
+            return false
+        }
+    },
+
+
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
         var self = this
@@ -517,26 +538,21 @@ var ICXNewUser = React.createClass({
         // Disable register button until ready
         // When done, redirect to next location.
 
+        var requestedUsername = "icx." + this.refs.username.getDOMNode().value
+        var passphrase = this.refs.passphrase.getDOMNode().value
 
-        var polyglot = Translate.language[puffworldprops.view.language]
-        // BUILD REQUEST
-        var requestedUsername = this.state.desiredUsername
-        var prefix = "anon"
-        var prefixIndex = requestedUsername.indexOf('.')
-        if (requestedUsername.indexOf('.') != -1) {
-            prefix = requestedUsername.split('.')[0]
-        }
-        console.log("BEGIN username request for ", requestedUsername)
+        // Convert passphrase to key
+        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
 
-        var rootKeyPublic     = this.state.keys.rootKeyPublic
-        var adminKeyPublic    = this.state.keys.adminKeyPublic
-        var defaultKeyPublic  = this.state.keys.defaultKeyPublic
 
-        var rootKeyPrivate    = this.state.keys.rootKeyPrivate
-        var adminKeyPrivate   = this.state.keys.adminKeyPrivate
-        var defaultKeyPrivate = this.state.keys.defaultKeyPrivate
+        var rootKeyPublic     = publicKey
+        var adminKeyPublic    = publicKey
+        var defaultKeyPublic  = publicKey
 
-        this.setState({keys: {}})
+        var rootKeyPrivate    = privateKey
+        var adminKeyPrivate   = privateKey
+        var defaultKeyPrivate = privateKey
 
         var self = this
 
@@ -550,18 +566,20 @@ var ICXNewUser = React.createClass({
         var type = 'updateUserRecord'
         var content = 'requestUsername'
 
-        var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload)
+        var puff = PB.buildPuff('icx', ICX.adminKey, routes, type, content, payload)
+
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
                 PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
-                self.setState({step: 3,
-                    errorMessage: polyglot.t("menu.identity.new_identity.success")})
+                PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
 
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
                 Events.pub('ui/event', {})
+                Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
+
             },
             function(err) {
                 console.log("ERR")
@@ -598,7 +616,7 @@ var ICXNewUser = React.createClass({
                 <br />
                 <b>Username:</b>
                 <br />
-                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleResetCheckboxes}/>
+                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
                 {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                 {' '}<a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
                 {' '}<span className="message">{this.state.usernameMessage}</span>

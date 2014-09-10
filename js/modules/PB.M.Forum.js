@@ -204,37 +204,46 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
         
     if(PB.M.Forum.badEnvelope(envelope.sig)) return false
     
-    function doit(envelope, yourUserRecord) {
-        var letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
-        if(!letter) {
-            PB.M.Forum.horridStash[envelope.sig] = true
-            Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
-            return false
-        }
-        PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
-        PB.M.Forum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
-        PB.Data.addBonus(letter, 'envelope', envelope)                               // mark it for later
-        return letter
+    function getProm(envelope, yourUserRecord) {
+        var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
+        return prom.then(function(letter) {
+            if(!letter) {
+                PB.M.Forum.horridStash[envelope.sig] = true
+                Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
+                return false
+            }
+            
+            PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
+            PB.M.Forum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
+            PB.Data.addBonus(letter, 'envelope', envelope)                               // mark it for later
+            return letter
+        })
     }
     
     var yourUsername   = envelope.username
     var yourUserRecord = PB.Data.getCachedUserRecord(yourUsername)
     
-    if(yourUserRecord) 
-        return doit(envelope, yourUserRecord)
+    if(yourUserRecord) {        
+        var prom = getProm(envelope, yourUserRecord)
+        prom.then(function(decrypted) {
+            if(decrypted) updateUI()
+        })
+        return false
+    }
     
     var yourUserRecordPromise = PB.getUserRecord(yourUsername)
     yourUserRecordPromise.then(function(yourUserRecord) {
-        var decrypted = doit(envelope, yourUserRecord)
         // Events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
-        
-        if(!decrypted) return false
-        
-        PB.Data.currentDecryptedShells.push(decrypted)
-        PB.Data.addToGraph([decrypted])
-        PB.M.Forum.addFamilialEdges([decrypted])
-        
-        updateUI()                                                                   // redraw everything once DHT responds
+        var prom = getProm(envelope, yourUserRecord)
+        prom.then(function(decrypted) {
+            if(!decrypted) return false
+            
+            PB.Data.currentDecryptedShells.push(decrypted)
+            PB.Data.addToGraph([decrypted])
+            PB.M.Forum.addFamilialEdges([decrypted])
+            
+            updateUI() // redraw everything once DHT responds            
+        })
     }).catch(function(err){console.log(err)});
 }
 

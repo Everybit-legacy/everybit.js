@@ -578,6 +578,119 @@ setInterval(getMyPrivateShells, 60*1000)
 
 //// END PRIVATE PUFF GATHERER
 
+//// BUILD CRYPTO WORKER
+
+PB.cryptoworker = new Worker("cryptoworker.js")
+
+PB.workerqueue = []
+PB.workerautoid = 0
+
+PB.workerreceive = function(msg) {
+    var id = msg.data.id
+    if(!id) return false // TODO: add onError here
+
+    var fun = PB.workerqueue[id]
+    if(!fun) return false // TODO: add onError here
+
+    fun(msg.data.evaluated)
+
+    delete PB.workerqueue[id]
+}
+
+PB.workersend = function(funstr, args, resolve, reject) {
+    PB.workerautoid += 1
+    PB.workerqueue[PB.workerautoid] = resolve
+    if(!Array.isArray(args))
+        args = [args]
+    PB.cryptoworker.postMessage({fun: funstr, args: args, id: PB.workerautoid})
+}
+
+// PB.cryptoworker.addEventListener("message", console.log.bind(console))
+PB.cryptoworker.addEventListener("message", PB.workerreceive)
+
+
+
+// var workIt = function(workerObject, fun, args) {
+//     var message = {fun: fun, args: args}
+//     return new Promise(function(resolve, reject) {
+//
+//     }
+// }
+
+
+// var function makeWorker(url) {
+//     var worker = new Worker(url)
+//     var queue = []
+//     var id = 0
+//
+//     obj = { worker: worker
+//           , queue: []
+//           , id: 0
+//           , send: worker.postMessage.bind(worker)
+//     }
+//
+//     var receive = function(msg) {
+//         var id = msg._id
+//         if(!id) return false // TODO: add onError here
+//
+//         var fun = queue[_id]
+//         if(!fun) return false // TODO: add onError here
+//
+//         fun(msg.data)
+//
+//         delete queue[id]
+//     }
+//
+//     worker.addEventListener("message", receive)
+//
+//     var send = function(msg, fun) {
+//         msg._id = ++id
+//         queue[id] = funfix(fun)
+//         worker.postMessage(msg)
+//     }
+//
+//     return obj
+// }
+//
+// var cryptoworker = {
+//     worker: new Worker("cryptoworker.js")
+//     queue: []
+//     id: 0
+// }
+//
+// cryptoworker.addEventListener("message", console.log.bind(console))
+// 
+// Object.keys(PB.Crypto).forEach(function(key) {
+//     PB.Crypto[key] = function() {
+//         cryptoworker.postMessage({fun: key, args: [].slice.call(arguments)})
+//         return Promise
+//         // build response list, match by id
+//         // change all requests to async requests
+//     }
+// })
+// 
+// cryptoworker.postMessage({fun: 'puffToSiglessString', args: [{asdF:123}]})
+//
+// var workIt = function(workerObject, fun, args) {
+//     var message = {fun: fun, args: args}
+//     return new Promise(function(resolve, reject) {
+//
+//     }
+// }
+//
+// var partial = function(fun) {
+//     var args = [].slice.call(arguments, 1)
+//     return function() {
+//         return fun.apply(fun, args.concat([].slice.call(arguments)))
+//     }
+// }
+
+
+
+//// END BUILD CRYPTO WORKER
+
+
+
 
 window.addEventListener('resize', function() {
     updateUI();

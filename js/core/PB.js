@@ -324,7 +324,14 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
  * @return {object}
  */
 PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
-    //// pull a letter out of the envelope
+    //// pull a letter out of the envelope -- returns a promise!
+
+    return new Promise(function(resolve, reject) {
+        PB.workersend('decryptPuffForReals', [envelope, yourPublicWif, myUsername, myPrivateWif], resolve, reject)
+    })
+}
+
+PB.decryptPuffForReals = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
     if(!envelope.keys) return false
     var keyForMe = envelope.keys[myUsername]
     var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
@@ -333,6 +340,11 @@ PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
     letterString = PB.tryDecodeOyVey(escape(letterString)); // encoding
     return PB.parseJSON(letterString)
 }
+
+// PB.decryptPuff -> PB.decryptPuffForReals if there's no PB.cryptoworker
+// returns a promise that resolves to the decrypted whatsit. 
+// update forum function and filesystem call site
+// maybe make worker promise wrapper layer
 
 PB.tryDecodeOyVey = function(str) {
     //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.

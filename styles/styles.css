@@ -869,6 +869,62 @@ fieldset[disabled] .btn-primary.active {
     display: none;
 }
 
+/* ICX Styles */
+.icx-screen {
+    width: 100%;
+    height: 100%;
+}
+
+.icx-screen .component {
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+}
+
+.icx-login {
+}
+
+.icx-login .component {
+}
+
+.icx-newuser {
+}
+
+.icx-screen .listview {
+    max-height: 100%;
+    overflow: scroll;
+}
+
+.icx-screen .listview,.listheader,.listfooter {
+    position: static!important;
+}
+
+.icx-screen .listfooter {
+    min-width: 0px!important;
+}
+
+.icx-screen .listview .overlay {
+    display: none; /* an overlay that contains nothing? */
+}
+
+.icx-screen .listrowContainer {
+    margin-top: 3px!important;
+}
+
+.icx-screen .listrow .listcell {
+    display: table-cell;
+}
+
+.icx-screen .listrow .listcell .bigStart::first-line {
+    font-size: 100%;
+}
+
+
+.icx-newuser a.register {
+    margin-left: 10px;
+}
+
+
 .imgInBox {
     display: block;
     margin:auto;

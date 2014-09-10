@@ -594,7 +594,7 @@ var ICXNewUser = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Reigster for a new username</div>
+                <div style={headerStyle}>Register for a new username</div>
                 <br />
                 <b>Username:</b>
                 <br />
@@ -862,6 +862,9 @@ var ICXLogin = React.createClass({
 
 var ICXDashboard = React.createClass({
 
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+    },
 
     render: function () {
         var username = ICX.username
@@ -872,14 +875,40 @@ var ICXDashboard = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Dashboard for {username}</div><br />
-            • View your messages<br />
+                • <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#000000','text-decoration': 'underline'}}>
+                    View your messages
+                </a><br />
             • ((YOU AVATAR)) change this at everybit<br />
             • Download your passpharse<br />
-            • Logout
+            <ICXLogoutButton goto='home' />
             </div>
             )
     }
 });
+
+var ICXLogoutButton = React.createClass({
+
+    handleSignOut: function() {
+        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+
+        // Confirm alert first
+        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
+
+        var r = confirm(msg)
+        if (r == false) {
+            return false
+        }
+
+        PB.M.Wardrobe.removeKeys(userToRemove)
+        ICX.username = ''
+        Events.pub('user/'+userToRemove+'/remove', {})
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
+    },
+
+    render: function() {
+        return <button className ="btn btn-primary" onClick={this.handleSignOut}>Logout<i className="fa fa-fw fa-sign-out" /></button>
+    }
+})
 
 var ICXTableView = React.createClass({
 

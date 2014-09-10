@@ -260,7 +260,8 @@ var ICXSendFile = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
             Your file: <br />
-                <input type="file" ref="fileToSend" className="fileUpload btn btn-primary" />
+                <ICXFileSelector />
+                
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
 
             </div>

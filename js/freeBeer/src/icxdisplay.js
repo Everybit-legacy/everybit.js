@@ -599,15 +599,15 @@ var ICXNewUser = React.createClass({
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
                 if(!ICX.wizard.inProcess) {
-                    console.log("send to dashboard")
+                    // console.log("send to dashboard")
                     return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
                 } else {
                     if(ICX.wizard.sequence == 'send') {
-                        console.log("send to confirm send")
+                        // console.log("send to confirm send")
                         return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
                     } else {
-                        console.log("send to confirm store")
+                        // console.log("send to confirm store")
                         return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.confirm'})
 
                     }

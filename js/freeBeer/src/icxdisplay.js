@@ -1039,7 +1039,9 @@ var ICXTableView = React.createClass({
         var view = <TableView view={viewprops} table={viewprops.table}/>
         document.body.style.overflowY = "auto"
 
-        return view
+        return (
+            <div className="icx-screen">{view}</div>
+        )
     }
 
 });

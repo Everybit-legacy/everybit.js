@@ -890,6 +890,18 @@ fieldset[disabled] .btn-primary.active {
 .icx-newuser {
 }
 
+.icx-screen .listview,.listheader,.listfooter {
+    position: static!important;
+}
+
+.icx-screen .listfooter {
+    min-width: 0px!important;
+}
+
+.icx-screen .listview .overlay {
+    display: none; /* an overlay that contains nothing? */
+}
+
 
 .icx-newuser a.register {
     margin-left: 10px;

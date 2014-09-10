@@ -256,23 +256,21 @@ var ICXSend = React.createClass({
 
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send">
                 <div style={headerStyle}>Send a private message or file</div>
-                <div className="contentWindow">
-                    <div>
-                        <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} /></span>
-                        <span className="relative">
-                            <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
-                            <Tooltip position='under' content="Confirm username" />
-                        </span>
-                        <span className="message">{this.state.toUserStatus}</span>
-                    </div>
+                <div className="component">
+                    <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} /></span>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
+                        <Tooltip position='under' content="Confirm username" />
+                    </span>
+                    <span className="message">{this.state.toUserStatus}</span>
+                </div>
 
-                    <div>
-                        <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
-                        {' '}
-                        <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
-                    </div>
+                <div className="component">
+                    <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
+                    {' '}
+                    <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
                 </div>
             </div>
             )
@@ -682,9 +680,9 @@ var ICXNewUser = React.createClass({
 
 
         return (
-            <div className="icx-newuser" style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-newuser">
                 <div style={headerStyle}>Register for a new username</div>
-                <div className="username">
+                <div className="component username">
                     <div><b>Username:</b></div>
 
                     .icx.<input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
@@ -699,7 +697,7 @@ var ICXNewUser = React.createClass({
                     {' '}<span className="message">{this.state.usernameMessage}</span>
                 </div>
 
-                <div className="passphrase">
+                <div className="component passphrase">
                     <div><b>Passphrase:</b></div>
                     <textarea ref="passphrase" style={{rows:10, cols:50}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
                     <span className="relative">
@@ -709,14 +707,14 @@ var ICXNewUser = React.createClass({
                     <span className="message">{this.state.passphraseMessage}</span>
                 </div>
 
-                <div className="avartar">
+                <div className="component avartar">
                     <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
                     <br />
                     Avatar (can be changed later)
                     <br />
                 </div>
 
-                <a href="#" onClick={this.handleRegisterName}>Register <i className="fa fa-chevron" /></a>
+                <a className="register" onClick={this.handleRegisterName}>Register <i className="fa fa-chevron" /></a>
             </div>
             )
     }
@@ -731,7 +729,7 @@ var ICXNewUserFinish = React.createClass({
 })
 
 var ICXLogin = React.createClass({
-
+    mixins: [TooltipMixin],
 
     getInitialState: function () {
         return {
@@ -894,7 +892,6 @@ var ICXLogin = React.createClass({
 
 
         var labelStyle = {
-            display: 'inline-block',
             marginRight: baseFontH + 'px'
         }
 
@@ -908,54 +905,48 @@ var ICXLogin = React.createClass({
 
         return (
 
-            <div style={ICX.calculated.baseTextStyle}>
+            <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
                 <div style={headerStyle}>Save your identity on this web browser</div>
-                <br />
-                <div style={labelStyle}>Username:</div>
-                <br />
-                <div style={inputStyle}>
 
-
-                .icx.
+                <div className="component username">
+                    <div style={labelStyle}><b>Username:</b></div>
+                
+                    .icx.
                     <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} style={{size: 16}} onChange={this.handleResetCheckboxes} />
-                {' '}
-                    <a href="#" onClick={this.handleUsernameLookup}>
-                        <Checkmark show={this.state.usernameStatus} />
-                    </a>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <Tooltip position='under' content="Verify your username" />
+                    </span>
+                    <span className="message">{this.state.usernameStatus}</span>
                 </div>
 
-                <span className="message">{this.state.usernameStatus}</span>
+                <div className="component passphrase">
+                    <div className="relative">
+                        <b>Private passphrase<sup>&#63;</sup></b>
+                        <Tooltip content="(Placehold text for private passphrase)" />
+                    </div>
 
+                    <div style={inputStyle}>
+                        <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
+                        <span className="relative">
+                            <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
+                                <Checkmark show={this.state.defaultKey} />
+                            </a>
+                            <Tooltip position='under' content="Verify your passphrase" />
+                        </span>
 
-                <br />
-                <br />
-                <div>
-                Private passphrase
-                    <sup>&#63;</sup>
+                        <span className="message">{this.state.defaultKey}</span>
+                    </div>
                 </div>
 
-                <div style={inputStyle}>
-                    <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
-                {' '}
-                    <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
-                        <Checkmark show={this.state.defaultKey} />
-                    </a>
-                    <span className="message">{this.state.defaultKey}</span>
+                <div className="component upload">
+                    <i><em>or</em></i>
+                    <div className="relative">
+                        Select an identity file<sup>&#63;</sup>
+                        <Tooltip content="Login by uploading your passphrase file" />
+                    </div>
+                    <ICXFileSelector />
                 </div>
-                <br />
-                <br />
-                <i>
-                    <em>or</em>
-                </i>
-                <br />
-                <br />
-
-            Select an identity file
-                <sup>&#63;</sup>
-                <br />
-
-                <ICXFileSelector />
-
             </div>
             )
         //}

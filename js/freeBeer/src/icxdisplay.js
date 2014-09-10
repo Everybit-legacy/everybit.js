@@ -1,33 +1,10 @@
 /** @jsx React.DOM */
 
+/*
 
-// (X): If logged in, send to dashboard, not login
-// (X) Change Refresh text to an icon
-// Add tooltip to checkmark and refresh
-// In username select, filter out bad characters
-// (X) Make the rectangle for username choice bigger.
-// (X) Add passphrase gen to register a new username
-// (X) Add icon/avatar to register a new username
-// Setup preview screen, for each option, you can send immediately or preview
-// The preview screen is the one used if the new user wizard intrudes
-// TODO: Add save passpharase option to newuser page
 
-// Add FINISH or NEXT to newuser screen, depending on where you are in sequence
-// TODO: Add hover effect for buttons
-// TODO: when entering username, if no network give different error
-// TODO: Add "thinking" state for checkboxes, when verifying stuff on network
-// (P) Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
-// TODO: make sure usernames are autoconverted to lowercase, strip out bad chars on the fly
-// TODO: Store passphrase in wardrobe
-// TODO: Full tooltip review, put everywhere
-// TODO: Lock some screens from direct access
-// TODO: Focus To field in send message first step, message itself in second
-// TODO: Space bar invokes check of valid username, Enter invokes NEXT if available.
-// TODO: Make adding recipients nice, like it's done at everybit
-// APPROACH: Store state of process in ICX.send or ICX.store, with vars. After complete send, set back to defaults
+ */
 
-// TODO: Merge with todo's from login
-// TODO: use passphraseToPrivateKeyWif to gen key for later download
 
 /*
 
@@ -652,10 +629,6 @@ var ICXNewUserFinish = React.createClass({
 })
 
 var ICXLogin = React.createClass({
-    // TODO: Deal with bad key
-    // TODO: Allow upload of passphrase
-    // TODO: Mention that if created at everybit need to modify there
-
 
 
     getInitialState: function () {
@@ -697,8 +670,7 @@ var ICXLogin = React.createClass({
         return false
     },
 
-    // TODO: Once successfully logged in, take them to their dashboard
-    // TODO: WHen you change text of pive passpahas, set button to gray.
+
     handlePassphraseCheck: function (keyType) {
         // Will check against default key
         // First convert to private key, then to public, then verify against DHT
@@ -1288,7 +1260,7 @@ var ICXFooter = React.createClass({
     }
 });
 
-// TODO: Way for people to save their passphrase on dashboard page. Way to view puffs too
+
 var ICXUserButton = React.createClass({
     mixins: [TooltipMixin],
 

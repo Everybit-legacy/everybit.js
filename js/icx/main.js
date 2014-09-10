@@ -570,7 +570,8 @@ setPropsFromURL();                                  // handle pushstate hash
 
 var getMyPrivateShells = function() {
     var username = PB.M.Wardrobe.getCurrentUsername()
-    PB.Data.importPrivateShells(username)
+    if(username)
+        PB.Data.importPrivateShells(username)
 }
 
 setInterval(getMyPrivateShells, 60*1000)

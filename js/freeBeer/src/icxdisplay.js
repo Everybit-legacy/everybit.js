@@ -637,10 +637,11 @@ var ICXNewUser = React.createClass({
                 <br />
 
                 .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
-                {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-    <span className="relative">
-    <Tooltip position='under' content="Check for availability" />
-    </span>
+                {' '}
+                <span className="relative">
+                    <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                    <Tooltip position='under' content="Check for availability" />
+                </span>
                 {' '}<a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
                 {' '}<span className="message">{this.state.usernameMessage}</span>
                 <br /><br />
@@ -1325,7 +1326,7 @@ var ICXFooter = React.createClass({
         return (
             <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
                 <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-            Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user's device. Only the sender and recipient can decode it.
+            Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
             </div>
             )
     }

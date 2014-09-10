@@ -307,6 +307,25 @@ var ICXSendMessage = React.createClass({
 
 });
 
+var ICXSendMessageConfirm = React.createClass({
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Confirm message send</div>
+                <br />
+                <b>TO</b> {ICX.message.toUser}<br />
+                <b>Message</b><br />
+                {ICX.messageText}
+                <hr />
+                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+            </div>
+        )
+    }
+})
+
 var ICXSendMessageFinish = React.createClass({
 
     getInitialState: function () {
@@ -571,15 +590,28 @@ var ICXNewUser = React.createClass({
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) {
+                console.log("Begin user submit request")
+
                 // store directly because we know they're valid
                 PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
                 PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
 
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
-                Events.pub('ui/event', {})
-                Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
+                if(!ICX.wizard.inProcess) {
+                    console.log("send to dashboard")
+                    return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
+                } else {
+                    if(ICX.wizard.sequence == 'send') {
+                        console.log("send to confirm send")
+                        return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
+                    } else {
+                        console.log("send to confirm store")
+                        return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.confirm'})
+
+                    }
+                }
             },
             function(err) {
                 console.log("ERR")
@@ -594,20 +626,7 @@ var ICXNewUser = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-        /*
-        var goto = 'dashboard'
-        var buttonText = 'FINISH'
 
-        // Where do we go now?
-        if(ICX.wizard.inProcess) {
-            if(ICX.wizard.sequence == 'send') {
-
-                goto = 'send.finish'
-                buttonText = 'SEND'
-
-            }
-        }
-        */
 
 
         return (
@@ -1030,6 +1049,7 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba(114, 113, 86, .08)'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba(114, 113, 86, .08)'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'}
         ]
 

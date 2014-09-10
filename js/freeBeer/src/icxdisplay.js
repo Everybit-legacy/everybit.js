@@ -398,7 +398,7 @@ var ICXSendMessageFinish = React.createClass({
 })
 
 var ICXNewUser = React.createClass({
-
+    mixins: [TooltipMixin],
     getInitialState: function() {
         return {
             usernameStatus: false,
@@ -616,8 +616,12 @@ var ICXNewUser = React.createClass({
                 <br />
                 <b>Username:</b>
                 <br />
+
                 .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
                 {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+    <span className="relative">
+    <Tooltip position='under' content="Check for availability" />
+    </span>
                 {' '}<a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
                 {' '}<span className="message">{this.state.usernameMessage}</span>
                 <br /><br />

@@ -1,7 +1,19 @@
 /** @jsx React.DOM */
 
+
+// (X): If logged in, send to dashboard, not login
+// (X) Change Refresh text to an icon
+// Add tooltip to checkmark and refresh
+// In username select, filter out bad characters
+// (X) Make the rectangle for username choice bigger.
+// (X) Add passphrase gen to register a new username
+// (X) Add icon/avatar to register a new username
+// Setup preview screen, for each option, you can send immediately or preview
+// The preview screen is the one used if the new user wizard intrudes
+// TODO: Add save passpharase option to newuser page
+
+// Add FINISH or NEXT to newuser screen, depending on where you are in sequence
 // TODO: Add hover effect for buttons
-// TODO: Make whole button clickable
 // TODO: when entering username, if no network give different error
 // TODO: Add "thinking" state for checkboxes, when verifying stuff on network
 // (P) Create a "dashboard" page for users, where they can view profile, view messages sent/received, encrypt/decrypt files
@@ -20,24 +32,14 @@
 /*
 
  ICX: {
- wizard: 'store' | 'send'
-
- store: {
- type: 'file' | 'message'
- content:
- saveToNet: true | false
- step: 'first' | 'newuser' | 'finishnewuser' | 'final'
- }
-
- send: {
- type: 'message' | 'file'
- sendTo: []
- content:
- file:
- step: 'first' | 'newuser' | 'finishnewuser' | 'final'
- }
-
- username:
+    wizard: {
+        inProcess: true | false
+        sequence: 'send' | 'store'
+        type:  file' | 'message'
+        content:
+        saveToNet: true | false
+    }
+    username:
  }
 
  // COMPONENT NAMES
@@ -157,7 +159,8 @@ var ICXStoreFinish = React.createClass({
 var ICXSend = React.createClass({
 
     componentDidMount: function() {
-        ICX.wizard = 'send'
+        ICX.wizard.inProcess = true
+        ICX.wizard.sequence = 'send'
     },
 
     getInitialState: function() {
@@ -243,7 +246,7 @@ var ICXSend = React.createClass({
                         <input type="radio" name="type" ref="file" />file
                         <br />
                     </div>
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.nextStep} key="nextToSend" buttonText="NEXT" />
+                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToSend" buttonText="NEXT" />
                 </div>
             </div>
             )
@@ -261,7 +264,7 @@ var ICXSendFile = React.createClass({
     },
 
     componentDidMount: function() {
-        ICX.send = {type: 'file'}
+        ICX.wizard.type = 'file'
     },
 
     render: function() {
@@ -339,6 +342,7 @@ var ICXSendMessageFinish = React.createClass({
     handleSubmitSuccess: function () {
         this.setState({messageSent: true})
         this.setState({successMessage: 'Message sent!'})
+
     },
 
     cleanUpSubmit: function () {
@@ -408,6 +412,7 @@ var ICXSendMessageFinish = React.createClass({
                 <div style={headerStyle}>Send of message</div>
                 <br />
                 <div>{this.state.successMessage}</div>
+                <ICXNextButton enabled={this.state.messageSent} goto='send.message' text='Send another message' />
             </div>
             )
 
@@ -419,12 +424,18 @@ var ICXNewUser = React.createClass({
 
     getInitialState: function() {
         return {
-            usernameStatus: false
+            usernameStatus: false,
+            usernameMessage: '',
+            passphraseStatus: true,
+            passphraseMessage: '',
+            avatarColor: 'black',
+            avatarAnimal: ''
         }
     },
 
     componentDidMount: function() {
         this.handleGenerateRandomUsername()
+        this.handleGenerateRandomPassphrase()
     },
 
     handleGenerateRandomUsername: function() {
@@ -450,19 +461,49 @@ var ICXNewUser = React.createClass({
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        this.setState({avatarColor: color})
+
         var animal = animals[Math.floor(Math.random() * animals.length)]
+
+        this.setState({avatarAnimal: animal})
         this.refs.username.getDOMNode().value = adj + color + animal
+
+        this.handleUsernameLookup()
+        return false
+    },
+
+    handleGenerateRandomPassphrase: function() {
+        // Everybody loves the exponential!
+        var numb = 2
+        while(Math.random()>0.2) {
+            numb++
+        }
+
+        this.refs.passphrase.getDOMNode().value = generatePassphrase(ICX.passphraseWords,numb)
         return false
     },
 
     handleResetCheckboxes: function() {
         this.setState({usernameStatus: false})
         this.setState({defaultKey: false})
+        this.setState({usernameMessage: ''})
+    },
+
+    handleRecheckPassphrase: function() {
+        var passphrase = this.refs.passphrase.getDOMNode().value
+        if(passphrase.length < 8) {
+            this.setState({passphraseStatus: false})
+            this.setState({passphraseMessage: 'Too short'})
+        } else {
+            this.setState({passphraseStatus: true})
+            this.setState({passphraseMessage: ''})
+        }
     },
 
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
         var self = this
+        this.setState({usernameMessage: 'Checking...'})
 
         // Check for zero length
         if(!username.length) {
@@ -475,32 +516,128 @@ var ICXNewUser = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
+
         prom.then(function(result) {
-            self.state.usernameStatus = false
-            Events.pub('ui/puff-packer/userlookup', {})
+            // console.log(result)
+            //if(result.username !== undefined) {
+                self.setState({usernameStatus: 'Taken'})
+                self.setState({usernameMessage: 'Already registered'})
+            //} self {
+            //    this.setState({usernameStatus: true})
+            //    this.setState({usernameMessage: 'Available'})
+            //}
+        }).catch(function(err) {
+            self.setState({usernameStatus: true})
+            self.setState({usernameMessage: 'Available'})
         })
-            .catch(function(err) {
-                self.state.usernameStatus = 'Not Available'
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+
+        return false
+    },
+
+    handleRegisterName: function() {
+        // Register the name
+        // Error if there's an error
+        // Disable register button until ready
+        // When done, redirect to next location.
+
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+        // BUILD REQUEST
+        var requestedUsername = this.state.desiredUsername
+        var prefix = "anon"
+        var prefixIndex = requestedUsername.indexOf('.')
+        if (requestedUsername.indexOf('.') != -1) {
+            prefix = requestedUsername.split('.')[0]
+        }
+        console.log("BEGIN username request for ", requestedUsername)
+
+        var rootKeyPublic     = this.state.keys.rootKeyPublic
+        var adminKeyPublic    = this.state.keys.adminKeyPublic
+        var defaultKeyPublic  = this.state.keys.defaultKeyPublic
+
+        var rootKeyPrivate    = this.state.keys.rootKeyPrivate
+        var adminKeyPrivate   = this.state.keys.adminKeyPrivate
+        var defaultKeyPrivate = this.state.keys.defaultKeyPrivate
+
+        this.setState({keys: {}})
+
+        var self = this
+
+        var payload = {
+            requestedUsername: requestedUsername,
+            rootKey: rootKeyPublic,
+            adminKey: adminKeyPublic,
+            defaultKey: defaultKeyPublic
+        }
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'requestUsername'
+
+        var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload)
+        // SUBMIT REQUEST
+        var prom = PB.Net.updateUserRecord(puff)
+        prom.then(function(userRecord) {
+                // store directly because we know they're valid
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
+                self.setState({step: 3,
+                    errorMessage: polyglot.t("menu.identity.new_identity.success")})
+
+                // Set this person as the current user
+                PB.M.Wardrobe.switchCurrent(requestedUsername)
+                Events.pub('ui/event', {})
+            },
+            function(err) {
+                console.log("ERR")
+                self.setState({step: 3,
+                    errorMessage: err.toString()})
+                Events.pub('ui/event', {})
             })
         return false
     },
 
     render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        /*
+        var goto = 'dashboard'
+        var buttonText = 'FINISH'
+
+        // Where do we go now?
+        if(ICX.wizard.inProcess) {
+            if(ICX.wizard.sequence == 'send') {
+
+                goto = 'send.finish'
+                buttonText = 'SEND'
+
+            }
+        }
+        */
+
+
         return (
-            <div>
-                <div>Reigster for a new username</div>
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Reigster for a new username</div>
                 <br />
-                <div>Username:</div>
-                <div>
-                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} size="12" onChange={this.handleResetCheckboxes}/>
+                <b>Username:</b>
+                <br />
+                .icx.<input type="text" name="username" ref="username" defaultValue={this.handleGenerateRandomUsername} style={{size: 16}} onChange={this.handleResetCheckboxes}/>
                 {' '}<a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}>Refresh</a>
-
-
-                    <span className="message">{this.state.usernameStatus}</span>
-
-                </div>
+                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
+                {' '}<span className="message">{this.state.usernameMessage}</span>
+                <br /><br />
+                <b>Passphrase:</b>
+                <br />
+                <textarea ref="passphrase" style={{rows:10, cols:50}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
+                {' '}<a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
+                {' '}<span className="message">{this.state.passphraseMessage}</span>
+                <br /><br />
+                <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
+                <br />
+                Avatar (can be changed later)
+                <br />
+                <br />
+                <a href="#" onClick={this.handleRegisterName}>Register <i className="fa fa-chevron" /></a>
             </div>
             )
     }
@@ -706,7 +843,7 @@ var ICXLogin = React.createClass({
 
 
                 .icx.
-                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} size="12" onChange={this.handleResetCheckboxes} />
+                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} style={{size: 16}} onChange={this.handleResetCheckboxes} />
                 {' '}
                     <a href="#" onClick={this.handleUsernameLookup}>
                         <Checkmark show={this.state.usernameStatus} />
@@ -887,7 +1024,7 @@ var ICXWorld = React.createClass({
         }
 
         ICX.screens = [
-            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(46,  48, 146, .08)'},
+            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,  255, 255, .0)'},
             {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
             {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba(114, 113, 86, .08)'},
@@ -902,15 +1039,16 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'}
         ]
 
-
-
-
         var currScreen = puffworldprops.view.icx.screen
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
         var username = PB.M.Wardrobe.getCurrentUsername()
         ICX.username = username
+
+        if(!currScreen) {
+            currScreen = 'init'
+        }
 
 
         if (currScreen == 'init') {
@@ -925,6 +1063,11 @@ var ICXWorld = React.createClass({
         var thisScreen = ICX.screens.filter(function( obj ) {
             return (obj.name == currScreen);
         })[0];
+
+
+        if(!thisScreen) {
+            return <div>{currScreen}</div>
+        }
 
 
         var screenStyle = {
@@ -959,71 +1102,7 @@ var ICXWorld = React.createClass({
 
         var pageComponent = fun( {screenInfo:screenInfo} )
 
-        /*
-        switch(currScreen) {
-            case('send'):
-                var pageComponent = <ICXSend screenInfo={ICX.screens[1]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
 
-            case('send.message'):
-                var pageComponent = <ICXSendMessage screenInfo={ICX.screens[1]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('send.file'):
-                var pageComponent = <ICXSendFile screenInfo={ICX.screens[12]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('send.finish'):
-                var pageComponent = <ICXSendMessageFinish screenInfo={ICX.screens[11]} />
-                contentDivStyles.backgroundColor = 'rgba(226, 160, 79, .08)'
-                break;
-
-            case('home.table'):
-                var pageComponent = <ICXTableView screenInfo={thisScreen} />
-                break;
-
-            case 'store':
-                var pageComponent = <ICXStore screenInfo={ICX.screens[2]} />
-                contentDivStyles.backgroundColor = 'rgba(93,  128, 90, .08)'
-                break;
-
-            case 'login':
-                var pageComponent = <ICXLogin screenInfo={ICX.screens[3]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            case 'learn':
-                var pageComponent = <ICXLearn screenInfo={ICX.screens[4]} />
-                contentDivStyles.backgroundColor = 'rgba(49,  68,  92, .08)'
-                break;
-
-            case 'dashboard':
-                var pageComponent = <ICXDashboard  screenInfo={ICX.screens[9]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            case 'about':
-                var pageComponent = <ICXAbout screenInfo={ICX.screens[5]} />
-                contentDivStyles.backgroundColor = 'rgba(85,  65,  94, .08)'
-                break;
-
-            case 'newuser':
-                var pageComponent = <ICXNewUser screenInfo={ICX.screens[10]} />
-                contentDivStyles.backgroundColor = 'rgba(114, 113, 86, .08)'
-                break;
-
-            default:
-                // Home page
-                // Force no styling on div
-                contentDivStyles = {}
-                var pageComponent = <ICXHome />
-
-
-        }
-        */
 
         return (
             <div style={screenStyle}>
@@ -1040,6 +1119,11 @@ var ICXWorld = React.createClass({
 
 // SUBCOMPONENTS
 var ICXLogo = React.createClass({
+    handleGoHome: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+    },
+
+
     render: function() {
         var w = window.innerWidth
         var h = window.innerHeight
@@ -1136,9 +1220,9 @@ var ICXButtonLink = React.createClass({
             top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             color: 'white',
-            paddingLeft: Math.floor(fontSize/2.5)+'px'
+            paddingLeft: Math.floor(fontSize/2.5)+'px',
+            zIndex: 100
         }
-
 
 
         if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
@@ -1238,7 +1322,7 @@ var ICXUserButton = React.createClass({
         if (!username) {
             return(
                 <span>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
                         <i className={thisScreen.icon}></i>{' '}
                         {thisScreen.fullText}
                     </a>
@@ -1257,7 +1341,7 @@ var ICXUserButton = React.createClass({
                     </a>
                     <Tooltip position="under" content="Remove identity from this device" color="black" />
                     {' '}
-                    <a href="#"  onClick={this.handleGoTo.bind(null, thisScreen.name)} style={{color: '#ffffff'}}>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
 
                         {username} <i className="fa fa-chevron-right" />
                     </a>

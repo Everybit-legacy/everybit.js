@@ -4,6 +4,10 @@
 
 ICX = {}
 
+ICX.wizard = {}
+
+ICX.adminKey = '5KiCcgZjfvbGJgJbP9RKccwB6NGw8PgfkwZm2P5Xj158NqFFf4a'
+
 ICX.config = {
     rightBorder: {
         min: 2,

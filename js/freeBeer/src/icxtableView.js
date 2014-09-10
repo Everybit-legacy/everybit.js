@@ -77,28 +77,6 @@ var RowRenderMixin = {
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
 		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 	},
-	renderOther: function() {
-		var puff = this.props.puff
-
-        // If we are showing the info as a column, hide them from "other"
-        var keysNotShow = ['content', 'parents'] // Never show these
-        for(var k in puffworldprops.view.table.column) {
-            if(puffworldprops.view.table.column[k].show == true && keysNotShow.indexOf(k)==-1) {
-                keysNotShow.push(k)
-            }
-        }
-
-
-		// var keysNotShow = ['content', 'parents']
-		return <span>
-			{Object.keys(puff.payload).map(function(key){
-				var value = puff.payload[key]
-	            if (keysNotShow.indexOf(key)==-1 && value && value.length) {
-	                return <div key={key}><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
-	            }
-			})}
-		</span>
-	},
 	renderDate: function() {
 		var puff = this.props.puff
 		var date = new Date(puff.payload.time)
@@ -200,13 +178,6 @@ var RowRenderMixin = {
 		    </span>
         )
 	},
-	renderScore: function() {
-        var showStar = true
-        var envelope = PB.Data.getBonus(this.props.puff, 'envelope')
-        if(envelope && envelope.keys)
-            showStar = false
-		return showStar ? <PuffStar sig={this.props.puff.sig}/> : ''
-	},
 	render_column: function(col, width, maxHeight) {
 		var style = {}
 		style['width'] = width.toString() + 'px'
@@ -229,17 +200,6 @@ var RowRenderMixin = {
 var RowSortMixin = {
 	sortDate: function(p1, p2) {
 		return p2.payload.time - p1.payload.time
-	}, 
-	getScore: function(puff) {
-		var score = 0
-        var starStats = PB.Data.getBonus({sig: puff.sig}, 'starStats')
-        if(starStats && starStats.from) {
-            score = starStats.score
-        }
-        return score
-	},
-	sortScore: function(p1, p2) {
-		return this.getScore(p2) - this.getScore(p1)
 	},
 	sortUser: function(p1, p2){
 		if (p1.username < p2.username) return -1
@@ -345,12 +305,11 @@ var TableView = React.createClass({
 		} else {
 			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
 		}
-		if (puffworldprops.view.table.format == "list") {
-			var query = puffworldprops.view.query
-			var filters = puffworldprops.view.filters
-			var limit = this.state.loaded
-			var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-			puffs = this.sortPuffs(puffs)	
+		var query = puffworldprops.view.query
+		var filters = puffworldprops.view.filters
+		var limit = this.state.loaded
+		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+		puffs = this.sortPuffs(puffs)	
 
 		var top = CONFIG.verticalPadding - 20
 			return (
@@ -365,43 +324,7 @@ var TableView = React.createClass({
 					</div>
 				</div>
 			)
-		} else if (puffworldprops.view.table.format == "generation") {
-			var focus = puffworldprops.view.query.focus
-			return (
-				<div style={style} className="listview">
-					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
-						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
-					</div>
-				</div>
-			)
-		}
 		return <span></span>
-	}
-})
-
-
-var TableViewColOptions = React.createClass({
-	handleCheck: function(col) {
-		var columnProp = puffworldprops.view.table.column
-		var currentShow = columnProp[col].show
-		var jsonToSet = {}
-		jsonToSet['view.table.column.'+col+'.show'] = !currentShow
-		return Events.pub('ui/view/table/col', jsonToSet)
-	},
-	render: function() {
-		var columnProp = puffworldprops.view.table.column
-		var possibleCols = Object.keys(columnProp)
-		var self = this
-		return (
-			<div className="tableViewColOptions">
-				{possibleCols.map(function(col){
-					return <div key={col}>
-						<input type="checkbox" onChange={self.handleCheck.bind(self, col)} value={col} defaultChecked={columnProp[col].show}> {col}</input>
-						</div>
-				})}
-			</div>
-		)
 	}
 })
 
@@ -464,15 +387,6 @@ var RowHeader = React.createClass({
         }
 		return (
 			<div className="listrow listheader" key="listHeader" style={headerStyle} onMouseLeave={this.handleHideColOptions}>
-				<span className="listcell" >
-					<span className="listbar">
-						<a href="#" onClick={this.handleManageCol}>
-							<i className="fa fa-fw fa-cog"></i>
-						</a>
-					</span>
-				</span>
-					<Tooltip content={polyglot.t("tableview.tooltip.col_options")} />
-				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
 						width: self.getColumnWidth(c).toString()+'px'

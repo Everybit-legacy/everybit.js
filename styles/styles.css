@@ -75,11 +75,12 @@ a.under {
 }
 
 button.btn {
-    background: none;
+    background-color:#1616A8;
+
 }
 button.btn:hover {
-    color: #00AA00;
-    background: #ddd;
+    color: #000000;
+    background: #5656aa;
 }
 button.btn:focus {
     outline: 0;
@@ -607,7 +608,8 @@ fieldset[disabled] .btn-link {
 .btn-primary:active,
 .btn-primary.active,
 .open .dropdown-toggle.btn-primary {
-    background-image: none;
+    background-image:none;
+    background-color: #357ebd;
 }
 
 .btn-primary.disabled,
@@ -625,8 +627,10 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary.disabled.active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
-    background-color: #428bca;
-    border-color: #357ebd;
+    background-color: #aaaaaa;
+    border-color: black;
+    color: black;
+    cursor:default;
 }
 
 

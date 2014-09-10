@@ -101,6 +101,11 @@ var ICXStore = React.createClass({
 
     },
 
+    handleDisplaySelectedFile: function() {
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
+    },
+
     render: function () {
         // Link to previously encrypted/stored files
 
@@ -154,7 +159,15 @@ var ICXStore = React.createClass({
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div className="contentWindow">
                     <div>Select a file. It will be encrypted right in your web browser.</div>
-                    <ICXFileSelector />
+                    <div className="fileUpload btn btn-primary">
+                        <span>Choose File</span>
+                        <br />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                    </div>
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                        defaultValue="No file Selected"/>
+                    </div>
                     <br />
                     <small>
                         <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
@@ -279,6 +292,8 @@ var ICXSend = React.createClass({
 });
 
 var ICXSendFile = React.createClass({
+    fileElement: {},
+
     getInitialState: function() {
         return {
             nextStatus: false,
@@ -289,6 +304,11 @@ var ICXSendFile = React.createClass({
 
     componentDidMount: function() {
         ICX.wizard.type = 'file'
+    },
+
+    handleDisplaySelectedFile: function() {
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
     },
 
     render: function() {
@@ -304,11 +324,20 @@ var ICXSendFile = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
-            Your file: <br />
-                <ICXFileSelector />
-                
-                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+                <div className="contentWindow">
+                    Your file: <br />
+                    <div className="fileUpload btn btn-primary">
+                        <span>Choose File</span>
+                        <br />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                    </div>
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                        defaultValue="No file Selected"/>
+                    </div><br />
 
+                    <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+                </div>
             </div>
             )
     }
@@ -1476,9 +1505,11 @@ var ICXNextButton = React.createClass({
     }
 });
 
+
 var ICXFileSelector = React.createClass({
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
     },
     render: function() {
         return (
@@ -1488,10 +1519,10 @@ var ICXFileSelector = React.createClass({
                     <br />
                     <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
                 </div>
-                <p style={{display: 'inline','font-size':'90%'}}>
+                <div style={{display: 'inline','font-size':'90%'}}>
                     <input id="showFileName" type="text" disabled="disabled" ref="filename"
                     defaultValue="No file Selected"/>
-                </p>
+                </div>
             </div>
             )
     }

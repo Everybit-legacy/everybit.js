@@ -176,7 +176,7 @@ var ICXStoreFinish = React.createClass({
 })
 
 var ICXSend = React.createClass({
-
+    mixins: [TooltipMixin],
     componentDidMount: function() {
         ICX.wizard.inProcess = true
         ICX.wizard.sequence = 'send'
@@ -259,15 +259,20 @@ var ICXSend = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message or file</div>
                 <div className="contentWindow">
-                To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
+                    <div>
+                        <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} /></span>
+                        <span className="relative">
+                            <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
+                            <Tooltip position='under' content="Confirm username" />
+                        </span>
+                        <span className="message">{this.state.toUserStatus}</span>
+                    </div>
 
+                    <div>
                         <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
-                    {' '}
-
+                        {' '}
                         <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
-
-                        <br />
-
+                    </div>
                 </div>
             </div>
             )
@@ -343,9 +348,9 @@ var ICXSendMessage = React.createClass({
         }
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
-            Your message: <br />
+                <div>Your message:</div>
                 <textarea ref="messageText" style={{rows: 10, cols: 30}} onChange={this.handleMessageText} />
                 <br />
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
@@ -676,35 +681,41 @@ var ICXNewUser = React.createClass({
         headerStyle.backgroundColor = this.props.screenInfo.color
 
 
-
-
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-newuser" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Register for a new username</div>
-                <br />
-                <b>Username:</b>
-                <br />
+                <div className="username">
+                    <div><b>Username:</b></div>
 
-                .icx.<input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
-                {' '}
-                <span className="relative">
-                    <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                    <Tooltip position='under' content="Check for availability" />
-                </span>
-                {' '}<a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
-                {' '}<span className="message">{this.state.usernameMessage}</span>
-                <br /><br />
-                <b>Passphrase:</b>
-                <br />
-                <textarea ref="passphrase" style={{rows:10, cols:50}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
-                {' '}<a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
-                {' '}<span className="message">{this.state.passphraseMessage}</span>
-                <br /><br />
-                <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
-                <br />
-                Avatar (can be changed later)
-                <br />
-                <br />
+                    .icx.<input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <Tooltip position='under' content="Check for availability" />
+                    </span>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
+                        <Tooltip position='under' content="Generate a new username" />
+                    </span>
+                    {' '}<span className="message">{this.state.usernameMessage}</span>
+                </div>
+
+                <div className="passphrase">
+                    <div><b>Passphrase:</b></div>
+                    <textarea ref="passphrase" style={{rows:10, cols:50}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
+                    <span className="relative">
+                        <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
+                        <Tooltip position='under' content="Generate a new passphrase" />
+                    </span>
+                    <span className="message">{this.state.passphraseMessage}</span>
+                </div>
+
+                <div className="avartar">
+                    <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
+                    <br />
+                    Avatar (can be changed later)
+                    <br />
+                </div>
+
                 <a href="#" onClick={this.handleRegisterName}>Register <i className="fa fa-chevron" /></a>
             </div>
             )

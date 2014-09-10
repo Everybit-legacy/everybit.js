@@ -218,12 +218,14 @@ var ICXSend = React.createClass({
                 <div style={headerStyle}>Send a private message or file</div>
                 <div className="contentWindow">
                 To: <input type="text" ref="toUser" onChange={this.verifyUsername} /> <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>{' '}<span className="message">{this.state.toUserStatus}</span><br />
-                    <div className="radioHolder">
-                        <input type="radio" name="type" ref="message" defaultChecked />message<br />
-                        <input type="radio" name="type" ref="file" />file
+
+                        <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
+                    {' '}
+
+                        <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
+
                         <br />
-                    </div>
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToSend" buttonText="NEXT" />
+
                 </div>
             </div>
             )
@@ -248,7 +250,11 @@ var ICXSendFile = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
-
+        if(ICX.username) {
+            var nextStep = 'send.file.finish'
+        } else {
+            var nextStep = 'newuser'
+        }
 
         return (
             <div style={{width: '100%', height: '100%'}}>

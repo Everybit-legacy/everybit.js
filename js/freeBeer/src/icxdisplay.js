@@ -1436,7 +1436,7 @@ var ICXUserButton = React.createClass({
         PB.M.Wardrobe.removeKeys(userToRemove)
         ICX.username = ''
         Events.pub('user/'+userToRemove+'/remove', {})
-        return false
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto})
     },
 
     render: function() {
@@ -1462,7 +1462,7 @@ var ICXUserButton = React.createClass({
         } else {
             return(
                 <span>
-                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}}>
+                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
                         <i className="fa fa-fw fa-sign-out"></i>
                     </a>
                     <Tooltip position="under" content="Remove identity from this device" color="black" />

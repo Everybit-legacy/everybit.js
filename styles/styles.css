@@ -915,7 +915,7 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-screen .listrow .listcell {
-    display: table-cell;
+    /*display: table-cell;*/
 }
 
 .icx-screen .listrow .listcell .bigStart::first-line {

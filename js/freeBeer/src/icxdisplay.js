@@ -106,6 +106,22 @@ var ICXStore = React.createClass({
         this.setState({nextStatus: true})
     },
 
+    //Doesnt actually do much yet
+
+    handleGetFile: function(event) {
+        var element = event.target
+        var fileprom = PBFiles.openBinaryFile(element)
+
+        fileprom.then(function(blob) {
+            var puff = PBFiles.createPuff(blob, 'file')
+
+            var filelist = element.files
+            var file     = filelist[0]
+            var filename = file.name
+            var new_filename = filename + '.puff'
+        })
+    },
+
     render: function () {
         // Link to previously encrypted/stored files
 
@@ -162,7 +178,7 @@ var ICXStore = React.createClass({
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} onChange={this.handleGetFile} />
                     </div>
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
@@ -547,6 +563,7 @@ var ICXNewUser = React.createClass({
         this.setState({avatarColor: color})
 
         var animal = animals[Math.floor(Math.random() * animals.length)]
+        ICX.animalName = animal;
 
         this.setState({avatarAnimal: animal})
         this.refs.username.getDOMNode().value = adj + color + animal

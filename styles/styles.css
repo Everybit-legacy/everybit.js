@@ -915,11 +915,15 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-screen .listrow .listcell {
-    display: table-cell;
+    /*display: table-cell;*/
 }
 
 .icx-screen .listrow .listcell .bigStart::first-line {
     font-size: 100%;
+}
+
+.icx-screen .listrow.listheader {
+    position: static;
 }
 
 

@@ -121,7 +121,7 @@ puffworldprops = {
                     allowSort: true
                 },
                 tags: {
-                    show: true,
+                    show: false,
                     weight: 1.5,
                     allowSort: false
                 },

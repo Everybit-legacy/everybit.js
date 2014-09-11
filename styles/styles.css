@@ -102,6 +102,9 @@ body {
     margin-bottom: 0;
     overflow-y: hidden;
 }
+form {
+    display: inline;
+}
 
 path {
     /* save this for bendy paths */

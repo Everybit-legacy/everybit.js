@@ -220,7 +220,14 @@ var ICXSend = React.createClass({
         }
 
     },
-
+/*  Trying to get this to work on "Enter" keypress
+    checkEnter: function () {
+        if (this.keyCode == 13) {
+            this.handleUsernameLookup()
+        }
+        return false
+    },
+*/
     handleUsernameLookup: function() {
         // remove initial . if it exists
 
@@ -884,9 +891,16 @@ var ICXLogin = React.createClass({
 
     verifyUsername: function () {
         var username = this.refs.username.getDOMNode().value
+        var finalChar = username.charAt(username.length-1)
         username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
             .toLowerCase()
         this.refs.username.getDOMNode().value = username
+        // If the last character is a space, then trigger usernameLookup
+        if(finalChar == ' ') {
+            this.handleUsernameLookup()
+            return false
+        }
+        else this.handleResetCheckboxes()
     },
 
     handleResetCheckboxes: function () {
@@ -941,7 +955,7 @@ var ICXLogin = React.createClass({
                     <div style={labelStyle}><b>Username:</b></div>
                 
                     .icx.
-                    <input type="text" name="username" ref="username" defaultValue={currUser} onBlur={this.verifyUsername} style={{size: 16}} onChange={this.handleResetCheckboxes} />
+                    <input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
@@ -996,6 +1010,8 @@ var ICXDashboard = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
+                <div className="dashboard avatarHolder">
+                </div>
                 <div style={headerStyle}>Dashboard for {username}</div><br />
                 • <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#000000','text-decoration': 'underline'}}>
                     View your messages

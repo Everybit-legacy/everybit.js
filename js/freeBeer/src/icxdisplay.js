@@ -220,14 +220,13 @@ var ICXSend = React.createClass({
         }
 
     },
-/*  Trying to get this to work on "Enter" keypress
-    checkEnter: function () {
-        if (this.keyCode == 13) {
-            this.handleUsernameLookup()
-        }
+//Trying to get this to work on "Enter" keypress
+    handleSubmit: function (e) {
+        e.preventDefault()
+        this.handleUsernameLookup()
         return false
     },
-*/
+
     handleUsernameLookup: function() {
         // remove initial . if it exists
 
@@ -279,7 +278,7 @@ var ICXSend = React.createClass({
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>Send a private message or file</div>
                 <div className="component">
-                    <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} /></span>
+                    <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
                         <Tooltip position='under' content="Confirm username" />
@@ -604,6 +603,11 @@ var ICXNewUser = React.createClass({
         }
     },
 
+    handleSubmit: function (e) {
+        e.preventDefault()
+        this.handleUsernameLookup()
+        return false
+    },
 
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
@@ -721,7 +725,7 @@ var ICXNewUser = React.createClass({
                 <div className="component username">
                     <div><b>Username:</b></div>
 
-                    .icx.<input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/>
+                    .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
@@ -778,6 +782,12 @@ var ICXLogin = React.createClass({
             adminKey: false,
             defaultKey: false
         }
+    },
+
+    handleSubmit: function (e) {
+        e.preventDefault()
+        this.handleUsernameLookup()
+        return false
     },
 
     handleUsernameLookup: function () {
@@ -955,7 +965,7 @@ var ICXLogin = React.createClass({
                     <div style={labelStyle}><b>Username:</b></div>
                 
                     .icx.
-                    <input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} />
+                    <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />

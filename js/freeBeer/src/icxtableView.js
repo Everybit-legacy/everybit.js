@@ -12,8 +12,13 @@ var ComputeDimensionMixin = {
                , height: window.innerHeight - CONFIG.verticalPadding
                }
 	},
+
+	// SUSPICIOUS WIDTH FIDDLERS FOUND
 	getRowWidth: function() {
-		var screenWidth = this.getScreenCoords().width
+		// percentage width of ICX content window
+		var ratio = 1 - ICX.config.content.insets.right - ICX.config.content.insets.left;
+
+		var screenWidth = this.getScreenCoords().width * ratio
 		var rowWidth = screenWidth - 40 // TODO : add this to config
 		if (puffworldprops.view.table.format == "generation") {
 			rowWidth = rowWidth - 28 // 2 * borderWidth
@@ -26,6 +31,7 @@ var ComputeDimensionMixin = {
 		var rowHeight = (screencoords.height-36) / row
 		return rowHeight - 3 // remove marginBottom TODO : add this to CONFIG
 	},
+	// SUSPICIOUS WIDTH FIDDLERS FOUND
 	getColumnWidth: function(c){
 		var columnProps = puffworldprops.view.table.column
 		var columnArr = Object.keys(columnProps)
@@ -330,13 +336,6 @@ var TableView = React.createClass({
 		var self = this
         var cntr = 0
 
-		// TODO add this to config
-		var top = CONFIG.verticalPadding - 20
-		var left = CONFIG.leftMargin
-		var style={
-			top: top, left:left, position: 'absolute'
-		}
-
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
 			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>End of puffs.</div>
@@ -352,13 +351,10 @@ var TableView = React.createClass({
 			var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 			puffs = this.sortPuffs(puffs)	
 
-		var overlay = <span className="overlay" style={{backgroundColor: document.body.style.backgroundColor || "#"+CONFIG.defaultBgcolor}}></span>
-		var top = CONFIG.verticalPadding - 20
 			return (
-				<div style={style} className="listview">
-					{overlay}
+				<div className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
+					<div ref="container" className="listrowContainer">
 	                    {puffs.map(function(puff, index){
 	                        cntr++
 							return <RowSingle key={index} puff={puff} cntr={cntr} />
@@ -478,7 +474,7 @@ var RowHeader = React.createClass({
 				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
-						width: self.getColumnWidth(c).toString()+'px'
+						width: self.getColumnWidth(c).toString()+'px' //this width needs to be fixed
 					}
 					var allowSort = columnProp[c].allowSort
 					return (

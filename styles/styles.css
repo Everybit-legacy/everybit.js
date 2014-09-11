@@ -919,6 +919,10 @@ fieldset[disabled] .btn-primary.active {
     font-size: 100%;
 }
 
+.icx-screen .listrow.listheader {
+    position: static;
+}
+
 
 .icx-newuser a.register {
     margin-left: 10px;

@@ -90,7 +90,9 @@ var TooltipMixin = {
 var ICXStore = React.createClass({
     getInitialState: function() {
         return {
-            backupToCloud: true
+            backupToCloud: true,
+            nextStep: 'store.finish',
+            nextStepMessage: 'Finish'
         }
     },
 
@@ -117,21 +119,35 @@ var ICXStore = React.createClass({
 
         //Encrypt the file in a puff
         var element = event.target
-        var fileprom = PBFiles.openBinaryFile(element)
+        //var fileprom = PBFiles.openBinaryFile(element)
 
-        fileprom.then(function(blob) {
-            var puff = PBFiles.createPuff(blob, 'file')
+        ICX.fileprom = PBFiles.openBinaryFile(element)
 
-            var filelist = element.files
-            var file     = filelist[0]
-            var filename = file.name
-            var new_filename = filename + '.puff'
+        ICX.filelist = element.files
+        ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
 
-            //Make the link visisble to download the file (Temporary)
-            encrypedLink.href = PBFiles.prepBlob(puff)
-            encrypedLink.style.display = ""
-            encrypedLink.download = new_filename
-        })
+        if(PB.M.Wardrobe.getCurrentUsername()) {
+            /*
+            fileprom.then(function(blob) {
+                var puff = PBFiles.createPuff(blob, 'file')
+
+                var filelist = element.files
+                var file     = filelist[0]
+                var filename = file.name
+                var new_filename = filename + '.puff'
+
+                //Make the link visisble to download the file (Temporary)
+                encrypedLink.href = PBFiles.prepBlob(puff)
+                encrypedLink.style.display = ""
+                encrypedLink.download = new_filename
+            })
+            */
+
+        } else {
+            this.setState({nextStep: 'newuser'})
+            this.setState({nextStepMessage: 'NEXT'})
+        }
+
     },
 
     render: function () {
@@ -146,16 +162,6 @@ var ICXStore = React.createClass({
             'fa-square-o': !this.state.backupToCloud,
             'green': this.state.backupToCloud
         })
-
-
-        if(ICX.username) {
-            var buttonText = 'SEND'
-            var nextStep = 'store.finish'
-
-        } else {
-            var buttonText = 'NEXT'
-            var nextStep = 'newuser'
-        }
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
@@ -205,7 +211,7 @@ var ICXStore = React.createClass({
                     <br /><br />
                     <a ref="encryptedLink" download="blahblah" style={{display: 'none'}}>Save encrypted file</a>
                     <br />
-                    <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
+                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToStore" buttonText={this.state.nextStepMessage} />
                 </div>
             </div>
             )
@@ -214,8 +220,60 @@ var ICXStore = React.createClass({
 })
 
 var ICXStoreFinish = React.createClass({
+    getInitialState: function () {
+        return {
+            messageStored: false,
+            successMessage: ''
+        }
+    },
+
+    handleSubmitSuccess: function () {
+        this.setState({messageStored: true})
+        this.setState({successMessage: 'Encrypted file ready for download!'})
+
+    },
+
+    cleanUpSubmit: function () {
+        // do something fancy
+    },
+
+    componentDidMount: function () {
+        if(PB.M.Wardrobe.getCurrentUsername()) {
+            var encrypedLink = ICX.encrypedLink
+
+            fileprom.then(function(blob) {
+                var puff = PBFiles.createPuff(blob, 'file')
+
+                var filelist = ICX.filelist
+                var file     = filelist[0]
+                var filename = file.name
+                var new_filename = filename + '.puff'
+
+                //Make the link visisble to download the file (Temporary)
+                encrypedLink.href = PBFiles.prepBlob(puff)
+                encrypedLink.style.display = ""
+                encrypedLink.download = new_filename
+            })
+
+        } else {
+            // TODO: FAIL!
+        }
+    },
+
     render: function () {
-        return <span>FinishStore</span>
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Store message</div>
+                <br />
+                <div>{this.state.successMessage}</div>
+                <ICXNextButton enabled={this.state.messageStored} goto='store' text='Store another file' />
+            </div>
+            )
+
+
     }
 })
 
@@ -621,13 +679,31 @@ var ICXNewUser = React.createClass({
             passphraseStatus: true,
             passphraseMessage: '',
             avatarColor: 'black',
-            avatarAnimal: ''
+            avatarAnimal: '',
+            nextStep: 'dashboard',
+            nextStepMessage: 'Finish'
         }
     },
 
     componentDidMount: function() {
         this.handleGenerateRandomUsername()
         this.handleGenerateRandomPassphrase()
+
+        if(!ICX.wizard.inProcess) {
+            this.setState({nextStep: 'dashboard'})
+            this.setState({nextStepMessage: 'Register name'})
+        } else {
+            if(ICX.wizard.sequence == 'send') {
+                this.setState({nextStep: 'send.confirm'})
+                this.setState({nextStepMessage: 'Continue'})
+                return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
+            } else {
+                this.setState({nextStep: 'store.finish'})
+                this.setState({nextStepMessage: 'Create user and store file'})
+                return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
+
+            }
+        }
     },
 
     handleGenerateRandomUsername: function() {
@@ -817,17 +893,11 @@ var ICXNewUser = React.createClass({
                 identityObjectForFile.comment = "This file stores your private identity information for websites using the puffball platform, including everybit.com and i.cx. Keep it safe and secure!"
                 */
 
-                if(!ICX.wizard.inProcess) {
-                    return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
-                } else {
-                    if(ICX.wizard.sequence == 'send') {
-                        return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
-                    } else {
-                        // console.log("send to confirm store")
-                        return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.confirm'})
+                console.log("state is "+self.state.nextStep)
+                return Events.pub('ui/icx/screen', {"view.icx.screen": self.state.nextStep})
 
-                    }
-                }
+
+
             },
             function(err) {
                 console.log("ERR")
@@ -878,7 +948,7 @@ var ICXNewUser = React.createClass({
                     <br />
                 </div>
 
-                <a className="register" onClick={this.handleRegisterName}>Register <i className="fa fa-chevron" /></a>
+                <a className="register" onClick={this.handleRegisterName}>{this.state.nextStepMessage} <i className="fa fa-chevron" /></a>
             </div>
             )
     }

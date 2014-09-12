@@ -906,14 +906,6 @@ fieldset[disabled] .btn-primary.active {
     min-width: 0px!important;
 }
 
-.icx-screen .listview .overlay {
-    display: none; /* an overlay that contains nothing? */
-}
-
-.icx-screen .listrowContainer {
-    margin-top: 3px!important;
-}
-
 .icx-screen .listrow .listcell {
     /*display: table-cell;*/
 }

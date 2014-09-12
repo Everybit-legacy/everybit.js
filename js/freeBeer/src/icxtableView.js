@@ -367,7 +367,6 @@ var TableView = React.createClass({
 			var focus = puffworldprops.view.query.focus
 			return (
 				<div style={style} className="listview">
-					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />

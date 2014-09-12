@@ -58,3 +58,4 @@ ICX.config = {
     contentBottomInset:.04
 }
 ICX.animalName = {}
+ICX.userColor = {}

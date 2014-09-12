@@ -932,6 +932,10 @@ fieldset[disabled] .btn-primary.active {
         display: none;
    }
 
+.icx-screen .username {
+    font-size: 70%;
+}
+
 .icx-screen .menuTooltip.above {
     bottom: initial;
 }

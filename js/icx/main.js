@@ -147,7 +147,7 @@ puffworldprops = {
             },
             lastClick: "",
             format: 'list',
-            maxRowHeight: 4
+            maxRowHeight: 99    // We want to show everything
         },
 
         // ICX related

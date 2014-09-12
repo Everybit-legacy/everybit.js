@@ -74,10 +74,10 @@ var RowRenderMixin = {
         var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
 
         if(prof.length) {
-            return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
+            return <span><a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
         }
         
-        return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
+        return <a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
 	},
 	renderContent: function() {
 		var puff = this.props.puff
@@ -634,7 +634,7 @@ var RowSingle = React.createClass({
             <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
                 <span className="listcell" >
                     {wrenchElement}
-                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : <RowBar puff={puff} column={columnProp} flagged={flagged}/>}
 
 
 
@@ -922,7 +922,7 @@ var RowBar = React.createClass({
                     <RowExpand puff={puff} />
                 </div>
                 <div className="listBarIcon">
-                    <PuffReplyLink ref="reply" sig={puff.sig} />
+                    <ICXReplyPuff ref="reply" sig={puff.sig} />
                 </div>
                 <div className="listBarIcon">
                     <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>

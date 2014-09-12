@@ -906,12 +906,12 @@ fieldset[disabled] .btn-primary.active {
     min-width: 0px!important;
 }
 
-.icx-screen .listrow .listcell {
-    /*display: table-cell;*/
-}
-
 .icx-screen .listrow .listcell .bigStart::first-line {
     font-size: 100%;
+}
+
+.icx-screen .listrow .listcell .markdownP {
+    font-size: 85%;
 }
 
 .icx-screen .listrow.listheader {
@@ -920,6 +920,20 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .listrowContainer .listCell {
     height: auto;
+}
+
+.icx-screen .listcell:hover >
+   .listCellOptions{
+        display: none;
+   }
+
+.icx-screen .menuTooltip.above {
+    bottom: initial;
+}
+
+.icx-screen .listheader .menuTooltip.right {
+    top: 1.2em;
+    left: 65px;
 }
 
 

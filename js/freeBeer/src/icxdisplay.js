@@ -384,7 +384,7 @@ var ICXSendMessage = React.createClass({
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
                 <div>Your message:</div>
-                <textarea ref="messageText" style={{rows: 10, cols: 30}} onChange={this.handleMessageText} />
+                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
                 <br />
                 <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
 
@@ -495,7 +495,7 @@ var ICXSendMessageFinish = React.createClass({
                 <div style={headerStyle}>Send of message</div>
                 <br />
                 <div>{this.state.successMessage}</div>
-                <ICXNextButton enabled={this.state.messageSent} goto='send.message' text='Send another message' />
+                <ICXNextButton enabled={this.state.messageSent} goto='send' text='Send another message or file' />
             </div>
             )
 
@@ -739,7 +739,7 @@ var ICXNewUser = React.createClass({
 
                 <div className="component passphrase">
                     <div><b>Passphrase:</b></div>
-                    <textarea ref="passphrase" style={{rows:10, cols:50}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
+                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new passphrase" />
@@ -979,8 +979,8 @@ var ICXLogin = React.createClass({
                         <Tooltip content="(Placehold text for private passphrase)" />
                     </div>
 
-                    <div style={inputStyle}>
-                        <textarea type="text" name="defaultKey" ref="defaultKey" size="15" onChange={this.handleResetCheckboxes} />
+
+                        <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                         <span className="relative">
                             <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
                                 <Checkmark show={this.state.defaultKey} />
@@ -989,7 +989,7 @@ var ICXLogin = React.createClass({
                         </span>
 
                         <span className="message">{this.state.defaultKey}</span>
-                    </div>
+
                 </div>
 
                 <div className="component upload">

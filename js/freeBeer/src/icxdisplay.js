@@ -99,9 +99,11 @@ var ICXStore = React.createClass({
     handleToggleBackupToCloud: function() {
         this.setState({backupToCloud: !this.state.backupToCloud})
     },
-
+    
     componentDidMount: function() {
-
+        ICX.wizard.inProcess = true
+        ICX.wizard.sequence = 'store'
+        ICX.wizard.type = 'file'
     },
     /*
     handleDisplaySelectedFile: function() {
@@ -460,6 +462,7 @@ var ICXSendFile = React.createClass({
     componentDidMount: function() {
         ICX.wizard.type = 'file'
     },
+    
 
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
@@ -506,6 +509,11 @@ var ICXSendMessage = React.createClass({
             nextStatus: false
         }
     },
+    
+    componentDidMount: function() {
+        ICX.wizard.type = 'message'
+    },
+    
 
     handleMessageText: function () {
         ICX.messageText = this.refs.messageText.getDOMNode().value
@@ -699,12 +707,12 @@ var ICXNewUser = React.createClass({
         if(ICX.wizard.sequence == 'send') {
             this.setState({nextStep: 'send.confirm'})
             this.setState({nextStepMessage: 'Continue'})
-            return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
+            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
         } else {
             if(ICX.wizard.sequence == 'store') {
                 this.setState({nextStep: 'store.finish'})
                 this.setState({nextStepMessage: 'Create user and store file'})
-                return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
+                // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
             }
         }
     },
@@ -757,9 +765,12 @@ var ICXNewUser = React.createClass({
     },
 
     handleResetCheckboxes: function() {
-        this.setState({usernameStatus: false})
+        Events.pub('ui/event', { 'ICX.newUser.usernameStatus': false
+                               , 'ICX.newUser.usernameMessage': false})
+        // this.setState({usernameStatus: false})
+        // this.setState({usernameMessage: ''})
+
         this.setState({defaultKey: false})
-        this.setState({usernameMessage: ''})
     },
 
     handleRecheckPassphrase: function() {
@@ -784,8 +795,11 @@ var ICXNewUser = React.createClass({
         username = username.replace('.','')
 
         this.refs.username.getDOMNode().value = username
-        this.setState({usernameStatus: false})
-        this.setState({usernameMessage: ''})
+
+        Events.pub('ui/event', { 'ICX.newUser.usernameStatus': false
+                               , 'ICX.newUser.usernameMessage': false})
+        // this.setState({usernameStatus: false})
+        // this.setState({usernameMessage: ''})
 
         if(finalChar == ' ') {
             this.handleUsernameLookup()
@@ -802,32 +816,61 @@ var ICXNewUser = React.createClass({
     handleUsernameLookup: function() {
         var username = this.refs.username.getDOMNode().value
         var self = this
-        this.setState({usernameMessage: 'Checking...'})
 
         // Check for zero length
         if(!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+            
+            // this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {'ICX.newUser.usernameStatus': 'Missing'})
+            return false
+        }
+
+        // cancel if we're already checking another username
+        if(puffworldprops.ICX.newUser.checkingUsername) {
+            // TODO: show a warning message, or disable the button on 'Busy' state
+            Events.pub('ui/username/busy-message', {})
             return false
         }
 
         username = 'icx.' + username
 
         var prom = PB.getUserRecord(username)
-
-
+        
+        // this.setState({usernameMessage: 'Checking...'})
+        Events.pub('ui/username/requested', { 'ICX.newUser.requestedUsername': username
+                                            , 'ICX.newUser.checkingUsername': username
+                                            , 'ICX.newUser.usernameMessage': 'Checking...'
+                                            , 'ICX.newUser.usernameStatus': 'Busy'
+                                            })
+        
         prom.then(function(result) {
             // console.log(result)
             //if(result.username !== undefined) {
-                self.setState({usernameStatus: 'Taken'})
-                self.setState({usernameMessage: 'Already registered'})
+            
+            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
+            //     return false;
+            
+            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus': 'Taken'
+                                            , 'ICX.newUser.usernameMessage': 'Already registered'
+                                            , 'ICX.newUser.checkingUsername': ''
+                                            })
+                // self.setState({usernameStatus: 'Taken'})
+                // self.setState({usernameMessage: 'Already registered'})
+
             //} self {
             //    this.setState({usernameStatus: true})
             //    this.setState({usernameMessage: 'Available'})
             //}
         }).catch(function(err) {
-            self.setState({usernameStatus: true})
-            self.setState({usernameMessage: 'Available'})
+            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
+            //     return false;
+            
+            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus':  true
+                                            , 'ICX.newUser.usernameMessage': 'Available'
+                                            , 'ICX.newUser.checkingUsername': false
+                                            })
+            // self.setState({usernameStatus: true})
+            // self.setState({usernameMessage: 'Available'})
         })
 
         return false
@@ -920,14 +963,14 @@ var ICXNewUser = React.createClass({
 
                     .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
                     </span>
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new username" />
                     </span>
-                    {' '}<span className="message">{this.state.usernameMessage}</span>
+                    {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                 </div>
 
                 <div className="component passphrase">

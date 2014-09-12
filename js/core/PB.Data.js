@@ -667,8 +667,10 @@ PB.Data.purgeShellFromGraph = function(sig) {
     //   and remove the content of the 'shell' property
     // TODO: this is icky make it better
     var vertex = PB.Data.graph.v(sig).run()[0]
-    vertex.type = 'purged'
-    vertex.shell = undefined
+    if(vertex) {
+        vertex.type = 'purged'
+        vertex.shell = undefined
+    }
 }
 
 
@@ -816,6 +818,8 @@ PB.Data.cachePuffScore = function(puff, score) {
 }
 
 PB.Data.removeCachedPuffScore = function(puff) {
+    if(!puff) return false
+    
     var score = PB.Data.getBonus(puff, 'score')
     var key = PB.Data.convertScoreToKey(score)
     var bin = PB.Data.scoreSort[key]

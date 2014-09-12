@@ -217,7 +217,7 @@ PB.M.Wardrobe.removeKeys = function(username) {
     
     if(PB.M.Wardrobe.currentKeys.username == username) {
         PB.M.Wardrobe.currentKeys = false
-        PB.Persist.save('identity', ''); // save to localStorage
+        PB.Persist.remove('identity'); // remove from localStorage
     }
     
     if(PB.M.Wardrobe.getPref('storeKeychain'))

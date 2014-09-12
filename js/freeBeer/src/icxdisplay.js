@@ -888,12 +888,8 @@ var ICXNewUser = React.createClass({
                     passphrase: passphrase
                 }
 
-                /*
-                identityObjectForFile = Boron.shallow_copy(PB.M.Wardrobe.keychain[requestedUsername])
-                identityObjectForFile.comment = "This file stores your private identity information for websites using the puffball platform, including everybit.com and i.cx. Keep it safe and secure!"
-                */
+                
 
-                console.log("state is "+self.state.nextStep)
                 return Events.pub('ui/icx/screen', {"view.icx.screen": self.state.nextStep})
 
 

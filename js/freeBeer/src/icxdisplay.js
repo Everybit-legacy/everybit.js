@@ -101,15 +101,21 @@ var ICXStore = React.createClass({
     componentDidMount: function() {
 
     },
-
+/*
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
         this.setState({nextStatus: true})
     },
-
-    //Doesnt actually do much yet
+*/
+    //Doesn't actually do much yet
 
     handleGetFile: function(event) {
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
+
+        //Encrypt the file in a puff
         var element = event.target
         var fileprom = PBFiles.openBinaryFile(element)
 
@@ -120,6 +126,11 @@ var ICXStore = React.createClass({
             var file     = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
+
+            //Make the link visisble to download the file (Temporary)
+            encrypedLink.href = PBFiles.prepBlob(puff)
+            encrypedLink.style.display = ""
+            encrypedLink.download = new_filename
         })
     },
 
@@ -180,7 +191,7 @@ var ICXStore = React.createClass({
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} onChange={this.handleGetFile} />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
                     </div>
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
@@ -192,6 +203,8 @@ var ICXStore = React.createClass({
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
+                    <a ref="encryptedLink" download="blahblah" style={{display: 'none'}}>Save encrypted file</a>
+                    <br />
                     <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
                 </div>
             </div>

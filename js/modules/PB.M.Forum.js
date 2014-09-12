@@ -587,6 +587,7 @@ PB.M.Forum.getProcessedPuffContent = function(puff) {
 PB.M.Forum.addContentType('text', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
+        safe_content.html = safe_content.html.replace(/\n/g, '</br>');  // Set line breaks
         return '<div class="bigStart"><p class="markdownP">' + safe_content.html + '</p></div>'               // THINK: is this really safe?
     }
 })

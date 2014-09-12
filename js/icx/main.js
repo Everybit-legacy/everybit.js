@@ -102,7 +102,7 @@ puffworldprops = {
             column: {
                 refs: {
                     show: true,
-                    weight:.8,
+                    weight:.6,
                     allowSort: false
                 },
                 user: {
@@ -121,7 +121,7 @@ puffworldprops = {
                     allowSort: true
                 },
                 tags: {
-                    show: true,
+                    show: false,
                     weight: 1.5,
                     allowSort: false
                 },
@@ -147,7 +147,7 @@ puffworldprops = {
             },
             lastClick: "",
             format: 'list',
-            maxRowHeight: 4
+            maxRowHeight: 99    // We want to show everything
         },
 
         // ICX related

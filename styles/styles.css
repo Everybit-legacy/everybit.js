@@ -102,6 +102,9 @@ body {
     margin-bottom: 0;
     overflow-y: hidden;
 }
+form {
+    display: inline;
+}
 
 path {
     /* save this for bendy paths */
@@ -903,20 +906,47 @@ fieldset[disabled] .btn-primary.active {
     min-width: 0px!important;
 }
 
-.icx-screen .listview .overlay {
-    display: none; /* an overlay that contains nothing? */
-}
-
-.icx-screen .listrowContainer {
-    margin-top: 3px!important;
-}
-
-.icx-screen .listrow .listcell {
-    display: table-cell;
-}
-
 .icx-screen .listrow .listcell .bigStart::first-line {
     font-size: 100%;
+    font-family: Gudea;
+}
+
+.icx-screen .listrow .listcell .markdownP {
+    font-size: 70%;
+}
+
+.icx-screen .listheader .headertext {
+    font-size: 70%;
+}
+
+.icx-screen .listrow.listheader {
+    position: static;
+}
+
+.icx-screen .listrowContainer .listCell {
+    height: auto;
+}
+
+.icx-screen .listcell:hover >
+   .listCellOptions{
+        display: none;
+   }
+
+.icx-screen .username {
+    font-size: 70%;
+}
+
+.icx-screen .menuTooltip.above {
+    bottom: initial;
+}
+
+.icx-screen .listheader .menuTooltip.right {
+    top: 1.2em;
+    left: 65px;
+}
+
+.icx-screen .date-since {
+    font-size: 60%;
 }
 
 

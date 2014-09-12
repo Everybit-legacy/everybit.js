@@ -57,3 +57,8 @@ ICX.config = {
     contentRightInset: 0.15,
     contentBottomInset:.04
 }
+ICX.animalName = {}
+
+ICX.userColor = {}
+
+ICXdefaults = JSON.parse(JSON.stringify(ICX))

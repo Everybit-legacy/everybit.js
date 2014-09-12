@@ -12,8 +12,12 @@ var ComputeDimensionMixin = {
                , height: window.innerHeight - CONFIG.verticalPadding
                }
 	},
+
+	// SUSPICIOUS WIDTH FIDDLERS FOUND
 	getRowWidth: function() {
-		var screenWidth = this.getScreenCoords().width
+		// percentage width of ICX content window
+		var wRatio = 1 - ICX.config.content.insets.right - ICX.config.content.insets.left
+		var screenWidth = this.getScreenCoords().width * wRatio
 		var rowWidth = screenWidth - 40 // TODO : add this to config
 		if (puffworldprops.view.table.format == "generation") {
 			rowWidth = rowWidth - 28 // 2 * borderWidth
@@ -21,11 +25,14 @@ var ComputeDimensionMixin = {
 		return rowWidth
 	},
 	computeRowHeight: function() {
+		// height should be scaled down by the ratio of content window
+		var hRatio = 1 - ICX.config.content.insets.top - ICX.config.content.insets.bottom
 		var row = (parseInt(puffworldprops.view.rows) || 1)
-		var screencoords = this.getScreenCoords()
+		var screencoords = this.getScreenCoords() * hRatio
 		var rowHeight = (screencoords.height-36) / row
 		return rowHeight - 3 // remove marginBottom TODO : add this to CONFIG
 	},
+	// SUSPICIOUS WIDTH FIDDLERS FOUND
 	getColumnWidth: function(c){
 		var columnProps = puffworldprops.view.table.column
 		var columnArr = Object.keys(columnProps)
@@ -67,21 +74,43 @@ var RowRenderMixin = {
         var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
 
         if(prof.length) {
-            return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
+            return <span><a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
         }
         
-        return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
+        return <a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
 	},
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
 		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 	},
+	renderOther: function() {
+		var puff = this.props.puff
+
+        // If we are showing the info as a column, hide them from "other"
+        var keysNotShow = ['content', 'parents'] // Never show these
+        for(var k in puffworldprops.view.table.column) {
+            if(puffworldprops.view.table.column[k].show == true && keysNotShow.indexOf(k)==-1) {
+                keysNotShow.push(k)
+            }
+        }
+
+
+		// var keysNotShow = ['content', 'parents']
+		return <span>
+			{Object.keys(puff.payload).map(function(key){
+				var value = puff.payload[key]
+	            if (keysNotShow.indexOf(key)==-1 && value && value.length) {
+	                return <div key={key}><span className="profileKey">{key+": "}</span><span className="profileValue">{value}</span></div>
+	            }
+			})}
+		</span>
+	},
 	renderDate: function() {
 		var puff = this.props.puff
 		var date = new Date(puff.payload.time)
 
-        return <span>{timeSince(date)} ago</span>
+        return <span className="date-since">{timeSince(date)} ago</span>
 
         // return <span>{date.yyyymmdd()}</span>
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString()
@@ -178,6 +207,13 @@ var RowRenderMixin = {
 		    </span>
         )
 	},
+	renderScore: function() {
+        var showStar = true
+        var envelope = PB.Data.getBonus(this.props.puff, 'envelope')
+        if(envelope && envelope.keys)
+            showStar = false
+		return showStar ? <PuffStar sig={this.props.puff.sig}/> : ''
+	},
 	render_column: function(col, width, maxHeight) {
 		var style = {}
 		style['width'] = width.toString() + 'px'
@@ -200,6 +236,17 @@ var RowRenderMixin = {
 var RowSortMixin = {
 	sortDate: function(p1, p2) {
 		return p2.payload.time - p1.payload.time
+	}, 
+	getScore: function(puff) {
+		var score = 0
+        var starStats = PB.Data.getBonus({sig: puff.sig}, 'starStats')
+        if(starStats && starStats.from) {
+            score = starStats.score
+        }
+        return score
+	},
+	sortScore: function(p1, p2) {
+		return this.getScore(p2) - this.getScore(p1)
 	},
 	sortUser: function(p1, p2){
 		if (p1.username < p2.username) return -1
@@ -290,13 +337,6 @@ var TableView = React.createClass({
 		var self = this
         var cntr = 0
 
-		// TODO add this to config
-		var top = CONFIG.verticalPadding - 20
-		var left = CONFIG.leftMargin
-		var style={
-			top: top, left:left, position: 'absolute'
-		}
-
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
 			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>End of puffs.</div>
@@ -305,17 +345,17 @@ var TableView = React.createClass({
 		} else {
 			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
 		}
-		var query = puffworldprops.view.query
-		var filters = puffworldprops.view.filters
-		var limit = this.state.loaded
-		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-		puffs = this.sortPuffs(puffs)	
+		if (puffworldprops.view.table.format == "list") {
+			var query = puffworldprops.view.query
+			var filters = puffworldprops.view.filters
+			var limit = this.state.loaded
+			var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+			puffs = this.sortPuffs(puffs)	
 
-		var top = CONFIG.verticalPadding - 20
 			return (
-				<div style={style} className="listview">
+				<div className="listview">
 					<RowHeader ref="header" />
-					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
+					<div ref="container" className="listrowContainer">
 	                    {puffs.map(function(puff, index){
 	                        cntr++
 							return <RowSingle key={index} puff={puff} cntr={cntr} />
@@ -324,7 +364,43 @@ var TableView = React.createClass({
 					</div>
 				</div>
 			)
+		} else if (puffworldprops.view.table.format == "generation") {
+			var focus = puffworldprops.view.query.focus
+			return (
+				<div style={style} className="listview">
+					<RowHeader ref="header" />
+					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
+						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
+					</div>
+				</div>
+			)
+		}
 		return <span></span>
+	}
+})
+
+
+var TableViewColOptions = React.createClass({
+	handleCheck: function(col) {
+		var columnProp = puffworldprops.view.table.column
+		var currentShow = columnProp[col].show
+		var jsonToSet = {}
+		jsonToSet['view.table.column.'+col+'.show'] = !currentShow
+		return Events.pub('ui/view/table/col', jsonToSet)
+	},
+	render: function() {
+		var columnProp = puffworldprops.view.table.column
+		var possibleCols = Object.keys(columnProp)
+		var self = this
+		return (
+			<div className="tableViewColOptions">
+				{possibleCols.map(function(col){
+					return <div key={col}>
+						<input type="checkbox" onChange={self.handleCheck.bind(self, col)} value={col} defaultChecked={columnProp[col].show}> {col}</input>
+						</div>
+				})}
+			</div>
+		)
 	}
 })
 
@@ -387,13 +463,22 @@ var RowHeader = React.createClass({
         }
 		return (
 			<div className="listrow listheader" key="listHeader" style={headerStyle} onMouseLeave={this.handleHideColOptions}>
+				<span className="listcell" >
+					<span className="listbar">
+						<a href="#" onClick={this.handleManageCol}>
+							<i className="fa fa-fw fa-cog"></i>
+						</a>
+					</span>
+				</span>
+					<Tooltip content={polyglot.t("tableview.tooltip.col_options")} />
+				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
-						width: self.getColumnWidth(c).toString()+'px'
+						width: self.getColumnWidth(c).toString()+'px' //this width needs to be fixed
 					}
 					var allowSort = columnProp[c].allowSort
 					return (
-                        <span className="listcell" key={c} style={style}>
+                        <span className="listcell headertext" key={c} style={style}>
                             {c}
                             <RowSortIcon col={c} allowSort={allowSort} />
                             <span className="listCellOptions">
@@ -523,46 +608,24 @@ var RowSingle = React.createClass({
         }
 
         // additionStyle.width = this.getRowWidth().toString() + 'px'
-		var showIcons = this.state.showIcons && this.state.showBar
 		var barClass = ['listbar']
         var pufficonClass = ['listbar']
-		if (!this.state.showBar) {
-            barClass.push('hide')
-            var wrenchElement = (
-                    <span className="fa fa-fw">
-                        <img src={getImageCode(this.props.puff.sig)}/>
-                    </span>
-                )
-        } else {
-            pufficonClass.push('hide')
-            var wrenchElement = (
-                    <span className="listbar" ref="bar">
-                        <a href="#" onClick={this.handleToggleShowIcons}>
-                            <i className="fa fa-fw fa-wrench"></i>
-                        </a>
-                    </span>
-                )
-        }
+		var wrenchElement = <img src={getImageCode(this.props.puff.sig)}/>
 
 
 		return (
-            <span>
-                <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
-                    <span className="listcell" >
-                        {wrenchElement}
-                        {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+            <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
+                <span className="listcell" >
+                    {wrenchElement}
 
-
-
-                    </span>
-                    {columns.map(function(col){
-                        width = self.getColumnWidth(col)
-                        return self.render_column(col, width, maxHeight)
-                    })}
-                    { this.props.showArrow ? <div className="rowArrow"></div> : null }
-                </div>
-            </span>
-            )
+                </span>
+                {columns.map(function(col){
+                    width = self.getColumnWidth(col)
+                    return self.render_column(col, width, maxHeight)
+                })}
+                { this.props.showArrow ? <div className="rowArrow"></div> : null }
+            </div>
+        )
 	}
 })
 
@@ -827,23 +890,42 @@ var RowBar = React.createClass({
     render: function() {
         var puff = this.props.puff
 
+        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN'
         var showStar = true
         var envelope = PB.Data.getBonus(this.props.puff, 'envelope')
         if(envelope && envelope.keys)
             showStar = false
 
         return (
-            <span className="listbarAllIcon">
+            <div className="listbarAllIcon">
                 <div className="listBarIcon">
                     <RowExpand puff={puff} />
                 </div>
                 <div className="listBarIcon">
-                    <PuffReplyLink ref="reply" sig={puff.sig} />
+                    <ICXReplyPuff ref="reply" sig={puff.sig} />
                 </div>
                 <div className="listBarIcon">
                     <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
                 </div>
-            </span>
+                <div className="listBarIcon">
+                    {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
+                </div>
+                <div className="listBarIcon">
+                    {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
+                </div>
+                <div className="listBarIcon">
+                    <PuffTipLink username={puff.username} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffJson puff={puff} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffClone puff={puff} />
+                </div>
+                <div className="listBarIcon">
+                    <PuffPermaLink sig={puff.sig} />
+                </div>
+            </div>
         )
     }
 })

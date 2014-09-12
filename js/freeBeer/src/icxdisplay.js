@@ -99,10 +99,13 @@ var ICXStore = React.createClass({
     handleToggleBackupToCloud: function() {
         this.setState({backupToCloud: !this.state.backupToCloud})
     },
-
+    
     componentDidMount: function() {
-
+        ICX.wizard.inProcess = true
+        ICX.wizard.sequence = 'store'
+        ICX.wizard.type = 'file'
     },
+
 /*
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
@@ -452,6 +455,7 @@ var ICXSendFile = React.createClass({
     componentDidMount: function() {
         ICX.wizard.type = 'file'
     },
+    
 
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
@@ -498,6 +502,11 @@ var ICXSendMessage = React.createClass({
             nextStatus: false
         }
     },
+    
+    componentDidMount: function() {
+        ICX.wizard.type = 'message'
+    },
+    
 
     handleMessageText: function () {
         ICX.messageText = this.refs.messageText.getDOMNode().value

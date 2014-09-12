@@ -916,7 +916,7 @@ var RowBar = React.createClass({
             showStar = false
 
         return (
-            <span className="listbarAllIcon">
+            <div className="listbarAllIcon">
                 <div className="listBarIcon">
                     <RowExpand puff={puff} />
                 </div>
@@ -944,7 +944,7 @@ var RowBar = React.createClass({
                 <div className="listBarIcon">
                     <PuffPermaLink sig={puff.sig} />
                 </div>
-            </span>
+            </div>
         )
     }
 })

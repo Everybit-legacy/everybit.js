@@ -908,10 +908,15 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .listrow .listcell .bigStart::first-line {
     font-size: 100%;
+    font-family: Gudea;
 }
 
 .icx-screen .listrow .listcell .markdownP {
-    font-size: 85%;
+    font-size: 70%;
+}
+
+.icx-screen .listheader .headertext {
+    font-size: 70%;
 }
 
 .icx-screen .listrow.listheader {
@@ -934,6 +939,10 @@ fieldset[disabled] .btn-primary.active {
 .icx-screen .listheader .menuTooltip.right {
     top: 1.2em;
     left: 65px;
+}
+
+.icx-screen .date-since {
+    font-size: 60%;
 }
 
 

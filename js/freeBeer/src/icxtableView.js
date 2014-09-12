@@ -16,9 +16,8 @@ var ComputeDimensionMixin = {
 	// SUSPICIOUS WIDTH FIDDLERS FOUND
 	getRowWidth: function() {
 		// percentage width of ICX content window
-		var ratio = 1 - ICX.config.content.insets.right - ICX.config.content.insets.left;
-
-		var screenWidth = this.getScreenCoords().width * ratio
+		var wRatio = 1 - ICX.config.content.insets.right - ICX.config.content.insets.left
+		var screenWidth = this.getScreenCoords().width * wRatio
 		var rowWidth = screenWidth - 40 // TODO : add this to config
 		if (puffworldprops.view.table.format == "generation") {
 			rowWidth = rowWidth - 28 // 2 * borderWidth
@@ -26,8 +25,10 @@ var ComputeDimensionMixin = {
 		return rowWidth
 	},
 	computeRowHeight: function() {
+		// height should be scaled down by the ratio of content window
+		var hRatio = 1 - ICX.config.content.insets.top - ICX.config.content.insets.bottom
 		var row = (parseInt(puffworldprops.view.rows) || 1)
-		var screencoords = this.getScreenCoords()
+		var screencoords = this.getScreenCoords() * hRatio
 		var rowHeight = (screencoords.height-36) / row
 		return rowHeight - 3 // remove marginBottom TODO : add this to CONFIG
 	},
@@ -109,7 +110,7 @@ var RowRenderMixin = {
 		var puff = this.props.puff
 		var date = new Date(puff.payload.time)
 
-        return <span>{timeSince(date)} ago</span>
+        return <span className="date-since">{timeSince(date)} ago</span>
 
         // return <span>{date.yyyymmdd()}</span>
 		/// return date.toLocaleDateString() + " " + date.toLocaleTimeString()
@@ -477,7 +478,7 @@ var RowHeader = React.createClass({
 					}
 					var allowSort = columnProp[c].allowSort
 					return (
-                        <span className="listcell" key={c} style={style}>
+                        <span className="listcell headertext" key={c} style={style}>
                             {c}
                             <RowSortIcon col={c} allowSort={allowSort} />
                             <span className="listCellOptions">

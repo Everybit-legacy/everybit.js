@@ -102,7 +102,7 @@ puffworldprops = {
             column: {
                 refs: {
                     show: true,
-                    weight:.8,
+                    weight:.6,
                     allowSort: false
                 },
                 user: {

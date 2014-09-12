@@ -390,7 +390,6 @@ var ICXSend = React.createClass({
         prom.then(function(result) {
             self.state.toUserStatus = true
             self.state.nextStatus = true
-            ICX.message = {}
             ICX.message.toUser = toUser
             Events.pub('ui/puff-packer/userlookup', {})
         })

@@ -617,7 +617,6 @@ var RowSingle = React.createClass({
             <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
                 <span className="listcell" >
                     {wrenchElement}
-
                 </span>
                 {columns.map(function(col){
                     width = self.getColumnWidth(col)

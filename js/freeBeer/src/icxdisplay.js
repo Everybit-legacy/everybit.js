@@ -390,7 +390,6 @@ var ICXSend = React.createClass({
         prom.then(function(result) {
             self.state.toUserStatus = true
             self.state.nextStatus = true
-            ICX.message = {}
             ICX.message.toUser = toUser
             Events.pub('ui/puff-packer/userlookup', {})
         })
@@ -689,19 +688,15 @@ var ICXNewUser = React.createClass({
         this.handleGenerateRandomUsername()
         this.handleGenerateRandomPassphrase()
 
-        if(!ICX.wizard.inProcess) {
-            this.setState({nextStep: 'dashboard'})
-            this.setState({nextStepMessage: 'Register name'})
+        if(ICX.wizard.sequence == 'send') {
+            this.setState({nextStep: 'send.confirm'})
+            this.setState({nextStepMessage: 'Continue'})
+            return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
         } else {
-            if(ICX.wizard.sequence == 'send') {
-                this.setState({nextStep: 'send.confirm'})
-                this.setState({nextStepMessage: 'Continue'})
-                return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
-            } else {
+            if(ICX.wizard.sequence == 'store') {
                 this.setState({nextStep: 'store.finish'})
                 this.setState({nextStepMessage: 'Create user and store file'})
                 return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
-
             }
         }
     },

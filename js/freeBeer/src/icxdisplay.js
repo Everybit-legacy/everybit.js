@@ -912,10 +912,12 @@ var ICXNewUser = React.createClass({
 
                 // Create identity file
                 ICX.identityForFile = {
+                    comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
                     rootKeyPrivate: privateKey,
                     adminKeyPrivate: privateKey,
                     defaultKeyPrivate: privateKey,
-                    passphrase: passphrase
+                    passphrase: passphrase,
+                    version: "1.0"
                 }
 
                 

@@ -286,7 +286,7 @@ var ICXReplyPuff = React.createClass({
     },
     handleSetParent: function() {
         var sig = this.props.sig
-        var username = this.props.username
+        var username = this.props.user
         var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
@@ -344,7 +344,7 @@ var ICXSend = React.createClass({
     componentDidMount: function() {
         ICX.wizard.inProcess = true
         ICX.wizard.sequence = 'send'
-        this.refs.toUser = puffworldprops.reply.replyTo
+        this.refs.toUser.getDOMNode().value = puffworldprops.reply.replyTo
     },
 
     getInitialState: function() {

@@ -65,20 +65,14 @@ var RowRenderMixin = {
 		var content = metadata[col] || ""
 		return content
 	},
-	renderUser: function() {
-        // Try and find profile for this user
-        var queryJSON = {}
-        queryJSON.users = [this.props.puff.username]
-        queryJSON.type = ['profile']
-
-        var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
-
-        if(prof.length) {
-            return <span><a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
-        }
-        
-        return <a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
+	renderFrom: function() {        
+        return <a className="username">.{this.props.puff.username}</a>
 	},
+	renderTo: function() {        
+        return <a className="username">.{this.props.puff.routes[0]}</a>
+	},
+	renderUser: function() {
+    },
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
@@ -439,21 +433,18 @@ var RowHeader = React.createClass({
     	this.setState({showColOptions: !this.state.showColOptions})
     	return false
     },
-
-    handleRemove: function(col) {
-        var jsonToSet = {}
-        jsonToSet['view.table.column.'+col+'.show'] = false
-        return Events.pub('ui/view/table/show-hide/col', jsonToSet)
-    },
     handleHideColOptions: function() {
     	this.setState({showColOptions: false})
     	return false
     },
 
 	render: function() {
+
+		// filters out columns not needed to display
 		var columnProp = puffworldprops.view.table.column
 		var columns = Object.keys(columnProp)
 		columns = columns.filter(function(c){return columnProp[c].show})
+
 		var self = this
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -481,9 +472,6 @@ var RowHeader = React.createClass({
                         <span className="listcell headertext" key={c} style={style}>
                             {c}
                             <RowSortIcon col={c} allowSort={allowSort} />
-                            <span className="listCellOptions">
-                                <a href="#" onClick={self.handleRemove.bind(self,c)} className="btn blue"><i className="fa fa-fw fa-times-circle" /></a>
-                            </span>
                         </span>
                     )
 				})}

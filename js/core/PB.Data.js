@@ -818,6 +818,8 @@ PB.Data.cachePuffScore = function(puff, score) {
 }
 
 PB.Data.removeCachedPuffScore = function(puff) {
+    if(!puff) return false
+    
     var score = PB.Data.getBonus(puff, 'score')
     var key = PB.Data.convertScoreToKey(score)
     var bin = PB.Data.scoreSort[key]

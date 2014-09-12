@@ -66,17 +66,24 @@ var RowRenderMixin = {
 		return content
 	},
 	renderFrom: function() {        
-        return <a className="username">.{this.props.puff.username}</a>
+        return <div className="username">.{this.props.puff.username}</div>
 	},
 	renderTo: function() {        
-        return <a className="username">.{this.props.puff.routes[0]}</a>
+        return <div className="username">.{this.props.puff.routes[0]}</div>
 	},
 	renderUser: function() {
     },
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
-		return <span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
+		return (
+			<div>
+				<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
+				<div className="listBarIcon">
+		            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
+		        </div>
+			</div>
+		)
 	},
 	renderOther: function() {
 		var puff = this.props.puff
@@ -872,46 +879,18 @@ var RowGroup = React.createClass({
 var RowBar = React.createClass({
 	mixins: [TooltipMixin],
     getInitialState: function() {
-        return {showAll: false}
     },
     render: function() {
         var puff = this.props.puff
 
-        var canViewRaw = puff.payload.type=='bbcode'||puff.payload.type=='markdown'||puff.payload.type=='PGN'
-        var showStar = true
-        var envelope = PB.Data.getBonus(this.props.puff, 'envelope')
-        if(envelope && envelope.keys)
-            showStar = false
-
         return (
-            <div className="listbarAllIcon">
-                <div className="listBarIcon">
-                    <RowExpand puff={puff} />
-                </div>
-                <div className="listBarIcon">
-                    <ICXReplyPuff ref="reply" sig={puff.sig} />
-                </div>
-                <div className="listBarIcon">
-                    <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>
-                </div>
-                <div className="listBarIcon">
-                    {canViewRaw ? <PuffViewRaw sig={puff.sig} /> : ''}
-                </div>
-                <div className="listBarIcon">
-                    {puff.payload.type == 'image' ? <PuffViewImage puff={puff} /> : ""}
-                </div>
-                <div className="listBarIcon">
-                    <PuffTipLink username={puff.username} />
-                </div>
-                <div className="listBarIcon">
-                    <PuffJson puff={puff} />
-                </div>
-                <div className="listBarIcon">
-                    <PuffClone puff={puff} />
-                </div>
-                <div className="listBarIcon">
-                    <PuffPermaLink sig={puff.sig} />
-                </div>
+        	<div>
+        <div className="listBarIcon">
+            <RowExpand puff={puff} />
+        </div>
+        <div className="listBarIcon">
+            <ICXReplyPuff ref="reply" sig={puff.sig} />
+        </div>
             </div>
         )
     }

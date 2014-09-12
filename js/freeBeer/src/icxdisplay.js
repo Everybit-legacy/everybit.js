@@ -103,12 +103,12 @@ var ICXStore = React.createClass({
     componentDidMount: function() {
 
     },
-/*
+    /*
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
         this.setState({nextStatus: true})
     },
-*/
+    */
     //Doesn't actually do much yet
 
     handleGetFile: function(event) {
@@ -216,7 +216,6 @@ var ICXStore = React.createClass({
             </div>
             )
     }
-
 })
 
 var ICXStoreFinish = React.createClass({
@@ -280,12 +279,20 @@ var ICXStoreFinish = React.createClass({
 
 var ICXReplyPuff = React.createClass({
     handleClick: function() {
+        this.handleSetParent()
+        this.handleRedirect()
+    },
+    handleSetParent: function() {
         var sig = this.props.sig
+        var username = this.props.username
         var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
             ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
             : []
 
         var index = parents.indexOf(sig)
+
+        // var recipient = puffworldprops.reply.replyTo
+        // recipient.push(sig)
 
         // This checks if the recipient is already in the list
         // If not, add it to the array
@@ -294,12 +301,12 @@ var ICXReplyPuff = React.createClass({
             parents.push(sig)
         } else {
             parents.splice(index, 1)
-
-            // GOTO: Send message with username filled in
-            // so the user can chose between msg|file
         }
 
-        return Events.pub('ui/reply/add-parent', { 'reply.parents': parents })
+        return Events.pub('ui/reply/add-parent', { 'reply.parents': parents, 'reply.replyTo': username})
+    },
+    handleRedirect: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'send'})
     },
     render: function() {
         var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
@@ -335,6 +342,7 @@ var ICXSend = React.createClass({
     componentDidMount: function() {
         ICX.wizard.inProcess = true
         ICX.wizard.sequence = 'send'
+        this.refs.toUser = puffworldprops.reply.replyTo
     },
 
     getInitialState: function() {
@@ -1302,7 +1310,7 @@ var ICXAbout = React.createClass({
                 • <a href="http://www.mattasher.com">Matt Asher</a><br />
                 • <a href="https://twitter.com/dann">Dann Toliver</a><br />
                 • <a href="https://twitter.com/AdamRafeek">Adam Rafeek</a><br />
-                • Michael Guo
+                • <a href="https://www.linkedin.com/profile/view?id=228890394">Michael Guo</a>
                 </div>
 
             </div>

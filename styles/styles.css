@@ -934,6 +934,11 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .username {
     font-size: 70%;
+    color: #1616A8;
+    overflow: hidden;
+    overflow: ellipsis;
+    white-space: nowrap;
+
 }
 
 .icx-screen .menuTooltip.above {

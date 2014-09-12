@@ -634,7 +634,7 @@ var RowSingle = React.createClass({
             <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
                 <span className="listcell" >
                     {wrenchElement}
-                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : <RowBar puff={puff} column={columnProp} flagged={flagged}/>}
+                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 
 
 

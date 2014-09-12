@@ -101,15 +101,21 @@ var ICXStore = React.createClass({
     componentDidMount: function() {
 
     },
-
+/*
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
         this.setState({nextStatus: true})
     },
-
-    //Doesnt actually do much yet
+*/
+    //Doesn't actually do much yet
 
     handleGetFile: function(event) {
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
+
+        //Encrypt the file in a puff
         var element = event.target
         var fileprom = PBFiles.openBinaryFile(element)
 
@@ -120,6 +126,11 @@ var ICXStore = React.createClass({
             var file     = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
+
+            //Make the link visisble to download the file (Temporary)
+            encrypedLink.href = PBFiles.prepBlob(puff)
+            encrypedLink.style.display = ""
+            encrypedLink.download = new_filename
         })
     },
 
@@ -180,7 +191,7 @@ var ICXStore = React.createClass({
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} onChange={this.handleGetFile} />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
                     </div>
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
@@ -192,6 +203,8 @@ var ICXStore = React.createClass({
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
+                    <a ref="encryptedLink" download="blahblah" style={{display: 'none'}}>Save encrypted file</a>
+                    <br />
                     <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
                 </div>
             </div>
@@ -727,21 +740,34 @@ var ICXNewUser = React.createClass({
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) {
-                console.log("Begin user submit request")
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
-                PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
+
 
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
-                if(!ICX.wizard.inProcess) {
-                    // console.log("send to dashboard")
-                    return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
+                // Function below fails, so set above this
+                // PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
+
+                // Create identity file
+                ICX.identityForFile = {
+                    rootKeyPrivate: privateKey,
+                    adminKeyPrivate: privateKey,
+                    defaultKeyPrivate: privateKey,
+                    passphrase: passphrase
+                }
+
+                /*
+                identityObjectForFile = Boron.shallow_copy(PB.M.Wardrobe.keychain[requestedUsername])
+                identityObjectForFile.comment = "This file stores your private identity information for websites using the puffball platform, including everybit.com and i.cx. Keep it safe and secure!"
+                */
+
+                if(!ICX.wizard.inProcess) {
+                    return Events.pub('ui/icx/screen', {"view.icx.screen": 'dashboard'})
                 } else {
                     if(ICX.wizard.sequence == 'send') {
-                        // console.log("send to confirm send")
                         return Events.pub('ui/icx/screen', {"view.icx.screen": 'send.confirm'})
                     } else {
                         // console.log("send to confirm store")
@@ -754,9 +780,9 @@ var ICXNewUser = React.createClass({
                 console.log("ERR")
                 self.setState({step: 3,
                     errorMessage: err.toString()})
-                Events.pub('ui/event', {})
+                return Events.pub('ui/event', {})
             })
-        return false
+
     },
 
     render: function () {
@@ -917,16 +943,6 @@ var ICXLogin = React.createClass({
                 if (keyType == 'defaultKey') {
                     PB.M.Wardrobe.storeDefaultKey(username, privateKey)
                 }
-
-                /*
-                 if(keyType == 'adminKey') {
-                 PB.M.Wardrobe.storeAdminKey(username, privateKey)
-                 }
-
-                 if(keyType == 'rootKey') {
-                 PB.M.Wardrobe.storeRootKey(username, privateKey)
-                 }
-                 */
 
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
@@ -1162,8 +1178,8 @@ var ICXAbout = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div className="contentWindow">
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
+                <div className="contentWindow">
                 I.CX, or "I see X", is a demonstration website for the <a href="http://www.puffball.io">puffball platform</a>.
                 <br />
                 <br />

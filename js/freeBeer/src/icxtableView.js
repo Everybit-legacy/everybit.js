@@ -74,10 +74,10 @@ var RowRenderMixin = {
         var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
 
         if(prof.length) {
-            return <span><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
+            return <span><a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a> <img className="iconSized" src={prof[0].payload.content}  /></span>
         }
         
-        return <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
+        return <a className="username" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a>
 	},
 	renderContent: function() {
 		var puff = this.props.puff
@@ -608,36 +608,15 @@ var RowSingle = React.createClass({
         }
 
         // additionStyle.width = this.getRowWidth().toString() + 'px'
-		var showIcons = this.state.showIcons && this.state.showBar
 		var barClass = ['listbar']
         var pufficonClass = ['listbar']
-		if (!this.state.showBar) {
-            barClass.push('hide')
-            var wrenchElement = (
-                    <span className="fa fa-fw">
-                        <img src={getImageCode(this.props.puff.sig)}/>
-                    </span>
-                )
-        } else {
-            pufficonClass.push('hide')
-            var wrenchElement = (
-                    <span className="listbar" ref="bar">
-                        <a href="#" onClick={this.handleToggleShowIcons}>
-                            <i className="fa fa-fw fa-wrench"></i>
-                        </a>
-                    </span>
-                )
-        }
+		var wrenchElement = <img src={getImageCode(this.props.puff.sig)}/>
 
 
 		return (
             <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
                 <span className="listcell" >
                     {wrenchElement}
-                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
-
-
-
                 </span>
                 {columns.map(function(col){
                     width = self.getColumnWidth(col)
@@ -922,7 +901,7 @@ var RowBar = React.createClass({
                     <RowExpand puff={puff} />
                 </div>
                 <div className="listBarIcon">
-                    <PuffReplyLink ref="reply" sig={puff.sig} />
+                    <ICXReplyPuff ref="reply" sig={puff.sig} />
                 </div>
                 <div className="listBarIcon">
                     <PuffFlagLink ref="flag" puff={puff} username={puff.username} flagged={this.props.flagged}/>

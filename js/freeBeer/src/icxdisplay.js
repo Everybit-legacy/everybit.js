@@ -277,6 +277,59 @@ var ICXStoreFinish = React.createClass({
     }
 })
 
+
+var ICXReplyPuff = React.createClass({
+    handleClick: function() {
+        var sig = this.props.sig
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+
+        var index = parents.indexOf(sig)
+
+        // This checks if the recipient is already in the list
+        // If not, add it to the array
+        // If found, remove it from the array
+        if(index == -1) {
+            parents.push(sig)
+        } else {
+            parents.splice(index, 1)
+
+            // GOTO: Send message with username filled in
+            // so the user can chose between msg|file
+        }
+
+        return Events.pub('ui/reply/add-parent', { 'reply.parents': parents })
+    },
+    render: function() {
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+        var cx1 = React.addons.classSet
+        var index   = parents.indexOf(this.props.sig)
+
+        if(index == -1) {
+            var isGreen = false
+        } else {
+            var isGreen = true
+        }
+
+        var newClass = cx1({
+            'fa fa-reply fa-fw': true,
+            'green': isGreen
+        })
+
+        return (
+            <span className="icon">
+                <a onClick={this.handleClick}>
+                    <i className={newClass}></i>
+                </a>
+            </span>
+        )
+    }
+})
+
+
 var ICXSend = React.createClass({
     mixins: [TooltipMixin],
     componentDidMount: function() {
@@ -337,7 +390,6 @@ var ICXSend = React.createClass({
         prom.then(function(result) {
             self.state.toUserStatus = true
             self.state.nextStatus = true
-            ICX.message = {}
             ICX.message.toUser = toUser
             Events.pub('ui/puff-packer/userlookup', {})
         })
@@ -831,12 +883,8 @@ var ICXNewUser = React.createClass({
                     passphrase: passphrase
                 }
 
-                /*
-                identityObjectForFile = Boron.shallow_copy(PB.M.Wardrobe.keychain[requestedUsername])
-                identityObjectForFile.comment = "This file stores your private identity information for websites using the puffball platform, including everybit.com and i.cx. Keep it safe and secure!"
-                */
+                
 
-                console.log("state is "+self.state.nextStep)
                 return Events.pub('ui/icx/screen', {"view.icx.screen": self.state.nextStep})
 
 

@@ -631,23 +631,21 @@ var RowSingle = React.createClass({
 
 
 		return (
-            <span>
-                <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
-                    <span className="listcell" >
-                        {wrenchElement}
-                        {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+            <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
+                <span className="listcell" >
+                    {wrenchElement}
+                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 
 
 
-                    </span>
-                    {columns.map(function(col){
-                        width = self.getColumnWidth(col)
-                        return self.render_column(col, width, maxHeight)
-                    })}
-                    { this.props.showArrow ? <div className="rowArrow"></div> : null }
-                </div>
-            </span>
-            )
+                </span>
+                {columns.map(function(col){
+                    width = self.getColumnWidth(col)
+                    return self.render_column(col, width, maxHeight)
+                })}
+                { this.props.showArrow ? <div className="rowArrow"></div> : null }
+            </div>
+        )
 	}
 })
 

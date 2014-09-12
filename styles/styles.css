@@ -926,6 +926,10 @@ fieldset[disabled] .btn-primary.active {
     position: static;
 }
 
+.icx-screen .listrowContainer .listCell {
+    height: auto;
+}
+
 
 .icx-newuser a.register {
     margin-left: 10px;

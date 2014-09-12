@@ -101,15 +101,21 @@ var ICXStore = React.createClass({
     componentDidMount: function() {
 
     },
-
+/*
     handleDisplaySelectedFile: function() {
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
         this.setState({nextStatus: true})
     },
-
-    //Doesnt actually do much yet
+*/
+    //Doesn't actually do much yet
 
     handleGetFile: function(event) {
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
+
+        //Encrypt the file in a puff
         var element = event.target
         var fileprom = PBFiles.openBinaryFile(element)
 
@@ -120,6 +126,11 @@ var ICXStore = React.createClass({
             var file     = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
+
+            //Make the link visisble to download the file (Temporary)
+            encrypedLink.href = PBFiles.prepBlob(puff)
+            encrypedLink.style.display = ""
+            encrypedLink.download = new_filename
         })
     },
 
@@ -180,7 +191,7 @@ var ICXStore = React.createClass({
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} onChange={this.handleGetFile} />
+                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
                     </div>
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
@@ -192,6 +203,8 @@ var ICXStore = React.createClass({
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
+                    <a ref="encryptedLink" download="blahblah" style={{display: 'none'}}>Save encrypted file</a>
+                    <br />
                     <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
                 </div>
             </div>
@@ -521,6 +534,31 @@ var ICXSendMessageFinish = React.createClass({
     }
 })
 
+/* This is an unhappy function
+var ICXAvatar = React.createClass({
+    componentDidMount: function {
+        var context = this.getDOMNode().getContext('2d')
+        this.paint(context)
+    },
+
+    componentDidUpdate: function() {
+        var context = this.getDOMNode().getContext('2d')
+        context.clearRect(0, 0, this.props.width, this.props.height)
+        this.paint(context)
+    },
+
+    paint: function(context) {
+        context.save()
+        context.fillStyle = this.props.animalColour
+        context.fill
+    },
+
+    render: function() {
+        return <canvas width={this.props.width} height={this.props.height} />
+    }
+})
+*/
+
 var ICXNewUser = React.createClass({
     mixins: [TooltipMixin],
     getInitialState: function() {
@@ -566,6 +604,7 @@ var ICXNewUser = React.createClass({
 
         var animal = animals[Math.floor(Math.random() * animals.length)]
         ICX.animalName = animal;
+        ICX.userColor = color;
 
         this.setState({avatarAnimal: animal})
         this.refs.username.getDOMNode().value = adj + color + animal
@@ -1040,15 +1079,21 @@ var ICXDashboard = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
 
+        //The avatar is super fragile, literally will only render the very first time a user sees their
+        // Dashboard page
+        //TODO: Come up with a better way to store and display the Avatar
+
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div className="dashboard avatarHolder">
-                </div>
                 <div style={headerStyle}>Dashboard for {username}</div><br />
+                <div className="dashboard avatarHolder">
+                    <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
+                    <br />
+                </div>
+                • Avatar (change this at everybit)<br />
                 • <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#000000','text-decoration': 'underline'}}>
                     View your messages
                 </a><br />
-            • ((YOU AVATAR)) change this at everybit<br />
             • Download your passpharse<br />
             <ICXLogoutButton goto='home' />
             </div>

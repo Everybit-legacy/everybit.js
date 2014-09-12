@@ -59,3 +59,4 @@ ICX.config = {
 }
 ICX.animalName = {}
 
+ICX.userColor = {}

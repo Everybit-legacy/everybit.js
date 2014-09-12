@@ -367,7 +367,6 @@ var TableView = React.createClass({
 			var focus = puffworldprops.view.query.focus
 			return (
 				<div style={style} className="listview">
-					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
 						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
@@ -631,23 +630,21 @@ var RowSingle = React.createClass({
 
 
 		return (
-            <span>
-                <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
-                    <span className="listcell" >
-                        {wrenchElement}
-                        {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
+            <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
+                <span className="listcell" >
+                    {wrenchElement}
+                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : null}
 
 
 
-                    </span>
-                    {columns.map(function(col){
-                        width = self.getColumnWidth(col)
-                        return self.render_column(col, width, maxHeight)
-                    })}
-                    { this.props.showArrow ? <div className="rowArrow"></div> : null }
-                </div>
-            </span>
-            )
+                </span>
+                {columns.map(function(col){
+                    width = self.getColumnWidth(col)
+                    return self.render_column(col, width, maxHeight)
+                })}
+                { this.props.showArrow ? <div className="rowArrow"></div> : null }
+            </div>
+        )
 	}
 })
 
@@ -919,7 +916,7 @@ var RowBar = React.createClass({
             showStar = false
 
         return (
-            <span className="listbarAllIcon">
+            <div className="listbarAllIcon">
                 <div className="listBarIcon">
                     <RowExpand puff={puff} />
                 </div>
@@ -947,7 +944,7 @@ var RowBar = React.createClass({
                 <div className="listBarIcon">
                     <PuffPermaLink sig={puff.sig} />
                 </div>
-            </span>
+            </div>
         )
     }
 })

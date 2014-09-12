@@ -691,12 +691,12 @@ var ICXNewUser = React.createClass({
         if(ICX.wizard.sequence == 'send') {
             this.setState({nextStep: 'send.confirm'})
             this.setState({nextStepMessage: 'Continue'})
-            return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
+            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
         } else {
             if(ICX.wizard.sequence == 'store') {
                 this.setState({nextStep: 'store.finish'})
                 this.setState({nextStepMessage: 'Create user and store file'})
-                return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
+                // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
             }
         }
     },

@@ -2,7 +2,15 @@
 
 puffworldprops = {
 
-
+    ICX: {
+        newUser: {
+            requestedUsername: '',
+            usernameStatus: '',
+            usernameMessage: '',
+            checkingUsername: ''
+        }
+    },
+    
     clusters: {
         filters: true,
         publish: true,

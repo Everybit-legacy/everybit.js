@@ -609,6 +609,7 @@ PB.workersend = function(funstr, args, resolve, reject) {
 PB.cryptoworker.addEventListener("message", PB.workerreceive)
 
 
+// KEEP THIS HERE FOR NOW
 
 // var workIt = function(workerObject, fun, args) {
 //     var message = {fun: fun, args: args}
@@ -616,8 +617,8 @@ PB.cryptoworker.addEventListener("message", PB.workerreceive)
 //
 //     }
 // }
-
-
+//
+//
 // var function makeWorker(url) {
 //     var worker = new Worker(url)
 //     var queue = []

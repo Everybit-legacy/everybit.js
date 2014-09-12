@@ -608,35 +608,15 @@ var RowSingle = React.createClass({
         }
 
         // additionStyle.width = this.getRowWidth().toString() + 'px'
-		var showIcons = this.state.showIcons && this.state.showBar
 		var barClass = ['listbar']
         var pufficonClass = ['listbar']
-		if (!this.state.showBar) {
-            barClass.push('hide')
-            var wrenchElement = (
-                    <span className="fa fa-fw">
-                        <img src={getImageCode(this.props.puff.sig)}/>
-                    </span>
-                )
-        } else {
-            pufficonClass.push('hide')
-            var wrenchElement = (
-                    <span className="listbar" ref="bar">
-                        <a href="#" onClick={this.handleToggleShowIcons}>
-                            <i className="fa fa-fw fa-wrench"></i>
-                        </a>
-                    </span>
-                )
-        }
+		var wrenchElement = <img src={getImageCode(this.props.puff.sig)}/>
 
 
 		return (
             <div className={classArray.join(' ')} style={additionStyle} onMouseEnter={this.handleOverRow} onMouseLeave={this.handleOverRow}>
                 <span className="listcell" >
                     {wrenchElement}
-                    {showIcons ? <RowBar puff={puff} column={columnProp} flagged={flagged}/> : <RowBar puff={puff} column={columnProp} flagged={flagged}/>}
-
-
 
                 </span>
                 {columns.map(function(col){

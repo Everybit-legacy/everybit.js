@@ -60,3 +60,5 @@ ICX.config = {
 ICX.animalName = {}
 
 ICX.userColor = {}
+
+ICXdefaults = JSON.parse(JSON.stringify(ICX))

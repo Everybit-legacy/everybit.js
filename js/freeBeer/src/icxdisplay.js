@@ -90,6 +90,7 @@ var TooltipMixin = {
 var ICXStore = React.createClass({
     getInitialState: function() {
         return {
+            backupToCloud: true
         }
     },
 
@@ -174,7 +175,8 @@ var ICXStore = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div className="contentWindow">
-                    <div>Select a file. It will be encrypted right in your web browser.</div>
+                    Select a file. It will be encrypted in your web browser.
+                    <br /><br />
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
@@ -189,7 +191,7 @@ var ICXStore = React.createClass({
                         <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
                     Once encrypted, backup to the net
                     </small>
-                    <br />
+                    <br /><br />
                     <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
                 </div>
             </div>
@@ -1132,6 +1134,7 @@ var ICXLearn = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
+                ((VIDEO ON FRIST SCREEN, TEXT ON NEXT ONES))
                 <ul>
                     <li>No passwords sent over network</li>
                     <li>Encrypt files right on your own computer</li>
@@ -1159,13 +1162,19 @@ var ICXAbout = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
+                <div className="contentWindow">
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
-                <ul>
-                    <li>I.CX (Pronounced "I see X")</li>
-                    <li>Built on the puffball.io platform</li>
-                    <li>Help us grow! If you like the service, share a link to our site...</li>
-                    <li>Contribute to our codebase</li>
-                </ul>
+                I.CX, or "I see X", is a demonstration website for the <a href="http://www.puffball.io">puffball platform</a>.
+                <br />
+                <br />
+                <b>Developers:</b>
+                <br />
+                • <a href="http://www.mattasher.com">Matt Asher</a><br />
+                • <a href="https://twitter.com/dann">Dann Toliver</a><br />
+                • <a href="https://twitter.com/AdamRafeek">Adam Rafeek</a><br />
+                • Michael Guo
+                </div>
+
             </div>
             )
     }
@@ -1422,7 +1431,8 @@ var ICXButtonLink = React.createClass({
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             color: 'white',
             paddingLeft: Math.floor(fontSize/2.5)+'px',
-            zIndex: 100
+            zIndex: 100,
+            whiteSpace: 'nowrap'
         }
 
 
@@ -1529,7 +1539,7 @@ var ICXUserButton = React.createClass({
                     </a>
                     {' '}or{' '}
                     <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                        <i className="fa fa-chevron-circle-up"></i>  SIGN UP
+                        <i className="fa fa-user"></i>  SIGN UP
                     </a>
 
                 </span>
@@ -1537,24 +1547,22 @@ var ICXUserButton = React.createClass({
         } else {
             return(
                 <span>
-                    <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
-                        <i className="fa fa-fw fa-sign-out"></i>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-list" />
                     </a>
-                    <Tooltip position="under" content="Remove identity from this device" color="black" />
                     {' '}
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
-
-                        {username} <i className="fa fa-chevron-right" />
+                        <i className="fa fa-fw fa-user" />{username}
                     </a>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-search" /> Conversations
-                    </a>
-
-
-
+                    {' '}
+                    <span className="relative">
+                        <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
+                            <i className="fa fa-fw fa-sign-out" />
+                        </a>
+                        <Tooltip position="under" content="Remove identity from this device" color="black" />
+                    </span>
                 </span>
-                )
-
+            )
 
         }
     }
@@ -1574,10 +1582,10 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            return <button className ="btn btn-primary" onClick={this.handleNext}>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button style={{fontSize: '90%'}} className ="btn btn-primary" onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
-            return <button className ="btn btn-primary" onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <button style={{fontSize: '90%'}} className="btn btn-primary" onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
         }
     }
 });

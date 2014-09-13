@@ -507,23 +507,20 @@ header h1 {
 
 /* via bootstrap */
 .btn {
-  display: inline-block;
-  margin-bottom: 5px;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1em;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  cursor: pointer;
-  -webkit-user-select: none;
+    font-family: Gudea, sans-serif;
+    display: inline-block;
+    font-weight: normal;
+    line-height: 1em;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none;
-  background-image: none;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  cursor:pointer;
+    background-image: none;
+    border: 1px solid transparent;
 }
 
 .btn:focus,
@@ -1304,15 +1301,27 @@ fieldset[disabled] .btn-primary.active {
 
 .navBtn:hover {
     opacity: 0.75;
+    border: 1px solid #000;
+}
+
+.navBtn:active {
+    opacity: 0.50;
+    border: 2px solid #000;
 }
 
 .navBtn.user {
-    width: 150px;
-    float: left;
+    border: 0;
+    display: inline-block;
 }
 
 .navBtn.user:hover {
-    font-style: italic;
+    background-color: rgba(255,255,255,.25);
+    border-bottom: 1px solid #000;
+}
+
+.navBtn.user:active {
+    background-color: rgba(255,255,255,.50);
+    border-bottom: 2px solid #000;
 }
 
 .overlay {

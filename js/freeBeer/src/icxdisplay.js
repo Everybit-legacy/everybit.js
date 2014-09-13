@@ -1055,6 +1055,7 @@ var ICXLogin = React.createClass({
     },
 
 
+
     handlePassphraseCheck: function (keyType) {
         // Will check against default key
         // First convert to private key, then to public, then verify against DHT
@@ -1084,7 +1085,6 @@ var ICXLogin = React.createClass({
 
         // Convert to private key
         var privateKey = passphraseToPrivateKeyWif(passphrase)
-        console.log(privateKey)
 
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
@@ -1158,6 +1158,99 @@ var ICXLogin = React.createClass({
         return false
     },
 
+
+    handleLoginWithFile: function(event) {
+
+        var fileprom = PBFiles.openTextFile(event.target)
+        fileprom.then(function(content) {
+
+            // textFileContent.value = content
+
+            // Try and parse, if can't return error
+            try {
+                var identityObj = JSON.parse(content);
+            } catch (e) {
+                // TODO: return an error here
+                return false
+            }
+
+            var username = identityObj.username
+            if(!username)
+                return false
+
+            // Do login, return error as needed
+            if(identityObj.passphrase) {
+                var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
+
+                // Convert to public key
+                var publicKey = PB.Crypto.privateToPublic(privateKey)
+                if (!publicKey) {
+                    console.log('bad key')
+                    this.state.defaultKey = 'Bad key'
+                    Events.pub('ui/event', {})
+                    return false
+                }
+
+                var prom = PB.getUserRecord(username)
+
+                prom.then(function (userInfo) {
+
+                    if (publicKey != userInfo.defaultKey) {
+                        console.log('incorrect key')
+                        self.state.defaultKey = 'Incorrect key'
+                        Events.pub('ui/event', {})
+                        return false
+                    } else {
+
+                        // Add this to wardrobe, set username to current
+                        PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+
+                        // At least one good key, set this to current user
+                        PB.M.Wardrobe.switchCurrent(username)
+
+                        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+                    }
+                })
+                    .catch(function (err) {
+                        self.state.defaultKey = 'Not found'
+                        console.log('fail')
+                        Events.pub('ui/event', {})
+
+                        return false
+                    })
+                return false
+
+
+
+            }
+
+
+
+
+            // Redirect to dashboard
+
+        })
+
+        /*
+
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        this.setState({nextStatus: true})
+
+        //Encrypt the file in a puff
+        var element = event.target
+        //var fileprom = PBFiles.openBinaryFile(element)
+
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+
+        ICX.filelist = element.files
+        ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
+        */
+
+    },
+
+
     render: function () {
         var baseFontH = ICX.calculated.baseFontH
 
@@ -1226,7 +1319,12 @@ var ICXLogin = React.createClass({
                         Select an identity file<sup>&#63;</sup>
                         <Tooltip content="Login by uploading your passphrase file" />
                     </div>
-                    <ICXFileSelector />
+
+
+
+                    <br />
+                    <input type="file" ref="textFile" onChange={this.handleLoginWithFile} />
+
                 </div>
             </div>
             )
@@ -1241,6 +1339,7 @@ var ICXDashboard = React.createClass({
 
         ICX.identityForFile = {
             comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
+            username: PB.M.Wardrobe.getCurrentUsername(),
             rootKeyPrivate: PB.M.Wardrobe.currentKeys.root,
             adminKeyPrivate: PB.M.Wardrobe.currentKeys.admin,
             defaultKeyPrivate: PB.M.Wardrobe.currentKeys.default,
@@ -1388,7 +1487,7 @@ var ICXAbout = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
                 <div className="contentWindow">
-                I.CX, or "I see X", is a demonstration website for the <a href="http://www.puffball.io">puffball platform</a>.
+                I.CX, or “I see X”, is a private messaging and file sending system build on the <a href="http://www.puffball.io">puffball platform</a>.
                 <br />
                 <br />
                 <b>Developers:</b>
@@ -1697,7 +1796,7 @@ var ICXButtonLink = React.createClass({
          )*/
         return (
             <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
-                <div style={buttonStyle}>
+                <div className="navBtn" style={buttonStyle}>
                     <i className={this.props.screenInfo.icon}></i>{' '}
                         {linkText} <i className="fa fa-chevron-right" />
                 </div>
@@ -1757,14 +1856,18 @@ var ICXUserButton = React.createClass({
         if (!username) {
             return(
                 <span>
+                    <div className="navBtn user">
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
                         <i className={thisScreen.icon}></i>{' '}
                         {thisScreen.fullText}
                     </a>
-                    {' '}or{' '}
+                    </div>
+                    <div style={{display: 'inline-block', marginLeft: '10px', marginRight: '10px'}}>or</div>
+                    <div className="navBtn user">
                     <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
                         <i className="fa fa-user"></i>  SIGN UP
                     </a>
+                    </div>
 
                 </span>
                 )

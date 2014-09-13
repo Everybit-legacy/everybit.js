@@ -1236,12 +1236,49 @@ var ICXLogin = React.createClass({
 
 var ICXDashboard = React.createClass({
 
+    // Generate download link of file
+    handleGenerateIdentityFile: function() {
+
+        ICX.identityForFile = {
+            comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
+            rootKeyPrivate: PB.M.Wardrobe.currentKeys.root,
+            adminKeyPrivate: PB.M.Wardrobe.currentKeys.admin,
+            defaultKeyPrivate: PB.M.Wardrobe.currentKeys.default,
+            passphrase: PB.M.Wardrobe.currentKeys.bonus.passphrase,
+            version: "1.0"
+        }
+
+        return ICX.identityForFile
+    },
+
+
     handleGoTo: function(screen) {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
+    handleDownloadIdentityFile: function() {
+        var content = JSON.stringify(this.handleGenerateIdentityFile())
+
+        console.log(content)
+
+        var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
+
+        // var el = document.getElementById.bind(document)
+
+        // var fileLink = el('fileLink')
+        fileLink = this.refs.fileLink.getDOMNode()
+
+        // this.refs.username.getDOMNode()
+
+        fileLink.href = PBFiles.prepBlob(content)
+        fileLink.download = filename
+        fileLink.click()
+    },
+
     render: function () {
         var username = ICX.username
+
+        var filename = username + "Identity.json"
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = this.props.screenInfo.color
@@ -1261,7 +1298,11 @@ var ICXDashboard = React.createClass({
                 • <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#000000','text-decoration': 'underline'}}>
                     View your messages
                 </a><br />
-            • Download your passpharse<br />
+                <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>Save passphrase as file</a>
+                <br />
+                <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
+
+                <br /><br />
             <ICXLogoutButton goto='home' />
             </div>
             )

@@ -659,6 +659,15 @@ PB.M.Forum.addContentType('profile', {
     }
 })
 
+PB.M.Forum.addContentType('file', {
+    toHtml: function(content, puff) {
+        return (
+            puff.payload.filename
+            )
+    }
+
+})
+
 /**
  * to add content type LaTex
  * @param  {string} content

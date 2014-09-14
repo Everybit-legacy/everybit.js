@@ -105,47 +105,20 @@ var ICXStore = React.createClass({
         ICX.wizard.sequence = 'store'
         ICX.wizard.type = 'file'
     },
-    /*
-    handleDisplaySelectedFile: function() {
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
-    },
-    */
-    //Doesn't actually do much yet
 
     handleGetFile: function(event) {
-        var encrypedLink = this.refs.encryptedLink.getDOMNode()
         //Display the name of the selected file
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
         this.setState({nextStatus: true})
 
         //Encrypt the file in a puff
         var element = event.target
-        //var fileprom = PBFiles.openBinaryFile(element)
 
         ICX.fileprom = PBFiles.openBinaryFile(element)
 
         ICX.filelist = element.files
-        ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
 
-        if(PB.M.Wardrobe.getCurrentUsername()) {
-            /*
-            fileprom.then(function(blob) {
-                var puff = PBFiles.createPuff(blob, 'file')
-
-                var filelist = element.files
-                var file     = filelist[0]
-                var filename = file.name
-                var new_filename = filename + '.puff'
-
-                //Make the link visisble to download the file (Temporary)
-                encrypedLink.href = PBFiles.prepBlob(puff)
-                encrypedLink.style.display = ""
-                encrypedLink.download = new_filename
-            })
-            */
-
-        } else {
+        if(!PB.M.Wardrobe.getCurrentUsername()) {
             this.setState({nextStep: 'newuser'})
             this.setState({nextStepMessage: 'NEXT'})
         }
@@ -211,9 +184,7 @@ var ICXStore = React.createClass({
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
-                    <a ref="encryptedLink" download="blahblah" style={{display: 'none'}}>Save encrypted file</a>
-                    <br />
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToStore" buttonText={this.state.nextStepMessage} />
+                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToStore" text={this.state.nextStepMessage} />
                 </div>
             </div>
             )
@@ -223,15 +194,15 @@ var ICXStore = React.createClass({
 var ICXStoreFinish = React.createClass({
     getInitialState: function () {
         return {
+            nextStep: 'store',
             messageStored: false,
             successMessage: ''
+
         }
     },
 
     handleSubmitSuccess: function () {
         this.setState({messageStored: true})
-        this.setState({successMessage: 'Encrypted file ready for download!'})
-
     },
 
     cleanUpSubmit: function () {
@@ -240,9 +211,9 @@ var ICXStoreFinish = React.createClass({
 
     componentDidMount: function () {
         if(PB.M.Wardrobe.getCurrentUsername()) {
-            var encrypedLink = ICX.encrypedLink
+            var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
-            fileprom.then(function(blob) {
+            ICX.fileprom.then(function(blob) {
                 var puff = PBFiles.createPuff(blob, 'file')
 
                 var filelist = ICX.filelist
@@ -252,7 +223,6 @@ var ICXStoreFinish = React.createClass({
 
                 //Make the link visisble to download the file (Temporary)
                 encrypedLink.href = PBFiles.prepBlob(puff)
-                encrypedLink.style.display = ""
                 encrypedLink.download = new_filename
             })
 
@@ -267,10 +237,14 @@ var ICXStoreFinish = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Store message</div>
-                <br />
-                <div>{this.state.successMessage}</div>
-                <ICXNextButton enabled={this.state.messageStored} goto='store' text='Store another file' />
+                <div style={headerStyle}>Save Your Encryped File</div>
+                <div className="contentWindow">
+                Success! Your file has been encrypted.
+                    <br /><br />
+                    <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
+                    <br /><br />
+                    <ICXNextButton enabled={this.state.messageStored} goto={this.state.nextStep} key="nextToStore" text="Encrypt Another File" />
+                </div>
             </div>
             )
 
@@ -1597,7 +1571,8 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba(114, 113, 86, .08)'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'}
+            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'}
         ]
 
         var currScreen = puffworldprops.view.icx.screen

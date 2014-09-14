@@ -1336,16 +1336,34 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
+        // Bail if no username,
+        // TODO handle this error better
+        var username = PB.M.Wardrobe.getCurrentUsername()
+        if(!username)
+            return false
 
-        ICX.identityForFile = {
-            comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-            username: PB.M.Wardrobe.getCurrentUsername(),
-            rootKeyPrivate: PB.M.Wardrobe.currentKeys.root,
-            adminKeyPrivate: PB.M.Wardrobe.currentKeys.admin,
-            defaultKeyPrivate: PB.M.Wardrobe.currentKeys.default,
-            passphrase: PB.M.Wardrobe.currentKeys.bonus.passphrase,
-            version: "1.0"
+        // Only generate if it doesn't already exist
+        if(isEmpty(ICX.identityForFile)) {
+
+            ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+            ICX.identityForFile.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identityForFile.version = "1.0"
+
+            if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
+                ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root
+
+            if(typeof PB.M.Wardrobe.currentKeys.admin !== 'undefined')
+                ICX.identityForFile.adminKeyPrivate =  PB.M.Wardrobe.currentKeys.admin
+
+            if(typeof PB.M.Wardrobe.currentKeys.default !== 'undefined')
+                ICX.identityForFile.defaultKeyPrivate =  PB.M.Wardrobe.currentKeys.default
+
+            if(typeof PB.M.Wardrobe.currentKeys.bonus !== 'undefined')
+                if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
+                    ICX.identityForFile.passphrase =  PB.M.Wardrobe.currentKeys.bonus.passphrase
+
         }
+
 
         return ICX.identityForFile
     },
@@ -1374,42 +1392,6 @@ var ICXDashboard = React.createClass({
         fileLink.click()
     },
 
-    render: function () {
-        var username = ICX.username
-
-        var filename = username + "Identity.json"
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-        //The avatar is super fragile, literally will only render the very first time a user sees their
-        // Dashboard page
-        //TODO: Come up with a better way to store and display the Avatar
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Dashboard for {username}</div><br />
-                <div className="dashboard avatarHolder">
-                    <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
-                    <br />
-                </div>
-                • Avatar (change this at everybit)<br />
-                • <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#000000','text-decoration': 'underline'}}>
-                    View your messages
-                </a><br />
-                <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>Save passphrase as file</a>
-                <br />
-                <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
-
-                <br /><br />
-            <ICXLogoutButton goto='home' />
-            </div>
-            )
-    }
-});
-
-var ICXLogoutButton = React.createClass({
-
     handleSignOut: function() {
         var userToRemove = PB.M.Wardrobe.getCurrentUsername()
 
@@ -1423,14 +1405,60 @@ var ICXLogoutButton = React.createClass({
 
         PB.M.Wardrobe.removeKeys(userToRemove)
         ICX.username = ''
+        ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     },
 
-    render: function() {
-        return <button className ="btn btn-primary" onClick={this.handleSignOut}>Logout<i className="fa fa-fw fa-sign-out" /></button>
+    render: function () {
+        var username = ICX.username
+
+        var filename = username + "Identity.json"
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = this.props.screenInfo.color
+
+        //The avatar is super fragile, literally will only render the very first time a user sees their
+        // Dashboard page
+        //TODO: Need to show their avatar if available
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Dashboard for {username}</div><br />
+                <div className="contentWindow">
+                    <div className="dashboard avatarHolder">
+                        <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
+                        <br />
+                    </div>
+
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
+                        <i className="fa fa-fw fa-list" />
+                        {' '}View your messages
+                    </a>
+                    <br /><br />
+                    <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
+                        <i className="fa fa-fw fa-download" />
+                        {' '}Save passphrase as file
+                    </a>
+                    <br /><br />
+                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
+
+                    <a href="#"  onClick={this.handleGoTo.bind(null, '')}>
+                        <i className="fa fa-fw fa-file-excel-o" />
+                        {' '}Encrypt or decrypt a file
+                    </a>
+                    <br /><br />
+
+
+                    <a href="#" onClick={this.handleSignOut}>
+                        <i className="fa fa-fw fa-sign-out" />
+                        {' '}Logout
+                    </a>
+                </div>
+            </div>
+            )
     }
-})
+});
 
 var ICXTableView = React.createClass({
 
@@ -1843,6 +1871,7 @@ var ICXUserButton = React.createClass({
 
         PB.M.Wardrobe.removeKeys(userToRemove)
         ICX.username = ''
+        ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto})
     },

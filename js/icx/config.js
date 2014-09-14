@@ -63,4 +63,6 @@ ICX.animalName = {}
 
 ICX.userColor = {}
 
+ICX.identityForFile = {}
+
 ICXdefaults = JSON.parse(JSON.stringify(ICX))

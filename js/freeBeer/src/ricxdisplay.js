@@ -517,16 +517,16 @@ var ICXSend = React.createClass({
                 <div className="component">
                     <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.send.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
-                    <span className="message">{this.state.toUserStatus}</span>
+                    <span className="message">{puffworldprops.ICX.send.toUserStatus}</span>
                 </div>
 
                 <div className="component">
-                    <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
+                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="MESSAGE" goto="send.message" />
                     {' '}
-                    <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
+                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="FILE" goto="send.file" />
                 </div>
             </div>
             )
@@ -551,8 +551,14 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
-        this.setState({toUserStatus: false})
-        this.setState({nextStatus: false})
+        //this.setState({toUserStatus: false})
+        //this.setState({nextStatus: false})
+
+        return Events.pub('ui/events', {
+            'ICX.send.userConfirmed': false,
+            'ICX.send.nextStatus': false,
+            'ICX.send.toUserStatus': "Not found"
+        })
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
@@ -576,9 +582,13 @@ var ICXSend = React.createClass({
 
         // Check for zero length
         if(!toUser.length) {
-            this.state.toUserStatus = 'Missing'
-            Events.pub('ui/event', {})
-            return false
+            //this.state.toUserStatus = 'Missing'
+            console.log('u heer')
+            return Events.pub('ui/event', {
+                'ICX.send.toUserStatus': 'Missing',
+                'ICX.send.userConfirmed': false
+            })
+            //return false
         }
 
         if (toUser.slice(0, 1) == '.')
@@ -587,15 +597,21 @@ var ICXSend = React.createClass({
         var prom = PB.getUserRecord(toUser)
 
         prom.then(function(result) {
-            self.state.toUserStatus = true
-            self.state.nextStatus = true
-            ICX.message.toUser = toUser
-            Events.pub('ui/puff-packer/userlookup', {})
+            //self.state.toUserStatus = true
+            //self.state.nextStatus = true
+            ICX.send.toUser = toUser
+            return Events.pub('ui/events', {
+                'ICX.send.userConfirmed': true,
+                'ICX.send.nextStatus': true
+            })
         })
             .catch(function(err) {
-                self.state.toUserStatus = 'Not found'
-                self.state.nextStatus = false
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                //self.state.toUserStatus = 'Not found'
+                //self.state.nextStatus = false
+                return Events.pub('ui/events', {
+                    'ICX.send.toUserStatus': 'Not found',
+                    'ICX.send.nextStatus': false
+                })
             })
         return false
 
@@ -650,7 +666,7 @@ var ICXSendFile = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
+                <div style={headerStyle}>Encrypt and send a file to {ICX.send.toUser} </div>
                 <div className="contentWindow">
                 Your file: <br />
                     <div className="fileUpload btn btn-primary">
@@ -689,7 +705,7 @@ var ICXSendMessage = React.createClass({
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
+                <div style={headerStyle}>Send a private message to {ICX.send.toUser} </div>
                 <div>Your message:</div>
                 <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
                 <br />
@@ -1265,10 +1281,10 @@ var ICXLogin = React.createClass({
                 .icx.
                     <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
                     </span>
-                    <span className="message">{this.state.usernameStatus}</span>
+                    <span className="message">{puffworldprops.ICX.usernameStatus}</span>
 
                     <br /><br />
                     <div className="relative">
@@ -1280,12 +1296,12 @@ var ICXLogin = React.createClass({
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                     <span className="relative">
                         <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
-                            <Checkmark show={this.state.defaultKey} />
+                            <Checkmark show={puffworldprops.ICX.defaultKey} />
                         </a>
                         <Tooltip position='under' content="Verify your passphrase" />
                     </span>
 
-                    <span className="message">{this.state.defaultKey}</span>
+                    <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br /><br />
                     <i><em>or</em></i>
                     <br /><br />
@@ -1314,6 +1330,7 @@ var ICXLogin = React.createClass({
             rootKey: false,
             adminKey: false,
             defaultKey: false
+
         }
     },
 
@@ -1329,8 +1346,9 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+           Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1339,17 +1357,24 @@ var ICXLogin = React.createClass({
         var prom = PB.getUserRecord(username)
 
         prom.then(function (result) {
-            self.state.usernameStatus = true
-            Events.pub('ui/puff-packer/userlookup', {})
+            Events.pub('ui/puff-packer/userlookup',{
+                'ICX.usernameStatus': true
+            })
         })
             .catch(function (err) {
-                self.state.usernameStatus = 'Not found'
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                Events.pub('ui/puff-packer/userlookup/failed',{
+                    'ICX.usernameStatus': 'Not found'
+                })
             })
         return false
     },
 
-
+    componentWillMount: function () {
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
+    },
 
     handlePassphraseCheck: function (keyType) {
         // Will check against default key
@@ -1361,8 +1386,11 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+
+            //this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1372,8 +1400,10 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!passphrase.length) {
-            this.state[keyType] = 'Missing'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Missing'
+            })
             return false
         }
 
@@ -1384,8 +1414,10 @@ var ICXLogin = React.createClass({
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
         if (!publicKey) {
-            this.state[keyType] = 'Bad key'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Bad key'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Bad Key'
+            })
             return false
         }
 
@@ -1394,12 +1426,15 @@ var ICXLogin = React.createClass({
         prom.then(function (userInfo) {
 
             if (publicKey != userInfo[keyType]) {
-                self.state[keyType] = 'Incorrect key'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Incorrect key'
+                })
                 return false
             } else {
-                self.state[keyType] = true
-                self.state.usernameStatus = true
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': true,
+                    'ICX.usernameStatus': true
+                })
 
                 // Add this to wardrobe, set username to current
                 if (keyType == 'defaultKey') {
@@ -1409,13 +1444,14 @@ var ICXLogin = React.createClass({
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
 
-                Events.pub('ui/event', {})
+                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
             }
         })
             .catch(function (err) {
-                self.state[keyType] = 'Not found'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Not found'
+                })
                 return false
             })
         return false
@@ -1438,8 +1474,10 @@ var ICXLogin = React.createClass({
     },
 
     handleResetCheckboxes: function () {
-        this.setState({usernameStatus: false})
-        this.setState({defaultKey: false})
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
     },
 
     handleIdentityFileLoad: function () {
@@ -1466,6 +1504,7 @@ var ICXLogin = React.createClass({
             try {
                 var identityObj = JSON.parse(content);
             } catch (e) {
+                console.log('failed')
                 // TODO: return an error here
                 return false
             }
@@ -1482,8 +1521,9 @@ var ICXLogin = React.createClass({
                 var publicKey = PB.Crypto.privateToPublic(privateKey)
                 if (!publicKey) {
                     console.log('bad key')
-                    this.state.defaultKey = 'Bad key'
-                    Events.pub('ui/event', {})
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey':'Bad key'
+                    })
                     return false
                 }
 
@@ -1493,8 +1533,9 @@ var ICXLogin = React.createClass({
 
                     if (publicKey != userInfo.defaultKey) {
                         console.log('incorrect key')
-                        self.state.defaultKey = 'Incorrect key'
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Incorrect key'
+                        })
                         return false
                     } else {
 
@@ -1512,9 +1553,10 @@ var ICXLogin = React.createClass({
                     }
                 })
                     .catch(function (err) {
-                        self.state.defaultKey = 'Not found'
                         console.log('fail')
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Not found'
+                        })
 
                         return false
                     })

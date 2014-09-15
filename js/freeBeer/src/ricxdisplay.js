@@ -1,8 +1,6 @@
 /** @jsx React.DOM */
 
 
-
-
 /*
 
  ICX: {
@@ -81,7 +79,6 @@ var TooltipMixin = {
     }
 }
 
-
 /* END ICX MIXINS */
 
 
@@ -95,8 +92,6 @@ var ICXWorld = React.createClass({
             currScreen = 'init'
         }
 
-
-        console.log(currScreen)
 
         ICX.username = PB.M.Wardrobe.getCurrentUsername()
         ICX.identitySet = true
@@ -231,35 +226,6 @@ var ICXInit = React.createClass({
     }
 })
 
-var ICXSpinner = React.createClass({
-    render: function () {
-        var spinnerHeight = ICX.calculated.baseFontH*3 + 'px'
-
-
-        if(typeof puffworldprops.ICX.thinking === 'undefined' || !puffworldprops.ICX.thinking) {
-            return <span></span>
-        } else {
-            return (
-                <div style={{textAlign: 'center', display: 'fixed', fontSize: spinnerHeight, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,.8)'}}>
-                    <i className="fa fa-spinner fa-spin" />
-                </div>
-            )
-        }
-    }
- })
-
-var ICXError = React.createClass({
-    render: function () {
-        if(ICX.errors.length) {
-            return (
-                <div>{ICX.errors}</div>
-                )
-        } else {
-            return <span></span>
-        }
-
-    }
-})
 
 // Each component asks of external props, What are my colors, etc? All components rendered all the time
 
@@ -876,7 +842,6 @@ var ICXNewUser = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-
         return (
             <div className="icx-screen icx-newuser">
                 <div style={headerStyle}>Register for a new username</div>
@@ -1215,12 +1180,8 @@ var ICXLogin = React.createClass({
     mixins: [TooltipMixin],
 
     render: function () {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'login');
-        })[0];
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         var baseFontH = ICX.calculated.baseFontH
 
@@ -1632,8 +1593,6 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile())
 
-        console.log(content)
-
         var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
 
         // var el = document.getElementById.bind(document)
@@ -1688,13 +1647,8 @@ var ICXTableView = React.createClass({
 var ICXLearn = React.createClass({
 
     render: function () {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'learn');
-        })[0];
-
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1720,7 +1674,6 @@ var ICXLearn = React.createClass({
 var ICXAbout = React.createClass({
 
     render: function () {
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -1762,6 +1715,36 @@ var ICXHome = React.createClass({
 
 
 // SUBCOMPONENTS
+var ICXSpinner = React.createClass({
+    render: function () {
+        var spinnerHeight = ICX.calculated.baseFontH*3 + 'px'
+
+
+        if(typeof puffworldprops.ICX.thinking === 'undefined' || !puffworldprops.ICX.thinking) {
+            return <span></span>
+        } else {
+            return (
+                <div style={{textAlign: 'center', display: 'fixed', fontSize: spinnerHeight, lineHeight: spinnerHeight, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,.8)'}}>
+                    <i className="fa fa-spinner fa-spin" />
+                </div>
+                )
+        }
+    }
+})
+
+var ICXError = React.createClass({
+    render: function () {
+        if(ICX.errors.length) {
+            return (
+                <div>{ICX.errors}</div>
+                )
+        } else {
+            return <span></span>
+        }
+
+    }
+})
+
 var ICXLogo = React.createClass({
     handleGoHome: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});

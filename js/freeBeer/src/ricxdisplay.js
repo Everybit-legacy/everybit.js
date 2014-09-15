@@ -927,12 +927,18 @@ var ICXNewUser = React.createClass({
         }
     },
 
-    componentWillMount: function() {
+    componentWillMount: function() { // on page load, generate a random username
         var animal = generateRandomAnimal()
 
         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         ICX.newUser.animalName = animal;
-        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)];
+        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+
+        // avatar depands on puffworldprops variables
+        return Events.pub('ui/event', {
+            'ICX.avatarColor': ICX.newUser.animalColor,
+            'ICX.avatarAnimal': ICX.newUser.animalName
+        })
     },
 
     componentDidMount: function() {
@@ -993,7 +999,7 @@ var ICXNewUser = React.createClass({
 
         return Events.pub('ui/event', {
             'ICX.avatarColor': color,
-            'ICX.animalName': animal
+            'ICX.avatarAnimal': animal
         })
 
         //return false

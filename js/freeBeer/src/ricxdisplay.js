@@ -165,6 +165,7 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.file.finish',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba(114, 113, 86, .08)'},
 
 
 
@@ -1773,7 +1774,7 @@ var ICXDashboard = React.createClass({
                     <br /><br />
                     <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
-                    <a href="#"  onClick={this.handleGoTo.bind(null, '')}>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
                         <i className="fa fa-fw fa-file-excel-o" />
                         {' '}Encrypt or decrypt a file
                     </a>
@@ -1864,7 +1865,7 @@ var ICXDashboard = React.createClass({
     }
 
 
-});
+})
 
 var ICXTableView = React.createClass({
 
@@ -1880,7 +1881,7 @@ var ICXTableView = React.createClass({
             )
     }
 
-});
+})
 
 var ICXLearn = React.createClass({
 
@@ -1907,7 +1908,7 @@ var ICXLearn = React.createClass({
             )
     }
 
-});
+})
 
 var ICXAbout = React.createClass({
 
@@ -1939,7 +1940,7 @@ var ICXAbout = React.createClass({
 
     }
 
-});
+})
 
 var ICXHome = React.createClass({
 
@@ -1948,9 +1949,120 @@ var ICXHome = React.createClass({
             <span></span>
             )
     }
-});
+})
+
+var ICXFileConverter = React.createClass({
 
 
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and Decrypt Files</div>
+                <div className="contentWindow">
+                Select a file. It will be encrypted in your web browser.
+                    <br /><br />
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                        defaultValue="No file Selected"/>
+                    </div>
+                    <br /><br />
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
+                    <br /><br />
+
+                OR<br />
+
+                    Select a .puff file to decrypt.
+                    <br /><br />
+                    <input type="file" id="fileToDecrypt" ref="decryptbutton" onChange={this.handleDecryptFile} />
+
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showDecryptFile" type="text" disabled="disabled" ref="filenameDecrypt"
+                        defaultValue="No file Selected"/>
+                    </div>
+                    <br /> < br />
+                    <textarea ref="resultbox">Results</textarea>
+                    <br />
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>Save Decrypted File</a>
+
+                </div>
+            </div>
+            )
+    },
+
+    handleDecryptFile: function(event) {
+
+        this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
+
+        var decryptFile = this.refs.decryptbutton.getDOMNode()
+        var resultLink = this.refs.decryptedDownload.getDOMNode()
+
+
+        var element = event.target
+        var fileprom = PBFiles.openPuffFile(element)
+        fileprom.then(function(fileguts) {
+            console.log(fileguts)
+
+            var letterPuff = PBFiles.extractLetterPuff(fileguts)
+            var content = (letterPuff.payload || {}).content
+            var type = (letterPuff.payload || {}).type
+
+            console.log(letterPuff)
+            //var resultbox = this.refs.resultbox.getDOMNode()
+            //resultbox.value = content
+
+            var filelist = decryptFile.files
+            var file = filelist[0]
+            var filename = file.name
+            if (/\.puff/.test(filename)) {
+                filename = filename.slice(0, -5)
+            }
+            else {
+                //TODO: ERROR!!!!
+            }
+            resultLink.style.display = ""
+            resultLink.href = PBFiles.prepBlob(content, type)
+            resultLink.download = filename
+        })
+
+    },
+
+    handleGetFile: function(event) {
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+
+
+        //Encrypt the file in a puff
+        var element = event.target
+
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+
+        ICX.filelist = element.files
+
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+
+        ICX.fileprom.then(function(blob) {
+            var puff = PBFiles.createPuff(blob, 'file')
+
+            var filelist = ICX.filelist
+            var file     = filelist[0]
+            var filename = file.name
+            var new_filename = filename + '.puff'
+
+            //Make the link visisble to download the file (Temporary)
+            encrypedLink.style.display=""
+            encrypedLink.href = PBFiles.prepBlob(puff)
+            encrypedLink.download = new_filename
+        })
+
+    }
+
+})
 
 // SUBCOMPONENTS
 var ICXSpinner = React.createClass({

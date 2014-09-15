@@ -90,12 +90,24 @@ var TooltipMixin = {
 var ICXWorld = React.createClass({
     render: function () {
 
+        var currScreen = puffworldprops.view.icx.screen
+        if(!currScreen) {
+            currScreen = 'init'
+        }
+
+
+        console.log(currScreen)
+
+        ICX.username = PB.M.Wardrobe.getCurrentUsername()
+        ICX.identitySet = true
+
+
         if(ICX.identitySet) {
-            if (ICX.currScreen == 'init') {
+            if (currScreen == 'init') {
                 if (ICX.username.length) {
-                    ICX.currScreen = 'dashboard'
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
                 } else {
-                    ICX.currScreen = 'home'
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
                 }
             }
         }
@@ -161,7 +173,7 @@ var ICXWorld = React.createClass({
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
         var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == ICX.currScreen);
+            return (obj.name == currScreen);
         })[0];
 
         var screenStyle = {
@@ -191,7 +203,7 @@ var ICXWorld = React.createClass({
             return acc
         },{})
 
-        var screenInfo = ICX.screenMap[ICX.currScreen]
+        var screenInfo = ICX.screenMap[currScreen]
         var fun = screenInfo.component
         ICX.currScreenInfo = screenInfo
 
@@ -204,6 +216,7 @@ var ICXWorld = React.createClass({
                 <div style={contentDivStyles}>
                     {pageComponent}
                 </div>
+                <ICXSpinner />
                 <ICXError />
                 <ICXFooter />
             </div>
@@ -217,6 +230,23 @@ var ICXInit = React.createClass({
 
     }
 })
+
+var ICXSpinner = React.createClass({
+    render: function () {
+        var spinnerHeight = ICX.calculated.baseFontH*3 + 'px'
+
+
+        if(typeof puffworldprops.ICX.thinking === 'undefined' || !puffworldprops.ICX.thinking) {
+            return <span></span>
+        } else {
+            return (
+                <div style={{textAlign: 'center', display: 'fixed', fontSize: spinnerHeight, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,.8)'}}>
+                    <i className="fa fa-spinner fa-spin" />
+                </div>
+            )
+        }
+    }
+ })
 
 var ICXError = React.createClass({
     render: function () {
@@ -698,13 +728,9 @@ var ICXSendMessage = React.createClass({
 
 var ICXSendMessageConfirm = React.createClass({
     render: function () {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'send.message.confirm');
-        })[0];
-
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -854,7 +880,8 @@ var ICXNewUser = React.createClass({
         return (
             <div className="icx-screen icx-newuser">
                 <div style={headerStyle}>Register for a new username</div>
-                <div className="component username">
+                <div className="contentWindow">
+
                     <div><b>Username:</b></div>
 
                 .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
@@ -867,27 +894,23 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new username" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
-                </div>
-
-                <div className="component passphrase">
+                    <br /><br />
                     <div><b>Passphrase:</b></div>
-                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
+                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
-                    <span className="message">{this.state.passphraseMessage}</span>
-                </div>
+                    {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
 
-                <div className="component avartar">
-                    <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
+                    <span style={{color: 'blue', fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
                     <br />
                 Avatar (can be changed later)
-                    <br />
-                </div>
 
-                <a className="register" onClick={this.handleRegisterName}>{this.state.nextStepMessage} <i className="fa fa-chevron" /></a>
+                    <br /><br />
+                <a className="register" onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron" /></a>
             </div>
+                </div>
             )
     },
 
@@ -913,21 +936,41 @@ var ICXNewUser = React.createClass({
     },
 
     componentDidMount: function() {
-        if(ICX.wizard.sequence == 'send') {
-            this.setState({nextStep: 'send.confirm'})
-            this.setState({nextStepMessage: 'Continue'})
-            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
-        } else {
-            if(ICX.wizard.sequence == 'store') {
-                this.setState({nextStep: 'store.finish'})
-                this.setState({nextStepMessage: 'Create user and store file'})
-                // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
-            }
-        }
-
         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
+
+
+        if(ICX.wizard.sequence == 'send') {
+
+            return Events.pub('ui/event', {
+                'ICX.nextStep': 'send.confirm',
+                'ICX.nextStepMessage': 'Continue'
+            })
+
+
+            //this.setState({nextStep: 'send.confirm'})
+            // this.setState({nextStepMessage: 'Continue'})
+            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
+        } else if(ICX.wizard.sequence == 'store') {
+                return Events.pub('ui/event', {
+                    'ICX.nextStep': 'store.finish',
+                    'ICX.nextStepMessage': 'Create user and store file'
+                })
+
+
+                // this.setState({nextStep: 'store.finish'})
+                // this.setState({nextStepMessage: 'Create user and store file'})
+                // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
+        } else {
+
+            return Events.pub('ui/event', {
+                'ICX.nextStep': 'dashboard',
+                'ICX.nextStepMessage': 'Finish'
+            })
+        }
+
+
     },
 
 
@@ -953,8 +996,12 @@ var ICXNewUser = React.createClass({
         }
 
         this.refs.passphrase.getDOMNode().value = generatePassphrase(ICX.passphraseWords,numb)
-        ICX.newUser.passphraseStatus = true
-        ICX.newUser.passphraseMessage = ''
+
+        Events.pub('ui/event', {
+            'ICX.newUser.passphraseStatus': true,
+            'ICX.newUser.passphraseMessage': ''
+
+        })
 
         return false
     },
@@ -971,11 +1018,19 @@ var ICXNewUser = React.createClass({
     handleRecheckPassphrase: function() {
         var passphrase = this.refs.passphrase.getDOMNode().value
         if(passphrase.length < 8) {
-            this.setState({passphraseStatus: false})
-            this.setState({passphraseMessage: 'Too short'})
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': false,
+                'ICX.newUser.passphraseMessage': 'Too short'
+
+            })
+
         } else {
-            this.setState({passphraseStatus: true})
-            this.setState({passphraseMessage: ''})
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': true,
+                'ICX.newUser.passphraseMessage': ''
+
+            })
+
         }
     },
 
@@ -991,10 +1046,10 @@ var ICXNewUser = React.createClass({
 
         this.refs.username.getDOMNode().value = username
 
-        Events.pub('ui/event', { 'ICX.newUser.usernameStatus': false
-            , 'ICX.newUser.usernameMessage': false})
-        // this.setState({usernameStatus: false})
-        // this.setState({usernameMessage: ''})
+        Events.pub('ui/event', {
+            'ICX.newUser.usernameStatus': false,
+            'ICX.newUser.usernameMessage': false
+        })
 
         if(finalChar == ' ') {
             this.handleUsernameLookup()
@@ -1016,7 +1071,9 @@ var ICXNewUser = React.createClass({
         if(!username.length) {
 
             // this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {'ICX.newUser.usernameStatus': 'Missing'})
+            Events.pub('ui/event', {
+                'ICX.newUser.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1032,46 +1089,42 @@ var ICXNewUser = React.createClass({
         var prom = PB.getUserRecord(username)
 
         // this.setState({usernameMessage: 'Checking...'})
-        Events.pub('ui/username/requested', { 'ICX.newUser.requestedUsername': username
-            , 'ICX.newUser.checkingUsername': username
-            , 'ICX.newUser.usernameMessage': 'Checking...'
-            , 'ICX.newUser.usernameStatus': 'Busy'
+        Events.pub('ui/username/requested', {
+            'ICX.newUser.requestedUsername': username,
+            'ICX.newUser.checkingUsername': username,
+            'ICX.newUser.usernameMessage': 'Checking...',
+            'ICX.newUser.usernameStatus': 'Busy'
         })
 
         prom.then(function(result) {
-            // console.log(result)
-            //if(result.username !== undefined) {
 
-            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
-            //     return false;
-
-            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus': 'Taken'
-                , 'ICX.newUser.usernameMessage': 'Already registered'
-                , 'ICX.newUser.checkingUsername': ''
+            Events.pub('ui/username/taken', {
+                'ICX.newUser.usernameStatus': 'Taken',
+                'ICX.newUser.usernameMessage': 'Already registered',
+                'ICX.newUser.checkingUsername': ''
             })
-            // self.setState({usernameStatus: 'Taken'})
-            // self.setState({usernameMessage: 'Already registered'})
 
-            //} self {
-            //    this.setState({usernameStatus: true})
-            //    this.setState({usernameMessage: 'Available'})
-            //}
         }).catch(function(err) {
-            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
-            //     return false;
 
-            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus':  true
-                , 'ICX.newUser.usernameMessage': 'Available'
-                , 'ICX.newUser.checkingUsername': false
+            Events.pub('ui/username/taken', {
+                'ICX.newUser.usernameStatus':  true,
+                'ICX.newUser.usernameMessage': 'Available',
+                'ICX.newUser.checkingUsername': false
             })
-            // self.setState({usernameStatus: true})
-            // self.setState({usernameMessage: 'Available'})
         })
 
         return false
     },
 
     handleRegisterName: function() {
+        // START THINKING
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+
+        updateUI();
+
+
         // Register the name
         // Error if there's an error
         // Disable register button until ready
@@ -1130,13 +1183,17 @@ var ICXNewUser = React.createClass({
                     version: "1.0"
                 }
 
-
-                ICX.currScreen = self.state.nextStep
-                return false
-                // return Events.pub('ui/icx/screen', {"view.icx.screen": self.state.nextStep})
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+                return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
             },
             function(err) {
+                // TODO: Deal with error, show it in box
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
                 console.log("ERR")
                 self.setState({step: 3,
                     errorMessage: err.toString()})
@@ -1192,9 +1249,9 @@ var ICXLogin = React.createClass({
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
                 <div style={headerStyle}>Save your identity on this web browser</div>
 
-                <div className="component username">
-                    <div style={labelStyle}><b>Username:</b></div>
+                <div className="component">
 
+                    <div style={labelStyle}><b>Username:</b></div>
                 .icx.
                     <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
@@ -1202,9 +1259,8 @@ var ICXLogin = React.createClass({
                         <Tooltip position='under' content="Verify your username" />
                     </span>
                     <span className="message">{this.state.usernameStatus}</span>
-                </div>
 
-                <div className="component passphrase">
+                    <br /><br />
                     <div className="relative">
                         <b>Private passphrase<sup>&#63;</sup></b>
                         <Tooltip content="(Placehold text for private passphrase)" />
@@ -1220,11 +1276,9 @@ var ICXLogin = React.createClass({
                     </span>
 
                     <span className="message">{this.state.defaultKey}</span>
-
-                </div>
-
-                <div className="component upload">
+                    <br /><br />
                     <i><em>or</em></i>
+                    <br /><br />
                     <div className="relative">
                     Select an identity file<sup>&#63;</sup>
                         <Tooltip content="Login by uploading your passphrase file" />
@@ -1238,7 +1292,6 @@ var ICXLogin = React.createClass({
                 </div>
             </div>
             )
-        //}
     },
 
     getInitialState: function () {
@@ -1443,8 +1496,8 @@ var ICXLogin = React.createClass({
 
 
                         ICX.username = username
-                        ICX.currScreen = 'dashboard'
-                        return false
+                        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+
 
                     }
                 })
@@ -1667,16 +1720,13 @@ var ICXLearn = React.createClass({
 var ICXAbout = React.createClass({
 
     render: function () {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'about');
-        })[0];
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{thisScreen.fullText}</div><br />
+                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
                 <div className="contentWindow">
                 I.CX, or “I see X”, is a private messaging and file sending system build on the <a href="http://www.puffball.io">puffball platform</a>.
                     <br />
@@ -1691,7 +1741,13 @@ var ICXAbout = React.createClass({
 
             </div>
             )
+    },
+
+    gotoLearn: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'learn'});
+
     }
+
 });
 
 var ICXHome = React.createClass({
@@ -1708,7 +1764,11 @@ var ICXHome = React.createClass({
 // SUBCOMPONENTS
 var ICXLogo = React.createClass({
     handleGoHome: function() {
-        ICX.currScreen = 'home'
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+    },
+
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
 
@@ -1717,7 +1777,7 @@ var ICXLogo = React.createClass({
         var h = window.innerHeight
 
 
-        if(ICX.currScreen == 'home' || ICX.currScreen == 'init') {
+        if(!puffworldprops.view.icx.screen || puffworldprops.view.icx.screen == 'home') {
             var logoW = ICX.calculated.logoW
 
             var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
@@ -1732,14 +1792,14 @@ var ICXLogo = React.createClass({
                         <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
                     <br />
-                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first 100% secure, open source messaging system that works right in your web browser.
                     </div>
                 </div>
                 )
         } else {
 
             var thisScreen = ICX.screens.filter(function( obj ) {
-                return obj.name == ICX.currScreen;
+                return obj.name == puffworldprops.view.icx.screen;
             })[0];
 
             var logoW = w*ICX.config.logoSmallRatio
@@ -1789,8 +1849,8 @@ var ICXLinks = React.createClass({
 var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
         // return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
-        ICX.currScreen = screen
-        console.log(screen + " is screen")
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+
     },
 
 
@@ -1928,7 +1988,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleGoTo: function(screen) {
-        ICX.currScreen = screen
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
     handleSignOut: function() {
@@ -1952,7 +2012,7 @@ var ICXUserButton = React.createClass({
 
 var ICXNextButton = React.createClass({
     handleNext: function() {
-        ICX.currScreen = this.props.goto
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     },
 
     render: function() {

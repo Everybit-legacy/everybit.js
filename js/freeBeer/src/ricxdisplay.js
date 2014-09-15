@@ -246,9 +246,9 @@ var ICXStore = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': this.state.backupToCloud,
-            'fa-square-o': !this.state.backupToCloud,
-            'green': this.state.backupToCloud
+            'fa-check-square-o': puffworldprops.ICX.backupToCloud,
+            'fa-square-o': !puffworldprops.ICX.backupToCloud,
+            'green': puffworldprops.ICX.backupToCloud
         })
 
 
@@ -273,6 +273,13 @@ var ICXStore = React.createClass({
          <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
          </div>
          )
+
+         <div className="fileUpload btn btn-primary">
+         <span>Choose File</span>
+         <br />
+         <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+         </div>
+
          */
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -280,49 +287,59 @@ var ICXStore = React.createClass({
                 <div className="contentWindow">
                 Select a file. It will be encrypted in your web browser.
                     <br /><br />
-                    <div className="fileUpload btn btn-primary">
-                        <span>Choose File</span>
-                        <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
-                    </div>
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
                         defaultValue="No file Selected"/>
                     </div>
                     <br />
                     <small>
-                        <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                        <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToStore" text={this.state.nextStepMessage} />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
                 </div>
             </div>
             )
     },
 
-    getInitialState: function() {
-        return {
-            backupToCloud: true,
-            nextStep: 'store.finish',
-            nextStepMessage: 'Finish'
-        }
-    },
-
     handleToggleBackupToCloud: function() {
-        this.setState({backupToCloud: !this.state.backupToCloud})
+        return Events.pub('ui/event', {'ICX.backupToCloud': !puffworldprops.ICX.backupToCloud})
+
     },
 
     componentDidMount: function() {
-        ICX.wizard.inProcess = true
-        ICX.wizard.sequence = 'store'
-        ICX.wizard.type = 'file'
+        // avatar depands on puffworldprops variables
+        Events.pub('ui/event', {
+            'ICX.wizard.inProcess': true,
+            'ICX.wizard.sequence': 'store',
+            'ICX.wizard.type': 'file',
+            'ICX.backupToCloud': true
+        })
+
+        var username = ICX.username
+
+
+        if(username) {
+            Events.pub('ui/event', {
+                'ICX.nextStep': 'store.finish',
+                'ICX.nextStepMessage': 'Finish'
+            })
+        } else {
+            Events.pub('ui/event', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'Next'
+            })
+        }
+
     },
 
     handleGetFile: function(event) {
         //Display the name of the selected file
         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
+
 
         //Encrypt the file in a puff
         var element = event.target
@@ -331,10 +348,9 @@ var ICXStore = React.createClass({
 
         ICX.filelist = element.files
 
-        if(!PB.M.Wardrobe.getCurrentUsername()) {
-            this.setState({nextStep: 'newuser'})
-            this.setState({nextStepMessage: 'NEXT'})
-        }
+        return Events.pub('ui/event', {
+            'ICX.nextStatus': true
+        })
 
     }
 
@@ -380,8 +396,20 @@ var ICXStoreFinish = React.createClass({
         // do something fancy
     },
 
+    componentWillMount: function() {
+        // START THINKING
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+        updateUI()
+    },
+
     componentDidMount: function () {
+
+
+
         if(PB.M.Wardrobe.getCurrentUsername()) {
+
+
+
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
             ICX.fileprom.then(function(blob) {
@@ -400,6 +428,9 @@ var ICXStoreFinish = React.createClass({
         } else {
             // TODO: FAIL!
         }
+
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        updateUI()
     }
 
 
@@ -868,7 +899,11 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
 
-                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
+
+
+
+                    <br /><br />
+                    <span style={{border: '1px solid #000000', color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
                     <br />
                 Avatar (can be changed later)
 
@@ -877,19 +912,6 @@ var ICXNewUser = React.createClass({
             </div>
                 </div>
             )
-    },
-
-    getInitialState: function() {
-        return {
-            usernameStatus: false,
-            usernameMessage: '',
-            passphraseStatus: true,
-            passphraseMessage: '',
-            avatarColor: 'black',
-            avatarAnimal: '',
-            nextStep: 'dashboard',
-            nextStepMessage: 'Finish'
-        }
     },
 
     componentWillMount: function() { // on page load, generate a random username
@@ -912,7 +934,7 @@ var ICXNewUser = React.createClass({
         this.handleGenerateRandomPassphrase()
 
 
-        if(ICX.wizard.sequence == 'send') {
+        if(puffworldprops.ICX.wizard.sequence == 'send') {
 
             return Events.pub('ui/event', {
                 'ICX.nextStep': 'send.confirm',
@@ -923,7 +945,7 @@ var ICXNewUser = React.createClass({
             //this.setState({nextStep: 'send.confirm'})
             // this.setState({nextStepMessage: 'Continue'})
             // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
-        } else if(ICX.wizard.sequence == 'store') {
+        } else if(puffworldprops.ICX.wizard.sequence == 'store') {
                 return Events.pub('ui/event', {
                     'ICX.nextStep': 'store.finish',
                     'ICX.nextStepMessage': 'Create user and store file'
@@ -1537,9 +1559,7 @@ var ICXDashboard = React.createClass({
 
         var filename = username + "Identity.json"
 
-        //The avatar is super fragile, literally will only render the very first time a user sees their
-        // Dashboard page
-        //TODO: Need to show their avatar if available
+        //TODO: Need to show their avatar if available in profile puff
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1679,7 +1699,7 @@ var ICXLearn = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{thisScreen.fullText}</div><br />
+                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
             ((VIDEO ON FRIST SCREEN, TEXT ON NEXT ONES))
                 <ul>
                     <li>No passwords sent over network</li>
@@ -1744,15 +1764,22 @@ var ICXHome = React.createClass({
 // SUBCOMPONENTS
 var ICXSpinner = React.createClass({
     render: function () {
-        var spinnerHeight = ICX.calculated.baseFontH*3 + 'px'
+        var spinnerHeight = ICX.calculated.baseFontH*3
 
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        var spinnerTop = Math.floor((h -spinnerHeight)/2)
+        var spinnerLeft = Math.floor((w -spinnerHeight)/2)
 
         if(typeof puffworldprops.ICX.thinking === 'undefined' || !puffworldprops.ICX.thinking) {
             return <span></span>
         } else {
             return (
-                <div style={{textAlign: 'center', display: 'fixed', fontSize: spinnerHeight, lineHeight: spinnerHeight, width: '100%', height: '100%', backgroundColor: 'rgba(255,255,255,.8)'}}>
-                    <i className="fa fa-spinner fa-spin" />
+                <div style={{zIndex: 1000, top: 0, textAlign: 'center', verticalAlign: 'middle', position: 'fixed', fontSize: spinnerHeight+'px', width: w+'px', height: h+'px', backgroundColor: 'rgba(255,255,255,.8)'}}>
+                    <div style={{width: '100%', height: '100%', position: 'relative', top: spinnerTop+'px'}}>
+                        <i className="fa fa-spinner fa-spin" />
+                    </div>
                 </div>
                 )
         }

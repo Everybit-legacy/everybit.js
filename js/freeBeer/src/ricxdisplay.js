@@ -868,7 +868,7 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
 
-                    <span style={{color: 'blue', fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
+                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
                     <br />
                 Avatar (can be changed later)
 
@@ -892,12 +892,18 @@ var ICXNewUser = React.createClass({
         }
     },
 
-    componentWillMount: function() {
+    componentWillMount: function() { // on page load, generate a random username
         var animal = generateRandomAnimal()
 
         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         ICX.newUser.animalName = animal;
-        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)];
+        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+
+        // avatar depands on puffworldprops variables
+        return Events.pub('ui/event', {
+            'ICX.avatarColor': ICX.newUser.animalColor,
+            'ICX.avatarAnimal': ICX.newUser.animalName
+        })
     },
 
     componentDidMount: function() {
@@ -942,7 +948,27 @@ var ICXNewUser = React.createClass({
 
     // These need to be moved out of this function, to helpers, and called as needed.
     handleGenerateRandomUsername: function() {
-        var animal = generateRandomAnimal()
+
+
+        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        //this.setState({avatarColor: color})
+
+        var animal = generateRandomAnimal();
+       // ICX.userColor = color;
+
+        //this.setState({avatarAnimal: animal})
+
+        this.refs.username.getDOMNode().value = adj + color + animal
+        this.handleUsernameLookup()
+
+        return Events.pub('ui/event', {
+            'ICX.avatarColor': color,
+            'ICX.avatarAnimal': animal
+        })
+
+        //return false
+       /* var animal = generateRandomAnimal()
 
         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         ICX.newUser.animalName = animal;
@@ -951,6 +977,7 @@ var ICXNewUser = React.createClass({
 
         this.handleUsernameLookup()
         return false
+        */
     },
 
     handleGenerateRandomPassphrase: function() {

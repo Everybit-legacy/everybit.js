@@ -105,6 +105,10 @@ var ICXWorld = React.createClass({
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
                 }
             }
+        } else {
+            if (currScreen == 'init') {
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+            }
         }
 
         var w = window.innerWidth
@@ -159,6 +163,11 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.file.finish',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
+
+
+
             {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'},
             {position: 0, name: 'init',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'}
 
@@ -505,8 +514,7 @@ var ICXSend = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        ICX.wizard.inProcess = true
-        ICX.wizard.sequence = 'send'
+
 
         // TODO put this back
         // this.refs.toUser.getDOMNode().value = puffworldprops.reply.replyTo
@@ -517,31 +525,28 @@ var ICXSend = React.createClass({
                 <div className="component">
                     <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.send.userConfirmed} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
-                    <span className="message">{puffworldprops.ICX.send.toUserStatus}</span>
+                    <span className="message">{puffworldprops.ICX.toUserStatus}</span>
                 </div>
 
                 <div className="component">
-                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="MESSAGE" goto="send.message" />
+                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text="MESSAGE" goto="send.message" />
                     {' '}
-                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="FILE" goto="send.file" />
+                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text="FILE" goto="send.file" />
                 </div>
             </div>
             )
     },
 
-    componentDidMount: function() {
-
-    },
-
-    getInitialState: function() {
-        return {
-            toUserStatus: false,
-            nextStatus: false,
-            nextStep: 'send.message'
-        }
+    componentWillMount: function() {
+        Events.pub('ui/event/send', {
+            'ICX.userConfirmed': false,
+            'ICX.nextStatus': false,
+            'ICX.wizard.inProcess': true,
+            'ICX.wizard.sequence': 'send'
+        })
     },
 
     verifyUsername: function() {
@@ -555,9 +560,9 @@ var ICXSend = React.createClass({
         //this.setState({nextStatus: false})
 
         return Events.pub('ui/events', {
-            'ICX.send.userConfirmed': false,
-            'ICX.send.nextStatus': false,
-            'ICX.send.toUserStatus': "Not found"
+            'ICX.userConfirmed': false,
+            'ICX.nextStatus': false,
+            'ICX.toUserStatus': ""
         })
 
         // If the last character is a space, then trigger usernameLookup
@@ -585,8 +590,8 @@ var ICXSend = React.createClass({
             //this.state.toUserStatus = 'Missing'
             console.log('u heer')
             return Events.pub('ui/event', {
-                'ICX.send.toUserStatus': 'Missing',
-                'ICX.send.userConfirmed': false
+                'ICX.toUserStatus': 'Missing',
+                'ICX.userConfirmed': false
             })
             //return false
         }
@@ -599,31 +604,27 @@ var ICXSend = React.createClass({
         prom.then(function(result) {
             //self.state.toUserStatus = true
             //self.state.nextStatus = true
-            ICX.send.toUser = toUser
+
             return Events.pub('ui/events', {
-                'ICX.send.userConfirmed': true,
-                'ICX.send.nextStatus': true
+                'ICX.userConfirmed': true,
+                'ICX.nextStatus': true,
+                'ICX.toUserStatus': '',
+                'ICX.toUser': toUser
             })
         })
             .catch(function(err) {
                 //self.state.toUserStatus = 'Not found'
                 //self.state.nextStatus = false
                 return Events.pub('ui/events', {
-                    'ICX.send.toUserStatus': 'Not found',
-                    'ICX.send.nextStatus': false
+                    'ICX.toUserStatus': 'Not found',
+                    'ICX.nextStatus': false,
+                    'ICX.userConfirmed': 'Not found'
+
                 })
             })
         return false
 
-    },
-
-    handleChangeRadio: function() {
-        if(this.refs.message.getDOMNode().value)
-            this.setState({nextStep: 'send.message'})
-        else
-            this.setState({nextStep: 'send.file'})
     }
-
 
 
 });
@@ -631,42 +632,15 @@ var ICXSend = React.createClass({
 var ICXSendFile = React.createClass({
     fileElement: {},
 
-    getInitialState: function() {
-        return {
-            nextStatus: false,
-            nextStep: 'send.file',
-            buttonText: 'NEXT'
-        }
-    },
-
-    componentDidMount: function() {
-        ICX.wizard.type = 'file'
-    },
-
-
-    handleDisplaySelectedFile: function() {
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
-    },
-
     render: function() {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'send.file');
-        })[0];
-
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        if(ICX.username) {
-            var nextStep = 'send.file.finish'
-        } else {
-            var nextStep = 'newuser'
-        }
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and send a file to {ICX.send.toUser} </div>
+                <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
                 <div className="contentWindow">
                 Your file: <br />
                     <div className="fileUpload btn btn-primary">
@@ -679,133 +653,128 @@ var ICXSendFile = React.createClass({
                         defaultValue="No file Selected"/>
                     </div><br />
 
-                    <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
             </div>
             )
-    }
+    },
 
 
-})
-
-var ICXSendMessage = React.createClass({
-    render: function () {
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = ICX.currScreenInfo.color
-
+    componentWillMount: function() {
         if(ICX.username) {
-            var buttonText = 'SEND'
-            var nextStep = 'send.finish'
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'send.file.finish',
+                'ICX.nextStepMessage': 'SEND FILE'
+            })
+
 
         } else {
-            var buttonText = 'NEXT'
-            var nextStep = 'newuser'
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'NEXT'
+            })
         }
 
-        return (
-            <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message to {ICX.send.toUser} </div>
-                <div>Your message:</div>
-                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
-                <br />
-                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
-
-            </div>
-            )
+        Events.pub('ui/event/', {
+            'ICX.wizard.type': 'file',
+            'ICX.nextStatus': false
+        })
     },
 
-    getInitialState: function() {
-        return {
-            nextStatus: false
-        }
-    },
+    handleDisplaySelectedFile: function(event) {
 
-    componentDidMount: function() {
-        ICX.wizard.type = 'message'
-    },
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
 
+        var element = event.target
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
 
-    handleMessageText: function () {
-        ICX.messageText = this.refs.messageText.getDOMNode().value
-        if(ICX.messageText.length > 1) {
-            this.setState({nextStatus: true})
-        } else {
-            this.setState({nextStatus: false})
-        }
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
+        })
     }
 
 
 
-});
+})
 
-var ICXSendMessageConfirm = React.createClass({
+
+var ICXSendFileConfirm = React.createClass({
     render: function () {
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+
+        var filelist = ICX.filelist
+        var file     = filelist[0]
+        var filename = file.name
+
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Confirm message send</div>
+                <div style={headerStyle}>Confirm file send</div>
                 <br />
-                <b>TO</b> {ICX.message.toUser}<br />
-                <b>Message</b><br />
-                {ICX.messageText}
+                <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                <b>File</b><br />
+                {filename}
                 <hr />
-                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
             </div>
             )
     }
+
+
+
+
+
 })
 
-var ICXSendMessageFinish = React.createClass({
+var ICXSendFileFinish = React.createClass({
+
 
     render: function () {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == 'send.finish');
-        })[0];
-
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send of message</div>
+                <div style={headerStyle}>Send of file</div>
                 <br />
-                <div>{this.state.successMessage}</div>
-                <ICXNextButton enabled={this.state.messageSent} goto='send' text='Send another message or file' />
+                <div>{puffworldprops.ICX.successMessage}</div>
+                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
             </div>
             )
 
 
     },
 
-    getInitialState: function () {
-        return {
-            messageSent: false,
-            successMessage: ''
-        }
+    componentWillMount: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': false,
+            'ICX.successMessage': ''
+        })
     },
 
     handleSubmitSuccess: function () {
-        this.setState({messageSent: true})
-        this.setState({successMessage: 'Message sent!'})
+        Events.pub('ui/event/', {
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'File sent!'
+        })
 
     },
 
     cleanUpSubmit: function () {
-        // do something fancy
+        // TODO: do something fancy, clear out global vars
     },
 
     componentDidMount: function () {
         // Set information for this send
-        var type = 'text'
-        var content = ICX.messageText
+        var type = 'file'
+        var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
-        metadata.routes = [ICX.message.toUser]
+        metadata.routes = [puffworldprops.ICX.toUser]
+        metadata.filename = content.name
         var envelopeUserKeys = ''
         var self = this
 
@@ -813,7 +782,7 @@ var ICXSendMessageFinish = React.createClass({
         // Bundle into puff and send this bad boy off
         var prom = Promise.resolve() // a promise we use to string everything along
 
-        var usernames = [ICX.message.toUser]
+        var usernames = [puffworldprops.ICX.toUser]
 
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
@@ -845,8 +814,182 @@ var ICXSendMessageFinish = React.createClass({
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
-            self.cleanUpSubmit()
-            self.setState({err: err.message})
+            // self.cleanUpSubmit()
+            Events.pub('ui/event/', {
+                'ICX.messageSent': true,
+                'ICX.successMessage': err.message
+            })
+
+            console.log(err)
+        })
+
+        return false
+    }
+})
+
+var ICXSendMessage = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div className="send-message" style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
+                <div>Your message:</div>
+                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                <br />
+                <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+
+            </div>
+            )
+    },
+
+    componentWillMount: function() {
+        if(ICX.username) {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'send.finish',
+                'ICX.nextStepMessage': 'SEND'
+            })
+
+
+        } else {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'NEXT'
+            })
+        }
+
+        Events.pub('ui/event/', {
+            'ICX.wizard.type': 'message',
+            'ICX.nextStatus': false
+        })
+    },
+
+
+    handleMessageText: function () {
+        ICX.messageText = this.refs.messageText.getDOMNode().value
+        if(ICX.messageText.length > 1) {
+            return Events.pub('ui/event/', {
+                'ICX.nextStatus': true
+            })
+        } else {
+            return Events.pub('ui/event/', {
+                'ICX.nextStatus': false
+            })
+        }
+    }
+});
+
+var ICXSendMessageConfirm = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Confirm message send</div>
+                <br />
+                <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                <b>Message</b><br />
+                {ICX.messageText}
+                <hr />
+                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+            </div>
+            )
+    }
+})
+
+var ICXSendMessageFinish = React.createClass({
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send of message</div>
+                <br />
+                <div>{puffworldprops.ICX.successMessage}</div>
+                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+            </div>
+            )
+
+
+    },
+
+    componentWillMount: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': false,
+            'ICX.successMessage': ''
+        })
+    },
+
+    handleSubmitSuccess: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'Message sent!'
+        })
+
+    },
+
+    cleanUpSubmit: function () {
+        // TODO: do something fancy, clear out global vars
+    },
+
+    componentDidMount: function () {
+        // Set information for this send
+        var type = 'text'
+        var content = ICX.messageText
+        var parents = []
+        var metadata = {}
+        metadata.routes = [puffworldprops.ICX.toUser]
+        var envelopeUserKeys = ''
+        var self = this
+
+
+        // Bundle into puff and send this bad boy off
+        var prom = Promise.resolve() // a promise we use to string everything along
+
+        var usernames = [puffworldprops.ICX.toUser]
+
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function (userRecord) {
+            return userRecord.username
+        })
+
+        // if we haven't cached all the users, we'll need to grab them first
+        // THINK: maybe convert this to using PB.getUserRecords instead
+        if (userRecords.length < usernames.length) {
+            usernames.forEach(function (username) {
+                if (!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function () {
+                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
+                }
+            })
+        }
+
+        prom = prom.then(function () {
+            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                    // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            }
+
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            return post_prom
+        }).catch(function (err) {
+            // self.cleanUpSubmit()
+            Events.pub('ui/event/', {
+                'ICX.messageSent': true,
+                'ICX.successMessage': err.message
+            })
+
             console.log(err)
         })
 
@@ -950,12 +1093,25 @@ var ICXNewUser = React.createClass({
         this.handleGenerateRandomPassphrase()
 
 
-        if(puffworldprops.ICX.wizard.sequence == 'send') {
-
+        if(typeof puffworldprops.ICX.wizard === 'undefined') {
             return Events.pub('ui/event', {
-                'ICX.nextStep': 'send.confirm',
-                'ICX.nextStepMessage': 'Continue'
+                'ICX.nextStep': 'dashboard',
+                'ICX.nextStepMessage': 'Finish'
             })
+        } else if(puffworldprops.ICX.wizard.sequence == 'send') {
+
+
+            if(puffworldprops.ICX.wizard.type == 'message') {
+                return Events.pub('ui/event', {
+                    'ICX.nextStep': 'send.confirm',
+                    'ICX.nextStepMessage': 'Continue'
+                })
+            } else {
+                return Events.pub('ui/event', {
+                    'ICX.nextStep': 'send.file.confirm',
+                    'ICX.nextStepMessage': 'Continue'
+                })
+            }
 
 
             //this.setState({nextStep: 'send.confirm'})
@@ -971,14 +1127,7 @@ var ICXNewUser = React.createClass({
                 // this.setState({nextStep: 'store.finish'})
                 // this.setState({nextStepMessage: 'Create user and store file'})
                 // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
-        } else {
-
-            return Events.pub('ui/event', {
-                'ICX.nextStep': 'dashboard',
-                'ICX.nextStepMessage': 'Finish'
-            })
         }
-
 
     },
 

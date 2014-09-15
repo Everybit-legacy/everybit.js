@@ -26,7 +26,7 @@ CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8g
 CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di';
 
 // List of supported content types
-CONFIG.supportedContentTypes = ['image','bbcode','text','markdown','PGN','profile'];
+CONFIG.supportedContentTypes = ['image','bbcode','text','markdown','PGN','profile','file'];
 CONFIG.unsupportedContentTypes = [];
 CONFIG.defaultContentType = 'markdown';
 

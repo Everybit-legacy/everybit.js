@@ -520,16 +520,16 @@ var ICXSend = React.createClass({
                 <div className="component">
                     <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.send.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
-                    <span className="message">{this.state.toUserStatus}</span>
+                    <span className="message">{puffworldprops.ICX.send.toUserStatus}</span>
                 </div>
 
                 <div className="component">
-                    <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
+                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="MESSAGE" goto="send.message" />
                     {' '}
-                    <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
+                    <ICXNextButton enabled={puffworldprops.ICX.send.nextStatus} text="FILE" goto="send.file" />
                 </div>
             </div>
             )
@@ -554,8 +554,14 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
-        this.setState({toUserStatus: false})
-        this.setState({nextStatus: false})
+        //this.setState({toUserStatus: false})
+        //this.setState({nextStatus: false})
+
+        return Events.pub('ui/events', {
+            'ICX.send.userConfirmed': false,
+            'ICX.send.nextStatus': false,
+            'ICX.send.toUserStatus': "Not found"
+        })
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
@@ -579,9 +585,13 @@ var ICXSend = React.createClass({
 
         // Check for zero length
         if(!toUser.length) {
-            this.state.toUserStatus = 'Missing'
-            Events.pub('ui/event', {})
-            return false
+            //this.state.toUserStatus = 'Missing'
+            console.log('u heer')
+            return Events.pub('ui/event', {
+                'ICX.send.toUserStatus': 'Missing',
+                'ICX.send.userConfirmed': false
+            })
+            //return false
         }
 
         if (toUser.slice(0, 1) == '.')
@@ -590,15 +600,21 @@ var ICXSend = React.createClass({
         var prom = PB.getUserRecord(toUser)
 
         prom.then(function(result) {
-            self.state.toUserStatus = true
-            self.state.nextStatus = true
-            ICX.message.toUser = toUser
-            Events.pub('ui/puff-packer/userlookup', {})
+            //self.state.toUserStatus = true
+            //self.state.nextStatus = true
+            ICX.send.toUser = toUser
+            return Events.pub('ui/events', {
+                'ICX.send.userConfirmed': true,
+                'ICX.send.nextStatus': true
+            })
         })
             .catch(function(err) {
-                self.state.toUserStatus = 'Not found'
-                self.state.nextStatus = false
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                //self.state.toUserStatus = 'Not found'
+                //self.state.nextStatus = false
+                return Events.pub('ui/events', {
+                    'ICX.send.toUserStatus': 'Not found',
+                    'ICX.send.nextStatus': false
+                })
             })
         return false
 
@@ -653,7 +669,7 @@ var ICXSendFile = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
+                <div style={headerStyle}>Encrypt and send a file to {ICX.send.toUser} </div>
                 <div className="contentWindow">
                 Your file: <br />
                     <div className="fileUpload btn btn-primary">
@@ -692,7 +708,7 @@ var ICXSendMessage = React.createClass({
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
+                <div style={headerStyle}>Send a private message to {ICX.send.toUser} </div>
                 <div>Your message:</div>
                 <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
                 <br />

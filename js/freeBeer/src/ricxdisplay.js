@@ -1276,10 +1276,10 @@ var ICXLogin = React.createClass({
                 .icx.
                     <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
                     </span>
-                    <span className="message">{this.state.usernameStatus}</span>
+                    <span className="message">{puffworldprops.ICX.usernameStatus}</span>
 
                     <br /><br />
                     <div className="relative">
@@ -1291,12 +1291,12 @@ var ICXLogin = React.createClass({
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                     <span className="relative">
                         <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
-                            <Checkmark show={this.state.defaultKey} />
+                            <Checkmark show={puffworldprops.ICX.defaultKey} />
                         </a>
                         <Tooltip position='under' content="Verify your passphrase" />
                     </span>
 
-                    <span className="message">{this.state.defaultKey}</span>
+                    <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br /><br />
                     <i><em>or</em></i>
                     <br /><br />
@@ -1325,6 +1325,7 @@ var ICXLogin = React.createClass({
             rootKey: false,
             adminKey: false,
             defaultKey: false
+
         }
     },
 
@@ -1340,8 +1341,9 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+           Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1350,17 +1352,24 @@ var ICXLogin = React.createClass({
         var prom = PB.getUserRecord(username)
 
         prom.then(function (result) {
-            self.state.usernameStatus = true
-            Events.pub('ui/puff-packer/userlookup', {})
+            Events.pub('ui/puff-packer/userlookup',{
+                'ICX.usernameStatus': true
+            })
         })
             .catch(function (err) {
-                self.state.usernameStatus = 'Not found'
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                Events.pub('ui/puff-packer/userlookup/failed',{
+                    'ICX.usernameStatus': 'Not found'
+                })
             })
         return false
     },
 
-
+    componentWillMount: function () {
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
+    },
 
     handlePassphraseCheck: function (keyType) {
         // Will check against default key
@@ -1372,8 +1381,11 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+
+            //this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1383,8 +1395,10 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!passphrase.length) {
-            this.state[keyType] = 'Missing'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Missing'
+            })
             return false
         }
 
@@ -1395,8 +1409,10 @@ var ICXLogin = React.createClass({
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
         if (!publicKey) {
-            this.state[keyType] = 'Bad key'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Bad key'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Bad Key'
+            })
             return false
         }
 
@@ -1405,12 +1421,15 @@ var ICXLogin = React.createClass({
         prom.then(function (userInfo) {
 
             if (publicKey != userInfo[keyType]) {
-                self.state[keyType] = 'Incorrect key'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Incorrect key'
+                })
                 return false
             } else {
-                self.state[keyType] = true
-                self.state.usernameStatus = true
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': true,
+                    'ICX.usernameStatus': true
+                })
 
                 // Add this to wardrobe, set username to current
                 if (keyType == 'defaultKey') {
@@ -1420,13 +1439,14 @@ var ICXLogin = React.createClass({
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
 
-                Events.pub('ui/event', {})
+                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
             }
         })
             .catch(function (err) {
-                self.state[keyType] = 'Not found'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Not found'
+                })
                 return false
             })
         return false
@@ -1449,8 +1469,10 @@ var ICXLogin = React.createClass({
     },
 
     handleResetCheckboxes: function () {
-        this.setState({usernameStatus: false})
-        this.setState({defaultKey: false})
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
     },
 
     handleIdentityFileLoad: function () {
@@ -1477,6 +1499,7 @@ var ICXLogin = React.createClass({
             try {
                 var identityObj = JSON.parse(content);
             } catch (e) {
+                console.log('failed')
                 // TODO: return an error here
                 return false
             }
@@ -1493,8 +1516,9 @@ var ICXLogin = React.createClass({
                 var publicKey = PB.Crypto.privateToPublic(privateKey)
                 if (!publicKey) {
                     console.log('bad key')
-                    this.state.defaultKey = 'Bad key'
-                    Events.pub('ui/event', {})
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey':'Bad key'
+                    })
                     return false
                 }
 
@@ -1504,8 +1528,9 @@ var ICXLogin = React.createClass({
 
                     if (publicKey != userInfo.defaultKey) {
                         console.log('incorrect key')
-                        self.state.defaultKey = 'Incorrect key'
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Incorrect key'
+                        })
                         return false
                     } else {
 
@@ -1523,9 +1548,10 @@ var ICXLogin = React.createClass({
                     }
                 })
                     .catch(function (err) {
-                        self.state.defaultKey = 'Not found'
                         console.log('fail')
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Not found'
+                        })
 
                         return false
                     })

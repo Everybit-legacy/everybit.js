@@ -252,29 +252,74 @@ function isEmpty(obj) {
     return true;
 }
 
+// Browser detection by kennebec
+// http://stackoverflow.com/questions/2400935/browser-detection-in-javascript
+
+// Original function
+// Do not touch, might be useful later on when support on more browser is needed
+
+// function getBrowser() {
+//     var ua= navigator.userAgent, tem, 
+//     M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+//     if(/trident/i.test(M[1])){
+//         tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+//         return 'IE '+(tem[1] || '');
+//     }
+//     if(M[1]=== 'Chrome'){
+//         tem= ua.match(/\bOPR\/(\d+)/)
+//         if(tem!= null) return 'Opera '+tem[1];
+//     }
+//     M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+//     if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+//     return M.join(' ');
+// }
+
+function getBrowser() {
+    var ua= navigator.userAgent, tem, 
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){ // IE
+        return 'IE';
+    } else { // Chrome or FF
+        return M[1];
+    }
+}
+
+
+
+
 function generateRandomAnimal() {
     // Get animals
-    var animalCSS = document.styleSheets[5].rules
-    var animals = []
-    var j = 0
+
+    // Chrome uses "rules"
+    // Firefox and IE uses "cssRules"
+    var animalCSS = []
+    if (getBrowser() == "Chrome") {
+        animalCSS = document.styleSheets[5].rules;
+    } else {
+        animalCSS = document.styleSheets[5].cssRules;
+    }
+    var animals = [];
+    var j = 0;
     // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
     for(var i=0; i<animalCSS.length; i++) {
-        var selector = document.styleSheets[5].rules[i].selectorText
+        var selector = animalCSS[i].selectorText;
 
         if(typeof selector != 'undefined') {
 
-            splitResult = selector.replace("::","-").split("-")
+            // Chrome and IE appends an ":" between animal name and before
+            // Firefox doesn't
+            splitResult = selector.replace("::",":").replace(":","-").split("-");
 
             if( splitResult[0] == '.icon') {
-                animals[j] = splitResult[1]
-                j++
+                animals[j] = splitResult[1];
+                j++;
             }
         }
     }
 
 
-    var animal = animals[Math.floor(Math.random() * animals.length)]
+    var animal = animals[Math.floor(Math.random() * animals.length)];
 
-    return animal
+    return animal;
 
 }

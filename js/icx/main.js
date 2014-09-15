@@ -725,6 +725,8 @@ window.addEventListener('load', function() {
         if (lastUsername) {
             lastUsername = PB.parseJSON(lastUsername);
             PB.M.Wardrobe.switchCurrent(lastUsername);
+            ICX.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identitySet = true
         }
         window.addEventListener('popstate', function(event) {
             if(event.state)

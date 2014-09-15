@@ -59,10 +59,21 @@ ICX.config = {
     contentRightInset: 0.15,
     contentBottomInset:.04
 }
+
+// NEEDED because loading identity doesn't happen until whole page has loaded
+ICX.identitySet = false
+
+ICX.newUser = {}
+
 ICX.animalName = {}
 
 ICX.userColor = {}
 
 ICX.identityForFile = {}
+
+ICX.errors = ''
+
+// Make this home?
+ICX.currScreen = 'init'
 
 ICXdefaults = JSON.parse(JSON.stringify(ICX))

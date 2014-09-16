@@ -1,22 +1,17 @@
 /** @jsx React.DOM */
 
-/*
-
-
- */
-
 
 /*
 
  ICX: {
-    wizard: {
-        inProcess: true | false
-        sequence: 'send' | 'store'
-        type:  file' | 'message'
-        content:
-        saveToNet: true | false
-    }
-    username:
+ wizard: {
+ inProcess: true | false
+ sequence: 'send' | 'store'
+ type:  file' | 'message'
+ content:
+ saveToNet: true | false
+ }
+ username:
  }
 
  // COMPONENT NAMES
@@ -45,9 +40,9 @@
 
  */
 
+
 /* ICX MIXINS */
 /* Warning - All Mixins must be defined PRIOR to being referenced */
-
 var Tooltip = React.createClass({
     render: function() {
         var className = "menuTooltip"  + " black"
@@ -84,48 +79,176 @@ var TooltipMixin = {
     }
 }
 
-
 /* END ICX MIXINS */
 
-var ICXStore = React.createClass({
-    getInitialState: function() {
-        return {
-            backupToCloud: true,
-            nextStep: 'store.finish',
-            nextStepMessage: 'Finish'
-        }
-    },
 
-    handleToggleBackupToCloud: function() {
-        this.setState({backupToCloud: !this.state.backupToCloud})
-    },
-    
-    componentDidMount: function() {
-        ICX.wizard.inProcess = true
-        ICX.wizard.sequence = 'store'
-        ICX.wizard.type = 'file'
-    },
 
-    handleGetFile: function(event) {
-        //Display the name of the selected file
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
-
-        //Encrypt the file in a puff
-        var element = event.target
-
-        ICX.fileprom = PBFiles.openBinaryFile(element)
-
-        ICX.filelist = element.files
-
-        if(!PB.M.Wardrobe.getCurrentUsername()) {
-            this.setState({nextStep: 'newuser'})
-            this.setState({nextStepMessage: 'NEXT'})
-        }
-
-    },
-
+// MAIN COMPONENT, ROUTES TRAFFIC
+var ICXWorld = React.createClass({
     render: function () {
+
+        var currScreen = puffworldprops.view.icx.screen
+        if(!currScreen) {
+            currScreen = 'init'
+        }
+
+
+        ICX.username = PB.M.Wardrobe.getCurrentUsername()
+        ICX.identitySet = true
+
+
+        if(ICX.identitySet) {
+            if (currScreen == 'init') {
+                if (ICX.username.length) {
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+                } else {
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+                }
+            }
+        } else {
+            if (currScreen == 'init') {
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+            }
+        }
+
+        var w = window.innerWidth
+        var h = window.innerHeight
+        var p = w*h
+
+        var l = ICX.config.logo.originalW*ICX.config.logo.originalH
+        var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
+
+        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
+
+        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
+
+
+        ICX.calculated = {
+
+            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
+
+            logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
+
+            fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
+
+            baseFontH: baseFontH,
+
+            pageHeaderTextStyle: {
+                fontFamily: "Gudea, helvetica, arial",
+                fontSize: (1.1 * baseFontH) + 'px',
+                width: '100%',
+                textAlign: 'center',
+                padding: '5px',
+                color: 'white'
+            },
+
+            baseTextStyle: {
+                fontFamily: "Gudea",
+                fontSize: baseFontH+'px'
+            }
+        }
+
+        ICX.screens = [
+            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,  255, 255, .0)'},
+            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
+            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba(114, 113, 86, .08)'},
+            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba(49,  68,  92, .08)'},
+            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba(85,  65,  94, .08)'},
+            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba(46,  48, 146, .08)'},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba(114, 113, 86, .08)'},
+            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba(114, 113, 86, .08)'},
+            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'send.file.finish',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
+            {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba(114, 113, 86, .08)'},
+
+
+
+            {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'},
+            {position: 0, name: 'init',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'}
+
+        ]
+
+
+        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
+
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return (obj.name == currScreen);
+        })[0];
+
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            borderRightWidth: borderWidth,
+            borderRightColor: thisScreen.color,
+            borderRightStyle: 'solid'
+        }
+
+        var contentDivStyles = {
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
+
+        }
+
+        contentDivStyles.backgroundColor = thisScreen.backgroundColor
+
+        ICX.screenMap = ICX.screens.reduce(function(acc, screenInfo) {
+            acc[screenInfo.name] = screenInfo
+            return acc
+        },{})
+
+        var screenInfo = ICX.screenMap[currScreen]
+        var fun = screenInfo.component
+        ICX.currScreenInfo = screenInfo
+
+        var pageComponent = fun( {screenInfo:screenInfo} )
+
+        return (
+            <div style={screenStyle}>
+                <ICXLogo screenInfo={thisScreen} />
+                <ICXLinks screenInfo={thisScreen} />
+                <div style={contentDivStyles}>
+                    {pageComponent}
+                </div>
+                <ICXSpinner />
+                <ICXError />
+                <ICXFooter />
+            </div>
+            )
+    }
+})
+
+var ICXInit = React.createClass({
+    render: function () {
+        return <span></span>
+
+    }
+})
+
+
+// Each component asks of external props, What are my colors, etc? All components rendered all the time
+
+
+
+
+var ICXStore = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+
         // Link to previously encrypted/stored files
 
         // CSS for checkboxes
@@ -133,13 +256,11 @@ var ICXStore = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': this.state.backupToCloud,
-            'fa-square-o': !this.state.backupToCloud,
-            'green': this.state.backupToCloud
+            'fa-check-square-o': puffworldprops.ICX.backupToCloud,
+            'fa-square-o': !puffworldprops.ICX.backupToCloud,
+            'green': puffworldprops.ICX.backupToCloud
         })
 
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
 
         /*return (
          <div style={{width: '100%', height: '100%'}}>
@@ -162,36 +283,112 @@ var ICXStore = React.createClass({
          <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
          </div>
          )
+
+         <div className="fileUpload btn btn-primary">
+         <span>Choose File</span>
+         <br />
+         <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+         </div>
+
          */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div className="contentWindow">
-                    Select a file. It will be encrypted in your web browser.
+                Select a file. It will be encrypted in your web browser.
                     <br /><br />
-                    <div className="fileUpload btn btn-primary">
-                        <span>Choose File</span>
-                        <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
-                    </div>
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+
                     <div style={{display: 'inline','font-size':'90%'}}>
                         <input id="showFileName" type="text" disabled="disabled" ref="filename"
                         defaultValue="No file Selected"/>
                     </div>
                     <br />
                     <small>
-                        <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
+                        <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
-                    <ICXNextButton enabled={this.state.nextStatus} goto={this.state.nextStep} key="nextToStore" text={this.state.nextStepMessage} />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
                 </div>
             </div>
             )
+    },
+
+    handleToggleBackupToCloud: function() {
+        return Events.pub('ui/event', {'ICX.backupToCloud': !puffworldprops.ICX.backupToCloud})
+
+    },
+
+    componentDidMount: function() {
+        // avatar depands on puffworldprops variables
+        Events.pub('ui/event', {
+            'ICX.wizard.inProcess': true,
+            'ICX.wizard.sequence': 'store',
+            'ICX.wizard.type': 'file',
+            'ICX.backupToCloud': true
+        })
+
+        var username = ICX.username
+
+
+        if(username) {
+            Events.pub('ui/event', {
+                'ICX.nextStep': 'store.finish',
+                'ICX.nextStepMessage': 'Finish'
+            })
+        } else {
+            Events.pub('ui/event', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'Next'
+            })
+        }
+
+    },
+
+    handleGetFile: function(event) {
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+
+
+        //Encrypt the file in a puff
+        var element = event.target
+
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+
+        ICX.filelist = element.files
+
+        return Events.pub('ui/event', {
+            'ICX.nextStatus': true
+        })
+
     }
+
+
 })
 
 var ICXStoreFinish = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Save Your Encryped File</div>
+                <div className="contentWindow">
+                Success! Your file has been encrypted.
+                    <br /><br />
+                    <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
+                    <br /><br />
+                    <ICXNextButton enabled={this.state.messageStored} goto={this.state.nextStep} key="nextToStore" text="Encrypt Another File" />
+                </div>
+            </div>
+            )
+
+
+    },
+
     getInitialState: function () {
         return {
             nextStep: 'store',
@@ -209,8 +406,20 @@ var ICXStoreFinish = React.createClass({
         // do something fancy
     },
 
+    componentWillMount: function() {
+        // START THINKING
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+        updateUI()
+    },
+
     componentDidMount: function () {
+
+
+
         if(PB.M.Wardrobe.getCurrentUsername()) {
+
+
+
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
             ICX.fileprom.then(function(blob) {
@@ -229,28 +438,15 @@ var ICXStoreFinish = React.createClass({
         } else {
             // TODO: FAIL!
         }
-    },
 
-    render: function () {
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Save Your Encryped File</div>
-                <div className="contentWindow">
-                Success! Your file has been encrypted.
-                    <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
-                    <br /><br />
-                    <ICXNextButton enabled={this.state.messageStored} goto={this.state.nextStep} key="nextToStore" text="Encrypt Another File" />
-                </div>
-            </div>
-            )
-
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        updateUI()
     }
+
+
 })
+
+
 
 
 var ICXReplyPuff = React.createClass({
@@ -308,25 +504,52 @@ var ICXReplyPuff = React.createClass({
                     <i className={newClass}></i>
                 </a>
             </span>
-        )
+            )
     }
 })
 
 
 var ICXSend = React.createClass({
     mixins: [TooltipMixin],
-    componentDidMount: function() {
-        ICX.wizard.inProcess = true
-        ICX.wizard.sequence = 'send'
-        this.refs.toUser.getDOMNode().value = puffworldprops.reply.replyTo
+
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+
+
+        // TODO put this back
+        // this.refs.toUser.getDOMNode().value = puffworldprops.reply.replyTo
+
+        return (
+            <div className="icx-screen icx-send">
+                <div style={headerStyle}>Send a private message or file</div>
+                <div className="component">
+                    <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
+                        <Tooltip position='under' content="Confirm username" />
+                    </span>
+                    <span className="message">{puffworldprops.ICX.toUserStatus}</span>
+                </div>
+
+                <div className="component">
+                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text="MESSAGE" goto="send.message" />
+                    {' '}
+                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text="FILE" goto="send.file" />
+                </div>
+            </div>
+            )
     },
 
-    getInitialState: function() {
-        return {
-            toUserStatus: false,
-            nextStatus: false,
-            nextStep: 'send.message'
-        }
+    componentWillMount: function() {
+        Events.pub('ui/event/send', {
+            'ICX.userConfirmed': false,
+            'ICX.nextStatus': false,
+            'ICX.wizard.inProcess': true,
+            'ICX.wizard.sequence': 'send'
+        })
     },
 
     verifyUsername: function() {
@@ -336,8 +559,14 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
-        this.setState({toUserStatus: false})
-        this.setState({nextStatus: false})
+        //this.setState({toUserStatus: false})
+        //this.setState({nextStatus: false})
+
+        return Events.pub('ui/events', {
+            'ICX.userConfirmed': false,
+            'ICX.nextStatus': false,
+            'ICX.toUserStatus': ""
+        })
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
@@ -361,9 +590,13 @@ var ICXSend = React.createClass({
 
         // Check for zero length
         if(!toUser.length) {
-            this.state.toUserStatus = 'Missing'
-            Events.pub('ui/event', {})
-            return false
+            //this.state.toUserStatus = 'Missing'
+            console.log('u heer')
+            return Events.pub('ui/event', {
+                'ICX.toUserStatus': 'Missing',
+                'ICX.userConfirmed': false
+            })
+            //return false
         }
 
         if (toUser.slice(0, 1) == '.')
@@ -372,92 +605,47 @@ var ICXSend = React.createClass({
         var prom = PB.getUserRecord(toUser)
 
         prom.then(function(result) {
-            self.state.toUserStatus = true
-            self.state.nextStatus = true
-            ICX.message.toUser = toUser
-            Events.pub('ui/puff-packer/userlookup', {})
+            //self.state.toUserStatus = true
+            //self.state.nextStatus = true
+
+            return Events.pub('ui/events', {
+                'ICX.userConfirmed': true,
+                'ICX.nextStatus': true,
+                'ICX.toUserStatus': '',
+                'ICX.toUser': toUser
+            })
         })
             .catch(function(err) {
-                self.state.toUserStatus = 'Not found'
-                self.state.nextStatus = false
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                //self.state.toUserStatus = 'Not found'
+                //self.state.nextStatus = false
+                return Events.pub('ui/events', {
+                    'ICX.toUserStatus': 'Not found',
+                    'ICX.nextStatus': false,
+                    'ICX.userConfirmed': 'Not found'
+
+                })
             })
         return false
 
-    },
-
-    handleChangeRadio: function() {
-        if(this.refs.message.getDOMNode().value)
-            this.setState({nextStep: 'send.message'})
-        else
-            this.setState({nextStep: 'send.file'})
-    },
-
-
-    render: function () {
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-
-        return (
-            <div className="icx-screen icx-send">
-                <div style={headerStyle}>Send a private message or file</div>
-                <div className="component">
-                    <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
-                    <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.toUserStatus} /></a>
-                        <Tooltip position='under' content="Confirm username" />
-                    </span>
-                    <span className="message">{this.state.toUserStatus}</span>
-                </div>
-
-                <div className="component">
-                    <ICXNextButton enabled={this.state.nextStatus} text="MESSAGE" goto="send.message" />
-                    {' '}
-                    <ICXNextButton enabled={this.state.nextStatus} text="FILE" goto="send.file" />
-                </div>
-            </div>
-            )
     }
+
 
 });
 
 var ICXSendFile = React.createClass({
     fileElement: {},
 
-    getInitialState: function() {
-        return {
-            nextStatus: false,
-            nextStep: 'send.file',
-            buttonText: 'NEXT'
-        }
-    },
-
-    componentDidMount: function() {
-        ICX.wizard.type = 'file'
-    },
-    
-
-    handleDisplaySelectedFile: function() {
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
-    },
-
     render: function() {
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
 
-        if(ICX.username) {
-            var nextStep = 'send.file.finish'
-        } else {
-            var nextStep = 'newuser'
-        }
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and send a file to {ICX.message.toUser} </div>
+                <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
                 <div className="contentWindow">
-                    Your file: <br />
+                Your file: <br />
                     <div className="fileUpload btn btn-primary">
                         <span>Choose File</span>
                         <br />
@@ -468,108 +656,128 @@ var ICXSendFile = React.createClass({
                         defaultValue="No file Selected"/>
                     </div><br />
 
-                    <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={this.state.buttonText}  key="nextToSendFile" />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
             </div>
             )
+    },
+
+
+    componentWillMount: function() {
+        if(ICX.username) {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'send.file.finish',
+                'ICX.nextStepMessage': 'SEND FILE'
+            })
+
+
+        } else {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'NEXT'
+            })
+        }
+
+        Events.pub('ui/event/', {
+            'ICX.wizard.type': 'file',
+            'ICX.nextStatus': false
+        })
+    },
+
+    handleDisplaySelectedFile: function(event) {
+
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+
+        var element = event.target
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
+
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
+        })
     }
+
 
 
 })
 
-var ICXSendMessage = React.createClass({
-    getInitialState: function() {
-        return {
-            nextStatus: false
-        }
-    },
-    
-    componentDidMount: function() {
-        ICX.wizard.type = 'message'
-    },
-    
 
-    handleMessageText: function () {
-        ICX.messageText = this.refs.messageText.getDOMNode().value
-        if(ICX.messageText.length > 1) {
-            this.setState({nextStatus: true})
-        } else {
-            this.setState({nextStatus: false})
-        }
-    },
-
+var ICXSendFileConfirm = React.createClass({
     render: function () {
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        if(ICX.username) {
-            var buttonText = 'SEND'
-            var nextStep = 'send.finish'
 
-        } else {
-            var buttonText = 'NEXT'
-            var nextStep = 'newuser'
-        }
+        var filelist = ICX.filelist
+        var file     = filelist[0]
+        var filename = file.name
 
         return (
-            <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message to {ICX.message.toUser} </div>
-                <div>Your message:</div>
-                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Confirm file send</div>
                 <br />
-                <ICXNextButton  enabled={this.state.nextStatus} goto={nextStep} text={buttonText}  key="nextToMessage" />
-
+                <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                <b>File</b><br />
+                {filename}
+                <hr />
+                <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
             </div>
             )
     }
 
-});
 
-var ICXSendMessageConfirm = React.createClass({
+
+
+
+})
+
+var ICXSendFileFinish = React.createClass({
+
+
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Confirm message send</div>
+                <div style={headerStyle}>Send of file</div>
                 <br />
-                <b>TO</b> {ICX.message.toUser}<br />
-                <b>Message</b><br />
-                {ICX.messageText}
-                <hr />
-                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                <div>{puffworldprops.ICX.successMessage}</div>
+                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
             </div>
-        )
-    }
-})
+            )
 
-var ICXSendMessageFinish = React.createClass({
 
-    getInitialState: function () {
-        return {
-            messageSent: false,
-            successMessage: ''
-        }
+    },
+
+    componentWillMount: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': false,
+            'ICX.successMessage': ''
+        })
     },
 
     handleSubmitSuccess: function () {
-        this.setState({messageSent: true})
-        this.setState({successMessage: 'Message sent!'})
+        Events.pub('ui/event/', {
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'File sent!'
+        })
 
     },
 
     cleanUpSubmit: function () {
-        // do something fancy
+        // TODO: do something fancy, clear out global vars
     },
 
     componentDidMount: function () {
         // Set information for this send
-        var type = 'text'
-        var content = ICX.messageText
+        var type = 'file'
+        var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
-        metadata.routes = [ICX.message.toUser]
+        metadata.routes = [puffworldprops.ICX.toUser]
+        metadata.filename = content.name
         var envelopeUserKeys = ''
         var self = this
 
@@ -577,7 +785,7 @@ var ICXSendMessageFinish = React.createClass({
         // Bundle into puff and send this bad boy off
         var prom = Promise.resolve() // a promise we use to string everything along
 
-        var usernames = [ICX.message.toUser]
+        var usernames = [puffworldprops.ICX.toUser]
 
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
@@ -609,130 +817,357 @@ var ICXSendMessageFinish = React.createClass({
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
-            self.cleanUpSubmit()
-            self.setState({err: err.message})
+            // self.cleanUpSubmit()
+            Events.pub('ui/event/', {
+                'ICX.messageSent': true,
+                'ICX.successMessage': err.message
+            })
+
             console.log(err)
         })
 
         return false
+    }
+})
+
+var ICXSendMessage = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div className="send-message" style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
+                <div>Your message:</div>
+                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                <br />
+                <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+
+            </div>
+            )
     },
+
+    componentWillMount: function() {
+        if(ICX.username) {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'send.finish',
+                'ICX.nextStepMessage': 'SEND'
+            })
+
+
+        } else {
+            Events.pub('ui/event/', {
+                'ICX.nextStep': 'newuser',
+                'ICX.nextStepMessage': 'NEXT'
+            })
+        }
+
+        Events.pub('ui/event/', {
+            'ICX.wizard.type': 'message',
+            'ICX.nextStatus': false
+        })
+    },
+
+
+    handleMessageText: function () {
+        ICX.messageText = this.refs.messageText.getDOMNode().value
+        if(ICX.messageText.length > 1) {
+            return Events.pub('ui/event/', {
+                'ICX.nextStatus': true
+            })
+        } else {
+            return Events.pub('ui/event/', {
+                'ICX.nextStatus': false
+            })
+        }
+    }
+});
+
+var ICXSendMessageConfirm = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Confirm message send</div>
+                <br />
+                <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                <b>Message</b><br />
+                {ICX.messageText}
+                <hr />
+                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+            </div>
+            )
+    }
+})
+
+var ICXSendMessageFinish = React.createClass({
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send of message</div>
                 <br />
-                <div>{this.state.successMessage}</div>
-                <ICXNextButton enabled={this.state.messageSent} goto='send' text='Send another message or file' />
+                <div>{puffworldprops.ICX.successMessage}</div>
+                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
             </div>
             )
 
 
+    },
+
+    componentWillMount: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': false,
+            'ICX.successMessage': ''
+        })
+    },
+
+    handleSubmitSuccess: function () {
+        Events.pub('ui/event/', {
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'Message sent!'
+        })
+
+    },
+
+    cleanUpSubmit: function () {
+        // TODO: do something fancy, clear out global vars
+    },
+
+    componentDidMount: function () {
+        // Set information for this send
+        var type = 'text'
+        var content = ICX.messageText
+        var parents = []
+        var metadata = {}
+        metadata.routes = [puffworldprops.ICX.toUser]
+        var envelopeUserKeys = ''
+        var self = this
+
+
+        // Bundle into puff and send this bad boy off
+        var prom = Promise.resolve() // a promise we use to string everything along
+
+        var usernames = [puffworldprops.ICX.toUser]
+
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function (userRecord) {
+            return userRecord.username
+        })
+
+        // if we haven't cached all the users, we'll need to grab them first
+        // THINK: maybe convert this to using PB.getUserRecords instead
+        if (userRecords.length < usernames.length) {
+            usernames.forEach(function (username) {
+                if (!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function () {
+                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
+                }
+            })
+        }
+
+        prom = prom.then(function () {
+            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                    // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            }
+
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            return post_prom
+        }).catch(function (err) {
+            // self.cleanUpSubmit()
+            Events.pub('ui/event/', {
+                'ICX.messageSent': true,
+                'ICX.successMessage': err.message
+            })
+
+            console.log(err)
+        })
+
+        return false
     }
+
+
 })
 
 /* This is an unhappy function
-var ICXAvatar = React.createClass({
-    componentDidMount: function {
-        var context = this.getDOMNode().getContext('2d')
-        this.paint(context)
-    },
+ var ICXAvatar = React.createClass({
+ componentDidMount: function {
+ var context = this.getDOMNode().getContext('2d')
+ this.paint(context)
+ },
 
-    componentDidUpdate: function() {
-        var context = this.getDOMNode().getContext('2d')
-        context.clearRect(0, 0, this.props.width, this.props.height)
-        this.paint(context)
-    },
+ componentDidUpdate: function() {
+ var context = this.getDOMNode().getContext('2d')
+ context.clearRect(0, 0, this.props.width, this.props.height)
+ this.paint(context)
+ },
 
-    paint: function(context) {
-        context.save()
-        context.fillStyle = this.props.animalColour
-        context.fill
-    },
+ paint: function(context) {
+ context.save()
+ context.fillStyle = this.props.animalColour
+ context.fill
+ },
 
-    render: function() {
-        return <canvas width={this.props.width} height={this.props.height} />
-    }
-})
-*/
+ render: function() {
+ return <canvas width={this.props.width} height={this.props.height} />
+ }
+ })
+ */
 
 var ICXNewUser = React.createClass({
     mixins: [TooltipMixin],
-    getInitialState: function() {
-        return {
-            usernameStatus: false,
-            usernameMessage: '',
-            passphraseStatus: true,
-            passphraseMessage: '',
-            avatarColor: 'black',
-            avatarAnimal: '',
-            nextStep: 'dashboard',
-            nextStepMessage: 'Finish'
-        }
+
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        return (
+            <div className="icx-screen icx-newuser">
+                <div style={headerStyle}>Register for a new username</div>
+                <div className="contentWindow">
+
+                    <div><b>Username:</b></div>
+
+                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
+                        <Tooltip position='under' content="Check for availability" />
+                    </span>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
+                        <Tooltip position='under' content="Generate a new username" />
+                    </span>
+                    {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
+                    <br /><br />
+                    <div><b>Passphrase:</b></div>
+                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <span className="relative">
+                        <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
+                        <Tooltip position='under' content="Generate a new passphrase" />
+                    </span>
+                    {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
+
+
+
+
+                    <br /><br />
+                    <span style={{border: '1px solid #000000', color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
+                    <br />
+                Avatar (can be changed later)
+
+                    <br /><br />
+                    <a className="register" onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron" /></a>
+                </div>
+            </div>
+            )
+    },
+
+    componentWillMount: function() { // on page load, generate a random username
+        var animal = generateRandomAnimal()
+
+        ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+        ICX.newUser.animalName = animal;
+        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+
+        // avatar depands on puffworldprops variables
+        return Events.pub('ui/event', {
+            'ICX.avatarColor': ICX.newUser.animalColor,
+            'ICX.avatarAnimal': ICX.newUser.animalName
+        })
     },
 
     componentDidMount: function() {
-        this.handleGenerateRandomUsername()
+        this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
+        this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
 
-        if(ICX.wizard.sequence == 'send') {
-            this.setState({nextStep: 'send.confirm'})
-            this.setState({nextStepMessage: 'Continue'})
-            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
-        } else {
-            if(ICX.wizard.sequence == 'store') {
-                this.setState({nextStep: 'store.finish'})
-                this.setState({nextStepMessage: 'Create user and store file'})
-                // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
+
+        if(typeof puffworldprops.ICX.wizard === 'undefined') {
+            return Events.pub('ui/event', {
+                'ICX.nextStep': 'dashboard',
+                'ICX.nextStepMessage': 'Finish'
+            })
+        } else if(puffworldprops.ICX.wizard.sequence == 'send') {
+
+
+            if(puffworldprops.ICX.wizard.type == 'message') {
+                return Events.pub('ui/event', {
+                    'ICX.nextStep': 'send.confirm',
+                    'ICX.nextStepMessage': 'Continue'
+                })
+            } else {
+                return Events.pub('ui/event', {
+                    'ICX.nextStep': 'send.file.confirm',
+                    'ICX.nextStepMessage': 'Continue'
+                })
             }
+
+
+            //this.setState({nextStep: 'send.confirm'})
+            // this.setState({nextStepMessage: 'Continue'})
+            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
+        } else if(puffworldprops.ICX.wizard.sequence == 'store') {
+            return Events.pub('ui/event', {
+                'ICX.nextStep': 'store.finish',
+                'ICX.nextStepMessage': 'Create user and store file'
+            })
+
+
+            // this.setState({nextStep: 'store.finish'})
+            // this.setState({nextStepMessage: 'Create user and store file'})
+            // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
         }
+
     },
 
+
+
+    // These need to be moved out of this function, to helpers, and called as needed.
     handleGenerateRandomUsername: function() {
-        // Get animals
-        // Chrome uses "rules"
-        // Firefox and IE uses "cssRules"
-        var animalCSS = []
-        if (getBrowser() == "Chrome") {
-            animalCSS = document.styleSheets[5].rules
-        } else {
-            animalCSS = document.styleSheets[5].cssRules
-        }
-        var animals = []
-        var j = 0
-        // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
-        for(var i=0; i<animalCSS.length; i++) {
-            var selector = animalCSS[i].selectorText
 
-            if(typeof selector != 'undefined') {
-
-                // Chrome and IE appends an ":" between animal name and before
-                // Firefox doesn't
-                splitResult = selector.replace("::",":").replace(":","-").split("-")
-
-                if( splitResult[0] == '.icon') {
-                    animals[j] = splitResult[1]
-                    j++
-                }
-            }
-        }
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        this.setState({avatarColor: color})
+        //this.setState({avatarColor: color})
 
-        var animal = animals[Math.floor(Math.random() * animals.length)]
-        ICX.animalName = animal;
-        ICX.userColor = color;
+        var animal = generateRandomAnimal();
+        // ICX.userColor = color;
 
-        this.setState({avatarAnimal: animal})
+        //this.setState({avatarAnimal: animal})
+
         this.refs.username.getDOMNode().value = adj + color + animal
-
         this.handleUsernameLookup()
-        return false
+
+        return Events.pub('ui/event', {
+            'ICX.avatarColor': color,
+            'ICX.avatarAnimal': animal
+        })
+
+        //return false
+        /* var animal = generateRandomAnimal()
+
+         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
+         ICX.newUser.animalName = animal;
+         ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)];
+         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
+
+         this.handleUsernameLookup()
+         return false
+         */
     },
 
     handleGenerateRandomPassphrase: function() {
@@ -743,14 +1178,21 @@ var ICXNewUser = React.createClass({
         }
 
         this.refs.passphrase.getDOMNode().value = generatePassphrase(ICX.passphraseWords,numb)
+
+        Events.pub('ui/event', {
+            'ICX.newUser.passphraseStatus': true,
+            'ICX.newUser.passphraseMessage': ''
+
+        })
+
         return false
     },
 
     handleResetCheckboxes: function() {
-        Events.pub('ui/event', { 'ICX.newUser.usernameStatus': false
-                               , 'ICX.newUser.usernameMessage': false})
-        // this.setState({usernameStatus: false})
-        // this.setState({usernameMessage: ''})
+        Events.pub('ui/event', {
+            'ICX.newUser.usernameStatus': false,
+            'ICX.newUser.usernameMessage': false
+        })
 
         this.setState({defaultKey: false})
     },
@@ -758,11 +1200,19 @@ var ICXNewUser = React.createClass({
     handleRecheckPassphrase: function() {
         var passphrase = this.refs.passphrase.getDOMNode().value
         if(passphrase.length < 8) {
-            this.setState({passphraseStatus: false})
-            this.setState({passphraseMessage: 'Too short'})
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': false,
+                'ICX.newUser.passphraseMessage': 'Too short'
+
+            })
+
         } else {
-            this.setState({passphraseStatus: true})
-            this.setState({passphraseMessage: ''})
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': true,
+                'ICX.newUser.passphraseMessage': ''
+
+            })
+
         }
     },
 
@@ -778,10 +1228,10 @@ var ICXNewUser = React.createClass({
 
         this.refs.username.getDOMNode().value = username
 
-        Events.pub('ui/event', { 'ICX.newUser.usernameStatus': false
-                               , 'ICX.newUser.usernameMessage': false})
-        // this.setState({usernameStatus: false})
-        // this.setState({usernameMessage: ''})
+        Events.pub('ui/event', {
+            'ICX.newUser.usernameStatus': false,
+            'ICX.newUser.usernameMessage': false
+        })
 
         if(finalChar == ' ') {
             this.handleUsernameLookup()
@@ -801,9 +1251,11 @@ var ICXNewUser = React.createClass({
 
         // Check for zero length
         if(!username.length) {
-            
+
             // this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {'ICX.newUser.usernameStatus': 'Missing'})
+            Events.pub('ui/event', {
+                'ICX.newUser.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -817,48 +1269,44 @@ var ICXNewUser = React.createClass({
         username = 'icx.' + username
 
         var prom = PB.getUserRecord(username)
-        
-        // this.setState({usernameMessage: 'Checking...'})
-        Events.pub('ui/username/requested', { 'ICX.newUser.requestedUsername': username
-                                            , 'ICX.newUser.checkingUsername': username
-                                            , 'ICX.newUser.usernameMessage': 'Checking...'
-                                            , 'ICX.newUser.usernameStatus': 'Busy'
-                                            })
-        
-        prom.then(function(result) {
-            // console.log(result)
-            //if(result.username !== undefined) {
-            
-            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
-            //     return false;
-            
-            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus': 'Taken'
-                                            , 'ICX.newUser.usernameMessage': 'Already registered'
-                                            , 'ICX.newUser.checkingUsername': ''
-                                            })
-                // self.setState({usernameStatus: 'Taken'})
-                // self.setState({usernameMessage: 'Already registered'})
 
-            //} self {
-            //    this.setState({usernameStatus: true})
-            //    this.setState({usernameMessage: 'Available'})
-            //}
+        // this.setState({usernameMessage: 'Checking...'})
+        Events.pub('ui/username/requested', {
+            'ICX.newUser.requestedUsername': username,
+            'ICX.newUser.checkingUsername': username,
+            'ICX.newUser.usernameMessage': 'Checking...',
+            'ICX.newUser.usernameStatus': 'Busy'
+        })
+
+        prom.then(function(result) {
+
+            Events.pub('ui/username/taken', {
+                'ICX.newUser.usernameStatus': 'Taken',
+                'ICX.newUser.usernameMessage': 'Already registered',
+                'ICX.newUser.checkingUsername': ''
+            })
+
         }).catch(function(err) {
-            // if(result.username != puffworldprops.ICX.newUser.requestedUsername)
-            //     return false;
-            
-            Events.pub('ui/username/taken', { 'ICX.newUser.usernameStatus':  true
-                                            , 'ICX.newUser.usernameMessage': 'Available'
-                                            , 'ICX.newUser.checkingUsername': false
-                                            })
-            // self.setState({usernameStatus: true})
-            // self.setState({usernameMessage: 'Available'})
+
+            Events.pub('ui/username/taken', {
+                'ICX.newUser.usernameStatus':  true,
+                'ICX.newUser.usernameMessage': 'Available',
+                'ICX.newUser.checkingUsername': false
+            })
         })
 
         return false
     },
 
     handleRegisterName: function() {
+        // START THINKING
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+
+        updateUI();
+
+
         // Register the name
         // Error if there's an error
         // Disable register button until ready
@@ -870,7 +1318,6 @@ var ICXNewUser = React.createClass({
         // Convert passphrase to key
         var privateKey = passphraseToPrivateKeyWif(passphrase)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
-
 
         var rootKeyPublic     = publicKey
         var adminKeyPublic    = publicKey
@@ -918,65 +1365,23 @@ var ICXNewUser = React.createClass({
                     version: "1.0"
                 }
 
-                
-
-                return Events.pub('ui/icx/screen', {"view.icx.screen": self.state.nextStep})
-
-
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+                return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
             },
             function(err) {
+                // TODO: Deal with error, show it in box
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
                 console.log("ERR")
                 self.setState({step: 3,
                     errorMessage: err.toString()})
                 return Events.pub('ui/event', {})
             })
 
-    },
-
-    render: function () {
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-
-        return (
-            <div className="icx-screen icx-newuser">
-                <div style={headerStyle}>Register for a new username</div>
-                <div className="component username">
-                    <div><b>Username:</b></div>
-
-                    .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
-                    <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
-                        <Tooltip position='under' content="Check for availability" />
-                    </span>
-                    <span className="relative">
-                        <a href="#" onClick={this.handleGenerateRandomUsername}><i className="fa fa-refresh" /></a>
-                        <Tooltip position='under' content="Generate a new username" />
-                    </span>
-                    {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
-                </div>
-
-                <div className="component passphrase">
-                    <div><b>Passphrase:</b></div>
-                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={this.state.passphraseStatus} />
-                    <span className="relative">
-                        <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
-                        <Tooltip position='under' content="Generate a new passphrase" />
-                    </span>
-                    <span className="message">{this.state.passphraseMessage}</span>
-                </div>
-
-                <div className="component avartar">
-                    <span style={{color: this.state.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+this.state.avatarAnimal+' shadow'} /></span>
-                    <br />
-                    Avatar (can be changed later)
-                    <br />
-                </div>
-
-                <a className="register" onClick={this.handleRegisterName}>{this.state.nextStepMessage} <i className="fa fa-chevron" /></a>
-            </div>
-            )
     }
 
 });
@@ -991,6 +1396,82 @@ var ICXNewUserFinish = React.createClass({
 var ICXLogin = React.createClass({
     mixins: [TooltipMixin],
 
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        var baseFontH = ICX.calculated.baseFontH
+
+        var currUser = PB.M.Wardrobe.getCurrentUsername()
+        if (currUser)
+            currUser = '.' + currUser
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
+        var thisScreen = ICX.screens.filter(function (obj) {
+            return obj.name == puffworldprops.view.icx.screen;
+        })[0] // NOTE RETURNS ARRAY
+
+
+        var labelStyle = {
+            marginRight: baseFontH + 'px'
+        }
+
+        var inputStyle = {
+            display: 'inline-block'
+        }
+
+
+        return (
+
+            <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
+                <div style={headerStyle}>Save your identity on this web browser</div>
+
+                <div className="component">
+
+                    <div style={labelStyle}><b>Username:</b></div>
+                .icx.
+                    <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
+                    <span className="relative">
+                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.usernameStatus} /></a>
+                        <Tooltip position='under' content="Verify your username" />
+                    </span>
+                    <span className="message">{puffworldprops.ICX.usernameStatus}</span>
+
+                    <br /><br />
+                    <div className="relative">
+                        <b>Private passphrase<sup>&#63;</sup></b>
+                        <Tooltip content="(Placehold text for private passphrase)" />
+                    </div>
+
+
+                    <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
+                    <span className="relative">
+                        <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
+                            <Checkmark show={puffworldprops.ICX.defaultKey} />
+                        </a>
+                        <Tooltip position='under' content="Verify your passphrase" />
+                    </span>
+
+                    <span className="message">{puffworldprops.ICX.defaultKey}</span>
+                    <br /><br />
+                    <i><em>or</em></i>
+                    <br /><br />
+                    <div className="relative">
+                    Select an identity file<sup>&#63;</sup>
+                        <Tooltip content="Login by uploading your passphrase file" />
+                    </div>
+
+
+
+                    <br />
+                    <input type="file" ref="textFile" onChange={this.handleLoginWithFile} />
+
+                </div>
+            </div>
+            )
+    },
+
     getInitialState: function () {
         return {
             rootKeyStatus: false,
@@ -1001,6 +1482,7 @@ var ICXLogin = React.createClass({
             rootKey: false,
             adminKey: false,
             defaultKey: false
+
         }
     },
 
@@ -1016,8 +1498,9 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+            Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1026,17 +1509,24 @@ var ICXLogin = React.createClass({
         var prom = PB.getUserRecord(username)
 
         prom.then(function (result) {
-            self.state.usernameStatus = true
-            Events.pub('ui/puff-packer/userlookup', {})
+            Events.pub('ui/puff-packer/userlookup',{
+                'ICX.usernameStatus': true
+            })
         })
             .catch(function (err) {
-                self.state.usernameStatus = 'Not found'
-                Events.pub('ui/puff-packer/userlookup/failed', {})
+                Events.pub('ui/puff-packer/userlookup/failed',{
+                    'ICX.usernameStatus': 'Not found'
+                })
             })
         return false
     },
 
-
+    componentWillMount: function () {
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
+    },
 
     handlePassphraseCheck: function (keyType) {
         // Will check against default key
@@ -1048,8 +1538,11 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!username.length) {
-            this.state.usernameStatus = 'Missing'
-            Events.pub('ui/event', {})
+
+            //this.state.usernameStatus = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
             return false
         }
 
@@ -1059,8 +1552,10 @@ var ICXLogin = React.createClass({
 
         // Check for zero length
         if (!passphrase.length) {
-            this.state[keyType] = 'Missing'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Missing'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Missing'
+            })
             return false
         }
 
@@ -1071,8 +1566,10 @@ var ICXLogin = React.createClass({
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
         if (!publicKey) {
-            this.state[keyType] = 'Bad key'
-            Events.pub('ui/event', {})
+            //this.state[keyType] = 'Bad key'
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Bad Key'
+            })
             return false
         }
 
@@ -1081,12 +1578,15 @@ var ICXLogin = React.createClass({
         prom.then(function (userInfo) {
 
             if (publicKey != userInfo[keyType]) {
-                self.state[keyType] = 'Incorrect key'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Incorrect key'
+                })
                 return false
             } else {
-                self.state[keyType] = true
-                self.state.usernameStatus = true
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': true,
+                    'ICX.usernameStatus': true
+                })
 
                 // Add this to wardrobe, set username to current
                 if (keyType == 'defaultKey') {
@@ -1096,13 +1596,14 @@ var ICXLogin = React.createClass({
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
 
-                Events.pub('ui/event', {})
+                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
             }
         })
             .catch(function (err) {
-                self.state[keyType] = 'Not found'
-                Events.pub('ui/event', {})
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Not found'
+                })
                 return false
             })
         return false
@@ -1119,13 +1620,16 @@ var ICXLogin = React.createClass({
         if(finalChar == ' ') {
             this.handleUsernameLookup()
             return false
+        } else {
+            this.handleResetCheckboxes()
         }
-        else this.handleResetCheckboxes()
     },
 
     handleResetCheckboxes: function () {
-        this.setState({usernameStatus: false})
-        this.setState({defaultKey: false})
+        Events.pub('ui/event', {
+            'ICX.usernameStatus': false,
+            'ICX.defaultKey': false
+        })
     },
 
     handleIdentityFileLoad: function () {
@@ -1152,6 +1656,7 @@ var ICXLogin = React.createClass({
             try {
                 var identityObj = JSON.parse(content);
             } catch (e) {
+                console.log('failed')
                 // TODO: return an error here
                 return false
             }
@@ -1168,8 +1673,9 @@ var ICXLogin = React.createClass({
                 var publicKey = PB.Crypto.privateToPublic(privateKey)
                 if (!publicKey) {
                     console.log('bad key')
-                    this.state.defaultKey = 'Bad key'
-                    Events.pub('ui/event', {})
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey':'Bad key'
+                    })
                     return false
                 }
 
@@ -1179,8 +1685,9 @@ var ICXLogin = React.createClass({
 
                     if (publicKey != userInfo.defaultKey) {
                         console.log('incorrect key')
-                        self.state.defaultKey = 'Incorrect key'
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Incorrect key'
+                        })
                         return false
                     } else {
 
@@ -1190,13 +1697,18 @@ var ICXLogin = React.createClass({
                         // At least one good key, set this to current user
                         PB.M.Wardrobe.switchCurrent(username)
 
+
+                        ICX.username = username
                         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+
+
                     }
                 })
                     .catch(function (err) {
-                        self.state.defaultKey = 'Not found'
                         console.log('fail')
-                        Events.pub('ui/event', {})
+                        Events.pub('ui/event', {
+                            'ICX.defaultKey':'Not found'
+                        })
 
                         return false
                     })
@@ -1206,115 +1718,79 @@ var ICXLogin = React.createClass({
 
             }
 
-
-
-
-            // Redirect to dashboard
-
         })
 
         /*
 
-        var encrypedLink = this.refs.encryptedLink.getDOMNode()
-        //Display the name of the selected file
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
+         var encrypedLink = this.refs.encryptedLink.getDOMNode()
+         //Display the name of the selected file
+         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+         this.setState({nextStatus: true})
 
-        //Encrypt the file in a puff
-        var element = event.target
-        //var fileprom = PBFiles.openBinaryFile(element)
+         //Encrypt the file in a puff
+         var element = event.target
+         //var fileprom = PBFiles.openBinaryFile(element)
 
-        ICX.fileprom = PBFiles.openBinaryFile(element)
+         ICX.fileprom = PBFiles.openBinaryFile(element)
 
-        ICX.filelist = element.files
-        ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
-        */
+         ICX.filelist = element.files
+         ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
+         */
 
-    },
-
-
-    render: function () {
-        var baseFontH = ICX.calculated.baseFontH
-
-        var currUser = PB.M.Wardrobe.getCurrentUsername()
-        if (currUser)
-            currUser = '.' + currUser
-
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var thisScreen = ICX.screens.filter(function (obj) {
-            return obj.name == puffworldprops.view.icx.screen;
-        })[0] // NOTE RETURNS ARRAY
-
-
-        var labelStyle = {
-            marginRight: baseFontH + 'px'
-        }
-
-        var inputStyle = {
-            display: 'inline-block'
-        }
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = thisScreen.color
-
-
-        return (
-
-            <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
-                <div style={headerStyle}>Save your identity on this web browser</div>
-
-                <div className="component username">
-                    <div style={labelStyle}><b>Username:</b></div>
-                
-                    .icx.
-                    <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
-                    <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={this.state.usernameStatus} /></a>
-                        <Tooltip position='under' content="Verify your username" />
-                    </span>
-                    <span className="message">{this.state.usernameStatus}</span>
-                </div>
-
-                <div className="component passphrase">
-                    <div className="relative">
-                        <b>Private passphrase<sup>&#63;</sup></b>
-                        <Tooltip content="(Placehold text for private passphrase)" />
-                    </div>
-
-
-                        <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
-                        <span className="relative">
-                            <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
-                                <Checkmark show={this.state.defaultKey} />
-                            </a>
-                            <Tooltip position='under' content="Verify your passphrase" />
-                        </span>
-
-                        <span className="message">{this.state.defaultKey}</span>
-
-                </div>
-
-                <div className="component upload">
-                    <i><em>or</em></i>
-                    <div className="relative">
-                        Select an identity file<sup>&#63;</sup>
-                        <Tooltip content="Login by uploading your passphrase file" />
-                    </div>
-
-
-
-                    <br />
-                    <input type="file" ref="textFile" onChange={this.handleLoginWithFile} />
-
-                </div>
-            </div>
-            )
-        //}
     }
+
+
+
 })
 
 var ICXDashboard = React.createClass({
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        var username = ICX.username
+
+        var filename = username + "Identity.json"
+
+        //TODO: Need to show their avatar if available in profile puff
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Dashboard for {username}</div><br />
+                <div className="contentWindow">
+                    <div className="dashboard avatarHolder">
+                        <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
+                        <br />
+                    </div>
+
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
+                        <i className="fa fa-fw fa-list" />
+                        {' '}View your messages
+                    </a>
+                    <br /><br />
+                    <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
+                        <i className="fa fa-fw fa-download" />
+                        {' '}Save passphrase as file
+                    </a>
+                    <br /><br />
+                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
+
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
+                        <i className="fa fa-fw fa-file-excel-o" />
+                        {' '}Encrypt or decrypt a file
+                    </a>
+                    <br /><br />
+
+
+                    <a href="#" onClick={this.handleSignOut}>
+                        <i className="fa fa-fw fa-sign-out" />
+                        {' '}Logout
+                    </a>
+                </div>
+            </div>
+            )
+    },
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
@@ -1358,8 +1834,6 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile())
 
-        console.log(content)
-
         var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
 
         // var el = document.getElementById.bind(document)
@@ -1390,84 +1864,37 @@ var ICXDashboard = React.createClass({
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
-    },
-
-    render: function () {
-        var username = ICX.username
-
-        var filename = username + "Identity.json"
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
-
-        //The avatar is super fragile, literally will only render the very first time a user sees their
-        // Dashboard page
-        //TODO: Need to show their avatar if available
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Dashboard for {username}</div><br />
-                <div className="contentWindow">
-                    <div className="dashboard avatarHolder">
-                        <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
-                        <br />
-                    </div>
-
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
-                        <i className="fa fa-fw fa-list" />
-                        {' '}View your messages
-                    </a>
-                    <br /><br />
-                    <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
-                        <i className="fa fa-fw fa-download" />
-                        {' '}Save passphrase as file
-                    </a>
-                    <br /><br />
-                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
-
-                    <a href="#"  onClick={this.handleGoTo.bind(null, '')}>
-                        <i className="fa fa-fw fa-file-excel-o" />
-                        {' '}Encrypt or decrypt a file
-                    </a>
-                    <br /><br />
-
-
-                    <a href="#" onClick={this.handleSignOut}>
-                        <i className="fa fa-fw fa-sign-out" />
-                        {' '}Logout
-                    </a>
-                </div>
-            </div>
-            )
     }
-});
+
+
+})
 
 var ICXTableView = React.createClass({
 
     render: function () {
+
+
         var viewprops = this.props.view || {}
         var view = <TableView view={viewprops} table={viewprops.table}/>
         document.body.style.overflowY = "auto"
 
         return (
             <div className="icx-screen">{view}</div>
-        )
+            )
     }
 
-});
+})
 
 var ICXLearn = React.createClass({
 
     render: function () {
-        // Link to previously encrypted/stored files
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
-                ((VIDEO ON FRIST SCREEN, TEXT ON NEXT ONES))
+                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
+            ((VIDEO ON FRIST SCREEN, TEXT ON NEXT ONES))
                 <ul>
                     <li>No passwords sent over network</li>
                     <li>Encrypt files right on your own computer</li>
@@ -1483,25 +1910,23 @@ var ICXLearn = React.createClass({
             )
     }
 
-});
+})
 
 var ICXAbout = React.createClass({
 
     render: function () {
-        // Link to previously encrypted/stored files
-
         var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = this.props.screenInfo.color
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{this.props.screenInfo.fullText}</div><br />
+                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
                 <div className="contentWindow">
                 I.CX, or “I see X”, is a private messaging and file sending system build on the <a href="http://www.puffball.io">puffball platform</a>.
-                <br />
-                <br />
-                <b>Developers:</b>
-                <br />
+                    <br />
+                    <br />
+                    <b>Developers:</b>
+                    <br />
                 • <a href="http://www.mattasher.com">Matt Asher</a><br />
                 • <a href="https://twitter.com/dann">Dann Toliver</a><br />
                 • <a href="https://twitter.com/AdamRafeek">Adam Rafeek</a><br />
@@ -1510,8 +1935,14 @@ var ICXAbout = React.createClass({
 
             </div>
             )
+    },
+
+    gotoLearn: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'learn'});
+
     }
-});
+
+})
 
 var ICXHome = React.createClass({
 
@@ -1520,151 +1951,166 @@ var ICXHome = React.createClass({
             <span></span>
             )
     }
+})
 
-});
+var ICXFileConverter = React.createClass({
 
-// MAIN COMPONENT, ROUTES TRAFFIC
-var ICXWorld = React.createClass({
 
     render: function () {
 
-        var w = window.innerWidth
-        var h = window.innerHeight
-        var p = w*h
-
-        var l = ICX.config.logo.originalW*ICX.config.logo.originalH
-        var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
-
-        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
-
-        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
-
-
-        ICX.calculated = {
-
-            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
-
-            logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
-
-            fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
-
-            baseFontH: baseFontH,
-
-            pageHeaderTextStyle: {
-                fontFamily: "Gudea, helvetica, arial",
-                fontSize: (1.1 * baseFontH) + 'px',
-                width: '100%',
-                textAlign: 'center',
-                padding: '5px',
-                color: 'white'
-            },
-
-            baseTextStyle: {
-                fontFamily: "Gudea",
-                fontSize: baseFontH+'px'
-            }
-        }
-
-        ICX.screens = [
-            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,  255, 255, .0)'},
-            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba(49,  68,  92, .08)'},
-            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba(85,  65,  94, .08)'},
-            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba(46,  48, 146, .08)'},
-            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'}
-        ]
-
-        var currScreen = puffworldprops.view.icx.screen
-
-        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
-
-        var username = PB.M.Wardrobe.getCurrentUsername()
-        ICX.username = username
-
-        if(!currScreen) {
-            currScreen = 'init'
-        }
-
-
-        if (currScreen == 'init') {
-            if(username) {
-                currScreen = 'dashboard'
-            } else {
-                currScreen = 'home'
-            }
-        }
-
-
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == currScreen);
-        })[0];
-
-
-        if(!thisScreen) {
-            return <div>{currScreen}</div>
-        }
-
-
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            borderRightWidth: borderWidth,
-            borderRightColor: thisScreen.color,
-            borderRightStyle: 'solid'
-        }
-
-        var contentDivStyles = {
-            position: "absolute",
-            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
-            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            padding: '10px', // Testing...
-            fontSize: ICX.calculated.baseFontH + 'px'
-
-        }
-
-        ICX.screenMap = ICX.screens.reduce(function(acc, screenInfo) {
-            acc[screenInfo.name] = screenInfo
-            return acc
-        },{})
-
-        var screenInfo = ICX.screenMap[currScreen]
-        var fun = screenInfo.component
-
-        contentDivStyles.backgroundColor = screenInfo.backgroundColor
-
-        var pageComponent = fun( {screenInfo:screenInfo} )
-
-
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
-            <div style={screenStyle}>
-                <ICXLogo screenInfo={thisScreen} />
-                <ICXLinks screenInfo={thisScreen} />
-                <div style={contentDivStyles}>
-                    {pageComponent}
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Encrypt and Decrypt Files</div>
+                <div className="contentWindow">
+                Select a file. It will be encrypted in your web browser.
+                    <br /><br />
+                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
+
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
+                        defaultValue="No file Selected"/>
+                    </div>
+                    <br /><br />
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
+                    <br /><br />
+
+                OR<br />
+
+                Select a .puff file to decrypt.
+                    <br /><br />
+                    <input type="file" id="fileToDecrypt" ref="decryptbutton" onChange={this.handleDecryptFile} />
+
+                    <div style={{display: 'inline','font-size':'90%'}}>
+                        <input id="showDecryptFile" type="text" disabled="disabled" ref="filenameDecrypt"
+                        defaultValue="No file Selected"/>
+                    </div>
+                    <br /> < br />
+                    <textarea ref="resultbox">Results</textarea>
+                    <br />
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>Save Decrypted File</a>
+
                 </div>
-                <ICXFooter />
             </div>
             )
+    },
+
+    handleDecryptFile: function(event) {
+
+        this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
+
+        var decryptFile = this.refs.decryptbutton.getDOMNode()
+        var resultLink = this.refs.decryptedDownload.getDOMNode()
+
+
+        var element = event.target
+        var fileprom = PBFiles.openPuffFile(element)
+        fileprom.then(function(fileguts) {
+            console.log(fileguts)
+
+            var letterPuff = PBFiles.extractLetterPuff(fileguts)
+            var content = (letterPuff.payload || {}).content
+            var type = (letterPuff.payload || {}).type
+
+            console.log(letterPuff)
+            //var resultbox = this.refs.resultbox.getDOMNode()
+            //resultbox.value = content
+
+            var filelist = decryptFile.files
+            var file = filelist[0]
+            var filename = file.name
+            if (/\.puff/.test(filename)) {
+                filename = filename.slice(0, -5)
+            }
+            else {
+                //TODO: ERROR!!!!
+            }
+            resultLink.style.display = ""
+            resultLink.href = PBFiles.prepBlob(content, type)
+            resultLink.download = filename
+        })
+
+    },
+
+    handleGetFile: function(event) {
+        //Display the name of the selected file
+        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+
+
+        //Encrypt the file in a puff
+        var element = event.target
+
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+
+        ICX.filelist = element.files
+
+        var encrypedLink = this.refs.encryptedLink.getDOMNode()
+
+        ICX.fileprom.then(function(blob) {
+            var puff = PBFiles.createPuff(blob, 'file')
+
+            var filelist = ICX.filelist
+            var file     = filelist[0]
+            var filename = file.name
+            var new_filename = filename + '.puff'
+
+            //Make the link visisble to download the file (Temporary)
+            encrypedLink.style.display=""
+            encrypedLink.href = PBFiles.prepBlob(puff)
+            encrypedLink.download = new_filename
+        })
+
     }
-});
+
+})
 
 // SUBCOMPONENTS
+var ICXSpinner = React.createClass({
+    render: function () {
+        var spinnerHeight = ICX.calculated.baseFontH*3
+
+        var w = window.innerWidth
+        var h = window.innerHeight
+
+        var spinnerTop = Math.floor((h -spinnerHeight)/2)
+        var spinnerLeft = Math.floor((w -spinnerHeight)/2)
+
+        if(typeof puffworldprops.ICX.thinking === 'undefined' || !puffworldprops.ICX.thinking) {
+            return <span></span>
+        } else {
+            return (
+                <div style={{zIndex: 1000, top: 0, textAlign: 'center', verticalAlign: 'middle', position: 'fixed', fontSize: spinnerHeight+'px', width: w+'px', height: h+'px', backgroundColor: 'rgba(255,255,255,.8)'}}>
+                    <div style={{width: '100%', height: '100%', position: 'relative', top: spinnerTop+'px'}}>
+                        <i className="fa fa-spinner fa-spin" />
+                    </div>
+                </div>
+                )
+        }
+    }
+})
+
+var ICXError = React.createClass({
+    render: function () {
+        if(ICX.errors.length) {
+            return (
+                <div>{ICX.errors}</div>
+                )
+        } else {
+            return <span></span>
+        }
+
+    }
+})
+
 var ICXLogo = React.createClass({
     handleGoHome: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+    },
+
+    handleGoTo: function(screen) {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
 
@@ -1673,7 +2119,7 @@ var ICXLogo = React.createClass({
         var h = window.innerHeight
 
 
-        if(this.props.screenInfo.name == 'home' || this.props.screenInfo.name == 'init') {
+        if(!puffworldprops.view.icx.screen || puffworldprops.view.icx.screen == 'home') {
             var logoW = ICX.calculated.logoW
 
             var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
@@ -1688,7 +2134,7 @@ var ICXLogo = React.createClass({
                         <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
                     <br />
-                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first <a href="#" onClick={this.handleGoHow}><i>100% secure</i></a>, open source messaging system that works right in your web browser.
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first 100% secure, open source messaging system that works right in your web browser.
                     </div>
                 </div>
                 )
@@ -1696,7 +2142,7 @@ var ICXLogo = React.createClass({
 
             var thisScreen = ICX.screens.filter(function( obj ) {
                 return obj.name == puffworldprops.view.icx.screen;
-            });
+            })[0];
 
             var logoW = w*ICX.config.logoSmallRatio
             var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
@@ -1744,7 +2190,9 @@ var ICXLinks = React.createClass({
 
 var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
+        // return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+
     },
 
 
@@ -1837,6 +2285,50 @@ var ICXFooter = React.createClass({
 var ICXUserButton = React.createClass({
     mixins: [TooltipMixin],
 
+    render: function() {
+
+        var username = ICX.username
+        if (!username) {
+            return(
+                <span>
+                    <div className="navBtn user">
+                        <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
+                            <i className="fa fa-fw fa-sign-in"></i>{' '}
+                        LOG IN
+                        </a>
+                    </div>
+                    <div style={{display: 'inline-block', marginLeft: '10px', marginRight: '10px'}}>or</div>
+                    <div className="navBtn user">
+                        <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
+                            <i className="fa fa-fw fa-user"></i>  SIGN UP
+                        </a>
+                    </div>
+
+                </span>
+                )
+        } else {
+            return(
+                <span>
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-w fa-list" />
+                    </a>
+                    {' '}
+                    <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
+                        <i className="fa fa-fw fa-user" />{username}
+                    </a>
+                    {' '}
+                    <span className="relative">
+                        <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
+                            <i className="fa fa-fw fa-sign-out" />
+                        </a>
+                        <Tooltip position="under" content="Remove identity from this device" color="black" />
+                    </span>
+                </span>
+                )
+
+        }
+    },
+
     handleGoTo: function(screen) {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
@@ -1855,55 +2347,7 @@ var ICXUserButton = React.createClass({
         PB.M.Wardrobe.removeKeys(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
-        Events.pub('user/'+userToRemove+'/remove', {})
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto})
-    },
-
-    render: function() {
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return obj.name == 'login';
-        })[0] // NOTE RETURNS ARRAY
-
-        var username = ICX.username
-        if (!username) {
-            return(
-                <span>
-                    <div className="navBtn user">
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
-                        <i className={thisScreen.icon}></i>{' '}
-                        {thisScreen.fullText}
-                    </a>
-                    </div>
-                    <div style={{display: 'inline-block', marginLeft: '10px', marginRight: '10px'}}>or</div>
-                    <div className="navBtn user">
-                    <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                        <i className="fa fa-user"></i>  SIGN UP
-                    </a>
-                    </div>
-
-                </span>
-                )
-        } else {
-            return(
-                <span>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-list" />
-                    </a>
-                    {' '}
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-fw fa-user" />{username}
-                    </a>
-                    {' '}
-                    <span className="relative">
-                        <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
-                            <i className="fa fa-fw fa-sign-out" />
-                        </a>
-                        <Tooltip position="under" content="Remove identity from this device" color="black" />
-                    </span>
-                </span>
-            )
-
-        }
+        ICX.currScreen = 'home'
     }
 
 })
@@ -1965,6 +2409,28 @@ var Checkmark = React.createClass({
 
     }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2173,7 +2639,7 @@ var CursorBindingsMixin = {
             var current = this.props.view.cursor
             var dir = arrowToDir[e.which]
 
-            if (!current)                              // default cursors handled elsewhere (there should always 
+            if (!current)                              // default cursors handled elsewhere (there should always
                 return false                           // be an active cursor, if we are in a cursorable mode)
 
             var nextFn = this.gotoNext.bind(this, current, dir)
@@ -2213,7 +2679,7 @@ var CursorBindingsMixin = {
             if (!this.props.view.cursor)
                 return false
 
-            // don't refocus if we're selecting the focused puff 
+            // don't refocus if we're selecting the focused puff
             if (this.props.view.cursor == this.props.view.query.focus)
                 return false
 
@@ -2632,7 +3098,7 @@ var PuffTallTree = React.createClass({
         //                             || PB.M.Forum.sortByPayload(b, a) * -1    // regular temporal sort
         //                             })
 
-        // box the puffs 
+        // box the puffs
         var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
             // , ancestorPuffs.map(ancestorBox('parent'))
             , ancestorBoxes

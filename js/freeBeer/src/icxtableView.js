@@ -92,6 +92,7 @@ var RowRenderMixin = {
   //           //var fileprom = PBFiles.openBinaryFile(element)
   //               fileprom.then(function(fileguts) {
   //                   console.log(fileguts)
+
                     
   //               var letterPuff = PBFiles.extractLetterPuff(puff)
   //               //letterPuff = puff

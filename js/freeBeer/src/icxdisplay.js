@@ -418,12 +418,7 @@ var ICXStoreFinish = React.createClass({
 
     componentDidMount: function () {
 
-
-
         if(PB.M.Wardrobe.getCurrentUsername()) {
-
-
-
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
             ICX.fileprom.then(function(blob) {
@@ -666,15 +661,12 @@ var ICXSendFile = React.createClass({
             )
     },
 
-
     componentWillMount: function() {
         if(ICX.username) {
             Events.pub('ui/event/', {
                 'ICX.nextStep': 'send.file.finish',
                 'ICX.nextStepMessage': 'SEND FILE'
             })
-
-
         } else {
             Events.pub('ui/event/', {
                 'ICX.nextStep': 'newuser',
@@ -700,9 +692,6 @@ var ICXSendFile = React.createClass({
             'ICX.nextStatus': true
         })
     }
-
-
-
 })
 
 
@@ -729,11 +718,6 @@ var ICXSendFileConfirm = React.createClass({
             </div>
             )
     }
-
-
-
-
-
 })
 
 var ICXSendFileFinish = React.createClass({
@@ -775,6 +759,8 @@ var ICXSendFileFinish = React.createClass({
     },
 
     componentDidMount: function () {
+
+
         // Set information for this send
         var type = 'file'
         var content = ICX.filelist[0]
@@ -1948,7 +1934,7 @@ var ICXIndepth = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Learn about the technology</div><br />
 
-            To send a message or file, I.CX uses the public code of your recipient to encrypt your content so that only they can open it. All of your content client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
+            To send a message or file, I.CX uses the public code of your recipient to encrypt your content so that only they can open it. All of your content is encrypted client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
 
                 <br /><br />
 

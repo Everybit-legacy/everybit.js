@@ -76,14 +76,45 @@ var RowRenderMixin = {
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
-		return (
-			<div>
-				<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
-				<div className="listBarIcon">
-		            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
-		        </div>
-			</div>
-		)
+
+
+    	if(puff.payload.type = 'file') {
+            var element = puff.payload.content
+            var fileprom = PBFiles.openPuffFile(element)
+                fileprom.then(function(fileguts) {
+                    console.log(fileguts)
+                    
+                    var letterPuff = PBFiles.extractLetterPuff(fileguts)
+                    var content = (letterPuff.payload||{}).content
+                    var type = (letterPuff.payload||{}).type
+                    
+                    console.log(letterPuff)
+                    
+                    resultbox.value = content
+
+                    var filelist = decryptFile.files
+                    var file     = filelist[0]
+                    var filename = file.name
+                    if(/\.puff/.test(filename))
+                        filename = filename.slice(0, -5)
+                    
+                    fileLink.href = PBFiles.prepBlob(content, type)
+                    //fileLink.style.display = ""
+                    //fileLink.download = filename
+                })
+
+        }
+
+			return (
+				<div>
+					<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
+					<div className="listBarIcon">
+			            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
+			        </div>
+			        <a href="#" ref={PBFiles.prepBlob(content, type)} download="">Download</a>
+				</div>
+			)
+		
 	},
 	renderOther: function() {
 		var puff = this.props.puff

@@ -76,37 +76,37 @@ var RowRenderMixin = {
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
-		// var filelink = ""
-		// var download = ""
 
-  //   	if(puff.payload.type == 'file') {
-  //           //var element = puff
-  //           //var fileprom = PBFiles.openPuffFile(element)
-  //           var reader = new FileReader()
+		var filelink = ""
+		var download = ""
 
-	 //        reader.onload = function(event) {
-	 //            console.log(reader)
-	 //            var dataURIContent = event.target.result
-	 //            var fileprom = resolve(dataURIContent)
-	 //        }
-  //           //var fileprom = PBFiles.openBinaryFile(element)
-  //               fileprom.then(function(fileguts) {
-  //                   console.log(fileguts)
+    	if(puff.payload.type == 'file') {
+            //var element = puff
+            var toDownload = {}
+            //toDownload.files2 = new FileList
+			toDownload.files2 = []
+			toDownload.files2[0] = puff.payload.content
+			
+
+			var fileprom = PBFiles.openPuffFile(toDownload)
+
+                fileprom.then(function(fileguts) {
+                    console.log(fileguts)
 
                     
-  //               var letterPuff = PBFiles.extractLetterPuff(puff)
-  //               //letterPuff = puff
-  //               var content = (letterPuff.payload||{}).content
-  //               var type = (letterPuff.payload||{}).type
+                // var letterPuff = PBFiles.extractLetterPuff(puff)
+                // //letterPuff = puff
+                // var content = (letterPuff.payload||{}).content
+                // var type = (letterPuff.payload||{}).type
                 
-  //               console.log(letterPuff)
+                // console.log(letterPuff)
                 
-  //               var filelink = PBFiles.prepBlob(content, type)
-  //               //filelink.style.display = ""
-  //               var download = puffcontent
-  //           //    })
+                // var filelink = PBFiles.prepBlob(content, type)
+                // //filelink.style.display = ""
+                // var download = puffcontent
+                })
 
-  //       }
+        }
 
 			return (
 				<div>

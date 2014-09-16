@@ -40,10 +40,10 @@ if(buildFor == 'icx') {
     gulp.task('jsxFiles', function() {
         gulp.src(jsxList)
             .pipe(react())
-            //.pipe(sourcemaps.init())
+            .pipe(sourcemaps.init())
                  .pipe(concat('fbr.js'))
                  .pipe(uglify())
-            //.pipe(sourcemaps.write())
+            .pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
     });
 } else {
@@ -113,12 +113,12 @@ if(buildFor == 'icx') {
 if(buildFor == 'icx') {
     gulp.task('ourOthers', function () {
         gulp.src(ourOthersList)
-            //.pipe(sourcemaps.init())
+            .pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
             .pipe(filesize())
             .pipe(uglify())
             .pipe(filesize())
-            //.pipe(sourcemaps.write())
+            .pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
 
     });
@@ -138,22 +138,43 @@ if(buildFor == 'icx') {
 
 }
 
+
+
+
 if(buildFor == 'icx') {
+    var theirOthersList = [
+        'scripts/bitcoinjs-min.js',
+        'scripts/markdown.js',
+        'scripts/mousetrap.js',
+        'scripts/peer.js',
+        'scripts/polyglot.min.js',
+        'scripts/promise.min.js',
+        'scripts/timeSince.js',
+        'scripts/xbbcode.js'
+    ];
+} else {
+    var theirOthersList = [
+
+    ];
+}
+
+
+if(buildFor == 'icx') {
+
     gulp.task('theirOthers', function () {
-        gulp.src(['scripts/[!rJ]*.js', 'scripts/react/build/react-with-addons.js'])
-            //.pipe(sourcemaps.init())
+        gulp.src([theirOthersList, 'scripts/react/build/react-with-addons.js'])
+            .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(filesize())
             .pipe(uglify())
             .pipe(filesize())
-            //.pipe(sourcemaps.write())
+            .pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
-
     });
 } else {
     gulp.task('theirOthers', function () {
         gulp.src(['scripts/[!rJ]*.js', 'scripts/react/build/react-with-addons.js'])
-            // .pipe(sourcemaps.init())
+            //.pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(filesize())
             .pipe(uglify())

@@ -2009,33 +2009,42 @@ var ICXFileConverter = React.createClass({
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
-
-
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
             console.log(fileguts)
 
-            var letterPuff = PBFiles.extractLetterPuff(fileguts)
-            var content = (letterPuff.payload || {}).content
-            var type = (letterPuff.payload || {}).type
+            var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
 
-            console.log(letterPuff)
-            //var resultbox = this.refs.resultbox.getDOMNode()
-            //resultbox.value = content
-
-            var filelist = decryptFile.files
-            var file = filelist[0]
-            var filename = file.name
-            if (/\.puff/.test(filename)) {
-                filename = filename.slice(0, -5)
+            if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
+                alert('ERROR: File decryption failed. You may not be authorized to decrypt this file.')
+                //TODO: display a real error message
             }
             else {
-                //TODO: ERROR!!!!
+
+
+                var content = (letterPuff.payload || {}).content
+                var type = (letterPuff.payload || {}).type
+
+                console.log(letterPuff)
+                //var resultbox = this.refs.resultbox.getDOMNode()
+                //resultbox.value = content
+
+                var filelist = decryptFile.files
+                var file = filelist[0]
+                var filename = file.name
+                if (/\.puff/.test(filename)) {
+                    filename = filename.slice(0, -5)
+                    resultLink.style.display = ""
+                    resultLink.href = PBFiles.prepBlob(content, type)
+                    resultLink.download = filename
+                }
+                else {
+                    alert('ERROR: This does not appear to be a Puff File')
+                    //TODO: ERROR!!!!
+                }
             }
-            resultLink.style.display = ""
-            resultLink.href = PBFiles.prepBlob(content, type)
-            resultLink.download = filename
+
         })
 
     },

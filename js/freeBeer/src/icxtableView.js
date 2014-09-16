@@ -76,34 +76,37 @@ var RowRenderMixin = {
 	renderContent: function() {
 		var puff = this.props.puff
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
+		// var filelink = ""
+		// var download = ""
 
+  //   	if(puff.payload.type == 'file') {
+  //           //var element = puff
+  //           //var fileprom = PBFiles.openPuffFile(element)
+  //           var reader = new FileReader()
 
-    	if(puff.payload.type == 'file') {
-            var element = puff.payload.content
-            var fileprom = PBFiles.openPuffFile(element)
-                fileprom.then(function(fileguts) {
-                    console.log(fileguts)
-                    
-                    var letterPuff = PBFiles.extractLetterPuff(fileguts)
-                    var content = (letterPuff.payload||{}).content
-                    var type = (letterPuff.payload||{}).type
-                    
-                    console.log(letterPuff)
-                    
-                    resultbox.value = content
+	 //        reader.onload = function(event) {
+	 //            console.log(reader)
+	 //            var dataURIContent = event.target.result
+	 //            var fileprom = resolve(dataURIContent)
+	 //        }
+  //           //var fileprom = PBFiles.openBinaryFile(element)
+  //               fileprom.then(function(fileguts) {
+  //                   console.log(fileguts)
 
-                    var filelist = decryptFile.files
-                    var file     = filelist[0]
-                    var filename = file.name
-                    if(/\.puff/.test(filename))
-                        filename = filename.slice(0, -5)
                     
-                    fileLink.href = PBFiles.prepBlob(content, type)
-                    //fileLink.style.display = ""
-                    //fileLink.download = filename
-                })
+  //               var letterPuff = PBFiles.extractLetterPuff(puff)
+  //               //letterPuff = puff
+  //               var content = (letterPuff.payload||{}).content
+  //               var type = (letterPuff.payload||{}).type
+                
+  //               console.log(letterPuff)
+                
+  //               var filelink = PBFiles.prepBlob(content, type)
+  //               //filelink.style.display = ""
+  //               var download = puffcontent
+  //           //    })
 
-        }
+  //       }
 
 			return (
 				<div>
@@ -111,7 +114,6 @@ var RowRenderMixin = {
 					<div className="listBarIcon">
 			            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
 			        </div>
-			        <a href="#" ref={PBFiles.prepBlob(content, type)} download="">Download</a>
 				</div>
 			)
 		
@@ -371,11 +373,11 @@ var TableView = React.createClass({
 
 		var footer = <div></div>
 		if (this.state.noMorePuff === true) {
-			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>End of puffs.</div>
+			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>Nothing more to show</div>
 		} else if (this.state.noMorePuff === 'load') {
 			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}>Loading...</div>
 		} else {
-			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}><a href="#" onClick={this.handleForceLoad}>Ask for more puffs.</a></div>
+			footer = <div className="listfooter listrow" style={{minWidth: this.getRowWidth()}}><a href="#" onClick={this.handleForceLoad}>Check for more</a></div>
 		}
 		if (puffworldprops.view.table.format == "list") {
 			var query = puffworldprops.view.query
@@ -580,6 +582,9 @@ var RowSingle = React.createClass({
     		this.setState({showBar: true})
     	}
     	return false
+    },
+    handleGenerateDownloadLink: function() {
+
     },
 	render: function() {
 		var puff = this.props.puff

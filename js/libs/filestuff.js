@@ -58,6 +58,24 @@ PBFiles.extractLetterPuff = function(content) {
     return letter
 }
 
+PBFiles.extractLetterPuffForReals = function(content) {
+    var puff = PB.parseJSON(content)
+    if(!puff) return content
+
+    if(!puff.keys) return (puff.payload||{}).content
+
+    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
+    var username    = userRecord.username
+    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+
+    var pubkey = userRecord.defaultKey
+    var prikey = privateKeys.default
+
+    var letter = PB.decryptPuffForReals(puff, pubkey, username, prikey)
+
+    return letter
+}
+
 PBFiles.openPuffFile = function(element) {                
     return PBFiles.handleFileOpen(element)
 }

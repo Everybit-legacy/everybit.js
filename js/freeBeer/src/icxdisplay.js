@@ -2003,14 +2003,12 @@ var ICXFileConverter = React.createClass({
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
-
-
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
             console.log(fileguts)
 
-            var letterPuff = PBFiles.extractLetterPuff(fileguts)
+            var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
             var content = (letterPuff.payload || {}).content
             var type = (letterPuff.payload || {}).type
 

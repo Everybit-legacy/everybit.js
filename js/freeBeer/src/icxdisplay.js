@@ -88,28 +88,34 @@ var ICXWorld = React.createClass({
     render: function () {
 
         var currScreen = puffworldprops.view.icx.screen
+
         if(!currScreen) {
             currScreen = 'init'
         }
 
 
-        ICX.username = PB.M.Wardrobe.getCurrentUsername()
-        ICX.identitySet = true
 
-
-        if(ICX.identitySet) {
-            if (currScreen == 'init') {
-                if (ICX.username.length) {
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
-                } else {
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
-                }
-            }
+        if(PB.M.Wardrobe.currentKeys) {
+            ICX.username = PB.M.Wardrobe.getCurrentUsername()
         } else {
-            if (currScreen == 'init') {
-                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+            ICX.username = false
+        }
+
+
+        // console.log(ICX.username + 'is username')
+
+        if (currScreen == 'init') {
+            if (ICX.username) {
+                currScreen = 'dashboard'
+                Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+
+            } else {
+                currScreen = 'home'
+                Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
             }
         }
+
+        ICX.currScreen = currScreen
 
         var w = window.innerWidth
         var h = window.innerHeight

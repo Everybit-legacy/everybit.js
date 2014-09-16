@@ -15,6 +15,8 @@ var zip = require('gulp-zip');
 // Toggele build main or ICX
 var buildFor = 'icx'
 
+
+// JSX FILES
 if(buildFor == 'icx') {
     // Tasks
     var jsxList = [
@@ -59,6 +61,8 @@ if(buildFor == 'icx') {
 
 }
 
+
+// OTHER PUFFBALL / ICX FILES
 if(buildFor == 'icx') {
     var ourOthersList = [
         'js/helpers.js',
@@ -71,10 +75,10 @@ if(buildFor == 'icx') {
         'js/libs/gridbox.js',
         'js/libs/dagoba.js',
 
-        'js/core/PB.js',
+        // 'js/core/PB.js',
         'js/core/PB.Net.js',
         'js/core/PB.Data.js',
-        'js/core/PB.Crypto.js',
+        // 'js/core/PB.Crypto.js',
         'js/core/PB.Persist.js',
 
         'js/modules/PB.M.Forum.js',
@@ -139,18 +143,17 @@ if(buildFor == 'icx') {
 }
 
 
-
+// THEIR OTHERS
 
 if(buildFor == 'icx') {
     var theirOthersList = [
-        'scripts/bitcoinjs-min.js',
+        // 'scripts/bitcoinjs-min.js',
         'scripts/markdown.js',
-        'scripts/mousetrap.js',
-        'scripts/peer.js',
         'scripts/polyglot.min.js',
         'scripts/promise.min.js',
         'scripts/timeSince.js',
-        'scripts/xbbcode.js'
+        'scripts/xbbcode.js',
+        'scripts/react/build/react-with-addons.js'
     ];
 } else {
     var theirOthersList = [
@@ -158,11 +161,9 @@ if(buildFor == 'icx') {
     ];
 }
 
-
 if(buildFor == 'icx') {
-
     gulp.task('theirOthers', function () {
-        gulp.src([theirOthersList, 'scripts/react/build/react-with-addons.js'])
+        gulp.src(theirOthersList)
             .pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(filesize())
@@ -186,6 +187,7 @@ if(buildFor == 'icx') {
 
 }
 
+// FILES TO COPY DIRECTLY
 if(buildFor == 'icx') {
     gulp.task('copyFiles', function() {
         gulp.src('styles/fonts/*',{base: '.'})
@@ -197,8 +199,17 @@ if(buildFor == 'icx') {
         gulp.src('icxconfig.js',{base: '.'})
             .pipe(gulp.dest('build/icx'));
 
-        // gulp.src('cryptoworker.js',{base: '.'})
-        //    .pipe(gulp.dest('build/icx'));
+        gulp.src('cryptoworker.js',{base: '.'})
+            .pipe(gulp.dest('build/icx'));
+
+        gulp.src('js/core/PB.js',{base: '.'})
+            .pipe(gulp.dest('build/icx'));
+
+        gulp.src('js/core/PB.Crypto.js',{base: '.'})
+            .pipe(gulp.dest('build/icx'));
+
+        gulp.src('scripts/bitcoinjs-min.js',{base: '.'})
+            .pipe(gulp.dest('build/icx'));
 
     });
 
@@ -226,6 +237,7 @@ if(buildFor == 'icx') {
 }
 
 
+// CSS MINIFICATION
 if(buildFor == 'icx') {
     gulp.task('css', function () {
         gulp.src('styles/*.css')
@@ -243,9 +255,8 @@ if(buildFor == 'icx') {
 }
 
 
-
+// ZIP AS NEEDED
 if(buildFor != 'icx') {
-
     gulp.task('zip', function() {
         gulp.src(['build/*.js','build/*.html','build/img/*','build/styles/*','build/styles/fonts/*'],{base: '.'})
             .pipe(zip('puffball.zip'))
@@ -262,7 +273,6 @@ if(buildFor != 'icx') {
 
 
 if(buildFor == 'icx') {
-
     gulp.task('default', ['jsxFiles', 'css', 'ourOthers', 'theirOthers', 'copyFiles']);
 } else {
 

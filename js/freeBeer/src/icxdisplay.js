@@ -172,11 +172,9 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'send.file.finish',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
             {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba(114, 113, 86, .08)'},
-
-
-
             {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'init',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'}
+            {position: 0, name: 'init',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
+            {position: 0, name: 'indepth', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba(49,  68,  92, .08)'}
 
         ]
 
@@ -1893,32 +1891,103 @@ var ICXTableView = React.createClass({
 
 var ICXLearn = React.createClass({
 
+    /*
+     <ul>
+     <li>No passwords sent over network</li>
+     <li>Encrypt files right on your own computer</li>
+     <li>Is there a catch. (yes, we don&#39;t store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
+     <li>Tech details of p2p network</li>
+     <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
+     <li>Nothing to install, open source</li>
+     </ul>
+
+     */
     render: function () {
+        // TODO: Determine width then height of video embed dynamically
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
+        var w = window.innerWidth
+
+        var vidW = Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w *.98 )
+        var vidH = Math.floor(vidW * 720/1280)
+        var vidURL = "//www.youtube.com/embed/mzjO8uxZjKQ"
+
+        /*
+         <Frame styles={{width: vidW, height: vidH, src: vidURL}} name="There">
+         <div styles={{width: vidW, height: vidH, src: vidURL}}>
+         embedded content {this.props.name}
+         </div>
+         </Frame>
+         */
 
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
-            ((VIDEO ON FRIST SCREEN, TEXT ON NEXT ONES))
-                <ul>
-                    <li>No passwords sent over network</li>
-                    <li>Encrypt files right on your own computer</li>
-                    <li>Is there a catch. (yes, we don&#39;t store your passpharse, but we are willing to split it into 3 and send to emails. And you can download it</li>
-                    <li>Tech details of p2p network</li>
-                    <li>Basic encryption visual, aligator and badger, coyote tries to intercept.</li>
-                    <li>Nothing to install, open source</li>
-                </ul>
-
-
-
+                <iframe width={vidW} height={vidH} src="//www.youtube.com/embed/mzjO8uxZjKQ" frameborder="0" allowfullscreen></iframe>
+                <br /><br />
+                To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
             </div>
             )
+    },
+
+    handleGoInDepth: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'indepth'});
     }
 
 })
 
-var ICXAbout = React.createClass({
+var ICXIndepth = React.createClass({
+
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Learn about the technology</div><br />
+
+            To send a message or file, I.CX uses the public code of your recipient to encrypt your content so that only they can open it. All of your content client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
+
+                <br /><br />
+
+            We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
+
+                <br /><br />
+                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/freebeer" target="_new">github repository</a>.
+            </div>
+
+            )
+    }
+})
+
+var Frame = React.createClass({
+
+    render: function() {
+        return <iframe />;
+    },
+    componentDidMount: function() {
+        this.renderFrameContents();
+    },
+    renderFrameContents: function() {
+        var doc = this.getDOMNode().contentDocument
+        if(doc.readyState === 'complete') {
+            React.renderComponent(this.props.children, doc.body);
+        } else {
+            setTimeout(this.renderFrameContents, 0);
+        }
+    },
+    componentDidUpdate: function() {
+        this.renderFrameContents();
+    },
+    componentWillUnmount: function() {
+        React.unmountComponentAtNode(this.getDOMNode().contentDocument.body);
+    }
+});
+
+
+    var ICXAbout = React.createClass({
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle

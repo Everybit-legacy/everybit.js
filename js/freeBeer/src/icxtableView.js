@@ -81,30 +81,26 @@ var RowRenderMixin = {
 		var download = ""
 
     	if(puff.payload.type == 'file') {
-            //var element = puff
-            var toDownload = {}
-            //toDownload.files2 = new FileList
-			toDownload.files2 = []
-			toDownload.files2[0] = puff.payload.content
-			
+    		var link = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+			download = puffcontent
 
-			var fileprom = PBFiles.openPuffFile(toDownload)
+			// var fileprom = PBFiles.openPuffFile()
 
-                fileprom.then(function(fileguts) {
-                    console.log(fileguts)
+   //              fileprom.then(function(fileguts) {
+   //                  console.log(fileguts)
 
                     
-                // var letterPuff = PBFiles.extractLetterPuff(puff)
-                // //letterPuff = puff
-                // var content = (letterPuff.payload||{}).content
-                // var type = (letterPuff.payload||{}).type
+   //              // var letterPuff = PBFiles.extractLetterPuff(puff)
+   //              // //letterPuff = puff
+   //              // var content = (letterPuff.payload||{}).content
+   //              // var type = (letterPuff.payload||{}).type
                 
-                // console.log(letterPuff)
+   //              // console.log(letterPuff)
                 
-                // var filelink = PBFiles.prepBlob(content, type)
-                // //filelink.style.display = ""
-                // var download = puffcontent
-                })
+   //              // var filelink = PBFiles.prepBlob(content, type)
+   //              // //filelink.style.display = ""
+   //              // var download = puffcontent
+   //              })
 
         }
 
@@ -114,6 +110,7 @@ var RowRenderMixin = {
 					<div className="listBarIcon">
 			            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
 			        </div>
+			        <a href={link} download={download}>download</a>
 				</div>
 			)
 		

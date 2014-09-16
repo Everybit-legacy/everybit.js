@@ -763,7 +763,7 @@ var ICXSendFileFinish = React.createClass({
 
         // Set information for this send
         var type = 'file'
-        var content = ICX.filelist[0]
+        var content = ICX.filelist[0]   // error: dont have content of the file here
         var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
@@ -782,6 +782,7 @@ var ICXSendFileFinish = React.createClass({
             return userRecord.username
         })
 
+
         // if we haven't cached all the users, we'll need to grab them first
         // THINK: maybe convert this to using PB.getUserRecords instead
         if (userRecords.length < usernames.length) {
@@ -796,6 +797,7 @@ var ICXSendFileFinish = React.createClass({
             })
         }
 
+
         prom = prom.then(function () {
             if (envelopeUserKeys) {      // add our secret identity to the list of available keys
                 userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
@@ -803,9 +805,13 @@ var ICXSendFileFinish = React.createClass({
                 userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-            return post_prom
+            // blob is the encoded base64 dataURI that holds file content
+            ICX.fileprom.then(function(blob) {
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                return post_prom
+
+            })
         }).catch(function (err) {
             // self.cleanUpSubmit()
             Events.pub('ui/event/', {

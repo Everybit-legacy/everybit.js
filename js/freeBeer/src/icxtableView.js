@@ -78,7 +78,7 @@ var RowRenderMixin = {
 		var puffcontent = PB.M.Forum.getProcessedPuffContent(puff)
 
 
-    	if(puff.payload.type = 'file') {
+    	if(puff.payload.type == 'file') {
             var element = puff.payload.content
             var fileprom = PBFiles.openPuffFile(element)
                 fileprom.then(function(fileguts) {

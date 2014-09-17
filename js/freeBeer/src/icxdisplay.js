@@ -404,14 +404,14 @@ var ICXStoreFinish = React.createClass({
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
                     <br /><br />
-                    <ICXNextButton enabled={this.state.messageStored} goto={this.state.nextStep} key="nextToStore" text="Encrypt Another File" />
+                    <ICXNextButton enabled={puffworldprops.ICX.messageStored} goto={puffworldprops.ICX.nextStep} key="nextToStore" text="Encrypt Another File" />
                 </div>
             </div>
             )
 
 
     },
-
+/*
     getInitialState: function () {
         return {
             nextStep: 'store',
@@ -420,9 +420,11 @@ var ICXStoreFinish = React.createClass({
 
         }
     },
-
+*/
     handleSubmitSuccess: function () {
-        this.setState({messageStored: true})
+        Events.pub('ui/event', {
+            'ICX.messageStored':true
+        })
     },
 
     cleanUpSubmit: function () {
@@ -430,13 +432,17 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentWillMount: function() {
+        Events.pub('ui/event',{
+            'ICX.messageStored': false,
+            'ICX.nextStep': 'store',
+            'ICX.successMessage': ''
+        })
         // START THINKING
         Events.pub('ui/thinking', { 'ICX.thinking': true })
         updateUI()
     },
 
     componentDidMount: function () {
-
         if(PB.M.Wardrobe.getCurrentUsername()) {
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
@@ -586,8 +592,6 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
-        //this.setState({toUserStatus: false})
-        //this.setState({nextStatus: false})
 
         return Events.pub('ui/events', {
             'ICX.userConfirmed': false,
@@ -1165,11 +1169,6 @@ var ICXNewUser = React.createClass({
                 'ICX.nextStep': 'store.finish',
                 'ICX.nextStepMessage': 'Create user and store file'
             })
-
-
-            // this.setState({nextStep: 'store.finish'})
-            // this.setState({nextStepMessage: 'Create user and store file'})
-            // return Events.pub('ui/icx/screen', {"view.icx.screen": 'store.finish'})
         }
 
     },
@@ -1291,7 +1290,6 @@ var ICXNewUser = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        // this.setState({usernameMessage: 'Checking...'})
         Events.pub('ui/username/requested', {
             'ICX.newUser.requestedUsername': username,
             'ICX.newUser.checkingUsername': username,
@@ -1743,23 +1741,6 @@ var ICXLogin = React.createClass({
             }
 
         })
-
-        /*
-
-         var encrypedLink = this.refs.encryptedLink.getDOMNode()
-         //Display the name of the selected file
-         this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-         this.setState({nextStatus: true})
-
-         //Encrypt the file in a puff
-         var element = event.target
-         //var fileprom = PBFiles.openBinaryFile(element)
-
-         ICX.fileprom = PBFiles.openBinaryFile(element)
-
-         ICX.filelist = element.files
-         ICX.encryptedLink = this.refs.encryptedLink.getDOMNode()
-         */
 
     }
 })
@@ -2556,29 +2537,6 @@ var ICXNextButton = React.createClass({
 
             return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
         }
-    }
-});
-
-
-var ICXFileSelector = React.createClass({
-    handleDisplaySelectedFile: function() {
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-        this.setState({nextStatus: true})
-    },
-    render: function() {
-        return (
-            <div style={{width:'100%'}}>
-                <div className="fileUpload btn btn-primary">
-                    <span>Choose File</span>
-                    <br />
-                    <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
-                </div>
-                <div style={{display: 'inline','font-size':'90%'}}>
-                    <input id="showFileName" type="text" disabled="disabled" ref="filename"
-                    defaultValue="No file Selected"/>
-                </div>
-            </div>
-            )
     }
 });
 

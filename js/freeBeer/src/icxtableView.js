@@ -79,28 +79,13 @@ var RowRenderMixin = {
 
 		var filelink = ""
 		var download = ""
+		var style = {display: 'none'}
 
     	if(puff.payload.type == 'file') {
-    		var link = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+    		filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
 			download = puffcontent
-
-			// var fileprom = PBFiles.openPuffFile()
-
-   //              fileprom.then(function(fileguts) {
-   //                  console.log(fileguts)
-
-                    
-   //              // var letterPuff = PBFiles.extractLetterPuff(puff)
-   //              // //letterPuff = puff
-   //              // var content = (letterPuff.payload||{}).content
-   //              // var type = (letterPuff.payload||{}).type
-                
-   //              // console.log(letterPuff)
-                
-   //              // var filelink = PBFiles.prepBlob(content, type)
-   //              // //filelink.style.display = ""
-   //              // var download = puffcontent
-   //              })
+			puffcontent = "File: " + puffcontent
+			style = {display: 'inline'}
 
         }
 
@@ -108,9 +93,9 @@ var RowRenderMixin = {
 				<div>
 					<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 					<div className="listBarIcon">
+						<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
 			            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
 			        </div>
-			        <a href={link} download={download}>download</a>
 				</div>
 			)
 		

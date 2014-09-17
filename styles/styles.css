@@ -917,6 +917,10 @@ fieldset[disabled] .btn-primary.active {
     font-size: 70%;
 }
 
+.icx-screen .listBarIcon {
+    float: right;
+}
+
 .icx-screen .listrow.listheader {
     position: static;
 }

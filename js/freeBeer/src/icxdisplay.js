@@ -1831,6 +1831,11 @@ var ICXDashboard = React.createClass({
 
         }
 
+        // Identity file for a freshly registered user does not have the username field fliled in
+        if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
+            ICX.identityForFile.username = username
+        }
+
 
         return ICX.identityForFile
     },

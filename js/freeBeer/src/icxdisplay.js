@@ -2254,7 +2254,8 @@ var ICXError = React.createClass({
             padding: Math.floor(0.4*ICX.calculated.baseFontH)+'px',
             borderRadius: Math.floor(0.3*ICX.calculated.baseFontH)+'px',
             width: '95%',
-            marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px'
+            marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px',
+            fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px'
         }
 
         var showThis = false
@@ -2278,7 +2279,7 @@ var ICXError = React.createClass({
                     {ICX.errors}
                     <div style={{position: 'absolute', float: 'right', right: '3px', top: '3px'}}>
                         <a href="#" onClick={this.handleCloseError}>
-                            <i className="fa fa-times-circle"></i>
+                            <i className="fa fa-times-circle" style={{fontSize: Math.floor(0.7*ICX.calculated.baseFontH)+'px'}}></i>
                         </a>
                     </div>
                 </div>

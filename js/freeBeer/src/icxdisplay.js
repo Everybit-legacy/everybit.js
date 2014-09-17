@@ -371,6 +371,11 @@ var ICXStore = React.createClass({
             })
         }
 
+        // Warn them
+
+
+
+
     },
 
     handleGetFile: function(event) {
@@ -463,6 +468,9 @@ var ICXStoreFinish = React.createClass({
 
         Events.pub('ui/thinking', { 'ICX.thinking': false })
         updateUI()
+
+        ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
+        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     }
 
 
@@ -2245,7 +2253,7 @@ var ICXError = React.createClass({
             bottom: '0',
             padding: Math.floor(0.4*ICX.calculated.baseFontH)+'px',
             borderRadius: Math.floor(0.3*ICX.calculated.baseFontH)+'px',
-            width: '90%',
+            width: '95%',
             marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px'
         }
 
@@ -2268,7 +2276,7 @@ var ICXError = React.createClass({
             return (
                 <div style={errorStyle}>
                     {ICX.errors}
-                    <div style={{position: 'relative', float: 'right', right: '3px', top: '3px'}}>
+                    <div style={{position: 'absolute', float: 'right', right: '3px', top: '3px'}}>
                         <a href="#" onClick={this.handleCloseError}>
                             <i className="fa fa-times-circle"></i>
                         </a>

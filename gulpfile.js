@@ -68,6 +68,7 @@ if(buildFor == 'icx') {
         'js/helpers.js',
         'js/icx/translate.js',
         'js/icx/translate-zh.js',
+        'js/icx/words.js',
 
 
         'js/libs/boron.js',

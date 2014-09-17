@@ -320,7 +320,7 @@ var ICXStore = React.createClass({
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
                     </span>
-                    <br />
+                    <br /><br />
                     <small>
                         <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
                     Once encrypted, backup to the net
@@ -455,6 +455,8 @@ var ICXStoreFinish = React.createClass({
 
         } else {
             // TODO: FAIL!
+            ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
 
         Events.pub('ui/thinking', { 'ICX.thinking': false })
@@ -2099,20 +2101,16 @@ var ICXFileConverter = React.createClass({
 
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
+                    <br />
+                <b>OR</b>
                     <br /><br />
-
-                OR<br />
-
                 Select a .puff file to decrypt.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
                     </span>
-
                     <br /> < br />
-                    <textarea ref="resultbox">Results</textarea>
-                    <br />
                     <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>Save Decrypted File</a>
 
                 </div>
@@ -2134,8 +2132,8 @@ var ICXFileConverter = React.createClass({
             var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
-                alert('ERROR: File decryption failed. You may not be authorized to decrypt this file.')
-                //TODO: display a real error message
+                ICX.errors = "ERROR: File decryption failed. You may not be authorized to decrypt this file. You can only decrypt a file that was encrypted using your current identity"
+                return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
             else {
 
@@ -2143,7 +2141,7 @@ var ICXFileConverter = React.createClass({
                 var content = (letterPuff.payload || {}).content
                 var type = (letterPuff.payload || {}).type
 
-                console.log(letterPuff)
+                //console.log(letterPuff)
                 //var resultbox = this.refs.resultbox.getDOMNode()
                 //resultbox.value = content
 
@@ -2157,8 +2155,9 @@ var ICXFileConverter = React.createClass({
                     resultLink.download = filename
                 }
                 else {
-                    alert('ERROR: This does not appear to be a Puff File')
-                    //TODO: ERROR!!!!
+                    ICX.errors = "ERROR: This does not appear to be a Puff File. Make sure the file you are trying to decrypt ends with .puff"
+                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
                 }
             }
 
@@ -2193,6 +2192,10 @@ var ICXFileConverter = React.createClass({
             encrypedLink.href = PBFiles.prepBlob(puff)
             encrypedLink.download = new_filename
         })
+
+    },
+
+    componentDidMount: function(event){
 
     }
 

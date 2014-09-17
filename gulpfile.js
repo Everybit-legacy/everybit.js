@@ -42,10 +42,10 @@ if(buildFor == 'icx') {
     gulp.task('jsxFiles', function() {
         gulp.src(jsxList)
             .pipe(react())
-            .pipe(sourcemaps.init())
+            //.pipe(sourcemaps.init())
                  .pipe(concat('fbr.js'))
                  .pipe(uglify())
-            .pipe(sourcemaps.write())
+            //.pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
     });
 } else {
@@ -117,12 +117,12 @@ if(buildFor == 'icx') {
 if(buildFor == 'icx') {
     gulp.task('ourOthers', function () {
         gulp.src(ourOthersList)
-            .pipe(sourcemaps.init())
+            //.pipe(sourcemaps.init())
             .pipe(concat('pfb.js'))
             .pipe(filesize())
             .pipe(uglify())
             .pipe(filesize())
-            .pipe(sourcemaps.write())
+            //.pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
 
     });
@@ -164,12 +164,12 @@ if(buildFor == 'icx') {
 if(buildFor == 'icx') {
     gulp.task('theirOthers', function () {
         gulp.src(theirOthersList)
-            .pipe(sourcemaps.init())
+            //.pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(filesize())
             .pipe(uglify())
             .pipe(filesize())
-            .pipe(sourcemaps.write())
+            //.pipe(sourcemaps.write())
             .pipe(gulp.dest('build/icx'));
     });
 } else {

@@ -93,8 +93,6 @@ var ICXWorld = React.createClass({
             currScreen = 'init'
         }
 
-
-
         // Detect a screen change, remove error in that case
         if(currScreen != ICX.currScreen) {
             ICX.errors = ''
@@ -109,7 +107,6 @@ var ICXWorld = React.createClass({
 
 
         // console.log(ICX.username + 'is username')
-
         if (currScreen == 'init') {
             if (ICX.username) {
                 currScreen = 'dashboard'
@@ -131,7 +128,6 @@ var ICXWorld = React.createClass({
         var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
 
         var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
-
         var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
 
 
@@ -276,7 +272,6 @@ var ICXWorld = React.createClass({
                     <ICXError />
                 </div>
                 <ICXSpinner />
-
                 <ICXFooter />
             </div>
             )
@@ -289,10 +284,6 @@ var ICXInit = React.createClass({
 
     }
 })
-
-
-// Each component asks of external props, What are my colors, etc? All components rendered all the time
-
 
 
 
@@ -472,8 +463,6 @@ var ICXStoreFinish = React.createClass({
         ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
         return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     }
-
-
 })
 
 
@@ -611,7 +600,8 @@ var ICXSend = React.createClass({
         }
 
     },
-//Trying to get this to work on "Enter" keypress
+
+    //Trying to get this to work on "Enter" keypress
     handleSubmit: function (e) {
         e.preventDefault()
         this.handleUsernameLookup()
@@ -1772,9 +1762,6 @@ var ICXLogin = React.createClass({
          */
 
     }
-
-
-
 })
 
 var ICXDashboard = React.createClass({
@@ -1914,7 +1901,6 @@ var ICXTableView = React.createClass({
 
     render: function () {
 
-
         var viewprops = this.props.view || {}
         var view = <TableView view={viewprops} table={viewprops.table}/>
         document.body.style.overflowY = "auto"
@@ -1971,10 +1957,7 @@ var ICXLearn = React.createClass({
 
     handleGoInDepth: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'indepth'});
-    },
-
-
-
+    }
 })
 
 var ICXIndepth = React.createClass({

@@ -154,27 +154,50 @@ var ICXWorld = React.createClass({
             }
         }
 
+        var c1, c2, c3, c4, c5, c6, op1, op2
+        /*
+        c1 = '106, 0, 0'        // Red
+        c3 = '231, 119, 0'      // Orange
+        c4 = '33, 66, 30'       // Green
+        c2 = '108, 48, 3'       // Brown
+        c5 = '36, 19, 44'       // Purple
+        c6 = '0, 2, 112'        // Blue border
+        */
+        c1 = '163, 157, 57'
+        c2 = '86, 116, 62'
+        c3 = '20, 57, 62'
+        c4 = '54, 26, 26'
+        c5 =  '68, 0, 0' // '193, 73, 63'
+        c6 = '0, 3, 82'        // Blue border
+
+
+        op1 = '0.8'
+        op2 = '.08'
+
+
+
+
         ICX.screens = [
-            {position: 0, name: 'home',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,  255, 255, .0)'},
-            {position: 1, name: 'send',  button: true, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 2, name: 'store', button: true, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'login', button: true, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 4, name: 'learn', button: true, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba(49,  68,  92, .08)'},
-            {position: 5, name: 'about', button: true, color: 'rgba(85,  65,  94, .8)', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba(85,  65,  94, .08)'},
-            {position: 0, name: 'send.message',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'store.encrypt', button: false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba(46,  48, 146, .08)'},
-            {position: 0, name: 'dashboard',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 0, name: 'newuser',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 0, name: 'send.finish', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.confirm', button: false, color: 'rgba(226, 160, 79, .8)', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.file',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'send.file.finish',  button: false, color: 'rgba(226, 160, 79, .8)', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba(226, 160, 79, .08)'},
-            {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba(114, 113, 86, .8)', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba(114, 113, 86, .08)'},
-            {position: 0, name: 'store.finish', button:false, color: 'rgba(93,  128, 90, .8)', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba(93,  128, 90, .08)'},
-            {position: 0, name: 'init',  button: false, color: 'rgba(46,  48, 146, .8)', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
-            {position: 0, name: 'indepth', button: false, color: 'rgba(49,  68,  92, .8)', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba(49,  68,  92, .08)'}
+            {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
+            {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 4, name: 'learn', button: true, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba('+c4+', '+op2+')'},
+            {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
+            {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')'},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
+            {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
+            {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'send.confirm', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'send.file',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'send.file.finish',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba('+c4+', '+op2+')'},
+            {position: 0, name: 'store.finish', button:false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba('+c3+', '+op2+')'},
+            {position: 0, name: 'init',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
+            {position: 0, name: 'indepth', button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba('+c4+', '+op2+')'}
 
         ]
 
@@ -516,10 +539,8 @@ var ICXSend = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-
-
         // TODO put this back
-        // this.refs.toUser.getDOMNode().value = puffworldprops.reply.replyTo
+        //
 
         return (
             <div className="icx-screen icx-send">
@@ -549,6 +570,14 @@ var ICXSend = React.createClass({
             'ICX.wizard.inProcess': true,
             'ICX.wizard.sequence': 'send'
         })
+    },
+
+    componentDidMount: function() {
+        // Were we sent to user by props?
+        if(puffworldprops.view.icx.toUser) {
+            this.refs.toUser.getDOMNode().value = puffworldprops.view.icx.toUser
+            this.handleUsernameLookup()
+        }
     },
 
     verifyUsername: function() {
@@ -1979,7 +2008,7 @@ var Frame = React.createClass({
 });
 
 
-    var ICXAbout = React.createClass({
+var ICXAbout = React.createClass({
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -1994,10 +2023,10 @@ var Frame = React.createClass({
                     <br />
                     <b>Developers:</b>
                     <br />
-                • <a href="http://www.mattasher.com">Matt Asher</a><br />
-                • <a href="https://twitter.com/dann">Dann Toliver</a><br />
-                • <a href="https://twitter.com/AdamRafeek">Adam Rafeek</a><br />
-                • <a href="https://www.linkedin.com/profile/view?id=228890394">Michael Guo</a>
+                • <a href="#" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a><br />
+                • <a href="#" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a><br />
+                • <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')}>Adam Rafeek</a><br />
+                • <a href="#" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a>
                 </div>
 
             </div>
@@ -2006,7 +2035,14 @@ var Frame = React.createClass({
 
     gotoLearn: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'learn'});
+    },
 
+    messageUser: function(username) {
+        return Events.pub('/ui/icx/screen', {
+            "view.icx.screen": 'send',
+            "view.icx.toUser": username
+
+        });
     }
 
 })
@@ -2210,7 +2246,7 @@ var ICXLogo = React.createClass({
                         <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
                     <br />
-                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first 100% secure, open source messaging system that works right in your web browser.
+                    <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first 100% secure file storage and messaging system to work right in your web browser.
                     </div>
                 </div>
                 )

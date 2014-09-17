@@ -893,6 +893,7 @@ fieldset[disabled] .btn-primary.active {
 .icx-screen .listview {
     max-height: 100%;
     overflow: scroll;
+    background-image: none;
 }
 
 .icx-screen .listview,.listheader,.listfooter {
@@ -999,7 +1000,7 @@ fieldset[disabled] .btn-primary.active {
 .listview {
     position: fixed;
     top: 0;
-    background-image: url("bottom-fade.png");
+    /* background-image: url("bottom-fade.png"); */
 }
 .listrow {
     background-color: #fff;

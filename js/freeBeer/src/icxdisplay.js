@@ -345,7 +345,8 @@ var ICXStore = React.createClass({
             'ICX.wizard.inProcess': true,
             'ICX.wizard.sequence': 'store',
             'ICX.wizard.type': 'file',
-            'ICX.backupToCloud': true
+            'ICX.backupToCloud': true,
+            'ICX.nextStatus': false
         })
 
         var username = ICX.username
@@ -1126,16 +1127,22 @@ var ICXNewUser = React.createClass({
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
 
+        var wizard = puffworldprops.ICX.wizard
 
-        if(typeof puffworldprops.ICX.wizard === 'undefined') {
+
+        if(typeof wizard === 'undefined' || typeof wizard.type === 'undefined' || puffworldprops.ICX.nextStatus == false) {
+            // User hasn't visited SEND or STORE
+            // User coming from Send but has not chosen a username to send to
+            // User coming from Send, has toUser, but does not have message or file
+            // User coming from Store but does not have a file uploaded
             return Events.pub('ui/event', {
                 'ICX.nextStep': 'dashboard',
                 'ICX.nextStepMessage': 'Finish'
             })
-        } else if(puffworldprops.ICX.wizard.sequence == 'send') {
+        } else if(wizard.sequence == 'send') {
+            // User coming from Send, and has chosen either message or file
 
-
-            if(puffworldprops.ICX.wizard.type == 'message') {
+            if(wizard.type == 'message') {
                 return Events.pub('ui/event', {
                     'ICX.nextStep': 'send.confirm',
                     'ICX.nextStepMessage': 'Continue'
@@ -1146,12 +1153,8 @@ var ICXNewUser = React.createClass({
                     'ICX.nextStepMessage': 'Continue'
                 })
             }
-
-
-            //this.setState({nextStep: 'send.confirm'})
-            // this.setState({nextStepMessage: 'Continue'})
-            // return Events.pub('ui/icx/screen',{"view.icx.screen": 'send.confirm'})
-        } else if(puffworldprops.ICX.wizard.sequence == 'store') {
+        } else if(wizard.sequence == 'store') {
+            // User coming from Store, and has uploaded a file
             return Events.pub('ui/event', {
                 'ICX.nextStep': 'store.finish',
                 'ICX.nextStepMessage': 'Create user and store file'
@@ -1807,6 +1810,13 @@ var ICXDashboard = React.createClass({
             </div>
             )
     },
+    componentDidMount: function() {
+        // resetting ICX.wizard here
+        Events.pub('ui/event', {
+            'ICX.wizard': undefined,
+            'ICX.nextStatus': false
+        })
+    },
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
@@ -2044,6 +2054,12 @@ var ICXHome = React.createClass({
         return (
             <span></span>
             )
+    },
+    componentDidMount: function() {
+        Events.pub('ui/event', {
+            'ICX.wizard': undefined,
+            'ICX.nextStatus': false
+        })
     }
 })
 

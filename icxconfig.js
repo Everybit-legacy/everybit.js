@@ -24,7 +24,7 @@ ICX.config = {
         minW: 32,
         maxW: 1000,
         insets: {
-            top:.065
+            top:.085
         },
         insetsSmall: {
             top:.02,

@@ -50,6 +50,7 @@ var ComputeDimensionMixin = {
 }
 
 var RowRenderMixin = {
+	mixins: [TooltipMixin],
     handleViewUser: function(username) {
         return Events.pub( 'filter/show/by-user',
             {

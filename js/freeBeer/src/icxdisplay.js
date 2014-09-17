@@ -2037,7 +2037,7 @@ var ICXAbout = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
                 <div className="contentWindow">
-                I.CX, or “I see X”, is a private messaging and file sending system build on the <a href="http://www.puffball.io">puffball platform</a>.
+                I.CX, or “I see X”, is a private messaging and file sending system built on the <a href="http://www.puffball.io">puffball platform</a>.
                     <br />
                     <br />
                     <b>Developers:</b>

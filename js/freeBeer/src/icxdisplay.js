@@ -152,6 +152,25 @@ var ICXWorld = React.createClass({
                 fontFamily: "Gudea",
                 fontSize: baseFontH+'px'
             }
+
+
+        }
+
+        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
+
+        ICX.buttonStyle = {
+            // height: Math.floor( fontSize ) + 'px',
+            fontSize:  fontSize + 'px',
+            fontFamily: "Gudea, helvetica, arial",
+            lineHeight: Math.floor( fontSize ) + 'px',
+            color: 'white',
+            padding: Math.floor(fontSize/2.5)+'px',
+            zIndex: 100,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            cursor: 'pointer',
+            textTransform: 'uppercase'
         }
 
         var c1, c2, c3, c4, c5, c6, op1, op2
@@ -163,7 +182,7 @@ var ICXWorld = React.createClass({
         c5 = '36, 19, 44'       // Purple
         c6 = '0, 2, 112'        // Blue border
         */
-        c1 = '163, 157, 57'
+        c1 = '145, 142, 93'
         c2 = '86, 116, 62'
         c3 = '20, 57, 62'
         c4 = '54, 26, 26'
@@ -274,7 +293,6 @@ var ICXStore = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-
 
         // Link to previously encrypted/stored files
 
@@ -865,10 +883,12 @@ var ICXSendMessage = React.createClass({
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
-                <div>Your message:</div>
-                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
-                <br />
-                <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                <div className="contentWindow">
+                    <div>Your message:</div>
+                    <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                    <br />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                </div>
 
             </div>
             )
@@ -920,11 +940,13 @@ var ICXSendMessageConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm message send</div>
                 <br />
-                <b>TO</b> {puffworldprops.ICX.toUser}<br />
-                <b>Message</b><br />
-                {ICX.messageText}
-                <hr />
-                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                <div className="contentWindow">
+                    <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                    <b>Message</b><br />
+                    {ICX.messageText}
+                    <hr />
+                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                </div>
             </div>
             )
     }
@@ -940,8 +962,10 @@ var ICXSendMessageFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send of message</div>
                 <br />
-                <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                <div className="contentWindow">
+                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                </div>
             </div>
             )
 
@@ -1061,6 +1085,8 @@ var ICXNewUser = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color //'rgba(0, 3, 82, 1)'
+
         return (
             <div className="icx-screen icx-newuser">
                 <div style={headerStyle}>Register for a new username</div>
@@ -1095,7 +1121,7 @@ var ICXNewUser = React.createClass({
                     <br />
 
                     <br /><br />
-                    <a className="register" onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron" /></a>
+                    <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
             )
@@ -1924,23 +1950,23 @@ var ICXLearn = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         var w = window.innerWidth
+        var h = window.innerHeight
 
         var vidW = Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w *.98 )
         var vidH = Math.floor(vidW * 720/1280)
         var vidURL = "//www.youtube.com/embed/mzjO8uxZjKQ"
 
-        /*
-         <Frame styles={{width: vidW, height: vidH, src: vidURL}} name="There">
-         <div styles={{width: vidW, height: vidH, src: vidURL}}>
-         embedded content {this.props.name}
-         </div>
-         </Frame>
-         */
+        // Make sure height no more than 50% of our content area
+        var maxH = Math.floor((1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h/2)
+        if(vidH > maxH) {
+            vidH = maxH
+            vidW = maxH * 1280/720
+        }
 
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
-                <iframe width={vidW} height={vidH} src="//www.youtube.com/embed/mzjO8uxZjKQ" frameborder="0" allowfullscreen></iframe>
+                <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <br /><br />
                 To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
             </div>
@@ -2327,7 +2353,9 @@ var ICXButtonLink = React.createClass({
             color: 'white',
             paddingLeft: Math.floor(fontSize/2.5)+'px',
             zIndex: 100,
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
         }
 
 
@@ -2356,6 +2384,9 @@ var ICXButtonLink = React.createClass({
                     <ICXUserButton />
                 </div>
                 )
+        } else {
+            // var curvature = Math.floor(fontSize/1.5)+'px'
+            // buttonStyle.borderRadius = curvature + ' 0 0 ' + curvature
         }
 
         /*return (
@@ -2478,10 +2509,15 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            return <button style={{fontSize: '90%'}} className ="btn btn-primary" onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
+            ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color //'rgba(0, 3, 82, 1)'
+
+            return <button style={ICX.buttonStyle} onClick={this.handleNext} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
-            return <button style={{fontSize: '90%'}} className="btn btn-primary" onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
+            ICX.buttonStyle.backgroundColor = 'rgba(0, 3, 82, .1)' //
+            ICX.buttonStyle.cursor = 'default' //
+
+            return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
         }
     }
 });

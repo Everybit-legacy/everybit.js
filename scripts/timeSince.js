@@ -11,7 +11,7 @@ function timeSince(date) {
     var seconds = Math.floor((new Date() - date) / 1000);
 
     // modification by puffball.io
-    if(seconds < 0) return "Just now";
+    if(seconds < 0) return "one moment";
     // end modification
 
     var interval = Math.floor(seconds / 31536000);

@@ -864,10 +864,12 @@ var ICXSendMessage = React.createClass({
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
-                <div>Your message:</div>
-                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
-                <br />
-                <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                <div className="contentWindow">
+                    <div>Your message:</div>
+                    <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                    <br />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                </div>
 
             </div>
             )
@@ -919,11 +921,13 @@ var ICXSendMessageConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm message send</div>
                 <br />
-                <b>TO</b> {puffworldprops.ICX.toUser}<br />
-                <b>Message</b><br />
-                {ICX.messageText}
-                <hr />
-                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                <div className="contentWindow">
+                    <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                    <b>Message</b><br />
+                    {ICX.messageText}
+                    <hr />
+                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                </div>
             </div>
             )
     }
@@ -939,8 +943,10 @@ var ICXSendMessageFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send of message</div>
                 <br />
-                <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                <div className="contentWindow">
+                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                </div>
             </div>
             )
 

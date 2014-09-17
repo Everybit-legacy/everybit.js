@@ -66,10 +66,10 @@ var RowRenderMixin = {
 		return content
 	},
 	renderFrom: function() {        
-        return <div className="username">.{this.props.puff.username}</div>
+        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></div>
 	},
 	renderTo: function() {        
-        return <div className="username">.{this.props.puff.routes[0]}</div>
+        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.routes[0])}>.{this.props.puff.routes[0]}</a></div>
 	},
 	renderUser: function() {
     },

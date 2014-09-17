@@ -1418,6 +1418,7 @@ var ICXLogin = React.createClass({
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.background = headerStyle.backgroundColor
 
         var baseFontH = ICX.calculated.baseFontH
 
@@ -1484,7 +1485,9 @@ var ICXLogin = React.createClass({
 
 
                     <br />
-                    <input type="file" ref="textFile" onChange={this.handleLoginWithFile} />
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
+                    </span>
 
                 </div>
             </div>

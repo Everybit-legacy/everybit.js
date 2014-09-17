@@ -170,7 +170,8 @@ var ICXWorld = React.createClass({
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             cursor: 'pointer',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            paddingBottom: Math.floor((fontSize/2.5)+3)+'px'
         }
 
         var c1, c2, c3, c4, c5, c6, op1, op2
@@ -305,49 +306,22 @@ var ICXStore = React.createClass({
             'fa-square-o': !puffworldprops.ICX.backupToCloud,
             'green': puffworldprops.ICX.backupToCloud
         })
-
-
-        /*return (
-         <div style={{width: '100%', height: '100%'}}>
-         <div style={headerStyle}>Encrypt and store files</div>
-         <div>Select a file. It will be encrypted right in your web browser.</div>
-         <p style={{display: 'inline','font-size':'90%'}}>
-         <input id="showFileName" type="text" disabled="disabled" placeholder="No File Selected" />
-         </p>
-         <div className="fileUpload btn btn-primary">
-         <span>Choose File</span>
-         <br />
-         <input type="file" id="fileToUplaod" />
-         </div>
-         <br />
-         <small>
-         <i className={cbClass}  onClick={this.handleToggleBackupToCloud} ></i>
-         Once encrypted, backup to the net
-         </small>
-         <br />
-         <ICXNextButton enabled={this.state.nextStatus} goto={nextStep} key="nextToStore" buttonText={buttonText} />
-         </div>
-         )
-
-         <div className="fileUpload btn btn-primary">
-         <span>Choose File</span>
-         <br />
-         <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
-         </div>
-
-         */
+        ICX.buttonStyle.background = headerStyle.backgroundColor
+            /*
+            <div style={{display: 'inline','font-size':'90%'}}>
+        <input id="showFileName" type="text" disabled="disabled" ref="filename"
+        defaultValue="No file Selected"/>
+        </div>
+        */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
                 <div className="contentWindow">
                 Select a file. It will be encrypted in your web browser.
                     <br /><br />
-                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
-
-                    <div style={{display: 'inline','font-size':'90%'}}>
-                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
-                        defaultValue="No file Selected"/>
-                    </div>
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
+                    </span>
                     <br />
                     <small>
                         <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
@@ -393,7 +367,7 @@ var ICXStore = React.createClass({
 
     handleGetFile: function(event) {
         //Display the name of the selected file
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
 
 
         //Encrypt the file in a puff
@@ -685,23 +659,29 @@ var ICXSendFile = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.background = headerStyle.backgroundColor
 
 
+/* OLD BUTTON: DELETE IF NECESSARY
+            <div className="fileUpload btn btn-primary">
+            <span>Choose File</span>
+            <br />
+            <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+            </div>
+        <div style={{display: 'inline','font-size':'90%'}}>
+            <input id="showFileName" type="text" disabled="disabled" ref="filename"
+            defaultValue="No file Selected"/>
+        </div><br />
+        */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
                 <div className="contentWindow">
-                Your file: <br />
-                    <div className="fileUpload btn btn-primary">
-                        <span>Choose File</span>
-                        <br />
-                        <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
-                    </div>
-                    <div style={{display: 'inline','font-size':'90%'}}>
-                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
-                        defaultValue="No file Selected"/>
-                    </div><br />
-
+                Your file: <br /><br />
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
+                    </span>
+                    <br /><br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
             </div>
@@ -729,7 +709,7 @@ var ICXSendFile = React.createClass({
 
     handleDisplaySelectedFile: function(event) {
 
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
 
         var element = event.target
         ICX.fileprom = PBFiles.openBinaryFile(element)
@@ -2074,19 +2054,34 @@ var ICXFileConverter = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.background = headerStyle.backgroundColor
 
+        /* OLD UPLOAD BUTTONS: TO BE DELETED
+         <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile} />
+
+         <div style={{display: 'inline','font-size':'90%'}}>
+         <input id="showFileName" type="text" disabled="disabled" ref="filename"
+         defaultValue="No file Selected"/>
+         </div>
+
+         <input type="file" id="fileToDecrypt" ref="decryptbutton" onChange={this.handleDecryptFile} />
+
+         <div style={{display: 'inline','font-size':'90%'}}>
+         <input id="showDecryptFile" type="text" disabled="disabled" ref="filenameDecrypt"
+         defaultValue="No file Selected"/>
+         </div>
+         */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and Decrypt Files</div>
                 <div className="contentWindow">
                 Select a file. It will be encrypted in your web browser.
                     <br /><br />
-                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleGetFile} />
 
-                    <div style={{display: 'inline','font-size':'90%'}}>
-                        <input id="showFileName" type="text" disabled="disabled" ref="filename"
-                        defaultValue="No file Selected"/>
-                    </div>
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
+                    </span>
+
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
                     <br /><br />
@@ -2095,12 +2090,11 @@ var ICXFileConverter = React.createClass({
 
                 Select a .puff file to decrypt.
                     <br /><br />
-                    <input type="file" id="fileToDecrypt" ref="decryptbutton" onChange={this.handleDecryptFile} />
 
-                    <div style={{display: 'inline','font-size':'90%'}}>
-                        <input id="showDecryptFile" type="text" disabled="disabled" ref="filenameDecrypt"
-                        defaultValue="No file Selected"/>
-                    </div>
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
+                    </span>
+
                     <br /> < br />
                     <textarea ref="resultbox">Results</textarea>
                     <br />
@@ -2113,7 +2107,7 @@ var ICXFileConverter = React.createClass({
 
     handleDecryptFile: function(event) {
 
-        this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
+        //this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2159,7 +2153,7 @@ var ICXFileConverter = React.createClass({
 
     handleGetFile: function(event) {
         //Display the name of the selected file
-        this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
+        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
 
 
         //Encrypt the file in a puff
@@ -2518,7 +2512,7 @@ var ICXFileSelector = React.createClass({
                 <div className="fileUpload btn btn-primary">
                     <span>Choose File</span>
                     <br />
-                    <input type="file" id="fileToUplaod" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
+                    <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
                 </div>
                 <div style={{display: 'inline','font-size':'90%'}}>
                     <input id="showFileName" type="text" disabled="disabled" ref="filename"

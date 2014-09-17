@@ -1090,9 +1090,8 @@ var ICXNewUser = React.createClass({
 
 
                     <br /><br />
-                    <span style={{border: '1px solid #000000', color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
+                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
                     <br />
-                Avatar (can be changed later)
 
                     <br /><br />
                     <a className="register" onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron" /></a>
@@ -1109,10 +1108,11 @@ var ICXNewUser = React.createClass({
         ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
 
         // avatar depands on puffworldprops variables
-        return Events.pub('ui/event', {
-            'ICX.avatarColor': ICX.newUser.animalColor,
-            'ICX.avatarAnimal': ICX.newUser.animalName
-        })
+        // return Events.pub('ui/event', {
+        //     'ICX.avatarColor': ICX.newUser.animalColor,
+        //     'ICX.avatarAnimal': ICX.newUser.animalName
+        // })
+        return false
     },
 
     componentDidMount: function() {
@@ -1167,32 +1167,17 @@ var ICXNewUser = React.createClass({
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        //this.setState({avatarColor: color})
-
         var animal = generateRandomAnimal();
-        // ICX.userColor = color;
-
-        //this.setState({avatarAnimal: animal})
 
         this.refs.username.getDOMNode().value = adj + color + animal
         this.handleUsernameLookup()
 
-        return Events.pub('ui/event', {
-            'ICX.avatarColor': color,
-            'ICX.avatarAnimal': animal
-        })
+        // return Events.pub('ui/event', {
+        //     'ICX.avatarColor': color,
+        //     'ICX.avatarAnimal': animal
+        // })
 
-        //return false
-        /* var animal = generateRandomAnimal()
-
-         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-         ICX.newUser.animalName = animal;
-         ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)];
-         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
-
-         this.handleUsernameLookup()
-         return false
-         */
+        return false
     },
 
     handleGenerateRandomPassphrase: function() {

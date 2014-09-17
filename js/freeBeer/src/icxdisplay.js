@@ -1180,15 +1180,10 @@ var ICXNewUser = React.createClass({
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        var animal = generateRandomAnimal();
+        var animal = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
 
         this.refs.username.getDOMNode().value = adj + color + animal
         this.handleUsernameLookup()
-
-        // return Events.pub('ui/event', {
-        //     'ICX.avatarColor': color,
-        //     'ICX.avatarAnimal': animal
-        // })
 
         return false
     },

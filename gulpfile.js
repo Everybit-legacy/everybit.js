@@ -71,6 +71,7 @@ if(buildFor == 'icx') {
 
 
         'js/libs/boron.js',
+        'js/libs/filestuff.js',
         'js/libs/events.js',
         'js/libs/gridbox.js',
         'js/libs/dagoba.js',

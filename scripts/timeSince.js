@@ -1,9 +1,18 @@
 // http://stackoverflow.com/a/3177838/3243018
 // Or use http://momentjs.com/
+/*
+    Modified by puffball.io developers 
+    To solve an issue where time evaluates to negative
+*/
+
 
 function timeSince(date) {
 
     var seconds = Math.floor((new Date() - date) / 1000);
+
+    // modification by puffball.io
+    if(seconds < 0) return "one moment";
+    // end modification
 
     var interval = Math.floor(seconds / 31536000);
 

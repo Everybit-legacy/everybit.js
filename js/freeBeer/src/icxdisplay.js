@@ -95,6 +95,12 @@ var ICXWorld = React.createClass({
 
 
 
+        // Detect a screen change, remove error in that case
+        if(currScreen != ICX.currScreen) {
+            ICX.errors = ''
+        }
+
+
         if(PB.M.Wardrobe.currentKeys) {
             ICX.username = PB.M.Wardrobe.getCurrentUsername()
         } else {
@@ -266,9 +272,10 @@ var ICXWorld = React.createClass({
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
                     {pageComponent}
+                    <ICXError />
                 </div>
                 <ICXSpinner />
-                <ICXError />
+
                 <ICXFooter />
             </div>
             )
@@ -1959,13 +1966,16 @@ var ICXLearn = React.createClass({
                 <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <br /><br />
                 To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
+
             </div>
             )
     },
 
     handleGoInDepth: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'indepth'});
-    }
+    },
+
+
 
 })
 
@@ -2214,16 +2224,56 @@ var ICXSpinner = React.createClass({
     }
 })
 
+
 var ICXError = React.createClass({
     render: function () {
-        if(ICX.errors.length) {
+        // Close button needed
+
+        var errorStyle = {
+            position: 'absolute',
+            border: '3px solid #880000',
+            bottom: '0',
+            padding: Math.floor(0.4*ICX.calculated.baseFontH)+'px',
+            borderRadius: Math.floor(0.3*ICX.calculated.baseFontH)+'px',
+            width: '90%',
+            marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px'
+        }
+
+        var showThis = false
+
+        // Gotta be a better way to do this!
+        if(ICX.errors) {
+            if(typeof puffworldprops.icx !== 'undefined') {
+                if(typeof puffworldprops.icx.errorMessage !== 'undefined') {
+                    if(puffworldprops.icx.errorMessage) {
+                        showThis = true
+                    }
+                }
+
+            }
+        }
+
+
+        if(showThis) {
             return (
-                <div>{ICX.errors}</div>
+                <div style={errorStyle}>
+                    {ICX.errors}
+                    <div style={{position: 'relative', float: 'right', right: '3px', top: '3px'}}>
+                        <a href="#" onClick={this.handleCloseError}>
+                            <i className="fa fa-times-circle"></i>
+                        </a>
+                    </div>
+                </div>
                 )
         } else {
             return <span></span>
         }
 
+    },
+
+    handleCloseError: function() {
+        ICX.errors = ''
+        return Events.pub('/ui/icx/errorMessage', {"icx.errorMessage": false});
     }
 })
 

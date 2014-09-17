@@ -882,10 +882,12 @@ var ICXSendMessage = React.createClass({
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
-                <div>Your message:</div>
-                <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
-                <br />
-                <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                <div className="contentWindow">
+                    <div>Your message:</div>
+                    <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                    <br />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                </div>
 
             </div>
             )
@@ -937,11 +939,13 @@ var ICXSendMessageConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm message send</div>
                 <br />
-                <b>TO</b> {puffworldprops.ICX.toUser}<br />
-                <b>Message</b><br />
-                {ICX.messageText}
-                <hr />
-                <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                <div className="contentWindow">
+                    <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                    <b>Message</b><br />
+                    {ICX.messageText}
+                    <hr />
+                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                </div>
             </div>
             )
     }
@@ -957,8 +961,10 @@ var ICXSendMessageFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Send of message</div>
                 <br />
-                <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                <div className="contentWindow">
+                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                </div>
             </div>
             )
 
@@ -1110,9 +1116,8 @@ var ICXNewUser = React.createClass({
 
 
                     <br /><br />
-                    <span style={{border: '1px solid #000000', color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
+                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
                     <br />
-                Avatar (can be changed later)
 
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
@@ -1129,10 +1134,11 @@ var ICXNewUser = React.createClass({
         ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
 
         // avatar depands on puffworldprops variables
-        return Events.pub('ui/event', {
-            'ICX.avatarColor': ICX.newUser.animalColor,
-            'ICX.avatarAnimal': ICX.newUser.animalName
-        })
+        // return Events.pub('ui/event', {
+        //     'ICX.avatarColor': ICX.newUser.animalColor,
+        //     'ICX.avatarAnimal': ICX.newUser.animalName
+        // })
+        return false
     },
 
     componentDidMount: function() {
@@ -1187,32 +1193,17 @@ var ICXNewUser = React.createClass({
 
         var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
         var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        //this.setState({avatarColor: color})
-
         var animal = generateRandomAnimal();
-        // ICX.userColor = color;
-
-        //this.setState({avatarAnimal: animal})
 
         this.refs.username.getDOMNode().value = adj + color + animal
         this.handleUsernameLookup()
 
-        return Events.pub('ui/event', {
-            'ICX.avatarColor': color,
-            'ICX.avatarAnimal': animal
-        })
+        // return Events.pub('ui/event', {
+        //     'ICX.avatarColor': color,
+        //     'ICX.avatarAnimal': animal
+        // })
 
-        //return false
-        /* var animal = generateRandomAnimal()
-
-         ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-         ICX.newUser.animalName = animal;
-         ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)];
-         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
-
-         this.handleUsernameLookup()
-         return false
-         */
+        return false
     },
 
     handleGenerateRandomPassphrase: function() {

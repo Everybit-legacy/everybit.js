@@ -232,7 +232,8 @@ var RowRenderMixin = {
 	},
 	render_column: function(col, width, maxHeight) {
 		var style = {}
-		style['width'] = width.toString() + 'px'
+		var nWidth = Math.floor(width * 2) / 2
+		style['width'] = nWidth.toString() + 'px'
 
 		if (maxHeight)
 			style['maxHeight'] = maxHeight.toString() + 'em'
@@ -487,7 +488,7 @@ var RowHeader = React.createClass({
 				{this.state.showColOptions ? <TableViewColOptions /> : ""}
 				{columns.map(function(c){
 					var style = {
-						width: self.getColumnWidth(c).toString()+'px' //this width needs to be fixed
+						width: (Math.floor(self.getColumnWidth(c)*2)/2).toString()+'px' //this width needs to be fixed
 					}
 					var allowSort = columnProp[c].allowSort
 					return (

@@ -192,11 +192,8 @@ var ICXWorld = React.createClass({
         c5 =  '68, 0, 0' // '193, 73, 63'
         c6 = '0, 3, 82'        // Blue border
 
-
         op1 = '0.8'
         op2 = '.08'
-
-
 
 
         ICX.screens = [
@@ -674,17 +671,6 @@ var ICXSendFile = React.createClass({
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
 
-/* OLD BUTTON: DELETE IF NECESSARY
-            <div className="fileUpload btn btn-primary">
-            <span>Choose File</span>
-            <br />
-            <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
-            </div>
-        <div style={{display: 'inline','font-size':'90%'}}>
-            <input id="showFileName" type="text" disabled="disabled" ref="filename"
-            defaultValue="No file Selected"/>
-        </div><br />
-        */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
@@ -1103,13 +1089,6 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
-
-
-
-
-                    <br /><br />
-                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
-                    <br />
 
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
@@ -2006,7 +1985,7 @@ var ICXAbout = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
                 <div className="contentWindow">
-                I.CX, or “I see X”, is a private messaging and file sending system built on the <a href="http://www.puffball.io">puffball platform</a>.
+                I.CX, or “I see X”, is a private messaging and file sending system built on the <a href="http://www.puffball.io" target="_blank">puffball platform</a>.
                     <br />
                     <br />
                     <b>Developers:</b>
@@ -2078,7 +2057,7 @@ var ICXFileConverter = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and Decrypt Files</div>
                 <div className="contentWindow">
-                Select a file. It will be encrypted in your web browser.
+                    <i className="fa fa-fw fa-lock"></i>Select a file. It will be encrypted in your web browser.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2090,7 +2069,7 @@ var ICXFileConverter = React.createClass({
                     <br />
                 <b>OR</b>
                     <br /><br />
-                Select a .puff file to decrypt.
+                    <i className="fa fa-fw fa-unlock"></i>Select a .puff file to decrypt.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2436,13 +2415,19 @@ var ICXFooter = React.createClass({
     render: function () {
         var w = window.innerWidth
 
+        var fontSize = Math.floor(ICX.calculated.baseFontH/1.7)
+        var puffballH = Math.floor(fontSize*1.1)
+        var puffballW = Math.floor(puffballH * 41/48)
+
         // Same as logoX
         var footerX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-ICX.calculated.logoW ),0,10000) + "px"
+        var footerY = Math.floor(window.innerHeight * 0.015)
+
 
         return (
-            <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
-                <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-            Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
+            <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
+                <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
+            {' '}Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
             </div>
             )
     }

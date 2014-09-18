@@ -192,11 +192,8 @@ var ICXWorld = React.createClass({
         c5 =  '68, 0, 0' // '193, 73, 63'
         c6 = '0, 3, 82'        // Blue border
 
-
         op1 = '0.8'
         op2 = '.08'
-
-
 
 
         ICX.screens = [
@@ -674,17 +671,6 @@ var ICXSendFile = React.createClass({
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
 
-/* OLD BUTTON: DELETE IF NECESSARY
-            <div className="fileUpload btn btn-primary">
-            <span>Choose File</span>
-            <br />
-            <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
-            </div>
-        <div style={{display: 'inline','font-size':'90%'}}>
-            <input id="showFileName" type="text" disabled="disabled" ref="filename"
-            defaultValue="No file Selected"/>
-        </div><br />
-        */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
@@ -2071,7 +2057,7 @@ var ICXFileConverter = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and Decrypt Files</div>
                 <div className="contentWindow">
-                Select a file. It will be encrypted in your web browser.
+                    <i className="fa fa-fw fa-lock"></i>Select a file. It will be encrypted in your web browser.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2083,7 +2069,7 @@ var ICXFileConverter = React.createClass({
                     <br />
                 <b>OR</b>
                     <br /><br />
-                Select a .puff file to decrypt.
+                    <i className="fa fa-fw fa-unlock"></i>Select a .puff file to decrypt.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">

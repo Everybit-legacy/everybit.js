@@ -192,11 +192,8 @@ var ICXWorld = React.createClass({
         c5 =  '68, 0, 0' // '193, 73, 63'
         c6 = '0, 3, 82'        // Blue border
 
-
         op1 = '0.8'
         op2 = '.08'
-
-
 
 
         ICX.screens = [
@@ -226,14 +223,9 @@ var ICXWorld = React.createClass({
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
-        //remove a / from the end of the screen name (python may add it for some reason)
-        if (currScreen.slice(-1) == '/') {
-            currScreen = currScreen.slice(0,-1)
-        }
-
         var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == currScreen)
-        })[0]
+            return (obj.name == currScreen);
+        })[0];
 
         var screenStyle = {
             position: "absolute",
@@ -679,17 +671,6 @@ var ICXSendFile = React.createClass({
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
 
-/* OLD BUTTON: DELETE IF NECESSARY
-            <div className="fileUpload btn btn-primary">
-            <span>Choose File</span>
-            <br />
-            <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile} />
-            </div>
-        <div style={{display: 'inline','font-size':'90%'}}>
-            <input id="showFileName" type="text" disabled="disabled" ref="filename"
-            defaultValue="No file Selected"/>
-        </div><br />
-        */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
@@ -1108,13 +1089,6 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
-
-
-
-
-                    <br /><br />
-                    <span style={{color: puffworldprops.ICX.avatarColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+puffworldprops.ICX.avatarAnimal+' shadow'} /></span>
-                    <br />
 
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
@@ -2083,7 +2057,7 @@ var ICXFileConverter = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and Decrypt Files</div>
                 <div className="contentWindow">
-                Select a file. It will be encrypted in your web browser.
+                    <i className="fa fa-fw fa-lock"></i>Select a file. It will be encrypted in your web browser.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2095,7 +2069,7 @@ var ICXFileConverter = React.createClass({
                     <br />
                 <b>OR</b>
                     <br /><br />
-                Select a .puff file to decrypt.
+                    <i className="fa fa-fw fa-unlock"></i>Select a .puff file to decrypt.
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2307,10 +2281,6 @@ var ICXLogo = React.createClass({
                 )
         } else {
 
-            //checks for an addition / at the end of the screen name and removes it
-            if (puffworldprops.view.icx.screen.slice(-1) == '/'){
-                puffworldprops.view.icx.screen = puffworldprops.view.icx.screen.slice(0,-1)
-            }
             var thisScreen = ICX.screens.filter(function( obj ) {
                 return obj.name == puffworldprops.view.icx.screen;
             })[0];

@@ -90,11 +90,11 @@ var RowRenderMixin = {
         }
 
 			return (
-				<div>
+				<div style={{position: 'relative'}}>
 					<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 					<div className="listBarIcon">
 						<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
-			            <ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
+			            <ICXReplyPuff ref="reply" user={puff.username}/>
 			        </div>
 				</div>
 			)

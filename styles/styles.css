@@ -918,7 +918,9 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-screen .listBarIcon {
-    float: right;
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 .icx-screen .listrow.listheader {

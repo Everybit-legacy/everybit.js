@@ -872,12 +872,15 @@ var ICXSendMessageConfirm = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        var username = PB.M.Wardrobe.getCurrentUsername()
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm message send</div>
                 <br />
                 <div className="contentWindow">
-                    <b>TO</b> {puffworldprops.ICX.toUser}<br />
+                    <b>FROM:</b> {username}<br/>
+                    <b>TO:</b> {puffworldprops.ICX.toUser}<br />
                     <b>Message</b><br />
                     {ICX.messageText}
                     <hr />

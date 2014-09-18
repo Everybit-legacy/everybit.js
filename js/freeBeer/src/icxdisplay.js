@@ -178,13 +178,13 @@ var ICXWorld = React.createClass({
 
         var c1, c2, c3, c4, c5, c6, op1, op2
         /*
-        c1 = '106, 0, 0'        // Red
-        c3 = '231, 119, 0'      // Orange
-        c4 = '33, 66, 30'       // Green
-        c2 = '108, 48, 3'       // Brown
-        c5 = '36, 19, 44'       // Purple
-        c6 = '0, 2, 112'        // Blue border
-        */
+         c1 = '106, 0, 0'        // Red
+         c3 = '231, 119, 0'      // Orange
+         c4 = '33, 66, 30'       // Green
+         c2 = '108, 48, 3'       // Brown
+         c5 = '36, 19, 44'       // Purple
+         c6 = '0, 2, 112'        // Blue border
+         */
         c1 = '145, 142, 93'
         c2 = '86, 116, 62'
         c3 = '20, 57, 62'
@@ -302,12 +302,12 @@ var ICXStore = React.createClass({
             'green': puffworldprops.ICX.backupToCloud
         })
         ICX.buttonStyle.background = headerStyle.backgroundColor
-            /*
-            <div style={{display: 'inline','font-size':'90%'}}>
-        <input id="showFileName" type="text" disabled="disabled" ref="filename"
-        defaultValue="No file Selected"/>
-        </div>
-        */
+        /*
+         <div style={{display: 'inline','font-size':'90%'}}>
+         <input id="showFileName" type="text" disabled="disabled" ref="filename"
+         defaultValue="No file Selected"/>
+         </div>
+         */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
@@ -367,11 +367,6 @@ var ICXStore = React.createClass({
     },
 
     handleGetFile: function(event) {
-        //Display the name of the selected file
-        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-
-
-        //Encrypt the file in a puff
         var element = event.target
 
         ICX.fileprom = PBFiles.openBinaryFile(element)
@@ -408,16 +403,16 @@ var ICXStoreFinish = React.createClass({
 
 
     },
-/*
-    getInitialState: function () {
-        return {
-            nextStep: 'store',
-            messageStored: false,
-            successMessage: ''
+    /*
+     getInitialState: function () {
+     return {
+     nextStep: 'store',
+     messageStored: false,
+     successMessage: ''
 
-        }
-    },
-*/
+     }
+     },
+     */
     handleSubmitSuccess: function () {
         Events.pub('ui/event', {
             'ICX.messageStored':true
@@ -434,12 +429,12 @@ var ICXStoreFinish = React.createClass({
             'ICX.nextStep': 'store',
             'ICX.successMessage': ''
         })
+        // START THINKING
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+        updateUI()
     },
 
     componentDidMount: function () {
-        //start thinking
-        Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI()
         if(PB.M.Wardrobe.getCurrentUsername()) {
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
@@ -454,16 +449,15 @@ var ICXStoreFinish = React.createClass({
                 //Make the link visisble to download the file (Temporary)
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
             })
 
         } else {
             // TODO: FAIL!
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
-
-        Events.pub('ui/thinking', { 'ICX.thinking': false })
-        updateUI()
 
         ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
         return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
@@ -472,21 +466,60 @@ var ICXStoreFinish = React.createClass({
 
 
 
-// Reply to a single puff
-var ICXReplyPuff = React.createClass({
-    handleReply: function() {
-        var username = this.props.user
 
-        return Events.pub('/ui/icx/screen', {
-            "view.icx.screen": 'send',
-            "view.icx.toUser": username
-        })
+var ICXReplyPuff = React.createClass({
+    handleClick: function() {
+        this.handleSetParent()
+        this.handleRedirect()
+    },
+    handleSetParent: function() {
+        var sig = this.props.sig
+        var username = this.props.user
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+
+        var index = parents.indexOf(sig)
+
+        // var recipient = puffworldprops.reply.replyTo
+        // recipient.push(sig)
+
+        // This checks if the recipient is already in the list
+        // If not, add it to the array
+        // If found, remove it from the array
+        if(index == -1) {
+            parents.push(sig)
+        } else {
+            parents.splice(index, 1)
+        }
+
+        return Events.pub('ui/reply/add-parent', { 'reply.parents': parents, 'reply.replyTo': username})
+    },
+    handleRedirect: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'send'})
     },
     render: function() {
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+        var cx1 = React.addons.classSet
+        var index   = parents.indexOf(this.props.sig)
+
+        if(index == -1) {
+            var isGreen = false
+        } else {
+            var isGreen = true
+        }
+
+        var newClass = cx1({
+            'fa fa-reply fa-fw': true,
+            'green': isGreen
+        })
+
         return (
             <span className="icon">
-                <a onClick={this.handleReply}>
-                    <i className="fa fa-reply fa-fw"></i>
+                <a onClick={this.handleClick}>
+                    <i className={newClass}></i>
                 </a>
             </span>
             )
@@ -730,12 +763,20 @@ var ICXSendFileFinish = React.createClass({
             'ICX.messageSent': false,
             'ICX.successMessage': ''
         })
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
     },
 
     handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
             'ICX.messageSent': true,
             'ICX.successMessage': 'File sent!'
+        })
+        Events.pub('ui/thinking', {
+            'ICX.thinking': false
         })
 
     },
@@ -745,8 +786,6 @@ var ICXSendFileFinish = React.createClass({
     },
 
     componentDidMount: function () {
-
-
         // Set information for this send
         var type = 'file'
         var content = ICX.filelist[0]   // error: dont have content of the file here
@@ -804,10 +843,12 @@ var ICXSendFileFinish = React.createClass({
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
 
             console.log(err)
         })
-
         return false
     }
 })
@@ -874,15 +915,12 @@ var ICXSendMessageConfirm = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        var username = PB.M.Wardrobe.getCurrentUsername()
-
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm message send</div>
                 <br />
                 <div className="contentWindow">
-                    <b>FROM:</b> {username}<br/>
-                    <b>TO:</b> {puffworldprops.ICX.toUser}<br />
+                    <b>TO</b> {puffworldprops.ICX.toUser}<br />
                     <b>Message</b><br />
                     {ICX.messageText}
                     <hr />
@@ -1878,7 +1916,7 @@ var ICXLearn = React.createClass({
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
                 <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <br /><br />
-                To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
+            To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
 
             </div>
             )
@@ -1907,7 +1945,7 @@ var ICXIndepth = React.createClass({
             We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
 
                 <br /><br />
-                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/freebeer" target="_new">github repository</a>.
+            I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/freebeer" target="_new">github repository</a>.
             </div>
 
             )
@@ -2031,7 +2069,7 @@ var ICXFileConverter = React.createClass({
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
                     <br />
-                <b>OR</b>
+                    <b>OR</b>
                     <br /><br />
                     <i className="fa fa-fw fa-unlock"></i>Select a .puff file to decrypt.
                     <br /><br />
@@ -2048,8 +2086,11 @@ var ICXFileConverter = React.createClass({
     },
 
     handleDecryptFile: function(event) {
-
-        //this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2061,6 +2102,9 @@ var ICXFileConverter = React.createClass({
             var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
                 ICX.errors = "ERROR: File decryption failed. You may not be authorized to decrypt this file. You can only decrypt a file that was encrypted using your current identity"
                 return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
@@ -2079,26 +2123,34 @@ var ICXFileConverter = React.createClass({
                 var filename = file.name
                 if (/\.puff/.test(filename)) {
                     filename = filename.slice(0, -5)
+
+                    //stop thinking
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
                     resultLink.style.display = ""
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.download = filename
                 }
                 else {
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
                     ICX.errors = "ERROR: This does not appear to be a Puff File. Make sure the file you are trying to decrypt ends with .puff"
                     return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 }
             }
-
         })
 
     },
 
     handleGetFile: function(event) {
-        //Display the name of the selected file
-        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-
-
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
         //Encrypt the file in a puff
         var element = event.target
 
@@ -2117,6 +2169,10 @@ var ICXFileConverter = React.createClass({
             var new_filename = filename + '.puff'
 
             //Make the link visisble to download the file (Temporary)
+            //stop thinking
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
             encrypedLink.style.display=""
             encrypedLink.href = PBFiles.prepBlob(puff)
             encrypedLink.download = new_filename
@@ -2444,17 +2500,8 @@ var ICXUserButton = React.createClass({
 
         }
     },
-    handleClearFilters: function() {
-        return Events.pub( 'filter/show/by-user',
-            {
-              'view.filters': {},
-              'view.filters.users': []
-            }
-        )
-    },
 
     handleGoTo: function(screen) {
-        if(screen == 'home.table') this.handleClearFilters()
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 

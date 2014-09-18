@@ -368,7 +368,6 @@ var ICXStore = React.createClass({
 
     handleGetFile: function(event) {
         var element = event.target
-
         ICX.fileprom = PBFiles.openBinaryFile(element)
 
         ICX.filelist = element.files
@@ -429,9 +428,6 @@ var ICXStoreFinish = React.createClass({
             'ICX.nextStep': 'store',
             'ICX.successMessage': ''
         })
-        // START THINKING
-        Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI()
     },
 
     componentDidMount: function () {
@@ -1987,7 +1983,8 @@ var ICXHome = React.createClass({
     componentDidMount: function() {
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
-            'ICX.nextStatus': false
+            'ICX.nextStatus': false,
+            'view.icx.toUser':''
         })
     }
 })

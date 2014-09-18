@@ -90,7 +90,7 @@ var RowRenderMixin = {
         }
 
 			return (
-				<div>
+				<div style={{position: 'relative'}}>
 					<span dangerouslySetInnerHTML={{__html: puffcontent}}></span>
 					<div className="listBarIcon">
 						<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>

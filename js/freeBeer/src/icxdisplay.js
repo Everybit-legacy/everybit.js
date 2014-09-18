@@ -472,60 +472,21 @@ var ICXStoreFinish = React.createClass({
 
 
 
-
+// Reply to a single puff
 var ICXReplyPuff = React.createClass({
-    handleClick: function() {
-        this.handleSetParent()
-        this.handleRedirect()
-    },
-    handleSetParent: function() {
-        var sig = this.props.sig
+    handleReply: function() {
         var username = this.props.user
-        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
-            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
-            : []
 
-        var index = parents.indexOf(sig)
-
-        // var recipient = puffworldprops.reply.replyTo
-        // recipient.push(sig)
-
-        // This checks if the recipient is already in the list
-        // If not, add it to the array
-        // If found, remove it from the array
-        if(index == -1) {
-            parents.push(sig)
-        } else {
-            parents.splice(index, 1)
-        }
-
-        return Events.pub('ui/reply/add-parent', { 'reply.parents': parents, 'reply.replyTo': username})
-    },
-    handleRedirect: function() {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'send'})
+        return Events.pub('/ui/icx/screen', {
+            "view.icx.screen": 'send',
+            "view.icx.toUser": username
+        })
     },
     render: function() {
-        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
-            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
-            : []
-        var cx1 = React.addons.classSet
-        var index   = parents.indexOf(this.props.sig)
-
-        if(index == -1) {
-            var isGreen = false
-        } else {
-            var isGreen = true
-        }
-
-        var newClass = cx1({
-            'fa fa-reply fa-fw': true,
-            'green': isGreen
-        })
-
         return (
             <span className="icon">
-                <a onClick={this.handleClick}>
-                    <i className={newClass}></i>
+                <a onClick={this.handleReply}>
+                    <i className="fa fa-reply fa-fw"></i>
                 </a>
             </span>
             )

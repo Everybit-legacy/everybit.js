@@ -292,31 +292,35 @@ function generateRandomAnimal() {
 
     // Chrome uses "rules"
     // Firefox and IE uses "cssRules"
-    var animalCSS = []
-    if (getBrowser() == "Chrome") {
-        animalCSS = document.styleSheets[5].rules;
-    } else {
-        animalCSS = document.styleSheets[5].cssRules;
-    }
+    var animalCSS = [];
     var animals = [];
-    var j = 0;
-    // Create blank array, if this item matches .icon- soething, then push into array with "icon-" stipped off
-    for(var i=0; i<animalCSS.length; i++) {
-        var selector = animalCSS[i].selectorText;
+    var i = 0;
 
-        if(typeof selector != 'undefined') {
+    // on source site stylesheets are not compiled into one single file
+    // on live site all stylesheets are pulled into one file
+    for(var j = 0; j < document.styleSheets.length; j++) {
+        if (getBrowser() == "Chrome") {
+            animalCSS = document.styleSheets[j].rules;
+        } else {
+            animalCSS = document.styleSheets[j].cssRules;
+        }
 
-            // Chrome and IE appends an ":" between animal name and before
-            // Firefox doesn't
-            splitResult = selector.replace("::",":").replace(":","-").split("-");
+        for(var k = 0; k < animalCSS.length; k++) {
+            var selector = animalCSS[k].selectorText;
 
-            if( splitResult[0] == '.icon') {
-                animals[j] = splitResult[1];
-                j++;
+            if(typeof selector != 'undefined') {
+
+                // Chrome and IE inserts an ":" between animal name and before
+                // Firefox doesn't
+                splitResult = selector.replace("::",":").replace(":","-").split("-");
+
+                if( splitResult[0] == '.icon') {
+                    animals[i] = splitResult[1];
+                    i++;
+                }
             }
         }
     }
-
 
     var animal = animals[Math.floor(Math.random() * animals.length)];
 

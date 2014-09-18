@@ -1367,7 +1367,6 @@ fieldset[disabled] .btn-primary.active {
     padding-right: 6px;
     padding-left: 0;
     z-index: 500;
-    height: 20px;
 }
 
 .qrcode {

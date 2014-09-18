@@ -2436,13 +2436,19 @@ var ICXFooter = React.createClass({
     render: function () {
         var w = window.innerWidth
 
+        var fontSize = Math.floor(ICX.calculated.baseFontH/1.7)
+        var puffballH = Math.floor(fontSize*1.1)
+        var puffballW = Math.floor(puffballH * 41/48)
+
         // Same as logoX
         var footerX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-ICX.calculated.logoW ),0,10000) + "px"
+        var footerY = Math.floor(window.innerHeight * 0.015)
+
 
         return (
-            <div style={{position: 'absolute', bottom: '10px', left: footerX }}>
-                <img className="puffballIconFooter" src="img/blueAnimated.gif" />
-            Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
+            <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
+                <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
+            {' '}Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
             </div>
             )
     }

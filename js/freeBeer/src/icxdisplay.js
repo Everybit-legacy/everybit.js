@@ -2451,7 +2451,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleGoTo: function(screen) {
-        if(screen == 'home.table') handleClearFilters()
+        if(screen == 'home.table') this.handleClearFilters()
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 

@@ -367,11 +367,6 @@ var ICXStore = React.createClass({
     },
 
     handleGetFile: function(event) {
-        //Display the name of the selected file
-        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-
-
-        //Encrypt the file in a puff
         var element = event.target
 
         ICX.fileprom = PBFiles.openBinaryFile(element)
@@ -454,16 +449,15 @@ var ICXStoreFinish = React.createClass({
                 //Make the link visisble to download the file (Temporary)
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
             })
 
         } else {
             // TODO: FAIL!
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
-
-        Events.pub('ui/thinking', { 'ICX.thinking': false })
-        updateUI()
 
         ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
         return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
@@ -769,12 +763,20 @@ var ICXSendFileFinish = React.createClass({
             'ICX.messageSent': false,
             'ICX.successMessage': ''
         })
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
     },
 
     handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
             'ICX.messageSent': true,
             'ICX.successMessage': 'File sent!'
+        })
+        Events.pub('ui/thinking', {
+            'ICX.thinking': false
         })
 
     },
@@ -784,8 +786,6 @@ var ICXSendFileFinish = React.createClass({
     },
 
     componentDidMount: function () {
-
-
         // Set information for this send
         var type = 'file'
         var content = ICX.filelist[0]   // error: dont have content of the file here
@@ -843,10 +843,12 @@ var ICXSendFileFinish = React.createClass({
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
 
             console.log(err)
         })
-
         return false
     }
 })
@@ -2084,8 +2086,11 @@ var ICXFileConverter = React.createClass({
     },
 
     handleDecryptFile: function(event) {
-
-        //this.refs.filenameDecrypt.getDOMNode().value = this.refs.decryptbutton.getDOMNode().value
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2097,6 +2102,9 @@ var ICXFileConverter = React.createClass({
             var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
                 ICX.errors = "ERROR: File decryption failed. You may not be authorized to decrypt this file. You can only decrypt a file that was encrypted using your current identity"
                 return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
@@ -2115,26 +2123,34 @@ var ICXFileConverter = React.createClass({
                 var filename = file.name
                 if (/\.puff/.test(filename)) {
                     filename = filename.slice(0, -5)
+
+                    //stop thinking
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
                     resultLink.style.display = ""
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.download = filename
                 }
                 else {
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
                     ICX.errors = "ERROR: This does not appear to be a Puff File. Make sure the file you are trying to decrypt ends with .puff"
                     return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 }
             }
-
         })
 
     },
 
     handleGetFile: function(event) {
-        //Display the name of the selected file
-        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-
-
+        //start thinking
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
         //Encrypt the file in a puff
         var element = event.target
 
@@ -2153,6 +2169,10 @@ var ICXFileConverter = React.createClass({
             var new_filename = filename + '.puff'
 
             //Make the link visisble to download the file (Temporary)
+            //stop thinking
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
             encrypedLink.style.display=""
             encrypedLink.href = PBFiles.prepBlob(puff)
             encrypedLink.download = new_filename

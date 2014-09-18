@@ -226,9 +226,14 @@ var ICXWorld = React.createClass({
 
         var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
 
+        //remove a / from the end of the screen name (python may add it for some reason)
+        if (currScreen.slice(-1) == '/') {
+            currScreen = currScreen.slice(0,-1)
+        }
+
         var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == currScreen);
-        })[0];
+            return (obj.name == currScreen)
+        })[0]
 
         var screenStyle = {
             position: "absolute",
@@ -2302,6 +2307,10 @@ var ICXLogo = React.createClass({
                 )
         } else {
 
+            //checks for an addition / at the end of the screen name and removes it
+            if (puffworldprops.view.icx.screen.slice(-1) == '/'){
+                puffworldprops.view.icx.screen = puffworldprops.view.icx.screen.slice(0,-1)
+            }
             var thisScreen = ICX.screens.filter(function( obj ) {
                 return obj.name == puffworldprops.view.icx.screen;
             })[0];

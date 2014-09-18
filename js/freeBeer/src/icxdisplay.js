@@ -429,12 +429,12 @@ var ICXStoreFinish = React.createClass({
             'ICX.nextStep': 'store',
             'ICX.successMessage': ''
         })
-        // START THINKING
-        Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI()
     },
 
     componentDidMount: function () {
+        //start thinking
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+        updateUI()
         if(PB.M.Wardrobe.getCurrentUsername()) {
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 

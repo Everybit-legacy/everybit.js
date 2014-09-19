@@ -327,7 +327,9 @@ var ICXStore = React.createClass({
     },
 
     handleToggleBackupToCloud: function() {
-        return Events.pub('ui/event', {'ICX.backupToCloud': !puffworldprops.ICX.backupToCloud})
+        return Events.pub('ui/event', {
+            'ICX.backupToCloud': !puffworldprops.ICX.backupToCloud
+        })
 
     },
 
@@ -427,6 +429,10 @@ var ICXStoreFinish = React.createClass({
 
     componentDidMount: function () {
         if(PB.M.Wardrobe.getCurrentUsername()) {
+            //backup their file
+            if (puffworldprops.ICX.backupToCloud) {
+                this.handleBackup();
+            }
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
             ICX.fileprom.then(function(blob) {
@@ -452,6 +458,75 @@ var ICXStoreFinish = React.createClass({
 
         ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
         return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+    },
+
+    handleBackup: function() {
+    //Same as sending the file to yourself
+    // Set information for this send
+        var me = PB.M.Wardrobe.getCurrentUsername()
+        var type = 'file'
+        var content = ICX.filelist[0]   // error: dont have content of the file here
+        var parents = []
+        var metadata = {}
+        metadata.routes = [me]
+        metadata.filename = content.name
+        var envelopeUserKeys = ''
+        var self = this
+
+
+        // Bundle into puff and send this bad boy off
+        var prom = Promise.resolve() // a promise we use to string everything along
+
+        var usernames = [me]
+
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function (userRecord) {
+            return userRecord.username
+        })
+
+
+        // if we haven't cached all the users, we'll need to grab them first
+        // THINK: maybe convert this to using PB.getUserRecords instead
+        if (userRecords.length < usernames.length) {
+            usernames.forEach(function (username) {
+                if (!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function () {
+                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
+                }
+            })
+        }
+
+
+        prom = prom.then(function () {
+            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                    // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            }
+
+            // blob is the encoded base64 dataURI that holds file content
+            ICX.fileprom.then(function (blob) {
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                return post_prom
+
+            })
+        }).catch(function (err) {
+            // self.cleanUpSubmit()
+            Events.pub('ui/event/', {
+                'ICX.messageSent': true,
+                'ICX.successMessage': err.message
+            })
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
+
+            console.log(err)
+        })
+        return false
     }
 })
 

@@ -79,9 +79,6 @@ ICX.currScreen = 'init'
 
 ICXdefaults = JSON.parse(JSON.stringify(ICX))
 
-// Latest Browsers to be checked upon first load
-lastestBrowser = ["Chrome 38", "Firefox 32", "Safari 7"]
-
 // OTHER
 CONFIG = {};
 

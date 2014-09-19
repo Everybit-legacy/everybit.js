@@ -2297,8 +2297,7 @@ var ICXButtonLink = React.createClass({
             paddingLeft: Math.floor(fontSize/2.5)+'px',
             zIndex: 100,
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            overflow: 'hidden'
         }
 
 
@@ -2343,9 +2342,9 @@ var ICXButtonLink = React.createClass({
         return (
             <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
                 <div className="navBtn" style={buttonStyle}>
-                    <i className={this.props.screenInfo.icon}></i>{' '}
+                    <i className={this.props.screenInfo.icon}></i>
                         <span className="icxButtonlinkText">
-                            {linkText} <i className="fa fa-chevron-right" />
+                            {' '}{linkText} <i className="fa fa-chevron-right" />
                         </span>
                 </div>
             </a>

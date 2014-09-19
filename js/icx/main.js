@@ -104,6 +104,8 @@ puffworldprops = {
             totalWizardSlides: 4
         },
 
+        alertBrowser: true,
+
         // TABLEVIEW
         table: {
             relationGroup: false,

@@ -679,9 +679,8 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .contentWindow {
-    margin:10px;
-    width:100%;
-    padding:5px;
+    width:95%;
+    padding:5%;
 
 }
 .downloadIcon {
@@ -744,6 +743,14 @@ fieldset[disabled] .btn-primary.active {
     left: 100px;
 }
 
+.fileSelect {
+    max-width:95%;
+}
+@media(max-width:420px) {
+    .fileSelect {
+        font-size: small;
+    }
+}
 .floatLeft {
     float: left;
 }
@@ -1330,6 +1337,11 @@ fieldset[disabled] .btn-primary.active {
     border-bottom: 2px solid #000;
 }
 
+@media(max-width:420px){
+    .navBtn.icxButtonlinkText {
+        display:none;
+    }
+}
 .overlay {
     position: fixed;
     z-index: 250;

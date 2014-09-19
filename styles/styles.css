@@ -87,7 +87,7 @@ button.btn:focus {
 }
 body,
 html {
-    height: 100%;
+    /*height: 100%;*/
     width: 100%;
     padding: 0;
 }
@@ -97,10 +97,9 @@ body {
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
-    margin-right: 0;
-    margin-top: 0;
-    margin-bottom: 0;
-    overflow-y: hidden;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
 form {
     display: inline;
@@ -679,9 +678,8 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .contentWindow {
-    margin:10px;
-    width:100%;
-    padding:5px;
+    width:95%;
+    padding:5%;
 
 }
 .downloadIcon {
@@ -744,6 +742,14 @@ fieldset[disabled] .btn-primary.active {
     left: 100px;
 }
 
+.fileSelect {
+    max-width:95%;
+}
+@media(max-width:420px) {
+    .fileSelect {
+        font-size: small;
+    }
+}
 .floatLeft {
     float: left;
 }
@@ -961,6 +967,12 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-newuser a.register {
     margin-left: 10px;
+}
+
+@media (max-width: 420px) {
+    .icxButtonlinkText {
+        opacity: 0;
+    }
 }
 
 
@@ -1330,6 +1342,11 @@ fieldset[disabled] .btn-primary.active {
     border-bottom: 2px solid #000;
 }
 
+@media(max-width:420px){
+    .navBtn.icxButtonlinkText {
+        display:none;
+    }
+}
 .overlay {
     position: fixed;
     z-index: 250;

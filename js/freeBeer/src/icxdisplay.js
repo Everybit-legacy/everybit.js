@@ -302,12 +302,6 @@ var ICXStore = React.createClass({
             'green': puffworldprops.ICX.backupToCloud
         })
         ICX.buttonStyle.background = headerStyle.backgroundColor
-        /*
-         <div style={{display: 'inline','font-size':'90%'}}>
-         <input id="showFileName" type="text" disabled="disabled" ref="filename"
-         defaultValue="No file Selected"/>
-         </div>
-         */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
@@ -315,7 +309,7 @@ var ICXStore = React.createClass({
                 Select a file. It will be encrypted in your web browser.
                     <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
+                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
                     </span>
                     <br /><br />
                     <small>
@@ -402,16 +396,6 @@ var ICXStoreFinish = React.createClass({
 
 
     },
-    /*
-     getInitialState: function () {
-     return {
-     nextStep: 'store',
-     messageStored: false,
-     successMessage: ''
-
-     }
-     },
-     */
     handleSubmitSuccess: function () {
         Events.pub('ui/event', {
             'ICX.messageStored':true
@@ -628,7 +612,7 @@ var ICXSendFile = React.createClass({
                 <div className="contentWindow">
                 Your file: <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
+                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
                     </span>
                     <br /><br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
@@ -1427,7 +1411,7 @@ var ICXLogin = React.createClass({
 
                     <br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
+                        <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
                     </span>
 
                 </div>
@@ -2000,22 +1984,6 @@ var ICXFileConverter = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
-
-        /* OLD UPLOAD BUTTONS: TO BE DELETED
-         <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile} />
-
-         <div style={{display: 'inline','font-size':'90%'}}>
-         <input id="showFileName" type="text" disabled="disabled" ref="filename"
-         defaultValue="No file Selected"/>
-         </div>
-
-         <input type="file" id="fileToDecrypt" ref="decryptbutton" onChange={this.handleDecryptFile} />
-
-         <div style={{display: 'inline','font-size':'90%'}}>
-         <input id="showDecryptFile" type="text" disabled="disabled" ref="filenameDecrypt"
-         defaultValue="No file Selected"/>
-         </div>
-         */
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and Decrypt Files</div>
@@ -2024,7 +1992,7 @@ var ICXFileConverter = React.createClass({
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
+                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
                     </span>
 
                     <br /><br />
@@ -2036,7 +2004,7 @@ var ICXFileConverter = React.createClass({
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
+                        <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
                     </span>
                     <br /> < br />
                     <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>Save Decrypted File</a>
@@ -2070,15 +2038,8 @@ var ICXFileConverter = React.createClass({
                 return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
             else {
-
-
                 var content = (letterPuff.payload || {}).content
                 var type = (letterPuff.payload || {}).type
-
-                //console.log(letterPuff)
-                //var resultbox = this.refs.resultbox.getDOMNode()
-                //resultbox.value = content
-
                 var filelist = decryptFile.files
                 var file = filelist[0]
                 var filename = file.name
@@ -2312,7 +2273,6 @@ var ICXLinks = React.createClass({
 
 var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
-        // return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
 
     },
@@ -2337,8 +2297,7 @@ var ICXButtonLink = React.createClass({
             paddingLeft: Math.floor(fontSize/2.5)+'px',
             zIndex: 100,
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
+            overflow: 'hidden'
         }
 
 
@@ -2383,8 +2342,10 @@ var ICXButtonLink = React.createClass({
         return (
             <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
                 <div className="navBtn" style={buttonStyle}>
-                    <i className={this.props.screenInfo.icon}></i>{' '}
-                        {linkText} <i className="fa fa-chevron-right" />
+                    <i className={this.props.screenInfo.icon}></i>
+                        <span className="icxButtonlinkText">
+                            {' '}{linkText} <i className="fa fa-chevron-right" />
+                        </span>
                 </div>
             </a>
             )

@@ -1732,7 +1732,7 @@ var ICXDashboard = React.createClass({
     componentDidMount: function() {
         // resetting ICX.wizard here
         var browser = getBrowser()
-        if ((browser == "Chrome" || browser == "IE" || browser == "Safari") && puffworldprops.view.errorStatus.dashboard) {
+        if ((browser == "IE" || browser == "Safari") && puffworldprops.view.errorStatus.dashboard) {
             ICX.errors = "WARNING: You may not be able to download files because the your browser dose not support the download attribute."
             Events.pub('ui/event', {
                 'ICX.wizard': undefined,

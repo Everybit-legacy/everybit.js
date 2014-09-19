@@ -1968,6 +1968,15 @@ var ICXHome = React.createClass({
             )
     },
     componentDidMount: function() {
+
+        var browser = getBrowserAndVersion()
+        if ((lastestBrowser.indexOf(browser) == -1) && puffworldprops.view.alertBrowser) {
+            var msg = "It seems that you are using a browser which may not be compatible with our website. Get the full experience by switching to the lastest version of Firefox/Chrome/Opera"
+            confirm(msg)
+            Events.pub('ui/event', {
+                'view.alertBrowser': false
+            })
+        }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
             'ICX.nextStatus': false,

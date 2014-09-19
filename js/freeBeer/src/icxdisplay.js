@@ -601,6 +601,17 @@ var ICXSend = React.createClass({
             this.refs.toUser.getDOMNode().value = puffworldprops.view.icx.toUser
             this.handleUsernameLookup()
         }
+
+        var browser = getBrowser()
+        if (puffworldprops.view.errorStatus.send) {
+            if( browser == "IE" ) {
+                ICX.errors = "ERROR: IE does not support our encryption library. Please switch to a different browser."
+            }
+        }
+        Events.pub('ui/event', {
+            'view.errorStatus.send': false
+        })
+        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     },
 
     verifyUsername: function() {
@@ -1817,6 +1828,16 @@ var ICXDashboard = React.createClass({
     },
     componentDidMount: function() {
         // resetting ICX.wizard here
+        var browser = getBrowser()
+        if ((browser == "IE" || browser == "Safari") && puffworldprops.view.errorStatus.dashboard) {
+            ICX.errors = "WARNING: You may not be able to download files because the your browser dose not support the download attribute."
+            Events.pub('ui/event', {
+                'ICX.wizard': undefined,
+                'ICX.nextStatus': false,
+                'view.errorStatus.dashboard': false
+            })
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
             'ICX.nextStatus': false
@@ -2065,15 +2086,6 @@ var ICXHome = React.createClass({
             )
     },
     componentDidMount: function() {
-
-        var browser = getBrowserAndVersion()
-        if ((lastestBrowser.indexOf(browser) == -1) && puffworldprops.view.alertBrowser) {
-            var msg = "It seems that you are using a browser which may not be compatible with our website. Get the full experience by switching to the lastest version of Firefox/Chrome/Opera"
-            confirm(msg)
-            Events.pub('ui/event', {
-                'view.alertBrowser': false
-            })
-        }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
             'ICX.nextStatus': false,
@@ -2209,7 +2221,18 @@ var ICXFileConverter = React.createClass({
     },
 
     componentDidMount: function(event){
-
+        var browser = getBrowser()
+        if (puffworldprops.view.errorStatus.fileConverter) {
+            if( browser == "IE" ) {
+                ICX.errors = "ERROR: IE does not support our encryption library. Please switch to a different browser."
+            } else if (browser == "Safari") {
+                ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."                
+            }
+        }
+        Events.pub('ui/event', {
+            'view.errorStatus.fileConverter': false
+        })
+        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     }
 
 })

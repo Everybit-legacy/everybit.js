@@ -103,8 +103,11 @@ puffworldprops = {
             importInfo: {},
             totalWizardSlides: 4
         },
-
-        alertBrowser: true,
+        errorStatus: {
+            dashboard: true,
+            fileConverter: true,
+            send: true,
+        },
 
         // TABLEVIEW
         table: {

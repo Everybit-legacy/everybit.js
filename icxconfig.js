@@ -88,8 +88,9 @@ CONFIG.version = '0.4.1';
 // Not yet implemented
 CONFIG.puffVersions = [];
 
-CONFIG.userApi = 'http://162.219.162.56/c/users/api.php';
-CONFIG.puffApi = 'http://162.219.162.56/c/puffs/api.php';
+CONFIG.userApi = 'https://i.cx/api/users/api.php';
+CONFIG.puffApi = 'https://i.cx/api/puffs/api.php';
+CONFIG.eventsApi = 'https://i.cx/api/puffs/api.php';
 
 // Zone is added in route of every puff publishing using this code
 CONFIG.zone = 'everybit';

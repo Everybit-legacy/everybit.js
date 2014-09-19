@@ -317,6 +317,9 @@ var ICXStore = React.createClass({
                     Once encrypted, backup to the net
                     </small>
                     <br /><br />
+                    <div ref="warning" style={{'display':'none','color':'red'}}>
+                        <span>Warning! The file you have selected may be too large to send after encryption.Try keeping it below 1.5Mb.</span>
+                    </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
                 </div>
             </div>
@@ -362,6 +365,14 @@ var ICXStore = React.createClass({
 
     handleGetFile: function(event) {
         var element = event.target
+        var warning = this.refs.warning.getDOMNode()
+        if (element.files[0].size > 1500000) {
+            warning.style.display=''
+
+        }
+        else {
+            warning.style.display='none'
+        }
         ICX.fileprom = PBFiles.openBinaryFile(element)
 
         ICX.filelist = element.files
@@ -626,6 +637,9 @@ var ICXSendFile = React.createClass({
                         <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
                     </span>
                     <br /><br />
+                    <div ref="warning" style={{'display':'none','color':'red'}}>
+                        <span>Warning! The file you have selected may be too large to send after encryption.Try keeping it below 1.5Mb.</span>
+                    </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
             </div>
@@ -656,6 +670,14 @@ var ICXSendFile = React.createClass({
         //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
 
         var element = event.target
+        var warning = this.refs.warning.getDOMNode()
+        if (element.files[0].size > 1500000) {
+            warning.style.display=''
+
+        }
+        else {
+            warning.style.display='none'
+        }
         ICX.fileprom = PBFiles.openBinaryFile(element)
         ICX.filelist = element.files
 

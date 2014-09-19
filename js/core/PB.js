@@ -369,7 +369,7 @@ PB.onError = function(msg, obj) {
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)
-        PB.Net.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, toSend)
+        PB.Net.xhr(CONFIG.eventsApi, {method: 'POST'}, toSend)
 
     console.log(msg, obj) // adding this back in for debugging help
     return false

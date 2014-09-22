@@ -975,6 +975,14 @@ fieldset[disabled] .btn-primary.active {
     }
 }
 
+.iframeHolder {
+    max-width:95%;
+    text-align:center;
+}
+
+.iframeHolder > iframe {
+    max-width:inherit;
+}
 
 .imgInBox {
     display: block;

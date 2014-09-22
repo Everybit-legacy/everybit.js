@@ -1781,9 +1781,8 @@ var ICXLearn = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
+                <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <div className="contentWindow">
-
-                    <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <br /><br />
             To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
                 </div>

@@ -710,7 +710,7 @@ var ICXSendFileFinish = React.createClass({
                 <div style={headerStyle}>Send of file</div>
                 <br />
                 <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
+                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
             </div>
             )
     },
@@ -2335,6 +2335,7 @@ var ICXButtonLink = React.createClass({
             paddingLeft: Math.floor(fontSize/2.5)+'px',
             zIndex: 100,
             whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
             overflow: 'hidden'
         }
 

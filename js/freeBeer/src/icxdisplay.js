@@ -1802,12 +1802,16 @@ var ICXIndepth = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        var textStyle = {
+            fontSize: '85%'
+        }
+
 
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Learn about the technology</div>
                 <br />
-                <div className="contentWindow">
+                <div className="contentWindow" style={textStyle}>
                 To send a message or file, I.CX uses the public key of your recipient to encrypt your content so that only they can open it. All of your content is encrypted client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
 
                 <br /><br />

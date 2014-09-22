@@ -2426,6 +2426,7 @@ var ICXButtonLink = React.createClass({
             paddingLeft: Math.floor(fontSize/2.5)+'px',
             zIndex: 100,
             whiteSpace: 'nowrap',
+            textOverflow: 'ellipsis',
             overflow: 'hidden'
         }
 

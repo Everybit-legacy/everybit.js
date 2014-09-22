@@ -1554,51 +1554,59 @@ var ICXLogin = React.createClass({
             // Do login, return error as needed
             if(identityObj.passphrase) {
                 var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
-
-                // Convert to public key
-                var publicKey = PB.Crypto.privateToPublic(privateKey)
-                if (!publicKey) {
-                    console.log('bad key')
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey':'Bad key'
-                    })
-                    return false
-                }
-
-                var prom = PB.getUserRecord(username)
-
-                prom.then(function (userInfo) {
-
-                    if (publicKey != userInfo.defaultKey) {
-                        console.log('incorrect key')
-                        Events.pub('ui/event', {
-                            'ICX.defaultKey':'Incorrect key'
-                        })
-                        return false
-                    } else {
-
-                        // Add this to wardrobe, set username to current
-                        PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-
-                        // At least one good key, set this to current user
-                        PB.M.Wardrobe.switchCurrent(username)
+            } else if(identityObj.defaultKeyPrivate) {
+                 var privateKey = identityObj.defaultKeyPrivate;
+            } else {
+                // TODO: Send to error box
+                // console.log("Missing info");
+                console.log(identityObj)
+                return PB.onError("Missing info");
+            }
 
 
-                        ICX.username = username
-                        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
-
-                    }
+            // Convert to public key
+            var publicKey = PB.Crypto.privateToPublic(privateKey)
+            if (!publicKey) {
+                console.log('bad key')
+                Events.pub('ui/event', {
+                    'ICX.defaultKey':'Bad key'
                 })
-                    .catch(function (err) {
-                        console.log('fail')
-                        Events.pub('ui/event', {
-                            'ICX.defaultKey':'Not found'
-                        })
-
-                        return false
-                    })
                 return false
             }
+
+            var prom = PB.getUserRecord(username)
+
+            prom.then(function (userInfo) {
+
+                if (publicKey != userInfo.defaultKey) {
+                    console.log('incorrect key')
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey':'Incorrect key'
+                    })
+                    return false
+                } else {
+
+                    // Add this to wardrobe, set username to current
+                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+
+                    // At least one good key, set this to current user
+                    PB.M.Wardrobe.switchCurrent(username)
+
+
+                    ICX.username = username
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
+
+                }
+            })
+                .catch(function (err) {
+                    console.log('fail')
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey':'Not found'
+                    })
+
+                    return false
+                })
+            return false
         })
     }
 })

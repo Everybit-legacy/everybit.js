@@ -1,46 +1,5 @@
 /** @jsx React.DOM */
 
-
-/*
-
- ICX: {
- wizard: {
- inProcess: true | false
- sequence: 'send' | 'store'
- type:  file' | 'message'
- content:
- saveToNet: true | false
- }
- username:
- }
-
- // COMPONENT NAMES
- <ICX
- +Store
- +Select
- (+NewUser)
- +Finish
-
- +Send
- +(File | Message)
- (+NewUser)
- +Finish
-
- +NewUser
- +Finish
-
- +Login
-
- +Dashboard
-
- +TableView
-
-
- +/>
-
- */
-
-
 /* ICX MIXINS */
 /* Warning - All Mixins must be defined PRIOR to being referenced */
 var Tooltip = React.createClass({
@@ -78,7 +37,6 @@ var TooltipMixin = {
         }
     }
 }
-
 /* END ICX MIXINS */
 
 
@@ -98,23 +56,20 @@ var ICXWorld = React.createClass({
             ICX.errors = ''
         }
 
-
         if(PB.M.Wardrobe.currentKeys) {
             ICX.username = PB.M.Wardrobe.getCurrentUsername()
         } else {
             ICX.username = false
         }
 
-
-        // console.log(ICX.username + 'is username')
         if (currScreen == 'init') {
             if (ICX.username) {
                 currScreen = 'dashboard'
-                Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+                Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
             } else {
                 currScreen = 'home'
-                Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+                Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
             }
         }
 
@@ -129,7 +84,6 @@ var ICXWorld = React.createClass({
 
         var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
         var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
-
 
         ICX.calculated = {
 
@@ -154,14 +108,11 @@ var ICXWorld = React.createClass({
                 fontFamily: "Gudea",
                 fontSize: baseFontH+'px'
             }
-
-
         }
 
-        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio );
+        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio )
 
         ICX.buttonStyle = {
-            // height: Math.floor( fontSize ) + 'px',
             fontSize:  fontSize + 'px',
             fontFamily: "Gudea, helvetica, arial",
             lineHeight: Math.floor( fontSize ) + 'px',
@@ -177,24 +128,16 @@ var ICXWorld = React.createClass({
         }
 
         var c1, c2, c3, c4, c5, c6, op1, op2
-        /*
-         c1 = '106, 0, 0'        // Red
-         c3 = '231, 119, 0'      // Orange
-         c4 = '33, 66, 30'       // Green
-         c2 = '108, 48, 3'       // Brown
-         c5 = '36, 19, 44'       // Purple
-         c6 = '0, 2, 112'        // Blue border
-         */
+
         c1 = '145, 142, 93'
         c2 = '86, 116, 62'
         c3 = '20, 57, 62'
         c4 = '54, 26, 26'
-        c5 =  '68, 0, 0' // '193, 73, 63'
-        c6 = '0, 3, 82'        // Blue border
+        c5 =  '68, 0, 0'
+        c6 = '0, 3, 82'     // Blue border
 
         op1 = '0.8'
         op2 = '.08'
-
 
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
@@ -217,15 +160,13 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'store.finish', button:false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba('+c3+', '+op2+')'},
             {position: 0, name: 'init',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
             {position: 0, name: 'indepth', button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba('+c4+', '+op2+')'}
-
         ]
 
-
-        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px';
+        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px'
 
         var thisScreen = ICX.screens.filter(function( obj ) {
             return (obj.name == currScreen);
-        })[0];
+        })[0]
 
         var screenStyle = {
             position: "absolute",
@@ -244,7 +185,6 @@ var ICXWorld = React.createClass({
             top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
             padding: '10px', // Testing...
             fontSize: ICX.calculated.baseFontH + 'px'
-
         }
 
         contentDivStyles.backgroundColor = thisScreen.backgroundColor
@@ -271,17 +211,16 @@ var ICXWorld = React.createClass({
                 <ICXSpinner />
                 <ICXFooter />
             </div>
-            )
+        )
     }
 })
+
 
 var ICXInit = React.createClass({
     render: function () {
         return <span></span>
-
     }
 })
-
 
 
 var ICXStore = React.createClass({
@@ -289,8 +228,6 @@ var ICXStore = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        // Link to previously encrypted/stored files
 
         // CSS for checkboxes
         var cb = React.addons.classSet
@@ -301,7 +238,9 @@ var ICXStore = React.createClass({
             'fa-square-o': !puffworldprops.ICX.backupToCloud,
             'green': puffworldprops.ICX.backupToCloud
         })
+
         ICX.buttonStyle.background = headerStyle.backgroundColor
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and store files</div>
@@ -318,7 +257,7 @@ var ICXStore = React.createClass({
                     </small>
                     <br /><br />
                     <div ref="warning" style={{'display':'none','color':'red'}}>
-                        <span>Warning! The file you have selected may be too large to send after encryption.Try keeping it below 1.5Mb.</span>
+                        <span>Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB.</span>
                     </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
                 </div>
@@ -334,7 +273,6 @@ var ICXStore = React.createClass({
     },
 
     componentDidMount: function() {
-        // avatar depands on puffworldprops variables
         Events.pub('ui/event', {
             'ICX.wizard.inProcess': true,
             'ICX.wizard.sequence': 'store',
@@ -344,7 +282,6 @@ var ICXStore = React.createClass({
         })
 
         var username = ICX.username
-
 
         if(username) {
             Events.pub('ui/event', {
@@ -357,24 +294,18 @@ var ICXStore = React.createClass({
                 'ICX.nextStepMessage': 'Next'
             })
         }
-
-        // Warn them
-
-
-
-
     },
 
     handleGetFile: function(event) {
         var element = event.target
         var warning = this.refs.warning.getDOMNode()
+
         if (element.files[0].size > 1500000) {
             warning.style.display=''
-
-        }
-        else {
+        } else {
             warning.style.display='none'
         }
+
         ICX.fileprom = PBFiles.openBinaryFile(element)
 
         ICX.filelist = element.files
@@ -382,10 +313,7 @@ var ICXStore = React.createClass({
         return Events.pub('ui/event', {
             'ICX.nextStatus': true
         })
-
     }
-
-
 })
 
 var ICXStoreFinish = React.createClass({
@@ -396,16 +324,16 @@ var ICXStoreFinish = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Save Your Encryped File</div>
+                <div style={headerStyle}>Save your encryped file</div>
                 <div className="contentWindow">
                 Success! Your file has been encrypted.
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
                     <br /><br />
-                    <ICXNextButton enabled={puffworldprops.ICX.messageStored} goto={puffworldprops.ICX.nextStep} key="nextToStore" text="Encrypt Another File" />
+                    <ICXNextButton enabled={puffworldprops.ICX.messageStored} goto={puffworldprops.ICX.nextStep} key="nextToStore" text="Encrypt another file" />
                 </div>
             </div>
-            )
+        )
 
 
     },
@@ -416,7 +344,7 @@ var ICXStoreFinish = React.createClass({
     },
 
     cleanUpSubmit: function () {
-        // do something fancy
+
     },
 
     componentWillMount: function() {
@@ -443,26 +371,27 @@ var ICXStoreFinish = React.createClass({
                 var filename = file.name
                 var new_filename = filename + '.puff'
 
-                //Make the link visisble to download the file (Temporary)
+                // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
                 Events.pub('ui/thinking', { 'ICX.thinking': false })
             })
 
         } else {
-            // TODO: FAIL!
+
             Events.pub('ui/thinking', { 'ICX.thinking': false })
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
 
+        // TODO: Only show warning if they DONT choose backup to network
         ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
         return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     },
 
     handleBackup: function() {
-    //Same as sending the file to yourself
-    // Set information for this send
+
+        // Same as sending the file to yourself
         var me = PB.M.Wardrobe.getCurrentUsername()
         var type = 'file'
         var content = ICX.filelist[0]   // error: dont have content of the file here
@@ -484,7 +413,6 @@ var ICXStoreFinish = React.createClass({
             return userRecord.username
         })
 
-
         // if we haven't cached all the users, we'll need to grab them first
         // THINK: maybe convert this to using PB.getUserRecords instead
         if (userRecords.length < usernames.length) {
@@ -498,7 +426,6 @@ var ICXStoreFinish = React.createClass({
                 }
             })
         }
-
 
         prom = prom.then(function () {
             if (envelopeUserKeys) {      // add our secret identity to the list of available keys
@@ -515,6 +442,8 @@ var ICXStoreFinish = React.createClass({
 
             })
         }).catch(function (err) {
+
+            // TODO: Show user the error
             // self.cleanUpSubmit()
             Events.pub('ui/event/', {
                 'ICX.messageSent': true,
@@ -524,12 +453,10 @@ var ICXStoreFinish = React.createClass({
                 'ICX.thinking': false
             })
 
-            console.log(err)
         })
         return false
     }
 })
-
 
 
 // Reply to a single puff
@@ -561,9 +488,6 @@ var ICXSend = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        // TODO put this back
-        //
 
         return (
             <div className="icx-screen icx-send">
@@ -605,7 +529,7 @@ var ICXSend = React.createClass({
         var browser = getBrowser()
         if (puffworldprops.view.errorStatus.send) {
             if( browser == "IE" ) {
-                ICX.errors = "ERROR: IE does not support our encryption library. Please switch to a different browser."
+                ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
             }
         }
         Events.pub('ui/event', {
@@ -636,7 +560,6 @@ var ICXSend = React.createClass({
 
     },
 
-    //Trying to get this to work on "Enter" keypress
     handleSubmit: function (e) {
         e.preventDefault()
         this.handleUsernameLookup()
@@ -644,30 +567,26 @@ var ICXSend = React.createClass({
     },
 
     handleUsernameLookup: function() {
-        // remove initial . if it exists
 
         var toUser = this.refs.toUser.getDOMNode().value
         var self = this
 
         // Check for zero length
         if(!toUser.length) {
-            //this.state.toUserStatus = 'Missing'
-            console.log('u heer')
+
             return Events.pub('ui/event', {
                 'ICX.toUserStatus': 'Missing',
                 'ICX.userConfirmed': false
             })
-            //return false
         }
 
+        // remove initial . if it exists
         if (toUser.slice(0, 1) == '.')
             toUser = toUser.slice(1)
 
         var prom = PB.getUserRecord(toUser)
 
         prom.then(function(result) {
-            //self.state.toUserStatus = true
-            //self.state.nextStatus = true
 
             return Events.pub('ui/events', {
                 'ICX.userConfirmed': true,
@@ -677,8 +596,7 @@ var ICXSend = React.createClass({
             })
         })
             .catch(function(err) {
-                //self.state.toUserStatus = 'Not found'
-                //self.state.nextStatus = false
+
                 return Events.pub('ui/events', {
                     'ICX.toUserStatus': 'Not found',
                     'ICX.nextStatus': false,
@@ -686,11 +604,9 @@ var ICXSend = React.createClass({
 
                 })
             })
+
         return false
-
     }
-
-
 });
 
 var ICXSendFile = React.createClass({
@@ -702,7 +618,6 @@ var ICXSendFile = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
-
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
@@ -713,12 +628,12 @@ var ICXSendFile = React.createClass({
                     </span>
                     <br /><br />
                     <div ref="warning" style={{'display':'none','color':'red'}}>
-                        <span>Warning! The file you have selected may be too large to send after encryption.Try keeping it below 1.5Mb.</span>
+                        <span>Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB.</span>
                     </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
             </div>
-            )
+        )
     },
 
     componentWillMount: function() {
@@ -741,18 +656,15 @@ var ICXSendFile = React.createClass({
     },
 
     handleDisplaySelectedFile: function(event) {
-
-        //this.refs.filename.getDOMNode().value = this.refs.uploadbutton.getDOMNode().value
-
         var element = event.target
         var warning = this.refs.warning.getDOMNode()
+
         if (element.files[0].size > 1500000) {
             warning.style.display=''
-
-        }
-        else {
+        } else {
             warning.style.display='none'
         }
+
         ICX.fileprom = PBFiles.openBinaryFile(element)
         ICX.filelist = element.files
 
@@ -769,7 +681,6 @@ var ICXSendFileConfirm = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-
         var filelist = ICX.filelist
         var file     = filelist[0]
         var filename = file.name
@@ -778,18 +689,17 @@ var ICXSendFileConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Confirm file send</div>
                 <br />
-                <b>TO</b> {puffworldprops.ICX.toUser}<br />
-                <b>File</b><br />
-                {filename}
-                <hr />
+                <b>To</b>: {puffworldprops.ICX.toUser}<br />
+                <b>File</b>: {filename}
+                <br /><br />
                 <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
             </div>
-            )
+        )
     }
 })
 
-var ICXSendFileFinish = React.createClass({
 
+var ICXSendFileFinish = React.createClass({
 
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -803,8 +713,6 @@ var ICXSendFileFinish = React.createClass({
                 <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another message or file' />
             </div>
             )
-
-
     },
 
     componentWillMount: function () {
@@ -1801,7 +1709,7 @@ var ICXDashboard = React.createClass({
 
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
-                        {' '}View your messages
+                        {' '}View your messages and files
                     </a>
                     <br /><br />
                     <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
@@ -1830,7 +1738,8 @@ var ICXDashboard = React.createClass({
         // resetting ICX.wizard here
         var browser = getBrowser()
         if ((browser == "IE" || browser == "Safari") && puffworldprops.view.errorStatus.dashboard) {
-            ICX.errors = "WARNING: You may not be able to download files because the your browser dose not support the download attribute."
+            ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
+                "As a result, you may not be able to download passphrase files or files you have encrypted."
             Events.pub('ui/event', {
                 'ICX.wizard': undefined,
                 'ICX.nextStatus': false,
@@ -2224,7 +2133,7 @@ var ICXFileConverter = React.createClass({
         var browser = getBrowser()
         if (puffworldprops.view.errorStatus.fileConverter) {
             if( browser == "IE" ) {
-                ICX.errors = "ERROR: IE does not support our encryption library. Please switch to a different browser."
+                ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
             } else if (browser == "Safari") {
                 ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."                
             }

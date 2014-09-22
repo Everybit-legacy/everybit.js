@@ -748,3 +748,12 @@ if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
     Events.pub( 'ui/slider/close',{ 'view.slider.show': true});
     // console.log("hide silder cuz several users")
 
+// TODO: pull out of global, more fineness
+ACTIVITY = [];
+Events.sub('ui/*', function(data) {
+    ACTIVITY.push(data);
+
+    // XHR this bad boy!
+    if(puffworldprops.prefs.reporting)
+        PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
+});

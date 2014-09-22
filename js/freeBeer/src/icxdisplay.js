@@ -226,6 +226,8 @@ var ICXInit = React.createClass({
 var ICXStore = React.createClass({
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -243,9 +245,9 @@ var ICXStore = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and store files</div>
+                <div style={headerStyle}>{polyglot.t("header.store")}</div>
                 <div className="contentWindow">
-                Select a file. It will be encrypted in your web browser.
+                    {polyglot.t("store.select")}
                     <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
@@ -253,11 +255,11 @@ var ICXStore = React.createClass({
                     <br /><br />
                     <small>
                         <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
-                    Once encrypted, backup to the net
+                    {polyglot.t("store.backup")}
                     </small>
                     <br /><br />
                     <div ref="warning" style={{'display':'none','color':'red'}}>
-                        <span>Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB.</span>
+                        <span>{polyglot.t("store.warning")}</span>
                     </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
                 </div>
@@ -319,12 +321,14 @@ var ICXStore = React.createClass({
 var ICXStoreFinish = React.createClass({
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Save your encryped file</div>
+                <div style={headerStyle}>{polyglot.t("header.store_fin")}</div>
                 <div className="contentWindow">
                 Success! Your file has been encrypted.
                     <br /><br />
@@ -486,12 +490,14 @@ var ICXSend = React.createClass({
 
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div className="icx-screen icx-send">
-                <div style={headerStyle}>Send a private message or file</div>
+                <div style={headerStyle}>{polyglot.t("header.send")}</div>
                 <div className="component">
                     <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
                     <span className="relative">
@@ -614,13 +620,15 @@ var ICXSendFile = React.createClass({
 
     render: function() {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and send a file to {puffworldprops.ICX.toUser} </div>
+                <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div>
                 <div className="contentWindow">
                 Your file: <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -677,6 +685,7 @@ var ICXSendFile = React.createClass({
 
 var ICXSendFileConfirm = React.createClass({
     render: function () {
+        var polyglot = Translate.language[puffworldprops.view.language]
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
@@ -687,10 +696,10 @@ var ICXSendFileConfirm = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Confirm file send</div>
+                <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
                 <br />
-                <b>To</b>: {puffworldprops.ICX.toUser}<br />
-                <b>File</b>: {filename}
+                <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                <b>{polyglot.t("send.file")}</b> {filename}
                 <br /><br />
                 <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
             </div>
@@ -702,12 +711,15 @@ var ICXSendFileConfirm = React.createClass({
 var ICXSendFileFinish = React.createClass({
 
     render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send of file</div>
+                <div style={headerStyle}>{polyglot.t("header.send_file_fin")}</div>
                 <br />
                 <div>{puffworldprops.ICX.successMessage}</div>
                 <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
@@ -811,14 +823,16 @@ var ICXSendFileFinish = React.createClass({
 var ICXSendMessage = React.createClass({
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send private message to {puffworldprops.ICX.toUser} </div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div>
                 <div className="contentWindow">
-                    <div>Your message:</div>
+                    <div>{polyglot.t("send.msg")}</div>
                     <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
@@ -867,6 +881,8 @@ var ICXSendMessage = React.createClass({
 var ICXSendMessageConfirm = React.createClass({
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -874,12 +890,12 @@ var ICXSendMessageConfirm = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Confirm message send</div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
                 <br />
                 <div className="contentWindow">
-                    <b>FROM:</b> {username}<br/>
-                    <b>TO:</b> {puffworldprops.ICX.toUser}<br />
-                    <b>Message</b><br />
+                    <b>{polyglot.t("send.from")}</b> {username}<br/>
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                    <b>{polyglot.t("send.msg")}</b><br />
                     {ICX.messageText}
                     <hr />
                     <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
@@ -892,12 +908,15 @@ var ICXSendMessageConfirm = React.createClass({
 var ICXSendMessageFinish = React.createClass({
 
     render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send of message</div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg_fin")}</div>
                 <br />
                 <div className="contentWindow">
                     <div>{puffworldprops.ICX.successMessage}</div>
@@ -989,6 +1008,8 @@ var ICXNewUser = React.createClass({
 
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -996,10 +1017,10 @@ var ICXNewUser = React.createClass({
 
         return (
             <div className="icx-screen icx-newuser">
-                <div style={headerStyle}>Register for a new username</div>
+                <div style={headerStyle}>{polyglot.t("header.signup")}</div>
                 <div className="contentWindow">
 
-                    <div><b>Username:</b></div>
+                    <div><b>{polyglot.t("signup.username")}</b></div>
 
                 .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
                     <span className="relative">
@@ -1012,7 +1033,7 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
-                    <div><b>Passphrase:</b></div>
+                    <div><b>{polyglot.t("signup.pass")}</b></div>
                     <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
@@ -1341,11 +1362,11 @@ var ICXLogin = React.createClass({
         return (
 
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
-                <div style={headerStyle}>Save your identity on this web browser</div>
+                <div style={headerStyle}>{polyglot.t("header.login")}</div>
 
                 <div className="component">
 
-                    <div style={labelStyle}><b>Username:</b></div>
+                    <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
                 .icx.
                     <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
@@ -1356,7 +1377,7 @@ var ICXLogin = React.createClass({
 
                     <br /><br />
                     <div className="relative">
-                        <b>Private passphrase<sup>&#63;</sup></b>
+                        <b>{polyglot.t("login.pass")}<sup>&#63;</sup></b>
                         <Tooltip content="This is the secret phrase you chose when signing up." />
                     </div>
 
@@ -1371,10 +1392,10 @@ var ICXLogin = React.createClass({
 
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br /><br />
-                    <i><em>or</em></i>
+                    <i><em>{polyglot.t("login.or")}</em></i>
                     <br /><br />
                     <div className="relative">
-                    Select an identity file<sup>&#63;</sup>
+                        {polyglot.t("login.id_file")}<sup>&#63;</sup>
                         <Tooltip content="Authenticate with this browser using your private identity file" />
                     </div>
 
@@ -1607,6 +1628,8 @@ var ICXLogin = React.createClass({
 var ICXDashboard = React.createClass({
     render: function () {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -1618,7 +1641,7 @@ var ICXDashboard = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Dashboard for {username}</div><br />
+                <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
                     <div className="dashboard avatarHolder">
                         <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
@@ -1627,25 +1650,25 @@ var ICXDashboard = React.createClass({
 
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
-                        {' '}View your messages and files
+                        {polyglot.t("dashboard.tableview")}
                     </a>
                     <br /><br />
                     <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
                         <i className="fa fa-fw fa-download" />
-                        {' '}Save passphrase as file
+                        {polyglot.t("dashboard.download_id")}
                     </a>
                     <br /><br />
                     <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
                         <i className="fa fa-fw fa-file-excel-o" />
-                        {' '}Encrypt or decrypt a file
+                        {polyglot.t("dashboard.filesys")}
                     </a>
                     <br /><br />
 
                     <a href="#" onClick={this.handleSignOut}>
                         <i className="fa fa-fw fa-sign-out" />
-                        {' '}Logout
+                        {polyglot.t("dashboard.logout")}
                     </a>
                 </div>
             </div>
@@ -1762,6 +1785,8 @@ var ICXLearn = React.createClass({
     render: function () {
         // TODO: Determine width then height of video embed dynamically
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         var w = window.innerWidth
@@ -1780,11 +1805,11 @@ var ICXLearn = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
+                <div style={headerStyle}>{polyglot.t("header.learn")}</div><br />
                 <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
                 <div className="contentWindow">
                 <br /><br />
-            To learn more about how I.CX works, watch the video or <a href="#" onClick={this.handleGoInDepth}>read about the technology that makes it work</a>.
+                {polyglot.t("learn.more")}<a href="#" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.
                 </div>
             </div>
         )
@@ -1798,6 +1823,9 @@ var ICXLearn = React.createClass({
 var ICXIndepth = React.createClass({
 
     render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
@@ -1805,10 +1833,9 @@ var ICXIndepth = React.createClass({
             fontSize: '85%'
         }
 
-
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Learn about the technology</div>
+                <div style={headerStyle}>{polyglot.t("header.indepth")}</div>
                 <br />
                 <div className="contentWindow" style={textStyle}>
                 To send a message or file, I.CX uses the public key of your recipient to encrypt your content so that only they can open it. All of your content is encrypted client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
@@ -1830,17 +1857,20 @@ var ICXIndepth = React.createClass({
 var ICXAbout = React.createClass({
 
     render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{ICX.currScreenInfo.fullText}</div><br />
+                <div style={headerStyle}>{polyglot.t("header.about")}</div><br />
                 <div className="contentWindow">
-                I.CX, or “I see X”, is a private messaging and file sending system built on the <a href="http://www.puffball.io" target="_blank">puffball platform</a>.
+                {polyglot.t("about.built")}<a href="http://www.puffball.io" target="_blank">{polyglot.t("about.platform")}</a>.
                     <br />
                     <br />
-                    <b>Developers:</b>
+                    <b>{polyglot.t("about.devs")}</b>
                     <br />
                 • <a href="#" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a><br />
                 • <a href="#" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a><br />
@@ -2113,6 +2143,7 @@ var ICXLogo = React.createClass({
     render: function() {
         var w = window.innerWidth
         var h = window.innerHeight
+        var polyglot = Translate.language[puffworldprops.view.language]
 
         if(!puffworldprops.view.icx.screen || puffworldprops.view.icx.screen == 'home') {
             var logoW = ICX.calculated.logoW
@@ -2129,7 +2160,8 @@ var ICXLogo = React.createClass({
                         <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
                     <br />
-                    <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>The world’s first 100% secure file storage and messaging system to work right in your web browser.
+                    <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>
+                        {polyglot.t("header.home")}
                     </div>
                 </div>
                 )
@@ -2253,6 +2285,8 @@ var ICXButtonLink = React.createClass({
 var ICXFooter = React.createClass({
 
     render: function () {
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var w = window.innerWidth
 
         var fontSize = Math.floor(ICX.calculated.baseFontH/1.7)
@@ -2267,7 +2301,7 @@ var ICXFooter = React.createClass({
         return (
             <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
                 <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
-            {' '}Powered by <a href="http://www.puffball.io" target="_new">puffball</a>. All content is encrypted on the user&#39;s device. Only the sender and recipient can decode it.
+            {polyglot.t("footer.powered")}<a href="http://www.puffball.io" target="_new">puffball.</a>{polyglot.t("footer.content")}
             </div>
         )
     }

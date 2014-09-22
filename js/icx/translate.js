@@ -6,191 +6,66 @@ Translate.language["en"].extend({
 	drop_down_display: 'English'
 });
 Translate.language["en"].extend({
-	alert: {
-		noUserSet: "You will need to set your identity first",
-        flag: 'WARNING: This will immediately and irreversibly remove this puff from your browser and request that others on the network do the same!'
-	},
-	menu: {
-		view: {
-			title: 'View',
-			roots: "Conversation starters",
-			latest: "Latest puffs",
-			collection: 'Choices collection',
-			shortcut: "Keyboard shortcuts",
-			show_mine: 'Show my puffs',
-            show_puffs:"Show puffs for me"
-		},
-		filters: {
-			title: 'Filter',
-			by: 'By',
-			tags: 'Tag',
-			routes: 'Route',
-			users: 'User'
-		},
-        preferences: {
-            title: "Preferences",
-			relationship: "Show relationships",
-			animation: "Show animations",
-			infobar: "Show information bars",
-            disable_reporting: "Disable reporting",
-			language: "Language",
-			bgcolor: "Background"
-        },
-		publish: {
-			title: 'Publish',
-			new_puff: "New puff"
-		},
-		identity: {
-			title: 'Identity',
-			current: 'Current',
-			none: 'None',
-			username: 'Username',
-			private: 'Private Keys',
-			public: 'Public Keys',
-			default: 'default',
-			admin: 'admin',
-			root: 'root',
-			new_identity: {
-				title: 'Create',
-				msg: 'Desired username',
-				generate: 'Regenerate',
-				or: 'or',
-				error_missing: 'You must set all of your public keys before making a registration request.',
-				success: 'Success!',
-				submit: 'Submit request',
-				import_content: 'Import Content'
-			},
-			view_identity: {
-				title: 'View',
-				msg: 'Stored keys for'
-			},
-			set_identity: {
-				title: 'Store',
-				msg: 'Use this area to store keys with this browser. To publish content, set only your default key.'
-			},
-            step: {
-                title: 'Step %{n}',
-                next: 'next',
-                back: 'back',
-                select:'Select a new username ',
-                import:'Or, import from ',
-                generate:'Generate keys for %{username}',
-                remember:'Remember to save your keys!',
-                request:'Requested username '
-            }
-		},
-		profile: {
-			title: 'Profile'
-		},
-		about: {
-			title: 'About',
-			introduction: 'Introduction',
-			faq: "Puffball FAQ",
-			code: 'Source code'
-		},
-		tools: {
-			title: 'ADVANCED TOOLS',
-			builder: "Puff builder",
-			clear_cache: 'Clear cached puffs'
-		},
-        tooltip:{
-            roots:'View latest conversation starters',
-            latest:'View latest published puffs',
-            collection:'View the Choices Collection',
-            shortcut:'View a list of shortcuts for this website',
-            showPuffs:'View puffs that were sent to me',
-            show_mine: 'View puffs that were sent by me',
-            relationship:'Display/hide relationships between puffs',
-            animation:'Enable/disable animations',
-            infobar:'Display/hide the information bars for each puff',
-            set_identity: 'Store your private keys',
-            view_identity: 'View stored keys for current identity',
-            new_identity: 'Create a new identity',
-			generate: 'randomly generate new username',
-            new_puff:'Create a new puff',
-            code:'View source code on GitHub',
-            puff_builder:'Show the puff builder',
-            tags_filter: 'Add a tag to filters',
-            types_filter: 'Add a content type to filters',
-            routes_filter: 'Add a route to filters',
-            users_filter: 'Add a user to filters',
-            types_filter: 'Add a type to filters',
-            remove_filter: 'Remove this filter',
-            current_delete:'To delete this user from the browser',
-            flag_link: 'Flag for removal. If you created this puff, this will send out a request to the network to remove it.',
-            view_image: 'View large',
-            parent:'Show the parents of this puff',
-            children:'Show the children of this puff',
-            reply:'Reply to this puff',
-            see_more:'Show more options',
-            view_raw:'Show the raw code of this puff',
-            json:'Show the JSON string of this puff',
-            permalink:'Permalink to this puff',
-            expand: 'Expand puff to one row',
-            compress: 'Compress puff size to default setting',
-            copy:'Copy the raw content of this puff to the reply box',
-            star:'Star this puff',
-            disable_reporting: "We track how you use our website. Click to disable.",
-            sortDESC: "Sorted by most recent. Click to change.",
-            sortASC: "Sorted by least recent. Click to change.",
-            show_roots_true: "Showing only puffs with no parents  (topic starters). Click to change.",
-            show_roots_false: "Showing topic starters and replies. Click to show only puffs with no parents (topic starters)."
-        }
-	},
 	header: {
-		tooltip: {
-            publish: 'Publish a new puff',
-            identity: 'Open identity popout',
-            icon: 'Open/close menu',
-            refresh: 'Manually refresh latest data'
-		}
+		home: "The world’s first 100% secure file storage and messaging system to work right in your web browser.",
+		login: "Save your identity on this web browser",
+		signup: "Register for a new username",
+		learn: "Learn how it works",
+		indepth: "Learn about the technology",
+		about: "About ICX",
+		send: "Send a private message or file",
+		send_msg: "Send a private message to ",
+		send_msg_conf: "Confirm message send",
+		send_msg_fin: "Send of message",
+		send_file: "Encrypt and send a file to ",
+		send_file_conf: "Confirm file send",
+		send_file_fin: "Send of file",
+		store: "Encrypt and store files",
+		store_fin: "Save your encryped file",
+		dashboard: "Dashboard for ",
+		filesys: "Encrypt and Decrypt Files"
 	},
-	replyForm: {
-		recipient: 'Recipients',
-        send_to: 'Send to',
-		send_to_ph: 'Add new user to receive', /*placeholder*/
-		text_area_ph: 'Add your content here. Click on the reply buttons of other puffs to reply to these.',
-		send: 'Send',
-		preview: 'preview',
-		format: {
-			text: 'text',
-			image: 'image',
-			bb_code_msg: 'You can use BBCode-style tags',
-			image_file: 'Image File',
-			profile_image: 'Profile image*',
-			image_chosen: 'No file chosen',
-		},
-        privacy_option: 'Privacy',
-        p_options: {
-            public: 'Public (everyone can see this)',
-            private: 'Private (content is encrypted)',
-            anonymous: 'Anonymous (encrypted and anonymous)',
-            paranoid: 'Invisible (double anon, experimental!)'
-        },
-        advanced: {
-			title: 'Advanced Options',
-			content_license: 'Content License',
-			reply_privacy: 'Reply privacy level'
-        }
+	signup: {
+		username: "Username:",
+		pass: "Passphrase:"
 	},
-	wizard: {
-		publish: {
-			message1: 'Pick the type of message you want to publish. Add your content in the text box.',
-			message2: 'Click preview tab to preview your content.',
-			message3: 'Enter a username to send your puff to an existing user.',
-			message4: 'Select different options.',
-			message5: 'Click send to publish your new puff.'
-		}
+	login: {
+		username: "Username:",
+		pass: "Private passphrase",
+		or: "or",
+		id_file: "Select an identity file"
+	},
+	dashboard: {
+		tableview: " View your messages and files",
+		download_id: " Download your identity file",
+		filesys: " Encrypt or decrypt a file",
+		logout: " Logout"
+	},
+	send: {
+		msg: "Your Message",
+		file: "File: ",
+		msg_sent: "Your message has been sent!",
+		file_sent: "Your file has been sent!",
+		from: "FROM: ",
+		to: "TO: ",
+	},
+	store: {
+		select: "Select a file. It will be encrypted in your web browser.",
+		backup: "Once encrypted, backup to the net",
+		warning: "Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB."
+	},
+	learn: {
+		more: "To learn more about how I.CX works, watch the video or ",
+		link: "read about the technology that makes it work"
+	},
+	about: {
+		built: "I.CX, or “I see X”, is a private messaging and file sending system built on the ",
+		platform: "puffball platform",
+		devs: "Developers:"
 	},
 	footer: {
-		powered: 'Powered by',
-		rest: ' Responsibility for all content lies with the publishing author and not this website.'
-	},
-	tableview: {
-		tooltip: {
-            row_expand: "Expand/collapse this row.",
-            col_options: "Add/remove columns.",
-		}
+		powered: " Powered by",
+		content: " All content is encrypted on the user's device. Only the sender and recipient can decode it."
 	}
 });
 Translate.language["en"].extend({

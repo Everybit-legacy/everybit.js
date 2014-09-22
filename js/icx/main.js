@@ -751,7 +751,12 @@ if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
 // TODO: pull out of global, more fineness
 ACTIVITY = [];
 Events.sub('ui/*', function(data) {
+    // var last = ACTIVITY[ACTIVITY.length - 1]
+    // if(JSON.stringify(last) == JSON.stringify(data))
+    //     return false
+
     ACTIVITY.push(data);
+
 
     // XHR this bad boy!
     if(puffworldprops.prefs.reporting)

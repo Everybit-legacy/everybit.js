@@ -494,12 +494,11 @@ var ICXSend = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div>
                 <div className="component">
-                    <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
+                    <span>To:<input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit}/></span>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
@@ -567,9 +566,11 @@ var ICXSend = React.createClass({
     },
 
     handleSubmit: function (e) {
-        e.preventDefault()
-        this.handleUsernameLookup()
-        return false
+        if (e.which == 13) {
+            e.preventDefault()
+            this.handleUsernameLookup()
+            return false
+        }
     },
 
     handleUsernameLookup: function() {
@@ -1815,7 +1816,7 @@ var ICXLearn = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.learn")}</div><br />
                 <div className="iframeHolder">
-                    <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
+                    <iframe width={vidW} height={vidH} src={vidURL} frameBorder="0" allowFullScreen></iframe>
                 </div>
                 <div className="contentWindow">
                 <br /><br />

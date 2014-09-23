@@ -245,7 +245,7 @@ var ICXStore = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.store")}</div>
+                <div style={headerStyle}>{polyglot.t("header.store")}</div><br />
                 <div className="contentWindow">
                     {polyglot.t("store.select")}
                     <br /><br />
@@ -328,7 +328,7 @@ var ICXStoreFinish = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.store_fin")}</div>
+                <div style={headerStyle}>{polyglot.t("header.store_fin")}</div><br />
                 <div className="contentWindow">
                 Success! Your file has been encrypted.
                     <br /><br />
@@ -494,17 +494,17 @@ var ICXSend = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-
         return (
             <div className="icx-screen icx-send">
-                <div style={headerStyle}>{polyglot.t("header.send")}</div>
-                <div className="component">
-                    <span>To: <form onSubmit={this.handleSubmit}><input type="text" ref="toUser" onChange={this.verifyUsername} /></form></span>
+                <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
+                <div className ="contentWindow">
+                    <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit}/></span>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
+
                 </div>
 
                 <div className="component">
@@ -533,15 +533,10 @@ var ICXSend = React.createClass({
         }
 
         var browser = getBrowser()
-        if (puffworldprops.view.errorStatus.send) {
-            if( browser == "IE" ) {
-                ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            }
+        if( browser == "IE" ) {
+            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
-        Events.pub('ui/event', {
-            'view.errorStatus.send': false
-        })
-        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     },
 
     verifyUsername: function() {
@@ -551,6 +546,11 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
+        // If the last character is a space, then trigger usernameLookup
+        if(finalChar == ' ') {
+            this.handleUsernameLookup()
+            return false
+        }
 
         return Events.pub('ui/events', {
             'ICX.userConfirmed': false,
@@ -558,18 +558,14 @@ var ICXSend = React.createClass({
             'ICX.toUserStatus': ""
         })
 
-        // If the last character is a space, then trigger usernameLookup
-        if(finalChar == ' ') {
-            this.handleUsernameLookup()
-            return false
-        }
-
     },
 
     handleSubmit: function (e) {
-        e.preventDefault()
-        this.handleUsernameLookup()
-        return false
+        if (e.which == 13) {
+            e.preventDefault()
+            this.handleUsernameLookup()
+            return false
+        }
     },
 
     handleUsernameLookup: function() {
@@ -628,7 +624,7 @@ var ICXSendFile = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div>
+                <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                 Your file: <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -698,10 +694,12 @@ var ICXSendFileConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
                 <br />
-                <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
-                <b>{polyglot.t("send.file")}</b> {filename}
-                <br /><br />
-                <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
+                <div className="contentWindow">
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                    <b>{polyglot.t("send.file")}</b> {filename}
+                    <br /><br />
+                    <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
+                </div>
             </div>
         )
     }
@@ -721,8 +719,10 @@ var ICXSendFileFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_file_fin")}</div>
                 <br />
-                <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
+                <div className="contentWindow">
+                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
+                </div>
             </div>
             )
     },
@@ -830,7 +830,7 @@ var ICXSendMessage = React.createClass({
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                     <div>{polyglot.t("send.msg")}</div>
                     <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
@@ -1685,14 +1685,10 @@ var ICXDashboard = React.createClass({
     componentDidMount: function() {
         // resetting ICX.wizard here
         var browser = getBrowser()
-        if ((browser == "IE" || browser == "Safari") && puffworldprops.view.errorStatus.dashboard) {
+        if (browser == "IE" || browser == "Safari") {
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download passphrase files or files you have encrypted."
-            Events.pub('ui/event', {
-                'ICX.wizard': undefined,
-                'ICX.nextStatus': false,
-                'view.errorStatus.dashboard': false
-            })
+
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
         Events.pub('ui/event', {
@@ -1815,7 +1811,7 @@ var ICXLearn = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.learn")}</div><br />
                 <div className="iframeHolder">
-                    <iframe width={vidW} height={vidH} src={vidURL} frameborder="0" allowfullscreen></iframe>
+                    <iframe width={vidW} height={vidH} src={vidURL} frameBorder="0" allowFullScreen></iframe>
                 </div>
                 <div className="contentWindow">
                 <br /><br />
@@ -2048,17 +2044,15 @@ var ICXFileConverter = React.createClass({
 
     componentDidMount: function(event){
         var browser = getBrowser()
-        if (puffworldprops.view.errorStatus.fileConverter) {
-            if( browser == "IE" ) {
-                ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            } else if (browser == "Safari") {
-                ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."                
-            }
+        if( browser == "IE" ) {
+            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        } else if (browser == "Safari") {
+            ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
-        Events.pub('ui/event', {
-            'view.errorStatus.fileConverter': false
-        })
-        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+
     }
 
 })

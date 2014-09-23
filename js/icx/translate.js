@@ -63,8 +63,14 @@ Translate.language["en"].extend({
 		platform: "puffball platform",
 		devs: "Developers:"
 	},
+	tableview: {
+		tooltip: {
+            row_expand: "Expand/collapse this row.",
+            col_options: "Add/remove columns.",
+		}
+	},
 	footer: {
-		powered: " Powered by",
+		powered: " Powered by ",
 		content: " All content is encrypted on the user's device. Only the sender and recipient can decode it."
 	}
 });

@@ -2312,6 +2312,7 @@ var ICXFooter = React.createClass({
             <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
                 <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
             {polyglot.t("footer.powered")}<a href="http://www.puffball.io" target="_new">puffball.</a>{polyglot.t("footer.content")}
+            <ICXLangSelect/>
             </div>
         )
     }
@@ -2422,7 +2423,29 @@ var ICXNextButton = React.createClass({
             return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
         }
     }
-});
+})
+
+
+var ICXLangSelect = React.createClass({
+    handlePickLanguage: function() {
+        var language = this.refs.picklanguage.getDOMNode().value
+        return Events.pub('ui/view/language/set', {'view.language': language})
+    },
+    render: function() {
+        var language = puffworldprops.view.language || "en"
+        var all_languages = Object.keys(Translate.language)
+
+        return (
+            <div className="menuItem">
+                Language: <select ref="picklanguage" onChange={this.handlePickLanguage} defaultValue={language}>
+                    {all_languages.map(function(lang) {
+                        return <option key={lang} value={lang}>{Translate.language[lang].t("drop_down_display")}</option>
+                    })}
+                </select>
+            </div>
+        )
+    }
+})
 
 // TODO: Make ICXCheckmark
 var Checkmark = React.createClass({

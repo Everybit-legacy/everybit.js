@@ -508,9 +508,9 @@ var ICXSend = React.createClass({
                 </div>
 
                 <div className="component">
-                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text="MESSAGE" goto="send.message" />
+                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.msg")} goto="send.message" />
                     {' '}
-                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text="FILE" goto="send.file" />
+                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.file")} goto="send.file" />
                 </div>
             </div>
             )
@@ -2324,20 +2324,23 @@ var ICXUserButton = React.createClass({
 
     render: function() {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var username = ICX.username
         if (!username) {
             return(
                 <span>
                     <div className="navBtn user">
                         <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
-                            <i className="fa fa-fw fa-sign-in"></i>{' '}
-                        LOG IN
+                            <i className="fa fa-fw fa-sign-in"></i>
+                            {polyglot.t("button.login")}
                         </a>
                     </div>
                     <div style={{display: 'inline-block', marginLeft: '10px', marginRight: '10px'}}>or</div>
                     <div className="navBtn user">
                         <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                            <i className="fa fa-fw fa-user"></i>  SIGN UP
+                            <i className="fa fa-fw fa-user"></i>
+                            {polyglot.t("button.signup")}
                         </a>
                     </div>
 
@@ -2405,10 +2408,12 @@ var ICXNextButton = React.createClass({
     },
 
     render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language]
+        
         if(this.props.text) {
             var buttonText = this.props.text
         } else {
-            var buttonText = "NEXT"
+            var buttonText = polyglot.t("button.next")
         }
 
         if(this.props.enabled) {

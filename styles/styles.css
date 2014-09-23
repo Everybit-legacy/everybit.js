@@ -679,8 +679,9 @@ fieldset[disabled] .btn-primary.active {
 
 .contentWindow {
     width:95%;
-    padding:5%;
-
+    padding:2%;
+    margin-right:auto;
+    margin-left:auto;
 }
 .downloadIcon {
     text-align: right;
@@ -1708,6 +1709,12 @@ fieldset[disabled] .btn-primary.active {
     position:absolute;
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
+}
+
+@media(max-width:420px) {
+    .icx-send {
+        text-align:center;
+    }
 }
 
 @keyframes fadein {

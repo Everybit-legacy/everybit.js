@@ -494,13 +494,15 @@ var ICXSend = React.createClass({
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
+
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
                 <div className="contentWindow">
                     To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
@@ -508,9 +510,11 @@ var ICXSend = React.createClass({
                 </div>
 
                 <div className="component">
-                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.msg")} goto="send.message" />
+
+                    <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.message')}>{polyglot.t("button.msg")} <i className="fa fa-chevron-right" /></button>
                     {' '}
-                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.file")} goto="send.file" />
+                    <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
+
                 </div>
                 Looking for someone to send to&#63; Try saying &#8220;Hi!&#8221; to <a href="#" onClick={this.messageUser.bind(null, 'mattasher')} >one</a> of <a href="#" onClick={this.messageUser.bind(null, 'dann')} >the</a> <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')}>developers</a>.
             </div>
@@ -540,6 +544,7 @@ var ICXSend = React.createClass({
         }
     },
 
+
     verifyUsername: function() {
         var toUser = this.refs.toUser.getDOMNode().value
         var finalChar = toUser.charAt(toUser.length-1)
@@ -547,11 +552,6 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
-        // If the last character is a space, then trigger usernameLookup
-        if(finalChar == ' ') {
-            this.handleUsernameLookup()
-            return false
-        }
 
         return Events.pub('ui/events', {
             'ICX.userConfirmed': false,
@@ -569,7 +569,7 @@ var ICXSend = React.createClass({
         }
     },
 
-    handleUsernameLookup: function() {
+    handleUsernameLookup: function(nextStep) {
 
         var toUser = this.refs.toUser.getDOMNode().value
         var self = this
@@ -591,12 +591,24 @@ var ICXSend = React.createClass({
 
         prom.then(function(result) {
 
-            return Events.pub('ui/events', {
+            // Was this from a button or the checkmark?
+
+            // If from button, move along to next page
+            Events.pub('ui/events', {
                 'ICX.userConfirmed': true,
                 'ICX.nextStatus': true,
                 'ICX.toUserStatus': '',
                 'ICX.toUser': toUser
             })
+
+            if(nextStep) {
+                Events.pub('ui/icx/screen', {
+                    "view.icx.screen": nextStep
+                })
+            }
+
+            return false
+
         })
             .catch(function(err) {
 

@@ -502,7 +502,7 @@ var ICXSend = React.createClass({
                 <div className="contentWindow">
                     To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
@@ -1046,7 +1046,7 @@ var ICXNewUser = React.createClass({
 
                 .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
                     </span>
                     <span className="relative">
@@ -1056,7 +1056,7 @@ var ICXNewUser = React.createClass({
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
                     <div><b>{polyglot.t("signup.pass")}</b></div>
-                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<Checkmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new passphrase" />
@@ -1308,12 +1308,8 @@ var ICXNewUser = React.createClass({
                 // store directly because we know they're valid
                 PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
 
-
                 // Set this person as the current user
                 PB.M.Wardrobe.switchCurrent(requestedUsername)
-
-                // Function below fails, so set above this
-                // PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
 
                 // Create identity file
                 ICX.identityForFile = {
@@ -1332,6 +1328,7 @@ var ICXNewUser = React.createClass({
                 return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
             },
+
             function(err) {
                 // TODO: Deal with error, show it in box
                 Events.pub('ui/thinking', {
@@ -1392,7 +1389,7 @@ var ICXLogin = React.createClass({
                 .icx.
                     <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
                     </span>
                     <span className="message">{puffworldprops.ICX.usernameStatus}</span>
@@ -1407,7 +1404,7 @@ var ICXLogin = React.createClass({
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                     <span className="relative">
                         <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
-                            <Checkmark show={puffworldprops.ICX.defaultKey} />
+                            <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
                         </a>
                         <Tooltip position='under' content="Verify your passphrase" />
                     </span>
@@ -1667,7 +1664,6 @@ var ICXDashboard = React.createClass({
 
         var filename = username + "Identity.json"
 
-        // TODO: Need to show their avatar if available in profile puff
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
@@ -1718,8 +1714,8 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
+
         // Bail if no username,
-        // TODO handle this error better
         var username = PB.M.Wardrobe.getCurrentUsername()
         if(!username)
             return false
@@ -1814,8 +1810,6 @@ var ICXTableView = React.createClass({
 var ICXLearn = React.createClass({
 
     render: function () {
-        // TODO: Determine width then height of video embed dynamically
-
         var polyglot = Translate.language[puffworldprops.view.language]
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -2473,8 +2467,7 @@ var ICXLangSelect = React.createClass({
     }
 })
 
-// TODO: Make ICXCheckmark
-var Checkmark = React.createClass({
+var ICXCheckmark = React.createClass({
     render: function() {
         if(this.props.show === false) {
             return <i className="fa fa-check-circle fa-fw gray"></i>
@@ -2946,15 +2939,7 @@ var PuffWorld = React.createClass({
 
 var PuffList = React.createClass({
     mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
-    /*
-     shouldComponentUpdate: function(nextProps, nextState) {
-     // TODO: todo this
-     return true
-     return JSON.stringify(puffworldprops) !== JSON.stringify(globalSillyPropsClone)
-     return JSON.stringify(nextProps) !== JSON.stringify(this.props) // THINK: why aren't the pointers the same?
-     return nextProps !== this.props // TODO: this won't update when new items arrive
-     },
-     */
+
     render: function() {
         // if(!PB.Data.stupidHorribleGlobalThing) return <div></div>
 
@@ -2978,222 +2963,6 @@ var PuffList = React.createClass({
                 <PuffScroller ref="scrolldown" position="down" view={this.props.view} show={showScrollDown} />
             </div>
             )
-    }
-})
-
-
-var PuffTallTree = React.createClass({
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
-    render: function() {
-
-        var sig    = this.props.view.query.focus
-        var puff   = PB.M.Forum.getPuffBySig(sig)
-
-        if(!puff) return <div></div>
-
-        // sundry miscellany
-        var arrows = this.props.view.arrows
-        var username = PB.M.Wardrobe.getCurrentUsername()
-        var filters = this.props.view.filters
-        var query = this.props.view.query
-        var queryfilter = Boron.extend({}, query, filters)
-
-        // gridCoord params
-        var screencoords = this.getScreenCoords()
-        var dimensions   = this.getDimensions()
-        var cols    = dimensions.cols
-        var rows    = dimensions.rows
-        var gridbox = this.getGridBox(rows, cols)
-
-        // big box
-        var bigrows = +this.props.view.bigrows || 2
-        var bigcols = +this.props.view.bigcols || 2
-
-        if(bigrows < 0) bigrows = Math.max(rows + bigrows, 1)
-        if(bigcols < 0) bigcols = Math.max(cols + bigcols, 1)
-
-        if(rows < bigrows) bigrows = rows
-        if(cols < bigcols) bigcols = cols
-
-        // determine start row for big box, and totals for relatives
-        // THINK: should we allow columnar offset also?
-        var bigBoxStartRow = Math.floor((rows - bigrows) / 2)
-        var childrenStartRow = bigBoxStartRow + bigrows
-        var ancestorTotal = bigBoxStartRow * cols
-        var childrenTotal = (rows - childrenStartRow) * cols
-        var siblingTotal  = (cols - bigcols) * bigrows
-
-        // box building
-        // TODO: partial application
-        var ancestorBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows})
-        var siblingBox   = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow)
-        var childrenBox  = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow)
-        var stuckBigBox  = this.applySizes(bigcols, bigrows, gridbox.add, {arrows: arrows}, bigBoxStartRow, 0, bigBoxStartRow, 0)
-
-        // filters
-        var graphize    = function(f) { return function(x) { return x.shell&&f(x.shell) } } // TODO: pipe(prop('shell'), f)
-        var propsfilter = graphize(PB.M.Forum.filterByFilters(queryfilter))
-        var difffilter  = function(set) { return function(item) { return !~set.indexOf(item) } }
-
-
-        ///// new focus mode stuff here /////
-
-        // TODO: this can only currently handle 9 rows with a 2x2 bigbox: 3 ancestors and 4 descendants
-
-        var ancestorRows = Math.min(3, bigBoxStartRow)
-        var ancestorBoxes = []
-        var parents = [], grandparents = [], greatgrandparents = []
-
-        if(ancestorRows >= 1) {
-            parents = PB.Data.graph.v(sig).out('parent')
-                .unique().filter(propsfilter).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            parentBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-1, 0, bigBoxStartRow-1, cols)
-            ancestorBoxes = ancestorBoxes.concat(parents.map(parentBox('parent')))
-        }
-
-        var notParent = graphize(difffilter([puff].concat(parents)))
-
-        if(ancestorRows >= 2) {
-            grandparents = PB.Data.graph.v(sig).out('parent').out('parent')
-                .unique().filter(propsfilter).filter(notParent).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            gpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-2, 0, bigBoxStartRow-2, cols)
-            ancestorBoxes = ancestorBoxes.concat(grandparents.map(gpBox('parent')))
-        }
-
-        var notGrandParent = graphize(difffilter([puff].concat(parents, grandparents)))
-
-        if(ancestorRows >= 2) {
-            greatgrandparents = PB.Data.graph.v(sig).out('parent').out('parent').out('parent')
-                .unique().filter(propsfilter).filter(notGrandParent).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            ggpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-3, 0, bigBoxStartRow-3, cols)
-            ancestorBoxes = ancestorBoxes.concat(greatgrandparents.map(ggpBox('parent')))
-        }
-
-        var ancestorPuffs = [].concat(parents, grandparents, greatgrandparents)
-
-
-
-        /////// descendants ////////
-
-        var descendantRows = Math.min(4, rows - childrenStartRow)
-        var descendantBoxes = []
-        var kids = [], gkids = [], ggkids = [], gggkids = []
-
-        if(descendantRows >= 1) {
-            kids = PB.Data.graph.v(sig).out('child')
-                .unique().filter(propsfilter).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            kidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow, 0, childrenStartRow, cols)
-            descendantBoxes = descendantBoxes.concat(kids.map(kidsBox('child')))
-        }
-
-        var notKid = graphize(difffilter([puff].concat(kids)))
-
-        if(descendantRows >= 2) {
-            gkids = PB.Data.graph.v(sig).out('child').out('child')
-                .unique().filter(propsfilter).filter(notKid).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            gkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+1, 0, childrenStartRow+1, cols)
-            descendantBoxes = descendantBoxes.concat(gkids.map(gkidsBox('child')))
-        }
-
-        var notGKid = graphize(difffilter([puff].concat(kids, gkids)))
-
-        if(descendantRows >= 3) {
-            ggkids = PB.Data.graph.v(sig).out('child').out('child').out('child')
-                .unique().filter(propsfilter).filter(notGKid).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            ggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+2, 0, childrenStartRow+2, cols)
-            descendantBoxes = descendantBoxes.concat(ggkids.map(ggkidsBox('child')))
-        }
-
-        var notGGKid = graphize(difffilter([puff].concat(kids, gkids, ggkids)))
-
-        if(descendantRows >= 4) {
-            gggkids = PB.Data.graph.v(sig).out('child').out('child').out('child').out('child')
-                .unique().filter(propsfilter).filter(notGGKid).take(cols)
-                .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-            gggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+3, 0, childrenStartRow+3, cols)
-            descendantBoxes = descendantBoxes.concat(gggkids.map(gggkidsBox('child')))
-        }
-
-        childrenPuffs = [].concat(kids, gkids, ggkids, gggkids)
-
-
-        ///// end new focus mode stuff /////
-
-
-
-
-        // gather puffs, graph style
-        // THINK: can we parametrize this query structure? f(outAllIn, notSelf, ancestorTotal)...
-        // var genLimit = 10
-        // var notSelf  = graphize(difffilter([puff]))
-        // var ancestorPuffs = PB.Data.graph.v(sig).outAllN('parent', genLimit)
-        //                             .unique().filter(propsfilter).filter(notSelf)
-        //                             .take(ancestorTotal).property('shell').run()
-        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
-        //
-        // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
-        //
-        // var childrenPuffs = PB.Data.graph.v(sig).inAllN('parent', genLimit)
-        //                             .unique().filter(propsfilter).filter(notAncestor)
-        //                             .take(childrenTotal).property('shell').run()
-        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-        var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
-
-        var siblingPuffs  = PB.Data.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
-            .unique().filter(propsfilter).filter(notRelated)
-            .take(siblingTotal).property('shell').run()
-            .map(PB.M.Forum.getPuffBySig).filter(Boolean)
-
-        // fill remaining slots
-        // TODO: this isn't right with the new stuff
-        PB.Data.fillSomeSlotsPlease(ancestorTotal, ancestorPuffs.length, Boron.extend({}, query, {mode: 'ancestors'}), filters)
-        PB.Data.fillSomeSlotsPlease(childrenTotal, childrenPuffs.length, Boron.extend({}, query, {mode: 'descendants'}), filters)
-        PB.Data.fillSomeSlotsPlease(siblingTotal, siblingPuffs.length, Boron.extend({}, query, {mode: 'siblings'}), filters)
-
-        // special sorting for children puffs
-        // TODO: bring this back for the new stuff
-        // var childrenPuffs =
-        //     childrenPuffs.sort(function(a, b) {
-        //                         return a.username == username ? -1 : 0       // fancy sorting for current user puffs
-        //                             || b.username == username ?  1 : 0
-        //                             || a.username == puff.username ? -1 : 0  // fancy sorting for author puffs
-        //                             || b.username == puff.username ?  1 : 0
-        //                             || PB.M.Forum.sortByPayload(b, a) * -1    // regular temporal sort
-        //                             })
-
-        // box the puffs
-        var puffBoxes = [].concat( [puff].map(stuckBigBox('focused'))
-            // , ancestorPuffs.map(ancestorBox('parent'))
-            , ancestorBoxes
-            , siblingPuffs.map(siblingBox('sibling'))
-            // , childrenPuffs.map(childrenBox('child'))
-            , descendantBoxes
-        )
-            .filter(function(x) {return x.width})               // remove nodes that don't fit in the grid
-            .sort(function(a, b) {                              // sort required so React doesn't have
-                if(a.puff.sig+'' < b.puff.sig+'') return -1    //   to remove and re-add DOM nodes
-                if(a.puff.sig+'' > b.puff.sig+'') return 1     //   in order to order them properly
-                return 0 })
-
-        // ensure cursor is set
-        this.cursorPower(puffBoxes.map(function(pbox) {return pbox.puff}), puff)
-
-        // lay out the boxes
-        return this.manualGridify(puffBoxes)
     }
 })
 
@@ -3351,7 +3120,6 @@ var PuffFooter = React.createClass({
     render: function() {
         var width = (window.innerHeight-66)+'px'
         var polyglot = Translate.language[puffworldprops.view.language]
-        // TODO: Is this a very bad idea?
 
         return (
 

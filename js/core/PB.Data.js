@@ -209,8 +209,7 @@ PB.Data.hereHaveSomeNewShells = function(shells) {
  */
 PB.Data.makeShellsAvailable = function(shells) {
     //// alert everyone: new shells have arrived!
-    
-    // TODO: this isn't right -- fix this upper layer too
+
     // PB.receiveNewPuffs(PB.Data.shells) // may have to pass delta here
     
     PB.receiveNewPuffs(shells) // may have to pass delta here
@@ -219,7 +218,7 @@ PB.Data.makeShellsAvailable = function(shells) {
 
 
 PB.Data.addStar = function(sig, username, starsig) {
-    // TODO: this doesn't belong here
+
     var fauxshell = {sig: sig} // THINK: ye gads is this ugly
     var starStats = PB.Data.getBonus(fauxshell, 'starStats') || {score: 0, from: {}}
     
@@ -230,7 +229,7 @@ PB.Data.addStar = function(sig, username, starsig) {
 }
 
 PB.Data.removeStar = function(sig, username) {
-    // TODO: this doesn't belong here
+
     var fauxshell = {sig: sig} // THINK: ye gads is this ugly
     var starStats = PB.Data.getBonus(fauxshell, 'starStats') || {score: 0, from: {}}
     
@@ -242,7 +241,7 @@ PB.Data.removeStar = function(sig, username) {
 }
 
 PB.Data.scoreStars = function(usernames) {
-    // TODO: this doesn't belong here
+
     var tluScore = 0;
     var suScore = 0;
     var scorePref = Boron.shallow_copy(puffworldprops.view.score);
@@ -291,14 +290,13 @@ PB.Data.tryAddingShell = function(shell) {
         
         return false // because we didn't actually add a new shell  // THINK: but we did change one...
     }
-    
-    // TODO: fix this private pathway
+
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PB.M.Wardrobe.getCurrentUsername() // FIXME: don't call PW from down here!
+        var username = PB.M.Wardrobe.getCurrentUsername()
 
         if(!shell.keys[username]) return false
         
-        PB.Data.addPrivateShells([shell]) // TODO: this calls updateUI and other weird stuff >.<
+        PB.Data.addPrivateShells([shell])
         
         return false // we added a shell, but not the normal way... 
     }
@@ -404,7 +402,7 @@ PB.Data.getCurrentDecryptedShells = function() {
 }
 
 PB.Data.importPrivateShells = function(username) {    
-    // FIXME: race condition while toggling identities
+    // Race condition while toggling identities?
     
     var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
     promFromMe.then(PB.Data.addPrivateShells)
@@ -415,7 +413,7 @@ PB.Data.importPrivateShells = function(username) {
 
 PB.Data.clearExistingPrivateShells = function() {
     PB.Data.currentDecryptedShells.forEach(function(shell) {
-        PB.Data.purgeShellFromGraph(shell.sig) // TODO: this is not quite right
+        PB.Data.purgeShellFromGraph(shell.sig)
     })
     
     PB.Data.currentDecryptedShells = [] 
@@ -424,7 +422,7 @@ PB.Data.clearExistingPrivateShells = function() {
 PB.Data.addPrivateShells = function(privateShells) {
     var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                        .filter(Boolean)
-    // FIXME: oh dear this is horrible oh dear oh dear get rid of PB.M.Forum call
+
     // THINK: decryptedShells is the empty array here, and PB.Data.currentDecryptedShells is actually set inside extractL...
     //        switch that so the promises are eaten here, once pan-wardrobe browsing is a reality
     
@@ -442,9 +440,9 @@ PB.Data.addPrivateShells = function(privateShells) {
     PB.Data.currentDecryptedShells = PB.Data.currentDecryptedShells.concat(decryptedShells)
     
     PB.Data.addToGraph(decryptedShells)
-    PB.M.Forum.addFamilialEdges(decryptedShells) // FIXME: ugh seriously do not use PB.M.Forum here!
+    PB.M.Forum.addFamilialEdges(decryptedShells)
     
-    updateUI() // FIXME: this is definitely not the right place for this
+    updateUI()
 }
 
 
@@ -457,7 +455,6 @@ PB.Data.addPrivateShells = function(privateShells) {
 // to set it to -1 when it is running and then replace it when done.
 PB.Data.slotLocker = {}
 
-// TODO: we're calling this from the 'refresh' button now, which is totally weird and requires some thinking.
 
 
 PB.Data.importRemoteShells = function() {
@@ -469,7 +466,7 @@ PB.Data.importRemoteShells = function() {
     var new_shells = []
     var keep_going = true
     
-    var key = '[{"sort":"DESC"},{"tags":[],"types":[],"users":[],"routes":[]}]' // default query // TODO: this is fragile
+    var key = '[{"sort":"DESC"},{"tags":[],"types":[],"users":[],"routes":[]}]'
     PB.Data.slotLocker[key] = -1
     
     function getMeSomeShells(puffs) {
@@ -716,16 +713,6 @@ PB.Data.cacheUserRecord = function(userRecord) {
     PB.Persist.save('userRecords', PB.Data.userRecords); // OPT: this could get expensive
     
     return userRecord;
-    
-    // TODO: index by username
-    // TODO: if duplicate check update times for latest
-    // TODO: figure out how to handle malicious DHT records (sign new record? oh................... oh. oh. oh dear.)
-    // .............. ok but you could show the chain of commits starting with the root puffball creation key.........
-    // .......so to verify a DHT entry you need to check the key change chain going back to the initial entry signed  
-    // ....with puffball's public admin key, and then work your way through each signed key change commit,
-    // ..but to be verifiable you have to send that on every DHT request which is awful.......
-    // oh boy. 
-    // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
 }
 
 /**

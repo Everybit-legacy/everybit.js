@@ -53,7 +53,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 
 a {
     text-decoration:none;
-    color: #1616A8;
+    color: rgba(0, 3, 82, 0.8);
     cursor: pointer;
 }
 

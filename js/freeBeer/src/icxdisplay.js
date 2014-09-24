@@ -497,8 +497,8 @@ var ICXSend = React.createClass({
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
-                <div className ="contentWindow">
-                    <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit}/></span>
+                <div className="contentWindow">
+                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
@@ -512,6 +512,7 @@ var ICXSend = React.createClass({
                     {' '}
                     <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.file")} goto="send.file" />
                 </div>
+                Looking for someone to send to&#63; Try saying &#8220;Hi!&#8221; to <a href="#" onClick={this.messageUser.bind(null, 'mattasher')} >one</a> of <a href="#" onClick={this.messageUser.bind(null, 'dann')} >the</a> <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')}>developers</a>.
             </div>
             )
     },
@@ -608,6 +609,15 @@ var ICXSend = React.createClass({
             })
 
         return false
+    },
+
+    messageUser: function(username) {
+        this.refs.toUser.getDOMNode().value = username;
+        return Events.pub('ui/events', {
+            'ICX.userConfirmed': true,
+            'ICX.nextStatus': true,
+            'ICX.toUser': username
+        })
     }
 });
 
@@ -832,8 +842,8 @@ var ICXSendMessage = React.createClass({
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
-                    <div>{polyglot.t("send.msg")}</div>
-                    <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
+                    <div>{polyglot.t("send.msg")}:</div>
+                    <textarea ref="messageText" style={{width: '90%', height: '50%'}} onChange={this.handleMessageText} />
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                 </div>
@@ -1645,16 +1655,13 @@ var ICXDashboard = React.createClass({
 
         var filename = username + "Identity.json"
 
-        //TODO: Need to show their avatar if available in profile puff
-
+        // TODO: Need to show their avatar if available in profile puff
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
-                    <div className="dashboard avatarHolder">
-                        <span style={{color: ICX.userColor, fontSize: 2.5*ICX.calculated.baseFontH+'px'}}><i className={'icon-'+ICX.animalName+' shadow'} /></span>
-                        <br />
-                    </div>
+                    Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.
+                    <br /><br />
 
                     <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
@@ -1734,6 +1741,14 @@ var ICXDashboard = React.createClass({
 
         return ICX.identityForFile
     },
+
+    handleAskForUsername: function() {
+        return Events.pub('/ui/icx/screen', {
+            "view.icx.screen": 'send',
+            "view.icx.toUser": 'mattasher'
+        });
+    },
+
 
     handleGoTo: function(screen) {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
@@ -1895,7 +1910,6 @@ var ICXAbout = React.createClass({
         return Events.pub('/ui/icx/screen', {
             "view.icx.screen": 'send',
             "view.icx.toUser": username
-
         });
     }
 
@@ -2410,7 +2424,7 @@ var ICXNextButton = React.createClass({
         }
 
         if(this.props.enabled) {
-            ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color //'rgba(0, 3, 82, 1)'
+            ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
             return <button style={ICX.buttonStyle} onClick={this.handleNext} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 

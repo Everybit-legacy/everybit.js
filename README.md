@@ -1,4 +1,4 @@
-![logo](https://raw.githubusercontent.com/puffball/puffball/master/graphics.png)
+![logo](https://raw.githubusercontent.com/puffball/pbcore-old/master/graphics.png)
 
 Right now, most individual publishing on the internet happens through a small number of gatekeepers. These institutions control what we can and can't publish, and how this content is filtered and displayed to others. These same gatekeepers maintain our identities and our networks, encouraging us to friend or follow others based on hidden algorithms which align with their own economic incentives. 
 
@@ -136,14 +136,14 @@ Still interested? puffball is an open source project. We welcome your involvemen
 
 
 ### Contributors' guide
-If you want to contribute to the codebase here at gihub, please [check the issues](https://github.com/puffball/freebeer/issues?state=open) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)
+If you want to contribute to the codebase here at gihub, please [check the issues](https://github.com/puffball/puffball/issues?state=open) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)
 
 Please don't edit files on the Master repository. Create a Branch or a Fork. This will help avoid collisions and prevent defects from being introduced from merges and pull requests.
 
 Feature requests, questions, bugs:
-https://github.com/puffball/freebeer/issues
+https://github.com/puffball/puffball/issues
 
 Coding standards and guidelines:
-https://github.com/puffball/freebeer/tree/master/non-production
+https://github.com/puffball/puffball/tree/master/non-production
 
 License: [MIT](http://opensource.org/licenses/MIT)

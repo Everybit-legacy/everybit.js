@@ -55,83 +55,36 @@ puffworldprops = {
     view: {
         mode: 'table',
         
-        filters: {
-            tags: [],
-            types: [],
-            users : [],
-            routes: [],
-            roots: false // View puffs w/no parents
-        },
-
-        // TODO: move these options into view.layout
-        arrows    : true,                              // true -> show relationship arrows between puffs
-        rows      : 4,
-        // cols      : 5,                               // THINK: not currently used...
-        boxRatio  : 1.61,
-        bigrows   : 2,
-        bigcols   : 2,
-        
         language  : 'en',
-        animation : true,                               // true -> animate everything; false -> animate nothing
-        showinfo  : false,                              // true -> always show info boxes; false -> only on hover
 
         query: {
             sort: 'DESC',                               // direction of sort
-            roots : false,                              // THINK: move this to filterToggles or filterNums or something?
-            ancestors: false,                           // number of ancestor levels to show (false for none)
-            descendants: false,                         // number of descendant levels to show (false for none)
-            focus: false,                               // a puff sig to focus on
-            offset: 0
         },
 
-        score: {
-            suValue: 0.1,
-            tluValue: 1,
-            maxSuValue: 1
-        },
+        filters: {},
+
+        score: {},
         
-        // THINK: consider taking this out of view (or filtering it out of the url, at least)
-        flash     : false,                              // flash the cursor
-        cursor    : false,                              // sig of selected puff
-
-        slider: {
-            show: false,
-            wizard: false,
-            currentSlide: 1,
-            totalSlides: 7,
-            username: '',
-            importInfo: {},
-            totalWizardSlides: 4
-        },
+        slider: {},
 
         // TABLEVIEW
         table: {
-            relationGroup: false,
             column: {
                 refs: {
                     show: true,
                     weight:.3,
-                    allowSort: false
                 },
                 from: {
                     show: true,
                     weight: .7,
-                    allowSort: false
                 },
                 to: {
                     show: true,
                     weight: .7,
-                    allowSort: false
-                },
-                user: {
-                    show: false,
-                    weight: 1,
-                    allowSort: false
                 },
                 content: {
                     show: true,
                     weight: 3.5,
-                    allowSort: false
                 },
                 date: {
                     show: true,
@@ -141,29 +94,15 @@ puffworldprops = {
                 tags: {
                     show: false,
                     weight: 1.5,
-                    allowSort: false
                 },
-                other: {
-                    show: false,
-                    weight: 1.5,
-                    allowSort: false
-                },
-                score: {
-                    show: false,
-                    weight: 0.5,
-                    allowSort: false
-                }
             },
             bar: {
-                expand: false,
-                showIcons: false,
                 tmp: 1      // to prevent bar from disappearing
             },
             sort: {
                 column: 'date',
                 desc: true
             },
-            lastClick: "",
             format: 'list',
             maxRowHeight: 99    // We want to show everything
         },

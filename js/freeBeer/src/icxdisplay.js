@@ -1155,8 +1155,6 @@ var ICXNewUser = React.createClass({
             'ICX.newUser.usernameStatus': false,
             'ICX.newUser.usernameMessage': false
         })
-
-        this.setState({defaultKey: false})
     },
 
     handleRecheckPassphrase: function() {
@@ -1214,7 +1212,8 @@ var ICXNewUser = React.createClass({
         if(!username.length) {
 
             Events.pub('ui/event', {
-                'ICX.newUser.usernameStatus': 'Missing'
+                'ICX.newUser.usernameStatus': false,
+                'ICX.newUser.usernameMessage': 'Missing'
             })
             return false
         }
@@ -1240,7 +1239,7 @@ var ICXNewUser = React.createClass({
         prom.then(function(result) {
 
             Events.pub('ui/username/taken', {
-                'ICX.newUser.usernameStatus': 'Taken',
+                'ICX.newUser.usernameStatus': false,
                 'ICX.newUser.usernameMessage': 'Already registered',
                 'ICX.newUser.checkingUsername': ''
             })
@@ -1258,6 +1257,15 @@ var ICXNewUser = React.createClass({
     },
 
     handleRegisterName: function() {
+
+        this.handleUsernameLookup()
+        if(!puffworldprops.ICX.newUser.usernameStatus) {
+            return false
+        }
+        this.handleRecheckPassphrase()
+        if(!puffworldprops.ICX.newUser.passphraseStatus) {
+            return false
+        }
 
         // START THINKING
         Events.pub('ui/thinking', {

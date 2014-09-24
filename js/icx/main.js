@@ -53,6 +53,11 @@ puffworldprops = {
 
 
     view: {
+
+        icx: {                                          // ICX related
+            screen: 'init'
+        }
+        
         mode: 'table',
         
         language  : 'en',
@@ -106,11 +111,6 @@ puffworldprops = {
             format: 'list',
             maxRowHeight: 99    // We want to show everything
         },
-
-        // ICX related
-        icx: {
-            screen: 'init'
-        }
     },
 
     reply: {

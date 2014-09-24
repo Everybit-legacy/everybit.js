@@ -1,15 +1,8 @@
 /*
   PB.Crypto
 
-  Using bitcoin.js is pretty nightmarish for our purposes. 
-  It pollutes everything with extraneous strings, always forces down to addresses, 
-  and has a terrible API for compressed keys. Actually, the API is terrible in general.
-  It's also not currently maintained and is dog slow.
+  A thin wrapper around bitcoin-lib.js
 
-  HOWEVER. 
-
-  Until we get some real crypto experts on board or a new js lib comes out that has good community support, 
-  leave this code alone.
 */
 
 PB.Crypto = {};

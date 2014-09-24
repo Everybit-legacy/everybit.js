@@ -23,6 +23,13 @@ Translate.language["zh"].extend({
 		dashboard: "个人界面 ",
 		filesys: "文件加密或解密"
 	},
+	button: {
+		next: "下一步",
+		login: "登陆",
+		signup: "注册",
+		msg: "信息",
+		file: "文件"
+	},
 	signup: {
 		username: "用户名:",
 		pass: "密码:"

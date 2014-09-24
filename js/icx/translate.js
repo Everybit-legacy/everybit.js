@@ -25,6 +25,13 @@ Translate.language["en"].extend({
 		dashboard: "Dashboard for ",
 		filesys: "Encrypt and Decrypt Files"
 	},
+	button: {
+		next: "NEXT",
+		login: " LOG IN",
+		signup: " SIGN UP",
+		msg: "Message",
+		file: "File"
+	},
 	signup: {
 		username: "Username:",
 		pass: "Passphrase:"

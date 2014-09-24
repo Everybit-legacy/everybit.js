@@ -245,7 +245,7 @@ var ICXStore = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.store")}</div>
+                <div style={headerStyle}>{polyglot.t("header.store")}</div><br />
                 <div className="contentWindow">
                     {polyglot.t("store.select")}
                     <br /><br />
@@ -328,7 +328,7 @@ var ICXStoreFinish = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.store_fin")}</div>
+                <div style={headerStyle}>{polyglot.t("header.store_fin")}</div><br />
                 <div className="contentWindow">
                 Success! Your file has been encrypted.
                     <br /><br />
@@ -496,20 +496,21 @@ var ICXSend = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         return (
             <div className="icx-screen icx-send">
-                <div style={headerStyle}>{polyglot.t("header.send")}</div>
-                <div className="component">
-                    <span>To:<input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit}/></span>
+                <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
+                <div className ="contentWindow">
+                    <span>To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit}/></span>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><Checkmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
+
                 </div>
 
                 <div className="component">
-                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text="MESSAGE" goto="send.message" />
+                    <ICXNextButton key="sendMessageButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.msg")} goto="send.message" />
                     {' '}
-                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text="FILE" goto="send.file" />
+                    <ICXNextButton key="sendFileButton" enabled={puffworldprops.ICX.nextStatus} text={polyglot.t("button.file")} goto="send.file" />
                 </div>
             </div>
             )
@@ -545,18 +546,17 @@ var ICXSend = React.createClass({
         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
             .toLowerCase()
         this.refs.toUser.getDOMNode().value = toUser
+        // If the last character is a space, then trigger usernameLookup
+        if(finalChar == ' ') {
+            this.handleUsernameLookup()
+            return false
+        }
 
         return Events.pub('ui/events', {
             'ICX.userConfirmed': false,
             'ICX.nextStatus': false,
             'ICX.toUserStatus': ""
         })
-
-        // If the last character is a space, then trigger usernameLookup
-        if(finalChar == ' ') {
-            this.handleUsernameLookup()
-            return false
-        }
 
     },
 
@@ -624,7 +624,7 @@ var ICXSendFile = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div>
+                <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                 Your file: <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -694,10 +694,12 @@ var ICXSendFileConfirm = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
                 <br />
-                <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
-                <b>{polyglot.t("send.file")}</b> {filename}
-                <br /><br />
-                <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
+                <div className="contentWindow">
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                    <b>{polyglot.t("send.file")}</b> {filename}
+                    <br /><br />
+                    <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
+                </div>
             </div>
         )
     }
@@ -717,8 +719,10 @@ var ICXSendFileFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_file_fin")}</div>
                 <br />
-                <div>{puffworldprops.ICX.successMessage}</div>
-                <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
+                <div className="contentWindow">
+                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
+                </div>
             </div>
             )
     },
@@ -826,7 +830,7 @@ var ICXSendMessage = React.createClass({
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                     <div>{polyglot.t("send.msg")}</div>
                     <textarea ref="messageText" style={{width: '70%', height: '50%'}} onChange={this.handleMessageText} />
@@ -2313,20 +2317,23 @@ var ICXUserButton = React.createClass({
 
     render: function() {
 
+        var polyglot = Translate.language[puffworldprops.view.language]
+
         var username = ICX.username
         if (!username) {
             return(
                 <span>
                     <div className="navBtn user">
                         <a href="#"  onClick={this.handleGoTo.bind(null, 'login')} style={{color: '#ffffff'}}>
-                            <i className="fa fa-fw fa-sign-in"></i>{' '}
-                        LOG IN
+                            <i className="fa fa-fw fa-sign-in"></i>
+                            {polyglot.t("button.login")}
                         </a>
                     </div>
                     <div style={{display: 'inline-block', marginLeft: '10px', marginRight: '10px'}}>or</div>
                     <div className="navBtn user">
                         <a href="#" onClick={this.handleGoTo.bind(null, 'newuser')} style={{color: "#ffffff"}}>
-                            <i className="fa fa-fw fa-user"></i>  SIGN UP
+                            <i className="fa fa-fw fa-user"></i>
+                            {polyglot.t("button.signup")}
                         </a>
                     </div>
 
@@ -2394,10 +2401,12 @@ var ICXNextButton = React.createClass({
     },
 
     render: function() {
+        var polyglot = Translate.language[puffworldprops.view.language]
+        
         if(this.props.text) {
             var buttonText = this.props.text
         } else {
-            var buttonText = "NEXT"
+            var buttonText = polyglot.t("button.next")
         }
 
         if(this.props.enabled) {

@@ -9,7 +9,7 @@
 
 <script src="../../freebeer/js/vendor/react.js"></script>
 
-<script src="../../freebeer/js/freeBeer/config.js"></script>
+<script src="../../freebeer/js/freeBeer/site-everybit/config.js"></script>
 
 
 <script src="../../freebeer/js/core/PB.js"></script>

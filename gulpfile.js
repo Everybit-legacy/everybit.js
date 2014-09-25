@@ -232,7 +232,7 @@ if(buildFor == 'icx') {
         gulp.src('img/jscolor/*',{base: '.'})
             .pipe(gulp.dest('build'));
 
-        gulp.src('config.js',{base: '.'})
+        gulp.src('site-everybit/config.js',{base: '.'})
             .pipe(gulp.dest('build'));
     });
 

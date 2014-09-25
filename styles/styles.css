@@ -1032,7 +1032,6 @@ fieldset[disabled] .btn-primary.active {
     position: relative;
 }
 .listrow.encrypted {
-    outline: 1px solid black;
     background-image:url('../img/lock2.png');
     background-repeat:no-repeat;
     background-position: left bottom;

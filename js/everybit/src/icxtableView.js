@@ -60,16 +60,40 @@ var RowRenderMixin = {
         )
     },
 
+    handleViewToUser: function(username) {
+        return Events.pub( 'filter/show/by-user',
+            {
+                'view.filters': {},
+                'view.filters.routes': [username],
+                'view.mode': 'tableView'
+            }
+        )
+    },
+
 	render_default: function(col) {
 		var metadata = this.props.puff.payload || {}
 		var content = metadata[col] || ""
 		return content
 	},
-	renderFrom: function() {        
-        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>.{this.props.puff.username}</a></div>
+	renderFrom: function() {
+        var fromUser = this.props.puff.username;
+        if(fromUser == ICX.username) {
+            fromUser = 'You'
+        } else {
+            fromUser = '.'+fromUser
+        }
+
+        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a></div>
 	},
-	renderTo: function() {        
-        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.routes[0])}>.{this.props.puff.routes[0]}</a></div>
+	renderTo: function() {
+        var toUser = this.props.puff.routes[0];
+        if(toUser == ICX.username) {
+            toUser = 'You'
+        } else {
+            toUser = '.'+toUser
+        }
+
+        return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a></div>
 	},
 	renderUser: function() {
     },

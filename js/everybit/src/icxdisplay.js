@@ -917,9 +917,9 @@ var ICXSendMessageConfirm = React.createClass({
                 <div className="contentWindow">
                     <b>{polyglot.t("send.from")}</b> {username}<br/>
                     <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
-                    <b>{polyglot.t("send.msg")}</b><br />
+                    <b>MESSAGE:</b><br />
                     {ICX.messageText}
-                    <hr />
+                    <br /><br />
                     <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
                 </div>
             </div>

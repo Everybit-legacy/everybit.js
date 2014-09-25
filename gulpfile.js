@@ -149,13 +149,13 @@ if(buildFor == 'icx') {
 
 if(buildFor == 'icx') {
     var theirOthersList = [
-        // 'scripts/bitcoinjs-min.js',
-        'scripts/markdown.js',
-        'scripts/polyglot.min.js',
-        'scripts/promise.min.js',
-        'scripts/timeSince.js',
-        'scripts/xbbcode.js',
-        'scripts/react/build/react-with-addons.js'
+        // 'js/vendor/bitcoinjs-min.js',
+        'js/vendor/markdown.js',
+        'js/vendor/polyglot.min.js',
+        'js/vendor/promise.min.js',
+        'js/vendor/timeSince.js',
+        'js/vendor/xbbcode.js',
+        'js/vendor/react/build/react-with-addons.js'
     ];
 } else {
     var theirOthersList = [
@@ -176,7 +176,7 @@ if(buildFor == 'icx') {
     });
 } else {
     gulp.task('theirOthers', function () {
-        gulp.src(['scripts/[!rJ]*.js', 'scripts/react/build/react-with-addons.js'])
+        gulp.src(['js/vendor/[!rJ]*.js', 'js/vendor/react/build/react-with-addons.js'])
             //.pipe(sourcemaps.init())
             .pipe(concat('oth.js'))
             .pipe(filesize())
@@ -210,7 +210,7 @@ if(buildFor == 'icx') {
         gulp.src('js/core/PB.Crypto.js',{base: '.'})
             .pipe(gulp.dest('build/icx'));
 
-        gulp.src('scripts/bitcoinjs-min.js',{base: '.'})
+        gulp.src('js/vendor/bitcoinjs-min.js',{base: '.'})
             .pipe(gulp.dest('build/icx'));
 
     });

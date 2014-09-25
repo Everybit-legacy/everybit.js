@@ -1,4 +1,4 @@
-importScripts('../scripts/bitcoinjs-min.js')
+importScripts('vendor/bitcoinjs-min.js')
 importScripts('core/PB.js')
 importScripts('core/PB.Crypto.js')
 

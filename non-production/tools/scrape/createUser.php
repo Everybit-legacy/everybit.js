@@ -1,13 +1,13 @@
 <!--
-<script src="../../freebeer/scripts/xbbcode.js"></script>
-<script src="../../freebeer/scripts/qrcode.js"></script>
+<script src="../../freebeer/js/vendor/xbbcode.js"></script>
+<script src="../../freebeer/js/vendor/qrcode.js"></script>
 
-<script src="../../freebeer/scripts/timeSince.js"></script>
+<script src="../../freebeer/js/vendor/timeSince.js"></script>
 
-<script src="../../freebeer/scripts/bitcoinjs-min.js"></script>
-<script src="../../freebeer/scripts/peer.js"></script>
+<script src="../../freebeer/js/vendor/bitcoinjs-min.js"></script>
+<script src="../../freebeer/js/vendor/peer.js"></script>
 
-<script src="../../freebeer/scripts/react.js"></script>
+<script src="../../freebeer/js/vendor/react.js"></script>
 
 <script src="../../freebeer/js/freeBeer/config.js"></script>
 

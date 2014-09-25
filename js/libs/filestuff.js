@@ -60,9 +60,11 @@ PBFiles.extractLetterPuff = function(content) {
 
 PBFiles.extractLetterPuffForReals = function(content) {
     var puff = PB.parseJSON(content)
-    if(!puff) return content
+    if(!puff) return false
 
     if(!puff.keys) return (puff.payload||{}).content
+
+    if(!(puff.payload.type == 'encryptedpuff')) return false
 
     var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
     var username    = userRecord.username

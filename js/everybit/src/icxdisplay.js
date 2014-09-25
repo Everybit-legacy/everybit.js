@@ -2016,15 +2016,13 @@ var ICXFileConverter = React.createClass({
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
-            console.log(fileguts)
-
             var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
                 Events.pub('ui/thinking', {
                     'ICX.thinking': false
                 })
-                ICX.errors = "ERROR: File decryption failed. You may not be authorized to decrypt this file. You can only decrypt a file that was encrypted using your current identity"
+                ICX.errors = "ERROR: File decryption failed. This file may already be unencrypted or you may not have permission to decrypt this file."
                 return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
             else {
@@ -2033,25 +2031,22 @@ var ICXFileConverter = React.createClass({
                 var filelist = decryptFile.files
                 var file = filelist[0]
                 var filename = file.name
+
                 if (/\.puff/.test(filename)) {
                     filename = filename.slice(0, -5)
-
-                    //stop thinking
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    resultLink.style.display = ""
-                    resultLink.href = PBFiles.prepBlob(content, type)
-                    resultLink.download = filename
                 }
-                else {
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    ICX.errors = "ERROR: This does not appear to be a Puff File. Make sure the file you are trying to decrypt ends with .puff"
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                resultLink.style.display = ""
+                resultLink.href = PBFiles.prepBlob(content, type)
+                resultLink.download = filename
 
-                }
+                //stop thinking
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+                //clear any error messages
+                Events.pub('/ui/icx/error', {
+                    "icx.errorMessage": false
+                })
             }
         })
 

@@ -198,7 +198,7 @@ if(buildFor == 'icx') {
         gulp.src('img/*',{base: '.'})
             .pipe(gulp.dest('build/icx'));
 
-        gulp.src('icxconfig.js',{base: '.'})
+        gulp.src('site-icx/icxconfig.js',{base: '.'})
             .pipe(gulp.dest('build/icx'));
 
         gulp.src('js/cryptoworker.js',{base: '.'})

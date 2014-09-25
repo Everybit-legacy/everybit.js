@@ -56,7 +56,7 @@ puffworldprops = {
 
         icx: {                                          // ICX related
             screen: 'init'
-        }
+        },
         
         mode: 'table',
         
@@ -538,7 +538,7 @@ setInterval(getMyPrivateShells, 60*1000)
 
 //// BUILD CRYPTO WORKER
 
-PB.cryptoworker = new Worker("cryptoworker.js")
+PB.cryptoworker = new Worker("js/cryptoworker.js")
 
 PB.workerqueue = []
 PB.workerautoid = 0
@@ -612,7 +612,7 @@ PB.cryptoworker.addEventListener("message", PB.workerreceive)
 // }
 //
 // var cryptoworker = {
-//     worker: new Worker("cryptoworker.js")
+//     worker: new Worker("js/cryptoworker.js")
 //     queue: []
 //     id: 0
 // }

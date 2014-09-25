@@ -478,8 +478,32 @@ var ICXStoreFinish = React.createClass({
 
 // Reply to a single puff
 var ICXReplyPuff = React.createClass({
+    handleParents: function() {
+        var sig = this.props.sig
+
+        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
+            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
+            : []
+
+        var index = parents.indexOf(sig)
+        if(index == -1) {
+            if (parents.length == 0)
+            parents.push(sig)
+        } else {
+            parents.splice(index, 1)
+        }
+
+        return Events.pub('ui/reply/add-parent',
+            {
+               'reply.parents': parents,
+            }
+        )
+    },
+
     handleReply: function() {
+
         var username = this.props.user
+        this.handleParents()
 
         return Events.pub('/ui/icx/screen', {
             "view.icx.screen": 'send',

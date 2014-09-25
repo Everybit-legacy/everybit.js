@@ -148,7 +148,7 @@ var ICXWorld = React.createClass({
             {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
             {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0, border: '1px solid #000'}},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -199,6 +199,19 @@ var ICXWorld = React.createClass({
         ICX.currScreenInfo = screenInfo
 
         var pageComponent = fun( {screenInfo:screenInfo} )
+
+        // Apply any additional styling
+        if(screenInfo.styles) {
+            for (var key in screenInfo.styles) {
+                contentDivStyles[key] = screenInfo.styles[key]
+            }
+        }
+        /*
+
+        if(thisScreen.name=='home.table') {
+            contentDivStyles.padding = '0'
+        }
+        */
 
         return (
             <div style={screenStyle}>

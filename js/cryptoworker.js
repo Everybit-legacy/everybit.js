@@ -1,6 +1,6 @@
-importScripts('scripts/bitcoinjs-min.js')
-importScripts('js/core/PB.js')
-importScripts('js/core/PB.Crypto.js')
+importScripts('../scripts/bitcoinjs-min.js')
+importScripts('core/PB.js')
+importScripts('core/PB.Crypto.js')
 
 onmessage = function (event) {
     var args = event.data.args

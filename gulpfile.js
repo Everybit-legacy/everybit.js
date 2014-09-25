@@ -20,20 +20,20 @@ var buildFor = 'icx'
 if(buildFor == 'icx') {
     // Tasks
     var jsxList = [
-        "js/freeBeer/src/icxtableView.js",
-        "js/freeBeer/src/icxdisplay.js"
+        "js/everybit/src/icxtableView.js",
+        "js/everybit/src/icxdisplay.js"
     ];
 } else {
     // Tasks
     var jsxList = [
-        "js/freeBeer/src/tableView.js",
-        "js/freeBeer/src/display.js",
-        "js/freeBeer/src/slider.js",
-        "js/freeBeer/src/menu.js",
-        "js/freeBeer/src/headerBar.js",
-        "js/freeBeer/src/puffbox.js",
-        "js/freeBeer/src/publishEmbed.js",
-        "js/freeBeer/src/tools.js"
+        "js/everybit/src/tableView.js",
+        "js/everybit/src/display.js",
+        "js/everybit/src/slider.js",
+        "js/everybit/src/menu.js",
+        "js/everybit/src/headerBar.js",
+        "js/everybit/src/puffbox.js",
+        "js/everybit/src/publishEmbed.js",
+        "js/everybit/src/tools.js"
     ];
 }
 
@@ -92,8 +92,8 @@ if(buildFor == 'icx') {
 } else {
     var ourOthersList = [
         'js/helpers.js',
-        'js/freeBeer/translate.js',
-        'js/freeBeer/translate-zh.js',
+        'js/everybit/translate.js',
+        'js/everybit/translate-zh.js',
 
         'js/libs/boron.js',
         'js/libs/events.js',
@@ -109,9 +109,9 @@ if(buildFor == 'icx') {
         'js/modules/PB.M.Forum.js',
         'js/modules/PB.M.Wardrobe.js',
 
-        'js/freeBeer/usernameImport.js',
+        'js/everybit/usernameImport.js',
 
-        'js/freeBeer/main.js'
+        'js/everybit/main.js'
     ];
 }
 

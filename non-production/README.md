@@ -22,7 +22,7 @@ Code style
 -------------
 * Use camelCase for variable names, except classes, which should be "new ClassName()", and the CONFIG global (see next item)
 
-* Configuration variables should go in the global CONFIG object defined in js/freeBeer/config.js
+* Configuration variables should go in the global CONFIG object defined in js/everybit/config.js
 
 * This JavaScript style guide from Google is a good reference, AngularJS recommends this too:
 https://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml

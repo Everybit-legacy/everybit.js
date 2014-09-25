@@ -9,19 +9,19 @@
 
 <script src="../../freebeer/js/vendor/react.js"></script>
 
-<script src="../../freebeer/js/freeBeer/site-everybit/config.js"></script>
+<script src="../../freebeer/js/everybit/site-everybit/config.js"></script>
 
 
 <script src="../../freebeer/js/core/PB.js"></script>
 <script src="../../freebeer/js/core/PB.Net.js"></script>
 <script src="../../freebeer/js/modules/PB.M.Forum.js"></script>
 <script src="../../freebeer/js/modules/PB.M.Wardrobe.js"></script>
-<script src="../../freebeer/js/freeBeer/display.js"></script>
-<script src="../../freebeer/js/freeBeer/menu.js"></script>
-<script src="../../freebeer/js/freeBeer/puffbox.js"></script>
-<script src="../../freebeer/js/freeBeer/reply.js"></script>
-<script src="../../freebeer/js/freeBeer/tools.js"></script>
-<script src="../../freebeer/js/freeBeer/main.js"></script>
+<script src="../../freebeer/js/everybit/display.js"></script>
+<script src="../../freebeer/js/everybit/menu.js"></script>
+<script src="../../freebeer/js/everybit/puffbox.js"></script>
+<script src="../../freebeer/js/everybit/reply.js"></script>
+<script src="../../freebeer/js/everybit/tools.js"></script>
+<script src="../../freebeer/js/everybit/main.js"></script>
 
 <script src="createUser.js"></script>
 -->

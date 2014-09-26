@@ -903,7 +903,7 @@ var ICXSendMessage = React.createClass({
                 <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                     <div>{polyglot.t("send.msg")}:</div>
-                    <textarea ref="messageText" style={{width: '90%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
+                    <textarea ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                 </div>

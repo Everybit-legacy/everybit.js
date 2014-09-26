@@ -126,7 +126,7 @@ UsernameImport.reddit.requestAuthentication = function() {
 	var state = ''; // a random string that can use later for verification
 	var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	for (var i=0; i<10; i++) {
-		var index = Math.floor(Math.random() * possible.length);
+    var item = PB.Crypto.getRandomItem(possible)
 		state += possible[index];
 	}
 

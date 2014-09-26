@@ -878,7 +878,7 @@ var Arrow = React.createClass({
     },
     render: function() {
         
-        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}}
+        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+PB.Crypto.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+PB.Crypto.random()+' to='+this.props.y2+'  dur="1s" />'}}
 
         // save this!
         // <path d={'M ' + this.props.x1 + ' ' + this.props.y1 + ' Q ' + (this.props.x2  + (this.props.x2 - this.props.x1)/2 - 10) + ' ' + (this.props.y2 + (this.props.y2 - this.props.y1)/2 - 20) + ' ' + this.props.x2 + ' ' + this.props.y2} fillOpacity="0" stroke={this.props.stroke} strokeWidth="2" />

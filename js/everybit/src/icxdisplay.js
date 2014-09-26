@@ -54,6 +54,11 @@ var ICXWorld = React.createClass({
         // Detect a screen change, remove error in that case
         if(currScreen != ICX.currScreen) {
             ICX.errors = ''
+            if(currScreen != 'send') { //Remove toUser if user navigates away from SEND
+                Events.pub('ui/event', {
+                    "view.icx.toUser": ""
+                })
+            }
         }
 
         if(PB.M.Wardrobe.currentKeys) {
@@ -496,6 +501,7 @@ var ICXReplyPuff = React.createClass({
         return Events.pub('ui/reply/add-parent',
             {
                'reply.parents': parents,
+               'reply.isReply': true
             }
         )
     },
@@ -811,6 +817,11 @@ var ICXSendFileFinish = React.createClass({
 
     cleanUpSubmit: function () {
         // TODO: do something fancy, clear out global vars
+        return Events.pub('ui/reply/add-parent',
+        {
+           'reply.parents': [],
+           'reply.isReply': false
+        })
     },
 
     componentDidMount: function () {
@@ -1011,13 +1022,22 @@ var ICXSendMessageFinish = React.createClass({
 
     cleanUpSubmit: function () {
         // TODO: do something fancy, clear out global vars
+        return Events.pub('ui/reply/add-parent',
+        {
+           'reply.parents': [],
+           'reply.isReply': false
+        })
     },
 
     componentDidMount: function () {
         // Set information for this send
         var type = 'text'
         var content = ICX.messageText
-        var parents = []
+        if(puffworldprops.reply.isReply) {
+            var parents = puffworldprops.reply.parents
+        } else {
+            var parents = []
+        }
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         var envelopeUserKeys = ''
@@ -1065,6 +1085,8 @@ var ICXSendMessageFinish = React.createClass({
                 'ICX.successMessage': err.message
             })
         })
+
+        this.cleanUpSubmit()
 
         return false
     }
@@ -1926,7 +1948,7 @@ var ICXIndepth = React.createClass({
                 We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
 
                 <br /><br />
-                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/freebeer" target="_new">github repository</a>.
+                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/puffball" target="_new">github repository</a>.
                 </div>
             </div>
 
@@ -1985,8 +2007,7 @@ var ICXHome = React.createClass({
     componentDidMount: function() {
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
-            'ICX.nextStatus': false,
-            'view.icx.toUser':''
+            'ICX.nextStatus': false
         })
     }
 })

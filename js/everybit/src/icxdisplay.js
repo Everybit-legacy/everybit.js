@@ -1140,9 +1140,9 @@ var ICXNewUser = React.createClass({
 
     componentWillMount: function() { // on page load, generate a random username
 
-        ICX.newUser.adjective = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-        ICX.newUser.animalName = ICX.animalNames[Math.floor(Math.random() * ICX.animalNames.length)]
-        ICX.newUser.animalColor = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
+        ICX.newUser.adjective = PB.Crypto.getRandomItem(ICX.adjectives)
+        ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
+        ICX.newUser.animalColor = PB.Crypto.getRandomItem(ICX.colornames)
 
         return false
     },
@@ -1191,9 +1191,9 @@ var ICXNewUser = React.createClass({
 
 
     handleGenerateRandomUsername: function() {
-        var adj = ICX.adjectives[Math.floor(Math.random() * ICX.adjectives.length)]
-        var color = ICX.colornames[Math.floor(Math.random() * ICX.colornames.length)]
-        var animal = ICX.newUser.animalName = ICX.animalNames[Math.floor(Math.random() * ICX.animalNames.length)]
+        var adj = PB.Crypto.getRandomItem(ICX.adjectives)
+        var color = PB.Crypto.getRandomItem(ICX.colornames)
+        var animal = ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
 
         this.refs.username.getDOMNode().value = adj + color + animal
         this.handleUsernameLookup()
@@ -1204,7 +1204,7 @@ var ICXNewUser = React.createClass({
     handleGenerateRandomPassphrase: function() {
         // Everybody loves the exponential!
         var numb = 3
-        while(Math.random()>0.2) {
+        while(PB.Crypto.random()>0.2) {
             numb++
         }
 
@@ -3172,7 +3172,7 @@ var Arrow = React.createClass({
     },
     render: function() {
 
-        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+Math.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+Math.random()+' to='+this.props.y2+'  dur="1s" />'}}
+        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+PB.Crypto.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+PB.Crypto.random()+' to='+this.props.y2+'  dur="1s" />'}}
 
         // save this!
         // <path d={'M ' + this.props.x1 + ' ' + this.props.y1 + ' Q ' + (this.props.x2  + (this.props.x2 - this.props.x1)/2 - 10) + ' ' + (this.props.y2 + (this.props.y2 - this.props.y1)/2 - 20) + ' ' + this.props.x2 + ' ' + this.props.y2} fillOpacity="0" stroke={this.props.stroke} strokeWidth="2" />

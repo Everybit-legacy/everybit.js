@@ -229,11 +229,10 @@ function murmurhash3_32_gc(key, seed) {
 var generatePassphrase = function(dict,numWords) {
     var passphrase = "";
     for(var i=0; i < numWords; i++) {
-        var randWordNumber = Math.floor((Math.random() * dict.length));
-        var randWord = dict[randWordNumber];
+        var randWord = PB.Crypto.getRandomItem(dict)
 
         if (i == 0) {
-            passphrase +=randWord;
+            passphrase += randWord;
         } else {
             passphrase = passphrase + " " + randWord;
         }
@@ -322,7 +321,7 @@ function generateRandomAnimal() {
         }
     }
 
-    var animal = animals[Math.floor(Math.random() * animals.length)];
+    var animal = PB.Crypto.getRandomItem(animals)
 
     return animal;
 

@@ -217,16 +217,105 @@ PB.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWi
     return plaintext // .replace(/\n+$/g, '')
 }
 
+
+PB.Crypto.random = function() { // just like Math.random, but better
+    // via http://stackoverflow.com/questions/13694626/generating-random-numbers-0-to-1-with-crypto-generatevalues
+
+    var list = PB.Crypto.getRandomValues(2, 32);
+
+    // keep all 32 bits of the the first, top 20 of the second for 52 random bits
+    var mantissa = (list[0] * Math.pow(2,20)) + (list[1] >> 12)
+
+    // shift all 52 bits to the right of the decimal point
+    var result = mantissa * Math.pow(2,-52);
+    
+    return result
+    
+    // var log2 = Math.log(max) / Math.LN2
+    // var size = Math.ceil(log2) + 1 // NOTE: this is about 8 times higher than necessary
+}
+
+PB.Crypto.getRandomInteger = function(max, min) { // NOTE: min is inclusive, max is exclusive
+    // TODO: error if max and min are not proper (non-NaN) numbers
+    min = Math.floor(min || 0)
+    max = Math.floor(max || 0x7fffffff) // 0x7fffffff == Math.pow(2, 31) - 1 // the largest bitop safe int
+    var range = max - min
+    var randFloat = PB.Crypto.random()
+    return Math.floor(randFloat*range + min)
+}
+
+PB.Crypto.getRandomItem = function(list) {
+    // TODO: error if list is not an array or string
+    var index = PB.Crypto.getRandomInteger(list.length)
+    return list[index]
+}
+
 /**
- * to get a random key
- * @param  {number} size
+ * get a new AES key
+ * @param  {number} length in bytes (defaults to 256 bits)
  * @return {string}
  */
-PB.Crypto.getRandomKey = function(size) {
-    size = size || 256/8 // AES key size is 256 bits
-    var bytes = new Uint8Array(size);
-    crypto.getRandomValues(bytes);
+PB.Crypto.getRandomKey = function(len) {
+    len = len || 256/8                                      // AES key size is 256 bits
+    var bytes = PB.Crypto.getRandomValues(len, 8)
+    // var bytes = new Uint8Array(size)
+    // crypto.getRandomValues(bytes)
     return Bitcoin.convert.bytesToBase64(bytes)
+}
+
+PB.Crypto.getRandomValues = function(number, size) {
+    if(window.crypto && window.crypto.getRandomValues) {
+        var bytes
+        if(size == 32)
+            bytes = new Uint32Array(size)
+        else
+            bytes = new Uint8Array(size)
+    
+        return window.crypto.getRandomValues(bytes)
+    }
+
+    return PB.Crypto.getRandomValuesShim(number, size)
+}
+
+PB.Crypto.getRandomValuesShim = function(number, size) {
+    // via https://github.com/evanvosberg/crypto-js/issues/7
+    // fallback for old browsers that don't support crypto.getRandomValues
+    // a little better than plain Math.random(), worse than crypto.getRandomValues()
+    var words = [];
+
+    var r = (function (m_w) {
+        var m_w = m_w;
+        var m_z = 0x3ade68b1;
+        var mask = 0xffffffff;
+
+        return function () {
+            m_z = (0x9069 * (m_z & 0xFFFF) + (m_z >> 0x10)) & mask;
+            m_w = (0x4650 * (m_w & 0xFFFF) + (m_w >> 0x10)) & mask;
+            var result = ((m_z << 0x10) + m_w) & mask;
+            result /= 0x100000000;
+            result += 0.5;
+            return result * (Math.random() > .5 ? 1 : -1);
+        }
+    });
+
+    for (var i = 0, rcache; i < number; i += 4) {
+        var _r = r((rcache || Math.random()) * 0x100000000);
+
+        rcache = _r() * 0x3ade67b7;
+
+        if(size == 32) {
+            words.push((_r() * 0x100000000) | 0);
+        } else {
+            // in case we want bytes instead of 32-bit chunks
+            var int32 = (_r() * 0x100000000) | 0;
+            words.push((int32 & 0xFF000000) >> 24);
+            words.push((int32 & 0x00FF0000) >> 16);
+            words.push((int32 & 0x0000FF00) >> 8);
+            words.push((int32 & 0x000000FF));
+        }
+    }
+
+    return words;
 }
 
 /**

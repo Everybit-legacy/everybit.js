@@ -248,12 +248,13 @@ PB.M.Wardrobe.addNewAnonUser = function() {
     // send it off
     var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey);
 
-    return prom.then(function(userRecord) {
-                   // store directly because we know they're valid, and so we don't get tangled up in more promises
-                   PB.M.Wardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
-                   return userRecord;
-               },
-               PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
+    return prom
+        .then(function(userRecord) {
+            // store directly because we know they're valid, and so we don't get tangled up in more promises
+            PB.M.Wardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
+            return userRecord;
+        },
+        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
 }
 
 /**
@@ -264,7 +265,9 @@ PB.M.Wardrobe.generateRandomUsername = function() {
     var generatedName = '';
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
     for(var i=0; i<10; i++) {
-        generatedName = generatedName + alphabet[Math.floor(Math.random() * (alphabet.length))];
+        generatedName += PB.Crypto.getRandomItem(alphabet)
+        // var randFloat = PB.Crypto.random();
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
     }
     return generatedName;
 }

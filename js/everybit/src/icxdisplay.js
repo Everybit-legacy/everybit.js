@@ -501,6 +501,7 @@ var ICXReplyPuff = React.createClass({
         return Events.pub('ui/reply/add-parent',
             {
                'reply.parents': parents,
+               'reply.isReply': true
             }
         )
     },
@@ -816,6 +817,11 @@ var ICXSendFileFinish = React.createClass({
 
     cleanUpSubmit: function () {
         // TODO: do something fancy, clear out global vars
+        return Events.pub('ui/reply/add-parent',
+        {
+           'reply.parents': [],
+           'reply.isReply': false
+        }
     },
 
     componentDidMount: function () {
@@ -1016,13 +1022,22 @@ var ICXSendMessageFinish = React.createClass({
 
     cleanUpSubmit: function () {
         // TODO: do something fancy, clear out global vars
+        return Events.pub('ui/reply/add-parent',
+        {
+           'reply.parents': [],
+           'reply.isReply': false
+        }
     },
 
     componentDidMount: function () {
         // Set information for this send
         var type = 'text'
         var content = ICX.messageText
-        var parents = []
+        if(puffworldprops.reply.isReply) {
+            var parents = puffworldprops.reply.parents
+        } else {
+            var parents = []
+        }
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         var envelopeUserKeys = ''
@@ -1070,6 +1085,8 @@ var ICXSendMessageFinish = React.createClass({
                 'ICX.successMessage': err.message
             })
         })
+
+        this.cleanUpSubmit()
 
         return false
     }

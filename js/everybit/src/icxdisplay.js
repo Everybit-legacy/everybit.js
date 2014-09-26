@@ -54,6 +54,11 @@ var ICXWorld = React.createClass({
         // Detect a screen change, remove error in that case
         if(currScreen != ICX.currScreen) {
             ICX.errors = ''
+            if(currScreen != 'send') { //Remove toUser if user navigates away from SEND
+                Events.pub('ui/event', {
+                    "view.icx.toUser": ""
+                })
+            }
         }
 
         if(PB.M.Wardrobe.currentKeys) {
@@ -1985,8 +1990,7 @@ var ICXHome = React.createClass({
     componentDidMount: function() {
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
-            'ICX.nextStatus': false,
-            'view.icx.toUser':''
+            'ICX.nextStatus': false
         })
     }
 })

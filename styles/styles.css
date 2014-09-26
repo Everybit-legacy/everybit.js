@@ -662,9 +662,9 @@ fieldset[disabled] .btn-primary.active {
     display: inline;
 }
 
-.colorPick {
+/*.colorPick {
     border: 1px solid #000;
-}
+}*/
 
 .col1 {
     width: 500px;
@@ -683,10 +683,10 @@ fieldset[disabled] .btn-primary.active {
     margin-right:auto;
     margin-left:auto;
 }
-.downloadIcon {
+/*.downloadIcon {
     text-align: right;
     padding-top: 5px;
-}
+}*/
 
 .droid {
     font-family: DroidSansMono;
@@ -710,10 +710,10 @@ fieldset[disabled] .btn-primary.active {
     overflow-y: auto;
 }
 
-.example-enter {
+/*.example-enter {
     opacity: 0.01;
-    /* transition: opacity 5s;*/
-}
+    transition: opacity 5s;
+}*/
 
 .fileUpload {
     position: relative;
@@ -1399,9 +1399,9 @@ fieldset[disabled] .btn-primary.active {
     left: 15em;
 }
 
-.radioHolder {
+/*.radioHolder {
     margin:10px;
-}
+}*/
 .rowBox {
     background-color: #fff;
 }
@@ -1628,11 +1628,11 @@ fieldset[disabled] .btn-primary.active {
     font-size: .8em;
 }
 
-.smallCaps {
+/*.smallCaps {
     font-family: GudeaBold;
     text-transform: uppercase;
     font-size: .91em;
-}
+}*/
 
 .shortcut {
     text-transform: uppercase;

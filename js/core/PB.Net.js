@@ -117,23 +117,24 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     if(limit)  data.numb    = limit                         // defaults to 20 on the server
     if(offset) data.offset  = offset                        // defaults to 0, which is latest
     
-    if(query.sort)      data.sort       = query.sort        // ASC or DESC
-    if(filters.users)   data.username   = filters.users     // filter by username
-    if(filters.routes)  data.route      = filters.routes    // filter by route
-    if(filters.tags)    data.tags       = filters.tags      // filter by tags
-    if(filters.types)   data.contentType       = filters.types      // filter by tags
-    if(query.ancestors) data.maxParents = query.ancestors   // defaults to all shells; 0 is roots, 1 is single parent, etc
+    if(query.sort)      data.sort        = query.sort       // ASC or DESC
+    if(filters.users)   data.username    = filters.users    // filter by username
+    if(filters.routes)  data.route       = filters.routes   // filter by route
+    if(filters.tags)    data.tags        = filters.tags     // filter by tags
+    if(filters.types)   data.contentType = filters.types    // filter by types
+    if(query.ancestors) data.maxParents  = query.ancestors  // defaults to all shells; 
+                                                            // 0 is roots, 1 is single parent, etc
     // data.flagged = false
     
     // data.focus
     // data.ancestors
     // data.descendants
     
-    if(CONFIG.noNetwork)                                    // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork && !filters.types)                  // THINK: this is only for debugging and development
         return PB.emptyPromise()
-                       .then(function() {return []});    
+                 .then(function() {return []});
     
-    return PB.Net.getJSON(url, data)                       // always returns a valid array
+    return PB.Net.getJSON(url, data)                        // always returns a valid array
                   .then(function(x) {return x || []}, function() {return []})
 }
 

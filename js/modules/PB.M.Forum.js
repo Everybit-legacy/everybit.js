@@ -154,6 +154,7 @@ PB.M.Forum.filterByFilters = function(filters) {
         if(filters.descendants && filters.focus)
             if(!~shell.payload.parents.indexOf(filters.focus)) return false
 
+        // TODO: deprecate this, as it's handled above:
         if (filters.type && filters.type.length)
             if (!~filters.type.indexOf(shell.payload.type)) return false
 

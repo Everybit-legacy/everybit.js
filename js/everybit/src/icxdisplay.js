@@ -821,7 +821,7 @@ var ICXSendFileFinish = React.createClass({
         {
            'reply.parents': [],
            'reply.isReply': false
-        }
+        })
     },
 
     componentDidMount: function () {
@@ -1026,7 +1026,7 @@ var ICXSendMessageFinish = React.createClass({
         {
            'reply.parents': [],
            'reply.isReply': false
-        }
+        })
     },
 
     componentDidMount: function () {

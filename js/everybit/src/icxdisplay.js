@@ -1926,7 +1926,7 @@ var ICXIndepth = React.createClass({
                 We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
 
                 <br /><br />
-                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/freebeer" target="_new">github repository</a>.
+                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/puffball" target="_new">github repository</a>.
                 </div>
             </div>
 

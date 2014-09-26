@@ -21,7 +21,8 @@ if(buildFor == 'icx') {
     // Tasks
     var jsxList = [
         "js/everybit/src/icxtableView.js",
-        "js/everybit/src/icxdisplay.js"
+        "js/everybit/src/icxdisplay.js",
+        "js/everybit/src/puffbox.js"
     ];
 } else {
     // Tasks

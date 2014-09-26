@@ -7,7 +7,8 @@ puffworldprops = {
             requestedUsername: '',
             usernameStatus: '',
             usernameMessage: '',
-            checkingUsername: ''
+            checkingUsername: '',
+            profilePuff: '',
         }
     },
     
@@ -699,3 +700,42 @@ Events.sub('ui/*', function(data) {
     if(puffworldprops.prefs.reporting)
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
 });
+
+
+// publishing a profile puff in ICX after registering a new user
+// Move this
+function handleUpdateProfile(puff) {
+    var currentKeys = PB.M.Wardrobe.getCurrentKeys()
+    var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile
+    var type = 'updateUserRecord'
+    var content = "setProfile"
+    var payload = {}
+    payload.profile = puff.sig
+
+    var update_puff = PB.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload)
+
+    var update_prom = PB.Net.updateUserRecord(update_puff)
+    update_prom.then(function(userRecord){
+        console.log('Profile updated!')
+    }).catch(function(err){
+        console.log('error', err)
+    })
+}
+
+function publishProfilePuff() {
+    console.log(puffworldprops.ICX.newUser)
+    console.log(PB.M.Wardrobe.getCurrentKeys())
+
+    // build puff
+    var content = puffworldprops.ICX.newUser.profilePuff
+    var type = 'profile'
+    // var self = this
+
+    // publish public profile
+    var post_prom = PB.M.Forum.addPost( type, content, [], {})
+    post_prom.then(function(puff){
+        // self.cleanUpSubmit()
+        // self.refs.meta.handleCleanFields()
+        handleUpdateProfile(puff)
+    }).catch(PB.promiseError('Posting failed'))
+}

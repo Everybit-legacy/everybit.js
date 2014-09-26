@@ -10,8 +10,8 @@ function keepNumberBetween(x,a,b) {
 
 // From brainwallet
 function passphraseToPrivateKeyWif(passphrase) {
-    var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString();
-    // hash = Bitcoin.Crypto.util.bytesToHex(hash);
+    var hashStr = bitcoin.crypto.SHA256(passphrase).toString();
+    // hash = bitcoin.crypto.util.bytesToHex(hash);
     // var hash_str = pad(hash, 64, '0');
     hash = Bitcoin.convert.hexToBytes(hashStr);
 
@@ -50,8 +50,8 @@ function getImageCode(sig) {
 
     /*
     // TODO: Do this as often as needed
-    var h1 = Bitcoin.Crypto.MD5(sig);
-    var h2 = Bitcoin.Crypto.MD5(sig+h1);
+    var h1 = bitcoin.crypto.MD5(sig);
+    var h2 = bitcoin.crypto.MD5(sig+h1);
     hashed = h2 + h1;
 
     var parts = hashed.match(/.{1,2}/g);

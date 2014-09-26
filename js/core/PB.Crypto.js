@@ -98,7 +98,7 @@ PB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
  * @return {string}
  */
 PB.Crypto.createMessageHash = function(message) {
-    return Bitcoin.Crypto.SHA256(message).toString()
+    return bitcoin.crypto.SHA256(message).toString()
 }
 
 /**
@@ -152,8 +152,8 @@ PB.Crypto.puffToSiglessString = function(puff) {
  * @return {string}
  */
 PB.Crypto.encryptWithAES = function(message, key) {
-    var enc = Bitcoin.Crypto.AES.encrypt(message, key)
-    return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
+    var enc = bitcoin.crypto.AES.encrypt(message, key)
+    return bitcoin.crypto.format.OpenSSL.stringify(enc)
 }
 
 /**
@@ -164,8 +164,8 @@ PB.Crypto.encryptWithAES = function(message, key) {
  */
 PB.Crypto.decryptWithAES = function(enc, key) {
     if(!key || !enc) return false
-    var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
-    var words = Bitcoin.Crypto.AES.decrypt(message, key)
+    var message = bitcoin.crypto.format.OpenSSL.parse(enc)
+    var words = bitcoin.crypto.AES.decrypt(message, key)
     var bytes = Bitcoin.convert.wordsToBytes(words.words) 
     // var uglyRegex = /[\u0002\u0004\u0007\u000e]+$/g // TODO: fix this so AES padding doesn't ever leak out 
     var uglyRegex = /[\u0000-\u0010]+$/g // TODO: fix this so AES padding doesn't ever leak out 
@@ -184,7 +184,7 @@ PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     var prikey = PB.Crypto.wifToPriKey(myPrivateWif)
     if(!pubkey || !prikey) return false  
     var secret = pubkey.multiply(prikey).toWif()
-    var key = Bitcoin.Crypto.SHA256(secret).toString()
+    var key = bitcoin.crypto.SHA256(secret).toString()
     
     return key
 }

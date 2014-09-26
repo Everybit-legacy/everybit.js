@@ -3137,7 +3137,7 @@ var PuffArrow =  React.createClass({
 
         // Use mod of sig, so we can do same for arrowheads!
         // TODO: Make mini-helper function
-        var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16)
+        var colNumber = parseInt(bitcoin.crypto.MD5(this.props.key.slice(-32)),16)
         colNumber = colNumber % CONFIG.arrowColors.length
 
         var stroke = CONFIG.arrowColors[colNumber]

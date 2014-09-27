@@ -701,7 +701,6 @@ Events.sub('ui/*', function(data) {
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
 });
 
-/*
 // publishing a profile puff in ICX after registering a new user
 // Move this
 function handleUpdateProfile(puff) {
@@ -739,5 +738,3 @@ function publishProfilePuff() {
         handleUpdateProfile(puff)
     }).catch(PB.promiseError('Posting failed'))
 }
-
-*/

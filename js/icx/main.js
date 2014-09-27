@@ -7,7 +7,8 @@ puffworldprops = {
             requestedUsername: '',
             usernameStatus: '',
             usernameMessage: '',
-            checkingUsername: ''
+            checkingUsername: '',
+            profilePuff: ''
         }
     },
     
@@ -702,7 +703,6 @@ Events.sub('ui/*', function(data) {
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
 });
 
-
 // publishing a profile puff in ICX after registering a new user
 // Move this
 function handleUpdateProfile(puff) {
@@ -739,4 +739,23 @@ function publishProfilePuff() {
         // self.refs.meta.handleCleanFields()
         handleUpdateProfile(puff)
     }).catch(PB.promiseError('Posting failed'))
+}
+
+PB.Data.profiles = {}
+
+function getProfilePuff(username) {
+    var existing_profile = PB.Data.profiles[username]
+    if(existing_profile)
+        return existing_profile === true ? false : existing_profile  // 'true' is our placeholder
+
+    PB.Data.profiles[username] = true
+
+    var prom = PB.Net.getProfilePuff(username)
+    prom.then(function(puffs) {
+        var puff = puffs[0]
+        if(!puff) return false
+        PB.Data.profiles[puff.username] = puff
+    })
+    
+    return false
 }

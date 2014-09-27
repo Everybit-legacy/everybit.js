@@ -543,7 +543,7 @@ var ICXSend = React.createClass({
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
                 <div className="contentWindow">
-                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
+                    To user: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
                         <Tooltip position='under' content="Confirm username" />
@@ -559,7 +559,7 @@ var ICXSend = React.createClass({
                     <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
 
                 </div>
-                Looking for someone to send to&#63; Try saying &#8220;Hi!&#8221; to <a href="#" onClick={this.messageUser.bind(null, 'mattasher')} >one</a> of <a href="#" onClick={this.messageUser.bind(null, 'dann')} >the</a> <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')}>developers</a>.
+                Looking for someone to send to&#63; Try saying <a href="#" onClick={this.messageUser.bind(null, 'mattasher')} >&#8220;Hi!&#8221;</a> to <a href="#" onClick={this.messageUser.bind(null, 'dann')} >one</a> of <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>.
             </div>
             )
     },
@@ -1130,18 +1130,20 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
-                    <br/>
-                    <b>Avatar:</b>
-                    <div>
-                        <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/>
-                    </div>
-
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
         )
     },
+
+    /*
+     <br/>
+     <b>Avatar:</b>
+     <div>
+     <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/>
+     </div>
+     */
 
     componentWillMount: function() { // on page load, generate a random username
 

@@ -1335,7 +1335,7 @@ var ICXNewUser = React.createClass({
 
         reader.onload = function(event){
             return Events.pub('ui/reply/image-upload', {
-                'ICX.newUser.profilePuff': event.target.result
+                'profile.avatarUrl': event.target.result
             })
         }
 
@@ -1786,6 +1786,15 @@ var ICXDashboard = React.createClass({
                     </a>
                     <br /><br />
 
+                    <a href="#" >
+                        <i className="fa fa-fw fa-file-image-o" />
+                        Change your avatar
+                    </a>
+                    <br />
+                    <div>
+                        <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleUploadAvatar}/>
+                    </div>
+
                     <a href="#" onClick={this.handleSignOut}>
                         <i className="fa fa-fw fa-sign-out" />
                         {polyglot.t("dashboard.logout")}
@@ -1807,6 +1816,22 @@ var ICXDashboard = React.createClass({
             'ICX.wizard': undefined,
             'ICX.nextStatus': false
         })
+    },
+
+    handleUploadAvatar: function() {
+        var self   = this
+        var reader = new FileReader()
+
+        reader.onload = function(event){
+            return Events.pub('ui/event', {
+                'profile.avatarUrl': event.target.result
+            })
+        }
+
+        reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
+        publishProfilePuff()
+
+        return false
     },
 
     // Generate download link of file

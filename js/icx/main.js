@@ -7,8 +7,7 @@ puffworldprops = {
             requestedUsername: '',
             usernameStatus: '',
             usernameMessage: '',
-            checkingUsername: '',
-            profilePuff: '',
+            checkingUsername: ''
         }
     },
     
@@ -134,7 +133,9 @@ puffworldprops = {
     prefs: {
         reporting: true
     },
-    profile: { },
+    profile: {
+        avatarUrl: ''
+    },
     tools: {
         users: {
             resultstyle: 'raw',
@@ -727,7 +728,7 @@ function publishProfilePuff() {
     console.log(PB.M.Wardrobe.getCurrentKeys())
 
     // build puff
-    var content = puffworldprops.ICX.newUser.profilePuff
+    var content = puffworldprops.profile.avatarUrl
     var type = 'profile'
     // var self = this
 

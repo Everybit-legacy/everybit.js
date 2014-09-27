@@ -130,7 +130,10 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     // data.ancestors
     // data.descendants
     
-    if(CONFIG.noNetwork && !filters.types)                  // THINK: this is only for debugging and development
+    var filterstring = JSON.stringify(filters.types)
+    var profile_request = (filterstring == '["profile"]')
+    
+    if(CONFIG.noNetwork && !profile_request)                // THINK: this is only for debugging and development
         return PB.emptyPromise()
                  .then(function() {return []});
     

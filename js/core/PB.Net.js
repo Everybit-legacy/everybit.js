@@ -70,23 +70,36 @@ PB.Net.getStarShells = function() {
 }
 
 PB.Net.getPrivatePuffsFromMe = function(username) {
-    var url  = CONFIG.puffApi;
+    var url  = CONFIG.puffApi
     var data = { username: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
                , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
-               };
+               }
     
-    return PB.Net.getJSON(url, data);
+    return PB.Net.getJSON(url, data)
 }
 
 PB.Net.getPrivatePuffsForMe = function(username) {
-    var url  = CONFIG.puffApi;
+    var url  = CONFIG.puffApi
     var data = { route: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
                , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
-               };
+               }
     
-    return PB.Net.getJSON(url, data);
+    return PB.Net.getJSON(url, data)
+}
+
+PB.Net.getProfilePuff = function(username) {
+    var url  = CONFIG.puffApi
+    var data = { username: username
+               , fullOrShell: 'full'
+               , contentType: 'profile'
+               , type: 'getPuffs'
+               , sort: 'DESC'
+               , numb: 1
+               }
+    
+    return PB.Net.getJSON(url, data)
 }
 
 /**

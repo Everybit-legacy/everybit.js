@@ -77,9 +77,11 @@ var RowRenderMixin = {
 	},
 	renderFrom: function() {
         var fromUser = this.props.puff.username
+        /*
         var queryJSON = {}
         queryJSON.users = [fromUser]
         queryJSON.types = ['profile']
+        */
 
         if(fromUser == ICX.username) {
             fromUser = 'You'
@@ -87,6 +89,9 @@ var RowRenderMixin = {
             fromUser = '.'+fromUser
         }
 
+        return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a></div>
+
+        /*
         var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
 
         if(prof.length) {
@@ -94,20 +99,26 @@ var RowRenderMixin = {
         } else {
         	return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a></div>
 		}
+		*/
 	},
 	renderTo: function() {
         var toUser = this.props.puff.routes[0]
+        /*
         var queryJSON = {}
         queryJSON.users = [toUser]
         queryJSON.types = ['profile']
+        */
 
         if(toUser == ICX.username) {
             toUser = 'You'
         } else {
             toUser = '.'+toUser
         }
-        var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
+        // var prof = PB.M.Forum.getPuffList(puffworldprops.view.query,queryJSON,1)
 
+        return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a></div>
+
+        /*
         if(prof.length) {
         	return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a> <img className="iconSized" src={prof[0].payload.content}  /></div>
 
@@ -115,6 +126,7 @@ var RowRenderMixin = {
 			return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a></div>
 
         }
+        */
 	},
 	renderUser: function() {
     },

@@ -1130,11 +1130,13 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
+                    /*
                     <br/>
                     <b>Avatar:</b>
                     <div>
                         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/>
                     </div>
+                    */
 
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
@@ -1329,6 +1331,7 @@ var ICXNewUser = React.createClass({
         return false
     },
 
+    /*
     handleImageLoad: function() {
         var self   = this
         var reader = new FileReader()
@@ -1342,6 +1345,7 @@ var ICXNewUser = React.createClass({
         reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
         return false
     },
+    */
 
     handleRegisterName: function() {
 
@@ -1417,7 +1421,9 @@ var ICXNewUser = React.createClass({
                     version: "1.0"
                 }
 
+                /*
                 publishProfilePuff()
+                */
 
                 Events.pub('ui/thinking', {
                     'ICX.thinking': false

@@ -447,11 +447,8 @@ PB.Net.xhr = function(url, options, data) {
             if(req.status != 200) // silly safari
                 return reject(PB.makeError(req.statusText));
             
-            try {
-                var x = req.responseText
-            } catch (err) {
-                return reject(PB.makeError("Error in response", err));
-            }
+            if(req.responseType == 'json' && req.response === null) // NOTE: traps JSONified 'null' responses also: use empty string or [] to indicate an empty result
+                return reject(PB.makeError("Invalid JSON in response"));
             
             resolve( (req.responseType != options.type) // manually convert json for old browsers
                   && options.type == 'json' ? PB.parseJSON(req.response) : req.response);

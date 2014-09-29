@@ -66,6 +66,10 @@ a.footerText {
     font-size: .9em;
 }
 
+a.inline {
+    background-color: rgba(255,255,255,.5)
+}
+
 a.ICXbuttonLink {
     color: #ffffff;
 }
@@ -93,7 +97,7 @@ html {
 }
 
 body {
-    background-color: #E0E0E0;
+    background-color: #F0F0F0;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
@@ -1322,12 +1326,16 @@ fieldset[disabled] .btn-primary.active {
 
 .navBtn:hover {
     opacity: 0.75;
-    border: 1px solid #000;
+    border-right: 1px solid #000;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
 }
 
 .navBtn:active {
     opacity: 0.50;
-    border: 2px solid #000;
+    border-right: 2px solid #000;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
 }
 
 .navBtn.user {

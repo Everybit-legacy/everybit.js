@@ -92,7 +92,7 @@ var ICXWorld = React.createClass({
 
         ICX.calculated = {
 
-            rightBorder: keepNumberBetween(w * ICX.config.rightBorder.ratio, ICX.config.rightBorder.min, ICX.config.rightBorder.max),
+            sideBorder: keepNumberBetween(w * ICX.config.sideBorder.ratio, ICX.config.sideBorder.min, ICX.config.sideBorder.max),
 
             logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
 
@@ -164,33 +164,50 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba('+c4+', '+op2+')'},
             {position: 0, name: 'store.finish', button:false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba('+c3+', '+op2+')'},
             {position: 0, name: 'init',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
-            {position: 0, name: 'indepth', button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba('+c4+', '+op2+')'}
+            {position: 0, name: 'indepth', button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba('+c4+', '+op2+')'},
+            {position: 0, name: 'invite', button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Invite someone to join icx', component: ICXInvite, backgroundColor: 'rgba('+c2+', '+op2+')'}
+
+
         ]
 
-        var borderWidth = Math.floor(ICX.calculated.rightBorder)+'px'
+        var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
 
         var thisScreen = ICX.screens.filter(function( obj ) {
             return (obj.name == currScreen);
         })[0]
 
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            borderRightWidth: borderWidth,
-            borderRightColor: thisScreen.color,
-            borderRightStyle: 'solid'
+        if(ICX.config.borderSide == 'right') {
+            var screenStyle = {
+                position: "absolute",
+                width: w,
+                height: h,
+                borderRightWidth: borderWidth,
+                borderRightColor: thisScreen.color,
+                borderRightStyle: 'solid'
+            }
+        } else {
+            var screenStyle = {
+                position: "absolute",
+                width: w,
+                height: h,
+                borderLeftWidth: borderWidth,
+                borderLeftColor: thisScreen.color,
+                borderLeftStyle: 'solid'
+            }
         }
 
+
         var contentDivStyles = {
-            position: "absolute",
-            left: Math.floor( w*ICX.config.content.insets.left ) + "px",
-            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-            height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            padding: '10px', // Testing...
-            fontSize: ICX.calculated.baseFontH + 'px'
+                position: "absolute",
+                left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+                width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+                height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+                top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+                padding: '10px', // Testing...
+                fontSize: ICX.calculated.baseFontH + 'px',
+                overflow: 'scroll'
         }
+
 
         contentDivStyles.backgroundColor = thisScreen.backgroundColor
 
@@ -481,6 +498,126 @@ var ICXStoreFinish = React.createClass({
 })
 
 
+var ICXInvite = React.createClass({
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.background = headerStyle.backgroundColor
+
+        // Next step is file or message, then final step has warning about NOT DONE
+        var userURL = 'https://i.cx/u/'+ICX.username
+
+        // Put Why can't you in warning message?
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Invite someone to join ICX</div>
+                <div className="contentWindow">
+                    You&#8217;ve chosen to send to a new ICX user. You have two options:
+                    <br />
+                    <br />
+                    <em>Option 1:</em><br />
+                    Send someone a link where they can message you: <input type="text" value={userURL} /> <a href={userURL} className="inline" target="_new">Test link</a>
+                    <br /><br />
+                    <em>Option 2:</em><br />
+                    Send using a shared secret as an initial passphrase. Because this method is lower security,
+                    your friend will be asked to to change their passphrase right away.<br /><br />
+                    Question:<br />
+                    <input type="text" ref="question" />
+                    <br />
+                    Answer:<br />
+                    <input type="text" ref="passphrase" /><br />
+                    <span className="shortcut">Note:</span> Your recipient will have to enter the answer <em>exactly</em> how you type it.
+                    <br /><br />
+                    <button style={ICX.buttonStyle} onClick={this.handleSendToEmail}>Next <i className="fa fa-chevron-right" /></button>
+                    <br /><br />
+
+                    <small>Wondering why you can&#8217;t send your message directly to someone without an ICX account?
+                    When you send someone a private message or a file, it has to be encrypted on your own device before
+                    it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
+                    the person you are sending to. That public key has to be created and associated with a username record
+                    before the message can be sent. You can get this process started by choosing a shared secret for your
+                    friends initial passphrase.</small>
+
+                </div>
+            </div>
+        )
+    },
+
+    handleSendToEmail: function() {
+        // Start the spinner, generate a new username,
+        // Send them to next step, message or file send page.
+        // TODO: Check for blank, or too short values in question and answer
+
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+        updateUI();
+
+        var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
+        var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
+        var animalColor = PB.Crypto.getRandomItem(ICX.colornames)
+
+        var requestedUsername = "icx." + adjective+animalColor+animalName
+
+        var prompt = this.refs.question.getDOMNode().value
+        var passphrase = this.refs.passphrase.getDOMNode().value
+
+        // Convert passphrase to key
+        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+        var rootKeyPublic     = publicKey
+        var adminKeyPublic    = publicKey
+        var defaultKeyPublic  = publicKey
+
+        var self = this
+
+        var payload = {
+            requestedUsername: requestedUsername,
+            rootKey: rootKeyPublic,
+            adminKey: adminKeyPublic,
+            defaultKey: defaultKeyPublic
+        }
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'requestUsername'
+
+        var puff = PB.buildPuff('icx', ICX.adminKey, routes, type, content, payload)
+
+        // SUBMIT REQUEST
+        var prom = PB.Net.updateUserRecord(puff)
+        prom.then(function(userRecord) {
+
+                // publishProfilePuff()
+
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+
+                return Events.pub('ui/icx/screen', {
+                        "view.icx.screen": puffworldprops.ICX.wizard.type,
+                        'ICX.wizard.invitedEmail': puffworldprops.ICX.toUser,
+                        'ICX.wizard.prompt': prompt,
+                        'ICX.toUser': requestedUsername
+                    }
+                )
+            },
+
+            function(err) {
+                // TODO: Deal with error, show it in box
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+
+                return Events.pub('ui/event', {})
+            })
+
+
+
+        // Redirect to the next page in process.
+
+        // On final confirm page, put the email in parenthesis next to the username in To: Same if file
+    }
+})
+
 // Reply to a single puff
 var ICXReplyPuff = React.createClass({
     handleParents: function() {
@@ -543,10 +680,10 @@ var ICXSend = React.createClass({
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
                 <div className="contentWindow">
-                    To user: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
+                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
-                        <Tooltip position='under' content="Confirm username" />
+                        <Tooltip position='under' content="Check for a valid ICX username or email address" />
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
 
@@ -559,12 +696,25 @@ var ICXSend = React.createClass({
                     <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
 
                 </div>
-                Looking for someone to send to&#63; Try saying <a href="#" onClick={this.messageUser.bind(null, 'mattasher')} >&#8220;Hi!&#8221;</a> to <a href="#" onClick={this.messageUser.bind(null, 'dann')} >one</a> of <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>.
+                Enter an ICX username or email address above to send an encrypted message or file. Looking for someone to
+                {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
+                {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
+                {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>, or
+                {' '}enter your email address to send yourself an encrypted message.
             </div>
             )
     },
 
     componentWillMount: function() {
+
+        if(!ICX.username) {
+            return Events.pub('ui/event/newuser', {
+                "view.icx.screen": 'newuser',
+                'ICX.wizard.inProcess': true,
+                'ICX.wizard.sequence': 'send'
+            })
+        }
+
         Events.pub('ui/event/send', {
             'ICX.userConfirmed': false,
             'ICX.nextStatus': false,
@@ -589,13 +739,6 @@ var ICXSend = React.createClass({
 
 
     verifyUsername: function() {
-        var toUser = this.refs.toUser.getDOMNode().value
-        var finalChar = toUser.charAt(toUser.length-1)
-
-        toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, /*allowDot*/true)
-            .toLowerCase()
-        this.refs.toUser.getDOMNode().value = toUser
-
         return Events.pub('ui/events', {
             'ICX.userConfirmed': false,
             'ICX.nextStatus': false,
@@ -626,9 +769,34 @@ var ICXSend = React.createClass({
             })
         }
 
+        // Does this look like an email? If so, mark it valid and move on
+        if(looksLikeEmailAddress(toUser)) {
+            // If from button, move along to next page
+            Events.pub('ui/events', {
+                'ICX.userConfirmed': true,
+                'ICX.nextStatus': true,
+                'ICX.toUserStatus': '',
+                'ICX.toUser': toUser,
+                'ICX.wizard.type': nextStep
+            })
+
+            if(nextStep) {
+                Events.pub('ui/icx/screen', {
+                    "view.icx.screen": 'invite'
+                })
+            }
+
+            return false
+        }
+
         // remove initial . if it exists
         if (toUser.slice(0, 1) == '.')
             toUser = toUser.slice(1)
+
+        // If username, coerce to correct format
+         toUser = StringConversion.reduceUsernameToAlphanumeric(toUser, true) // True to allow a dot
+         .toLowerCase()
+         this.refs.toUser.getDOMNode().value = toUser
 
         var prom = PB.getUserRecord(toUser)
 
@@ -641,7 +809,8 @@ var ICXSend = React.createClass({
                 'ICX.userConfirmed': true,
                 'ICX.nextStatus': true,
                 'ICX.toUserStatus': '',
-                'ICX.toUser': toUser
+                'ICX.toUser': toUser,
+                'ICX.wizard.type': nextStep
             })
 
             if(nextStep) {
@@ -898,14 +1067,25 @@ var ICXSendMessage = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        var invitedNote = ''
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
+        } else {
+            invitedNote = 'Sending to user ' + puffworldprops.ICX.toUser
+        }
+
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_msg")} {puffworldprops.ICX.toUser}</div><br />
+                <div style={headerStyle}>Send a private message</div>
                 <div className="contentWindow">
+                    {invitedNote}
+                    <br />
                     <div>{polyglot.t("send.msg")}:</div>
                     <textarea ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
+                    <br /><br />
+                    TIP: The keyboard shortcut <span className="shortcut">command-enter</span> will send your message right away.
                 </div>
 
             </div>
@@ -967,13 +1147,18 @@ var ICXSendMessageConfirm = React.createClass({
 
         var username = PB.M.Wardrobe.getCurrentUsername()
 
+        var sendToEmail = ''
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            sendToEmail = '(' + puffworldprops.ICX.wizard.invitedEmail + ')'
+        }
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
                 <br />
                 <div className="contentWindow">
                     <b>{polyglot.t("send.from")}</b> {username}<br/>
-                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser} {sendToEmail}<br />
                     <b>MESSAGE:</b><br />
                     {ICX.messageText}
                     <br /><br />
@@ -984,9 +1169,19 @@ var ICXSendMessageConfirm = React.createClass({
     }
 })
 
+
 var ICXSendMessageFinish = React.createClass({
 
     render: function () {
+
+        var successMessage = '';
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            successMessage = <ICXNotifyEmail />
+        } else {
+            successMessage = puffworldprops.ICX.successMessage
+        }
+
+
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
@@ -998,7 +1193,7 @@ var ICXSendMessageFinish = React.createClass({
                 <div style={headerStyle}>{polyglot.t("header.send_msg_fin")}</div>
                 <br />
                 <div className="contentWindow">
-                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <div>{successMessage}</div>
                     <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
                 </div>
             </div>
@@ -1015,7 +1210,7 @@ var ICXSendMessageFinish = React.createClass({
     handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
             'ICX.messageSent': true,
-            'ICX.successMessage': 'Message sent!'
+            'ICX.successMessage': 'Message sent!',
         })
 
     },
@@ -1054,8 +1249,6 @@ var ICXSendMessageFinish = React.createClass({
             return userRecord.username
         })
 
-        // if we haven't cached all the users, we'll need to grab them first
-        // THINK: maybe convert this to using PB.getUserRecords instead
         if (userRecords.length < usernames.length) {
             usernames.forEach(function (username) {
                 if (!~userRecordUsernames.indexOf(username)) {
@@ -1089,6 +1282,18 @@ var ICXSendMessageFinish = React.createClass({
         this.cleanUpSubmit()
 
         return false
+    }
+})
+
+var ICXNotifyEmail = React.createClass({
+    render: function () {
+        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
+        return (
+            <span>Your message has been sent. However, <em>in order for your friend to read it, you need to let them know
+            their username and prompt question</em>. We suggest sending the folloing email to {puffworldprops.ICX.wizard.invitedEmail}:
+            <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
+            </span>
+        )
     }
 })
 
@@ -1162,8 +1367,8 @@ var ICXNewUser = React.createClass({
         var wizard = puffworldprops.ICX.wizard
 
 
-        if(typeof wizard === 'undefined' || typeof wizard.type === 'undefined' || puffworldprops.ICX.nextStatus == false) {
-            // User hasn't visited SEND or STORE
+        if(typeof wizard === 'undefined') {
+            // User hasn't clicked SEND or STORE
             // User coming from Send but has not chosen a username to send to
             // User coming from Send, has toUser, but does not have message or file
             // User coming from Store but does not have a file uploaded
@@ -1172,7 +1377,14 @@ var ICXNewUser = React.createClass({
                 'ICX.nextStepMessage': 'Finish'
             })
         } else if(wizard.sequence == 'send') {
-            // User coming from Send, and has chosen either message or file
+            // User coming from Send, put them back there after they register
+            return Events.pub('ui/event', {
+                'ICX.nextStep': 'send',
+                'ICX.nextStepMessage': 'Next'
+            })
+
+            /*
+            // This will go elsewhere
 
             if(wizard.type == 'message') {
                 return Events.pub('ui/event', {
@@ -1185,6 +1397,7 @@ var ICXNewUser = React.createClass({
                     'ICX.nextStepMessage': 'Continue'
                 })
             }
+             */
         } else if(wizard.sequence == 'store') {
 
             // User coming from Store, and has uploaded a file
@@ -1698,7 +1911,7 @@ var ICXLogin = React.createClass({
             } else {
                 // TODO: Send to error box
                 // console.log("Missing info");
-                console.log(identityObj)
+                /// console.log(identityObj)
                 return PB.onError("Missing info");
             }
 
@@ -1770,25 +1983,25 @@ var ICXDashboard = React.createClass({
                     Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.
                     <br /><br />
 
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')}>
+                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
                         {polyglot.t("dashboard.tableview")}
                     </a>
                     <br /><br />
-                    <a href="#"  ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
+                    <a href="#" className="inline" ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
                         <i className="fa fa-fw fa-download" />
                         {polyglot.t("dashboard.download_id")}
                     </a>
                     <br /><br />
                     <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
+                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
                         <i className="fa fa-fw fa-file-excel-o" />
                         {polyglot.t("dashboard.filesys")}
                     </a>
                     <br /><br />
 
-                    <a href="#" onClick={this.handleSignOut}>
+                    <a href="#" className="inline" onClick={this.handleSignOut}>
                         <i className="fa fa-fw fa-sign-out" />
                         {polyglot.t("dashboard.logout")}
                     </a>
@@ -1935,7 +2148,7 @@ var ICXLearn = React.createClass({
                 </div>
                 <div className="contentWindow">
                 <br /><br />
-                {polyglot.t("learn.more")}<a href="#" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.
+                {polyglot.t("learn.more")}<a href="#" className="inline" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.
                 </div>
             </div>
         )
@@ -1993,15 +2206,15 @@ var ICXAbout = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.about")}</div><br />
                 <div className="contentWindow">
-                {polyglot.t("about.built")}<a href="http://www.puffball.io" target="_blank">{polyglot.t("about.platform")}</a>.
+                {polyglot.t("about.built")}<a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>.
                     <br />
                     <br />
                     <b>{polyglot.t("about.devs")}</b>
                     <br />
-                • <a href="#" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a><br />
-                • <a href="#" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a><br />
-                • <a href="#" onClick={this.messageUser.bind(null, 'icx.adam')}>Adam Rafeek</a><br />
-                • <a href="#" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a>
+                • <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a><br />
+                • <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a><br />
+                • <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')}>Adam Rafeek</a><br />
+                • <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a>
                 </div>
             </div>
             )
@@ -2265,7 +2478,7 @@ var ICXLogo = React.createClass({
         if(!puffworldprops.view.icx.screen || puffworldprops.view.icx.screen == 'home') {
             var logoW = ICX.calculated.logoW
 
-            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-logoW ),0,10000) + "px"
+            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.sideBorder-logoW ),0,10000) + "px"
             var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
             logoW = Math.floor(logoW) + 'px';
 
@@ -2344,7 +2557,6 @@ var ICXButtonLink = React.createClass({
             backgroundColor: screenInfo.color,
             height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             position: 'absolute',
-            right: 0,
             fontSize:  fontSize + 'px',
             top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
@@ -2354,6 +2566,13 @@ var ICXButtonLink = React.createClass({
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden'
+        }
+
+        // Login always on right!
+        if(ICX.config.borderSide == 'right' || this.props.screenInfo.name == 'login') {
+            buttonStyle.right = 0
+        } else {
+            buttonStyle.left = 0
         }
 
 
@@ -2391,7 +2610,7 @@ var ICXButtonLink = React.createClass({
                     <i className={this.props.screenInfo.icon}></i>
                         <span className="icxButtonlinkText">
                             {' '}
-                            {linkText} <i className="fa fa-chevron-right" />
+                            {linkText}
                         </span>
                 </div>
             </a>
@@ -2411,7 +2630,12 @@ var ICXFooter = React.createClass({
         var puffballW = Math.floor(puffballH * 41/48)
 
         // Same as logoX
-        var footerX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.rightBorder-ICX.calculated.logoW ),0,10000) + "px"
+        if(ICX.config.borderSide == 'right') {
+            var footerX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.sideBorder-ICX.calculated.logoW ),0,10000) + "px"
+        } else {
+            var footerX = Math.floor(window.innerHeight * 0.015)
+        }
+
         var footerY = Math.floor(window.innerHeight * 0.015)
 
 

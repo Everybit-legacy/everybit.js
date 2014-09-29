@@ -12,11 +12,14 @@ ICX.adminKey = '5KiCcgZjfvbGJgJbP9RKccwB6NGw8PgfkwZm2P5Xj158NqFFf4a'
 ICX.send = {}
 
 ICX.config = {
-    rightBorder: {
+    sideBorder: {
         min: 2,
         max: 100,
-        ratio:.06
+        ratio:.055
     },
+
+    borderSide: 'left',
+
     logo: {
         originalW: 643,
         originalH: 279,
@@ -24,7 +27,7 @@ ICX.config = {
         minW: 32,
         maxW: 1000,
         insets: {
-            top:.085
+            top:.095
         },
         insetsSmall: {
             top:.02,
@@ -32,7 +35,7 @@ ICX.config = {
         }
     },
     text: {
-        areaRatio: 0.0007,
+        areaRatio: 0.00065,
         default: 14,
         min: 5,
         max: 100
@@ -40,20 +43,21 @@ ICX.config = {
     content: {
         insets: {
             top:.1,
-            right:.25,
-            left:.1,
+            right:.1,
+            left:.18,
             bottom:.1
         }
     },
+
     minBorder: 1,
     maxBorder: 100,
     borderRatio:.03,
     logoBigRatio:.2,
     logoYFromTop:.05,
-    logoSmallRatio:.1,
+    logoSmallRatio:.125,
     buttonHeightRatio:.1,
-    buttonWidthRatio:.6,
-    buttonSmallWidthRatio:.15,
+    buttonWidthRatio:.5,
+    buttonSmallWidthRatio:.14,
     buttonFontHeightRatio:.03,
     mainPageFontHeightRatio:.03,
     contentLeftInset: .02,

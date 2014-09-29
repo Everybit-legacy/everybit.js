@@ -283,10 +283,7 @@ function getBrowser() {
     }
 }
 
-
-
-
-function generateRandomAnimal() {
+function getAnimalCSS() {
     // Get animals
 
     // Chrome uses "rules"
@@ -320,18 +317,56 @@ function generateRandomAnimal() {
             }
         }
     }
+    return animals;
+}
 
-    var animal = PB.Crypto.getRandomItem(animals)
+function getAnimalUnicodes() {
+    // Get animals
+
+    // Chrome uses "rules"
+    // Firefox and IE uses "cssRules"
+    var animalCSS = [];
+    var unicodes = [];
+    var i = 0;
+
+    // on source site stylesheets are not compiled into one single file
+    // on live site all stylesheets are pulled into one file
+    for(var j = 0; j < document.styleSheets.length; j++) {
+        if (getBrowser() == "Chrome") {
+            animalCSS = document.styleSheets[j].rules;
+        } else {
+            animalCSS = document.styleSheets[j].cssRules;
+        }
+
+        for(var k = 0; k < animalCSS.length; k++) {
+            var selector = animalCSS[k].selectorText;
+
+            if(typeof selector != 'undefined') {
+
+                // Chrome and IE inserts an ":" between animal name and before
+                // Firefox doesn't
+                splitResult = selector.replace("::",":").replace(":","-").split("-");
+
+
+                if( splitResult[0] == '.icon') {
+                    unicodes[i] = animalCSS[k].style.cssText.slice(-3,-2).charCodeAt(0).toString(16);
+                    i++;
+                }
+            }
+        }
+    }
+    return unicodes;
+}
+
+
+function generateRandomAnimal() {
+
+    var animals = getAnimalCSS();
+    var animal = PB.Crypto.getRandomItem(animals);
 
     return animal;
 
 }
-
-// function getAnimal(name) {
-//     var image = new Image()
-//     image.src = "icx/avatar" + name + ".png"
-//     return image;
-// }
 
 // Basic check to see if something has the form of an email address:
 // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
@@ -339,4 +374,54 @@ function looksLikeEmailAddress(str) {
     var lastAtPos = str.lastIndexOf('@');
     var lastDotPos = str.lastIndexOf('.');
     return (lastAtPos < lastDotPos && lastAtPos > 0 && str.indexOf('@@') == -1 && lastDotPos > 2 && (str.length - lastDotPos) > 2);
+}
+
+/**
+ * Convert an image 
+ * to a base64 string
+ * @author HaNdTriX
+ * http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
+ * @param  {String}   url         
+ * @param  {Function} callback    
+ * @param  {String}   [outputFormat=image/png]           
+ */
+// function convertImgToBase64(url, callback, outputFormat){
+//     var canvas = document.createElement('CANVAS'),
+//         ctx = canvas.getContext('2d'),
+//         img = new Image;
+//     img.crossOrigin = 'Anonymous';
+//     img.onload = function(){
+//         var dataURL;
+//         canvas.height = img.height;
+//         canvas.width = img.width;
+//         ctx.drawImage(img, 0, 0);
+//         dataURL = canvas.toDataURL(outputFormat);
+//         callback.call(this, dataURL);
+//         canvas = null; 
+//     };
+//     img.src = url;
+// }
+
+function getAvatar(color, name) {
+    var canvas = document.getElementById("avatarCanvas");
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect ( 0 , 0 , 120 , 60 );
+    var unicode = getUnicodeFromName(name);
+    ctx.font = "60px icxicon";
+    ctx.fillStyle = color;
+    ctx.fillText(String.fromCharCode(unicode), 10, 60);
+    return Events.pub('ui/event',
+        {'profile.avatarUrl': canvas.toDataURL('png')}
+    )
+}
+
+function getUnicodeFromName(name) {
+    var animals = getAnimalCSS();
+    var unicodes = getAnimalUnicodes();
+    var index = animals.indexOf(name);
+    if(index < 0) {
+        return false;
+    } else {
+        return "0x" + unicodes[index];
+    }
 }

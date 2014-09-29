@@ -1352,6 +1352,10 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br /><br />
+                    <canvas id="avatarCanvas" width="120" height="60" style={{border: '1px solid #d3d3d3'}}>
+                    </canvas>
+                    <br />
+
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
@@ -1379,6 +1383,8 @@ var ICXNewUser = React.createClass({
         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
+
+        getAvatar(ICX.newUser.animalColor, ICX.newUser.animalName)
 
         var wizard = puffworldprops.ICX.wizard
 
@@ -1432,6 +1438,7 @@ var ICXNewUser = React.createClass({
         var animal = ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
 
         this.refs.username.getDOMNode().value = adj + color + animal
+        getAvatar(color, animal)
         this.handleUsernameLookup()
 
         return false
@@ -1574,19 +1581,6 @@ var ICXNewUser = React.createClass({
         return false
     },
 
-    handleLoadAvatar: function() {
-        var animal = ICX.newUser.animalName
-        var image = new Image()
-        //image = getAvatar(animal)
-        image.src = 'img/icx/Avatars/avatar.png'
-        //console.log(PBFiles.prepBlob(image, 'image'))
-        // var blob = PBFiles.prepBlob()
-        // return Events.pub('ui/event', {
-        //     'profile.avatarUrl': 
-        // })
-        return false
-    },
-
     handleRegisterName: function() {
 
         this.handleUsernameLookup()
@@ -1597,9 +1591,6 @@ var ICXNewUser = React.createClass({
         if(!puffworldprops.ICX.newUser.passphraseStatus) {
             return false
         }
-
-        this.handleLoadAvatar()
-        return false
 
         // START THINKING
         Events.pub('ui/thinking', {

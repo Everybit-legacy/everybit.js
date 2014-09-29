@@ -39,11 +39,11 @@ var TooltipMixin = {
 }
 /* END ICX MIXINS */
 
-
-
 // MAIN COMPONENT, ROUTES TRAFFIC
 var ICXWorld = React.createClass({
     render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
 
         var currScreen = puffworldprops.view.icx.screen
 
@@ -80,8 +80,6 @@ var ICXWorld = React.createClass({
 
         ICX.currScreen = currScreen
 
-        var w = window.innerWidth
-        var h = window.innerHeight
         var p = w*h
 
         var l = ICX.config.logo.originalW*ICX.config.logo.originalH
@@ -192,7 +190,9 @@ var ICXWorld = React.createClass({
                 height: h,
                 borderLeftWidth: borderWidth,
                 borderLeftColor: thisScreen.color,
-                borderLeftStyle: 'solid'
+                borderLeftStyle: 'solid',
+                maxWidth: w,
+                maxHeight: h
             }
         }
 
@@ -235,8 +235,9 @@ var ICXWorld = React.createClass({
         }
         */
 
+        updateUI()
         return (
-            <div style={screenStyle}>
+            <div style={screenStyle} className="screen">
                 <ICXLogo screenInfo={thisScreen} />
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
@@ -1537,7 +1538,7 @@ var ICXNewUser = React.createClass({
             'ICX.newUser.requestedUsername': username,
             'ICX.newUser.checkingUsername': username,
             'ICX.newUser.usernameMessage': 'Checking...',
-            'ICX.newUser.usernameStatus': 'Busy'
+            'ICX.newUser.usernameStatus': false
         })
 
         prom.then(function(result) {
@@ -2432,7 +2433,7 @@ var ICXSpinner = React.createClass({
     render: function () {
         var spinnerHeight = ICX.calculated.baseFontH*3
 
-        var w = window.innerWidth
+        var w= window.innerWidth
         var h = window.innerHeight
 
         var spinnerTop = Math.floor((h -spinnerHeight)/2)

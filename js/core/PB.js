@@ -394,9 +394,13 @@ PB.promiseError = function(msg) {
  * @return {boolean}
  */
 PB.throwError = function(msg, errmsg) {
+    throw PB.makeError(msg, errmsg)
+}
+
+PB.makeError = function(msg, errmsg) {
     var err = Error(errmsg || msg)
     PB.onError(msg, err)
-    throw err
+    return err
 }
 
 /**

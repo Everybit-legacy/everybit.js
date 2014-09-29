@@ -519,8 +519,9 @@ var ICXInvite = React.createClass({
                     Send someone a link where they can message you: <input type="text" value={userURL} /> <a href={userURL} className="inline" target="_new">Test link</a>
                     <br /><br />
                     <em>Option 2:</em><br />
-                    Send using a shared secret as an initial passphrase. Because this method is lower security,
-                    your friend will be asked to to change their passphrase right away.<br /><br />
+                    Create an account for your friend using the security question and answer below. The answer to your
+                    question will be your friend's initial passphrase. Because this method is lower security,
+                    your friend will be asked to change their passphrase right away.<br /><br />
                     Question:<br />
                     <input type="text" ref="question" />
                     <br />
@@ -536,7 +537,7 @@ var ICXInvite = React.createClass({
                     it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
                     the person you are sending to. That public key has to be created and associated with a username record
                     before the message can be sent. You can get this process started by choosing a shared secret for your
-                    friends initial passphrase.</small>
+                    friend's initial passphrase.</small>
 
                 </div>
             </div>
@@ -679,7 +680,7 @@ var ICXSend = React.createClass({
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
-                <div className="contentWindow">
+
                     To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
@@ -687,7 +688,6 @@ var ICXSend = React.createClass({
                     </span>
                     <span className="message">{puffworldprops.ICX.toUserStatus}</span>
 
-                </div>
 
                 <div className="component">
 
@@ -2515,9 +2515,8 @@ var ICXLogo = React.createClass({
             return (
                 <div key="mainLogo" style={{width: '100%'}}>
                     <div>
-                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
+                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, marginBottom: ICX.calculated.baseFontH+'px', left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
-                    <br />
                     <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>
                         {polyglot.t("header.home")}
                     </div>

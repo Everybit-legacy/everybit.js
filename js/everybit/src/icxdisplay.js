@@ -732,10 +732,6 @@ var ICXSend = React.createClass({
         }
 
         var browser = getBrowser()
-        if( browser == "IE" ) {
-            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-        }
     },
 
 
@@ -2050,7 +2046,7 @@ var ICXDashboard = React.createClass({
     componentDidMount: function() {
         // resetting ICX.wizard here
         var browser = getBrowser()
-        if (browser == "IE" || browser == "Safari") {
+        if (browser == "Safari") {
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download passphrase files or files you have encrypted."
 
@@ -2568,10 +2564,7 @@ var ICXFileConverter = React.createClass({
 
     componentDidMount: function(event){
         var browser = getBrowser()
-        if( browser == "IE" ) {
-            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-        } else if (browser == "Safari") {
+        if (browser == "Safari") {
             ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }

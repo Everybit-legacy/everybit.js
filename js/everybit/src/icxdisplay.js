@@ -2105,10 +2105,10 @@ var ICXDashboard = React.createClass({
             return false
 
         // Only generate if it doesn't already exist
-        if(isEmpty(ICX.identityForFile)) {
+        // if(isEmpty(ICX.identityForFile)) {
 
             ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identityForFile.username = username
             ICX.identityForFile.version = "1.0"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
@@ -2124,12 +2124,12 @@ var ICXDashboard = React.createClass({
                 if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
                     ICX.identityForFile.passphrase =  PB.M.Wardrobe.currentKeys.bonus.passphrase
 
-        }
+        //}
 
-        // Identity file for a freshly registered user does not have the username field fliled in
-        if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
-            ICX.identityForFile.username = username
-        }
+        // Identity file for a freshly registered user does not have the username field filled in
+        // if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
+        //     ICX.identityForFile.username = username
+        // }
 
         return ICX.identityForFile
     },
@@ -2209,12 +2209,9 @@ var ICXChangePassphrase = React.createClass({
     },
 
     handleChangePassphrase: function() {
-        var keysUpdated = 0
-
         var payload = {}
-        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
+        var rootKeyPrivate = PB.M.Wardrobe.getCurrentKeys().root
+        var adminKeyPrivate = PB.M.Wardrobe.getCurrentKeys().admin
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
@@ -2228,29 +2225,42 @@ var ICXChangePassphrase = React.createClass({
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
 
-        var rootKeyPrivate = passphraseToPrivateKeyWif(newKeyRaw)
-        var adminKeyPrivate = rootKeyPrivate
-        var defaultKeyPrivate = rootKeyPrivate
+        var newPrivateKey = passphraseToPrivateKeyWif(newKeyRaw)
+        var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
         var keysToModify = ['rootKey', 'adminKey', 'defaultKey']
 
-        for (var index in keysToModify) {
+        updateKeyHelper(keysToModify)
 
-            var keyToModify = keysToModify[index]
+        function updateKeyHelper(keys) {
+            if(keys.length == 0) {
+
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+                //clear any error messages
+                Events.pub('/ui/icx/error', {
+                    "ICX.errorMessage": false
+                })
+
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
+            }
+
+            var keyToModify = keys.pop()
 
             if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-                if (!rootKey) {
+                if (!rootKeyPrivate) {
                     ICX.errors = "WARNING: You do not have the proper keys set to change this key."
                     Events.pub('ui/thinking', {
                         'ICX.thinking': false
                     })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 } else {
-                    var signingUserKey = rootKey
+                    var signingUserKey = rootKeyPrivate
                     // console.log("request will be signed with root key")
                 }
             } else if (keyToModify == 'defaultKey') {
-                if (!adminKey) {
+                if (!adminKeyPrivate) {
                     Events.pub('ui/thinking', {
                         'ICX.thinking': false
                     })
@@ -2258,17 +2268,13 @@ var ICXChangePassphrase = React.createClass({
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 } else {
-                    var signingUserKey = adminKey
+                    var signingUserKey = adminKeyPrivate
                     // console.log("request will be signed with admin key")
                 }
             }
 
             payload.keyToModify = keyToModify
-
-            var privateKey = passphraseToPrivateKeyWif(newKeyRaw)
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            payload.newKey = publicKey
-
+            payload.newKey = newPublicKey
             payload.time = Date.now()
 
             var puff = PB.buildPuff(ICX.username, signingUserKey, routes, type, content, payload)
@@ -2276,29 +2282,21 @@ var ICXChangePassphrase = React.createClass({
             var prom = PB.Net.updateUserRecord(puff)
 
             prom.then(function (result) {
-                keysUpdated += 1
 
-                console.log('updated ' + keyToModify + ' key so far done ' + keysUpdated)
-
-
-                if (keysUpdated == 3) {
-                    // Stop thinking, redirect
-                    //stop thinking
-
-                    // Store new private keys for the user!
-                    PB.M.Wardrobe.storePrivateKeys(ICX.username, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: newKeyRaw})
-
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    //clear any error messages
-                    Events.pub('/ui/icx/error', {
-                        "ICX.errorMessage": false
-                    })
-
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
-
+                if(keyToModify == 'defaultKey') {
+                    PB.M.Wardrobe.storeDefaultKey(ICX.username, newPrivateKey)
+                    PB.M.Wardrobe.storePrivateBonus(ICX.username, {passphrase: newKeyRaw})
                 }
+
+                if(keyToModify == 'adminKey') {
+                    PB.M.Wardrobe.storeAdminKey(ICX.username, newPrivateKey)
+                }
+
+                if(keyToModify == 'rootKey') {
+                    PB.M.Wardrobe.storeRootKey(ICX.username, newPrivateKey)
+                }
+
+                updateKeyHelper(keys)
 
             })
                 .catch(function (err) {

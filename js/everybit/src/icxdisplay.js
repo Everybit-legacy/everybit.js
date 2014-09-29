@@ -39,11 +39,11 @@ var TooltipMixin = {
 }
 /* END ICX MIXINS */
 
-
-
 // MAIN COMPONENT, ROUTES TRAFFIC
 var ICXWorld = React.createClass({
     render: function () {
+        var w = window.innerWidth
+        var h = window.innerHeight
 
         var currScreen = puffworldprops.view.icx.screen
 
@@ -80,8 +80,6 @@ var ICXWorld = React.createClass({
 
         ICX.currScreen = currScreen
 
-        var w = window.innerWidth
-        var h = window.innerHeight
         var p = w*h
 
         var l = ICX.config.logo.originalW*ICX.config.logo.originalH
@@ -192,7 +190,9 @@ var ICXWorld = React.createClass({
                 height: h,
                 borderLeftWidth: borderWidth,
                 borderLeftColor: thisScreen.color,
-                borderLeftStyle: 'solid'
+                borderLeftStyle: 'solid',
+                maxWidth: w,
+                maxHeight: h
             }
         }
 
@@ -235,8 +235,9 @@ var ICXWorld = React.createClass({
         }
         */
 
+        updateUI()
         return (
-            <div style={screenStyle}>
+            <div style={screenStyle} className="screen">
                 <ICXLogo screenInfo={thisScreen} />
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
@@ -1537,7 +1538,7 @@ var ICXNewUser = React.createClass({
             'ICX.newUser.requestedUsername': username,
             'ICX.newUser.checkingUsername': username,
             'ICX.newUser.usernameMessage': 'Checking...',
-            'ICX.newUser.usernameStatus': 'Busy'
+            'ICX.newUser.usernameStatus': false
         })
 
         prom.then(function(result) {
@@ -1731,7 +1732,7 @@ var ICXLogin = React.createClass({
 
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                     <span className="relative">
-                        <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
+                        <a href="#" onClick={this.handlePassphraseCheck}>
                             <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
                         </a>
                         <Tooltip position='under' content="Verify your passphrase" />
@@ -1798,8 +1799,7 @@ var ICXLogin = React.createClass({
         })
     },
 
-    handlePassphraseCheck: function (keyType) {
-        // Will check against default key
+    handlePassphraseCheck: function () {
         // First convert to private key, then to public, then verify against DHT
 
         var self = this
@@ -1817,7 +1817,7 @@ var ICXLogin = React.createClass({
 
         username = 'icx.' + username
 
-        var passphrase = this.refs[keyType].getDOMNode().value
+        var passphrase = this.refs['defaultKey'].getDOMNode().value
 
         // Check for zero length
         if (!passphrase.length) {
@@ -1828,14 +1828,12 @@ var ICXLogin = React.createClass({
             return false
         }
 
-
         // Convert to private key
         var privateKey = passphraseToPrivateKeyWif(passphrase)
 
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
         if (!publicKey) {
-            //this.state[keyType] = 'Bad key'
             Events.pub('ui/event', {
                 'ICX.defaultKey': 'Bad Key'
             })
@@ -1844,26 +1842,40 @@ var ICXLogin = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function (userInfo) {
-
-            if (publicKey != userInfo[keyType]) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': 'Incorrect key'
-                })
-                return false
-            } else {
+        prom
+            .then(function (userInfo) {
+                var didSomething = false
+            
+                if (publicKey == userInfo['defaultKey']) {
+                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if (publicKey == userInfo['adminKey']) {
+                    PB.M.Wardrobe.storeAdminKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if (publicKey == userInfo['rootKey']) {
+                    PB.M.Wardrobe.storeRootKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if(!didSomething) {
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey': 'Incorrect key'
+                    })
+                    return false
+                } 
+                
                 Events.pub('ui/event', {
                     'ICX.defaultKey': true,
                     'ICX.usernameStatus': true
                 })
 
-                // Add this to wardrobe, set username to current
-                if (keyType == 'defaultKey') {
-                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-                }
-
-                // At least one good key, set this to current user
+                // At least one good key: make current user and add passphrase to wardrobe
                 PB.M.Wardrobe.switchCurrent(username)
+                PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
 
 
                 if(puffworldprops.view.icx.firstLogin) {
@@ -1872,16 +1884,15 @@ var ICXLogin = React.createClass({
 
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
-            }
-        })
+            })
             .catch(function (err) {
                 Events.pub('ui/event', {
                     'ICX.defaultKey': 'Not found'
                 })
                 return false
             })
+            
         return false
-
     },
 
     verifyUsername: function () {
@@ -2614,7 +2625,7 @@ var ICXSpinner = React.createClass({
     render: function () {
         var spinnerHeight = ICX.calculated.baseFontH*3
 
-        var w = window.innerWidth
+        var w= window.innerWidth
         var h = window.innerHeight
 
         var spinnerTop = Math.floor((h -spinnerHeight)/2)

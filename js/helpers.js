@@ -418,6 +418,7 @@ function getAvatar(color, name) {
 function getUnicodeFromName(name) {
     var animals = getAnimalCSS();
     var unicodes = getAnimalUnicodes();
+    console.log(unicodes);
     var index = animals.indexOf(name);
     if(index < 0) {
         return false;

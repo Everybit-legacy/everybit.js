@@ -1369,19 +1369,13 @@ var ICXNewUser = React.createClass({
 
     componentWillMount: function() { // on page load, generate a random username
 
-        ICX.newUser.adjective = PB.Crypto.getRandomItem(ICX.adjectives)
-        ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
-        ICX.newUser.animalColor = PB.Crypto.getRandomItem(ICX.colornames)
-
         return false
     },
 
     componentDidMount: function() {
-        this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
+        this.handleGenerateRandomUsername()
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
-
-        getAvatar(ICX.newUser.animalColor, ICX.newUser.animalName)
 
         var wizard = puffworldprops.ICX.wizard
 
@@ -2877,6 +2871,7 @@ var ICXFooter = React.createClass({
             <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
                 <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
             {polyglot.t("footer.powered")}<a href="http://www.puffball.io" target="_new">puffball.</a>{polyglot.t("footer.content")}
+            <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0}} />
             </div>
         )
     }

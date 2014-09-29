@@ -856,10 +856,19 @@ var ICXSendFile = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
+        var invitedNote = ''
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
+        } else {
+            invitedNote = 'Sending to user ' + puffworldprops.ICX.toUser
+        }
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
+                    {invitedNote}
+                    <br />
                 Your file: <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
@@ -944,6 +953,13 @@ var ICXSendFileFinish = React.createClass({
 
     render: function () {
 
+        var successMessage = '';
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            successMessage = <ICXNotifyEmail />
+        } else {
+            successMessage = puffworldprops.ICX.successMessage
+        }
+
         var polyglot = Translate.language[puffworldprops.view.language]
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -954,7 +970,7 @@ var ICXSendFileFinish = React.createClass({
                 <div style={headerStyle}>{polyglot.t("header.send_file_fin")}</div>
                 <br />
                 <div className="contentWindow">
-                    <div>{puffworldprops.ICX.successMessage}</div>
+                    <div>{successMessage}</div>
                     <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
                 </div>
             </div>
@@ -1210,7 +1226,7 @@ var ICXSendMessageFinish = React.createClass({
     handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
             'ICX.messageSent': true,
-            'ICX.successMessage': 'Message sent!',
+            'ICX.successMessage': 'Message sent!'
         })
 
     },

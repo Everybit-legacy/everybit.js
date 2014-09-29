@@ -1306,7 +1306,7 @@ var ICXNotifyEmail = React.createClass({
         var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
         return (
             <span>Your message has been sent. However, <em>in order for your friend to read it, you need to let them know
-            their username and prompt question</em>. We suggest sending the folloing email to {puffworldprops.ICX.wizard.invitedEmail}:
+            their username and prompt question</em>. We suggest sending the following email to {puffworldprops.ICX.wizard.invitedEmail}:
             <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
             </span>
         )
@@ -2215,16 +2215,22 @@ var ICXChangePassphrase = React.createClass({
 
             if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
                 if (!rootKey) {
-                    ICX.errors = "WARNING: You must first set your root key before modifying root or admin keys."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    ICX.errors = "WARNING: You do not have the proper keys set to change this key."
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 } else {
                     var signingUserKey = rootKey
                     // console.log("request will be signed with root key")
                 }
             } else if (keyToModify == 'defaultKey') {
                 if (!adminKey) {
-                    ICX.errors = "WARNING: You must first set your admin key before modifying default keys."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    ICX.errors = "WARNING: You do not have the proper keys set to change your default key."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 } else {
                     var signingUserKey = adminKey
@@ -2294,10 +2300,15 @@ var ICXChangePassphraseFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Change passphrase for {username}</div><br />
                 <div className="contentWindow">
-                Success! Make sure to save your new passphrase. Download identity file.
+                Success! Make sure to save your new passphrase. You can download your passphrase in an identity file and
+                make other changes on your <a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
                 </div>
             </div>
             )
+    },
+
+    handleGoToDashboard: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
     }
 
 })

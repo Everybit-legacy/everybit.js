@@ -1732,7 +1732,7 @@ var ICXLogin = React.createClass({
 
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
                     <span className="relative">
-                        <a href="#" onClick={this.handlePassphraseCheck.bind(this, 'defaultKey')}>
+                        <a href="#" onClick={this.handlePassphraseCheck}>
                             <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
                         </a>
                         <Tooltip position='under' content="Verify your passphrase" />
@@ -1799,8 +1799,7 @@ var ICXLogin = React.createClass({
         })
     },
 
-    handlePassphraseCheck: function (keyType) {
-        // Will check against default key
+    handlePassphraseCheck: function () {
         // First convert to private key, then to public, then verify against DHT
 
         var self = this
@@ -1818,7 +1817,7 @@ var ICXLogin = React.createClass({
 
         username = 'icx.' + username
 
-        var passphrase = this.refs[keyType].getDOMNode().value
+        var passphrase = this.refs['defaultKey'].getDOMNode().value
 
         // Check for zero length
         if (!passphrase.length) {
@@ -1829,14 +1828,12 @@ var ICXLogin = React.createClass({
             return false
         }
 
-
         // Convert to private key
         var privateKey = passphraseToPrivateKeyWif(passphrase)
 
         // Convert to public key
         var publicKey = PB.Crypto.privateToPublic(privateKey)
         if (!publicKey) {
-            //this.state[keyType] = 'Bad key'
             Events.pub('ui/event', {
                 'ICX.defaultKey': 'Bad Key'
             })
@@ -1845,39 +1842,52 @@ var ICXLogin = React.createClass({
 
         var prom = PB.getUserRecord(username)
 
-        prom.then(function (userInfo) {
-
-            if (publicKey != userInfo[keyType]) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': 'Incorrect key'
-                })
-                return false
-            } else {
+        prom
+            .then(function (userInfo) {
+                var didSomething = false
+            
+                if (publicKey == userInfo['defaultKey']) {
+                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if (publicKey == userInfo['adminKey']) {
+                    PB.M.Wardrobe.storeAdminKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if (publicKey == userInfo['rootKey']) {
+                    PB.M.Wardrobe.storeRootKey(username, privateKey)
+                    didSomething = true
+                }
+            
+                if(!didSomething) {
+                    Events.pub('ui/event', {
+                        'ICX.defaultKey': 'Incorrect key'
+                    })
+                    return false
+                } 
+                
                 Events.pub('ui/event', {
                     'ICX.defaultKey': true,
                     'ICX.usernameStatus': true
                 })
 
-                // Add this to wardrobe, set username to current
-                if (keyType == 'defaultKey') {
-                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-                }
-
-                // At least one good key, set this to current user
+                // At least one good key: make current user and add passphrase to wardrobe
                 PB.M.Wardrobe.switchCurrent(username)
+                PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
 
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
-            }
-        })
+            })
             .catch(function (err) {
                 Events.pub('ui/event', {
                     'ICX.defaultKey': 'Not found'
                 })
                 return false
             })
+            
         return false
-
     },
 
     verifyUsername: function () {

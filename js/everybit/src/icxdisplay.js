@@ -165,9 +165,9 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'store.finish', button:false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba('+c3+', '+op2+')'},
             {position: 0, name: 'init',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: '', component: ICXInit, backgroundColor: 'rgba(255,  255, 255, .0)'},
             {position: 0, name: 'indepth', button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXIndepth, backgroundColor: 'rgba('+c4+', '+op2+')'},
-            {position: 0, name: 'invite', button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Invite someone to join icx', component: ICXInvite, backgroundColor: 'rgba('+c2+', '+op2+')'}
-
-
+            {position: 0, name: 'invite', button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Invite someone to join icx', component: ICXInvite, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'changepassphrase', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphrase, backgroundColor: 'rgba('+c1+', '+op2+')'},
+            {position: 0, name: 'changepassphrase.finish', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphraseFinish, backgroundColor: 'rgba('+c1+', '+op2+')'}
         ]
 
         var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
@@ -2004,6 +2004,13 @@ var ICXDashboard = React.createClass({
                         {polyglot.t("dashboard.download_id")}
                     </a>
                     <br /><br />
+                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'changepassphrase')}>
+                        <i className="fa fa-fw fa-gears" />
+                        {' '}Change your passphrase
+                    </a>
+
+                    <br /><br />
+
                     <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
@@ -2011,6 +2018,8 @@ var ICXDashboard = React.createClass({
                         {polyglot.t("dashboard.filesys")}
                     </a>
                     <br /><br />
+
+
 
 
                     <a href="#" className="inline" onClick={this.handleSignOut}>
@@ -2131,6 +2140,150 @@ var ICXDashboard = React.createClass({
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     }
+})
+
+
+var ICXChangePassphrase = React.createClass({
+
+
+    render: function () {
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+        ICX.buttonStyle.background = headerStyle.backgroundColor
+
+        var username = ICX.username
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Change passphrase for {username}</div><br />
+                <div className="contentWindow">
+                    New passphrase: <input type="text" ref="passphrase" />
+                    <br /><br />
+                    <button style={ICX.buttonStyle} onClick={this.handleChangePassphrase}>Make change <i className="fa fa-chevron-right" /></button>
+
+                </div>
+            </div>
+        )
+    },
+
+    handleChangePassphrase: function() {
+        var keysUpdated = 0
+
+        var payload = {}
+        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
+        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
+        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
+        var routes = []
+        var type = 'updateUserRecord'
+        var content = 'modifyUserKey'
+
+
+        Events.pub('ui/thinking', {
+            'ICX.thinking': true
+        })
+        updateUI();
+
+
+        var newKeyRaw = this.refs.passphrase.getDOMNode().value
+
+        var rootKeyPrivate = passphraseToPrivateKeyWif(newKeyRaw)
+        var adminKeyPrivate = rootKeyPrivate
+        var defaultKeyPrivate = rootKeyPrivate
+
+        var keysToModify = ['rootKey', 'adminKey', 'defaultKey']
+
+        for (var index in keysToModify) {
+
+            var keyToModify = keysToModify[index]
+
+            if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
+                if (!rootKey) {
+                    ICX.errors = "WARNING: You must first set your root key before modifying root or admin keys."
+                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                } else {
+                    var signingUserKey = rootKey
+                    // console.log("request will be signed with root key")
+                }
+            } else if (keyToModify == 'defaultKey') {
+                if (!adminKey) {
+                    ICX.errors = "WARNING: You must first set your admin key before modifying default keys."
+                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                } else {
+                    var signingUserKey = adminKey
+                    // console.log("request will be signed with admin key")
+                }
+            }
+
+            payload.keyToModify = keyToModify
+
+            var privateKey = passphraseToPrivateKeyWif(newKeyRaw)
+            var publicKey = PB.Crypto.privateToPublic(privateKey)
+            payload.newKey = publicKey
+
+            payload.time = Date.now()
+
+            var puff = PB.buildPuff(ICX.username, signingUserKey, routes, type, content, payload)
+
+            var prom = PB.Net.updateUserRecord(puff)
+
+            prom.then(function (result) {
+                keysUpdated += 1
+
+                console.log('updated ' + keyToModify + ' key so far done ' + keysUpdated)
+
+
+                if (keysUpdated == 3) {
+                    // Stop thinking, redirect
+                    //stop thinking
+
+                    // Store new private keys for the user!
+                    PB.M.Wardrobe.storePrivateKeys(ICX.username, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: newKeyRaw})
+
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    //clear any error messages
+                    Events.pub('/ui/icx/error', {
+                        "ICX.errorMessage": false
+                    })
+
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
+
+                }
+
+            })
+                .catch(function (err) {
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    // console.log(puff)
+                    ICX.errors = "FAILED " + err
+                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                })
+        }
+    }
+
+})
+
+
+var ICXChangePassphraseFinish = React.createClass({
+    render: function () {
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+        var username = ICX.username
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>Change passphrase for {username}</div><br />
+                <div className="contentWindow">
+                Success! Make sure to save your new passphrase. Download identity file.
+                </div>
+            </div>
+            )
+    }
+
 })
 
 var ICXTableView = React.createClass({
@@ -2776,7 +2929,7 @@ var ICXNextButton = React.createClass({
         if(this.props.enabled) {
             ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
-            return <button style={ICX.buttonStyle} onClick={this.handleNext} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
+            return <button style={ICX.buttonStyle} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
             ICX.buttonStyle.backgroundColor = 'rgba(0, 3, 82, .1)' //

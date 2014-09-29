@@ -444,15 +444,21 @@ PB.Net.xhr = function(url, options, data) {
             req.responseType = options.type;
                 
         req.onload = function() {
-            if (req.status == 200) // silly safari
-                resolve( (req.responseType != options.type) // THINK: JSON.parse throws on invalid JSON
-                      && options.type == 'json' ? JSON.parse(req.response) : req.response);
-            else 
-                reject(Error(req.statusText));
+            if(req.status != 200) // silly safari
+                return reject(PB.makeError(req.statusText));
+            
+            try {
+                var x = req.responseText
+            } catch (err) {
+                return reject(PB.makeError("Error in response", err));
+            }
+            
+            resolve( (req.responseType != options.type) // manually convert json for old browsers
+                  && options.type == 'json' ? PB.parseJSON(req.response) : req.response);
         };
 
         req.onerror = function() {
-            reject(Error("Network Error"));
+            reject(PB.makeError("Network Error"));
         };
 
         req.send(formdata);

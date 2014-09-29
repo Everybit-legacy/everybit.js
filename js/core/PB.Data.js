@@ -403,12 +403,12 @@ PB.Data.getCurrentDecryptedShells = function() {
 
 PB.Data.importPrivateShells = function(username) {    
     // Race condition while toggling identities?
-    
-    var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
-    promFromMe.then(PB.Data.addPrivateShells)
 
     var promForMe = PB.Net.getPrivatePuffsForMe(username) 
     promForMe.then(PB.Data.addPrivateShells)
+    
+    var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
+    promFromMe.then(PB.Data.addPrivateShells)
 }
 
 PB.Data.clearExistingPrivateShells = function() {

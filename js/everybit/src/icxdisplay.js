@@ -1303,7 +1303,7 @@ var ICXSendMessageFinish = React.createClass({
 
 var ICXNotifyEmail = React.createClass({
     render: function () {
-        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
+        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login&icx.firstLogin=true and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
         return (
             <span>Your message has been sent. However, <em>in order for your friend to read it, you need to let them know
             their username and prompt question</em>. We suggest sending the following email to {puffworldprops.ICX.wizard.invitedEmail}:
@@ -1865,6 +1865,11 @@ var ICXLogin = React.createClass({
                 // At least one good key, set this to current user
                 PB.M.Wardrobe.switchCurrent(username)
 
+
+                if(puffworldprops.view.icx.firstLogin) {
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
+                }
+
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
             }
@@ -2053,12 +2058,15 @@ var ICXDashboard = React.createClass({
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download passphrase files or files you have encrypted."
 
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
             'ICX.nextStatus': false
         })
+
+
+
     },
 
     handleUploadAvatar: function() {
@@ -2164,6 +2172,11 @@ var ICXChangePassphrase = React.createClass({
 
     render: function () {
 
+        var mustChangeMsg = ''
+        if(puffworldprops.view.icx.firstLogin) {
+            var mustChangeMsg = <div>This appears to be your first login, using a shared secret. If you have not already done so, please change your passphrase right away</div>
+        }
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
@@ -2173,6 +2186,7 @@ var ICXChangePassphrase = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Change passphrase for {username}</div><br />
+                {mustChangeMsg}
                 <div className="contentWindow">
                     New passphrase: <input type="text" ref="passphrase" />
                     <br /><br />
@@ -2309,6 +2323,10 @@ var ICXChangePassphraseFinish = React.createClass({
 
     handleGoToDashboard: function() {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+    },
+
+    componentDidMount: function() {
+        // TODO clear firstLogin from puffworldprops.view.icx
     }
 
 })

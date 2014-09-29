@@ -1558,6 +1558,19 @@ var ICXNewUser = React.createClass({
         return false
     },
 
+    handleLoadAvatar: function() {
+        var animal = ICX.newUser.animalName
+        var image = new Image()
+        //image = getAvatar(animal)
+        image.src = 'img/icx/Avatars/avatar.png'
+        //console.log(PBFiles.prepBlob(image, 'image'))
+        // var blob = PBFiles.prepBlob()
+        // return Events.pub('ui/event', {
+        //     'profile.avatarUrl': 
+        // })
+        return false
+    },
+
     handleRegisterName: function() {
 
         this.handleUsernameLookup()
@@ -1568,6 +1581,9 @@ var ICXNewUser = React.createClass({
         if(!puffworldprops.ICX.newUser.passphraseStatus) {
             return false
         }
+
+        this.handleLoadAvatar()
+        return false
 
         // START THINKING
         Events.pub('ui/thinking', {

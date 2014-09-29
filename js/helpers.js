@@ -327,6 +327,12 @@ function generateRandomAnimal() {
 
 }
 
+// function getAnimal(name) {
+//     var image = new Image()
+//     image.src = "icx/avatar" + name + ".png"
+//     return image;
+// }
+
 // Basic check to see if something has the form of an email address:
 // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
 function looksLikeEmailAddress(str) {

@@ -1353,6 +1353,10 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br /><br />
+                    <canvas id="avatarCanvas" width="120" height="60" style={{border: '1px solid #d3d3d3'}}>
+                    </canvas>
+                    <br />
+
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
@@ -1380,6 +1384,8 @@ var ICXNewUser = React.createClass({
         this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
+
+        getAvatar(ICX.newUser.animalColor, ICX.newUser.animalName)
 
         var wizard = puffworldprops.ICX.wizard
 
@@ -1433,6 +1439,7 @@ var ICXNewUser = React.createClass({
         var animal = ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
 
         this.refs.username.getDOMNode().value = adj + color + animal
+        getAvatar(color, animal)
         this.handleUsernameLookup()
 
         return false

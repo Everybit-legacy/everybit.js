@@ -732,10 +732,6 @@ var ICXSend = React.createClass({
         }
 
         var browser = getBrowser()
-        if( browser == "IE" ) {
-            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-        }
     },
 
 
@@ -1304,10 +1300,10 @@ var ICXSendMessageFinish = React.createClass({
 
 var ICXNotifyEmail = React.createClass({
     render: function () {
-        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
+        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login&icx.firstLogin=true and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
         return (
             <span>Your message has been sent. However, <em>in order for your friend to read it, you need to let them know
-            their username and prompt question</em>. We suggest sending the folloing email to {puffworldprops.ICX.wizard.invitedEmail}:
+            their username and prompt question</em>. We suggest sending the following email to {puffworldprops.ICX.wizard.invitedEmail}:
             <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
             </span>
         )
@@ -1353,6 +1349,10 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br /><br />
+                    <canvas id="avatarCanvas" width="120" height="60" style={{border: '1px solid #d3d3d3'}}>
+                    </canvas>
+                    <br />
+
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
@@ -1369,15 +1369,11 @@ var ICXNewUser = React.createClass({
 
     componentWillMount: function() { // on page load, generate a random username
 
-        ICX.newUser.adjective = PB.Crypto.getRandomItem(ICX.adjectives)
-        ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
-        ICX.newUser.animalColor = PB.Crypto.getRandomItem(ICX.colornames)
-
         return false
     },
 
     componentDidMount: function() {
-        this.refs.username.getDOMNode().value = ICX.newUser.adjective + ICX.newUser.animalColor + ICX.newUser.animalName
+        this.handleGenerateRandomUsername()
         this.handleUsernameLookup()
         this.handleGenerateRandomPassphrase()
 
@@ -1433,6 +1429,7 @@ var ICXNewUser = React.createClass({
         var animal = ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
 
         this.refs.username.getDOMNode().value = adj + color + animal
+        getAvatar(color, animal)
         this.handleUsernameLookup()
 
         return false
@@ -1877,6 +1874,11 @@ var ICXLogin = React.createClass({
                 PB.M.Wardrobe.switchCurrent(username)
                 PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
 
+
+                if(puffworldprops.view.icx.firstLogin) {
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
+                }
+
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
             })
@@ -2060,16 +2062,19 @@ var ICXDashboard = React.createClass({
     componentDidMount: function() {
         // resetting ICX.wizard here
         var browser = getBrowser()
-        if (browser == "IE" || browser == "Safari") {
+        if (browser == "Safari") {
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download passphrase files or files you have encrypted."
 
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
             'ICX.nextStatus': false
         })
+
+
+
     },
 
     handleUploadAvatar: function() {
@@ -2097,10 +2102,10 @@ var ICXDashboard = React.createClass({
             return false
 
         // Only generate if it doesn't already exist
-        if(isEmpty(ICX.identityForFile)) {
+        // if(isEmpty(ICX.identityForFile)) {
 
             ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identityForFile.username = username
             ICX.identityForFile.version = "1.0"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
@@ -2116,12 +2121,12 @@ var ICXDashboard = React.createClass({
                 if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
                     ICX.identityForFile.passphrase =  PB.M.Wardrobe.currentKeys.bonus.passphrase
 
-        }
+        //}
 
-        // Identity file for a freshly registered user does not have the username field fliled in
-        if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
-            ICX.identityForFile.username = username
-        }
+        // Identity file for a freshly registered user does not have the username field filled in
+        // if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
+        //     ICX.identityForFile.username = username
+        // }
 
         return ICX.identityForFile
     },
@@ -2175,6 +2180,11 @@ var ICXChangePassphrase = React.createClass({
 
     render: function () {
 
+        var mustChangeMsg = ''
+        if(puffworldprops.view.icx.firstLogin) {
+            var mustChangeMsg = <div>This appears to be your first login, using a shared secret. If you have not already done so, please change your passphrase right away</div>
+        }
+
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
@@ -2184,6 +2194,7 @@ var ICXChangePassphrase = React.createClass({
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Change passphrase for {username}</div><br />
+                {mustChangeMsg}
                 <div className="contentWindow">
                     New passphrase: <input type="text" ref="passphrase" />
                     <br /><br />
@@ -2195,12 +2206,9 @@ var ICXChangePassphrase = React.createClass({
     },
 
     handleChangePassphrase: function() {
-        var keysUpdated = 0
-
         var payload = {}
-        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
+        var rootKeyPrivate = PB.M.Wardrobe.getCurrentKeys().root
+        var adminKeyPrivate = PB.M.Wardrobe.getCurrentKeys().admin
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
@@ -2214,41 +2222,56 @@ var ICXChangePassphrase = React.createClass({
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
 
-        var rootKeyPrivate = passphraseToPrivateKeyWif(newKeyRaw)
-        var adminKeyPrivate = rootKeyPrivate
-        var defaultKeyPrivate = rootKeyPrivate
+        var newPrivateKey = passphraseToPrivateKeyWif(newKeyRaw)
+        var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
         var keysToModify = ['rootKey', 'adminKey', 'defaultKey']
 
-        for (var index in keysToModify) {
+        updateKeyHelper(keysToModify)
 
-            var keyToModify = keysToModify[index]
+        function updateKeyHelper(keys) {
+            if(keys.length == 0) {
+
+                Events.pub('ui/thinking', {
+                    'ICX.thinking': false
+                })
+                //clear any error messages
+                Events.pub('/ui/icx/error', {
+                    "ICX.errorMessage": false
+                })
+
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
+            }
+
+            var keyToModify = keys.pop()
 
             if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-                if (!rootKey) {
-                    ICX.errors = "WARNING: You must first set your root key before modifying root or admin keys."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                if (!rootKeyPrivate) {
+                    ICX.errors = "WARNING: You do not have the proper keys set to change this key."
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 } else {
-                    var signingUserKey = rootKey
+                    var signingUserKey = rootKeyPrivate
                     // console.log("request will be signed with root key")
                 }
             } else if (keyToModify == 'defaultKey') {
-                if (!adminKey) {
-                    ICX.errors = "WARNING: You must first set your admin key before modifying default keys."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                if (!adminKeyPrivate) {
+                    Events.pub('ui/thinking', {
+                        'ICX.thinking': false
+                    })
+                    ICX.errors = "WARNING: You do not have the proper keys set to change your default key."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 } else {
-                    var signingUserKey = adminKey
+                    var signingUserKey = adminKeyPrivate
                     // console.log("request will be signed with admin key")
                 }
             }
 
             payload.keyToModify = keyToModify
-
-            var privateKey = passphraseToPrivateKeyWif(newKeyRaw)
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            payload.newKey = publicKey
-
+            payload.newKey = newPublicKey
             payload.time = Date.now()
 
             var puff = PB.buildPuff(ICX.username, signingUserKey, routes, type, content, payload)
@@ -2256,29 +2279,21 @@ var ICXChangePassphrase = React.createClass({
             var prom = PB.Net.updateUserRecord(puff)
 
             prom.then(function (result) {
-                keysUpdated += 1
 
-                console.log('updated ' + keyToModify + ' key so far done ' + keysUpdated)
-
-
-                if (keysUpdated == 3) {
-                    // Stop thinking, redirect
-                    //stop thinking
-
-                    // Store new private keys for the user!
-                    PB.M.Wardrobe.storePrivateKeys(ICX.username, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: newKeyRaw})
-
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    //clear any error messages
-                    Events.pub('/ui/icx/error', {
-                        "ICX.errorMessage": false
-                    })
-
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
-
+                if(keyToModify == 'defaultKey') {
+                    PB.M.Wardrobe.storeDefaultKey(ICX.username, newPrivateKey)
+                    PB.M.Wardrobe.storePrivateBonus(ICX.username, {passphrase: newKeyRaw})
                 }
+
+                if(keyToModify == 'adminKey') {
+                    PB.M.Wardrobe.storeAdminKey(ICX.username, newPrivateKey)
+                }
+
+                if(keyToModify == 'rootKey') {
+                    PB.M.Wardrobe.storeRootKey(ICX.username, newPrivateKey)
+                }
+
+                updateKeyHelper(keys)
 
             })
                 .catch(function (err) {
@@ -2305,10 +2320,19 @@ var ICXChangePassphraseFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>Change passphrase for {username}</div><br />
                 <div className="contentWindow">
-                Success! Make sure to save your new passphrase. Download identity file.
+                Success! Make sure to save your new passphrase. You can download your passphrase in an identity file and
+                make other changes on your <a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
                 </div>
             </div>
             )
+    },
+
+    handleGoToDashboard: function() {
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'});
+    },
+
+    componentDidMount: function() {
+        // TODO clear firstLogin from puffworldprops.view.icx
     }
 
 })
@@ -2578,10 +2602,7 @@ var ICXFileConverter = React.createClass({
 
     componentDidMount: function(event){
         var browser = getBrowser()
-        if( browser == "IE" ) {
-            ICX.errors = "WARNING: Your web browser does not properly support encryption. Please switch to Firefox or Chrome."
-            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-        } else if (browser == "Safari") {
+        if (browser == "Safari") {
             ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -2850,6 +2871,7 @@ var ICXFooter = React.createClass({
             <div style={{position: 'absolute', verticalAlign: 'text-top', fontSize: fontSize+'px', left: footerX, bottom: footerY+'px' }}>
                 <img style={{display: 'inline', width: puffballW+'px', height: puffballH+'px'}} src="img/blueAnimated.gif" />
             {polyglot.t("footer.powered")}<a href="http://www.puffball.io" target="_new">puffball.</a>{polyglot.t("footer.content")}
+            <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0}} />
             </div>
         )
     }

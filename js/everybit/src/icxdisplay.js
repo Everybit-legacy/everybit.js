@@ -61,8 +61,13 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.M.Wardrobe.currentKeys) {
+        if(PB.M.Wardrobe.getCurrentKeys()) {
             ICX.username = PB.M.Wardrobe.getCurrentUsername()
+            //prevent them from getting to newuser page if they are logged in
+            if (currScreen == 'newuser') {
+                currScreen = 'home'
+                Events.pub('/ui/icx/screen',{"view.icx.screen":'dashboard'})
+            }
         } else {
             ICX.username = false
         }
@@ -167,6 +172,13 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'changepassphrase', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphrase, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'changepassphrase.finish', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphraseFinish, backgroundColor: 'rgba('+c1+', '+op2+')'}
         ]
+
+        //gracefully deal with invalid screen input
+        var screenNames = ICX.screens.map(function(screen) {return screen.name})
+        if (screenNames.indexOf(currScreen) < 0) {
+            currScreen = 'home'
+            Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+        }
 
         var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
 
@@ -1367,11 +1379,6 @@ var ICXNewUser = React.createClass({
      </div>
      */
 
-    componentWillMount: function() { // on page load, generate a random username
-
-        return false
-    },
-
     componentDidMount: function() {
         this.handleGenerateRandomUsername()
         this.handleUsernameLookup()
@@ -1710,10 +1717,19 @@ var ICXLogin = React.createClass({
                 <div style={headerStyle}>{polyglot.t("header.login")}</div>
 
                 <div className="component">
-
+                    <div className="relative">
+                        {polyglot.t("login.id_file")}<sup>&#63;</sup>
+                        <Tooltip content="Authenticate with this browser using your private identity file" />
+                    </div>
+                    <br />
+                    <span style={ICX.buttonStyle} className="buttonSpan">
+                        <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
+                    </span>
+                    <br /><br />
+                    <i><em>{polyglot.t("login.or")}</em></i>
+                    <br /><br />
                     <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
-                .icx.
-                    <form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue={currUser} style={{size: 16}} onChange={this.verifyUsername} /></form>
+                    <input type="text" name="username" ref="username" defaultValue='' style={{size: 16}} onChange={this.verifyUsername} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
@@ -1728,39 +1744,24 @@ var ICXLogin = React.createClass({
 
 
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
-                    <span className="relative">
-                        <a href="#" onClick={this.handlePassphraseCheck}>
-                            <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
-                        </a>
-                        <Tooltip position='under' content="Verify your passphrase" />
-                    </span>
+                    <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
 
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
-                    <br /><br />
-                    <i><em>{polyglot.t("login.or")}</em></i>
-                    <br /><br />
-                    <div className="relative">
-                        {polyglot.t("login.id_file")}<sup>&#63;</sup>
-                        <Tooltip content="Authenticate with this browser using your private identity file" />
-                    </div>
-
                     <br />
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
-                    </span>
-
+                    <button style={ICX.buttonStyle} onClick={this.handleLogin}>Authenticate<i className="fa fa-chevron-right" /></button>
                 </div>
             </div>
             )
     },
 
-    handleSubmit: function (e) {
-        e.preventDefault()
-        this.handleUsernameLookup()
-        return false
-    },
+    // handleSubmit: function (e) {
+    //     e.preventDefault()
+    //     this.handleUsernameLookup()
+    //     return false
+    // },
 
     handleUsernameLookup: function () {
+        console.log("usernamelookup\n")
         var username = this.refs.username.getDOMNode().value
         var self = this
 
@@ -1771,8 +1772,6 @@ var ICXLogin = React.createClass({
             })
             return false
         }
-
-        username = 'icx.' + username
 
         var prom = PB.getUserRecord(username)
 
@@ -1796,103 +1795,8 @@ var ICXLogin = React.createClass({
         })
     },
 
-    handlePassphraseCheck: function () {
-        // First convert to private key, then to public, then verify against DHT
-
-        var self = this
-
-        var username = this.refs.username.getDOMNode().value
-
-        // Check for zero length
-        if (!username.length) {
-
-            Events.pub('ui/event', {
-                'ICX.usernameStatus': 'Missing'
-            })
-            return false
-        }
-
-        username = 'icx.' + username
-
-        var passphrase = this.refs['defaultKey'].getDOMNode().value
-
-        // Check for zero length
-        if (!passphrase.length) {
-
-            Events.pub('ui/event', {
-                'ICX.defaultKey': 'Missing'
-            })
-            return false
-        }
-
-        // Convert to private key
-        var privateKey = passphraseToPrivateKeyWif(passphrase)
-
-        // Convert to public key
-        var publicKey = PB.Crypto.privateToPublic(privateKey)
-        if (!publicKey) {
-            Events.pub('ui/event', {
-                'ICX.defaultKey': 'Bad Key'
-            })
-            return false
-        }
-
-        var prom = PB.getUserRecord(username)
-
-        prom
-            .then(function (userInfo) {
-                var didSomething = false
-            
-                if (publicKey == userInfo['defaultKey']) {
-                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-                    didSomething = true
-                }
-            
-                if (publicKey == userInfo['adminKey']) {
-                    PB.M.Wardrobe.storeAdminKey(username, privateKey)
-                    didSomething = true
-                }
-            
-                if (publicKey == userInfo['rootKey']) {
-                    PB.M.Wardrobe.storeRootKey(username, privateKey)
-                    didSomething = true
-                }
-            
-                if(!didSomething) {
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey': 'Incorrect key'
-                    })
-                    return false
-                } 
-                
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': true,
-                    'ICX.usernameStatus': true
-                })
-
-                // At least one good key: make current user and add passphrase to wardrobe
-                PB.M.Wardrobe.switchCurrent(username)
-                PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
-
-
-                if(puffworldprops.view.icx.firstLogin) {
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
-                }
-
-                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
-                return false
-            })
-            .catch(function (err) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': 'Not found'
-                })
-                return false
-            })
-            
-        return false
-    },
-
     verifyUsername: function () {
+        console.log("verifyusername\n")
         var username = this.refs.username.getDOMNode().value
         var finalChar = username.charAt(username.length-1)
         username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
@@ -1908,6 +1812,7 @@ var ICXLogin = React.createClass({
     },
 
     handleResetCheckboxes: function () {
+        console.log("resetcheckbox\n")
         Events.pub('ui/event', {
             'ICX.usernameStatus': false,
             'ICX.defaultKey': false
@@ -1915,13 +1820,12 @@ var ICXLogin = React.createClass({
     },
 
     handleLoginWithFile: function(event) {
-
-        var fileprom = PBFiles.openTextFile(event.target)
+        fileprom = PBFiles.openTextFile(event.target)
         fileprom.then(function(content) {
 
             // Try and parse, if can't return error
             try {
-                var identityObj = JSON.parse(content);
+                var identityObj = JSON.parse(content)
             } catch (e) {
                 console.log('failed')
                 // TODO: return an error here
@@ -1936,19 +1840,16 @@ var ICXLogin = React.createClass({
             if(identityObj.passphrase) {
                 var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
             } else if(identityObj.defaultKeyPrivate) {
-                 var privateKey = identityObj.defaultKeyPrivate;
+                 var privateKey = identityObj.defaultKeyPrivate
             } else {
                 // TODO: Send to error box
                 // console.log("Missing info");
                 /// console.log(identityObj)
-                return PB.onError("Missing info");
+                return PB.onError("Missing info")
             }
-
-
             // Convert to public key
             var publicKey = PB.Crypto.privateToPublic(privateKey)
             if (!publicKey) {
-                console.log('bad key')
                 Events.pub('ui/event', {
                     'ICX.defaultKey':'Bad key'
                 })
@@ -1989,6 +1890,96 @@ var ICXLogin = React.createClass({
                 })
             return false
         })
+
+        return false
+    },
+
+    handleLogin: function() {
+        // First convert to private key, then to public, then verify against DHT
+        var self = this
+
+        // Check for zero length
+        var username = this.refs.username.getDOMNode().value
+        if (!username.length) {
+
+            Events.pub('ui/event', {
+                'ICX.usernameStatus': 'Missing'
+            })
+            return false
+        }
+
+        // Check for zero length
+        var passphrase = this.refs['defaultKey'].getDOMNode().value
+        if (!passphrase.length) {
+
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Missing'
+            })
+            return false
+        }
+
+        // Convert passphrase to private key
+        var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+        // Convert private key to public key
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
+        if (!publicKey) {
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Bad Key'
+            })
+            return false
+        }
+
+        var prom = PB.getUserRecord(username)
+
+        prom.then(function (userInfo) {
+            var didSomething = false
+        
+            if (publicKey == userInfo['defaultKey']) {
+                PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+                didSomething = true
+            }
+        
+            if (publicKey == userInfo['adminKey']) {
+                PB.M.Wardrobe.storeAdminKey(username, privateKey)
+                didSomething = true
+            }
+        
+            if (publicKey == userInfo['rootKey']) {
+                PB.M.Wardrobe.storeRootKey(username, privateKey)
+                didSomething = true
+            }
+        
+            if(!didSomething) {
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': 'Incorrect'
+                })
+                return false
+            } 
+            
+            Events.pub('ui/event', {
+                'ICX.defaultKey': true,
+                'ICX.usernameStatus': true
+            })
+
+            // At least one good key: make current user and add passphrase to wardrobe
+            PB.M.Wardrobe.switchCurrent(username)
+            PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
+
+
+            if(puffworldprops.view.icx.firstLogin) {
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
+            }
+
+            Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
+            return false
+        }).catch(function (err) {
+            Events.pub('ui/event', {
+                'ICX.defaultKey': 'Not found'
+            })
+            return false
+        })
+        return false
     }
 })
 
@@ -2144,7 +2135,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleDownloadIdentityFile: function() {
-        var content = JSON.stringify(this.handleGenerateIdentityFile())
+        var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
 
         var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
 

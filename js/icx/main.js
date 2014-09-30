@@ -363,7 +363,8 @@ function handleImportRedirect() {
 }
 
 function setURLfromViewProps() {
-    var viewprops = Boron.shallow_copy(puffworldprops.view)    
+    var diff = Boron.deep_diff(puffworlddefaults.view, puffworldprops.view)
+    var viewprops = Boron.shallow_copy(diff)
     setURL(viewprops)
 }
 

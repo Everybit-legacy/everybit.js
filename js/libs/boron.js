@@ -55,6 +55,37 @@ Boron.shallow_copy = function(obj) {
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
 }
 
+Boron.shallow_diff = function(oldObj, newObj) { // results come from newObj
+    return Object.keys(oldObj).reduce(function(acc, key) {
+        if(JSON.stringify(oldObj[key]) != JSON.stringify(newObj[key]))
+            acc[key] = newObj[key] // this pointer copies deep data
+        return acc
+    }, oldObj.constructor())
+}
+
+Boron.deep_diff = function(oldObj, newObj) { // results come from newObj
+    return Object.keys(oldObj).reduce(function(acc, key) {
+        var oldtype = typeof oldObj[key]
+        var newtype = typeof newObj[key]
+        
+        if(oldtype != newtype) {
+            acc[key] = newObj[key]
+            return acc
+        }
+        
+        if(oldtype == 'object') {
+            var diff = Boron.deep_diff(oldObj[key], newObj[key])
+            if(Object.keys(diff).length)
+                acc[key] = newObj[key]
+            return acc
+        }
+        
+        if(oldObj[key] !== newObj[key])
+            acc[key] = newObj[key]
+        return acc
+    }, oldObj.constructor())
+}
+
 Boron.flatten = function(obj, prefix) {
     /// convert {fun: {yay: 123}} into {'fun.yay': 123}
     

@@ -349,7 +349,12 @@ function getAnimalUnicodes() {
 
 
                 if( splitResult[0] == '.icon') {
-                    unicodes[i] = animalCSS[k].style.cssText.slice(-3,-2).charCodeAt(0).toString(16);
+                    // Safari wraps quotes around the unicode character
+                    if (getBrowser() == "Safari") {
+                        unicodes[i] = animalCSS[k].style.cssText.slice(-2,-1).charCodeAt(0).toString(16);
+                    } else {
+                        unicodes[i] = animalCSS[k].style.cssText.slice(-3,-2).charCodeAt(0).toString(16);
+                    }
                     i++;
                 }
             }

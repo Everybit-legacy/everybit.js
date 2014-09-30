@@ -14,3 +14,8 @@ onmessage = function (event) {
 		"evaluated": PB[fun].apply(PB, args)
 	});
 }
+
+PB.onError = function(msg, obj) {
+    console.log(msg, obj) // adding this back in for debugging help
+    return false
+}

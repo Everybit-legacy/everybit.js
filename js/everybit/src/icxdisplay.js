@@ -63,13 +63,22 @@ var ICXWorld = React.createClass({
 
         if(PB.M.Wardrobe.getCurrentKeys()) {
             ICX.username = PB.M.Wardrobe.getCurrentUsername()
-            //prevent them from getting to newuser page if they are logged in
-            if (currScreen == 'newuser') {
-                currScreen = 'home'
-                Events.pub('/ui/icx/screen',{"view.icx.screen":'dashboard'})
-            }
         } else {
             ICX.username = false
+        }
+
+        if(ICX.username) {
+            //prevent them from getting to newuser page if they are logged in
+            if (currScreen == 'newuser' || currScreen == 'login') {
+                currScreen = 'dashboard'
+                Events.pub('/ui/icx/screen',{"view.icx.screen":'dashboard'})
+            }
+
+        } else if (!ICX.username) {
+            if (currScreen == 'dashboard') {
+                currScreen = 'home'
+                Events.pub('/ui/icx/screen',{"view.icx.screen":'home'})
+            }
         }
 
         if (currScreen == 'init') {
@@ -2050,6 +2059,7 @@ var ICXDashboard = React.createClass({
             </div>
             )
     },
+
     componentDidMount: function() {
         // resetting ICX.wizard here
         var browser = getBrowser()

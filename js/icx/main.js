@@ -59,7 +59,7 @@ puffworldprops = {
             screen: 'init'
         },
         
-        mode: 'table',
+        mode: 'list',
         
         language  : 'en',
 

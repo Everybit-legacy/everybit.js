@@ -69,14 +69,14 @@ Boron.deep_diff = function(oldObj, newObj) { // results come from newObj
         var newtype = typeof newObj[key]
         
         if(oldtype != newtype) {
-            acc[key] = newObj[key]
+            acc[key] = newObj[key] // this pointer copies deep data
             return acc
         }
         
         if(oldtype == 'object') {
             var diff = Boron.deep_diff(oldObj[key], newObj[key])
             if(Object.keys(diff).length)
-                acc[key] = newObj[key]
+                acc[key] = diff
             return acc
         }
         

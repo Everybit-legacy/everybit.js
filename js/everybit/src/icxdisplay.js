@@ -2135,7 +2135,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleDownloadIdentityFile: function() {
-        var content = JSON.stringify(this.handleGenerateIdentityFile())
+        var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
 
         var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
 

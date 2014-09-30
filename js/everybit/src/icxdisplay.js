@@ -61,8 +61,13 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.M.Wardrobe.currentKeys) {
+        if(PB.M.Wardrobe.getCurrentKeys()) {
             ICX.username = PB.M.Wardrobe.getCurrentUsername()
+            //prevent them from getting to newuser page if they are logged in
+            if (currScreen == 'newuser') {
+                currScreen = 'home'
+                Events.pub('/ui/icx/screen',{"view.icx.screen":'dashboard'})
+            }
         } else {
             ICX.username = false
         }
@@ -167,6 +172,13 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'changepassphrase', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphrase, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'changepassphrase.finish', button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-gear', fullText: 'Change your passphrase', component: ICXChangePassphraseFinish, backgroundColor: 'rgba('+c1+', '+op2+')'}
         ]
+
+        //gracefully deal with invalid screen input
+        var screenNames = ICX.screens.map(function(screen) {return screen.name})
+        if (screenNames.indexOf(currScreen) < 0) {
+            currScreen = 'home'
+            Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+        }
 
         var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
 
@@ -1366,11 +1378,6 @@ var ICXNewUser = React.createClass({
      <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageLoad}/>
      </div>
      */
-
-    componentWillMount: function() { // on page load, generate a random username
-
-        return false
-    },
 
     componentDidMount: function() {
         this.handleGenerateRandomUsername()

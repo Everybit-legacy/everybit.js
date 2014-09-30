@@ -255,8 +255,6 @@ var ICXWorld = React.createClass({
             contentDivStyles.padding = '0'
         }
         */
-
-        updateUI()
         return (
             <div style={screenStyle} className="screen">
                 <ICXLogo screenInfo={thisScreen} />

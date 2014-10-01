@@ -64,7 +64,7 @@ Boron.shallow_diff = function(oldObj, newObj) { // results come from newObj
 }
 
 Boron.deep_diff = function(oldObj, newObj) { // results come from newObj
-    return Object.keys(oldObj).reduce(function(acc, key) {
+    return Object.keys(newObj).reduce(function(acc, key) {
         var oldtype = typeof oldObj[key]
         var newtype = typeof newObj[key]
         
@@ -83,7 +83,7 @@ Boron.deep_diff = function(oldObj, newObj) { // results come from newObj
         if(oldObj[key] !== newObj[key])
             acc[key] = newObj[key]
         return acc
-    }, oldObj.constructor())
+    }, newObj.constructor())
 }
 
 Boron.flatten = function(obj, prefix) {

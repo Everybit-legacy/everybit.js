@@ -676,12 +676,11 @@ var ICXReplyPuff = React.createClass({
     },
     render: function() {
         return (
-            <span className="icon">
-                <a onClick={this.handleReply}>
-                    <i className="fa fa-reply fa-fw"></i>
-                </a>
+            <span className="icon relative">
+                <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
+                <Tooltip position="under" content="Reply to this puff" />
             </span>
-            )
+        )
     }
 })
 
@@ -2826,6 +2825,9 @@ var ICXButtonLink = React.createClass({
             buttonStyle.top = 0
             buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            // two styles below are needed to make tooltip display properly
+            buttonStyle.overflow = 'visible'
+            buttonStyle.whiteSpace = 'normal'
             return (
                 <div style={buttonStyle}>
                     <ICXUserButton />
@@ -2910,13 +2912,19 @@ var ICXUserButton = React.createClass({
         } else {
             return(
                 <span>
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-w fa-list" />
-                    </a>
+                    <span className="relative">
+                        <a href="#"  onClick={this.handleGoTo.bind(null, 'home.table')} style={{color: '#ffffff'}}>
+                            <i className="fa fa-w fa-list" />
+                        </a>
+                        <Tooltip position="under" content="View your messages and files" />
+                    </span>
                     {' '}
-                    <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
-                        <i className="fa fa-fw fa-user" />{username}
-                    </a>
+                    <span className="relative">
+                        <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
+                            <i className="fa fa-fw fa-user" />{username}
+                        </a>
+                        <Tooltip position="under" content="Go to your dashboard" />
+                    </span>
                     {' '}
                     <span className="relative">
                         <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">

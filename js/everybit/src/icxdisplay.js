@@ -1768,7 +1768,6 @@ var ICXLogin = React.createClass({
     // },
 
     handleUsernameLookup: function () {
-        console.log("usernamelookup\n")
         var username = this.refs.username.getDOMNode().value
         var self = this
 
@@ -1803,7 +1802,6 @@ var ICXLogin = React.createClass({
     },
 
     verifyUsername: function () {
-        console.log("verifyusername\n")
         var username = this.refs.username.getDOMNode().value
         var finalChar = username.charAt(username.length-1)
         username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
@@ -1819,7 +1817,6 @@ var ICXLogin = React.createClass({
     },
 
     handleResetCheckboxes: function () {
-        console.log("resetcheckbox\n")
         Events.pub('ui/event', {
             'ICX.usernameStatus': false,
             'ICX.defaultKey': false
@@ -2195,13 +2192,19 @@ var ICXChangePassphrase = React.createClass({
                 <div style={headerStyle}>Change passphrase for {username}</div><br />
                 {mustChangeMsg}
                 <div className="contentWindow">
-                    New passphrase: <input type="text" ref="passphrase" />
+                    New passphrase: <input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleChangePassphrase}>Make change <i className="fa fa-chevron-right" /></button>
 
                 </div>
             </div>
         )
+    },
+
+    handleKeyDown: function(e) {
+        if(e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            this.handleChangePassphrase()
+        }
     },
 
     handleChangePassphrase: function() {
@@ -2216,7 +2219,7 @@ var ICXChangePassphrase = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
+        updateUI()
 
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value

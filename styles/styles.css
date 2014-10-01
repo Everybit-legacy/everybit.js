@@ -880,6 +880,14 @@ fieldset[disabled] .btn-primary.active {
     display: none;
 }
 
+.icxNextButton {
+    text-decoration:none;
+    color:#fff;
+}
+.icx-fade:hover {
+    opacity:0.75;
+}
+
 /* ICX Styles */
 .icx-screen {
     width: 100%;

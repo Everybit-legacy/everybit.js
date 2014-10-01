@@ -1355,9 +1355,9 @@ var ICXNewUser = React.createClass({
 
                     <div><b>{polyglot.t("signup.username")}</b></div>
 
-                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16}} onChange={this.handleUsernameFieldChange}/></form>
+                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16, width:'45%'}} onChange={this.handleUsernameFieldChange}/></form>
                     <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
+                        <a href="#" onClick={this.handleUsernameLookup}>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
                     </span>
                     <span className="relative">
@@ -1376,7 +1376,7 @@ var ICXNewUser = React.createClass({
                     <br /><br />
                     <canvas id="avatarCanvas" width="120" height="60" style={{border: '1px solid #d3d3d3'}}>
                     </canvas>
-                    <br />
+                    <br /><br />
 
                     <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
                 </div>
@@ -1742,7 +1742,7 @@ var ICXLogin = React.createClass({
                     <i><em>{polyglot.t("login.or")}</em></i>
                     <br /><br />
                     <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
-                    <input type="text" name="username" ref="username" defaultValue='' style={{size: 16}} onBlur={this.handleUsernameLookup} onChange={this.verifyUsername} />
+                    <input type="text" name="username" ref="username" defaultValue='' style={{size: 16, width:'60%'}} onBlur={this.handleUsernameLookup} onChange={this.verifyUsername} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
@@ -2200,7 +2200,7 @@ var ICXChangePassphrase = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("pass.change")}{username}</div><br />
+                <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div><br />
                 {mustChangeMsg}
                 <div className="contentWindow">
                     {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
@@ -2332,7 +2332,7 @@ var ICXChangePassphraseFinish = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("pass.change")}{username}</div><br />
+                <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div><br />
                 <div className="contentWindow">
                 {polyglot.t("pass.success")}<a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
                 </div>
@@ -2985,33 +2985,35 @@ var ICXUserButton = React.createClass({
 })
 
 var ICXNextButton = React.createClass({
-    handleNext: function() {
+    handleNext: function () {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     },
 
-    render: function() {
+    render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
-        
-        if(this.props.text) {
+
+        if (this.props.text) {
             var buttonText = this.props.text
         } else {
             var buttonText = polyglot.t("button.next")
         }
 
-        if(this.props.enabled) {
+        if (this.props.enabled) {
             ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
+            //return <a style={ICX.buttonStyle} onClick={this.handleNext} className="icxNextButton icx-fade"> {buttonText} </a>
             return <button style={ICX.buttonStyle} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
             ICX.buttonStyle.backgroundColor = 'rgba(0, 3, 82, .1)' //
             ICX.buttonStyle.cursor = 'default' //
 
-            return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText} <i className="fa fa-chevron-right" /></button>
+            return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+            //return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} </a>
+
         }
     }
 })
-
 
 // Not yet implemented
 var ICXLangSelect = React.createClass({

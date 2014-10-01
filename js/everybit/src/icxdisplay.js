@@ -391,9 +391,9 @@ var ICXStoreFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.store_fin")}</div><br />
                 <div className="contentWindow">
-                Success! Your file has been encrypted.
+                    {polyglot.t("store.success")}
                     <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>Save encrypted file</a>
+                    <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>{polyglot.t("store.save")}</a>
                     <br /><br />
                     <ICXNextButton enabled={puffworldprops.ICX.messageStored} goto={puffworldprops.ICX.nextStep} key="nextToStore" text="Encrypt another file" />
                 </div>
@@ -896,7 +896,7 @@ var ICXSendFile = React.createClass({
                     </span>
                     <br /><br />
                     <div ref="warning" style={{'display':'none','color':'red'}}>
-                        <span>Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB.</span>
+                        <span>{polyglot.t("store.warning")}</span>
                     </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                 </div>
@@ -1106,14 +1106,14 @@ var ICXSendMessage = React.createClass({
 
         var invitedNote = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
-            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
+            invitedNote = polyglot.t("send.to_new_user") + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
         } else {
-            invitedNote = 'Sending to user ' + puffworldprops.ICX.toUser
+            invitedNote = polyglot.t("send.to_user") + puffworldprops.ICX.toUser
         }
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Send a private message</div>
+                <div style={headerStyle}>{polyglot.t("header.send_msg")}</div>
                 <div className="contentWindow">
                     {invitedNote}
                     <br />
@@ -1122,7 +1122,7 @@ var ICXSendMessage = React.createClass({
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                     <br /><br />
-                    TIP: The keyboard shortcut <span className="shortcut">command-enter</span> will send your message right away.
+                    {polyglot.t("send.tip_1")}<span className="shortcut">command-enter</span>{polyglot.t("send.tip_2")}
                 </div>
 
             </div>
@@ -1324,10 +1324,11 @@ var ICXSendMessageFinish = React.createClass({
 
 var ICXNotifyEmail = React.createClass({
     render: function () {
-        var textAreaContent = "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login&icx.firstLogin=true and log in with username " + puffworldprops.ICX.toUser + ". Your private passpharse is the answer to the question: "+puffworldprops.ICX.wizard.prompt
+        var polyglot = Translate.language[puffworldprops.view.language]
+
+        var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
         return (
-            <span>Your message has been sent. However, <em>in order for your friend to read it, you need to let them know
-            their username and prompt question</em>. We suggest sending the following email to {puffworldprops.ICX.wizard.invitedEmail}:
+            <span>{polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}:
             <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
             </span>
         )
@@ -2177,9 +2178,9 @@ var ICXDashboard = React.createClass({
 
 
 var ICXChangePassphrase = React.createClass({
-
-
     render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
 
         var mustChangeMsg = ''
         if(puffworldprops.view.icx.firstLogin) {
@@ -2194,12 +2195,12 @@ var ICXChangePassphrase = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Change passphrase for {username}</div><br />
+                <div style={headerStyle}>{polyglot.t("pass.change")}{username}</div><br />
                 {mustChangeMsg}
                 <div className="contentWindow">
-                    New passphrase: <input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
+                    {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
                     <br /><br />
-                    <button style={ICX.buttonStyle} onClick={this.handleChangePassphrase}>Make change <i className="fa fa-chevron-right" /></button>
+                    <button style={ICX.buttonStyle} onClick={this.handleChangePassphrase}>{polyglot.t("button.change")} <i className="fa fa-chevron-right" /></button>
 
                 </div>
             </div>
@@ -2319,16 +2320,16 @@ var ICXChangePassphrase = React.createClass({
 
 var ICXChangePassphraseFinish = React.createClass({
     render: function () {
+        var polyglot = Translate.language[puffworldprops.view.language]
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         var username = ICX.username
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Change passphrase for {username}</div><br />
+                <div style={headerStyle}>{polyglot.t("pass.change")}{username}</div><br />
                 <div className="contentWindow">
-                Success! Make sure to save your new passphrase. You can download your passphrase in an identity file and
-                make other changes on your <a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
+                {polyglot.t("pass.success")}<a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
                 </div>
             </div>
             )
@@ -2490,15 +2491,16 @@ var ICXHome = React.createClass({
 var ICXFileConverter = React.createClass({
 
     render: function () {
+        var polyglot = Translate.language[puffworldprops.view.language]
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Encrypt and Decrypt Files</div>
+                <div style={headerStyle}>{polyglot.t("header.filesys")}</div>
                 <div className="contentWindow">
-                    <i className="fa fa-fw fa-lock"></i>Select a file. It will be encrypted in your web browser.
+                    <i className="fa fa-fw fa-lock"></i>{polyglot.t("filesys.enc")}
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2506,18 +2508,18 @@ var ICXFileConverter = React.createClass({
                     </span>
 
                     <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>Save Encrypted File</a>
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_enc")}</a>
                     <br />
                     <b>OR</b>
                     <br /><br />
-                    <i className="fa fa-fw fa-unlock"></i>Select a .puff file to decrypt.
+                    <i className="fa fa-fw fa-unlock"></i>{polyglot.t("filesys.dec")}
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
                     </span>
                     <br /> < br />
-                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>Save Decrypted File</a>
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_dec")}</a>
 
                 </div>
             </div>

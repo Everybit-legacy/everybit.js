@@ -14,7 +14,7 @@ Translate.language["en"].extend({
 		indepth: "Learn about the technology",
 		about: "About ICX",
 		send: "Send a private message or file",
-		send_msg: "Send a private message to ",
+		send_msg: "Send a private message",
 		send_msg_conf: "Confirm message send",
 		send_msg_fin: "Send of message",
 		send_file: "Encrypt and send a file to ",
@@ -30,7 +30,8 @@ Translate.language["en"].extend({
 		login: " LOG IN",
 		signup: " SIGN UP",
 		msg: "Message",
-		file: "File"
+		file: "File",
+		change: "Make Change"
 	},
 	signup: {
 		username: "Username:",
@@ -50,16 +51,40 @@ Translate.language["en"].extend({
 	},
 	send: {
 		msg: "Your Message",
+		to_user: "Sending to user ",
+		to_new_user: "Sending to new user ",
 		file: "File: ",
+		tip_1: "TIP: The keyboard shortcut ",
+		tip_2: " will send your message right away.",
 		msg_sent: "Your message has been sent!",
 		file_sent: "Your file has been sent!",
 		from: "FROM: ",
-		to: "TO: ",
+		to: "TO: "
+	},
+	invite: {
+		email_1: "I've sent you a private message. To view it, go to https://i.cx?icx.screen=login&icx.firstLogin=true and log in with username ",
+		email_2: ". Your private passpharse is the answer to the question: ",
+		sent_1: "Your message has been sent. However, ",
+		sent_2: "in order for your friend to read it, you need to let them know their username and prompt question",
+		sent_3: ". We suggest sending the following email to "
+	},
+	pass: {
+		change: "Change passphrase for ",
+		new: "New passphrase: ",
+		success: "Success! Make sure to save your new passphrase. You can download your passphrase in an identity file and make other changes on your "
 	},
 	store: {
 		select: "Select a file. It will be encrypted in your web browser.",
 		backup: "Once encrypted, backup to the net",
+		success: "Success! Your file has been encrypted.",
+		save: "Save encrypted file",
 		warning: "Warning! The file you have selected may be too large to send after encryption. Try keeping it below 1.5MB."
+	},
+	filesys: {
+		enc: "Select a file. It will be encrypted in your web browser.",
+		save_enc: "Save Encrypted File",
+		dec: "Select a .puff file to decrypt.",
+		save_dec: "Save Decrypted File"
 	},
 	learn: {
 		more: "To learn more about how I.CX works, watch the video or ",
@@ -73,7 +98,7 @@ Translate.language["en"].extend({
 	tableview: {
 		tooltip: {
             row_expand: "Expand/collapse this row.",
-            col_options: "Add/remove columns.",
+            col_options: "Add/remove columns."
 		}
 	},
 	footer: {

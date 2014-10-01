@@ -56,7 +56,8 @@ puffworldprops = {
     view: {
 
         icx: {                                          // ICX related
-            screen: 'init'
+            screen: 'init',
+            toUser: ""
         },
         
         mode: 'list',
@@ -100,6 +101,21 @@ puffworldprops = {
                 tags: {
                     show: false,
                     weight: 1.5,
+                },
+                type: {
+                    show: false,
+                    weight: 1,
+                    allowSort: false
+                },
+                filename: {
+                    show: false,
+                    weight: 1,
+                    allowSort: false
+                },
+                language: {
+                    show: false,
+                    weight: 1,
+                    allowSort: false
                 },
             },
             bar: {
@@ -385,10 +401,13 @@ function convertStateToURL(state) {
     state = Boron.flatten(state)
     
     var url = Object.keys(state)
-                    .filter(function(key) {return key && state[key] && state[key].length !== 0})
+                    .filter(function(key) {
+                        return key 
+                            && (typeof state[key] != 'object' || state[key].length !== 0)})
                     .map(function(key) {
+                        var val = state[key] ? state[key] : 0
                         return encodeURIComponent(key) + "=" 
-                             + encodeURIComponent(state[key].join ? state[key].join('~') : state[key] || '') })
+                             + encodeURIComponent(val.join ? val.join('~') : val) })
                     .join('&')
 
     return '?' + url
@@ -396,18 +415,26 @@ function convertStateToURL(state) {
 
 
 function setPropsFromURL() {
-    var qobj  = getQuerystringObject()
-    Object.keys(qobj).forEach(function(key) {qobj[key] = !~qobj[key].indexOf('~') ? qobj[key] : qobj[key].split('~')})
+    var qobj = getQuerystringObject()
+    Object.keys(qobj).forEach(function(key) {
+        if(~qobj[key].indexOf('~'))
+            qobj[key] = qobj[key].split('~')
+        if(qobj[key] == '0')
+            qobj[key] = 0
+    })
     var pushstate = Boron.unflatten(qobj)
     setPropsFromPushstate(pushstate)
 }
 
 function setPropsFromPushstate(pushstate) {
-    var props = Object.keys(pushstate).reduce(function(acc, key) {acc['view.' + key] = pushstate[key]; return acc}, {})
+    var flat  = Boron.flatten(pushstate)
+    var props = Object.keys(flat).reduce(function(acc, key) 
+                    {acc['view.' + key] = flat[key]; return acc}, {})
 
     /* setting the filter to NONE when no filter is specified in the url but there is other property set
         to deal with filter issue on reload
     */
+    // THINK: do we still need this?
     var filterProps = Object.keys(props).filter(function(k){return k.indexOf('view.filters') == 0});
     if (Object.keys(pushstate).filter(Boolean).length > 0 && filterProps.length == 0) {
         props['view.filters'] = {};

@@ -1,11 +1,10 @@
-@charset "utf-8";
 @font-face {
 	font-family: 'icxicon';
-	src:url('fonts/icomoon.eot?5zic3x');
-	src:url('fonts/icomoon.eot?#iefix5zic3x') format('embedded-opentype'),
-		url('fonts/icomoon.woff?5zic3x') format('woff'),
-		url('fonts/icomoon.ttf?5zic3x') format('truetype'),
-		url('fonts/icomoon.svg?5zic3x#icomoon') format('svg');
+	src:url('fonts/icomoon.eot?-hsj8rf');
+	src:url('fonts/icomoon.eot?#iefix-hsj8rf') format('embedded-opentype'),
+		url('fonts/icomoon.woff?-hsj8rf') format('woff'),
+		url('fonts/icomoon.ttf?-hsj8rf') format('truetype'),
+		url('fonts/icomoon.svg?-hsj8rf#icomoon') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -30,61 +29,61 @@
 .icon-duck:before {
 	content: "\e601";
 }
-.icon-tiercel:before {
+.icon-bird:before {
 	content: "\e602";
 }
-.icon-bird:before {
+.icon-tiercel:before {
 	content: "\e603";
 }
-.icon-loon:before {
+.icon-magpie:before {
 	content: "\e604";
 }
-.icon-magpie:before {
+.icon-kiwi:before {
 	content: "\e605";
 }
-.icon-kiwi:before {
+.icon-eagle:before {
 	content: "\e606";
 }
-.icon-hawk:before {
+.icon-loon:before {
 	content: "\e607";
 }
-.icon-rooster:before {
+.icon-hawk:before {
 	content: "\e608";
 }
-.icon-eagle:before {
+.icon-rooster:before {
 	content: "\e609";
 }
-.icon-hen:before {
+.icon-vulture:before {
 	content: "\e60a";
 }
 .icon-swan:before {
 	content: "\e60b";
 }
-.icon-vulture:before {
+.icon-dove:before {
 	content: "\e60c";
 }
-.icon-dove:before {
+.icon-hen:before {
 	content: "\e60d";
 }
 .icon-duckling:before {
 	content: "\e60e";
 }
-.icon-buzzard:before {
+.icon-puffer:before {
 	content: "\e60f";
 }
-.icon-kite:before {
+.icon-parrot:before {
 	content: "\e610";
 }
-.icon-pardalote:before {
+.icon-buzzard:before {
 	content: "\e611";
 }
-.icon-parrot:before {
+.icon-kite:before {
 	content: "\e612";
 }
-.icon-puffer:before {
+.icon-pardalote:before {
 	content: "\e613";
 }
-.icon-ogopogo:before {
+.icon-turtle:before {
 	content: "\e614";
 }
 .icon-stingray:before {
@@ -93,240 +92,234 @@
 .icon-shark:before {
 	content: "\e616";
 }
-.icon-dogfish:before {
+.icon-deer:before {
 	content: "\e617";
 }
-.icon-nessie:before {
+.icon-dogfish:before {
 	content: "\e618";
 }
-.icon-turtle:before {
+.icon-nessie:before {
 	content: "\e619";
 }
-.icon-deer:before {
+.icon-camel:before {
 	content: "\e61a";
 }
-.icon-camel:before {
+.icon-dog:before {
 	content: "\e61b";
 }
-.icon-bull:before {
+.icon-gekko:before {
 	content: "\e61c";
 }
-.icon-gekko:before {
+.icon-cat:before {
 	content: "\e61d";
 }
-.icon-fox:before {
+.icon-bull:before {
 	content: "\e61e";
 }
-.icon-flammingo:before {
+.icon-vixen:before {
 	content: "\e61f";
 }
-.icon-chick:before {
+.icon-horse:before {
 	content: "\e620";
 }
-.icon-coyote:before {
+.icon-flammingo:before {
 	content: "\e621";
 }
-.icon-horse:before {
+.icon-coyote:before {
 	content: "\e622";
 }
-.icon-vixen:before {
+.icon-chick:before {
 	content: "\e623";
 }
-.icon-cat:before {
+.icon-fox:before {
 	content: "\e624";
 }
-.icon-dog:before {
+.icon-rat:before {
 	content: "\e625";
 }
-.icon-rat:before {
+.icon-dino:before {
 	content: "\e626";
 }
-.icon-pub:before {
+.icon-rabbit:before {
 	content: "\e627";
 }
 .icon-kitten:before {
 	content: "\e628";
 }
-.icon-rabbit:before {
+.icon-watchdog:before {
 	content: "\e629";
 }
-.icon-watchdog:before {
+.icon-pub:before {
 	content: "\e62a";
 }
-.icon-dino:before {
+.icon-playboy:before {
 	content: "\e62b";
 }
-.icon-retriever:before {
+.icon-stalion:before {
 	content: "\e62c";
 }
-.icon-shepherd:before {
+.icon-mule:before {
 	content: "\e62d";
 }
-.icon-mule:before {
+.icon-shepherd:before {
 	content: "\e62e";
 }
-.icon-stalion:before {
+.icon-kangaroo:before {
 	content: "\e62f";
 }
-.icon-kangaroo:before {
+.icon-retriever:before {
 	content: "\e630";
 }
-.icon-playboy:before {
+.icon-cow:before {
 	content: "\e631";
 }
-.icon-cow:before {
+.icon-zebra:before {
 	content: "\e632";
 }
-.icon-wolf:before {
+.icon-bat:before {
 	content: "\e633";
 }
 .icon-crocodile:before {
 	content: "\e634";
 }
-.icon-alligator:before {
+.icon-wolf:before {
 	content: "\e635";
 }
-.icon-bat:before {
+.icon-polarbear:before {
 	content: "\e636";
 }
-.icon-zebra:before {
+.icon-boar:before {
 	content: "\e637";
 }
-.icon-boar:before {
+.icon-mire:before {
 	content: "\e638";
 }
-.icon-polarbear:before {
+.icon-chimp:before {
 	content: "\e639";
 }
-.icon-mire:before {
+.icon-lion:before {
 	content: "\e63a";
 }
-.icon-lion:before {
+.icon-seal:before {
 	content: "\e63b";
 }
-.icon-chimp:before {
+.icon-donkey:before {
 	content: "\e63c";
 }
-.icon-bobcat:before {
+.icon-moose:before {
 	content: "\e63d";
 }
-.icon-moose:before {
+.icon-leopard:before {
 	content: "\e63e";
 }
-.icon-donkey:before {
+.icon-skipper:before {
 	content: "\e63f";
 }
-.icon-seal:before {
+.icon-heron:before {
 	content: "\e640";
 }
-.icon-butterfly:before {
+.icon-penguin:before {
 	content: "\e641";
 }
-.icon-reindeer:before {
+.icon-dunny:before {
 	content: "\e642";
 }
-.icon-leopard:before {
+.icon-bobcat:before {
 	content: "\e643";
 }
-.icon-heron:before {
+.icon-reindeer:before {
 	content: "\e644";
 }
-.icon-bunny:before {
+.icon-butterfly:before {
 	content: "\e645";
 }
-.icon-penguin:before {
+.icon-elephant:before {
 	content: "\e646";
 }
-.icon-skipper:before {
+.icon-hippo:before {
 	content: "\e647";
 }
-.icon-unicorn:before {
+.icon-hare:before {
 	content: "\e648";
 }
 .icon-goat:before {
 	content: "\e649";
 }
-.icon-jill:before {
+.icon-tiger:before {
 	content: "\e64a";
 }
-.icon-tiger:before {
+.icon-unicorn:before {
 	content: "\e64b";
 }
-.icon-hare:before {
+.icon-jill:before {
 	content: "\e64c";
 }
-.icon-hippo:before {
+.icon-crow:before {
 	content: "\e64d";
 }
-.icon-elephant:before {
+.icon-seahorse:before {
 	content: "\e64e";
 }
-.icon-giraffe:before {
+.icon-doe:before {
 	content: "\e64f";
 }
-.icon-grizzly:before {
+.icon-squirrel:before {
 	content: "\e650";
 }
-.icon-squirrel:before {
+.icon-hummingbird:before {
 	content: "\e651";
 }
-.icon-hummingbird:before {
+.icon-bear:before {
 	content: "\e652";
 }
-.icon-doe:before {
+.icon-giraffe:before {
 	content: "\e653";
 }
-.icon-seahorse:before {
+.icon-cardinal:before {
 	content: "\e654";
 }
-.icon-crow:before {
+.icon-bluewhale:before {
 	content: "\e655";
 }
-.icon-pig:before {
+.icon-killerwhale:before {
 	content: "\e656";
 }
-.icon-bear:before {
+.icon-spermwhale:before {
 	content: "\e657";
 }
-.icon-macaw:before {
+.icon-pig:before {
 	content: "\e658";
 }
-.icon-cardinal:before {
+.icon-macaw:before {
 	content: "\e659";
 }
-.icon-spermwhale:before {
+.icon-grizzly:before {
 	content: "\e65a";
 }
-.icon-killerwhale:before {
+.icon-poodle:before {
 	content: "\e65b";
 }
-.icon-bluewhale:before {
+.icon-terrier:before {
 	content: "\e65c";
 }
-.icon-manatee:before {
+.icon-dachshund:before {
 	content: "\e65d";
 }
-.icon-swordfish:before {
+.icon-angelfish:before {
 	content: "\e65e";
 }
 .icon-sheep:before {
 	content: "\e65f";
 }
-.icon-angelfish:before {
+.icon-swordfish:before {
 	content: "\e660";
 }
-.icon-wienerdog:before {
+.icon-manatee:before {
 	content: "\e661";
 }
-.icon-terrier:before {
+.icon-armadillo:before {
 	content: "\e662";
 }
-.icon-poodle:before {
+.icon-glyph101:before {
 	content: "\e663";
-}
-.icon-anteater:before {
-	content: "\e664";
-}
-.icon-armadillo:before {
-	content: "\e665";
 }

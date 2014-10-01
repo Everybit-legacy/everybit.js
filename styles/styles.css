@@ -903,7 +903,8 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .listview {
     max-height: 100%;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
     background-image: none;
 }
 
@@ -940,6 +941,7 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .listrowContainer .listCell {
     height: auto;
+    overflow: visible;
 }
 
 .icx-screen .listcell:hover >
@@ -1266,7 +1268,7 @@ fieldset[disabled] .btn-primary.active {
 .menuTooltip {
     background-color: #F0F4FF;
     position: absolute;
-    max-width: 180px;
+    max-width: 260px;
     border: 1px solid rgb(110, 110, 110);
     z-index: 9;
     padding: 5px;

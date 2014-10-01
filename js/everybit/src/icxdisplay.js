@@ -1378,8 +1378,9 @@ var ICXNewUser = React.createClass({
                         <Tooltip position='under' content="Generate a new passphrase" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
-                    <br /><br />
-                    <canvas id="avatarCanvas" width="120" height="60" style={{border: '1px solid #d3d3d3'}}>
+                    <br />
+                    <b>Avatar:</b><br />
+                    <canvas id="avatarCanvas" width="60" height="60">
                     </canvas>
                     <br /><br />
 
@@ -1451,7 +1452,7 @@ var ICXNewUser = React.createClass({
     handleGenerateRandomUsername: function() {
         var adj = PB.Crypto.getRandomItem(ICX.adjectives)
         var color = PB.Crypto.getRandomItem(ICX.colornames)
-        var animal = ICX.newUser.animalName = PB.Crypto.getRandomItem(ICX.animalNames)
+        var animal = generateRandomAnimal()
 
         this.refs.username.getDOMNode().value = adj + color + animal
         getAvatar(color, animal)

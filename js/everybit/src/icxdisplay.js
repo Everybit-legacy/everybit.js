@@ -1736,7 +1736,7 @@ var ICXLogin = React.createClass({
                     <i><em>{polyglot.t("login.or")}</em></i>
                     <br /><br />
                     <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
-                    <input type="text" name="username" ref="username" defaultValue='' style={{size: 16}} onChange={this.verifyUsername} />
+                    <input type="text" name="username" ref="username" defaultValue='' style={{size: 16}} onBlur={this.handleUsernameLookup} onChange={this.verifyUsername} />
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}><ICXCheckmark show={puffworldprops.ICX.usernameStatus} /></a>
                         <Tooltip position='under' content="Verify your username" />
@@ -1750,8 +1750,7 @@ var ICXLogin = React.createClass({
                     </div>
 
 
-                    <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onChange={this.handleResetCheckboxes} />
-                    <ICXCheckmark show={puffworldprops.ICX.defaultKey} />
+                    <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
 
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br />
@@ -1815,6 +1814,12 @@ var ICXLogin = React.createClass({
             return false
         } else {
             this.handleResetCheckboxes()
+        }
+    },
+
+    handleKeyDown: function(e) {
+        if(e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            this.handleLogin()
         }
     },
 

@@ -1467,6 +1467,7 @@ var ICXNewUser = React.createClass({
 
     componentDidMount: function() {
         this.handleResetCheckboxes()
+        this.handleAvatarInit()
         var wizard = puffworldprops.ICX.wizard
 
         if(typeof wizard === 'undefined') {
@@ -1511,6 +1512,11 @@ var ICXNewUser = React.createClass({
 
     },
 
+    handleAvatarInit: function() {
+        var color = PB.Crypto.getRandomItem(ICX.colornames)
+        var animal = generateRandomAnimal()
+        getAvatar(color, animal)
+    },
 
     handleGenerateRandomUsername: function() {
         var adj = PB.Crypto.getRandomItem(ICX.adjectives)

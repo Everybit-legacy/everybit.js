@@ -74,6 +74,8 @@ PB.init = function(zone) {
 PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
     var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
 
+    // TODOUR: add capa
+
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
         puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
@@ -125,6 +127,8 @@ PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, u
     updated = updated || ""
     profile = profile || ""
     
+    // TODOUR: add capa
+    
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
     if(!PB.validateUsername(username))
@@ -161,6 +165,8 @@ PB.validateUsername = function(username) {
     if(!/^[0-9a-z.]+$/.test(username))
         return PB.onError('Usernames must be alphanumeric', username)
     
+    // TODOUR: add capa
+    
     return true;
 }
 
@@ -172,6 +178,7 @@ PB.validateUsername = function(username) {
 PB.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
+    // TODOUR: add capa
     userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
     
     if(!userRecord)
@@ -190,6 +197,8 @@ PB.processUserRecord = function(userRecord) {
  */
 PB.getUserRecord = function(username) {
     //// This always checks the cache, and always returns a promise
+    
+    // TODOUR: add capa
     
     var userRecord = PB.Data.getCachedUserRecord(username);
     
@@ -211,6 +220,8 @@ PB.getUserRecord = function(username) {
  */
 PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
+    
+    // TODOUR: add capa
     
     var prom = PB.Net.getUserRecord(username);
     
@@ -300,6 +311,8 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
     
     var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var username = letter.username
+    
+    // TODOUR: add capa to envelopeUserKeys... somehow
     
     if(envelopeUserKeys) {
         myPrivateWif = envelopeUserKeys.default

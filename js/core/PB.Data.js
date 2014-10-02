@@ -7,7 +7,7 @@ PB.Data.shells = [];
 PB.Data.shellSort = {};
 // PB.Data.shelf = [];
 PB.Data.pending = {};
-PB.Data.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
+PB.Data.userRecords = {};                   // maps username to an array of DHT userRecords
 PB.Data.userPromises = {};
 
 
@@ -40,7 +40,7 @@ PB.Data.addShellUsernameAsVertex = function(shell) {
     var matches = PB.Data.graph.v(username).run()
     var vertex = matches[0]
     
-    if(!vertex) // THINK: make usernames unique like USERNAME::<username> or something
+    if(!vertex)                             // THINK: make usernames unique like USERNAME::<username> or something
         vertex = PB.Data.graph.addVertex({ _id: username, name: username, type: 'username' })
     else
         if(PB.Data.graph.v(shell.sig).out('author').property('name').run()[0] == username)
@@ -58,30 +58,6 @@ PB.Data.addToGraph = function(shells) {
 }
 
 // TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
-
-
-// function build_graph() {
-//     g = Dagoba.graph()
-//
-//     PB.Data.shells.forEach(function(shell) {
-//         g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
-//     })
-//
-//     PB.Data.shells.forEach(function(shell) {
-//         (shell.payload.parents||[]).forEach(function(parent) {
-//             g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
-//             g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
-//         })
-//     })
-//
-//
-//
-//     PB.Data.graph = g
-// }
-
-///////////////// end graph stuff ////////////////////
-
-
 
 
 /**
@@ -682,6 +658,8 @@ PB.Data.isGoodPuff = function(puff) {
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
+    // TODOUR: add capa
+    
     var prom = PB.getUserRecord(puff.username);
     
     return prom.then(function(user) {
@@ -695,6 +673,7 @@ PB.Data.isGoodPuff = function(puff) {
  * @return {object}
  */
 PB.Data.getCachedUserRecord = function(username) {
+    // TODOUR: add capa
     return PB.Data.userRecords[username];
 }
 
@@ -705,6 +684,8 @@ PB.Data.getCachedUserRecord = function(username) {
  */
 PB.Data.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
+    
+    // TODOUR: add capa
     
     PB.Data.userRecords[userRecord.username] = userRecord;
 

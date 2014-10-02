@@ -1526,7 +1526,7 @@ var ICXNewUser = React.createClass({
 
     handleGenerateRandomPassphrase: function() {
         // Everybody loves the exponential!
-        var numb = 3
+        var numb = 4
         while(PB.Crypto.random()>0.2) {
             numb++
         }

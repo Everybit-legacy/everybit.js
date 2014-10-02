@@ -7,38 +7,45 @@
     |__|                                     \/           \/                  \/     \/ 
   
   A Puffball module for managing identities locally.
+  ==================================================
 
-  Usage example:
-  PB.M.Wardrobe.switchCurrent(user.username)
-  PB.M.Wardrobe.getCurrentKeys()
+  The Wardrobe manages outfits and identities. 
+
+  An identity is a username, a primary outfit, a list of alias outfits, and the identity's private preferences. Aliases generally correspond to anonymous usernames created for one-time encrypted transfer. 
+
+  An outfit is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the 'bonus' field.
+
+  Username and capa define a unique outfit. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the outfit's private keys. 
+
+  Currently capa counts by consecutive integers. This may change in the future. Any set deriving Eq and Ord will work.
+
+  The identity file can be imported and exported to the local filesystem. 
+
+  Usage examples:
+      PB.M.Wardrobe.switchCurrent(user.username)
+      PB.M.Wardrobe.getCurrentKeys()
 
 */
 
 
-//// USER INFO ////
-
 /*
-    
-    Move this into a separate PuffIdentity module that handles identity wardrobe, profiles, and machine-based preferences.
-    PB.M.Forum uses PuffIdentity for all identity-related functionality -- this way other modules can build on PuffIdentity too.
-    PuffIdentity is responsible for managing persistence of identities, keeping the core clean of such messy concerns.
-
-    -- Maybe call it PB.M.Wardrobe? Is this just a place for local identity management, or also a place for managing user records?
-    -- We need to separate out these concerns...
+  THINK:
+    - register callback handlers for user record creation and modification
+    - PB.M.Wardrobe.init registers those with PB.onUserCreation and PB.onUserModification
+    - identity file encryption using a passphrase
 
 
-  ---> register callback handlers for user record creation and modification
-  ---> PB.M.Wardrobe.init registers those with PB.onUserCreation and PB.onUserModification
-  ---> canonical identity object: username, keys.public.default, keys.private.admin, latest, etc. [or just use the spec... yeah. w/ .private for private key versions...]
-  ---> always use CIO for everything; distinguish identities from users for all time. (...?)
-  ---> 
+
+--------------------------------------------------
+
+This whole file needs to change, along with anything that references it. May as well do the pref/prof stuff now too.
 
 
 */
 
 PB.M.Wardrobe = {}
-PB.M.Wardrobe.keychain = false       // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
-PB.M.Wardrobe.currentKeys = false    // false if not set, so watch out
+PB.M.Wardrobe.keychain = false     // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
+PB.M.Wardrobe.currentKeys = false  // false if not set, so watch out
 
 /**
  * Get the current keys

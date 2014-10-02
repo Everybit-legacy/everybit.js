@@ -576,7 +576,6 @@ var ICXInvite = React.createClass({
         // TODO: Check for blank, or too short values in question and answer
 
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI(); // NOTE: Events.pub does this automatically -- you can probably remove this line
 
         var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
         var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
@@ -1007,7 +1006,6 @@ var ICXSendFileFinish = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI(); // NOTE: Events.pub does this automatically -- you can probably remove this line
     },
 
     handleSubmitSuccess: function () {
@@ -1607,8 +1605,6 @@ var ICXNewUser = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-
-        updateUI(); // NOTE: Events.pub does this automatically -- you can probably remove this line
 
 
         // Register the name
@@ -2230,8 +2226,6 @@ var ICXChangePassphrase = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI() // NOTE: Events.pub does this automatically -- you can probably remove this line
-
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
 
@@ -2536,7 +2530,6 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI(); // NOTE: Events.pub does this automatically -- you can probably remove this line
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2584,7 +2577,7 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI(); // NOTE: Events.pub does this automatically -- you can probably remove this line
+
         //Encrypt the file in a puff
         var element = event.target
 

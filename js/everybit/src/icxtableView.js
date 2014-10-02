@@ -79,6 +79,10 @@ var RowRenderMixin = {
         var fromUser = this.props.puff.username
 
         var prof = getProfilePuff(fromUser)
+        var avatar = <span></span>
+        if(prof && prof.payload.content) {
+        	avatar = <img className="iconSized" src={prof.payload.content}  />
+        }
 
         if(fromUser == ICX.username) {
             fromUser = 'You'
@@ -86,45 +90,41 @@ var RowRenderMixin = {
             fromUser = '.'+fromUser
         }
 
-        // return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a></div>
-
-        if(prof) {
-        	return (
-                <div className="username">
-                    <img className="iconSized" src={prof.payload.content}  />
-                    <a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a> 
-                </div>
-            )
-        } else {
-        	return <div className="username"><a href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>{fromUser}</a></div>
-		}
+    	return (
+            <div className="username">
+                {avatar}
+            	<a className="rowReference" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>
+            		{fromUser}
+            		<div className="rowReferencePreview">{fromUser}</div>
+            	</a>
+            </div>
+        )
 
 	},
 	renderTo: function() {
         var toUser = this.props.puff.routes[0]
 
         var prof = getProfilePuff(toUser)
+        var avatar = <span></span>
+        if(prof && prof.payload.content) {
+        	avatar = <img className="iconSized" src={prof.payload.content}  />
+        }
         
         if(toUser == ICX.username) {
             toUser = 'You'
         } else {
             toUser = '.'+toUser
         }
-        
-        // return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a></div>
 
-        if(prof) {
-        	return (
-                <div className="username">
-                    <img className="iconSized" src={prof.payload.content}  />
-                    <a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a>
-                </div>
-            )
-
-        } else {
-			return <div className="username"><a href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>{toUser}</a></div>
-
-        }
+    	return (
+            <div className="username">
+            	{avatar}
+                <a className="rowReference" href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>
+                	{toUser}
+                	<div className="rowReferencePreview">{toUser}</div>
+                </a>
+            </div>
+        )
 	},
 	renderUser: function() {
     },

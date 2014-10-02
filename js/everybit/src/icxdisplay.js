@@ -335,6 +335,22 @@ var ICXStore = React.createClass({
 
     },
 
+    componentWillMount: function() {
+        if(!ICX.username) {
+            return Events.pub('ui/event/newuser', {
+                "view.icx.screen": 'newuser',
+                'ICX.wizard.inProcess': true,
+                'ICX.wizard.sequence': 'store'
+            })
+        }
+        Events.pub('ui/event/store', {
+            'ICX.userConfirmed': false,
+            'ICX.nextStatus': false,
+            'ICX.wizard.inProcess': true,
+            'ICX.wizard.sequence': 'store'
+        })
+    },
+
     componentDidMount: function() {
         Events.pub('ui/event', {
             'ICX.wizard.inProcess': true,
@@ -358,6 +374,7 @@ var ICXStore = React.createClass({
             })
         }
     },
+
 
     handleGetFile: function(event) {
         var element = event.target
@@ -418,6 +435,7 @@ var ICXStoreFinish = React.createClass({
             'ICX.nextStep': 'store',
             'ICX.successMessage': ''
         })
+        //Events.pub('ui/thinking', { 'ICX.thinking': true })
     },
 
     componentDidMount: function () {
@@ -439,12 +457,12 @@ var ICXStoreFinish = React.createClass({
                 // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
-                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                //Events.pub('ui/thinking', { 'ICX.thinking': false })
             })
 
         } else {
 
-            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            //Events.pub('ui/thinking', { 'ICX.thinking': false })
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -514,9 +532,9 @@ var ICXStoreFinish = React.createClass({
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
-            Events.pub('ui/thinking', {
+            /*Events.pub('ui/thinking', {
                 'ICX.thinking': false
-            })
+            })*/
 
         })
         return false
@@ -705,27 +723,28 @@ var ICXSend = React.createClass({
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>{polyglot.t("header.send")}</div><br />
+                <div className="contentWindow">
+                        To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
+                        <span className="relative">
+                            <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
+                            <Tooltip position='under' content="Check for a valid ICX username or email address" />
+                        </span>
+                        <span className="message">{puffworldprops.ICX.toUserStatus}</span>
 
-                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
-                    <span className="relative">
-                        <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
-                        <Tooltip position='under' content="Check for a valid ICX username or email address" />
-                    </span>
-                    <span className="message">{puffworldprops.ICX.toUserStatus}</span>
 
+                    <div className="component">
 
-                <div className="component">
+                        <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.message')}>{polyglot.t("button.msg")} <i className="fa fa-chevron-right" /></button>
+                        {' '}
+                        <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
 
-                    <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.message')}>{polyglot.t("button.msg")} <i className="fa fa-chevron-right" /></button>
-                    {' '}
-                    <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
-
+                    </div>
+                    Enter an ICX username or email address above to send an encrypted message or file. Looking for someone to
+                    {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
+                    {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
+                    {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>, or
+                    {' '}enter an email address to send your first encrypted message.
                 </div>
-                Enter an ICX username or email address above to send an encrypted message or file. Looking for someone to
-                {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
-                {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
-                {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>, or
-                {' '}enter your email address to send yourself an encrypted message.
             </div>
             )
     },
@@ -1399,12 +1418,8 @@ var ICXNewUser = React.createClass({
      */
 
     componentDidMount: function() {
-        this.handleGenerateRandomUsername()
-        this.handleUsernameLookup()
-        this.handleGenerateRandomPassphrase()
-
+        this.handleResetCheckboxes()
         var wizard = puffworldprops.ICX.wizard
-
 
         if(typeof wizard === 'undefined') {
             // User hasn't clicked SEND or STORE
@@ -1441,7 +1456,7 @@ var ICXNewUser = React.createClass({
 
             // User coming from Store, and has uploaded a file
             return Events.pub('ui/event', {
-                'ICX.nextStep': 'store.finish',
+                'ICX.nextStep': 'store',
                 'ICX.nextStepMessage': 'Create user and store file'
             })
         }
@@ -1481,7 +1496,8 @@ var ICXNewUser = React.createClass({
     handleResetCheckboxes: function() {
         Events.pub('ui/event', {
             'ICX.newUser.usernameStatus': false,
-            'ICX.newUser.usernameMessage': false
+            'ICX.newUser.usernameMessage': false,
+            'ICX.newUser.passphraseStatus':false
         })
     },
 
@@ -1567,7 +1583,7 @@ var ICXNewUser = React.createClass({
         prom.then(function(result) {
 
             Events.pub('ui/username/taken', {
-                'ICX.newUser.usernameStatus': false,
+                'ICX.newUser.usernameStatus': 'red',
                 'ICX.newUser.usernameMessage': 'Already registered',
                 'ICX.newUser.checkingUsername': ''
             })
@@ -2511,7 +2527,7 @@ var ICXFileConverter = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.filesys")}</div>
                 <div className="contentWindow">
-                    <i className="fa fa-fw fa-lock"></i>{polyglot.t("filesys.enc")}
+                    <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-lock fa-stack-1x"></i></span>{polyglot.t("filesys.enc")}
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">
@@ -2523,7 +2539,7 @@ var ICXFileConverter = React.createClass({
                     <br />
                     <b>OR</b>
                     <br /><br />
-                    <i className="fa fa-fw fa-unlock"></i>{polyglot.t("filesys.dec")}
+                    <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-unlock fa-stack-1x"></i></span>{polyglot.t("filesys.dec")}
                     <br /><br />
 
                     <span style={ICX.buttonStyle} className="buttonSpan">

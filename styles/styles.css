@@ -748,11 +748,12 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .fileSelect {
-    max-width:95%;
+    width:58%;
 }
 @media(max-width:420px) {
     .fileSelect {
         font-size: small;
+        width:95%;
     }
 }
 .floatLeft {

@@ -754,6 +754,7 @@ var ICXSend = React.createClass({
             this.refs.toUser.getDOMNode().value = puffworldprops.view.icx.toUser
             this.handleUsernameLookup()
         }
+        this.refs.toUser.getDOMNode().focus()
 
         var browser = getBrowser()
     },
@@ -1148,6 +1149,10 @@ var ICXSendMessage = React.createClass({
             'ICX.wizard.type': 'message',
             'ICX.nextStatus': false
         })
+    },
+
+    componentDidMount: function() {
+        this.refs.messageText.getDOMNode().focus()
     },
 
     handleKeyDown: function(e) {

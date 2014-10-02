@@ -77,6 +77,7 @@ var RowRenderMixin = {
 	},
 	renderFrom: function() {
         var fromUser = this.props.puff.username
+        var original = fromUser
 
         var prof = getProfilePuff(fromUser)
         var avatar = <span></span>
@@ -95,7 +96,7 @@ var RowRenderMixin = {
                 {avatar}
             	<a className="rowReference" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>
             		{fromUser}
-            		<div className="rowReferencePreview">{fromUser}</div>
+            		<div className="rowReferencePreview">Click to view all messages from {original}</div>
             	</a>
             </div>
         )
@@ -103,6 +104,7 @@ var RowRenderMixin = {
 	},
 	renderTo: function() {
         var toUser = this.props.puff.routes[0]
+        var original = toUser
 
         var prof = getProfilePuff(toUser)
         var avatar = <span></span>
@@ -121,7 +123,7 @@ var RowRenderMixin = {
             	{avatar}
                 <a className="rowReference" href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>
                 	{toUser}
-                	<div className="rowReferencePreview">{toUser}</div>
+                	<div className="rowReferencePreview">Click to show all messages to {original}</div>
                 </a>
             </div>
         )

@@ -967,6 +967,10 @@ fieldset[disabled] .btn-primary.active {
 
 }
 
+.icx-screen .rowReferencePreview {
+    max-width: none;
+}
+
 .icx-screen .menuTooltip.above {
     bottom: initial;
 }

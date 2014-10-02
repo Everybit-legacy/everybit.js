@@ -1408,7 +1408,7 @@ var ICXNewUser = React.createClass({
 
                     <div><b>{polyglot.t("signup.username")}</b></div>
 
-                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16, width:'45%'}} onChange={this.handleUsernameFieldChange}/></form>
+                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16, width:'45%'}} onChange={this.handleUsernameFieldChange} onBlur={this.handleUsernameLookup} /></form>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
@@ -1541,6 +1541,7 @@ var ICXNewUser = React.createClass({
                 'ICX.newUser.passphraseMessage': 'Too short'
 
             })
+            return false
 
         } else {
             Events.pub('ui/event', {
@@ -1548,6 +1549,7 @@ var ICXNewUser = React.createClass({
                 'ICX.newUser.passphraseMessage': ''
 
             })
+            return true
         }
     },
 
@@ -1648,12 +1650,7 @@ var ICXNewUser = React.createClass({
 
     handleRegisterName: function() {
 
-        this.handleUsernameLookup()
-        if(!puffworldprops.ICX.newUser.usernameStatus) {
-            return false
-        }
-        this.handleRecheckPassphrase()
-        if(!puffworldprops.ICX.newUser.passphraseStatus) {
+        if( !this.handleRecheckPassphrase() ) {
             return false
         }
 
@@ -1662,7 +1659,7 @@ var ICXNewUser = React.createClass({
             'ICX.thinking': true
         })
 
-        updateUI();
+        updateUI()
 
 
         // Register the name

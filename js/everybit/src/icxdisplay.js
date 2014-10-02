@@ -560,17 +560,22 @@ var ICXInvite = React.createClass({
                     <br />
                     <br />
                     <em>Option 1:</em><br />
-                    Send someone a link where they can message you: <input type="text" value={userURL} /> <a href={userURL} className="inline" target="_new">Test link</a>
+                    Send someone a link where they can message you: <input type="text" value={userURL} readOnly /> <a href={userURL} className="inline" target="_new">Test link</a>
                     <br /><br />
                     <em>Option 2:</em><br />
                     Create an account for your friend using the security question and answer below. The answer to your
-                    question will be your friend's initial passphrase. Because this method is lower security,
+                    question will be your friend&#39;s initial passphrase. Because this method is lower security,
                     your friend will be asked to change their passphrase right away.<br /><br />
                     Question:<br />
-                    <input type="text" ref="question" />
+                    <input type="text" ref="question" onChange={this.handleVerifyQuestion}/>
+                    {' '}<ICXCheckmark show={puffworldprops.ICX.invite.questionStatus} />
+                    {' '}<span className="message">{puffworldprops.ICX.invite.questionMessage}</span>
                     <br />
                     Answer:<br />
-                    <input type="text" ref="passphrase" /><br />
+                    <input type="text" ref="passphrase" onChange={this.handleVerifyAnswer}/>
+                    {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
+                    {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
+                    <br />
                     <span className="shortcut">Note:</span> Your recipient will have to enter the answer <em>exactly</em> how you type it.
                     <br /><br />
                     <button style={ICX.buttonStyle} onClick={this.handleSendToEmail}>Next <i className="fa fa-chevron-right" /></button>
@@ -581,11 +586,49 @@ var ICXInvite = React.createClass({
                     it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
                     the person you are sending to. That public key has to be created and associated with a username record
                     before the message can be sent. You can get this process started by choosing a shared secret for your
-                    friend's initial passphrase.</small>
+                    friend&#39;s initial passphrase.</small>
 
                 </div>
             </div>
         )
+    },
+
+    handleVerifyQuestion: function(event) {
+        var question = this.refs.question.getDOMNode().value
+        if(question.length < 5) {
+            Events.pub('ui/event', {
+                'ICX.invite.questionStatus': '',
+                'ICX.invite.questionMessage': 'Too short'
+            })
+            return false
+
+        } else {
+            Events.pub('ui/event', {
+                'ICX.invite.questionStatus': true,
+                'ICX.invite.questionMessage': ''
+
+            })
+            return true
+        }
+    },
+
+    handleVerifyAnswer: function() {
+        var answer = this.refs.passphrase.getDOMNode().value
+        if(answer.length < 5) {
+            Events.pub('ui/event', {
+                'ICX.invite.answerStatus': '',
+                'ICX.invite.answerMessage': 'Too short'
+            })
+            return false
+
+        } else {
+            Events.pub('ui/event', {
+                'ICX.invite.answerStatus': true,
+                'ICX.invite.answerMessage': ''
+
+            })
+            return true
+        }
     },
 
     handleSendToEmail: function() {
@@ -593,8 +636,13 @@ var ICXInvite = React.createClass({
         // Send them to next step, message or file send page.
         // TODO: Check for blank, or too short values in question and answer
 
+        if( !this.handleVerifyQuestion() || !this.handleVerifyAnswer() ) {
+            return false
+        }
+
+
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI();
+        updateUI()
 
         var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
         var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
@@ -1379,7 +1427,7 @@ var ICXNewUser = React.createClass({
 
                     <div><b>{polyglot.t("signup.username")}</b></div>
 
-                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16, width:'45%'}} onChange={this.handleUsernameFieldChange}/></form>
+                .icx.<form onSubmit={this.handleSubmit}><input type="text" name="username" ref="username" defaultValue="" style={{size: 16, width:'45%'}} onChange={this.handleUsernameFieldChange} onBlur={this.handleUsernameLookup} /></form>
                     <span className="relative">
                         <a href="#" onClick={this.handleUsernameLookup}>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.usernameStatus} /></a>
                         <Tooltip position='under' content="Check for availability" />
@@ -1509,6 +1557,7 @@ var ICXNewUser = React.createClass({
                 'ICX.newUser.passphraseMessage': 'Too short'
 
             })
+            return false
 
         } else {
             Events.pub('ui/event', {
@@ -1516,6 +1565,7 @@ var ICXNewUser = React.createClass({
                 'ICX.newUser.passphraseMessage': ''
 
             })
+            return true
         }
     },
 
@@ -1616,12 +1666,7 @@ var ICXNewUser = React.createClass({
 
     handleRegisterName: function() {
 
-        this.handleUsernameLookup()
-        if(!puffworldprops.ICX.newUser.usernameStatus) {
-            return false
-        }
-        this.handleRecheckPassphrase()
-        if(!puffworldprops.ICX.newUser.passphraseStatus) {
+        if( !this.handleRecheckPassphrase() ) {
             return false
         }
 
@@ -1630,7 +1675,7 @@ var ICXNewUser = React.createClass({
             'ICX.thinking': true
         })
 
-        updateUI();
+        updateUI()
 
 
         // Register the name

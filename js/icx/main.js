@@ -547,7 +547,7 @@ setPropsFromURL();                                  // handle pushstate hash
 //// PRIVATE PUFF GATHERER
 
 var getMyPrivateShells = function() {
-    var username = PB.M.Wardrobe.getCurrentUsername()
+    var username = PB.M.Wardrobe.currentUsername
     if(username)
         PB.Data.importPrivateShells(username)
 }

@@ -15,11 +15,11 @@
 
   An outfit is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the 'secrets' field.
 
-  Username and capa define a unique outfit. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the outfit's private keys. 
+  Username and capa define a unique outfit. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the outfit's private keys. In other words, capa == version.
 
   Currently capa counts by consecutive integers. This may change in the future. Any set deriving Eq and Ord will work.
 
-  The identity file can be imported and exported to the local filesystem. 
+  An identity file can be exported to the local filesystem and imported back in to the system.
 
   Usage examples:
       PB.M.Wardrobe.switchCurrent(user.username)
@@ -96,6 +96,25 @@ PB.M.Wardrobe.getIdentity = function(username) {
     return identity
 }
 
+PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences) {
+    // TODO: validation on all available values
+    // TODO: check for existing identity
+    // TODO: add any unknown outfits
+    // THINK: ensure primary?
+
+    var identity = { username: username
+                   , primary: primary
+                   , aliases: aliases || []
+                   , preferences: preferences || {}
+                   }
+                 
+    PB.M.Wardrobe.identities[username] = identity
+    
+    PB.M.Wardrobe.processUpdates()
+    
+    return identity
+}
+
 PB.M.Wardrobe.addOutfit = function(username, capa, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, secrets) {
     // TODO: validation on all available values
     // TODO: check for existing username/capa
@@ -114,25 +133,6 @@ PB.M.Wardrobe.addOutfit = function(username, capa, rootKeyPrivate, adminKeyPriva
     PB.M.Wardrobe.outfits.push(outfit)
     
     return outfit
-}
-
-PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences) {
-    // TODO: validation on all available values
-    // TODO: check for existing identity
-    // TODO: add any unknown outfits
-    // THINK: ensure primary?
-
-    var identity = { username: username
-                   , primary: primary
-                   , aliases: aliases || []
-                   , preferences: preferences || {}
-                   }
-                 
-    PB.M.Wardrobe.identities[username] = identity
-    
-    PB.M.Wardrobe.processUpdates()
-    
-    return identity
 }
 
 PB.M.Wardrobe.addOutfitToIdentity = function(username, outfit) {
@@ -261,14 +261,10 @@ PB.M.Wardrobe.getIdentityFile = function(username) {
     idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
 
     idFile.username = username
-    
-    idFile.primary = identity.primary
-    
-    idFile.aliases = identity.aliases
-    
+    idFile.primary  = identity.primary
+    idFile.aliases  = identity.aliases
     idFile.preferences = identity.preferences
-
-    idFile.version = "1.1"
+    idFile.version  = "1.1"
 
     // THINK: consider passphrase protecting identity file by default
 
@@ -335,7 +331,7 @@ PB.M.Wardrobe.getCurrentUsername = function() {
  * @return {string}
  */
 PB.M.Wardrobe.getCurrentUserRecord = function() {
-    var username = PB.M.Wardrobe.getCurrentUsername()
+    var username = PB.M.Wardrobe.currentUsername
     if(!username) 
         return PB.onError('No current user in wardrobe')
     
@@ -485,7 +481,7 @@ PB.M.Wardrobe.generateRandomUsername = function() {
 PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var username = PB.M.Wardrobe.getCurrentUsername()
+    var username = PB.M.Wardrobe.currentUsername
 
     if(username)
         return PB.getUserRecordNoCache(username)

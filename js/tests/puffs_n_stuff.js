@@ -103,7 +103,7 @@ if(!randomPublicKey)
 var keys = PB.M.Wardrobe.getCurrentKeys() 
 
 // get current username
-var username = PB.M.Wardrobe.getCurrentUsername()
+var username = PB.M.Wardrobe.currentUsername
 
 // get current user record
 var userRecord = PB.M.Wardrobe.getCurrentUserRecord()

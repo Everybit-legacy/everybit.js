@@ -93,7 +93,7 @@ var ICXWorld = React.createClass({
         }
 
 
-        ICX.username = PB.M.Wardrobe.getCurrentUsername()
+        ICX.username = PB.M.Wardrobe.currentUsername
         ICX.identitySet = true
 
 
@@ -416,7 +416,7 @@ var ICXStoreFinish = React.createClass({
 
 
 
-        if(PB.M.Wardrobe.getCurrentUsername()) {
+        if(PB.M.Wardrobe.currentUsername) {
 
 
 
@@ -1402,7 +1402,7 @@ var ICXLogin = React.createClass({
 
         var baseFontH = ICX.calculated.baseFontH
 
-        var currUser = PB.M.Wardrobe.getCurrentUsername()
+        var currUser = PB.M.Wardrobe.currentUsername
         if (currUser)
             currUser = '.' + currUser
 
@@ -1796,7 +1796,7 @@ var ICXDashboard = React.createClass({
     handleGenerateIdentityFile: function() {
         // Bail if no username,
         // TODO handle this error better
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.currentUsername
         if(!username)
             return false
 
@@ -1804,7 +1804,7 @@ var ICXDashboard = React.createClass({
         if(isEmpty(ICX.identityForFile)) {
 
             ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identityForFile.username = PB.M.Wardrobe.currentUsername
             ICX.identityForFile.version = "1.0"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
@@ -1834,7 +1834,7 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile())
 
-        var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
+        var filename = PB.M.Wardrobe.currentUsername + "Identity.json"
 
         // var el = document.getElementById.bind(document)
 
@@ -1849,7 +1849,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.M.Wardrobe.currentUsername
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -2334,7 +2334,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.M.Wardrobe.currentUsername
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -2916,7 +2916,7 @@ var PuffTallTree = React.createClass({
 
         // sundry miscellany
         var arrows = this.props.view.arrows
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.currentUsername
         var filters = this.props.view.filters
         var query = this.props.view.query
         var queryfilter = Boron.extend({}, query, filters)

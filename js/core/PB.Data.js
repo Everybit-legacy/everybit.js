@@ -268,7 +268,7 @@ PB.Data.tryAddingShell = function(shell) {
     }
 
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.M.Wardrobe.currentUsername
 
         if(!shell.keys[username]) return false
         

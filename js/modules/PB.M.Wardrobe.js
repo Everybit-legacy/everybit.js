@@ -13,7 +13,7 @@
 
   An identity is a username, a primary outfit, a list of alias outfits, and the identity's private preferences. Aliases generally correspond to anonymous usernames created for one-time encrypted transfer. 
 
-  An outfit is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the 'bonus' field.
+  An outfit is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the 'secrets' field.
 
   Username and capa define a unique outfit. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the outfit's private keys. 
 
@@ -41,15 +41,185 @@
 This whole file needs to change, along with anything that references it. May as well do the pref/prof stuff now too.
 
 
+How do we migrate without losing everything? Could adapt the identity file format first...
+
+
 */
 
 PB.M.Wardrobe = {}
 
 PB.M.Wardrobe.outfits = []
-// outfit = { username: 'dann', root: '123', admin: '333', default: '444', capa: 12, bonus: {} }
+// outfit = { username: 'asdf', capa: 12, root: '123', admin: '333', default: '444', secrets: {} }
 
 PB.M.Wardrobe.identities = {}
-// identity = { username: 'dann', primary: dann12, aliases: [dann11, dann10], prefs: {} }
+// identity = { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} }
+
+
+PB.M.Wardrobe.addOutfit = function(username, capa, rootKey, adminKey, defaultKey, secrets) {
+    // TODO: validation on all available values
+    // TODO: check for existing username/capa
+    // THINK: hit network for confirmation?
+    // THINK: maybe only include valuable values?
+    
+    var outfit = { 'username': username
+                 , 'capa': capa
+                 , 'root': rootKey || false
+                 , 'admin': adminKey || false
+                 , 'default': defaultKey || false
+                 , 'secrets': secrets || {}
+                 }
+                 
+    PB.M.Wardrobe.outfits.push(outfit)
+    
+    return outfit
+}
+
+PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences) {
+    var identity = { username: username
+                 , capa: capa
+                 , secrets: secrets || {}
+                 }
+                 
+    PB.M.Wardrobe.outfits.push(outfit)
+    
+    return outfit
+    
+}
+
+
+
+
+
+existing_to_outfit = function(keychain) {
+    ///// this is deprecated, remove it
+    PB.M.Wardrobe.addOutfit()
+}
+
+all_existing_to_outfit = function() {
+    ///// this is deprecated, remove it
+    existing_to_outfit()
+}
+
+
+
+PB.M.Wardrobe.relabelOutfit = function(outfit) {
+    // if(   identity.root) idFile.rootKeyPrivate = identity.root
+    // if(  identity.admin) idFile.adminKeyPrivate = identity.admin
+    // if(identity.default) idFile.defaultKeyPrivate = identity.default
+    // if(identity.secrets && identity.secrets.passphrase)
+    //     idFile.passphrase = identity.secrets.passphrase
+    
+}
+
+
+PB.M.Wardrobe.getIdentityFile = function(username) {
+    username = username || PB.M.Wardrobe.getCurrentUsername()
+    
+    if(!username) return false
+
+    var identity = PB.M.Wardrobe.getIdentity(username)
+
+    var idFile = {}
+
+    // assemble idFile manually to keep everything in the right order
+    idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+    idFile.username = username
+    
+    idFile.primary = PB.M.Wardrobe.relabelOutfit(identity.primary)
+    
+    idFile.aliases = identity.aliases.map(PB.M.Wardrobe.relabelOutfit)
+    
+    idFile.preferences = identity.preferences
+
+    idFile.version = "1.1"
+
+    return JSON.parse(JSON.stringify(idFile))
+}
+
+
+/**
+ * get the current identity's preferences
+ * @param  {string} key
+ * @return {value}
+ */
+PB.M.Wardrobe.getPreference = function(key) {
+    return true
+    
+    // get current identity or error
+    
+    // return specified pref or false
+}
+
+/**
+ * set a preference for the current identity
+ * @param {string} key
+ * @param {string} value
+ */
+PB.M.Wardrobe.setPreference = function(key, value) {
+    return false
+    
+    // var prefs = PB.M.Wardrobe.getAllPrefs()
+    var newprefs = Boron.set_deep_value(prefs, key, value); // allows dot-paths
+
+    PB.M.Wardrobe.prefsarray = newprefs
+
+    var filename = 'prefs'
+    PB.Persist.save(filename, newprefs)
+    
+    return newprefs
+}
+
+
+/**
+ * Clear the identity's private keys from the wardrobe
+ * @param  {string} username
+ */
+PB.M.Wardrobe.removeIdentity = function(username) {
+    //// clear the identity's private keys from the wardrobe
+    // PB.M.Wardrobe.keychain = PB.M.Wardrobe.getAll()
+    //
+    // delete PB.M.Wardrobe.keychain[username]
+    //
+    // if(PB.M.Wardrobe.currentKeys.username == username) {
+    //     PB.M.Wardrobe.currentKeys = false
+    //     PB.Persist.remove('identity'); // remove from localStorage
+    // }
+    //
+    // if(PB.M.Wardrobe.getPreference('storeKeychain'))
+    //     PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
+}
+
+
+PB.M.Wardrobe.validatePrivateKeys = function(username, capa, rootKey, adminKey, defaultKey) {
+    //// Ensure keys match the userRecord
+    //// NOTE: this is currently unused
+    
+    var prom = PB.getUserRecord(username, capa)
+    
+    return prom
+        .then(function(userRecord) {
+            // validate any provided private keys against the userRecord's public keys
+            if(   rootKey && PB.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
+                PB.throwError('That private root key does not match the public root key on record')
+            if(  adminKey && PB.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
+                PB.throwError('That private admin key does not match the public admin key on record')
+            if(defaultKey && PB.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
+                PB.throwError('That private default key does not match the public default key on record')
+        
+            return userRecord
+        }
+        , PB.promiseError('Could not store private keys due to faulty user record'))
+}
+
+
+
+
+
+
+
+
+
 
 PB.M.Wardrobe.keychain = false     // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
 PB.M.Wardrobe.currentKeys = false  // false if not set, so watch out
@@ -195,52 +365,8 @@ PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKe
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
 }
 
-/**
- * Ensure keys match the userRecord
- * @param  {string}   username
- * @param  {string}   rootKey
- * @param  {string}   adminKey
- * @param  {string}   defaultKey
- * @param  {Function} callback
- * @return {string}
- */
-PB.M.Wardrobe.validatePrivateKeys = function(username, rootKey, adminKey, defaultKey, callback) {
-    //// Ensure keys match the userRecord
-    
-    var prom = PB.getUserRecord(username)
-    
-    return prom.then(function(userRecord) {
-        // validate any provided private keys against the userRecord's public keys
-        if(rootKey    && PB.Crypto.privateToPublic(rootKey) != userRecord.rootKey)
-            PB.throwError('That private root key does not match the public root key on record')
-        if(adminKey   && PB.Crypto.privateToPublic(adminKey) != userRecord.adminKey)
-            PB.throwError('That private admin key does not match the public admin key on record')
-        if(defaultKey && PB.Crypto.privateToPublic(defaultKey) != userRecord.defaultKey)
-            PB.throwError('That private default key does not match the public default key on record')
-        
-        return userRecord
-    }, PB.promiseError('Could not store private keys due to faulty user record'))
-}
 
 
-/**
- * Clear the identity's private keys from the wardrobe
- * @param  {string} username
- */
-PB.M.Wardrobe.removeKeys = function(username) {
-    //// clear the identity's private keys from the wardrobe
-    PB.M.Wardrobe.keychain = PB.M.Wardrobe.getAll()
-
-    delete PB.M.Wardrobe.keychain[username]
-    
-    if(PB.M.Wardrobe.currentKeys.username == username) {
-        PB.M.Wardrobe.currentKeys = false
-        PB.Persist.remove('identity'); // remove from localStorage
-    }
-    
-    if(PB.M.Wardrobe.getPreference('storeKeychain'))
-        PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
-}
 
 /**
  * Create a new anonymous identity and add it to the local identity list
@@ -310,37 +436,4 @@ PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
         console.log("Setting current user to " + userRecord.username);
         return userRecord
     })
-}
-
-
-/**
- * get the current identity's preferences
- * @param  {string} key
- * @return {value}
- */
-PB.M.Wardrobe.getPreference = function(key) {
-    return true
-    
-    // get current identity or error
-    
-    // return specified pref or false
-}
-
-/**
- * set a preference for the current identity
- * @param {string} key
- * @param {string} value
- */
-PB.M.Wardrobe.setPreference = function(key, value) {
-    return false
-    
-    // var prefs = PB.M.Wardrobe.getAllPrefs()
-    var newprefs = Boron.set_deep_value(prefs, key, value); // allows dot-paths
-
-    PB.M.Wardrobe.prefsarray = newprefs
-
-    var filename = 'prefs'
-    PB.Persist.save(filename, newprefs)
-    
-    return newprefs
 }

@@ -2104,39 +2104,7 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
-
-        // Bail if no username,
-        var username = PB.M.Wardrobe.getCurrentUsername()
-        if(!username)
-            return false
-
-        // Only generate if it doesn't already exist
-        // if(isEmpty(ICX.identityForFile)) {
-
-            ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = username
-            ICX.identityForFile.version = "1.0"
-
-            if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
-                ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root
-
-            if(typeof PB.M.Wardrobe.currentKeys.admin !== 'undefined')
-                ICX.identityForFile.adminKeyPrivate =  PB.M.Wardrobe.currentKeys.admin
-
-            if(typeof PB.M.Wardrobe.currentKeys.default !== 'undefined')
-                ICX.identityForFile.defaultKeyPrivate =  PB.M.Wardrobe.currentKeys.default
-
-            if(typeof PB.M.Wardrobe.currentKeys.bonus !== 'undefined')
-                if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
-                    ICX.identityForFile.passphrase =  PB.M.Wardrobe.currentKeys.bonus.passphrase
-
-        //}
-
-        // Identity file for a freshly registered user does not have the username field filled in
-        // if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
-        //     ICX.identityForFile.username = username
-        // }
-
+        ICX.identityForFile = PB.M.Wardrobe.getIdentityFile()
         return ICX.identityForFile
     },
 
@@ -2175,7 +2143,7 @@ var ICXDashboard = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
@@ -2975,7 +2943,7 @@ var ICXUserButton = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         ICX.currScreen = 'home'

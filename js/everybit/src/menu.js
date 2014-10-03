@@ -716,7 +716,7 @@ var AuthorPicker = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         Events.pub('user/'+userToRemove+'/remove', {})
         var all_usernames = Object.keys(PB.M.Wardrobe.getAll()).filter(function(u){return u!=userToRemove})
         if (all_usernames.length != 0) {

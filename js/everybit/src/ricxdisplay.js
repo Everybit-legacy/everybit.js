@@ -1859,7 +1859,7 @@ var ICXDashboard = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
@@ -2344,7 +2344,7 @@ var ICXUserButton = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         ICX.currScreen = 'home'

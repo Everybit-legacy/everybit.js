@@ -700,6 +700,22 @@ function getProfilePuff(username) {
     return false
 }
 
+function modConfig(key, value) {
+    CONFIG[key] = value
+    if(!CONFIG.mods)
+        CONFIG.mods = {}
+    CONFIG.mods[key] = value
+    PB.Persist.save('CONFIG', CONFIG.mods)
+}
+
+function popMods() {
+    var mods = PB.Persist.get('CONFIG')
+    if(!mods) return false
+    
+    CONFIG.mods = mods
+    Object.keys(CONFIG.mods).forEach(function(key) { CONFIG[key] = mods[key] })
+}
+
 
 // END OF THINGS
 /////////////////////////////////////////////

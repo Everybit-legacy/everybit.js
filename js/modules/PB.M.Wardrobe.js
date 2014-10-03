@@ -155,35 +155,6 @@ PB.M.Wardrobe.addOutfitToIdentity = function(username, outfit) {
     PB.M.Wardrobe.processUpdates()
 }
 
-PB.M.Wardrobe.getPreference = function(key) {
-    // NOTE: this only works for the current identity
-
-    return true /// laskdjflaskdjfaslkdjfaslkdjf!!!!!!!!!!!
-    
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    
-    if(!identity)
-        return PB.onError('No active identity from whom to request preferences')
-    
-    return identity.preferences[key]
-}
-
-PB.M.Wardrobe.setPreference = function(key, value) {
-    // NOTE: this only works for the current identity
-    
-    return false    /// laskdjflaskdjfaslkdjfaslkdjf!!!!!!!!!!!
-    
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    
-    if(!identity)
-        return PB.onError('Preferences can only be set for an active identity')
-    
-    identity.preferences[key] = value
-
-    PB.M.Wardrobe.processUpdates()
-}
-
-
 PB.M.Wardrobe.removeIdentity = function(username) {
     var identity = PB.M.Wardrobe.getIdentity(username)
     
@@ -269,6 +240,28 @@ PB.M.Wardrobe.getIdentityFile = function(username) {
     // THINK: consider passphrase protecting identity file by default
 
     return JSON.parse(JSON.stringify(idFile)) // deep clone for safety
+}
+
+PB.M.Wardrobe.getPreference = function(key) {
+    // NOTE: this only works for the current identity
+    var identity = PB.M.Wardrobe.getCurrentIdentity()
+    
+    if(!identity)
+        return PB.onError('No active identity from whom to request preferences')
+    
+    return identity.preferences[key]
+}
+
+PB.M.Wardrobe.setPreference = function(key, value) {
+    // NOTE: this only works for the current identity
+    var identity = PB.M.Wardrobe.getCurrentIdentity()
+    
+    if(!identity)
+        return PB.onError('Preferences can only be set for an active identity')
+    
+    identity.preferences[key] = value
+
+    PB.M.Wardrobe.processUpdates()
 }
 
 
@@ -414,7 +407,7 @@ PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKe
     if(typeof bonusInfo != 'undefined')
         PB.M.Wardrobe.keychain[username].bonus   = bonusInfo
     
-    if(PB.M.Wardrobe.getPreference('storeKeychain'))
+    if(!CONFIG.ephemeralKeychain)
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
 }
 

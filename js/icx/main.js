@@ -174,16 +174,6 @@ Events.sub('prefs/storeKeychain/toggle', function(data, path) {
     Events.pub('ui/menu/prefs/storeKeychain/' + dir)
 })
 
-Events.sub('profile/nickname/set', function(data, path) {
-    var nickname = data.nickname
-    if(!nickname)
-        return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
-
-    PB.M.Wardrobe.setProfileItem('nickname', nickname)
-
-    Events.pub('ui/menu/profile/nickname/set')
-});
-
 
 ///// event bindings that are specific to the GUI //////
 
@@ -492,16 +482,6 @@ function showPuffDirectly(puff) {
 
 function renderPuffWorld() {
     var puffworlddiv = document.getElementById('puffworld')         // OPT: cache this for speed
-
-    // THINK: is this the right place for this? these probably belong in update_puffworldprops...
-    // puffworldprops has to contain some important things like prefs
-    var data = { prefs: PB.M.Wardrobe.getAllPrefs()
-               , profile: PB.M.Wardrobe.getAllProfileItems()
-               }
-
-    update_puffworldprops(Boron.flatten(data))
-
-
 
     React.renderComponent(ICXWorld(puffworldprops), puffworlddiv)
 }

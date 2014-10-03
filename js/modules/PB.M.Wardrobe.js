@@ -116,6 +116,10 @@ PB.M.Wardrobe.switchCurrent = function(username) {
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
     PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
     PB.Data.importPrivateShells(username)
+
+    // TODO: this doesn't belong here, move it by having registering a switchCurrent callback
+    // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
+    Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
     
     return PB.M.Wardrobe.currentKeys = keys
 }
@@ -360,104 +364,3 @@ PB.M.Wardrobe.removePrefs = function() {
     PB.Persist.remove(filename)
 }
 
-
-
-////// PROFILE ///////
-
-/*
-    These exist on a per-identity basis, and are stored on the machine 
-    as part of the identity's presence in the user's identity wardrobe.
-*/
-
-PB.M.Wardrobe.profilearray = {}  // THINK: put this somewhere else
-
-/**
- * to get the profile item
- * @param  {string} key
- * @return {object}
- */
-PB.M.Wardrobe.getProfileItem = function(key) {
-    var username = PB.M.Wardrobe.currentKeys.username
-    return PB.M.Wardrobe.getUserProfileItem(username, key)
-}
-
-/**
- * to set the profile item
- * @param {string} key
- * @param {string} value
- */
-PB.M.Wardrobe.setProfileItem = function(key, value) {
-    var username = PB.M.Wardrobe.currentKeys.username
-    return PB.M.Wardrobe.setUserProfileItems(username, key, value)
-}
-
-/** 
- * to get all profile items
- * @return {object}
- */
-PB.M.Wardrobe.getAllProfileItems = function() {
-    var username = PB.M.Wardrobe.currentKeys.username
-    return PB.M.Wardrobe.getAllUserProfileItems(username)
-}
-
-/**
- * Get a specific profile item for a user
- * @param  {string} username
- * @param  {string} key
- * @return {object}
- */
-PB.M.Wardrobe.getUserProfileItem = function(username, key) {
-    var profile = PB.M.Wardrobe.getAllUserProfileItems(username)
-    return profile[key]
-}
-
-/**
- * Get all of the user's profile items
- * @param  {string} username
- * @return {object}
- */
-PB.M.Wardrobe.getAllUserProfileItems = function(username) {
-    if(!username) return {} // erm derp derp
-    
-    var parray = PB.M.Wardrobe.profilearray
-    if(parray[username]) return parray[username]  // is this always right?
-    
-    var profilefile = 'profile::' + username
-    parray[username] = PB.Persist.get(profilefile) || {}
-    
-    return parray[username]
-}
-
-/**
- * Set the user's profile items
- * @param {string} username
- * @param {string} key
- * @param {string} value
- */
-PB.M.Wardrobe.setUserProfileItems = function(username, key, value) {
-    if(!username) return false
-    
-    var profile = PB.M.Wardrobe.getAllUserProfileItems(username)
-    var newprofile = Boron.set_deep_value(profile, key, value); // allows dot-paths
-
-    PB.M.Wardrobe.profilearray[username] = newprofile
-
-    var profilefile = 'profile::' + username;
-    PB.Persist.save(profilefile, newprofile)
-    
-    return newprofile
-}
-
-/**
- * Remove the user's profile from wardrobe
- * @param  {string} username
- * @return {(void|false)}
- */
-PB.M.Wardrobe.removeUserProfile = function(username) {
-    if(!username) return false
-    
-    PB.M.Wardrobe.profilearray.delete(username)
-    
-    var profilefile = 'profile::' + username;
-    PB.Persist.remove(profilefile)
-}

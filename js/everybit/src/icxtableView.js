@@ -82,7 +82,7 @@ var RowRenderMixin = {
         var prof = getProfilePuff(fromUser)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
-        	avatar = <img className="iconSized" src={prof.payload.content}  />
+        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div></span>
         }
 
         if(fromUser == ICX.username) {
@@ -93,7 +93,7 @@ var RowRenderMixin = {
 
     	return (
             <div className="username">
-                {avatar}
+            	{avatar}
             	<a className="rowReference" href="#" onClick={this.handleViewUser.bind(this,this.props.puff.username)}>
             		{fromUser}
             		<div className="rowReferencePreview">Click to view all messages from {original}</div>
@@ -109,7 +109,7 @@ var RowRenderMixin = {
         var prof = getProfilePuff(toUser)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
-        	avatar = <img className="iconSized" src={prof.payload.content}  />
+        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div></span>
         }
         
         if(toUser == ICX.username) {
@@ -120,7 +120,7 @@ var RowRenderMixin = {
 
     	return (
             <div className="username">
-            	{avatar}
+                {avatar}
                 <a className="rowReference" href="#" onClick={this.handleViewToUser.bind(this,this.props.puff.routes[0])}>
                 	{toUser}
                 	<div className="rowReferencePreview">Click to show all messages to {original}</div>

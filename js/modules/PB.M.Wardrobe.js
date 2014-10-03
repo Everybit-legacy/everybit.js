@@ -56,10 +56,43 @@ PB.M.Wardrobe.identities = {}
 
 PB.M.Wardrobe.currentUsername = false
 
+
+////////// remove these functions /////////////
+
+existing_to_outfit = function(keychain) {
+    // TODO: this is deprecated, remove it
+    return PB.M.Wardrobe.addOutfit(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
+}
+
+all_existing_to_identities = function() {
+    // TODO: this is deprecated, remove it
+    
+    // for each keychain
+    Object.keys(PB.M.Wardrobe.keychain).forEach(function(username) {
+        var keychain = PB.M.Wardrobe.keychain[username]
+        var outfit = existing_to_outfit(keychain)
+        PB.M.Wardrobe.addIdentity(outfit.username, outfit)
+    })
+    
+}
+
+////////// end removal zone /////////////
+
+
+
 PB.M.Wardrobe.getCurrentIdentity = function() {
-    if(!PB.M.Wardrobe.currentUsername) return false
-    var identity = PB.M.Wardrobe.identities[PB.M.Wardrobe.currentUsername]
-    if(!identity) return PB.onError('Current username does not match any available identity')
+    return PB.M.Wardrobe.getIdentity(PB.M.Wardrobe.currentUsername)
+}
+
+PB.M.Wardrobe.getIdentity = function(username) {
+    if(!username) 
+        return false
+
+    var identity = PB.M.Wardrobe.identities[username]
+
+    if(!identity) 
+        return PB.onError('That username does not match any available identity')
+
     return identity
 }
 
@@ -68,6 +101,7 @@ PB.M.Wardrobe.addOutfit = function(username, capa, rootKeyPrivate, adminKeyPriva
     // TODO: check for existing username/capa
     // THINK: hit network for confirmation?
     // THINK: maybe only include viable values?
+    // NOTE: this doesn't trigger processUpdates (see notes there)
     
     var outfit = { username: username
                  , capa: capa || 1
@@ -96,51 +130,34 @@ PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences) {
                  
     PB.M.Wardrobe.identities[username] = identity
     
+    PB.M.Wardrobe.processUpdates()
+    
     return identity
 }
 
-
-
-
-
-existing_to_outfit = function(keychain) {
-    // TODO: this is deprecated, remove it
-    PB.M.Wardrobe.addOutfit()
-}
-
-all_existing_to_identities = function() {
-    // TODO: this is deprecated, remove it
-    existing_to_outfit()
-}
-
-
-PB.M.Wardrobe.getIdentityFile = function(username) {
-    username = username || PB.M.Wardrobe.getCurrentUsername()
-    
-    if(!username) return false
-
+PB.M.Wardrobe.addOutfitToIdentity = function(username, outfit) {
     var identity = PB.M.Wardrobe.getIdentity(username)
-
-    var idFile = {}
-
-    // assemble idFile manually to keep everything in the right order
-    idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-
-    idFile.username = username
     
-    idFile.primary = identity.primary
+    if(!identity)
+        return false
     
-    idFile.aliases = identity.aliases
+    // TODO: validate outfit 
+    // TODO: add outfit if it isn't already in the list
+    // TODO: ensure outfit isn't already in identity
     
-    idFile.preferences = identity.preferences
+    if(outfit.username == identity.username && outfit.capa > identity.capa) {
+        identity.aliases.push(identity.primary)
+        identity.primary = outfit
+    } else {
+        identity.aliases.push(outfit)
+    }
 
-    idFile.version = "1.1"
-
-    return JSON.parse(JSON.stringify(idFile))
+    PB.M.Wardrobe.processUpdates()
 }
-
 
 PB.M.Wardrobe.getPreference = function(key) {
+    // NOTE: this only works for the current identity
+
     return true /// laskdjflaskdjfaslkdjfaslkdjf!!!!!!!!!!!
     
     var identity = PB.M.Wardrobe.getCurrentIdentity()
@@ -173,8 +190,8 @@ PB.M.Wardrobe.removeIdentity = function(username) {
     if(!identity)
         return PB.onError('Could not find that identity for removal')
     
-    PB.M.removeOutfit(identity.primary)
-    identity.aliases.map(PB.M.removeOutfit)
+    PB.M.Wardrobe.removeOutfit(identity.primary)
+    identity.aliases.map(PB.M.Wardrobe.removeOutfit)
     
     delete PB.M.Wardrobe.identities[username]
     
@@ -224,8 +241,38 @@ PB.M.Wardrobe.processUpdates = function() {
     PB.Persist.save('identities', PB.M.Wardrobe.identities)
     // PB.Persist.save('outfits', PB.M.Wardrobe.outfits)
     
+    // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
+    // THINK: consider passphrase protecting identities and private puffs in localStorage
     if(PB.M.Wardrobe.currentUsername)
         PB.Persist.save('currentUsername', PB.M.Wardrobe.currentUsername)
+}
+
+
+PB.M.Wardrobe.getIdentityFile = function(username) {
+    username = username || PB.M.Wardrobe.currentUsername
+    
+    if(!username) return false
+
+    var identity = PB.M.Wardrobe.getIdentity(username)
+
+    var idFile = {}
+
+    // assemble idFile manually to keep everything in the right order
+    idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+    idFile.username = username
+    
+    idFile.primary = identity.primary
+    
+    idFile.aliases = identity.aliases
+    
+    idFile.preferences = identity.preferences
+
+    idFile.version = "1.1"
+
+    // THINK: consider passphrase protecting identity file by default
+
+    return JSON.parse(JSON.stringify(idFile)) // deep clone for safety
 }
 
 
@@ -235,6 +282,30 @@ PB.M.Wardrobe.processUpdates = function() {
 
 
 
+PB.M.Wardrobe.switchCurrent = function(username) {
+    //// Change current keyset. also used for clearing the current keyset (call with '')
+
+    if(!username)
+        return PB.M.Wardrobe.currentKeys = false
+    
+    var keychain = PB.M.Wardrobe.getAll()
+    var keys     = keychain[username]
+
+    if(!keys)
+        return PB.onError('There are no keys in the wardrobe for that identity -- try adding it first')
+
+    PB.Persist.save('identity', username); // save to localStorage
+    
+    // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
+    PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
+    PB.Data.importPrivateShells(username)
+
+    // TODO: this doesn't belong here, move it by having registering a switchCurrent callback
+    // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
+    // Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
+    
+    return PB.M.Wardrobe.currentKeys = keys
+}
 
 
 
@@ -290,35 +361,6 @@ PB.M.Wardrobe.getAll = function() {
     return PB.M.Wardrobe.keychain
 }
 
-/**
- * Change current keyset. also used for clearing the current keyset (call with '')
- * @param  {string} username
- * @return {string[]}
- */
-PB.M.Wardrobe.switchCurrent = function(username) {
-    //// Change current keyset. also used for clearing the current keyset (call with '')
-
-    if(!username)
-        return PB.M.Wardrobe.currentKeys = false
-    
-    var keychain = PB.M.Wardrobe.getAll()
-    var keys     = keychain[username]
-
-    if(!keys)
-        return PB.onError('There are no keys in the wardrobe for that identity -- try adding it first')
-
-    PB.Persist.save('identity', username); // save to localStorage
-    
-    // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-    PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
-    PB.Data.importPrivateShells(username)
-
-    // TODO: this doesn't belong here, move it by having registering a switchCurrent callback
-    // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-    // Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
-    
-    return PB.M.Wardrobe.currentKeys = keys
-}
 
 /**
  * Store the user's root key

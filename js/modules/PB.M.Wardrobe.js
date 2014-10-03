@@ -281,6 +281,10 @@ PB.M.Wardrobe.getIdentityFile = function(username) {
 PB.M.Wardrobe.switchCurrent = function(username) {
     //// Change current keyset. also used for clearing the current keyset (call with '')
 
+    PB.M.Wardrobe.currentUsername = username
+
+
+
     if(!username)
         return PB.M.Wardrobe.currentKeys = false
     
@@ -316,14 +320,6 @@ PB.M.Wardrobe.currentKeys = false  // false if not set, so watch out
  */
 PB.M.Wardrobe.getCurrentKeys = function() {
     return PB.M.Wardrobe.currentKeys
-}
-
-/**
- * get the current username
- * @return {string}
- */
-PB.M.Wardrobe.getCurrentUsername = function() {
-    return (PB.M.Wardrobe.currentKeys || {}).username || ''
 }
 
 /**

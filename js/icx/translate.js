@@ -50,7 +50,8 @@ Translate.language["en"].extend({
 		logout: " Logout"
 	},
 	send: {
-		msg: "Your Message",
+		msg: "Your message to ",
+        msg_new_user: "Your message to new user: ",
 		to_user: "Sending to user ",
 		to_new_user: "Sending to new user ",
 		file: "File: ",

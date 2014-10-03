@@ -1178,19 +1178,18 @@ var ICXSendMessage = React.createClass({
 
         var invitedNote = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
-            invitedNote = polyglot.t("send.to_new_user") + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
+            invitedNote = polyglot.t("send.msg_new_user") + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
         } else {
-            invitedNote = polyglot.t("send.to_user") + puffworldprops.ICX.toUser
+            invitedNote = polyglot.t("send.msg") + puffworldprops.ICX.toUser
         }
 
         return (
             <div className="send-message" style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.send_msg")}</div>
                 <div className="contentWindow">
-                    {invitedNote}
+                    <span className="bold">{invitedNote}</span>
                     <br />
-                    <div>{polyglot.t("send.msg")}:</div>
-                    <textarea ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
+                    <textarea autocorrect="off" autocapitalize="off" ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                     <br /><br />
@@ -1444,7 +1443,7 @@ var ICXNewUser = React.createClass({
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
                     <div><b>{polyglot.t("signup.pass")}</b></div>
-                    <textarea ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <textarea autocorrect="off" autocapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new passphrase" />
@@ -1782,6 +1781,7 @@ var ICXNewUserFinish = React.createClass({
     }
 })
 
+var passphraseBuffer = []
 
 var ICXLogin = React.createClass({
     mixins: [TooltipMixin],
@@ -1845,7 +1845,8 @@ var ICXLogin = React.createClass({
                     </div>
 
 
-                    <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
+                    <textarea autoCorrect="off" autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
+                    <i className={''} onClick={this.togglePassphraseView} ></i>
 
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br /><br />
@@ -1855,11 +1856,11 @@ var ICXLogin = React.createClass({
             )
     },
 
-    // handleSubmit: function (e) {
-    //     e.preventDefault()
-    //     this.handleUsernameLookup()
-    //     return false
-    // },
+    handleKeyDown: function(e) {
+        if(e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            this.handleLogin()
+        }
+    },
 
     handleUsernameLookup: function () {
         var username = this.refs.username.getDOMNode().value
@@ -1907,12 +1908,6 @@ var ICXLogin = React.createClass({
             return false
         } else {
             this.handleResetCheckboxes()
-        }
-    },
-
-    handleKeyDown: function(e) {
-        if(e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
-            this.handleLogin()
         }
     },
 

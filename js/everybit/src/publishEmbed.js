@@ -533,7 +533,8 @@ var PuffPublishFormEmbed = React.createClass({
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
-                    envelopeUserKeys = PB.M.Wardrobe.keychain[userRecord.username]
+                    var keychain = PB.M.Wardrobe.getAll()
+                    envelopeUserKeys = keychain[userRecord.username]
                 })
             })
         }

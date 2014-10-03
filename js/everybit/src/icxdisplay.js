@@ -1616,8 +1616,14 @@ var ICXNewUser = React.createClass({
         if(!username.length) {
 
             Events.pub('ui/event', {
-                'ICX.newUser.usernameStatus': false,
+                'ICX.newUser.usernameStatus': 'missing',
                 'ICX.newUser.usernameMessage': 'Missing'
+            })
+            return false
+        } else if(username.length < 4) {
+            Events.pub('ui/event', {
+                'ICX.newUser.usernameStatus': 'short',
+                'ICX.newUser.usernameMessage': 'Too Short'
             })
             return false
         }
@@ -1630,7 +1636,13 @@ var ICXNewUser = React.createClass({
         }
 
         username = 'icx.' + username
-
+        if (username.length > CONFIG.standards.usernames.maxLength) {
+            Events.pub('ui/event', {
+                'ICX.newUser.usernameStatus': 'long',
+                'ICX.newUser.usernameMessage': 'Too Long'
+            })
+            return false
+        }
         var prom = PB.getUserRecord(username)
 
         Events.pub('ui/username/requested', {

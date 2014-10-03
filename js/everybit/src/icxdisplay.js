@@ -308,7 +308,7 @@ var ICXStore = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.store")}</div><br />
                 <div className="contentWindow">
-                    {polyglot.t("store.select")}
+                    <span className="text-box">{polyglot.t("store.select")}</span>
                     <br /><br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
@@ -336,19 +336,19 @@ var ICXStore = React.createClass({
     },
 
     componentWillMount: function() {
-        if(!ICX.username) {
+       if(!ICX.username) {
             return Events.pub('ui/event/newuser', {
                 "view.icx.screen": 'newuser',
                 'ICX.wizard.inProcess': true,
                 'ICX.wizard.sequence': 'store'
             })
         }
-        Events.pub('ui/event/store', {
+       Events.pub('ui/event/store', {
             'ICX.userConfirmed': false,
             'ICX.nextStatus': false,
             'ICX.wizard.inProcess': true,
             'ICX.wizard.sequence': 'store'
-        })
+       })
     },
 
     componentDidMount: function() {
@@ -408,7 +408,7 @@ var ICXStoreFinish = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.store_fin")}</div><br />
                 <div className="contentWindow">
-                    {polyglot.t("store.success")}
+                    <span className="text-box">{polyglot.t("store.success")}</span>
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" onClick ={this.handleSubmitSuccess}>{polyglot.t("store.save")}</a>
                     <br /><br />
@@ -578,15 +578,16 @@ var ICXInvite = React.createClass({
                     <br />
                     <span className="shortcut">Note:</span> Your recipient will have to enter the answer <em>exactly</em> how you type it.
                     <br /><br />
-                    <button style={ICX.buttonStyle} onClick={this.handleSendToEmail}>Next <i className="fa fa-chevron-right" /></button>
+                    <a style={ICX.buttonStyle} onClick={this.handleSendToEmail} className="icxNextButton icx-fade"> Next <i className="fa fa-chevron-right small" /></a>
                     <br /><br />
-
-                    <small>Wondering why you can&#8217;t send your message directly to someone without an ICX account?
-                    When you send someone a private message or a file, it has to be encrypted on your own device before
-                    it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
-                    the person you are sending to. That public key has to be created and associated with a username record
-                    before the message can be sent. You can get this process started by choosing a shared secret for your
-                    friend&#39;s initial passphrase.</small>
+                    <div className="text-box text-small">
+                        Wondering why you can&#8217;t send your message directly to someone without an ICX account?
+                        When you send someone a private message or a file, it has to be encrypted on your own device before
+                        it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
+                        the person you are sending to. That public key has to be created and associated with a username record
+                        before the message can be sent. You can get this process started by choosing a shared secret for your
+                        friend&#39;s initial passphrase.
+                    </div>
 
                 </div>
             </div>
@@ -782,16 +783,18 @@ var ICXSend = React.createClass({
 
                     <div className="component">
 
-                        <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.message')}>{polyglot.t("button.msg")} <i className="fa fa-chevron-right" /></button>
+                        <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.message')}> {polyglot.t("button.msg")} <i className="fa fa-chevron-right small" /></a>
                         {' '}
-                        <button style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}>{polyglot.t("button.file")} <i className="fa fa-chevron-right" /></button>
+                        <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleUsernameLookup.bind(null, 'send.file')}> {polyglot.t("button.file")} <i className="fa fa-chevron-right small" /></a>
 
                     </div>
-                    Enter an ICX username or email address above to send an encrypted message or file. Looking for someone to
-                    {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
-                    {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
-                    {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>, or
-                    {' '}enter an email address to send your first encrypted message.
+                    <div className="text-box">
+                        Enter an ICX username or email address above to send an encrypted message or file. Looking for someone to
+                        {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
+                        {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
+                        {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>, or
+                        {' '}enter an email address to send your first encrypted message.
+                    </div>
                 </div>
             </div>
             )
@@ -963,7 +966,7 @@ var ICXSendFile = React.createClass({
                         <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
                     </span>
                     <br /><br />
-                    <div ref="warning" style={{'display':'none','color':'red'}}>
+                    <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
                         <span>{polyglot.t("store.warning")}</span>
                     </div>
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
@@ -1060,6 +1063,7 @@ var ICXSendFileFinish = React.createClass({
                 <br />
                 <div className="contentWindow">
                     <div>{successMessage}</div>
+                    <br />
                     <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
                 </div>
             </div>
@@ -1190,7 +1194,7 @@ var ICXSendMessage = React.createClass({
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                     <br /><br />
-                    {polyglot.t("send.tip_1")}<span className="shortcut">command-enter</span>{polyglot.t("send.tip_2")}
+                    <span className="shortcut text-normal">{polyglot.t("send.tip_label")}</span>{polyglot.t("send.tip_1")}<span className="shortcut">command-enter</span>{polyglot.t("send.tip_2")}
                 </div>
 
             </div>
@@ -1303,6 +1307,7 @@ var ICXSendMessageFinish = React.createClass({
                 <br />
                 <div className="contentWindow">
                     <div>{successMessage}</div>
+                    <br />
                     <ICXNextButton enabled={puffworldprops.ICX.messageSent} goto='send' text='Send another' />
                 </div>
             </div>
@@ -1450,8 +1455,7 @@ var ICXNewUser = React.createClass({
                     <canvas id="avatarCanvas" width="60" height="60">
                     </canvas>
                     <br /><br />
-
-                    <button style={ICX.buttonStyle} onClick={this.handleRegisterName}>{puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right" /></button>
+                    <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
         )
@@ -1802,7 +1806,7 @@ var ICXLogin = React.createClass({
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
                 <div style={headerStyle}>{polyglot.t("header.login")}</div>
 
-                <div className="component">
+                <div className="contentWindow">
                     <div className="relative">
                         {polyglot.t("login.id_file")}<sup>&#63;</sup>
                         <Tooltip content="Authenticate with this browser using your private identity file" />
@@ -1832,8 +1836,8 @@ var ICXLogin = React.createClass({
                     <textarea type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
 
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
-                    <br />
-                    <button style={ICX.buttonStyle} onClick={this.handleLogin}>Authenticate<i className="fa fa-chevron-right" /></button>
+                    <br /><br />
+                    <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
             )
@@ -2099,7 +2103,7 @@ var ICXDashboard = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
-                    Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.
+                    <span className="text-box">Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.</span>
                     <br /><br />
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'home.table')}>
@@ -2278,7 +2282,7 @@ var ICXChangePassphrase = React.createClass({
                 <div className="contentWindow">
                     {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
                     <br /><br />
-                    <button style={ICX.buttonStyle} onClick={this.handleChangePassphrase}>{polyglot.t("button.change")} <i className="fa fa-chevron-right" /></button>
+                    <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
 
                 </div>
             </div>
@@ -2466,7 +2470,7 @@ var ICXLearn = React.createClass({
                 </div>
                 <div className="contentWindow">
                 <br /><br />
-                {polyglot.t("learn.more")}<a href="#" className="inline" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.
+                <span className="text-box">{polyglot.t("learn.more")}<a href="#" className="inline" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.</span>
                 </div>
             </div>
         )
@@ -2495,14 +2499,17 @@ var ICXIndepth = React.createClass({
                 <div style={headerStyle}>{polyglot.t("header.indepth")}</div>
                 <br />
                 <div className="contentWindow" style={textStyle}>
-                To send a message or file, I.CX uses the public key of your recipient to encrypt your content so that only they can open it. All of your content is encrypted client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
+                    <div className="text-box">
+                    To send a message or file, I.CX uses the public key of your recipient to encrypt your content so that only they can open it. All of your content is encrypted client side (right in your web browser), using javascript and trusted cryptographic libraries. There is no master key that opens all messages, no backdoor, no way to reset someone else’s secret code. No passwords are ever sent over the network.
 
-                <br /><br />
+                    <br /><br />
 
-                We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
+                    We even have a way to load your identity into a web browser without typing in your passphrase, just in case you happen to be in a public location.
 
-                <br /><br />
-                I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/puffball" target="_new">github repository</a>.
+                    <br /><br />
+                    I.CX uses the <a href="http://www.puffball.io" target="_new">puffball platform</a> to handle distribution of encrypted content in a format known as a "puff". For detailed technical information about puffs visit the <a href="https://github.com/puffball/puffball" target="_new">github repository</a>.
+
+                    </div>
                 </div>
             </div>
 
@@ -2524,7 +2531,7 @@ var ICXAbout = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.about")}</div><br />
                 <div className="contentWindow">
-                {polyglot.t("about.built")}<a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>.
+                <span className="text-box">{polyglot.t("about.built")}<a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>.</span>
                     <br />
                     <br />
                     <b>{polyglot.t("about.devs")}</b>
@@ -3074,15 +3081,15 @@ var ICXNextButton = React.createClass({
         if (this.props.enabled) {
             ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
-            //return <a style={ICX.buttonStyle} onClick={this.handleNext} className="icxNextButton icx-fade"> {buttonText} </a>
-            return <button style={ICX.buttonStyle} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
+            return <a style={ICX.buttonStyle} onClick={this.handleNext} className="icxNextButton icx-fade"> {buttonText} <i className="fa fa-chevron-right small" /></a>
+            //return <button style={ICX.buttonStyle} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
             ICX.buttonStyle.backgroundColor = 'rgba(0, 3, 82, .1)' //
             ICX.buttonStyle.cursor = 'default' //
 
-            return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
-            //return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} </a>
+            //return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
+            return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} <i className="fa fa-chevron-right small" /></a>
 
         }
     }

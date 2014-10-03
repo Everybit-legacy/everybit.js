@@ -443,6 +443,10 @@ var ICXStoreFinish = React.createClass({
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
                 this.handleBackup();
+
+            } else {
+                ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
             var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
@@ -466,10 +470,6 @@ var ICXStoreFinish = React.createClass({
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
-
-        // TODO: Only show warning if they DONT choose backup to network
-        ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
-        return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
     },
 
     handleBackup: function() {

@@ -915,6 +915,74 @@ fieldset[disabled] .btn-primary.active {
 .icx-newuser {
 }
 
+/* BEGIN ICX tableview */
+.icx-tableview {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.icx-tableview .viewContainer {
+    margin: 10px;
+}
+
+.icx-tableview .viewContainer .viewItem {
+    margin-bottom: 15px;
+    border: 1px solid green;
+    width: 90%;
+}
+
+.icx-tableview .viewContainer .viewItem.sent {
+    margin-left: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem.received {
+    margin-right: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem .markdownP {
+    font-size: 100%;
+}
+
+.icx-tableview .viewContainer .metaInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .metaInfo .info {
+    float: left;
+    width: 70%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .metaInfo .info .date-since {
+    float: left;
+    margin-right: 2%;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs {
+    float: left;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .metaInfo .options {
+    float: right;
+}
+
+.icx-tableview .viewContainer .metaInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .viewItem .bigStart::first-line {
+    font-size: 100%;
+    font-family: Gudea;
+}
+
+/* END ICX tableview */
+
+
+
+
 .icx-screen .listview {
     max-height: 100%;
     overflow-x: hidden;

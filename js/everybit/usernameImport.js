@@ -18,7 +18,7 @@ UsernameImport.instagram.contentURL = function(username, userid, access_token) {
 	var content_url = "https://api.instagram.com/v1/users/" + userid + "/media/recent/?access_token=" + access_token + "&count=100&callback=UsernameImport.instagram.collectData";
 	username = StringConversion.toActualUsername(username);
 		console.log(username);
-	if (PB.M.Wardrobe.switchCurrent(username)) {
+	if (PB.M.Wardrobe.switchIdentityTo(username)) {
 		var newScript_el = document.createElement('script');
 		newScript_el.setAttribute("src", content_url);
 		newScript_el.setAttribute("class", "instagramContent");

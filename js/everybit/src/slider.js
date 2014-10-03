@@ -636,7 +636,7 @@ var PasswordWizard = React.createClass({
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) { 
                 PB.M.Wardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate)
-                PB.M.Wardrobe.switchCurrent(username)
+                PB.M.Wardrobe.switchIdentityTo(username)
                 updateUI()
                 var enableImport = (payload.importNetwork && payload.importNetwork == 'instagram')
                 self.setState({errMsg: "","registerSuccess": true, enableImport: enableImport})

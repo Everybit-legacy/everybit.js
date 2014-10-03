@@ -1350,7 +1350,7 @@ var ICXNewUser = React.createClass({
 
 
                 // Set this person as the current user
-                PB.M.Wardrobe.switchCurrent(requestedUsername)
+                PB.M.Wardrobe.switchIdentityTo(requestedUsername)
 
                 // Function below fails, so set above this
                 // PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
@@ -1594,7 +1594,7 @@ var ICXLogin = React.createClass({
                 }
 
                 // At least one good key, set this to current user
-                PB.M.Wardrobe.switchCurrent(username)
+                PB.M.Wardrobe.switchIdentityTo(username)
 
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
@@ -1695,7 +1695,7 @@ var ICXLogin = React.createClass({
                         PB.M.Wardrobe.storeDefaultKey(username, privateKey)
 
                         // At least one good key, set this to current user
-                        PB.M.Wardrobe.switchCurrent(username)
+                        PB.M.Wardrobe.switchIdentityTo(username)
 
 
                         ICX.username = username

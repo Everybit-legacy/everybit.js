@@ -280,7 +280,7 @@ var PuffPacker = React.createClass({
 
     handleSetIdentityToAnon: function() {
         PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0)
-        PB.M.Wardrobe.switchCurrent('anon')
+        PB.M.Wardrobe.switchIdentityTo('anon')
         Events.pub('ui/puff-packer/set-identity-to-anon', {})
         // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0)
         // PB.M.Wardrobe.addUserReally('anon', keys)
@@ -460,7 +460,7 @@ var PuffPacker = React.createClass({
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
         this.setState({profileMsg: ''});
-        PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
+        PB.M.Wardrobe.switchIdentityTo(this.refs.switcher.getDOMNode().value)
         return Events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
     render: function() {

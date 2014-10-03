@@ -253,16 +253,10 @@ PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update funct
 PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);
 PB.addRelationship(PB.M.Forum.addFamilialEdges);
 
-// set current identity, synchronously
-var lastUsername = localStorage['PUFF::identity'];
-if (lastUsername) {
-    lastUsername = PB.parseJSON(lastUsername);
-    PB.M.Wardrobe.switchCurrent(lastUsername);
-}
-
 
 // END MANUAL FORUM MODULE INIT
 
+PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
 handleImportRedirect();                             // check if import
 

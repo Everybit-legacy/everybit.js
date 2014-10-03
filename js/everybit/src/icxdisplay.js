@@ -1655,7 +1655,7 @@ var ICXNewUser = React.createClass({
                 PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
 
                 // Set this person as the current user
-                PB.M.Wardrobe.switchCurrent(requestedUsername)
+                PB.M.Wardrobe.switchIdentityTo(requestedUsername)
 
                 // Create identity file
                 ICX.identityForFile = {
@@ -1889,7 +1889,7 @@ var ICXLogin = React.createClass({
                     PB.M.Wardrobe.storeDefaultKey(username, privateKey)
 
                     // At least one good key, set this to current user
-                    PB.M.Wardrobe.switchCurrent(username)
+                    PB.M.Wardrobe.switchIdentityTo(username)
 
 
                     ICX.username = username
@@ -1980,7 +1980,7 @@ var ICXLogin = React.createClass({
             })
 
             // At least one good key: make current user and add passphrase to wardrobe
-            PB.M.Wardrobe.switchCurrent(username)
+            PB.M.Wardrobe.switchIdentityTo(username)
             PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
 
 

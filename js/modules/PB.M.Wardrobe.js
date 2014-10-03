@@ -22,7 +22,7 @@
   An identity file can be exported to the local filesystem and imported back in to the system.
 
   Usage examples:
-      PB.M.Wardrobe.switchCurrent(user.username)
+      PB.M.Wardrobe.switchIdentityTo(user.username)
       PB.M.Wardrobe.getCurrentKeys()
 
 */
@@ -80,6 +80,19 @@ all_existing_to_identities = function() {
 
 
 
+PB.M.Wardrobe.init = function() {                           // deflate identities and resume previous
+    var identities = PB.Persist.get('identities')
+    
+    Object.keys(identities).forEach(function(username) {
+        var identity = identities[username]
+        PB.M.Wardrobe.addIdentity(username, identity.primary, identity.aliases, identity.preferences, true)
+    })
+    
+    var lastUsername = PB.Persist.get('currentUsername')
+    if (lastUsername)
+        PB.M.Wardrobe.switchIdentityTo(lastUsername)
+}
+
 PB.M.Wardrobe.getCurrentIdentity = function() {
     return PB.M.Wardrobe.getIdentity(PB.M.Wardrobe.currentUsername)
 }
@@ -96,21 +109,25 @@ PB.M.Wardrobe.getIdentity = function(username) {
     return identity
 }
 
-PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences) {
+PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences, nosave) {
     // TODO: validation on all available values
     // TODO: check for existing identity
     // TODO: add any unknown outfits
+    // THINK: what about outfit that belong to other identities?
     // THINK: ensure primary?
+
+    
 
     var identity = { username: username
                    , primary: primary
                    , aliases: aliases || []
                    , preferences: preferences || {}
                    }
-                 
+
     PB.M.Wardrobe.identities[username] = identity
     
-    PB.M.Wardrobe.processUpdates()
+    if(!nosave)
+        PB.M.Wardrobe.processUpdates()
     
     return identity
 }
@@ -271,34 +288,35 @@ PB.M.Wardrobe.setPreference = function(key, value) {
 
 
 
-PB.M.Wardrobe.switchCurrent = function(username) {
-    //// Change current keyset. also used for clearing the current keyset (call with '')
+PB.M.Wardrobe.switchIdentityTo = function(username) {
+    //// set the currently active identity
+
+    var identity = PB.M.Wardrobe.identities[username]
+
+    if(!identity)
+        return PB.onError('No identity found with username "' + username + '"')
 
     PB.M.Wardrobe.currentUsername = username
 
+    PB.M.Wardrobe.processUpdates()
 
-
-    if(!username)
-        return PB.M.Wardrobe.currentKeys = false
-    
-    var keychain = PB.M.Wardrobe.getAll()
-    var keys     = keychain[username]
-
-    if(!keys)
-        return PB.onError('There are no keys in the wardrobe for that identity -- try adding it first')
-
-    PB.Persist.save('identity', username); // save to localStorage
-    
     // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
     PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
     PB.Data.importPrivateShells(username)
 
-    // TODO: this doesn't belong here, move it by having registering a switchCurrent callback
+    // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
     // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-    // Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
-    
-    return PB.M.Wardrobe.currentKeys = keys
+    Events.pub('ui/switchIdentityTo')
+
+    PB.Persist.save('identity', username); // save to localStorage
 }
+
+
+
+
+
+
+
 
 
 
@@ -478,7 +496,7 @@ PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
     var prom = PB.M.Wardrobe.addNewAnonUser()
     
     return prom.then(function(userRecord) {
-        PB.M.Wardrobe.switchCurrent(userRecord.username)
+        PB.M.Wardrobe.switchIdentityTo(userRecord.username)
         console.log("Setting current user to " + userRecord.username);
         return userRecord
     })

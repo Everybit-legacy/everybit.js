@@ -523,7 +523,7 @@ var PuffPublishFormEmbed = React.createClass({
         if(!PB.M.Wardrobe.currentUsername) {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
-                    PB.M.Wardrobe.switchCurrent(userRecord.username)
+                    PB.M.Wardrobe.switchIdentityTo(userRecord.username)
                 })
             })
         }
@@ -533,8 +533,7 @@ var PuffPublishFormEmbed = React.createClass({
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
-                    var keychain = PB.M.Wardrobe.getAll()
-                    envelopeUserKeys = keychain[userRecord.username]
+                    envelopeUserKeys = PB.M.Wardrobe.getIdentity(userRecord.username)
                 })
             })
         }

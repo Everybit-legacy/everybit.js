@@ -311,6 +311,8 @@ PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update funct
 
 PB.M.Forum.init();                                  // initialize the forum module (and by extension the puffball network)
 
+PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
+
 handleImportRedirect();                             // check if import
 
 setPropsFromURL();                                  // handle pushstate hash
@@ -327,12 +329,6 @@ window.addEventListener('load', function() {
     /// this is cumbersome, but it gets around browser inconsistencies (some fire popstate on page load, others don't)
     //  via https://code.google.com/p/chromium/issues/detail?id=63040
     setTimeout(function() {
-        // set current identity
-        var lastUsername = localStorage['PUFF::identity'];
-        if (lastUsername) {
-            lastUsername = PB.parseJSON(lastUsername);
-            PB.M.Wardrobe.switchCurrent(lastUsername);
-        }
         window.addEventListener('popstate', function(event) {
             if(event.state)
                 return setPropsFromPushstate(event.state);

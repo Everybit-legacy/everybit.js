@@ -1,15 +1,15 @@
 // DATA LAYER
 
-PB.Data = {};
-// PB.Data.puffs = [];
-PB.Data.bonii = {};
-PB.Data.shells = [];
-PB.Data.shellSort = {};
-// PB.Data.shelf = [];
-PB.Data.pending = {};
-PB.Data.userRecords = {};                   // maps username to an array of DHT userRecords
-PB.Data.userPromises = {};
-
+PB.Data = {}
+// PB.Data.puffs = []
+PB.Data.bonii = {}
+PB.Data.shells = []
+PB.Data.shellSort = {}
+// PB.Data.shelf = []
+PB.Data.pending = {}
+PB.Data.userRecords = {}                    // maps username to an array of DHT userRecords
+PB.Data.userPromises = {}
+PB.Data.profiles = {}
 
 ///////////////// new graph stuff ////////////////////
 

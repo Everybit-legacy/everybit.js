@@ -167,8 +167,8 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 //// event bindings for controlling core behavior from the display ////
 
 Events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PB.M.Wardrobe.getPref('storeKeychain')
-    PB.M.Wardrobe.setPref('storeKeychain', new_state)
+    var new_state = !PB.M.Wardrobe.getPreference('storeKeychain')
+    PB.M.Wardrobe.setPreference('storeKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'
     Events.pub('ui/menu/prefs/storeKeychain/' + dir)
@@ -537,7 +537,7 @@ if (lastUsername) {
 // END MANUAL FORUM MODULE INIT
 
 
-PB.M.Wardrobe.setPref('storeKeychain', true);       // TODO: make this based on config, and changeable
+PB.M.Wardrobe.setPreference('storeKeychain', true); // TODO: make this based on config, and changeable
 
 handleImportRedirect();                             // check if import
 

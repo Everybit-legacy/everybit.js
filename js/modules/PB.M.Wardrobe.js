@@ -44,6 +44,13 @@ This whole file needs to change, along with anything that references it. May as 
 */
 
 PB.M.Wardrobe = {}
+
+PB.M.Wardrobe.outfits = []
+// outfit = { username: 'dann', root: '123', admin: '333', default: '444', capa: 12, bonus: {} }
+
+PB.M.Wardrobe.identities = {}
+// identity = { username: 'dann', primary: dann12, aliases: [dann11, dann10], prefs: {} }
+
 PB.M.Wardrobe.keychain = false     // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
 PB.M.Wardrobe.currentKeys = false  // false if not set, so watch out
 
@@ -119,7 +126,7 @@ PB.M.Wardrobe.switchCurrent = function(username) {
 
     // TODO: this doesn't belong here, move it by having registering a switchCurrent callback
     // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-    Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
+    // Events.pub('ui/switchCurrent', { prefs: PB.M.Wardrobe.getAllPrefs() })
     
     return PB.M.Wardrobe.currentKeys = keys
 }
@@ -184,7 +191,7 @@ PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKe
     if(typeof bonusInfo != 'undefined')
         PB.M.Wardrobe.keychain[username].bonus   = bonusInfo
     
-    if(PB.M.Wardrobe.getPref('storeKeychain'))
+    if(PB.M.Wardrobe.getPreference('storeKeychain'))
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
 }
 
@@ -231,7 +238,7 @@ PB.M.Wardrobe.removeKeys = function(username) {
         PB.Persist.remove('identity'); // remove from localStorage
     }
     
-    if(PB.M.Wardrobe.getPref('storeKeychain'))
+    if(PB.M.Wardrobe.getPreference('storeKeychain'))
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
 }
 
@@ -273,6 +280,7 @@ PB.M.Wardrobe.addNewAnonUser = function() {
  * @return {string}
  */
 PB.M.Wardrobe.generateRandomUsername = function() {
+    // TODO: consolidate this with the new username generation functions
     var generatedName = '';
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
     for(var i=0; i<10; i++) {
@@ -305,47 +313,28 @@ PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
 }
 
 
-
-
-////// PREFS ///////
-
-/*
-    These are related to this individual machine, as opposed to the identities stored therein.
-    Identity-related preferences are... encrypted in the profile? That seems ugly, but maybe. 
-    How are these machine-based prefs shared between machines? A special prefs puff?
-*/
-
-
-PB.M.Wardrobe.prefsarray = false  // put this somewhere else
-
 /**
- * to get the preference 
+ * get the current identity's preferences
  * @param  {string} key
- * @return {Prefs(String|Boolean)}
+ * @return {value}
  */
-PB.M.Wardrobe.getPref = function(key) {
-    var prefs = PB.M.Wardrobe.getAllPrefs()
-    return prefs[key]
-}
-
-/**
- * to get all the preferences
- * @return {Prefs(string|boolean)[]}
- */
-PB.M.Wardrobe.getAllPrefs = function() {
-    if(!PB.M.Wardrobe.prefsarray)
-        PB.M.Wardrobe.prefsarray = PB.Persist.get('prefs') || {}
+PB.M.Wardrobe.getPreference = function(key) {
+    return true
     
-    return PB.M.Wardrobe.prefsarray
+    // get current identity or error
+    
+    // return specified pref or false
 }
 
 /**
- * to set the preference
+ * set a preference for the current identity
  * @param {string} key
  * @param {string} value
  */
-PB.M.Wardrobe.setPref = function(key, value) {
-    var prefs = PB.M.Wardrobe.getAllPrefs()
+PB.M.Wardrobe.setPreference = function(key, value) {
+    return false
+    
+    // var prefs = PB.M.Wardrobe.getAllPrefs()
     var newprefs = Boron.set_deep_value(prefs, key, value); // allows dot-paths
 
     PB.M.Wardrobe.prefsarray = newprefs
@@ -355,12 +344,3 @@ PB.M.Wardrobe.setPref = function(key, value) {
     
     return newprefs
 }
-
-/**
- * to remove the preferences
- */
-PB.M.Wardrobe.removePrefs = function() {
-    var filename = 'prefs'
-    PB.Persist.remove(filename)
-}
-

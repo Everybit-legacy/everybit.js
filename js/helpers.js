@@ -669,7 +669,6 @@ function handleUpdateProfile(puff) {
 
 function publishProfilePuff() {
     console.log(puffworldprops.ICX.newUser)
-    console.log(PB.M.Wardrobe.getCurrentKeys())
 
     // build puff
     var content = puffworldprops.profile.avatarUrl

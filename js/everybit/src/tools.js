@@ -125,16 +125,16 @@ var PuffPacker = React.createClass({
     handleBuildModifyUserKeysPuff: function() {
         // Stuff to register. These are public keys
 
-        var currentUser = PB.M.Wardrobe.currentUsername
-        if(!currentUser) {
+        var username = PB.M.Wardrobe.currentUsername
+        if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
             return Events.pub('ui/puff-packer/user-modify-keys/error', {})
         }
 
         var payload = {}
-        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
+        var privateRootKey = PB.M.Wardrobe.getCurrentPrivateRootKey()
+        var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
+        var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
@@ -148,30 +148,27 @@ var PuffPacker = React.createClass({
 
         payload.time = Date.now()
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-
         if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-            if(!rootKey) {
+            if(!privateRootKey) {
                 this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
                 return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = rootKey
+                var signingUserKey = privateRootKey
                 console.log("request will be signed with root key")
             }
         } else if(keyToModify == 'defaultKey') {
-            if(!adminKey) {
+            if(!privateAdminKey) {
                 this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
                 return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = adminKey
+                var signingUserKey = privateAdminKey
                 console.log("request will be signed with admin key")
             }
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(currentUser, signingUserKey, routes, type, content, payload)
+        var puff = PB.buildPuff(username, signingUserKey, routes, type, content, payload)
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this
@@ -261,7 +258,8 @@ var PuffPacker = React.createClass({
 
         payload.latest = this.refs.setLatestSigTo.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+        var username = PB.M.Wardrobe.currentUsername
+        var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
 
         if(!privateKeys.username) {
             this.state.result = {"FAIL": "You must set your identity before building set latest request."}
@@ -270,7 +268,7 @@ var PuffPacker = React.createClass({
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload)
+        var puff = PB.buildPuff(username, privateDefaultKey, routes, type, content, payload)
 
         var self = this
         self.state.puff = puff

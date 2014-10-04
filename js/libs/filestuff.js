@@ -9,14 +9,13 @@ PBFiles.createPuff = function(content, type) {
     var type  = type || 'file'
     var routes = ['local'];
 
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+    var username = PB.M.Wardrobe.currentUsername
+    var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
 
     var previous, envelopeUserKeys
     var userRecordsForWhomToEncrypt = [userRecord]
     
-    var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+    var puff = PB.buildPuff(username, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
 
     return puff
 }
@@ -47,13 +46,12 @@ PBFiles.extractLetterPuff = function(content) {
     if(!puff.keys) return (puff.payload||{}).content
     
     var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-    
     var pubkey = userRecord.defaultKey
-    var prikey = privateKeys.default
     
-    var letter = PB.decryptPuff(puff, pubkey, username, prikey)
+    var username = PB.M.Wardrobe.currentUsername
+    var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
+        
+    var letter = PB.decryptPuff(puff, pubkey, username, privateDefaultKey)
     
     return letter
 }

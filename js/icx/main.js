@@ -9,6 +9,12 @@ puffworldprops = {
             usernameMessage: '',
             checkingUsername: '',
             profilePuff: ''
+        },
+        invite: {
+            questionStatus: false,
+            questionMessage: '',
+            answerStatus: false,
+            answerMessage: ''
         }
     },
     

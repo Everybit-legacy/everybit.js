@@ -74,9 +74,9 @@ var PuffPacker = React.createClass({
         var adminKey = PB.Crypto.generatePrivateKey()
         var defaultKey = PB.Crypto.generatePrivateKey()
 
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey
+        this.refs.privateRootKey.getDOMNode().value = rootKey
+        this.refs.privateAdminKey.getDOMNode().value = adminKey
+        this.refs.privateDefaultKey.getDOMNode().value = defaultKey
 
         this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey)
         this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey)
@@ -103,16 +103,17 @@ var PuffPacker = React.createClass({
 
         payload.requestedUsername = this.refs.username.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+        var username = PB.M.Wardrobe.currentUsername
+        var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
 
-        if(!privateKeys.username) {
+        if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building registration requests."}
             return Events.pub('ui/puff-packer/user-registration/error', {})
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload)
+        var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
         // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
         var self = this
@@ -379,13 +380,13 @@ var PuffPacker = React.createClass({
 
                     New private keys<br />
                     root:
-                        <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
+                        <input className="fixedLeft" type="text" name="privateRootKey" ref="privateRootKey" /><br />
 
                     admin:
-                        <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
+                        <input className="fixedLeft" type="text" name="privateAdminKey" ref="privateAdminKey" /><br />
 
                     default:
-                        <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br /><br />
+                        <input className="fixedLeft" type="text" name="privateDefaultKey" ref="privateDefaultKey" /><br /><br />
 
                     Corresponding public keys<br />
 

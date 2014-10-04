@@ -601,14 +601,17 @@ var PuffPublishFormEmbed = React.createClass({
     /* functions for type = profile */
     handleUpdateProfile: function(puff){
         var self = this
-        var currentKeys = PB.M.Wardrobe.getCurrentKeys()
+        var username = PB.M.Wardrobe.currentUsername
+        var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
+
         var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile
+
         var type = 'updateUserRecord'
         var content = "setProfile"
         var payload = {}
         payload.profile = puff.sig
 
-        var update_puff = PB.buildPuff(currentKeys.username, currentKeys.admin, [], type, content, payload)
+        var update_puff = PB.buildPuff(username, privateAdminKey, [], type, content, payload)
 
         var update_prom = PB.Net.updateUserRecord(update_puff)
         update_prom.then(function(userRecord){

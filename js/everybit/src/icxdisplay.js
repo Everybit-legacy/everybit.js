@@ -61,7 +61,7 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.M.Wardrobe.getCurrentKeys()) {
+        if(PB.M.Wardrobe.currentUsername) {
             ICX.username = PB.M.Wardrobe.currentUsername
         } else {
             ICX.username = false
@@ -1629,9 +1629,9 @@ var ICXNewUser = React.createClass({
         var adminKeyPublic    = publicKey
         var defaultKeyPublic  = publicKey
 
-        var rootKeyPrivate    = privateKey
-        var adminKeyPrivate   = privateKey
-        var defaultKeyPrivate = privateKey
+        var privateRootKey    = privateKey
+        var privateAdminKey   = privateKey
+        var privateDefaultKey = privateKey
 
         var self = this
 
@@ -1652,7 +1652,7 @@ var ICXNewUser = React.createClass({
         prom.then(function(userRecord) {
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
 
                 // Set this person as the current user
                 PB.M.Wardrobe.switchIdentityTo(requestedUsername)
@@ -1661,9 +1661,9 @@ var ICXNewUser = React.createClass({
                 ICX.identityForFile = {
                     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
                     username: requestedUsername,
-                    rootKeyPrivate: privateKey,
-                    adminKeyPrivate: privateKey,
-                    defaultKeyPrivate: privateKey,
+                    privateRootKey: privateKey,
+                    privateAdminKey: privateKey,
+                    privateDefaultKey: privateKey,
                     passphrase: passphrase,
                     version: "1.0"
                 }
@@ -1856,8 +1856,8 @@ var ICXLogin = React.createClass({
             // Do login, return error as needed
             if(identityObj.passphrase) {
                 var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
-            } else if(identityObj.defaultKeyPrivate) {
-                 var privateKey = identityObj.defaultKeyPrivate
+            } else if(identityObj.privateDefaultKey) {
+                 var privateKey = identityObj.privateDefaultKey
             } else {
                 // TODO: Send to error box
                 // console.log("Missing info");
@@ -2190,8 +2190,8 @@ var ICXChangePassphrase = React.createClass({
 
     handleChangePassphrase: function() {
         var payload = {}
-        var rootKeyPrivate = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKeyPrivate = PB.M.Wardrobe.getCurrentKeys().admin
+        var privateRootKey = PB.M.Wardrobe.getCurrentPrivateRootKey()
+        var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
@@ -2227,18 +2227,18 @@ var ICXChangePassphrase = React.createClass({
             var keyToModify = keys.pop()
 
             if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-                if (!rootKeyPrivate) {
+                if (!privateRootKey) {
                     ICX.errors = "WARNING: You do not have the proper keys set to change this key."
                     Events.pub('ui/thinking', {
                         'ICX.thinking': false
                     })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 } else {
-                    var signingUserKey = rootKeyPrivate
+                    var signingUserKey = privateRootKey
                     // console.log("request will be signed with root key")
                 }
             } else if (keyToModify == 'defaultKey') {
-                if (!adminKeyPrivate) {
+                if (!privateAdminKey) {
                     Events.pub('ui/thinking', {
                         'ICX.thinking': false
                     })
@@ -2246,7 +2246,7 @@ var ICXChangePassphrase = React.createClass({
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 } else {
-                    var signingUserKey = adminKeyPrivate
+                    var signingUserKey = privateAdminKey
                     // console.log("request will be signed with admin key")
                 }
             }

@@ -49,7 +49,7 @@ How do we migrate without losing everything? Could adapt the identity file forma
 PB.M.Wardrobe = {}
 
 PB.M.Wardrobe.outfits = []
-// [{ username: 'asdf', capa: 12, rootKeyPrivate: '123', adminKeyPrivate: '333', defaultKeyPrivate: '444', secrets: {} }]
+// [{ username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }]
 
 PB.M.Wardrobe.identities = {}
 // {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
@@ -93,22 +93,6 @@ PB.M.Wardrobe.init = function() {                           // deflate identitie
         PB.M.Wardrobe.switchIdentityTo(lastUsername)
 }
 
-PB.M.Wardrobe.getCurrentIdentity = function() {
-    return PB.M.Wardrobe.getIdentity(PB.M.Wardrobe.currentUsername)
-}
-
-PB.M.Wardrobe.getIdentity = function(username) {
-    if(!username) 
-        return false
-
-    var identity = PB.M.Wardrobe.identities[username]
-
-    if(!identity) 
-        return PB.onError('That username does not match any available identity')
-
-    return identity
-}
-
 PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences, nosave) {
     // TODO: validation on all available values
     // TODO: check for existing identity
@@ -132,7 +116,7 @@ PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences, no
     return identity
 }
 
-PB.M.Wardrobe.addOutfit = function(username, capa, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, secrets) {
+PB.M.Wardrobe.addOutfit = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
     // TODO: validation on all available values
     // TODO: check for existing username/capa
     // THINK: hit network for confirmation?
@@ -141,9 +125,9 @@ PB.M.Wardrobe.addOutfit = function(username, capa, rootKeyPrivate, adminKeyPriva
     
     var outfit = { username: username
                  , capa: capa || 1
-                 , rootKeyPrivate: rootKeyPrivate || false
-                 , adminKeyPrivate: adminKeyPrivate || false
-                 , defaultKeyPrivate: defaultKeyPrivate || false
+                 , privateRootKey: privateRootKey || false
+                 , privateAdminKey: privateAdminKey || false
+                 , privateDefaultKey: privateDefaultKey || false
                  , secrets: secrets || {}
                  }
                  
@@ -200,7 +184,7 @@ PB.M.Wardrobe.removeOutfit = function(outfit) {
 }
 
 
-PB.M.Wardrobe.validatePrivateKeys = function(username, capa, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate) {
+PB.M.Wardrobe.validatePrivateKeys = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
     //// Ensure keys match the userRecord
     //// NOTE: this is currently unused
     
@@ -209,11 +193,11 @@ PB.M.Wardrobe.validatePrivateKeys = function(username, capa, rootKeyPrivate, adm
     return prom
         .then(function(userRecord) {
             // validate any provided private keys against the userRecord's public keys
-            if(   rootKeyPrivate && PB.Crypto.privateToPublic(rootKeyPrivate) != userRecord.rootKey)
+            if(   privateRootKey && PB.Crypto.privateToPublic(privateRootKey) != userRecord.rootKey)
                 PB.throwError('That private root key does not match the public root key on record')
-            if(  adminKeyPrivate && PB.Crypto.privateToPublic(adminKeyPrivate) != userRecord.adminKey)
+            if(  privateAdminKey && PB.Crypto.privateToPublic(privateAdminKey) != userRecord.adminKey)
                 PB.throwError('That private admin key does not match the public admin key on record')
-            if(defaultKeyPrivate && PB.Crypto.privateToPublic(defaultKeyPrivate) != userRecord.defaultKey)
+            if(privateDefaultKey && PB.Crypto.privateToPublic(privateDefaultKey) != userRecord.defaultKey)
                 PB.throwError('That private default key does not match the public default key on record')
         
             return userRecord
@@ -315,23 +299,40 @@ PB.M.Wardrobe.switchIdentityTo = function(username) {
 
 
 
-
-
-
-
-
-// NOTE: these aren't used outside of wardrobe
-PB.M.Wardrobe.keychain = false     // NOTE: starts false to trigger localStorage fetch. don't use this variable directly!
-PB.M.Wardrobe.currentKeys = false  // false if not set, so watch out
-
-
-/**
- * Get the current keys
- * @return {string}
- */
-PB.M.Wardrobe.getCurrentKeys = function() {
-    return PB.M.Wardrobe.currentKeys
+PB.M.Wardrobe.getCurrentIdentity = function() {
+    return PB.M.Wardrobe.getIdentity(PB.M.Wardrobe.currentUsername)
 }
+
+PB.M.Wardrobe.getIdentity = function(username) {
+    if(!username) 
+        return false
+
+    var identity = PB.M.Wardrobe.identities[username]
+
+    if(!identity) 
+        return PB.onError('That username does not match any available identity')
+
+    return identity
+}
+
+PB.M.Wardrobe.getCurrentPrivateRootKey = function() {
+    var identity = PB.M.Wardrobe.getCurrentIdentity()
+    return ((identity||{}).primary||{}).privateRootKey
+}
+
+PB.M.Wardrobe.getCurrentPrivateAdminKey = function() {
+    var identity = PB.M.Wardrobe.getCurrentIdentity()
+    return ((identity||{}).primary||{}).privateAdminKey
+}
+
+PB.M.Wardrobe.getCurrentPrivateDefaultKey = function() {
+    var identity = PB.M.Wardrobe.getCurrentIdentity()
+    return ((identity||{}).primary||{}).privateDefaultKey
+}
+
+
+
+
 
 /**
  * get the current user record

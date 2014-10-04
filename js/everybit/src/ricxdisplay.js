@@ -1323,9 +1323,9 @@ var ICXNewUser = React.createClass({
         var adminKeyPublic    = publicKey
         var defaultKeyPublic  = publicKey
 
-        var rootKeyPrivate    = privateKey
-        var adminKeyPrivate   = privateKey
-        var defaultKeyPrivate = privateKey
+        var privateRootKey    = privateKey
+        var privateAdminKey   = privateKey
+        var privateDefaultKey = privateKey
 
         var self = this
 
@@ -1346,7 +1346,7 @@ var ICXNewUser = React.createClass({
         prom.then(function(userRecord) {
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
 
 
                 // Set this person as the current user
@@ -1358,9 +1358,9 @@ var ICXNewUser = React.createClass({
                 // Create identity file
                 ICX.identityForFile = {
                     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-                    rootKeyPrivate: privateKey,
-                    adminKeyPrivate: privateKey,
-                    defaultKeyPrivate: privateKey,
+                    privateRootKey: privateKey,
+                    privateAdminKey: privateKey,
+                    privateDefaultKey: privateKey,
                     passphrase: passphrase,
                     version: "1.0"
                 }
@@ -1808,13 +1808,13 @@ var ICXDashboard = React.createClass({
             ICX.identityForFile.version = "1.0"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
-                ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root
+                ICX.identityForFile.privateRootKey =  PB.M.Wardrobe.currentKeys.root
 
             if(typeof PB.M.Wardrobe.currentKeys.admin !== 'undefined')
-                ICX.identityForFile.adminKeyPrivate =  PB.M.Wardrobe.currentKeys.admin
+                ICX.identityForFile.privateAdminKey =  PB.M.Wardrobe.currentKeys.admin
 
             if(typeof PB.M.Wardrobe.currentKeys.default !== 'undefined')
-                ICX.identityForFile.defaultKeyPrivate =  PB.M.Wardrobe.currentKeys.default
+                ICX.identityForFile.privateDefaultKey =  PB.M.Wardrobe.currentKeys.default
 
             if(typeof PB.M.Wardrobe.currentKeys.bonus !== 'undefined')
                 if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')

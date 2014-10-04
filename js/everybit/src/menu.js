@@ -1044,7 +1044,18 @@ var ViewIdentity = React.createClass({
     },
     handleClickQRCode: function(){
         // create the qr code
-        var key = PB.M.Wardrobe.getCurrentKeys()[this.state.qrCode]
+        var key = ''
+        var keytype = this.state.qrCode
+
+        if(keytype == 'root')
+            key = PB.M.Wardrobe.getCurrentPrivateRootKey()
+        if(keytype == 'admin')
+            key = PB.M.Wardrobe.getCurrentPrivateAdminKey()
+        if(keytype == 'default')
+            key = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
+
+        if(!key) return false
+        
         var qr = qrcode(4, 'M')
         qr.addData(key)
         qr.make()
@@ -1061,9 +1072,18 @@ var ViewIdentity = React.createClass({
         var currUser = this.props.username
         var qrcodeField = ""
         var showQRCode = this.state.qrCode && this.state.qrCodeUser == currUser
+        
         if (showQRCode) {
-            var keyType = this.state.qrCode
-            var key = PB.M.Wardrobe.getCurrentKeys()[keyType]
+            var key = ''
+            var keytype = this.state.qrCode
+
+            if(keytype == 'root')
+                key = PB.M.Wardrobe.getCurrentPrivateRootKey()
+            if(keytype == 'admin')
+                key = PB.M.Wardrobe.getCurrentPrivateAdminKey()
+            if(keytype == 'default')
+                key = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
+            
             if (key.length < 1) {
                 showQRCode = false
             } else {
@@ -1078,12 +1098,12 @@ var ViewIdentity = React.createClass({
 
         var qrcodeBaseStyle = "fa fa-qrcode fa-fw"
 
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys()['default']
-        var defaultKeyQRStyle = (showQRCode && this.state.qrCode == 'default') ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray"
-        var adminKey = PB.M.Wardrobe.getCurrentKeys()['admin']
-        var adminKeyQRStyle   = (showQRCode && this.state.qrCode == 'admin')   ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray"
-        var rootKey = PB.M.Wardrobe.getCurrentKeys()['root']
+        var rootKey = PB.M.Wardrobe.getCurrentPrivateRootKey()
         var rootKeyQRStyle    = (showQRCode && this.state.qrCode == 'root')    ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray"
+        var adminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
+        var adminKeyQRStyle   = (showQRCode && this.state.qrCode == 'admin')   ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray"
+        var defaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
+        var defaultKeyQRStyle = (showQRCode && this.state.qrCode == 'default') ? qrcodeBaseStyle + " green" : qrcodeBaseStyle + " gray"
 
         // TODO: make sure not None
         // TODO: Allow erase keys here?
@@ -1142,7 +1162,7 @@ var defaultPrivateKeyField = React.createClass({
             <span>
                 <div className="menuLabel">default: </div>
                 <div className="menuInput">
-                    <input type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" size="18" />
+                    <input type="text" name="privateDefaultKey" ref="privateDefaultKey" size="18" />
                 </div>
             </span>
             )
@@ -1361,18 +1381,18 @@ var NewIdentity = React.createClass({
             return false
         }
 
-        var rootKeyPrivate = this.refs.rootKeyPrivate.getDOMNode().value
-        var adminKeyPrivate = this.refs.adminKeyPrivate.getDOMNode().value
-        var defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value
+        var privateRootKey = this.refs.privateRootKey.getDOMNode().value
+        var privateAdminKey = this.refs.privateAdminKey.getDOMNode().value
+        var privateDefaultKey = this.refs.privateDefaultKey.getDOMNode().value
 
         // store keys to state
         var keys = {
             rootKeyPublic    : rootKeyPublic,
             adminKeyPublic   : adminKeyPublic,
             defaultKeyPublic : defaultKeyPublic,
-            rootKeyPrivate   : rootKeyPrivate,
-            adminKeyPrivate  : adminKeyPrivate,
-            defaultKeyPrivate: defaultKeyPrivate
+            privateRootKey   : privateRootKey,
+            privateAdminKey  : privateAdminKey,
+            privateDefaultKey: privateDefaultKey
         }
         this.setState({keys: keys})
         return true
@@ -1393,9 +1413,9 @@ var NewIdentity = React.createClass({
         var adminKeyPublic    = this.state.keys.adminKeyPublic
         var defaultKeyPublic  = this.state.keys.defaultKeyPublic
 
-        var rootKeyPrivate    = this.state.keys.rootKeyPrivate
-        var adminKeyPrivate   = this.state.keys.adminKeyPrivate
-        var defaultKeyPrivate = this.state.keys.defaultKeyPrivate
+        var privateRootKey    = this.state.keys.privateRootKey
+        var privateAdminKey   = this.state.keys.privateAdminKey
+        var privateDefaultKey = this.state.keys.privateDefaultKey
 
         this.setState({keys: {}})
 
@@ -1416,7 +1436,7 @@ var NewIdentity = React.createClass({
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) {
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate)
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey)
                 self.setState({step: 3,
                     errorMessage: polyglot.t("menu.identity.new_identity.success")})
 
@@ -1439,9 +1459,9 @@ var NewIdentity = React.createClass({
         var adminKey = PB.Crypto.generatePrivateKey()
         var defaultKey = PB.Crypto.generatePrivateKey()
 
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey
+        this.refs.privateRootKey.getDOMNode().value = rootKey
+        this.refs.privateAdminKey.getDOMNode().value = adminKey
+        this.refs.privateDefaultKey.getDOMNode().value = defaultKey
 
         this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey)
         this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey)
@@ -1454,9 +1474,9 @@ var NewIdentity = React.createClass({
         var adminKey = PB.Crypto.generatePrivateKey()
         var defaultKey = PB.Crypto.generatePrivateKey()
         var keys = {
-            rootKeyPrivate   : rootKey,
-            adminKeyPrivate  : adminKey,
-            defaultKeyPrivate: defaultKey,
+            privateRootKey   : rootKey,
+            privateAdminKey  : adminKey,
+            privateDefaultKey: defaultKey,
             rootKeyPublic    : PB.Crypto.privateToPublic(rootKey),
             adminKeyPublic   : PB.Crypto.privateToPublic(adminKey),
             defaultKeyPublic : PB.Crypto.privateToPublic(defaultKey)
@@ -1468,9 +1488,9 @@ var NewIdentity = React.createClass({
 
     handleConvertPrivatePublic: function() {
         // NOTE: When blank, PB.Crypto.privateToPublic generates a new public key
-        var rP = this.refs.rootKeyPrivate.getDOMNode().value
-        var aP = this.refs.adminKeyPrivate.getDOMNode().value
-        var dP = this.refs.defaultKeyPrivate.getDOMNode().value
+        var rP = this.refs.privateRootKey.getDOMNode().value
+        var aP = this.refs.privateAdminKey.getDOMNode().value
+        var dP = this.refs.privateDefaultKey.getDOMNode().value
 
         if(!rP.length) {
             this.setState({errorMessage: 'Missing root key. '})

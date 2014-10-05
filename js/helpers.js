@@ -647,23 +647,31 @@ formatForDisplay = function(obj, style) {
 // publishing a profile puff in ICX after registering a new user
 // Move this
 function handleUpdateProfile(puff) {
-    var username = PB.getCurrentUsername()
-    var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
-    
-    var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        if(!currentUsername)
+            return false // THINK: is this an error?
+        
+        var userRecord = PB.getCurrentUserRecord()
+        if(!userRecord)
+            return false // THINK: is this an error?
+        
+        var oldProfile = userRecord.profile
+        if(!userRecord)
+            return false // THINK: okay how 'bout now?
 
-    var type = 'updateUserRecord'
-    var content = "setProfile"
-    var payload = {}
-    payload.profile = puff.sig
+        var type = 'updateUserRecord'
+        var content = "setProfile"
+        var payload = {}
+        payload.profile = puff.sig
 
-    var update_puff = PB.buildPuff(username, privateAdminKey, [], type, content, payload)
+        var update_puff = PB.buildPuff(currentUsername, privateAdminKey, [], type, content, payload)
 
-    var update_prom = PB.Net.updateUserRecord(update_puff)
-    update_prom.then(function(userRecord){
-        console.log('Profile updated!')
-    }).catch(function(err){
-        console.log('error', err)
+        var update_prom = PB.Net.updateUserRecord(update_puff)
+        update_prom.then(function(userRecord){
+            console.log('Profile updated!')
+        }).catch(function(err){
+            console.log('error', err)
+        })
     })
 }
 

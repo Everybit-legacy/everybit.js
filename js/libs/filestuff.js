@@ -6,16 +6,17 @@ PBFiles.createPuff = function(content, type) {
     var payload = {}
     payload.time = Date.now()
     
-    var type  = type || 'file'
+    var type   = type || 'file'
     var routes = ['local'];
 
-    var username = PB.getCurrentUsername()
-    var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
-
-    var previous, envelopeUserKeys
+    var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
-    
-    var puff = PB.buildPuff(username, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+    var previous, puff
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+        var privateEnvelopeOutfit
+        puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
+    })
 
     return puff
 }
@@ -41,38 +42,21 @@ PBFiles.prepBlob = function(str, type) {
 
 PBFiles.extractLetterPuff = function(content) {
     var puff = PB.parseJSON(content)
-    if(!puff) return content
+    if(!puff) 
+        return PB.onError('Envelope was not JSON encoded')
     
-    if(!puff.keys) return (puff.payload||{}).content
+    if(!puff.keys) 
+        return PB.onError('Envelope does not contain an encrypted letter')
     
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
+    var userRecord  = PB.getCurrentUserRecord()
     var pubkey = userRecord.defaultKey
     
-    var username = PB.getCurrentUsername()
-    var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
-        
-    var letter = PB.decryptPuff(puff, pubkey, username, privateDefaultKey)
+    var letter
     
-    return letter
-}
-
-PBFiles.extractLetterPuffForReals = function(content) {
-    var puff = PB.parseJSON(content)
-    if(!puff) return false
-
-    if(!puff.keys) return (puff.payload||{}).content
-
-    if(!(puff.payload.type == 'encryptedpuff')) return false
-
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-    var pubkey = userRecord.defaultKey
-    var prikey = privateKeys.default
-
-    var letter = PB.decryptPuffForReals(puff, pubkey, username, prikey)
-
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+        letter = PB.decryptPuff(puff, pubkey, currentUsername, privateDefaultKey)
+    })
+    
     return letter
 }
 

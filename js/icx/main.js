@@ -336,9 +336,10 @@ window.addEventListener('load', function() {
 });
 
 
-// Hide slideshow from people with more than one identity
+// Hide slideshow from people with at least one identity
 // Make sure not problem if empty
-if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
+var identityUsernames = PB.getAllIdentityUsernames()
+if(identityUsernames.length < 1)
     Events.pub( 'ui/slider/close',{ 'view.slider.show': true});
     // console.log("hide silder cuz several users")
 

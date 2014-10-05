@@ -778,7 +778,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
-        var envelopeUserKeys = ''
+        var privateEnvelopeOutfit = ''
         var self = this
 
 
@@ -807,13 +807,13 @@ var ICXSendFileFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeOutfit) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeOutfit)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
@@ -948,7 +948,7 @@ var ICXSendMessageFinish = React.createClass({
         var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
-        var envelopeUserKeys = ''
+        var privateEnvelopeOutfit = ''
         var self = this
 
 
@@ -977,13 +977,13 @@ var ICXSendMessageFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeOutfit) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeOutfit)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
@@ -1350,7 +1350,7 @@ var ICXNewUser = React.createClass({
 
 
                 // Set this person as the current user
-                PB.M.Wardrobe.switchIdentityTo(requestedUsername)
+                PB.switchIdentityTo(requestedUsername)
 
                 // Function below fails, so set above this
                 // PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
@@ -1594,7 +1594,7 @@ var ICXLogin = React.createClass({
                 }
 
                 // At least one good key, set this to current user
-                PB.M.Wardrobe.switchIdentityTo(username)
+                PB.switchIdentityTo(username)
 
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
@@ -1695,7 +1695,7 @@ var ICXLogin = React.createClass({
                         PB.M.Wardrobe.storeDefaultKey(username, privateKey)
 
                         // At least one good key, set this to current user
-                        PB.M.Wardrobe.switchIdentityTo(username)
+                        PB.switchIdentityTo(username)
 
 
                         ICX.username = username

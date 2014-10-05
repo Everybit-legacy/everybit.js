@@ -33,7 +33,7 @@ userPromise.then(function(userRecord) {
 
 // make the new identity the currently active one
 userPromise.then(function(userRecord) {
-               if(!PB.M.Wardrobe.switchIdentityTo(userRecord.username))
+               if(!PB.switchIdentityTo(userRecord.username))
                    throwfail('Could not set currently active user', userRecord)
            })
 
@@ -100,19 +100,19 @@ if(!randomPublicKey)
 //// Identity management
 
 // get current keys
-var keys = PB.M.Wardrobe.getCurrentKeys() 
+// var keys = PB.M.Wardrobe.getCurrentKeys()
 
 // get current username
 var username = PB.getCurrentUsername()
 
 // get current user record
-var userRecord = PB.M.Wardrobe.getCurrentUserRecord()
+var userRecord = PB.getCurrentUserRecord()
 
 // get all of the identities being saved on this browser
 // var keychain = PB.M.Wardrobe.getAll()
 
 // switch current user
-PB.M.Wardrobe.switchIdentityTo(username)
+PB.switchIdentityTo(username)
 
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*

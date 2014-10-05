@@ -68,17 +68,17 @@ PB.init = function(zone) {
  * @param  {object} payload                     other payload information for the puff
  * @param  {string} previous                    most recently published content by the user
  * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} envelopeUserKeys
+ * @param  {object} privateEnvelopeOutfit
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
     var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
 
     // TODOUR: add capa
 
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
     }
     
     return puff
@@ -305,18 +305,18 @@ PB.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeOutfit) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
     var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var username = letter.username
     
-    // TODOUR: add capa to envelopeUserKeys... somehow
+    // TODOUR: add capa to privateEnvelopeOutfit... somehow
     
-    if(envelopeUserKeys) {
-        myPrivateWif = envelopeUserKeys.default
-        username = envelopeUserKeys.username
+    if(privateEnvelopeOutfit) {
+        myPrivateWif = privateEnvelopeOutfit.default
+        username = privateEnvelopeOutfit.username
     }
     
     var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
@@ -372,22 +372,22 @@ PB.tryDecodeOyVey = function(str) {
 
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentity, removeIdentity) {
-    // useSecureInfo  = function( function(identity, username, privateRootKey, privateAdminKey, privateDefaultKey) )
-    // addOutfit      = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
-    // addIdentity    = function(username, primary, aliases, preferences)
-    // setPreference  = function(key, value) // for current identity
-    // switchIdentity = function(username)
-    // removeIdentity = function(username)
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentityTo, removeIdentity) {
+    // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
+    // addOutfit        = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // addIdentity      = function(username, primary, aliases, preferences)
+    // setPreference    = function(key, value) // for current identity
+    // removeIdentity   = function(username)
+    // switchIdentityTo = function(username)
 
     // THINK: consider ensuring all functions are present first, so it's harder to mix and match wardrobe implementations
     
     if(typeof useSecureInfo == 'function') {
         PB.useSecureInfo = function(callback) {
             // NOTE: useSecureInfo returns true if there is a current identity, and false otherwise
-            return useSecureInfo( function(identity, username, privateRootKey, privateAdminKey, privateDefaultKey) {
-                var cloneIdentity = JSON.parse(JSON.stringify(identity)) // prevent accidental mutation
-                callback(cloneIdentity, username, privateRootKey, privateAdminKey, privateDefaultKey)
+            return useSecureInfo( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) {
+                var clonedIdentities = JSON.parse(JSON.stringify(identities)) // prevent accidental mutation
+                callback(clonedIdentities, username, privateRootKey, privateAdminKey, privateDefaultKey)
             })
         }
     }
@@ -401,8 +401,8 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, se
     if(typeof setPreference == 'function')
         PB.setPreference = setPreference
         
-    if(typeof switchIdentity == 'function')
-        PB.switchIdentity = switchIdentity
+    if(typeof switchIdentityTo == 'function')
+        PB.switchIdentityTo = switchIdentityTo
         
     if(typeof removeIdentity == 'function')
         PB.removeIdentity = removeIdentity
@@ -410,9 +410,33 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, se
     PB.getCurrentUsername = function() {
         // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
         var output
-        PB.useSecureInfo(function(identity, username) {output = username})
+        PB.useSecureInfo(function(identities, username) { output = username })
         return output
     }
+    
+    PB.getAllIdentityUsernames = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
+        return output
+    }
+    
+    PB.getCurrentUserRecord = function() {
+        var username = PB.getCurrentUsername()
+        if(!username) 
+            return PB.onError('No current user in wardrobe')
+    
+        // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
+        //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
+        //        since after all we have stored the userRecord in our wardrobe, haven't we?
+    
+        var userRecord = PB.Data.userRecords[username]
+        if(!userRecord)
+            return PB.onError('That user does not exist in our records')
+    
+        return userRecord
+    }
+    
 }
 
 ////////////// END SECURE INFORMATION ZONE ////////////////////

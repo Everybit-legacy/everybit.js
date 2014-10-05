@@ -22,7 +22,7 @@
   An identity file can be exported to the local filesystem and imported back in to the system.
 
   Usage examples:
-      PB.M.Wardrobe.switchIdentityTo(user.username)
+      PB.switchIdentityTo(user.username)
       PB.M.Wardrobe.getCurrentKeys()
 
 */
@@ -52,7 +52,7 @@ PB.M.Wardrobe = {}
 ////////// remove these functions /////////////
 existing_to_outfit = function(keychain) {
     // TODO: this is deprecated, remove it
-    return PB.M.Wardrobe.addOutfit(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
+    return addOutfit(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
 }
 
 all_existing_to_identities = function() {
@@ -62,7 +62,7 @@ all_existing_to_identities = function() {
     Object.keys(PB.M.Wardrobe.keychain).forEach(function(username) {
         var keychain = PB.M.Wardrobe.keychain[username]
         var outfit = existing_to_outfit(keychain)
-        PB.M.Wardrobe.addIdentity(outfit.username, outfit)
+        addIdentity(outfit.username, outfit)
     })
     
 }
@@ -70,8 +70,9 @@ all_existing_to_identities = function() {
 
 
     PB.M.Wardrobe.init = init
+    
     function init() {
-        PB.implementSecureInterface(useSecureInfo, addInterface, addOutfit, setPreference, switchIdentity, removeIdentity)
+        PB.implementSecureInterface(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentityTo, removeIdentity)
     
         var identities = PB.Persist.get('identities')
     
@@ -97,8 +98,9 @@ all_existing_to_identities = function() {
         var primary = identity.primary
         if(!primary)
             return PB.onError('That identity has no primary outfit') // this shouldn't ever happen...
-            
-        callback(identity, currentUsername, primary.privateRootKey, primary.privateAdminKey, primary.privateDefaultKey)
+
+        // we have to return all the identities because the user might be trying to list them
+        callback(identities, currentUsername, primary.privateRootKey, primary.privateAdminKey, primary.privateDefaultKey)
         
         return true
     }
@@ -158,7 +160,7 @@ all_existing_to_identities = function() {
         processUpdates()
     }
     
-    function switchIdentity(username) {
+    var switchIdentityTo = function(username) {
         var identity = getIdentity(username)
 
         if(!identity)
@@ -350,26 +352,6 @@ PB.M.Wardrobe.getCurrentPrivateDefaultKey = function() {
 
 
 /**
- * get the current user record
- * @return {string}
- */
-PB.M.Wardrobe.getCurrentUserRecord = function() {
-    var username = PB.getCurrentUsername()
-    if(!username) 
-        return PB.onError('No current user in wardrobe')
-    
-    // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
-    //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
-    //        since after all we have stored the userRecord in our wardrobe, haven't we?
-    
-    var userRecord = PB.Data.userRecords[username]
-    if(!userRecord)
-        return PB.onError('That user does not exist in our records')
-    
-    return userRecord
-}
-
-/**
  * get all the username and keys
  * @return {Object[]}
  */
@@ -512,7 +494,7 @@ PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
     var prom = PB.M.Wardrobe.addNewAnonUser()
     
     return prom.then(function(userRecord) {
-        PB.M.Wardrobe.switchIdentityTo(userRecord.username)
+        PB.switchIdentityTo(userRecord.username)
         console.log("Setting current user to " + userRecord.username);
         return userRecord
     })

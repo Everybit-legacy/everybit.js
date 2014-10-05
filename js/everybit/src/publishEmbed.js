@@ -523,17 +523,21 @@ var PuffPublishFormEmbed = React.createClass({
         if(!PB.getCurrentUsername()) {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
-                    PB.M.Wardrobe.switchIdentityTo(userRecord.username)
+                    PB.switchIdentityTo(userRecord.username)
                 })
             })
         }
         
         // would we like to be anonymous? make a new user.
-        var envelopeUserKeys = ''
+        var privateEnvelopeOutfit = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
-                    envelopeUserKeys = PB.M.Wardrobe.getIdentity(userRecord.username)
+                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                        // NOTE: leaking private keys of new anon user
+                        identity = identities[userRecord.username]
+                        privateEnvelopeOutfit = identity.primary
+                    })
                 })
             })
         }
@@ -567,13 +571,13 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         prom = prom.then(function() {
-            if(envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-            } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            if(privateEnvelopeOutfit) {     // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
+            } else {                        // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, envelopeUserKeys )
+            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, privateEnvelopeOutfit )
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }) .catch(function(err) {
@@ -601,17 +605,19 @@ var PuffPublishFormEmbed = React.createClass({
     /* functions for type = profile */
     handleUpdateProfile: function(puff){
         var self = this
-        var username = PB.getCurrentUsername()
-        var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
 
-        var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile
+        var oldProfile = PB.getCurrentUserRecord().profile
 
         var type = 'updateUserRecord'
         var content = "setProfile"
         var payload = {}
         payload.profile = puff.sig
 
-        var update_puff = PB.buildPuff(username, privateAdminKey, [], type, content, payload)
+        var update_puff
+
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+            var update_puff = PB.buildPuff(currentUsername, privateAdminKey, [], type, content, payload)
+        })
 
         var update_prom = PB.Net.updateUserRecord(update_puff)
         update_prom.then(function(userRecord){
@@ -657,7 +663,7 @@ var PuffPublishFormEmbed = React.createClass({
         } else {
             // publish private profile
             var prom = Promise.resolve()
-            var currentUserRecord = PB.M.Wardrobe.getCurrentUserRecord()
+            var currentUserRecord = PB.getCurrentUserRecord()
             var userRecords = []
             userRecords.push(currentUserRecord)
             var post_prom = PB.M.Forum.addPost( type, content, [], metadata, userRecords )

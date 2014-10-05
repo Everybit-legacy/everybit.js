@@ -196,9 +196,7 @@ Events.sub('prefs/ephemeralKeychain/toggle', function(data, path) {
 Events.sub('profile/nickname/set', function(data, path) {
     var nickname = data.nickname
     if(!nickname)
-        return PB.onError('Invalid nickname')         // THINK: do this in React? use PB.validations?
-
-    // PB.M.Wardrobe.setProfileItem('nickname', nickname)
+        return PB.onError('Invalid nickname')               // THINK: do this in React? use PB.validations?
 
     Events.pub('ui/menu/profile/nickname/set')
 });
@@ -349,9 +347,10 @@ Events.sub('ui/*', function(data) {
         PB.Net.xhr('http://162.219.162.56/c/events.php', {method: 'POST'}, data)
 });
 
-// Hide slideshow from people with more than one identity
+// Hide slideshow from people with at least one identity
 // Make sure not problem if empty
-if(Object.keys(PB.M.Wardrobe.getAll()).length < 1)
+var identityUsernames = PB.getAllIdentityUsernames()
+if(identityUsernames.length < 1)
     Events.pub( 'ui/slider/close',{ 'view.slider.show': true});
     // console.log("hide silder cuz several users")
 

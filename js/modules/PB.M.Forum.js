@@ -197,55 +197,56 @@ PB.M.Forum.badEnvelope = function(sig) {
  * @returns {Boolean|Shell[]}
  */
 PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
-    var myUsername = PB.getCurrentUsername()
-    var myKeys = PB.M.Wardrobe.getCurrentKeys()
-    var maybeShell = PB.M.Forum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
-
-    if(maybeShell) return maybeShell
-        
+    var currentUsername = PB.getCurrentUsername()
+    var maybeShell = PB.M.Forum.getStashedShellBySig(currentUsername, envelope.sig)  // also preps stash for additions
+    
+    if(maybeShell) return maybeShell                                                 // already decrypted it
     if(PB.M.Forum.badEnvelope(envelope.sig)) return false
-    
-    function getProm(envelope, yourUserRecord) {
-        var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, myUsername, myKeys.default)
-        return prom.then(function(letter) {
-            if(!letter) {
-                PB.M.Forum.horridStash[envelope.sig] = true
-                Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
-                return false
-            }
-            
-            PB.M.Forum.secretStash[myUsername][envelope.sig] = letter                    // letter is a puff too
-            PB.M.Forum.secretStash[myUsername][letter.sig] = letter                      // stash it both ways
-            PB.Data.addBonus(letter, 'envelope', envelope)                               // mark it for later
-            return letter
-        })
-    }
-    
+
     var yourUsername   = envelope.username
     var yourUserRecord = PB.Data.getCachedUserRecord(yourUsername)
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
     
-    if(yourUserRecord) {        
-        var prom = getProm(envelope, yourUserRecord)
-        prom.then(function(decrypted) {
-            if(decrypted) updateUI()
-        })
-        return false
-    }
+        function getProm(envelope, yourUserRecord) {
+            var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
+            return prom.then(function(letter) {
+                if(!letter) {
+                    PB.M.Forum.horridStash[envelope.sig] = true
+                    Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
+                    return false
+                }
+            
+                PB.M.Forum.secretStash[currentUsername][envelope.sig] = letter       // letter is a puff too
+                PB.M.Forum.secretStash[currentUsername][letter.sig] = letter         // stash it both ways
+                PB.Data.addBonus(letter, 'envelope', envelope)                       // mark it for later
+                return letter
+            })
+        }
     
-    var yourUserRecordPromise = PB.getUserRecord(yourUsername)
-    yourUserRecordPromise.then(function(yourUserRecord) {
-        // Events.pub('track/decrypt/new-user-record', {envelope: envelope, decrypted: decrypted})
-        var prom = getProm(envelope, yourUserRecord)
-        prom.then(function(decrypted) {
-            if(!decrypted) return false
+        if(yourUserRecord) {        
+            var prom = getProm(envelope, yourUserRecord)
+            prom.then(function(decrypted) {
+                if(decrypted) updateUI()
+            })
+            return false
+        }
+    
+        var yourUserRecordPromise = PB.getUserRecord(yourUsername)
+        yourUserRecordPromise.then(function(yourUserRecord) {
+            var prom = getProm(envelope, yourUserRecord)
+            prom.then(function(decrypted) {
+                if(!decrypted) return false
             
-            PB.Data.currentDecryptedShells.push(decrypted)
-            PB.Data.addToGraph([decrypted])
-            PB.M.Forum.addFamilialEdges([decrypted])
+                PB.Data.currentDecryptedShells.push(decrypted)
+                PB.Data.addToGraph([decrypted])
+                PB.M.Forum.addFamilialEdges([decrypted])
             
-            updateUI() // redraw everything once DHT responds            
-        })
-    }).catch(function(err){console.log(err)});
+                updateUI() // redraw everything once DHT responds            
+            })
+        }).catch(function(err){console.log(err)});
+    
+    })
 }
 
 /**
@@ -381,10 +382,10 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
  * @param {Puff[]} parents
  * @param {Object} metadata
  * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} envelopeUserKeys
+ * @param {string[]} privateEnvelopeOutfit
  * @returns {*}
  */
-PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -410,7 +411,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys)
+    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
     
     // get a user promise
     var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost();
@@ -447,16 +448,16 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
  * @param {object} metadata
  * @param {string[]} routes
  * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} envelopeUserKeys
+ * @param {string[]} privateEnvelopeOutfit
  * @returns {Function}
  */
-PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
     
     var payload = metadata || {}                            // metadata becomes the basis of payload
-    payload.parents = payload.parents || parents                               // ids of the parent puffs
+    payload.parents = payload.parents || parents            // ids of the parent puffs
     payload.time = metadata.time || Date.now()              // time is always a unix timestamp
     payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
 
@@ -468,15 +469,14 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
 
         var previous   = userRecord.latest
-        var username   = userRecord.username
+        var puff
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-        if(!privateKeys || !privateKeys.default) {
-            // PB.onError('No valid private key found for signing the content')
-            throw Error('No valid private key found for signing the content')
-        }
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+            if(!privateDefaultKey)
+                throw Error('No valid private key found for signing the content')
 
-        var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
+        })
 
         return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }
@@ -698,27 +698,31 @@ PB.M.Forum.addContentType('LaTex', {
 
 // flag a puff
 PB.M.Forum.flagPuff = function (sig) {
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys();
-
-    if(!privateKeys.username) {
-        alert("You must first set your username before you can flag content");
-    }
-    /*if(!privateKeys.username == PB.M.Forum.getPuffBySig(sig).username) {
-        alert("You must set your identity to the author of the puff you want to flag");
-    }*/
-    if(!privateKeys.admin) {
-        alert("You must first set your private admin key before you can flag content");
-    }
 
     // Stuff to register. These are public keys
     var payload = {};
     var routes = [];
     var type = 'flagPuff';
     var content = sig;
-
+    
     payload.time = Date.now();
 
-    var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload);
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+
+        if(!currentUsername) {
+            alert("You must first set your username before you can flag content");
+            return false;
+        }
+        /*if(!currentUsername == PB.M.Forum.getPuffBySig(sig).username) {
+            alert("You must set your identity to the author of the puff you want to flag");
+        }*/
+        if(!privateAdminKey) {
+            alert("You must first set your private admin key before you can flag content");
+            return false;
+        }
+    
+        var puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload);
+    })
 
     var data = { type: 'flagPuff'
                , puff: puff

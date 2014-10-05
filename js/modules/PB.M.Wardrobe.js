@@ -64,7 +64,6 @@ all_existing_to_identities = function() {
         var outfit = existing_to_outfit(keychain)
         addIdentity(outfit.username, outfit)
     })
-    
 }
 ////////// end removal zone /////////////
 
@@ -178,7 +177,7 @@ all_existing_to_identities = function() {
         // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
         Events.pub('ui/switchIdentityTo')
 
-        PB.Persist.save('identity', username); // save to localStorage
+        PB.Persist.save('identity', username) // save to localStorage
     }
     
     var removeIdentity = function(username) {
@@ -198,9 +197,9 @@ all_existing_to_identities = function() {
         processUpdates()
     }
 
-
+    ////
     //// not exported
-    
+    ////
 
     function addOutfitToIdentity(username, outfit) {
         var identity = getIdentity(username)
@@ -291,76 +290,11 @@ all_existing_to_identities = function() {
 
 
 
-PB.M.Wardrobe.getIdentityFile = function(username) {
-    // TODO: move this to PB.M.Forum or something
-    username = username || PB.getCurrentUsername()
-    
-    if(!username) return false
-
-    var identity = PB.M.Wardrobe.getIdentity(username)
-
-    var idFile = {}
-
-    // assemble idFile manually to keep everything in the right order
-    idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-
-    idFile.username = username
-    idFile.primary  = identity.primary
-    idFile.aliases  = identity.aliases
-    idFile.preferences = identity.preferences
-    idFile.version  = "1.1"
-
-    // THINK: consider passphrase protecting identity file by default
-
-    return JSON.parse(JSON.stringify(idFile)) // deep clone for safety
-}
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-PB.M.Wardrobe.getCurrentPrivateRootKey = function() {
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    return ((identity||{}).primary||{}).privateRootKey
-}
-
-PB.M.Wardrobe.getCurrentPrivateAdminKey = function() {
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    return ((identity||{}).primary||{}).privateAdminKey
-}
-
-PB.M.Wardrobe.getCurrentPrivateDefaultKey = function() {
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    return ((identity||{}).primary||{}).privateDefaultKey
-}
-
-
-
-
-
-/**
- * get all the username and keys
- * @return {Object[]}
- */
-PB.M.Wardrobe.getAll = function() {
-    if(!PB.M.Wardrobe.keychain)
-        PB.M.Wardrobe.keychain = PB.Persist.get('keychain') || {}
-    
-    return PB.M.Wardrobe.keychain
-}
 
 
 /**
@@ -438,66 +372,30 @@ PB.M.Wardrobe.addNewAnonUser = function() {
     //// it seems strange to have this in PB.M.Wardrobe, but we have to keep the generated private keys here.
 
     // generate private keys
-    var privateRootKey    = PB.Crypto.generatePrivateKey();
-    var privateAdminKey   = PB.Crypto.generatePrivateKey();
-    var privateDefaultKey = PB.Crypto.generatePrivateKey();
+    var privateRootKey    = PB.Crypto.generatePrivateKey()
+    var privateAdminKey   = PB.Crypto.generatePrivateKey()
+    var privateDefaultKey = PB.Crypto.generatePrivateKey()
     
     // generate public keys
-    var rootKey    = PB.Crypto.privateToPublic(privateRootKey);
-    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey);
-    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey);
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
 
     // build new username
-    var anonUsername = PB.M.Wardrobe.generateRandomUsername();
-    var newUsername  = 'anon.' + anonUsername;
+    var anonUsername = PB.generateRandomUsername()
+    var newUsername  = 'anon.' + anonUsername
 
     // send it off
-    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey);
+    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
 
     return prom
         .then(function(userRecord) {
             // store directly because we know they're valid, and so we don't get tangled up in more promises
-            PB.M.Wardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey);
-            return userRecord;
+            PB.M.Wardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
+            return userRecord
         },
-        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'));
+        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
 }
 
-/**
- * Generate a random username
- * @return {string}
- */
-PB.M.Wardrobe.generateRandomUsername = function() {
-    // TODO: consolidate this with the new username generation functions
-    var generatedName = '';
-    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    for(var i=0; i<10; i++) {
-        generatedName += PB.Crypto.getRandomItem(alphabet)
-        // var randFloat = PB.Crypto.random();
-        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
-    }
-    return generatedName;
-}
-
-/**
- * Get the current user's DHT record, or create a new anon user, or die trying
- * @return {string}
- */
-PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
-    //// Either get the current user's DHT record, or create a new anon user, or die trying
-
-    var username = PB.getCurrentUsername()
-
-    if(username)
-        return PB.getUserRecordNoCache(username)
-    
-    var prom = PB.M.Wardrobe.addNewAnonUser()
-    
-    return prom.then(function(userRecord) {
-        PB.switchIdentityTo(userRecord.username)
-        console.log("Setting current user to " + userRecord.username);
-        return userRecord
-    })
-}
 
 }() // end the closure

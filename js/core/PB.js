@@ -441,8 +441,72 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, se
 
 ////////////// END SECURE INFORMATION ZONE ////////////////////
 
+PB.formatIdentityFile = function(username) {
+    // THINK: consider passphrase protecting the identity file by default
+    
+    username = username || PB.getCurrentUsername()
+    
+    if(!username) return false
+
+    var idFile = {}
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // this leaks all of the identity information back to the caller
+        // if we passphrase protect the file, do it here to prevent that leakage
+
+        var identity = identities[username]
+
+        // assemble idFile manually to keep everything in the right order
+        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+        idFile.username = username
+        idFile.primary  = identity.primary
+        idFile.aliases  = identity.aliases
+        idFile.preferences = identity.preferences
+        idFile.version  = "1.1"
+    })
+
+    return idFile
+}
 
 
+/**
+ * Get the current user's DHT record, or create a new anon user, or die trying
+ * @return {string}
+ */
+PB.getUpToDateUserAtAnyCost = function() {
+    //// Either get the current user's DHT record, or create a new anon user, or die trying
+
+    var username = PB.getCurrentUsername()
+
+    if(username)
+        return PB.getUserRecordNoCache(username)
+    
+    var prom = PB.M.Wardrobe.addNewAnonUser()
+    
+    return prom.then(function(userRecord) {
+        PB.switchIdentityTo(userRecord.username)
+        console.log("Setting current user to " + userRecord.username);
+        return userRecord
+    })
+}
+
+
+/**
+ * Generate a random username
+ * @return {string}
+ */
+PB.generateRandomUsername = function() {
+    // TODO: consolidate this with the new username generation functions
+    var generatedName = '';
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for(var i=0; i<10; i++) {
+        generatedName += PB.Crypto.getRandomItem(alphabet)
+        // var randFloat = PB.Crypto.random();
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
+    }
+    return generatedName;
+}
 
 
 /// ERROR HELPERS

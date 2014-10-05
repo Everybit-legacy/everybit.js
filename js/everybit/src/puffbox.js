@@ -764,7 +764,7 @@ var PuffStar = React.createClass({
             var content = this.props.sig
             var type = 'star'
 
-            var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost()
+            var userprom = PB.getUpToDateUserAtAnyCost()
             var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, [])
             var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
             prom.then(takeUserMakePuff)

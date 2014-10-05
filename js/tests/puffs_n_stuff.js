@@ -82,7 +82,7 @@ userPromise.then(function(userRecord) {
 // -- (in general the high level functions are preferred, as they have error handling baked in)
 
 // generate new random username
-var randomUsername = PB.M.Wardrobe.generateRandomUsername()
+var randomUsername = PB.generateRandomUsername()
 if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 

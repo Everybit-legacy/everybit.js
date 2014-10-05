@@ -431,7 +431,7 @@ var RegisterSubuserWizard = React.createClass({
         UsernameImport[network].requestAuthentication()
     },
     render: function() {
-        var generatedName = PB.M.Wardrobe.generateRandomUsername()
+        var generatedName = PB.generateRandomUsername()
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>
         if (!this.state.nameAvailable)
             getUsername = ""

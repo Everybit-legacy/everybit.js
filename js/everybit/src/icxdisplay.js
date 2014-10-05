@@ -2181,7 +2181,7 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
-        ICX.identityForFile = PB.M.Wardrobe.getIdentityFile()
+        ICX.identityForFile = PB.formatIdentityFile() // THINK: do we really need the identityForFile variable?
         return ICX.identityForFile
     },
 

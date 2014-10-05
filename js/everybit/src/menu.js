@@ -1240,7 +1240,7 @@ var NewIdentity = React.createClass({
     render: function() {
         var showNext = true
         var polyglot = Translate.language[puffworldprops.view.language]
-        var generatedName = PB.M.Wardrobe.generateRandomUsername()
+        var generatedName = PB.generateRandomUsername()
 
         var usernameField = (
             <div>
@@ -1360,7 +1360,7 @@ var NewIdentity = React.createClass({
     },
 
     handleGenerateUsername: function() {
-        var generatedName = PB.M.Wardrobe.generateRandomUsername()
+        var generatedName = PB.generateRandomUsername()
         if (this.refs.newUsername) 
             this.refs.newUsername.getDOMNode().value = generatedName
         return false

@@ -929,6 +929,7 @@ fieldset[disabled] .btn-primary.active {
     margin-bottom: 15px;
     border: 1px solid green;
     width: 90%;
+    position: relative;
 }
 
 .icx-tableview .viewContainer .accordion-content {
@@ -955,7 +956,6 @@ fieldset[disabled] .btn-primary.active {
 .icx-tableview .viewContainer .metaInfo .info {
     float: left;
     width: 70%;
-    overflow: visible;
 }
 
 .icx-tableview .viewContainer .metaInfo .info .date-since {
@@ -964,7 +964,6 @@ fieldset[disabled] .btn-primary.active {
 }
 .icx-tableview .viewContainer .metaInfo .info .refs {
     float: left;
-    position: relative;
 }
 .icx-tableview .viewContainer .metaInfo .info .refs:after {
     clear: both;

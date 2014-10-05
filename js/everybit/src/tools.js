@@ -103,7 +103,7 @@ var PuffPacker = React.createClass({
 
         payload.requestedUsername = this.refs.username.getDOMNode().value
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
 
         if(!username) {
@@ -125,7 +125,7 @@ var PuffPacker = React.createClass({
     handleBuildModifyUserKeysPuff: function() {
         // Stuff to register. These are public keys
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
             return Events.pub('ui/puff-packer/user-modify-keys/error', {})
@@ -236,7 +236,7 @@ var PuffPacker = React.createClass({
     },
 
     handleGetLatest: function() {
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         var self = this
 
         var prom = PB.getUserRecord(username)
@@ -258,7 +258,7 @@ var PuffPacker = React.createClass({
 
         payload.latest = this.refs.setLatestSigTo.getDOMNode().value
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
 
         if(!privateKeys.username) {
@@ -301,7 +301,7 @@ var PuffPacker = React.createClass({
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var username    = PB.M.Wardrobe.currentUsername
+        var username    = PB.getCurrentUsername()
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle)
         var setIdentityField = (<div>To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
@@ -467,7 +467,7 @@ var PuffSwitchUser = React.createClass({
 
         if(!all_usernames.length) return <div></div>
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         return (

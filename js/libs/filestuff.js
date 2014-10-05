@@ -9,7 +9,7 @@ PBFiles.createPuff = function(content, type) {
     var type  = type || 'file'
     var routes = ['local'];
 
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
     var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
 
     var previous, envelopeUserKeys
@@ -48,7 +48,7 @@ PBFiles.extractLetterPuff = function(content) {
     var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
     var pubkey = userRecord.defaultKey
     
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
     var privateDefaultKey = PB.M.Wardrobe.getCurrentPrivateDefaultKey()
         
     var letter = PB.decryptPuff(puff, pubkey, username, privateDefaultKey)

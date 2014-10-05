@@ -98,7 +98,7 @@ UsernameImport.instagram.importAllContent = function() {
 				// if all are created, redirect all contents published by this user
 				if (createdCount == total) {
 					document.getElementById("import_content").innerHTML = "Import finished.<br>";
-					var username = PB.M.Wardrobe.currentUsername;
+					var username = PB.getCurrentUsername();
 					Events.pub("ui/show-imported-puff", {'view.mode': 'list',
 														 'view.filters': {},  
 														 'view.filters.users': [username]});

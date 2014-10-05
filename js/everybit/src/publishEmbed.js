@@ -520,7 +520,7 @@ var PuffPublishFormEmbed = React.createClass({
         var prom = Promise.resolve() // a promise we use to string everything along 
         
         // are we currently anonymous? make a new user and switch.
-        if(!PB.M.Wardrobe.currentUsername) {
+        if(!PB.getCurrentUsername()) {
             prom = prom.then(function() {
                 return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
                     PB.M.Wardrobe.switchIdentityTo(userRecord.username)
@@ -601,7 +601,7 @@ var PuffPublishFormEmbed = React.createClass({
     /* functions for type = profile */
     handleUpdateProfile: function(puff){
         var self = this
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
 
         var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile
@@ -833,7 +833,7 @@ var PuffPublishFormEmbed = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
         var contentTypeNames = Object.keys(PB.M.Forum.contentTypes)
         var privacyDefault = this.props.reply.privacy || "public"
-        /*var author = PB.M.Wardrobe.currentUsername;
+        /*var author = PB.getCurrentUsername();
         author = StringConversion.humanizeUsernames(author) || "anonymous";*/
 
         var defaultContent = puffworldprops.reply.content || ''

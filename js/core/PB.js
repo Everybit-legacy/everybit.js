@@ -10,7 +10,7 @@
   
     The core library for the puffball platform. 
     
-    Currently a single flat file containing a mixture of parts; one day this will be the composite of modules at many levels.
+    Most calls to the platform should go through here, rather than accessing other core modules like PB.Data and PB.Crypto directly.
     
     
     Future file system idea:
@@ -370,8 +370,59 @@ PB.tryDecodeOyVey = function(str) {
 
 
 
+////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-/// ERROR ERROR
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentity, removeIdentity) {
+    // useSecureInfo  = function( function(identity, username, privateRootKey, privateAdminKey, privateDefaultKey) )
+    // addOutfit      = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // addIdentity    = function(username, primary, aliases, preferences)
+    // setPreference  = function(key, value) // for current identity
+    // switchIdentity = function(username)
+    // removeIdentity = function(username)
+
+    // THINK: consider ensuring all functions are present first, so it's harder to mix and match wardrobe implementations
+    
+    if(typeof useSecureInfo == 'function') {
+        PB.useSecureInfo = function(callback) {
+            // NOTE: useSecureInfo returns true if there is a current identity, and false otherwise
+            return useSecureInfo( function(identity, username, privateRootKey, privateAdminKey, privateDefaultKey) {
+                var cloneIdentity = JSON.parse(JSON.stringify(identity)) // prevent accidental mutation
+                callback(cloneIdentity, username, privateRootKey, privateAdminKey, privateDefaultKey)
+            })
+        }
+    }
+    
+    if(typeof addIdentity == 'function')
+        PB.addIdentity = addIdentity
+        
+    if(typeof addOutfit == 'function')
+        PB.addOutfit = addOutfit
+        
+    if(typeof setPreference == 'function')
+        PB.setPreference = setPreference
+        
+    if(typeof switchIdentity == 'function')
+        PB.switchIdentity = switchIdentity
+        
+    if(typeof removeIdentity == 'function')
+        PB.removeIdentity = removeIdentity
+        
+    PB.getCurrentUsername = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identity, username) {output = username})
+        return output
+    }
+}
+
+////////////// END SECURE INFORMATION ZONE ////////////////////
+
+
+
+
+
+/// ERROR HELPERS
+
 /**
  * on error function
  * @param  {string} msg 
@@ -379,6 +430,8 @@ PB.tryDecodeOyVey = function(str) {
  * @return {false}
  */
 PB.onError = function(msg, obj) {
+    //// override this for custom error behavior
+    
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)

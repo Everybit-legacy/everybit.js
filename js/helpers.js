@@ -647,7 +647,7 @@ formatForDisplay = function(obj, style) {
 // publishing a profile puff in ICX after registering a new user
 // Move this
 function handleUpdateProfile(puff) {
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
     var privateAdminKey = PB.M.Wardrobe.getCurrentPrivateAdminKey()
     
     var oldProfile = PB.M.Wardrobe.getCurrentUserRecord().profile

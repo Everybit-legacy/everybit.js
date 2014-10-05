@@ -273,7 +273,7 @@ popMods();                                          // deflate any machine prefs
 //// PRIVATE PUFF GATHERER
 
 var getMyPrivateShells = function() {
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
     if(username)
         PB.Data.importPrivateShells(username)
 }

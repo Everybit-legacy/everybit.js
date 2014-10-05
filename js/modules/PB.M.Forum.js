@@ -87,7 +87,7 @@ PB.M.Forum.getEncryptedShells = function() {
     
     
     
-    // var myUsername = PB.M.Wardrobe.currentUsername
+    // var myUsername = PB.getCurrentUsername()
     // var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
     //                              .map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
     //                              .filter(Boolean)
@@ -197,7 +197,7 @@ PB.M.Forum.badEnvelope = function(sig) {
  * @returns {Boolean|Shell[]}
  */
 PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
-    var myUsername = PB.M.Wardrobe.currentUsername
+    var myUsername = PB.getCurrentUsername()
     var myKeys = PB.M.Wardrobe.getCurrentKeys()
     var maybeShell = PB.M.Forum.getStashedShellBySig(myUsername, envelope.sig)       // also preps stash for additions
 
@@ -255,7 +255,7 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
  */
 PB.M.Forum.getPuffBySig = function(sig) {
     //// get a particular puff
-    var myUsername = PB.M.Wardrobe.currentUsername
+    var myUsername = PB.getCurrentUsername()
   
     var shell = PB.Data.getCachedShellBySig(sig)                              // check in lower cache
     
@@ -425,7 +425,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
             PB.Data.removeShellFromCache(puff.sig)
             PB.Data.addPrivateShells([puff])
             updateUI()
-            // username = PB.M.Wardrobe.currentUsername
+            // username = PB.getCurrentUsername()
             // PB.Data.importPrivateShells(username)
         }
         

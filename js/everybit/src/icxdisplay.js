@@ -61,8 +61,8 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.M.Wardrobe.currentUsername) {
-            ICX.username = PB.M.Wardrobe.currentUsername
+        if(PB.getCurrentUsername()) {
+            ICX.username = PB.getCurrentUsername()
         } else {
             ICX.username = false
         }
@@ -439,7 +439,7 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
-        if(PB.M.Wardrobe.currentUsername) {
+        if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
                 this.handleBackup();
@@ -475,7 +475,7 @@ var ICXStoreFinish = React.createClass({
     handleBackup: function() {
 
         // Same as sending the file to yourself
-        var me = PB.M.Wardrobe.currentUsername
+        var me = PB.getCurrentUsername()
         var type = 'file'
         var content = ICX.filelist[0]   // error: dont have content of the file here
         var parents = []
@@ -1255,7 +1255,7 @@ var ICXSendMessageConfirm = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
 
         var sendToEmail = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
@@ -1788,7 +1788,7 @@ var ICXLogin = React.createClass({
 
         var baseFontH = ICX.calculated.baseFontH
 
-        var currUser = PB.M.Wardrobe.currentUsername
+        var currUser = PB.getCurrentUsername()
         if (currUser)
             currUser = '.' + currUser
 
@@ -2200,7 +2200,7 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
 
-        var filename = PB.M.Wardrobe.currentUsername + "Identity.json"
+        var filename = PB.getCurrentUsername() + "Identity.json"
 
         fileLink = this.refs.fileLink.getDOMNode()
 
@@ -2210,7 +2210,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.currentUsername
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -3013,7 +3013,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.currentUsername
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"

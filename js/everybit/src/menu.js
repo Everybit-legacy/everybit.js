@@ -161,7 +161,7 @@ var Cluster = React.createClass({
 
 /*var ProfileMenu = React.createClass({
     render: function() {
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         if (!username) 
             return <span>You have to set your identity first.</span>
         
@@ -418,7 +418,7 @@ var IdentityMenu = React.createClass({
     mixins: [TooltipMixin],
     getInitialState: function() {
         return {
-            username: PB.M.Wardrobe.currentUsername,
+            username: PB.getCurrentUsername(),
             showUserRootPrivateKey: false,
             showUserAdminPrivateKey: false,
             showUserDefaultPrivateKey: false,
@@ -437,7 +437,7 @@ var IdentityMenu = React.createClass({
     },
 
     render: function() {
-        var currUser = PB.M.Wardrobe.currentUsername
+        var currUser = PB.getCurrentUsername()
 
         // TODO: Help icon takes you to tutorial related to this.
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -735,7 +735,7 @@ var AuthorPicker = React.createClass({
 
     handleShowPuffsForMe: function(){
         var polyglot = Translate.language[puffworldprops.view.language]
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
         if(!username.length) {
             alert(polyglot.t("alert.noUserSet"))
             return false
@@ -793,7 +793,7 @@ var AuthorPicker = React.createClass({
         //     PB.M.Wardrobe.switchIdentityTo(all_usernames[0])
         // }
 
-        var username = PB.M.Wardrobe.currentUsername
+        var username = PB.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         // TODO: Need 2-way bind to prevent select from changing back every time you change it

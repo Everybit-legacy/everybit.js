@@ -33,32 +33,23 @@
     - register callback handlers for user record creation and modification
     - PB.M.Wardrobe.init registers those with PB.onUserCreation and PB.onUserModification
     - identity file encryption using a passphrase
-
-
-
---------------------------------------------------
-
-This whole file needs to change, along with anything that references it. May as well do the pref/prof stuff now too.
-
-
-How do we migrate without losing everything? Could adapt the identity file format first...
-
-
 */
+
 
 PB.M.Wardrobe = {}
 
-PB.M.Wardrobe.outfits = []
+~function() { // begin the closure
+
+    var outfits = []
 // [{ username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }]
 
-PB.M.Wardrobe.identities = {}
+    var identities = {}
 // {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
 
-PB.M.Wardrobe.currentUsername = false
+    var currentUsername = false
 
 
 ////////// remove these functions /////////////
-
 existing_to_outfit = function(keychain) {
     // TODO: this is deprecated, remove it
     return PB.M.Wardrobe.addOutfit(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
@@ -75,153 +66,232 @@ all_existing_to_identities = function() {
     })
     
 }
-
 ////////// end removal zone /////////////
 
 
+    PB.M.Wardrobe.init = init
+    function init() {
+        PB.implementSecureInterface(useSecureInfo, addInterface, addOutfit, setPreference, switchIdentity, removeIdentity)
+    
+        var identities = PB.Persist.get('identities')
+    
+        Object.keys(identities).forEach(function(username) {
+            var identity = identities[username]
+            addIdentity(username, identity.primary, identity.aliases, identity.preferences, true)
+        })
+    
+        var lastUsername = PB.Persist.get('currentUsername')
+        if (lastUsername)
+            switchIdentityTo(lastUsername)
+    }
+    
+    
+    //// exported via implementSecureInterface
 
-PB.M.Wardrobe.init = function() {                           // deflate identities and resume previous
-    var identities = PB.Persist.get('identities')
+    var useSecureInfo = function(callback) {
+        var identity = getCurrentIdentity()
     
-    Object.keys(identities).forEach(function(username) {
-        var identity = identities[username]
-        PB.M.Wardrobe.addIdentity(username, identity.primary, identity.aliases, identity.preferences, true)
-    })
-    
-    var lastUsername = PB.Persist.get('currentUsername')
-    if (lastUsername)
-        PB.M.Wardrobe.switchIdentityTo(lastUsername)
-}
-
-PB.M.Wardrobe.addIdentity = function(username, primary, aliases, preferences, nosave) {
-    // TODO: validation on all available values
-    // TODO: check for existing identity
-    // TODO: add any unknown outfits
-    // THINK: what about outfit that belong to other identities?
-    // THINK: ensure primary?
-
-    
-
-    var identity = { username: username
-                   , primary: primary
-                   , aliases: aliases || []
-                   , preferences: preferences || {}
-                   }
-
-    PB.M.Wardrobe.identities[username] = identity
-    
-    if(!nosave)
-        PB.M.Wardrobe.processUpdates()
-    
-    return identity
-}
-
-PB.M.Wardrobe.addOutfit = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
-    // TODO: validation on all available values
-    // TODO: check for existing username/capa
-    // THINK: hit network for confirmation?
-    // THINK: maybe only include viable values?
-    // NOTE: this doesn't trigger processUpdates (see notes there)
-    
-    var outfit = { username: username
-                 , capa: capa || 1
-                 , privateRootKey: privateRootKey || false
-                 , privateAdminKey: privateAdminKey || false
-                 , privateDefaultKey: privateDefaultKey || false
-                 , secrets: secrets || {}
-                 }
-                 
-    PB.M.Wardrobe.outfits.push(outfit)
-    
-    return outfit
-}
-
-PB.M.Wardrobe.addOutfitToIdentity = function(username, outfit) {
-    var identity = PB.M.Wardrobe.getIdentity(username)
-    
-    if(!identity)
-        return false
-    
-    // TODO: validate outfit 
-    // TODO: add outfit if it isn't already in the list
-    // TODO: ensure outfit isn't already in identity
-    
-    if(outfit.username == identity.username && outfit.capa > identity.capa) {
-        identity.aliases.push(identity.primary)
-        identity.primary = outfit
-    } else {
-        identity.aliases.push(outfit)
+        if(!identity)
+            return false
+        
+        var primary = identity.primary
+        if(!primary)
+            return PB.onError('That identity has no primary outfit') // this shouldn't ever happen...
+            
+        callback(identity, currentUsername, primary.privateRootKey, primary.privateAdminKey, primary.privateDefaultKey)
+        
+        return true
     }
 
-    PB.M.Wardrobe.processUpdates()
-}
+    var addIdentity = function(username, primary, aliases, preferences, nosave) {
+        // TODO: validation on all available values
+        // TODO: check for existing identity
+        // TODO: add any unknown outfits
+        // THINK: what about outfit that belong to other identities?
+        // TODO: ensure primary outfit exists
 
-PB.M.Wardrobe.removeIdentity = function(username) {
-    var identity = PB.M.Wardrobe.getIdentity(username)
     
-    if(!identity)
-        return PB.onError('Could not find that identity for removal')
-    
-    PB.M.Wardrobe.removeOutfit(identity.primary)
-    identity.aliases.map(PB.M.Wardrobe.removeOutfit)
-    
-    delete PB.M.Wardrobe.identities[username]
-    
-    if(PB.M.Wardrobe.currentUsername == username)
-        PB.M.Wardrobe.currentUsername = false
-    
-    PB.M.Wardrobe.processUpdates()
-}
 
-PB.M.Wardrobe.removeOutfit = function(outfit) {
-    // NOTE: this doesn't trigger processUpdates -- you probably want to use removeIdentity instead
+        var identity = { username: username
+                       , primary: primary
+                       , aliases: aliases || []
+                       , preferences: preferences || {}
+                       }
+
+        identities[username] = identity
     
-    var index = PB.M.Wardrobe.outfits.indexOf(outfit)
-    if(!index)
-        return PB.onError('Could not find that outfit for removal')
+        if(!nosave)
+            processUpdates()
     
-    PB.M.Wardrobe.outfits.splice(index, 1)
-}
+        return identity
+    }
+
+    var addOutfit = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
+        // TODO: validation on all available values
+        // TODO: check for existing username/capa
+        // THINK: hit network for confirmation?
+        // THINK: maybe only include viable values?
+        // NOTE: this doesn't trigger processUpdates (see notes there)
+    
+        var outfit = { username: username
+                     , capa: capa || 1
+                     , privateRootKey: privateRootKey || false
+                     , privateAdminKey: privateAdminKey || false
+                     , privateDefaultKey: privateDefaultKey || false
+                     , secrets: secrets || {}
+                     }
+                 
+        outfits.push(outfit)
+    
+        return outfit
+    }
+
+    var setPreference = function(key, value) {
+        // NOTE: this only works for the current identity
+        var identity = getCurrentIdentity()
+    
+        if(!identity)
+            return PB.onError('Preferences can only be set for an active identity')
+    
+        identity.preferences[key] = value
+
+        processUpdates()
+    }
+    
+    function switchIdentity(username) {
+        var identity = getIdentity(username)
+
+        if(!identity)
+            return PB.onError('No identity found with username "' + username + '"')
+
+        currentUsername = username
+
+        processUpdates()
+
+        // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
+        PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
+        PB.Data.importPrivateShells(username)
+
+        // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
+        // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
+        Events.pub('ui/switchIdentityTo')
+
+        PB.Persist.save('identity', username); // save to localStorage
+    }
+    
+    var removeIdentity = function(username) {
+        var identity = getIdentity(username)
+
+        if(!identity)
+            return PB.onError('Could not find that identity for removal')
+
+        removeOutfit(identity.primary)
+        identity.aliases.map(removeOutfit)
+
+        delete identities[username]
+
+        if(currentUsername == username)
+            currentUsername = false
+
+        processUpdates()
+    }
 
 
-PB.M.Wardrobe.validatePrivateKeys = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
-    //// Ensure keys match the userRecord
-    //// NOTE: this is currently unused
+    //// not exported
     
-    var prom = PB.getUserRecord(username, capa)
+
+    function addOutfitToIdentity(username, outfit) {
+        var identity = getIdentity(username)
     
-    return prom
-        .then(function(userRecord) {
-            // validate any provided private keys against the userRecord's public keys
-            if(   privateRootKey && PB.Crypto.privateToPublic(privateRootKey) != userRecord.rootKey)
-                PB.throwError('That private root key does not match the public root key on record')
-            if(  privateAdminKey && PB.Crypto.privateToPublic(privateAdminKey) != userRecord.adminKey)
-                PB.throwError('That private admin key does not match the public admin key on record')
-            if(privateDefaultKey && PB.Crypto.privateToPublic(privateDefaultKey) != userRecord.defaultKey)
-                PB.throwError('That private default key does not match the public default key on record')
-        
-            return userRecord
+        if(!identity)
+            return false
+    
+        // TODO: validate outfit 
+        // TODO: add outfit if it isn't already in the list
+        // TODO: ensure outfit isn't already in identity
+    
+        if(outfit.username == identity.username && outfit.capa > identity.capa) {
+            identity.aliases.push(identity.primary)
+            identity.primary = outfit
+        } else {
+            identity.aliases.push(outfit)
         }
-        , PB.promiseError('Could not store private keys due to faulty user record'))
-}
 
+        processUpdates()
+    }
 
-PB.M.Wardrobe.processUpdates = function() {
-    // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
-
-    // THINK: saving both identities and outfits wrecks pointers. saving only identities ignores orphaned outfits. could convert identity pointers and reref on depersist...
-    PB.Persist.save('identities', PB.M.Wardrobe.identities)
-    // PB.Persist.save('outfits', PB.M.Wardrobe.outfits)
+    function removeOutfit(outfit) {
+        // NOTE: this doesn't trigger processUpdates
+        
+        var index = outfits.indexOf(outfit)
+        if(!index)
+            return PB.onError('Could not find that outfit for removal')
     
-    // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
-    // THINK: consider passphrase protecting identities and private puffs in localStorage
-    if(PB.M.Wardrobe.currentUsername)
-        PB.Persist.save('currentUsername', PB.M.Wardrobe.currentUsername)
-}
+        outfits.splice(index, 1)
+    }
+
+    function validatePrivateKeys(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
+        //// Ensure keys match the userRecord
+        //// NOTE: this is currently unused
+    
+        var prom = PB.getUserRecord(username, capa)
+    
+        return prom
+            .then(function(userRecord) {
+                // validate any provided private keys against the userRecord's public keys
+                if(   privateRootKey && PB.Crypto.privateToPublic(privateRootKey) != userRecord.rootKey)
+                    PB.throwError('That private root key does not match the public root key on record')
+                if(  privateAdminKey && PB.Crypto.privateToPublic(privateAdminKey) != userRecord.adminKey)
+                    PB.throwError('That private admin key does not match the public admin key on record')
+                if(privateDefaultKey && PB.Crypto.privateToPublic(privateDefaultKey) != userRecord.defaultKey)
+                    PB.throwError('That private default key does not match the public default key on record')
+        
+                return userRecord
+            }
+            , PB.promiseError('Could not store private keys due to faulty user record'))
+    }
+
+    function processUpdates() {
+        // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
+
+        // THINK: saving both identities and outfits wrecks pointers. saving only identities ignores orphaned outfits. could convert identity pointers and reref on depersist...
+        PB.Persist.save('identities', identities)
+        // PB.Persist.save('outfits', outfits)
+    
+        // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
+        // THINK: consider passphrase protecting identities and private puffs in localStorage
+        if(currentUsername)
+            PB.Persist.save('currentUsername', currentUsername)
+    }
+
+    function getCurrentIdentity() {
+        return getIdentity(currentUsername)
+    }
+
+    function getIdentity(username) {
+        if(!username) 
+            return false
+
+        var identity = identities[username]
+
+        if(!identity) 
+            return PB.onError('That username does not match any available identity')
+
+        return identity
+    }
+    
+
+
+
+
+
+
+
 
 
 PB.M.Wardrobe.getIdentityFile = function(username) {
-    username = username || PB.M.Wardrobe.currentUsername
+    // TODO: move this to PB.M.Forum or something
+    username = username || PB.getCurrentUsername()
     
     if(!username) return false
 
@@ -243,27 +313,6 @@ PB.M.Wardrobe.getIdentityFile = function(username) {
     return JSON.parse(JSON.stringify(idFile)) // deep clone for safety
 }
 
-PB.M.Wardrobe.getPreference = function(key) {
-    // NOTE: this only works for the current identity
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    
-    if(!identity)
-        return PB.onError('No active identity from whom to request preferences')
-    
-    return identity.preferences[key]
-}
-
-PB.M.Wardrobe.setPreference = function(key, value) {
-    // NOTE: this only works for the current identity
-    var identity = PB.M.Wardrobe.getCurrentIdentity()
-    
-    if(!identity)
-        return PB.onError('Preferences can only be set for an active identity')
-    
-    identity.preferences[key] = value
-
-    PB.M.Wardrobe.processUpdates()
-}
 
 
 
@@ -272,48 +321,14 @@ PB.M.Wardrobe.setPreference = function(key, value) {
 
 
 
-PB.M.Wardrobe.switchIdentityTo = function(username) {
-    //// set the currently active identity
-
-    var identity = PB.M.Wardrobe.identities[username]
-
-    if(!identity)
-        return PB.onError('No identity found with username "' + username + '"')
-
-    PB.M.Wardrobe.currentUsername = username
-
-    PB.M.Wardrobe.processUpdates()
-
-    // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-    PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
-    PB.Data.importPrivateShells(username)
-
-    // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
-    // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-    Events.pub('ui/switchIdentityTo')
-
-    PB.Persist.save('identity', username); // save to localStorage
-}
 
 
 
 
 
-PB.M.Wardrobe.getCurrentIdentity = function() {
-    return PB.M.Wardrobe.getIdentity(PB.M.Wardrobe.currentUsername)
-}
 
-PB.M.Wardrobe.getIdentity = function(username) {
-    if(!username) 
-        return false
 
-    var identity = PB.M.Wardrobe.identities[username]
 
-    if(!identity) 
-        return PB.onError('That username does not match any available identity')
-
-    return identity
-}
 
 PB.M.Wardrobe.getCurrentPrivateRootKey = function() {
     var identity = PB.M.Wardrobe.getCurrentIdentity()
@@ -339,7 +354,7 @@ PB.M.Wardrobe.getCurrentPrivateDefaultKey = function() {
  * @return {string}
  */
 PB.M.Wardrobe.getCurrentUserRecord = function() {
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
     if(!username) 
         return PB.onError('No current user in wardrobe')
     
@@ -489,7 +504,7 @@ PB.M.Wardrobe.generateRandomUsername = function() {
 PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
     //// Either get the current user's DHT record, or create a new anon user, or die trying
 
-    var username = PB.M.Wardrobe.currentUsername
+    var username = PB.getCurrentUsername()
 
     if(username)
         return PB.getUserRecordNoCache(username)
@@ -502,3 +517,5 @@ PB.M.Wardrobe.getUpToDateUserAtAnyCost = function() {
         return userRecord
     })
 }
+
+}() // end the closure

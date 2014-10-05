@@ -55,12 +55,12 @@ var ViewItem = React.createClass({
 		var routes = puff.routes
 		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
 
-		var classname = (ICX.username == username) ? "viewItem sent" : "viewItem received"
+		var classname = (ICX.username == username) ? "accordion viewItem sent" : "accordion viewItem received"
 
 		return (
 			<div className={classname}>
 				<UserInfo username={username} routes={routes} />
-				<div className="viewContent">
+				<div className="viewContent accordion-content">
 					<span dangerouslySetInnerHTML={{__html: puffContent}}></span>
 				</div>
 				<metaInfo puff={puff} />
@@ -70,6 +70,29 @@ var ViewItem = React.createClass({
 })
 
 var UserInfo = React.createClass({
+	handleToggleAccordion: function() {
+		var self = this.refs.acrd.getDOMNode()
+		var classes = self.classList
+		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0]
+		//console.log(toToggle)
+		if( (toToggle.style.display == "block") || (toToggle.style.display == "") ) {
+			toToggle.style.display = "none" 
+		} else {
+			toToggle.style.display = "block"
+		}
+
+		if( classes.contains("expanded") ) {
+			self.innerHTML = '<i class="fa fa-expand" />'
+			classes.remove("expanded")
+			classes.add("collapsed")
+		} else {
+			self.innerHTML = '<i class="fa fa-compress" />'
+			classes.remove("collapsed")
+			classes.add("expanded")
+		}
+		self.classList = classes
+	},
+
 	render: function() {
 
 		var username = this.props.username
@@ -85,8 +108,9 @@ var UserInfo = React.createClass({
         }
 
 		return (
-			<div>
-				{avatar} {username}
+			<div className="userInfo">
+				<div className="infoItem userRecord">{avatar} {username}</div>
+				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} ><i className="fa fa-compress" /></div>
 			</div>
 		)
 	},
@@ -97,9 +121,10 @@ var metaInfo = React.createClass({
 		if (!sig) return <span></span>
 		var preview = <span></span>
 		var puff = PB.M.Forum.getPuffBySig(sig)
-		if (puff.payload && puff.payload.content)
+		if (puff.payload && puff.payload.content) {
 			var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
 			preview = <div className="rowReferencePreview"><span dangerouslySetInnerHTML={{__html: puffContent}}></span></div>
+		}
         // TODO: wrapping this in a span squelches the DANGER error message, but any previews with anchor tags still don't show up. the underlying issue is that an anchor inside an anchor gets split into two consecutive anchors in the DOM.
         
 		return (

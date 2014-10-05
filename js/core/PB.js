@@ -482,7 +482,7 @@ PB.getUpToDateUserAtAnyCost = function() {
     if(username)
         return PB.getUserRecordNoCache(username)
     
-    var prom = PB.M.Wardrobe.addNewAnonUser()
+    var prom = PB.addNewAnonUser()
     
     return prom.then(function(userRecord) {
         PB.switchIdentityTo(userRecord.username)
@@ -507,6 +507,44 @@ PB.generateRandomUsername = function() {
     }
     return generatedName;
 }
+
+
+PB.addNewAnonUser = function(attachToUsername) {
+    //// create a new anonymous outfit. if attachToUsername is provided the outfit becomes an alias for that identity.
+    //// if attachToUsername is false the outfit becomes its own identity.
+
+    // generate private keys
+    var privateRootKey    = PB.Crypto.generatePrivateKey()
+    var privateAdminKey   = PB.Crypto.generatePrivateKey()
+    var privateDefaultKey = PB.Crypto.generatePrivateKey()
+    
+    // generate public keys
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    // build new username
+    var anonUsername = PB.generateRandomUsername()
+    var newUsername  = 'anon.' + anonUsername
+
+    // send it off
+    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+
+    return prom
+        .then(function(userRecord) {
+            // store directly because we know they're valid, and so we don't get tangled up in more promises
+            
+            // FIXME: add to identity if attachToUsername
+            
+            // FIXME: otherwise add new identity
+            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
+            
+            
+            return userRecord
+        },
+        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
+}
+
 
 
 /// ERROR HELPERS

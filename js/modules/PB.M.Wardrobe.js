@@ -111,7 +111,9 @@ all_existing_to_identities = function() {
         // THINK: what about outfit that belong to other identities?
         // TODO: ensure primary outfit exists
 
-    
+        // FIXME: resolve the addIdentity / addOutfit conflict: you only ever add outfits to an identity... addAlias? 
+        // addAlias is nice. Wardrobe->PB.M.Identity. addAlias(identityUsername, aliasUsername, capa, etc)
+        // if it already exists we just merge the new details in with it as much as possible, overwriting otherwise.
 
         var identity = { username: username
                        , primary: primary
@@ -361,41 +363,6 @@ PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKe
         PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
 }
 
-
-
-
-/**
- * Create a new anonymous identity and add it to the local identity list
- */
-PB.M.Wardrobe.addNewAnonUser = function() {
-    //// create a new anonymous identity and add it to the local identity list
-    //// it seems strange to have this in PB.M.Wardrobe, but we have to keep the generated private keys here.
-
-    // generate private keys
-    var privateRootKey    = PB.Crypto.generatePrivateKey()
-    var privateAdminKey   = PB.Crypto.generatePrivateKey()
-    var privateDefaultKey = PB.Crypto.generatePrivateKey()
-    
-    // generate public keys
-    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
-    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
-    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
-
-    // build new username
-    var anonUsername = PB.generateRandomUsername()
-    var newUsername  = 'anon.' + anonUsername
-
-    // send it off
-    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
-
-    return prom
-        .then(function(userRecord) {
-            // store directly because we know they're valid, and so we don't get tangled up in more promises
-            PB.M.Wardrobe.storePrivateKeys(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
-            return userRecord
-        },
-        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
-}
 
 
 }() // end the closure

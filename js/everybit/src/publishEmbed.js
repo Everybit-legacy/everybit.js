@@ -522,7 +522,7 @@ var PuffPublishFormEmbed = React.createClass({
         // are we currently anonymous? make a new user and switch.
         if(!PB.getCurrentUsername()) {
             prom = prom.then(function() {
-                return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
+                return PB.addNewAnonUser().then(function(userRecord) {
                     PB.switchIdentityTo(userRecord.username)
                 })
             })
@@ -532,7 +532,7 @@ var PuffPublishFormEmbed = React.createClass({
         var privateEnvelopeOutfit = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PB.M.Wardrobe.addNewAnonUser().then(function(userRecord) {
+                return PB.addNewAnonUser().then(function(userRecord) {
                     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
                         // NOTE: leaking private keys of new anon user
                         identity = identities[userRecord.username]
@@ -545,7 +545,7 @@ var PuffPublishFormEmbed = React.createClass({
         // are we paranoid? make another new user
         if(privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PB.M.Wardrobe.addNewAnonUser(function(userRecord) {
+                return PB.addNewAnonUser(function(userRecord) {
                     metadata.replyTo = userRecord.username
                 })
             })

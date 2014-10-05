@@ -19,7 +19,7 @@
 // -- High level flows using user-facing API functions
 
 // create an anonymous user
-var userPromise = PB.M.Wardrobe.addNewAnonUser()
+var userPromise = PB.addNewAnonUser()
 userPromise.then(function(userRecord) {
                if(!userRecord)
                    throwfail('No user record in anon user creation', userRecord)

@@ -686,6 +686,7 @@ fieldset[disabled] .btn-primary.active {
     padding:2%;
     margin-right:auto;
     margin-left:auto;
+    overflow: scroll;
 }
 /*.downloadIcon {
     text-align: right;
@@ -1729,8 +1730,8 @@ fieldset[disabled] .btn-primary.active {
     text-transform: uppercase;
 }
 
-.text-box {
-    font-family:Georgia, Palatino, Times New Roman;
+.textBox {
+    font-family: Georgia, Palatino, "Times New Roman", serif;
     color: rgba(0,0,0,0.8);
     line-height:150%;
 }

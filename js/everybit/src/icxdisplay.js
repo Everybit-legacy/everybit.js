@@ -671,7 +671,7 @@ var ICXInvite = React.createClass({
 
         // Convert passphrase to key
         // new private keys appent username onto passphrase (v1.1)
-        var privateKey = passphraseToPrivateKeyWif(passphrase + requestedUsername)
+        var privateKey = passphraseToPrivateKeyWif(requestedUsername + passphrase)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
 
         var rootKeyPublic     = publicKey
@@ -1759,7 +1759,7 @@ var ICXNewUser = React.createClass({
 
         // Convert passphrase to key
         //append the username to passphrase to generate the hash
-        var privateKey = passphraseToPrivateKeyWif(passphrase + requestedUsername)
+        var privateKey = passphraseToPrivateKeyWif(requestedUsername + passphrase)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
 
         var rootKeyPublic     = publicKey
@@ -2021,7 +2021,7 @@ var ICXLogin = React.createClass({
                 //handle new users (v 1.1+)
                 if(identityObj.passphrase) {
                     //v1.1 changes: passphrase + username => privateKey
-                    var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase + username)
+                    var privateKey = passphraseToPrivateKeyWif(username + identityObj.passphrase)
                 } else if(identityObj.defaultKeyPrivate) {
                     var privateKey = identityObj.defaultKeyPrivate
                 } else {
@@ -2107,7 +2107,7 @@ var ICXLogin = React.createClass({
         // version 1.1 have the username appended onto the passphrase
         //TODO: THINK
         //THINK: We need a way to differentiate legacy users (1.0) from newer users (1.1+)
-        // gonna have to do something like privateKey = passphraseToPrivateKeyWif(passphrase + username)
+        // gonna have to do something like privateKey = passphraseToPrivateKeyWif(username + passphrase)
         var privateKey = passphraseToPrivateKeyWif(passphrase)
 
         // Convert private key to public key

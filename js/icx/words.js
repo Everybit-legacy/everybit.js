@@ -1293,7 +1293,6 @@ ICX.passphraseWords = [
 "extra",
 "especially",
 "interface",
-"pussy",
 "partners",
 "budget",
 "rated",

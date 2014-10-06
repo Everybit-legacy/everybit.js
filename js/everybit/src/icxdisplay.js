@@ -2294,6 +2294,7 @@ var ICXChangePassphrase = React.createClass({
 
         function updateKeyHelper(keys) {
             if(keys.length == 0) {
+                // End of processing cycle
 
                 Events.pub('ui/thinking', {
                     'ICX.thinking': false
@@ -2331,6 +2332,7 @@ var ICXChangePassphrase = React.createClass({
                     ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    return PB.onError("You need the " + signingUserKey + " to change the " + keyToModify + " key.")
                 } else {
                     puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
                 }
@@ -2338,14 +2340,22 @@ var ICXChangePassphrase = React.createClass({
 
             var prom = PB.Net.updateUserRecord(puff)
 
+            // TODO: change these AFTER the thing with the stuff.
+
             prom.then(function (result) {
                 if(keyToModify == 'defaultKey') {
                     var secrets = {passphrase: newKeyRaw}
-                    PB.addAlias(username, username, newCapa, false, false, newPrivateKey, secrets)
+                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                        // THINK: using current identity
+                        PB.addAlias(username, username, newCapa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
+                    })
                 }
 
                 if(keyToModify == 'adminKey') {
-                    PB.addAlias(username, username, newCapa, false, newPrivateKey)
+                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                        // THINK: using current identity
+                        PB.addAlias(username, username, newCapa, privateRootKey, newPrivateKey)
+                    })
                 }
 
                 if(keyToModify == 'rootKey') {

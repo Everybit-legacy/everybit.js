@@ -93,22 +93,53 @@ var ViewItem = React.createClass({
 		if (!puff.sig) {return <span></span>}
 
 		var username = puff.username
-		var routes = puff.routes
 		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
 
-		var classname = (ICX.username == username) ? "accordion viewItem sent" : "accordion viewItem received"
+		var foldingClass = (ICX.username == username) ? "accordion viewItem sent" : "accordion viewItem received"
 
 		return (
-			<div className={classname}>
-				<UserInfo username={username} routes={routes} />
-				<div className="viewContent accordion-content expanded">
-					<span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-				</div>
-				<metaInfo puff={puff} />
+			<div className={foldingClass}>
+                <ICXTableItemHeader puff={puff} />
+                <div className="viewContent accordion-content expanded">
+                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                </div>
+                <ICXTableItemFooter  puff={puff} />
 			</div>
 		)
 	}
 })
+
+var ICXTableItemHeader = React.createClass({
+    render: function() {
+        return (
+            <span>
+                <UserInfo username={this.props.puff.username} routes={this.props.puff.routes} /> <ICXTableItemDate puff={this.props.puff}/>
+            </span>
+        )
+    }
+
+})
+
+var ICXTableItemDate = React.createClass({
+    render: function() {
+        var date = new Date(this.props.puff.payload.time)
+
+        return (
+                <span className="date-since">{timeSince(date)} ago</span>
+            )
+    }
+
+})
+
+var ICXTableItemFooter = React.createClass({
+    render: function() {
+        return (
+            <metaInfo puff={this.props.puff} />
+        )
+    }
+
+})
+
 
 var UserInfo = React.createClass({
 	handleToggleAccordion: function() {
@@ -174,20 +205,20 @@ var UserInfo = React.createClass({
 		var prof = getProfilePuff(username)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
-        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div></span>
+        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
         }
 
 		return (
 			<div className="userInfo">
 				<div className="infoItem userRecord">{avatar}
-					<span onClick={this.handleViewUser.bind(this, flag, username)}> {username}</span>
+					<a className="inline small" onClick={this.handleViewUser.bind(this, flag, username)}>{username}</a>
 				</div>
 				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
 					<i className="fa fa-compress" />
 				</div>
 			</div>
 		)
-	},
+	}
 })
 
 var metaInfo = React.createClass({
@@ -248,7 +279,6 @@ var metaInfo = React.createClass({
 	},
 	render: function() {
 		var puff = this.props.puff
-		var date = new Date(puff.payload.time)
 
 		var filelink = ""
 		var download = ""
@@ -265,7 +295,6 @@ var metaInfo = React.createClass({
 		return (
 			<div className="metaInfo">
 				<div className="info">
-					<div className="date-since">{timeSince(date)} ago</div>
 					{refs}
 				</div>
 				<div className="options">

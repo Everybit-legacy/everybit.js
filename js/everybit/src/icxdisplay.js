@@ -660,7 +660,6 @@ var ICXInvite = React.createClass({
 
 
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI()
 
         var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
         var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
@@ -1066,7 +1065,6 @@ var ICXSendFileFinish = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
     },
 
     handleSubmitSuccess: function () {
@@ -1724,9 +1722,6 @@ var ICXNewUser = React.createClass({
             'ICX.thinking': true
         })
 
-        updateUI()
-
-
         // Register the name
         // Error if there's an error
         // Disable register button until ready
@@ -2362,8 +2357,6 @@ var ICXChangePassphrase = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI()
-
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
 
@@ -2674,7 +2667,6 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2722,7 +2714,7 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
+
         //Encrypt the file in a puff
         var element = event.target
 

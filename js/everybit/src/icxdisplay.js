@@ -748,12 +748,16 @@ var ICXReplyPuff = React.createClass({
         })
     },
     render: function() {
-        return (
-            <span className="icon relative">
-                <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
-                <Tooltip position="under" content="Reply to this puff" />
-            </span>
-        )
+        if ( this.props.user == ICX.username ) {
+            return <span></span>
+        } else {
+            return (
+                <span className="icon relative">
+                    <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
+                    <Tooltip position="under" content="Reply to this puff" />
+                </span>
+            )
+        }
     }
 })
 

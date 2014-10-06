@@ -100,7 +100,7 @@ var ViewItem = React.createClass({
 		return (
 			<div className={classname}>
 				<UserInfo username={username} routes={routes} />
-				<div className="viewContent accordion-content">
+				<div className="viewContent accordion-content expanded">
 					<span dangerouslySetInnerHTML={{__html: puffContent}}></span>
 				</div>
 				<metaInfo puff={puff} />
@@ -113,13 +113,20 @@ var UserInfo = React.createClass({
 	handleToggleAccordion: function() {
 		var self = this.refs.acrd.getDOMNode()
 		var classes = self.classList
-		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0]
-		//console.log(toToggle)
-		if( (toToggle.style.display == "block") || (toToggle.style.display == "") ) {
-			toToggle.style.display = "none" 
+		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0].classList
+		console.log(toToggle)
+		if( toToggle.contains("expanded") ) {
+			toToggle.remove("expanded")
+			toToggle.add("collapsed")
 		} else {
-			toToggle.style.display = "block"
+			toToggle.remove("collapsed")
+			toToggle.add("expanded")
 		}
+		// if( (toToggle.style.display == "block") || (toToggle.style.display == "") ) {
+		// 	toToggle.style.display = "none" 
+		// } else {
+		// 	toToggle.style.display = "block"
+		// }
 
 		if( classes.contains("expanded") ) {
 			self.innerHTML = '<i class="fa fa-expand" />'

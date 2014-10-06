@@ -933,7 +933,16 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-tableview .viewContainer .accordion-content {
-    display: block;
+    overflow-y: hidden;
+    transition: all .3s ease;
+}
+
+.icx-tableview .viewContainer .accordion-content.expanded {
+    height: auto;
+}
+
+.icx-tableview .viewContainer .accordion-content.collapsed {
+    height: 1.4em;
 }
 
 .icx-tableview .viewContainer .viewItem.sent {

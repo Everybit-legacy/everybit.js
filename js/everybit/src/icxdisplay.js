@@ -3046,8 +3046,7 @@ var ICXUserButton = React.createClass({
     handleClearFilters: function() {
         return Events.pub( 'filter/show/by-user',
             {
-                'view.filters': {},
-                'view.filters.users': []
+                'view.filters': {}
             }
         )
     },

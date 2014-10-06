@@ -36,11 +36,51 @@ var TableView = React.createClass({
 		
 		return (
 			<div className="viewContainer">
+				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
 						return <ViewItem key={index} puff={puff} />
 					})
 				}
+			</div>
+		)
+	}
+})
+
+var ViewFilters = React.createClass({
+	handleGetCurrentFilter: function() {
+		var filters = puffworldprops.view.filters
+		var filter = ''
+
+		if ( filters.users != undefined ) {
+			filter = "From: " + filters.users[0]
+		} else if ( filters.routes != undefined ) {
+			filter = "To: " + filters.routes[0]
+		} else {
+			filter = ''
+		}
+		return filter
+	},
+
+	handleRemoveCurrentFilter: function() {
+		console.log("remove this?")
+		return Events.pub('ui/show/by-user', {
+			'view.filters': {}
+		})
+	},
+
+	render: function() {
+		var filter = this.handleGetCurrentFilter()
+		var hasFilter = false
+		if (filter != '') {
+			hasFilter = true
+		}
+		var style = {display: (hasFilter) ? 'inline' : 'none'}
+
+		return (
+			<div className="filters">
+				Filters: {filter}
+				<span style={style} onClick={this.handleRemoveCurrentFilter}> remove</span>
 			</div>
 		)
 	}
@@ -93,12 +133,34 @@ var UserInfo = React.createClass({
 		self.classList = classes
 	},
 
+	handleViewUser: function(flag, username) {
+		if(flag) {
+			return Events.pub( 'filter/show/by-user',
+	            {
+	                'view.filters': {},
+	                'view.filters.routes': [username],
+	                'view.mode': 'tableView'
+	            }
+	        )
+		} else {
+        	return Events.pub( 'filter/show/by-user',
+	            {
+	              'view.filters': {},
+	              'view.filters.users': [username],
+	              'view.mode': 'tableView'
+	            }
+	        )
+	    }
+    },
+
 	render: function() {
 
 		var username = this.props.username
 		var routes = this.props.routes
-		if(ICX.username == username) {
+		var flag = false
+		if(ICX.username == username) {	// current user is the sender, render the recipient
 			username = routes[0]
+			flag = true
 		}
 
 		var prof = getProfilePuff(username)
@@ -109,8 +171,12 @@ var UserInfo = React.createClass({
 
 		return (
 			<div className="userInfo">
-				<div className="infoItem userRecord">{avatar} {username}</div>
-				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} ><i className="fa fa-compress" /></div>
+				<div className="infoItem userRecord">{avatar}
+					<span onClick={this.handleViewUser.bind(this, flag, username)}> {username}</span>
+				</div>
+				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
+					<i className="fa fa-compress" />
+				</div>
 			</div>
 		)
 	},

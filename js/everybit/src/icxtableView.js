@@ -54,16 +54,14 @@ var ViewFilters = React.createClass({
 
 		if ( filters.users != undefined ) {
 			filter = "From: " + filters.users[0]
-		} else if ( filters.routes != undefined ) {
+		}
+		if ( filters.routes != undefined ) {
 			filter = "To: " + filters.routes[0]
-		} else {
-			filter = ''
 		}
 		return filter
 	},
 
 	handleRemoveCurrentFilter: function() {
-		console.log("remove this?")
 		return Events.pub('ui/show/by-user', {
 			'view.filters': {}
 		})
@@ -71,16 +69,12 @@ var ViewFilters = React.createClass({
 
 	render: function() {
 		var filter = this.handleGetCurrentFilter()
-		var hasFilter = false
-		if (filter != '') {
-			hasFilter = true
-		}
-		var style = {display: (hasFilter) ? 'inline' : 'none'}
+		var style = {display: (!filter) ? 'none' : 'inline'}
 
 		return (
 			<div style={style} className="filters">
 				Filters: {filter}
-				<span onClick={this.handleRemoveCurrentFilter}> remove</span>
+				<span onClick={this.handleRemoveCurrentFilter}><i className="fa fa-times"></i></span>
 			</div>
 		)
 	}
@@ -91,15 +85,13 @@ var ViewItem = React.createClass({
 		var puff = this.props.puff
 		if (!puff.sig) {return <span></span>}
 
-		var username = puff.username
 		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
-
-		var foldingClass = (ICX.username == username) ? "accordion viewItem sent" : "accordion viewItem received"
+		var foldingClass = (ICX.username == puff.username) ? "accordion viewItem sent" : "accordion viewItem received"
 
 		return (
 			<div className={foldingClass}>
                 <ICXTableItemHeader puff={puff} />
-                <div className="viewContent accordion-content expanded">
+                <div className="viewContent accordion-content">
                     <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
                 </div>
                 <ICXTableItemFooter puff={puff} />
@@ -113,19 +105,8 @@ var ICXTableItemHeader = React.createClass({
 		var self = this.refs.acrd.getDOMNode()
 		var classes = self.classList
 		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0].classList
-		console.log(toToggle)
-		if( toToggle.contains("expanded") ) {
-			toToggle.remove("expanded")
-			toToggle.add("collapsed")
-		} else {
-			toToggle.remove("collapsed")
-			toToggle.add("expanded")
-		}
-		// if( (toToggle.style.display == "block") || (toToggle.style.display == "") ) {
-		// 	toToggle.style.display = "none" 
-		// } else {
-		// 	toToggle.style.display = "block"
-		// }
+		//console.log(toToggle)
+		toToggle.toggle("collapsed")
 
 		if( classes.contains("expanded") ) {
 			self.innerHTML = '<i class="fa fa-expand" />'
@@ -268,6 +249,7 @@ var metaInfo = React.createClass({
 		    </div>
         )
 	},
+
 	render: function() {
 		var puff = this.props.puff
 
@@ -366,9 +348,6 @@ var ViewReplyBox = React.createClass({
             'reply.replyTo': ''
 		})
 	},
-	handleCancelReply: function() {
-		this.handleCleanup()
-	},
 	render: function() {
 		var puff=this.props.puff
 		var username = puff.username
@@ -378,7 +357,7 @@ var ViewReplyBox = React.createClass({
 				Reply to: {username} <br/>
 				Message:
 				<textarea ref="messageText" style={{width: '100%', height: '20%'}} />
-				<button onClick={this.handleReply}>Reply</button><span onClick={this.handleCancelReply}> Cancel</span>
+				<button onClick={this.handleReply}>Reply</button><span onClick={this.handleCleanup}> Cancel</span>
 			</div>
 		)
 	}
@@ -404,7 +383,6 @@ var ICXReplyPuff = React.createClass({
     },
 
     handleReply: function() {
-      	//var replyBox = document.getElementById("inlineReply")
       	var self = this.getDOMNode()
 		var replyBox = self.parentNode.parentNode.parentNode.getElementsByClassName("inlineReply")[0]
       	replyBox.style.display = 'block'

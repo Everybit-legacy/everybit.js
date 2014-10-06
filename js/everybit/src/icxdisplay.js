@@ -670,7 +670,8 @@ var ICXInvite = React.createClass({
         var passphrase = this.refs.passphrase.getDOMNode().value
 
         // Convert passphrase to key
-        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        // new private keys appent username onto passphrase (v1.1)
+        var privateKey = passphraseToPrivateKeyWif(passphrase + requestedUsername)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
 
         var rootKeyPublic     = publicKey
@@ -1757,7 +1758,8 @@ var ICXNewUser = React.createClass({
         var passphrase = this.refs.passphrase.getDOMNode().value
 
         // Convert passphrase to key
-        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        //append the username to passphrase to generate the hash
+        var privateKey = passphraseToPrivateKeyWif(passphrase + requestedUsername)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
 
         var rootKeyPublic     = publicKey
@@ -1800,7 +1802,7 @@ var ICXNewUser = React.createClass({
                     adminKeyPrivate: privateKey,
                     defaultKeyPrivate: privateKey,
                     passphrase: passphrase,
-                    version: "1.0"
+                    version: "1.1" //version 1.1 have the username appended to the passphrase
                 }
 
                 publishProfilePuff()
@@ -1829,8 +1831,6 @@ var ICXNewUserFinish = React.createClass({
         return <span>User created</span>
     }
 })
-
-var passphraseBuffer = []
 
 var ICXLogin = React.createClass({
     mixins: [TooltipMixin],
@@ -2004,17 +2004,34 @@ var ICXLogin = React.createClass({
             if(!username)
                 return false
 
-            // Do login, return error as needed
-            if(identityObj.passphrase) {
-                var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
-            } else if(identityObj.defaultKeyPrivate) {
-                 var privateKey = identityObj.defaultKeyPrivate
+            //check for legacy users (v 1.0)
+            if(identityObj.version == "1.0") {
+                // Do login, return error as needed
+                if(identityObj.passphrase) {
+                    var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
+                } else if(identityObj.defaultKeyPrivate) {
+                    var privateKey = identityObj.defaultKeyPrivate
+                } else {
+                    // TODO: Send to error box
+                    // console.log("Missing info");
+                    /// console.log(identityObj)
+                    return PB.onError("Missing info")
+                }
             } else {
-                // TODO: Send to error box
-                // console.log("Missing info");
-                /// console.log(identityObj)
-                return PB.onError("Missing info")
+                //handle new users (v 1.1+)
+                if(identityObj.passphrase) {
+                    //v1.1 changes: passphrase + username => privateKey
+                    var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase + username)
+                } else if(identityObj.defaultKeyPrivate) {
+                    var privateKey = identityObj.defaultKeyPrivate
+                } else {
+                    // TODO: Send to error box
+                    // console.log("Missing info");
+                    /// console.log(identityObj)
+                    return PB.onError("Missing info")
+                }
             }
+
             // Convert to public key
             var publicKey = PB.Crypto.privateToPublic(privateKey)
             if (!publicKey) {
@@ -2087,6 +2104,10 @@ var ICXLogin = React.createClass({
         }
 
         // Convert passphrase to private key
+        // version 1.1 have the username appended onto the passphrase
+        //TODO: THINK
+        //THINK: We need a way to differentiate legacy users (1.0) from newer users (1.1+)
+        // gonna have to do something like privateKey = passphraseToPrivateKeyWif(passphrase + username)
         var privateKey = passphraseToPrivateKeyWif(passphrase)
 
         // Convert private key to public key
@@ -2266,7 +2287,7 @@ var ICXDashboard = React.createClass({
 
             ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
             ICX.identityForFile.username = username
-            ICX.identityForFile.version = "1.0"
+            ICX.identityForFile.version = "1.1"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
                 ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root

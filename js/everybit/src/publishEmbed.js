@@ -529,14 +529,14 @@ var PuffPublishFormEmbed = React.createClass({
         }
         
         // would we like to be anonymous? make a new user.
-        var privateEnvelopeOutfit = ''
+        var privateEnvelopeAlias = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
                 return PB.addNewAnonUser().then(function(userRecord) {
                     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
                         // NOTE: leaking private keys of new anon user
                         identity = identities[userRecord.username]
-                        privateEnvelopeOutfit = identity.primary
+                        privateEnvelopeAlias = identity.primary
                     })
                 })
             })
@@ -571,13 +571,13 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         prom = prom.then(function() {
-            if(privateEnvelopeOutfit) {     // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
+            if(privateEnvelopeAlias) {     // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                        // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, privateEnvelopeOutfit )
+            var post_prom = PB.M.Forum.addPost( type, content, parents, metadata, userRecords, privateEnvelopeAlias )
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }) .catch(function(err) {

@@ -382,10 +382,10 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
  * @param {Puff[]} parents
  * @param {Object} metadata
  * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} privateEnvelopeOutfit
+ * @param {string[]} privateEnvelopeAlias
  * @returns {*}
  */
-PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
+PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// Given a string of content, create a puff and push it into the system
     
     // ensure parents is an array
@@ -411,7 +411,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     // ensure all routes are unique
     routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
     
-    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
+    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     
     // get a user promise
     var userprom = PB.getUpToDateUserAtAnyCost();
@@ -448,10 +448,10 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
  * @param {object} metadata
  * @param {string[]} routes
  * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} privateEnvelopeOutfit
+ * @param {string[]} privateEnvelopeAlias
  * @returns {Function}
  */
-PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
+PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// Make a puff... except the parts that require a user
     
     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -475,7 +475,7 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
             if(!privateDefaultKey)
                 throw Error('No valid private key found for signing the content')
 
-            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
+            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
         })
 
         return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already

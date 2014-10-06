@@ -68,17 +68,17 @@ PB.init = function(zone) {
  * @param  {object} payload                     other payload information for the puff
  * @param  {string} previous                    most recently published content by the user
  * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} privateEnvelopeOutfit
+ * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeOutfit) {
+PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
 
     // TODOUR: add capa
 
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeOutfit)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
     
     return puff
@@ -305,18 +305,18 @@ PB.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeOutfit) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
     var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var username = letter.username
     
-    // TODOUR: add capa to privateEnvelopeOutfit... somehow
+    // TODOUR: add capa to privateEnvelopeAlias... somehow
     
-    if(privateEnvelopeOutfit) {
-        myPrivateWif = privateEnvelopeOutfit.default
-        username = privateEnvelopeOutfit.username
+    if(privateEnvelopeAlias) {
+        myPrivateWif = privateEnvelopeAlias.default
+        username = privateEnvelopeAlias.username
     }
     
     var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
@@ -372,9 +372,9 @@ PB.tryDecodeOyVey = function(str) {
 
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentityTo, removeIdentity) {
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
-    // addOutfit        = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // addAlias         = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
     // addIdentity      = function(username, primary, aliases, preferences)
     // setPreference    = function(key, value) // for current identity
     // removeIdentity   = function(username)
@@ -395,8 +395,8 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addOutfit, se
     if(typeof addIdentity == 'function')
         PB.addIdentity = addIdentity
         
-    if(typeof addOutfit == 'function')
-        PB.addOutfit = addOutfit
+    if(typeof addAlias == 'function')
+        PB.addAlias = addAlias
         
     if(typeof setPreference == 'function')
         PB.setPreference = setPreference
@@ -510,8 +510,8 @@ PB.generateRandomUsername = function() {
 
 
 PB.addNewAnonUser = function(attachToUsername) {
-    //// create a new anonymous outfit. if attachToUsername is provided the outfit becomes an alias for that identity.
-    //// if attachToUsername is false the outfit becomes its own identity.
+    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
+    //// if attachToUsername is false the alias becomes primary for its own identity.
 
     // generate private keys
     var privateRootKey    = PB.Crypto.generatePrivateKey()

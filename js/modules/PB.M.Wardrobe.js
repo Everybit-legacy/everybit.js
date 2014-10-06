@@ -9,13 +9,15 @@
   A Puffball module for managing identities locally.
   ==================================================
 
-  The Wardrobe manages outfits and identities. 
+  The Wardrobe manages identities and aliases.  
 
-  An identity is a username, a primary outfit, a list of alias outfits, and the identity's private preferences. Aliases generally correspond to anonymous usernames created for one-time encrypted transfer. 
+  An identity is a username and a list of all known aliases. The identity also lists the last known primary alias, if there is one, and the identity's private preferences. 
 
-  An outfit is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the 'secrets' field.
+  An alias is a username, a 'capa', and a set of private keys. Additional private information (like a passphrase) may be stored in the alias's 'secrets' field.
 
-  Username and capa define a unique outfit. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the outfit's private keys. In other words, capa == version.
+  Aliases generally correspond either to previous versions of the identity's username (previous primaries), or to anonymous usernames created for one-time encrypted transfer. 
+
+  Username and capa define a unique alias. The capa field references a specific moment in the username's lifecycle, and correlates to the userRecord with the same username and capa whose public keys match the alias's private keys. In other words, capa == version.
 
   Currently capa counts by consecutive integers. This may change in the future. Any set deriving Eq and Ord will work.
 
@@ -26,6 +28,11 @@
       PB.M.Wardrobe.getCurrentKeys()
 
 */
+
+// FIXME: resolve the addIdentity / addAlias conflict: you only ever add aliases to an identity... addAlias? 
+// addAlias is nice. Wardrobe->PB.M.Identity. addAlias(identityUsername, aliasUsername, capa, etc)
+// if it already exists we just merge the new details in with it as much as possible, overwriting otherwise.
+
 
 
 /*
@@ -40,19 +47,18 @@ PB.M.Wardrobe = {}
 
 ~function() { // begin the closure
 
-    var outfits = []
-// [{ username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }]
-
     var identities = {}
 // {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
+
+// an alias: { username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }
 
     var currentUsername = false
 
 
 ////////// remove these functions /////////////
-existing_to_outfit = function(keychain) {
+existing_to_alias = function(keychain) {
     // TODO: this is deprecated, remove it
-    return addOutfit(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
+    return addAlias(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
 }
 
 all_existing_to_identities = function() {
@@ -61,8 +67,8 @@ all_existing_to_identities = function() {
     // for each keychain
     Object.keys(PB.M.Wardrobe.keychain).forEach(function(username) {
         var keychain = PB.M.Wardrobe.keychain[username]
-        var outfit = existing_to_outfit(keychain)
-        addIdentity(outfit.username, outfit)
+        var alias = existing_to_alias(keychain)
+        addIdentity(alias.username, alias)
     })
 }
 ////////// end removal zone /////////////
@@ -71,7 +77,7 @@ all_existing_to_identities = function() {
     PB.M.Wardrobe.init = init
     
     function init() {
-        PB.implementSecureInterface(useSecureInfo, addIdentity, addOutfit, setPreference, switchIdentityTo, removeIdentity)
+        PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity)
     
         var identities = PB.Persist.get('identities')
     
@@ -101,13 +107,9 @@ all_existing_to_identities = function() {
     var addIdentity = function(username, primary, aliases, preferences, nosave) {
         // TODO: validation on all available values
         // TODO: check for existing identity
-        // TODO: add any unknown outfits
-        // THINK: what about outfit that belong to other identities?
-        // TODO: ensure primary outfit exists
-
-        // FIXME: resolve the addIdentity / addOutfit conflict: you only ever add outfits to an identity... addAlias? 
-        // addAlias is nice. Wardrobe->PB.M.Identity. addAlias(identityUsername, aliasUsername, capa, etc)
-        // if it already exists we just merge the new details in with it as much as possible, overwriting otherwise.
+        // TODO: add any unknown aliases
+        // THINK: what about aliases that belong to other identities?
+        // THINK: ensure primary alias exists?
 
         var identity = { username: username
                        , primary: primary
@@ -123,24 +125,24 @@ all_existing_to_identities = function() {
         return identity
     }
 
-    var addOutfit = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
+    var addAlias = function(identity, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
         // TODO: validation on all available values
         // TODO: check for existing username/capa
         // THINK: hit network for confirmation?
         // THINK: maybe only include viable values?
         // NOTE: this doesn't trigger processUpdates (see notes there)
-    
-        var outfit = { username: username
-                     , capa: capa || 1
-                     , privateRootKey: privateRootKey || false
-                     , privateAdminKey: privateAdminKey || false
-                     , privateDefaultKey: privateDefaultKey || false
-                     , secrets: secrets || {}
-                     }
+
+        var alias = { username: username
+                    , capa: capa || 1
+                    , privateRootKey: privateRootKey || false
+                    , privateAdminKey: privateAdminKey || false
+                    , privateDefaultKey: privateDefaultKey || false
+                    , secrets: secrets || {}
+                    }
+  
+        // do smrt stuff
                  
-        outfits.push(outfit)
-    
-        return outfit
+//        return alias
     }
 
     var setPreference = function(key, value) {
@@ -182,9 +184,6 @@ all_existing_to_identities = function() {
         if(!identity)
             return PB.onError('Could not find that identity for removal')
 
-        removeOutfit(identity.primary)
-        identity.aliases.map(removeOutfit)
-
         delete identities[username]
 
         if(currentUsername == username)
@@ -197,34 +196,26 @@ all_existing_to_identities = function() {
     //// not exported
     ////
 
-    function addOutfitToIdentity(username, outfit) {
+    function addAliasToIdentity(username, alias) {
+        //// TODO: merge in to addAlias
+        
         var identity = getIdentity(username)
     
         if(!identity)
             return false
     
-        // TODO: validate outfit 
-        // TODO: add outfit if it isn't already in the list
-        // TODO: ensure outfit isn't already in identity
+        // TODO: validate alias 
+        // TODO: add alias if it isn't already in the list
+        // TODO: ensure alias isn't already in identity
     
-        if(outfit.username == identity.username && outfit.capa > identity.capa) {
+        if(alias.username == identity.username && alias.capa > identity.capa) {
             identity.aliases.push(identity.primary)
-            identity.primary = outfit
+            identity.primary = alias
         } else {
-            identity.aliases.push(outfit)
+            identity.aliases.push(alias)
         }
 
         processUpdates()
-    }
-
-    function removeOutfit(outfit) {
-        // NOTE: this doesn't trigger processUpdates
-        
-        var index = outfits.indexOf(outfit)
-        if(!index)
-            return PB.onError('Could not find that outfit for removal')
-    
-        outfits.splice(index, 1)
     }
 
     function validatePrivateKeys(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
@@ -251,9 +242,7 @@ all_existing_to_identities = function() {
     function processUpdates() {
         // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
 
-        // THINK: saving both identities and outfits wrecks pointers. saving only identities ignores orphaned outfits. could convert identity pointers and reref on depersist...
         PB.Persist.save('identities', identities)
-        // PB.Persist.save('outfits', outfits)
     
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage

@@ -482,7 +482,7 @@ var ICXStoreFinish = React.createClass({
         var metadata = {}
         metadata.routes = [me]
         metadata.filename = content.name
-        var privateEnvelopeOutfit = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -511,15 +511,15 @@ var ICXStoreFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (privateEnvelopeOutfit) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.getCurrentUserRecord())
             }
 
             // blob is the encoded base64 dataURI that holds file content
             ICX.fileprom.then(function (blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeOutfit)
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
@@ -1108,7 +1108,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
-        var privateEnvelopeOutfit = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -1138,15 +1138,15 @@ var ICXSendFileFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (privateEnvelopeOutfit) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.getCurrentUserRecord())
             }
 
             // blob is the encoded base64 dataURI that holds file content
             ICX.fileprom.then(function(blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeOutfit)
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
@@ -1346,7 +1346,7 @@ var ICXSendMessageFinish = React.createClass({
         }
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
-        var privateEnvelopeOutfit = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -1373,13 +1373,13 @@ var ICXSendMessageFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (privateEnvelopeOutfit) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeOutfit.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeOutfit)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {

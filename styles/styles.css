@@ -570,6 +570,10 @@ input[type='text'].btn {
   cursor: pointer;
   border-radius: 0;
 }
+
+.btn-inline {
+    display: inline;
+}
 .btn-link,
 .btn-link:active,
 .btn-link[disabled],
@@ -843,8 +847,18 @@ fieldset[disabled] .btn-primary.active {
     font-size: 10em;
 }
 
+.georgia {
+    font-family: Georgia;
+}
+
 .gudea {
-    font-family: Gudea
+    font-family: Gudea;
+}
+
+.help-box .content-card {
+    padding: 1%;
+    background-color: rgba(226,234,157,0.2);
+    border: 1px solid rgba(0,0,0,0.3);
 }
 
 .headerBar {
@@ -1763,6 +1777,9 @@ fieldset[disabled] .btn-primary.active {
     font-size:100%
 }
 
+.underline {
+    text-decoration: underline;
+}
 .walletLink .walletInfo {
     font-family: Gudea, sans-serif;
     font-size: 1em;

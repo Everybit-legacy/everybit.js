@@ -68,7 +68,9 @@ Translate.language["en"].extend({
 		email_2: ". Your private passpharse is the answer to the question: ",
 		sent_1: "Your message has been sent. However, ",
 		sent_2: "in order for your friend to read it, you need to let them know their username and prompt question",
-		sent_3: ". We suggest sending the following email to "
+		sent_3: ". We suggest sending the following email to ",
+        proposal_1: "I want to communicate with you securely using I.CX. Follow the link below to sign up and start sending and receiving encrypted messages today. ",
+        proposal_2: "Once you have signed up, send me a message at: "
 	},
 	pass: {
 		change: "Change passphrase for ",

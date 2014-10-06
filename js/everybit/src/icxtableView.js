@@ -37,7 +37,6 @@ var TableView = React.createClass({
 		return (
 			<div className="viewContainer">
 				<ViewFilters />
-				<ViewReplyBox />
                 {
                 	puffs.map(function(puff, index){
 						return <ViewItem key={index} puff={puff} />
@@ -79,9 +78,9 @@ var ViewFilters = React.createClass({
 		var style = {display: (hasFilter) ? 'inline' : 'none'}
 
 		return (
-			<div className="filters">
+			<div style={style} className="filters">
 				Filters: {filter}
-				<span style={style} onClick={this.handleRemoveCurrentFilter}> remove</span>
+				<span onClick={this.handleRemoveCurrentFilter}> remove</span>
 			</div>
 		)
 	}
@@ -103,45 +102,13 @@ var ViewItem = React.createClass({
                 <div className="viewContent accordion-content expanded">
                     <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
                 </div>
-                <ICXTableItemFooter  puff={puff} />
+                <ICXTableItemFooter puff={puff} />
 			</div>
 		)
 	}
 })
 
 var ICXTableItemHeader = React.createClass({
-    render: function() {
-        return (
-            <span>
-                <UserInfo username={this.props.puff.username} routes={this.props.puff.routes} /> <ICXTableItemDate puff={this.props.puff}/>
-            </span>
-        )
-    }
-
-})
-
-var ICXTableItemDate = React.createClass({
-    render: function() {
-        var date = new Date(this.props.puff.payload.time)
-
-        return (
-                <span className="date-since">{timeSince(date)} ago</span>
-            )
-    }
-
-})
-
-var ICXTableItemFooter = React.createClass({
-    render: function() {
-        return (
-            <metaInfo puff={this.props.puff} />
-        )
-    }
-
-})
-
-
-var UserInfo = React.createClass({
 	handleToggleAccordion: function() {
 		var self = this.refs.acrd.getDOMNode()
 		var classes = self.classList
@@ -193,9 +160,9 @@ var UserInfo = React.createClass({
     },
 
 	render: function() {
-
-		var username = this.props.username
-		var routes = this.props.routes
+		var puff = this.props.puff
+		var username = puff.username
+		var routes = puff.routes
 		var flag = false
 		if(ICX.username == username) {	// current user is the sender, render the recipient
 			username = routes[0]
@@ -213,12 +180,36 @@ var UserInfo = React.createClass({
 				<div className="infoItem userRecord">{avatar}
 					<a className="inline small" onClick={this.handleViewUser.bind(this, flag, username)}>{username}</a>
 				</div>
+				<ICXTableItemDate date={puff.payload.time}/>
 				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
 					<i className="fa fa-compress" />
 				</div>
 			</div>
 		)
 	}
+})
+
+var ICXTableItemDate = React.createClass({
+    render: function() {
+        var date = new Date(this.props.date)
+
+        return (
+                <span className="date-since">{timeSince(date)} ago</span>
+            )
+    }
+
+})
+
+var ICXTableItemFooter = React.createClass({
+    render: function() {
+        return (
+        	<div>
+            	<metaInfo puff={this.props.puff} />
+            	<ViewReplyBox puff={this.props.puff}/>
+            </div>
+        )
+    }
+
 })
 
 var metaInfo = React.createClass({
@@ -299,7 +290,7 @@ var metaInfo = React.createClass({
 				</div>
 				<div className="options">
 					<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
-					<ICXReplyPuff ref="reply" sig={puff.sig} user={puff.username}/>
+					<ICXReplyPuff ref="reply" user={puff.username}/>
 				</div>
 			</div>
 		)
@@ -308,19 +299,24 @@ var metaInfo = React.createClass({
 
 var ViewReplyBox = React.createClass({
 	handleReply: function() {
+		var puff=this.props.puff
 		var type = 'text'
         var content = this.refs.messageText.getDOMNode().value
-        if(puffworldprops.reply.isReply) {
-            var parents = puffworldprops.reply.parents
-        }
+        var parents = [puff.sig]
         var metadata = {}
-        metadata.routes = [puffworldprops.reply.replyTo]
+        metadata.routes = [puff.username]
         var envelopeUserKeys = ''
         var self = this
 
+        Events.pub('ui/reply/add-parent',
+            {
+               'reply.parents': parents,
+            }
+        )
+
         var prom = Promise.resolve() // a promise we use to string everything along
 
-        var usernames = [puffworldprops.reply.replyTo]
+        var usernames = [puff.username]
 
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
@@ -374,10 +370,11 @@ var ViewReplyBox = React.createClass({
 		this.handleCleanup()
 	},
 	render: function() {
-		var username = puffworldprops.reply.replyTo
+		var puff=this.props.puff
+		var username = puff.username
 
 		return (
-			<div id="inlineReply" ref="replyBox" style={{display: 'none'}}>
+			<div className="inlineReply" ref="replyBox" style={{display: 'none'}}>
 				Reply to: {username} <br/>
 				Message:
 				<textarea ref="messageText" style={{width: '100%', height: '20%'}} />
@@ -404,23 +401,15 @@ var ICXReplyPuff = React.createClass({
         } else {
             parents.splice(index, 1)
         }
-
-        return Events.pub('ui/reply/add-parent',
-            {
-               'reply.parents': parents,
-               'reply.isReply': true,
-               'reply.replyTo': user
-            }
-        )
     },
 
     handleReply: function() {
-      	var replyBox = document.getElementById("inlineReply")
-      	var viewBody = document.getElementsByClassName("icx-tableview")[0]
+      	//var replyBox = document.getElementById("inlineReply")
+      	var self = this.getDOMNode()
+		var replyBox = self.parentNode.parentNode.parentNode.getElementsByClassName("inlineReply")[0]
       	replyBox.style.display = 'block'
-      	viewBody.scrollTop = 0
 
-      	this.handleParents()
+      	//this.handleParents()
     },
     render: function() {
         if ( this.props.user == ICX.username ) {

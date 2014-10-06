@@ -26,8 +26,9 @@
     var privateDefaultKey = '';
     var username = 'ishmael';
     // NOTE: does not confirm key validity in DHT
-    PB.M.Wardrobe.storePrivateKeys(username, '', '', privateDefaultKey);
-    PB.switchIdentityTo(username);
+    // FIXME: upgrade these calls before use
+    // PB.M.Wardrobe.storePrivateKeys(username, '', '', privateDefaultKey);
+    // PB.switchIdentityTo(username);
 
     function createPuffs() {
 

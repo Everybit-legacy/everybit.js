@@ -117,7 +117,8 @@ PB.switchIdentityTo(username)
 // store a new username and keys
 // note that this checks the keys against the DHT, so this will *fail*
 // note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
-PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey) // FIXME: upgrade this before use
+
 // var newUserPromise = PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
 // newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 

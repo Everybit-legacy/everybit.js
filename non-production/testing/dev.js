@@ -395,23 +395,23 @@ Events.sub('*', function(data, path) {
 
 //// event bindings for controlling core behavior from the display
 
-Events.sub('prefs/storeKeychain/toggle', function(data, path) {
-    var new_state = !PB.M.Wardrobe.getPreference('storeKeychain')
-    PB.M.Wardrobe.setPreference('storeKeychain', new_state)
+// Events.sub('prefs/storeKeychain/toggle', function(data, path) {
+//     var new_state = !PB.M.Wardrobe.getPreference('storeKeychain')
+//     PB.M.Wardrobe.setPreference('storeKeychain', new_state)
+//
+//     var dir = new_state ? 'on' : 'off'
+//     Events.pub('ui/menu/prefs/storeKeychain/' + dir)
+// })
 
-    var dir = new_state ? 'on' : 'off'
-    Events.pub('ui/menu/prefs/storeKeychain/' + dir)
-})
-
-Events.sub('profile/nickname/set', function(data, path) {
-    var nickname = data.nickname
-    if(!nickname)
-        return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
-
-    PB.M.Wardrobe.setProfileItem('nickname', nickname)
-
-    Events.pub('ui/menu/profile/nickname/set')
-});
+// Events.sub('profile/nickname/set', function(data, path) {
+//     var nickname = data.nickname
+//     if(!nickname)
+//         return PB.onError('Invalid nickname')  // THINK: do this in React? use PB.validations?
+//
+//     PB.M.Wardrobe.setProfileItem('nickname', nickname)
+//
+//     Events.pub('ui/menu/profile/nickname/set')
+// });
 
 
 ///// event bindings that are specific to the GUI //////

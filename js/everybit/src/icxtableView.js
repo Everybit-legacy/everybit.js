@@ -26,10 +26,15 @@ var TableView = React.createClass({
 		})
 		return puffs
 	},
+	componentWillMount: function() {
+		Events.pub('ui/event', {
+			'view.table.loaded': CONFIG.initialLoad
+		})
+	},
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
-		var limit = CONFIG.initialLoad
+		var limit = puffworldprops.view.table.loaded
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 
 		puffs = this.sortPuffs(puffs)
@@ -42,6 +47,7 @@ var TableView = React.createClass({
 						return <ViewItem key={index} puff={puff} />
 					})
 				}
+				<ViewLoadMore query={this.props.view.query}/>
 			</div>
 		)
 	}
@@ -401,4 +407,41 @@ var ICXReplyPuff = React.createClass({
             )
         }
     }
+})
+
+var ViewLoadMore = React.createClass({
+	handleForceLoad: function() {
+		var query = Boron.shallow_copy(this.props.query)
+		query.offset = (+query.offset || 0) + puffworldprops.view.table.loaded
+		var filters = puffworldprops.view.filters
+		var puffs = PB.M.Forum.getPuffList(query, filters, 10)
+		if ((!puffs) || (puffs.length == 0)) {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': true
+			})
+		} else {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': false
+			})
+			this.handleLoadMore()
+		}
+		return false
+	},
+	handleLoadMore: function() {
+		var loaded = puffworldprops.view.table.loaded
+		return Events.pub('ui/event', {
+			'view.table.loaded': loaded + CONFIG.newLoad
+		})
+	},
+	render: function() {
+		var footer = <div></div>
+		if (puffworldprops.view.table.noMorePuffs) {
+			footer = <div>Nothing more to show</div>
+		} else {
+			footer = <div onClick={this.handleForceLoad}>Load More Puffs</div>
+		}
+		return (
+			<div>{footer}</div>
+		)
+	}
 })

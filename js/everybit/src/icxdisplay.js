@@ -1211,7 +1211,7 @@ var ICXSendMessage = React.createClass({
                 <div className="contentWindow">
                     <span className="bold">{invitedNote}</span>
                     <br />
-                    <textarea autocorrect="off" autocapitalize="off" ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
+                    <textarea autoCorrect="off" autoCapitalize="off" ref="messageText" style={{width: '100%', height: '50%'}} onChange={this.handleMessageText} onKeyDown={this.handleKeyDown}/>
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                     <br /><br />
@@ -1460,10 +1460,24 @@ var ICXNewUser = React.createClass({
             'gudea': !puffworldprops.ICX.hidePassphrase
         })
 
+
+        if(typeof puffworldprops.ICX.wizard != 'undefined') {
+            var wizard = puffworldprops.ICX.wizard
+            if(wizard.sequence == 'send' || wizard.sequence == 'store') {
+                var extraInfo = 'In order to send a message or store a file, please sign up for an account by choosing a username and passphrase. ' +
+                    'You’ll be able to download your passphrase later.'
+            }
+
+        } else {
+            var extraInfo = 'Please sign up for an account by choosing a username and passphrase. ' +
+                'You’ll be able to download your passphrase later.'
+        }
+
         return (
             <div className="icx-screen icx-newuser">
                 <div style={headerStyle}>{polyglot.t("header.signup")}</div>
                 <div className="contentWindow">
+                    <div className="textBox">{extraInfo}</div><br />
 
                     <div><b>{polyglot.t("signup.username")}</b></div>
 
@@ -1479,7 +1493,7 @@ var ICXNewUser = React.createClass({
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
                     <div><b>{polyglot.t("signup.pass")}</b></div>
-                    <textarea spellCheck="false" className={textClass} autocorrect="off" autocapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new passphrase" />
@@ -1491,7 +1505,7 @@ var ICXNewUser = React.createClass({
                     <b>Avatar:</b><br />
                     <canvas id="avatarCanvas" width="100" height="100">
                     </canvas>
-                    <br /><br />
+                    <br />
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>

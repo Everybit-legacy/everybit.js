@@ -48,6 +48,10 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
     font-family: 'DroidSansMono';
     src: url("fonts/DroidSansMono.ttf");
 }
+@font-face {
+    font-family: 'ICXMask';
+    src: url("fonts/maskFont.ttf");
+}
 
 /* HTML tags */
 
@@ -830,6 +834,10 @@ fieldset[disabled] .btn-primary.active {
     font-size: 10em;
 }
 
+.gudea {
+    font-family: Gudea
+}
+
 .headerBar {
     width: 100%;
     position: fixed;
@@ -1219,6 +1227,9 @@ fieldset[disabled] .btn-primary.active {
     margin-bottom: .3em;
 }
 
+.masked {
+    font-family: ICXMask;
+}
 .markdownP {
     font-size: 1.2em;
 }

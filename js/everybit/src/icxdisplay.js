@@ -1737,8 +1737,6 @@ var ICXNewUser = React.createClass({
                 var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
                 PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
                 
-                // PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, )
-
                 // Set this person as the current user
                 PB.switchIdentityTo(requestedUsername)
 
@@ -1942,73 +1940,53 @@ var ICXLogin = React.createClass({
                 // TODO: END SPINNER                
                 return PB.onError('No username in identity file')
             }
-
-            // get the primary alias
-            var primary = identityObj.primary
-            if(!primary) {
+            
+            var aliases = identityObj.aliases
+            if(!aliases) {
                 // TODO: END SPINNER                
-                return PB.onError('No primary identity detected')
-            }
-
-            // get the private keys
-            var privateRootKey, privateAdminKey, privateDefaultKey
-            
-            if(primary.privateRootKey)
-                privateRootKey = primary.privateRootKey
-                
-            if(primary.privateAdminKey)
-                privateAdminKey = primary.privateAdminKey
-                
-            if(primary.privateDefaultKey)
-                privateDefaultKey = primary.privateDefaultKey
-                
-            if(!privateDefaultKey && primary.passphrase) {
-                privateDefaultKey = passphraseToPrivateKeyWif(primary.passphrase)
-                if(!privateAdminKey)
-                    privateAdminKey = privateDefaultKey
-                if(!privateRootKey)
-                    privateRootKey = privateDefaultKey
+                return PB.onError('No aliases in identity file')
             }
             
-            if(!privateDefaultKey) {
-                // TODO: Send to error box
-                // TODO: END SPINNER
-                return PB.onError("Missing private default key in identity file")
-            }
+            var preferences = identityObj.preferences || {}
             
-            // Convert to public default key
-            var publicDefaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
-            if (!publicDefaultKey) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey':'Bad key'
-                })
-
-                // TODO: END SPINNER
-                return PB.onError("Bad private default key in identity file")
-            }
-
+            // load complete identity
+            PB.addIdentity(username, aliases, preferences)
+            
+            // then check against the user record
             var prom = PB.getUserRecord(username)
 
             prom.then(function (userInfo) {
-
-                if (publicDefaultKey != userInfo.defaultKey) {
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey':'Incorrect key'
-                    })
-                    return PB.onError('Private default key in identity file does not match public user record')
-                } 
-                // TODO: add public-private sanity check for root and admin keys
-                
-                // Add this alias and set to current
-                var capa = primary.capa || 1
-                var secrets = primary.secrets || {}
-                PB.addAlias(username, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
-                PB.switchIdentityTo(username)
-
-                // TODO: END SPINNER
-
-                ICX.username = username
-                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
+                if(!userInfo || userInfo.username != username) {
+                    // TODO: END SPINNER
+                    PB.removeIdentity(username)
+                    return PB.onError('Username not found in public record')
+                }
+                    
+                PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
+                    var identity = identities[username]
+                    if(!identity || !identity.primary) {
+                        // TODO: END SPINNER
+                        PB.removeIdentity(username)
+                        return PB.onError('Identity not properly loaded')
+                    }
+                    
+                    var primary = identity.primary
+                    
+                    if(primary.privateDefaultKey) {
+                        if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
+                            // TODO: END SPINNER
+                            PB.removeIdentity(username)
+                            Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
+                            return PB.onError('Private default key in identity file does not match public user record')
+                        }
+                    }
+                    // TODO: add public-private sanity check for root and admin keys
+                    
+                    // TODO: END SPINNER
+                    PB.switchIdentityTo(username)
+                    ICX.username = username
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
+                })
             })
             .catch(function (err) {
                 Events.pub('ui/event', {
@@ -2016,8 +1994,10 @@ var ICXLogin = React.createClass({
                 })
 
                 // TODO: END SPINNER
+                PB.removeIdentity(username)
                 return PB.throwError('File-based login failed')
             })
+            
         })
 
         return false
@@ -2299,10 +2279,10 @@ var ICXChangePassphrase = React.createClass({
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
+        var username = ICX.username // THINK: is this always just the current identity?
+        var newCapa = PB.getCurrentCapa() + 1
 
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
         var newPrivateKey = passphraseToPrivateKeyWif(newKeyRaw)
@@ -2328,71 +2308,58 @@ var ICXChangePassphrase = React.createClass({
 
             var keyToModify = keys.pop()
 
-            if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-                if (!privateRootKey) {
-                    ICX.errors = "WARNING: You do not have the proper keys set to change this key."
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                } else {
-                    var signingUserKey = 'privateRootKey'
-                    // console.log("request will be signed with root key")
-                }
-            } else if (keyToModify == 'defaultKey') {
-                if (!privateAdminKey) {
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    ICX.errors = "WARNING: You do not have the proper keys set to change your default key."
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-
-                } else {
-                    var signingUserKey = 'privateAdminKey'
-                    // console.log("request will be signed with admin key")
-                }
-            }
+            if (keyToModify == 'rootKey' || keyToModify == 'adminKey')
+                var signingUserKey = 'privateRootKey'
+            
+            if (keyToModify == 'defaultKey')
+                var signingUserKey = 'privateAdminKey'
 
             payload.keyToModify = keyToModify
             payload.newKey = newPublicKey
+            payload.newCapa = newCapa // TODO: is this right?
             payload.time = Date.now()
 
             var puff
 
-            PB.useSecureInfo(function(identities) {
-                var identity = identities[ICX.username] // THINK: is this always just the current identity?
+            PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                // NOTE: puff leaks, but only contains publicly accessible data
+                var identity = identities[username] // THINK: can we just use current identity here? ICX.username?
                 var privateRootKey = identity.primary.privateRootKey
                 var privateAdminKey = identity.primary.privateAdminKey
                 var privateKey = {privateRootKey: privateRootKey, privateAdminKey: privateAdminKey}[signingUserKey]
-                puff = PB.buildPuff(ICX.username, privateKey, routes, type, content, payload)
+                if(!privateKey) {
+                    ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                } else {
+                    puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
+                }
             })
 
             var prom = PB.Net.updateUserRecord(puff)
 
             prom.then(function (result) {
                 if(keyToModify == 'defaultKey') {
-                    PB.M.Wardrobe.storeDefaultKey(ICX.username, newPrivateKey)
-                    PB.M.Wardrobe.storePrivateBonus(ICX.username, {passphrase: newKeyRaw})
+                    var secrets = {passphrase: newKeyRaw}
+                    PB.addAlias(username, username, newCapa, false, false, newPrivateKey, secrets)
                 }
 
                 if(keyToModify == 'adminKey') {
-                    PB.M.Wardrobe.storeAdminKey(ICX.username, newPrivateKey)
+                    PB.addAlias(username, username, newCapa, false, newPrivateKey)
                 }
 
                 if(keyToModify == 'rootKey') {
-                    PB.M.Wardrobe.storeRootKey(ICX.username, newPrivateKey)
+                    PB.addAlias(username, username, newCapa, newPrivateKey)
                 }
 
                 updateKeyHelper(keys)
 
             })
             .catch(function (err) {
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-                // console.log(puff)
                 ICX.errors = "FAILED " + err
-                return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                return PB.onError('Failed to complete passphrase change', err)
             })
         }
     }

@@ -414,6 +414,13 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         return output
     }
     
+    PB.getCurrentCapa = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = ((identities[username]||{}).primary||{}).capa||0 })
+        return output
+    }
+    
     PB.getAllIdentityUsernames = function() {
         // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
         var output
@@ -460,7 +467,7 @@ PB.formatIdentityFile = function(username) {
         idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
 
         idFile.username = username
-        idFile.primary  = identity.primary
+        // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases
         idFile.aliases  = identity.aliases
         idFile.preferences = identity.preferences
         idFile.version  = "1.1"

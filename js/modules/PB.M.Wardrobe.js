@@ -138,7 +138,7 @@ all_existing_to_identities = function() {
             
             
         // TODO: remove this it leaks
-        return identity
+        return true
     }
 
     var addAlias = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {

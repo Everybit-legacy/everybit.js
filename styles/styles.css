@@ -934,15 +934,15 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-tableview .viewContainer .accordion-content {
     overflow-y: hidden;
-    transition: all .3s ease;
+    transition: all .5s ease-in-out;
 }
 
 .icx-tableview .viewContainer .accordion-content.expanded {
-    height: auto;
+    max-height: 450px;
 }
 
 .icx-tableview .viewContainer .accordion-content.collapsed {
-    height: 1.4em;
+    max-height: 1.4em;
 }
 
 .icx-tableview .viewContainer .viewItem.sent {

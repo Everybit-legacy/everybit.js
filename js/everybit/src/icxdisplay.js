@@ -727,52 +727,6 @@ var ICXInvite = React.createClass({
     }
 })
 
-// Reply to a single puff
-var ICXReplyPuff = React.createClass({
-    handleParents: function() {
-        var sig = this.props.sig
-
-        var parents = puffworldprops.reply.parents          // OPT: global props hits prevent early bailout
-            ? puffworldprops.reply.parents.slice()          // clone to keep pwp immutable
-            : []
-
-        var index = parents.indexOf(sig)
-        if(index == -1) {
-            if (parents.length == 0)
-            parents.push(sig)
-        } else {
-            parents.splice(index, 1)
-        }
-
-        return Events.pub('ui/reply/add-parent',
-            {
-               'reply.parents': parents,
-               'reply.isReply': true
-            }
-        )
-    },
-
-    handleReply: function() {
-
-        var username = this.props.user
-        this.handleParents()
-
-        return Events.pub('/ui/icx/screen', {
-            "view.icx.screen": 'send',
-            "view.icx.toUser": username
-        })
-    },
-    render: function() {
-        return (
-            <span className="icon relative">
-                <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
-                <Tooltip position="under" content="Reply to this puff" />
-            </span>
-        )
-    }
-})
-
-
 var ICXSend = React.createClass({
     mixins: [TooltipMixin],
 
@@ -2526,7 +2480,7 @@ var ICXTableView = React.createClass({
         document.body.style.overflowY = "auto"
 
         return (
-            <div className="icx-screen">{view}</div>
+            <div className="icx-tableview">{view}</div>
             )
     }
 })
@@ -3128,8 +3082,7 @@ var ICXUserButton = React.createClass({
     handleClearFilters: function() {
         return Events.pub( 'filter/show/by-user',
             {
-                'view.filters': {},
-                'view.filters.users': []
+                'view.filters': {}
             }
         )
     },

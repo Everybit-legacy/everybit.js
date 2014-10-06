@@ -563,47 +563,49 @@ var ICXInvite = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
+        var polyglot = Translate.language[puffworldprops.view.language]
         // Next step is file or message, then final step has warning about NOT DONE
-        var userURL = 'https://i.cx/u/'+ICX.username
+       var userURL = 'https://i.cx/u/'+ICX.username
+       var inviteText = polyglot.t("invite.proposal_1")+"\n"+userURL+"\n"+polyglot.t("invite.proposal_2")+"\n"+ICX.username
 
         // Put Why can't you in warning message?
         return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>Invite someone to join ICX</div>
-                <div className="contentWindow">
-                    You&#8217;ve chosen to send to a new ICX user. You have two options:
-                    <br />
-                    <br />
-                    <em>Option 1:</em><br />
-                    Send someone a link where they can message you: <input type="text" value={userURL} readOnly /> <a href={userURL} className="inline" target="_new">Test link</a>
-                    <br /><br />
-                    <em>Option 2:</em><br />
-                    Create an account for your friend using the security question and answer below. The answer to your
-                    question will be your friend&#39;s initial passphrase. Because this method is lower security,
-                    your friend will be asked to change their passphrase right away.<br /><br />
-                    Question:<br />
-                    <input type="text" ref="question" onChange={this.handleVerifyQuestion}/>
-                    {' '}<ICXCheckmark show={puffworldprops.ICX.invite.questionStatus} />
-                    {' '}<span className="message">{puffworldprops.ICX.invite.questionMessage}</span>
-                    <br />
-                    Answer:<br />
-                    <input type="text" ref="passphrase" onChange={this.handleVerifyAnswer}/>
-                    {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
-                    {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
-                    <br />
-                    <span className="shortcut">Note:</span> Your recipient will have to enter the answer <em>exactly</em> how you type it.
-                    <br /><br />
-                    <a style={ICX.buttonStyle} onClick={this.handleSendToEmail} className="icxNextButton icx-fade"> Next <i className="fa fa-chevron-right small" /></a>
-                    <br /><br />
-                    <div className="textBox text-small">
-                        Wondering why you can&#8217;t send your message directly to someone without an ICX account?
-                        When you send someone a private message or a file, it has to be encrypted on your own device before
-                        it gets sent over the network. But in order to encrypt it, your web browser needs the public key of
-                        the person you are sending to. That public key has to be created and associated with a username record
-                        before the message can be sent. You can get this process started by choosing a shared secret for your
-                        friend&#39;s initial passphrase.
+            <div className="help-box">
+                <div id="optionOne" className="content-card option georgia">
+                    <div className="title">
+                        <span className="bold underline">Oh, it looks like this recipient doesn't have an I.CX account yet</span>
                     </div>
+                    <span className="text-small">In order for them to see your  message or file, they will need an I.CX username and passphrase.</span>
+                    <br />
+                    <span className="text-small">Choose one of the options below to get them started:</span>
+                    <div  style={{'margin-bottom':'10px'}}></div>
+                    <div style={headerStyle}>Option 1: Send them an invite link</div>
+                The link will direct them to create their own account. (You won't be able to send them files or messages securely until they create their account)
+                    <br />
+                    <textarea value={inviteText} style={{'width':'80%', 'height':'50%'}}></textarea>
+                    <br />
 
+                    <span className="bold">Copy the message</span> and email them about I.CX
+                </div>
+                <br />
+
+                <div id="optionTwo" className="content-card option">
+                    <div style={headerStyle}>Option 2: Create an account for them</div>
+                    <span className="georgia">Create a security question and answer below. (Then you can send your file or message to this username)</span>
+                    <br /><br />
+                    <span>Question:</span><br />
+                    <input type="text" ref="question" onChange={this.handleVerifyQuestion}/>
+                        {' '}<ICXCheckmark show={puffworldprops.ICX.invite.questionStatus} />
+                        {' '}<span className="message">{puffworldprops.ICX.invite.questionMessage}</span>
+                    <br />
+                Answer:<br />
+                    <input type="text" ref="passphrase" onChange={this.handleVerifyAnswer}/>
+                        {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
+                        {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
+                    <br />
+                    <span className="shortcut georgia">Note:</span> <span className="georgia">The answer to the question will be your recipient's initial passphrase. They will be able to view your message or file after logging in and changing their passphrase.</span>
+                    <br />
+                    <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleSendToEmail}> Continue <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
         )
@@ -738,6 +740,10 @@ var ICXSend = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
+        var inviteClass =React.addons.classSet({
+            'hidden':!puffworldprops.ICX.showInvite
+        })
+
         return (
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>Send an encrypted message or file</div>
@@ -766,8 +772,11 @@ var ICXSend = React.createClass({
                         {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
                         {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
                         {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>.
-                        </div>
-
+                    </div>
+                    <br />
+                    <div className={inviteClass}>
+                        <ICXInvite />
+                    </div>
                 </div>
             </div>
             )
@@ -794,7 +803,7 @@ var ICXSend = React.createClass({
     componentDidMount: function() {
         // Were we sent to user by props?
         if(puffworldprops.view.icx.toUser) {
-            this.refs.toUser.getDOMNode().value = puffworldprops.view.icx.toUser
+            this.refs.toUser.getDOMNode().value = puffworldprops.ICX.toUser
             this.handleUsernameLookup()
         }
         this.refs.toUser.getDOMNode().focus()
@@ -844,14 +853,16 @@ var ICXSend = React.createClass({
                 'ICX.toUser': toUser,
                 'ICX.wizard.type': nextStep
             })
-
             if(nextStep) {
-                Events.pub('ui/icx/screen', {
-                    "view.icx.screen": 'invite'
+                Events.pub('ui/events', {
+                    'ICX.showInvite':true
                 })
             }
-
             return false
+        } else {
+            Events.pub('ui/events', {
+                'ICX.showInvite':false
+            })
         }
 
         // remove initial . if it exists
@@ -908,7 +919,7 @@ var ICXSend = React.createClass({
             'ICX.toUser': username
         })
     }
-});
+})
 
 var ICXSendFile = React.createClass({
     fileElement: {},

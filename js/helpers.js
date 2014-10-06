@@ -376,6 +376,7 @@ function generateRandomAnimal() {
 // Basic check to see if something has the form of an email address:
 // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
 function looksLikeEmailAddress(str) {
+    if (!str) return false
     var lastAtPos = str.lastIndexOf('@');
     var lastDotPos = str.lastIndexOf('.');
     return (lastAtPos < lastDotPos && lastAtPos > 0 && str.indexOf('@@') == -1 && lastDotPos > 2 && (str.length - lastDotPos) > 2);

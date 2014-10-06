@@ -70,6 +70,8 @@ PB.Net.getStarShells = function() {
 }
 
 PB.Net.getPrivatePuffsFromMe = function(username) {
+    if(!username) return PB.emptyPromise()
+    
     var url  = CONFIG.puffApi
     var data = { username: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
@@ -80,6 +82,8 @@ PB.Net.getPrivatePuffsFromMe = function(username) {
 }
 
 PB.Net.getPrivatePuffsForMe = function(username) {
+    if(!username) return PB.emptyPromise()
+    
     var url  = CONFIG.puffApi
     var data = { route: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'

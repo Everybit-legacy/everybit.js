@@ -410,11 +410,28 @@ function looksLikeEmailAddress(str) {
 function getAvatar(color, name) {
     var canvas = document.getElementById("avatarCanvas");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect ( 0 , 0 , 60 , 60 );
+    ctx.clearRect ( 0 , 0 , 100 , 100 );
     var unicode = getUnicodeFromName(name);
-    ctx.font = "60px icxicon";
+
+    /*
+    ctx.font = "100px icxicon";
+    ctx.fillStyle = "black";
+    ctx.fillText(String.fromCharCode(unicode), 0, 100);
+
+    ctx.font = "90px icxicon";
     ctx.fillStyle = color;
-    ctx.fillText(String.fromCharCode(unicode), 0, 60);
+    ctx.fillText(String.fromCharCode(unicode), 5, 95);
+    */
+
+    ctx.font = "100px icxicon";
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#444444";
+    ctx.lineWidth = 2;
+    ctx.fillText(String.fromCharCode(unicode), 5, 95);
+    ctx.strokeText(String.fromCharCode(unicode), 5, 95);
+    ctx.fill();
+    ctx.stroke();
+
     return Events.pub('ui/event',
         {'profile.avatarUrl': canvas.toDataURL('png')}
     )

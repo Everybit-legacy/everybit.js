@@ -932,6 +932,104 @@ fieldset[disabled] .btn-primary.active {
 .icx-newuser {
 }
 
+/* BEGIN ICX tableview */
+.icx-tableview {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.icx-tableview .viewContainer {
+    margin: 10px;
+}
+
+.icx-tableview .viewContainer .viewItem {
+    margin-bottom: 15px;
+    border: 1px solid green;
+    width: 90%;
+    position: relative;
+}
+
+.icx-tableview .viewContainer .accordion-content {
+    overflow-y: hidden;
+    transition: all .5s ease-in-out;
+}
+
+.icx-tableview .viewContainer .accordion-content.expanded {
+    max-height: 450px;
+}
+
+.icx-tableview .viewContainer .accordion-content.collapsed {
+    max-height: 1.4em;
+}
+
+.icx-tableview .viewContainer .viewItem.sent {
+    margin-left: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem.received {
+    margin-right: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem .markdownP {
+    font-size: 100%;
+}
+
+.icx-tableview .viewContainer .metaInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .metaInfo .info {
+    float: left;
+    width: 70%;
+}
+
+.icx-tableview .viewContainer .metaInfo .info .date-since {
+    float: left;
+    margin-right: 2%;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs {
+    float: left;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .metaInfo .options {
+    float: right;
+}
+
+.icx-tableview .viewContainer .metaInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .userInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .userInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .userInfo .userRecord {
+    float: left;
+}
+
+.icx-tableview .viewContainer .userInfo .accordion-control {
+    float: right;
+}
+
+.icx-tableview .viewContainer .viewItem .bigStart::first-line {
+    font-size: 100%;
+    font-family: Gudea;
+}
+
+/* END ICX tableview */
+
+
+
+
 .icx-screen .listview {
     max-height: 100%;
     overflow-x: hidden;

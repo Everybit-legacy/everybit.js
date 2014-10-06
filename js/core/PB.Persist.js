@@ -27,13 +27,13 @@ PB.Persist.save = function(key, value) {
             }
             PB.Persist.todo = {};
             PB.Persist.todoflag = false;
-        }, 2500);                                                       // call at most every 100ms
+        }, 100);                                                        // call at most every 100ms
     }
     PB.Persist.todoflag = true
 }
 
 /**
- * to get the parsed JSON info from the given key
+ * get the parsed JSON info from the given key
  * @param  {string} key
  * @return {(false|string)}
  */

@@ -320,8 +320,8 @@ var ViewReplyBox = React.createClass({
         prom = prom.then(function () {
             if (envelopeUserKeys) {      // add our secret identity to the list of available keys
                 userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-            } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+            } else {                     // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)

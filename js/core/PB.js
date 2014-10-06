@@ -10,7 +10,7 @@
   
     The core library for the puffball platform. 
     
-    Currently a single flat file containing a mixture of parts; one day this will be the composite of modules at many levels.
+    Most calls to the platform should go through here, rather than accessing other core modules like PB.Data and PB.Crypto directly.
     
     
     Future file system idea:
@@ -68,15 +68,17 @@ PB.init = function(zone) {
  * @param  {object} payload                     other payload information for the puff
  * @param  {string} previous                    most recently published content by the user
  * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} envelopeUserKeys
+ * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
+PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
+
+    // TODOUR: add capa
 
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
     
     return puff
@@ -125,6 +127,8 @@ PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, u
     updated = updated || ""
     profile = profile || ""
     
+    // TODOUR: add capa
+    
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
     if(!PB.validateUsername(username))
@@ -161,6 +165,8 @@ PB.validateUsername = function(username) {
     if(!/^[0-9a-z.]+$/.test(username))
         return PB.onError('Usernames must be alphanumeric', username)
     
+    // TODOUR: add capa
+    
     return true;
 }
 
@@ -172,6 +178,7 @@ PB.validateUsername = function(username) {
 PB.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
+    // TODOUR: add capa
     userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
     
     if(!userRecord)
@@ -190,6 +197,8 @@ PB.processUserRecord = function(userRecord) {
  */
 PB.getUserRecord = function(username) {
     //// This always checks the cache, and always returns a promise
+    
+    // TODOUR: add capa
     
     var userRecord = PB.Data.getCachedUserRecord(username);
     
@@ -211,6 +220,8 @@ PB.getUserRecord = function(username) {
  */
 PB.getUserRecordNoCache = function(username) {
     //// This never checks the cache
+    
+    // TODOUR: add capa
     
     var prom = PB.Net.getUserRecord(username);
     
@@ -294,16 +305,18 @@ PB.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
     var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var username = letter.username
     
-    if(envelopeUserKeys) {
-        myPrivateWif = envelopeUserKeys.default
-        username = envelopeUserKeys.username
+    // TODOUR: add capa to privateEnvelopeAlias... somehow
+    
+    if(privateEnvelopeAlias) {
+        myPrivateWif = privateEnvelopeAlias.default
+        username = privateEnvelopeAlias.username
     }
     
     var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
@@ -357,8 +370,192 @@ PB.tryDecodeOyVey = function(str) {
 
 
 
+////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-/// ERROR ERROR
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
+    // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
+    // addIdentity      = function(username, aliases, preferences)
+    // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // removeIdentity   = function(username)
+    // setPreference    = function(key, value) // for current identity
+    // switchIdentityTo = function(username)
+
+    // THINK: consider ensuring all functions are present first, so it's harder to mix and match wardrobe implementations
+    
+    if(typeof useSecureInfo == 'function') {
+        PB.useSecureInfo = function(callback) {
+            // NOTE: useSecureInfo returns true if there is a current identity, and false otherwise
+            return useSecureInfo( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) {
+                var clonedIdentities = JSON.parse(JSON.stringify(identities)) // prevent accidental mutation
+                callback(clonedIdentities, username, privateRootKey, privateAdminKey, privateDefaultKey)
+            })
+        }
+    }
+    
+    if(typeof addIdentity == 'function')
+        PB.addIdentity = addIdentity
+        
+    if(typeof addAlias == 'function')
+        PB.addAlias = addAlias
+        
+    if(typeof setPreference == 'function')
+        PB.setPreference = setPreference
+        
+    if(typeof switchIdentityTo == 'function')
+        PB.switchIdentityTo = switchIdentityTo
+        
+    if(typeof removeIdentity == 'function')
+        PB.removeIdentity = removeIdentity
+        
+    PB.getCurrentUsername = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = username })
+        return output
+    }
+    
+    PB.getCurrentCapa = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = ((identities[username]||{}).primary||{}).capa||0 })
+        return output
+    }
+    
+    PB.getAllIdentityUsernames = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
+        return output
+    }
+    
+    PB.getCurrentUserRecord = function() {
+        var username = PB.getCurrentUsername()
+        if(!username) 
+            return PB.onError('No current user in wardrobe')
+    
+        // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
+        //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
+        //        since after all we have stored the userRecord in our wardrobe, haven't we?
+    
+        var userRecord = PB.Data.userRecords[username]
+        if(!userRecord)
+            return PB.onError('That user does not exist in our records')
+    
+        return userRecord
+    }
+    
+}
+
+////////////// END SECURE INFORMATION ZONE ////////////////////
+
+PB.formatIdentityFile = function(username) {
+    // THINK: consider passphrase protecting the identity file by default
+    
+    username = username || PB.getCurrentUsername()
+    
+    if(!username) return false
+
+    var idFile = {}
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // this leaks all of the identity information back to the caller
+        // if we passphrase protect the file, do it here to prevent that leakage
+
+        var identity = identities[username]
+
+        // assemble idFile manually to keep everything in the right order
+        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+        idFile.username = username
+        // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases
+        idFile.aliases  = identity.aliases
+        idFile.preferences = identity.preferences
+        idFile.version  = "1.1"
+    })
+
+    return idFile
+}
+
+
+/**
+ * Get the current user's DHT record, or create a new anon user, or die trying
+ * @return {string}
+ */
+PB.getUpToDateUserAtAnyCost = function() {
+    //// Either get the current user's DHT record, or create a new anon user, or die trying
+
+    var username = PB.getCurrentUsername()
+
+    if(username)
+        return PB.getUserRecordNoCache(username)
+    
+    var prom = PB.addNewAnonUser()
+    
+    return prom.then(function(userRecord) {
+        PB.switchIdentityTo(userRecord.username)
+        console.log("Setting current user to " + userRecord.username);
+        return userRecord
+    })
+}
+
+
+/**
+ * Generate a random username
+ * @return {string}
+ */
+PB.generateRandomUsername = function() {
+    // TODO: consolidate this with the new username generation functions
+    var generatedName = '';
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for(var i=0; i<10; i++) {
+        generatedName += PB.Crypto.getRandomItem(alphabet)
+        // var randFloat = PB.Crypto.random();
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
+    }
+    return generatedName;
+}
+
+
+PB.addNewAnonUser = function(attachToUsername) {
+    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
+    //// if attachToUsername is false the alias becomes primary for its own identity.
+
+    // generate private keys
+    var privateRootKey    = PB.Crypto.generatePrivateKey()
+    var privateAdminKey   = PB.Crypto.generatePrivateKey()
+    var privateDefaultKey = PB.Crypto.generatePrivateKey()
+    
+    // generate public keys
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    // build new username
+    var anonUsername = PB.generateRandomUsername()
+    var newUsername  = 'anon.' + anonUsername
+
+    // send it off
+    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+
+    return prom
+        .then(function(userRecord) {
+            // store directly because we know they're valid, and so we don't get tangled up in more promises
+            
+            // FIXME: add to identity if attachToUsername
+            
+            // FIXME: otherwise add new identity
+            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
+            
+            
+            return userRecord
+        },
+        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
+}
+
+
+
+/// ERROR HELPERS
+
 /**
  * on error function
  * @param  {string} msg 
@@ -366,6 +563,8 @@ PB.tryDecodeOyVey = function(str) {
  * @return {false}
  */
 PB.onError = function(msg, obj) {
+    //// override this for custom error behavior
+    
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)

@@ -376,6 +376,7 @@ function generateRandomAnimal() {
 // Basic check to see if something has the form of an email address:
 // http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
 function looksLikeEmailAddress(str) {
+    if (!str) return false
     var lastAtPos = str.lastIndexOf('@');
     var lastDotPos = str.lastIndexOf('.');
     return (lastAtPos < lastDotPos && lastAtPos > 0 && str.indexOf('@@') == -1 && lastDotPos > 2 && (str.length - lastDotPos) > 2);
@@ -410,11 +411,28 @@ function looksLikeEmailAddress(str) {
 function getAvatar(color, name) {
     var canvas = document.getElementById("avatarCanvas");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect ( 0 , 0 , 60 , 60 );
+    ctx.clearRect ( 0 , 0 , 100 , 100 );
     var unicode = getUnicodeFromName(name);
-    ctx.font = "60px icxicon";
+
+    /*
+    ctx.font = "100px icxicon";
+    ctx.fillStyle = "black";
+    ctx.fillText(String.fromCharCode(unicode), 0, 100);
+
+    ctx.font = "90px icxicon";
     ctx.fillStyle = color;
-    ctx.fillText(String.fromCharCode(unicode), 0, 60);
+    ctx.fillText(String.fromCharCode(unicode), 5, 95);
+    */
+
+    ctx.font = "100px icxicon";
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#444444";
+    ctx.lineWidth = 2;
+    ctx.fillText(String.fromCharCode(unicode), 5, 95);
+    ctx.strokeText(String.fromCharCode(unicode), 5, 95);
+    ctx.fill();
+    ctx.stroke();
+
     return Events.pub('ui/event',
         {'profile.avatarUrl': canvas.toDataURL('png')}
     )
@@ -423,7 +441,6 @@ function getAvatar(color, name) {
 function getUnicodeFromName(name) {
     var animals = getAnimalCSS();
     var unicodes = getAnimalUnicodes();
-    console.log(unicodes);
     var index = animals.indexOf(name);
     if(index < 0) {
         return false;

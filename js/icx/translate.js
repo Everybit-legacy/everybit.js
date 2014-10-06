@@ -50,11 +50,13 @@ Translate.language["en"].extend({
 		logout: " Logout"
 	},
 	send: {
-		msg: "Your Message",
+		msg: "Your message to ",
+        msg_new_user: "Your message to new user: ",
 		to_user: "Sending to user ",
 		to_new_user: "Sending to new user ",
 		file: "File: ",
-		tip_1: "TIP: The keyboard shortcut ",
+        tip_label:"TIP:",
+		tip_1: "The keyboard shortcut ",
 		tip_2: " will send your message right away.",
 		msg_sent: "Your message has been sent!",
 		file_sent: "Your file has been sent!",
@@ -66,7 +68,9 @@ Translate.language["en"].extend({
 		email_2: ". Your private passpharse is the answer to the question: ",
 		sent_1: "Your message has been sent. However, ",
 		sent_2: "in order for your friend to read it, you need to let them know their username and prompt question",
-		sent_3: ". We suggest sending the following email to "
+		sent_3: ". We suggest sending the following email to ",
+        proposal_1: "I want to communicate with you securely using I.CX. Follow the link below to sign up and start sending and receiving encrypted messages today. ",
+        proposal_2: "Once you have signed up, send me a message at: "
 	},
 	pass: {
 		change: "Change passphrase for ",

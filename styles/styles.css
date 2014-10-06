@@ -48,12 +48,16 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
     font-family: 'DroidSansMono';
     src: url("fonts/DroidSansMono.ttf");
 }
+@font-face {
+    font-family: 'ICXMask';
+    src: url("fonts/maskFont.ttf");
+}
 
 /* HTML tags */
 
 a {
     text-decoration:none;
-    color: rgba(0, 3, 82, 0.8);
+    color: rgba(29, 31, 91, 0.8);
     cursor: pointer;
 }
 
@@ -68,6 +72,14 @@ a.footerText {
 
 a.inline {
     background-color: rgba(255,255,255,.5)
+}
+
+a.inline:hover {
+    background-color: rgba(255,255,255,.8)
+}
+
+a.inline:active {
+    background-color: rgba(255,255,255,1)
 }
 
 a.ICXbuttonLink {
@@ -97,7 +109,7 @@ html {
 }
 
 body {
-    background-color: #F0F0F0;
+    background-color: #FAFAED;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
@@ -558,6 +570,10 @@ input[type='text'].btn {
   cursor: pointer;
   border-radius: 0;
 }
+
+.btn-inline {
+    display: inline;
+}
 .btn-link,
 .btn-link:active,
 .btn-link[disabled],
@@ -686,6 +702,7 @@ fieldset[disabled] .btn-primary.active {
     padding:2%;
     margin-right:auto;
     margin-left:auto;
+    overflow: scroll;
 }
 /*.downloadIcon {
     text-align: right;
@@ -748,11 +765,12 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .fileSelect {
-    max-width:95%;
+    width:58%;
 }
 @media(max-width:420px) {
     .fileSelect {
         font-size: small;
+        width:95%;
     }
 }
 .floatLeft {
@@ -829,6 +847,20 @@ fieldset[disabled] .btn-primary.active {
     font-size: 10em;
 }
 
+.georgia {
+    font-family: Georgia;
+}
+
+.gudea {
+    font-family: Gudea;
+}
+
+.help-box .content-card {
+    padding: 1%;
+    background-color: rgba(226,234,157,0.2);
+    border: 1px solid rgba(0,0,0,0.3);
+}
+
 .headerBar {
     width: 100%;
     position: fixed;
@@ -883,6 +915,12 @@ fieldset[disabled] .btn-primary.active {
 .icxNextButton {
     text-decoration:none;
     color:#fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    -webkit-font-smoothing: antialiased;
+    font-weight:600;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.1);
+    -webkit-box-shadow: inset 0 -3px 0 rgba(0,0,0,.1);
+    -moz-box-shadow: inset 0 -3px 0 rgba(0,0,0,.1);
 }
 .icx-fade:hover {
     opacity:0.75;
@@ -896,7 +934,6 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-screen .component {
     margin-top: 20px;
-    margin-left: 10px;
     margin-bottom: 20px;
 }
 
@@ -908,6 +945,104 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-newuser {
 }
+
+/* BEGIN ICX tableview */
+.icx-tableview {
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.icx-tableview .viewContainer {
+    margin: 10px;
+}
+
+.icx-tableview .viewContainer .viewItem {
+    margin-bottom: 15px;
+    border: 1px solid green;
+    width: 90%;
+    position: relative;
+}
+
+.icx-tableview .viewContainer .accordion-content {
+    overflow-y: hidden;
+    transition: all .5s ease-in-out;
+}
+
+.icx-tableview .viewContainer .accordion-content.expanded {
+    max-height: 450px;
+}
+
+.icx-tableview .viewContainer .accordion-content.collapsed {
+    max-height: 1.4em;
+}
+
+.icx-tableview .viewContainer .viewItem.sent {
+    margin-left: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem.received {
+    margin-right: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem .markdownP {
+    font-size: 100%;
+}
+
+.icx-tableview .viewContainer .metaInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .metaInfo .info {
+    float: left;
+    width: 70%;
+}
+
+.icx-tableview .viewContainer .metaInfo .info .date-since {
+    float: left;
+    margin-right: 2%;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs {
+    float: left;
+}
+.icx-tableview .viewContainer .metaInfo .info .refs:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .metaInfo .options {
+    float: right;
+}
+
+.icx-tableview .viewContainer .metaInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .userInfo {
+    width: 100%;
+    overflow: hidden;
+}
+
+.icx-tableview .viewContainer .userInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .userInfo .userRecord {
+    float: left;
+}
+
+.icx-tableview .viewContainer .userInfo .accordion-control {
+    float: right;
+}
+
+.icx-tableview .viewContainer .viewItem .bigStart::first-line {
+    font-size: 100%;
+    font-family: Gudea;
+}
+
+/* END ICX tableview */
+
+
+
 
 .icx-screen .listview {
     max-height: 100%;
@@ -964,6 +1099,10 @@ fieldset[disabled] .btn-primary.active {
     overflow: ellipsis;
     white-space: nowrap;
 
+}
+
+.icx-screen .rowReferencePreview {
+    max-width: none;
 }
 
 .icx-screen .menuTooltip.above {
@@ -1209,6 +1348,9 @@ fieldset[disabled] .btn-primary.active {
     margin-bottom: .3em;
 }
 
+.masked {
+    font-family: ICXMask;
+}
 .markdownP {
     font-size: 1.2em;
 }
@@ -1645,6 +1787,10 @@ fieldset[disabled] .btn-primary.active {
     font-size: .8em;
 }
 
+.small-margin-bottom {
+    margin-bottom:2%;
+}
+
 /*.smallCaps {
     font-family: GudeaBold;
     text-transform: uppercase;
@@ -1715,6 +1861,23 @@ fieldset[disabled] .btn-primary.active {
     text-transform: uppercase;
 }
 
+.textBox {
+    font-family: Georgia, Palatino, "Times New Roman", serif;
+    color: rgba(0,0,0,0.8);
+    line-height:150%;
+}
+
+.text-small {
+    font-size:80%;
+}
+
+.text-normal {
+    font-size:100%
+}
+
+.underline {
+    text-decoration: underline;
+}
 .walletLink .walletInfo {
     font-family: Gudea, sans-serif;
     font-size: 1em;

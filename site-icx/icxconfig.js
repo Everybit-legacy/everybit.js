@@ -185,3 +185,11 @@ CONFIG.maxParentGen = 3
 CONFIG.maxChildGen = 4
 CONFIG.initialLoad = 20
 CONFIG.newLoad = 10
+
+//should only be changed if the underlying platform changes
+CONFIG.standards ={}
+CONFIG.standards.usernames = {}
+CONFIG.standards.usernames.maxLength = 255
+
+
+

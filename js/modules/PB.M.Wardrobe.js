@@ -67,6 +67,15 @@ all_existing_to_identities = function() {
 }
 ////////// end removal zone /////////////
 
+    // TODO: get file-based login working (and maybe login in general)
+    // TODO: change storeKeys over to new style
+    // TODO: get anon creation working
+    // TODO: integrate capa with userRecords and puffs everywhere
+
+
+
+
+
 
     PB.M.Wardrobe.init = init
     
@@ -259,7 +268,8 @@ all_existing_to_identities = function() {
     function processUpdates() {
         // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
 
-        PB.Persist.save('identities', identities)
+        if(!CONFIG.ephemeralKeychain)
+            PB.Persist.save('identities', identities)
     
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
@@ -278,8 +288,10 @@ all_existing_to_identities = function() {
 
         var identity = identities[username]
 
-        if(!identity) // TODO: move this error up into the callsite so we don't spam it when adding identities
-            return PB.onError('That username does not match any available identity')
+        // TODO: move this error up into the callsite so we don't spam it when adding identities
+        if(!identity) 
+            return false
+            // return PB.onError('That username does not match any available identity')
 
         return identity
     }

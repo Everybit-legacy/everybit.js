@@ -1733,21 +1733,29 @@ var ICXNewUser = React.createClass({
         prom.then(function(userRecord) {
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+                // TODO: pull this code out of the GUI and down a level
+                var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+                PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+                
+                // PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, )
 
                 // Set this person as the current user
                 PB.switchIdentityTo(requestedUsername)
 
+                // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time?
+                var idFile = PB.formatIdentityFile()
+                ICX.identityForFile = idFile
+                
                 // Create identity file
-                ICX.identityForFile = {
-                    comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-                    username: requestedUsername,
-                    privateRootKey: privateRootKey,
-                    privateAdminKey: privateAdminKey,
-                    privateDefaultKey: privateDefaultKey,
-                    passphrase: passphrase,
-                    version: "1.0"
-                }
+                // ICX.identityForFile = {
+                //     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
+                //     username: requestedUsername,
+                //     privateRootKey: privateRootKey,
+                //     privateAdminKey: privateAdminKey,
+                //     privateDefaultKey: privateDefaultKey,
+                //     passphrase: passphrase,
+                //     version: "1.0"
+                // }
 
                 publishProfilePuff()
 
@@ -1914,75 +1922,102 @@ var ICXLogin = React.createClass({
     },
 
     handleLoginWithFile: function(event) {
+        // TODO: start spinner here
+        
         fileprom = PBFiles.openTextFile(event.target)
         fileprom.then(function(content) {
 
+            // TODO: move all of this out of the GUI
+
             // Try and parse, if can't return error
-            try {
-                var identityObj = JSON.parse(content)
-            } catch (e) {
-                console.log('failed')
-                // TODO: return an error here
-                return false
+            // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
+            var identityObj = PB.parseJSON(content)
+            if(!identityObj) {
+                // TODO: END SPINNER
+                return PB.onError('Failed to parse identity file content')
             }
 
             var username = identityObj.username
-            if(!username)
-                return false
-
-            // Do login, return error as needed
-            if(identityObj.passphrase) {
-                var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
-            } else if(identityObj.privateDefaultKey) {
-                 var privateKey = identityObj.privateDefaultKey
-            } else {
-                // TODO: Send to error box
-                // console.log("Missing info");
-                /// console.log(identityObj)
-                return PB.onError("Missing info")
+            if(!username) {
+                // TODO: END SPINNER                
+                return PB.onError('No username in identity file')
             }
-            // Convert to public key
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            if (!publicKey) {
+
+            // get the primary alias
+            var primary = identityObj.primary
+            if(!primary) {
+                // TODO: END SPINNER                
+                return PB.onError('No primary identity detected')
+            }
+
+            // get the private keys
+            var privateRootKey, privateAdminKey, privateDefaultKey
+            
+            if(primary.privateRootKey)
+                privateRootKey = primary.privateRootKey
+                
+            if(primary.privateAdminKey)
+                privateAdminKey = primary.privateAdminKey
+                
+            if(primary.privateDefaultKey)
+                privateDefaultKey = primary.privateDefaultKey
+                
+            if(!privateDefaultKey && primary.passphrase) {
+                privateDefaultKey = passphraseToPrivateKeyWif(primary.passphrase)
+                if(!privateAdminKey)
+                    privateAdminKey = privateDefaultKey
+                if(!privateRootKey)
+                    privateRootKey = privateDefaultKey
+            }
+            
+            if(!privateDefaultKey) {
+                // TODO: Send to error box
+                // TODO: END SPINNER
+                return PB.onError("Missing private default key in identity file")
+            }
+            
+            // Convert to public default key
+            var publicDefaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+            if (!publicDefaultKey) {
                 Events.pub('ui/event', {
                     'ICX.defaultKey':'Bad key'
                 })
-                return false
+
+                // TODO: END SPINNER
+                return PB.onError("Bad private default key in identity file")
             }
 
             var prom = PB.getUserRecord(username)
 
             prom.then(function (userInfo) {
 
-                if (publicKey != userInfo.defaultKey) {
-                    console.log('incorrect key')
+                if (publicDefaultKey != userInfo.defaultKey) {
                     Events.pub('ui/event', {
                         'ICX.defaultKey':'Incorrect key'
                     })
-                    return false
-                } else {
+                    return PB.onError('Private default key in identity file does not match public user record')
+                } 
+                // TODO: add public-private sanity check for root and admin keys
+                
+                // Add this alias and set to current
+                var capa = primary.capa || 1
+                var secrets = primary.secrets || {}
+                PB.addAlias(username, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+                PB.switchIdentityTo(username)
 
-                    // Add this to wardrobe, set username to current
-                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
+                // TODO: END SPINNER
 
-                    // At least one good key, set this to current user
-                    PB.switchIdentityTo(username)
-
-
-                    ICX.username = username
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
-
-                }
+                ICX.username = username
+                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
             })
-                .catch(function (err) {
-                    console.log('fail')
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey':'Not found'
-                    })
-
-                    return false
+            .catch(function (err) {
+                Events.pub('ui/event', {
+                    'ICX.defaultKey':'Not found'
                 })
-            return false
+
+                // TODO: END SPINNER
+                return PB.throwError('File-based login failed')
+            })
         })
 
         return false

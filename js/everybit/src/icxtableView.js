@@ -341,6 +341,9 @@ var ViewReplyBox = React.createClass({
             'reply.replyTo': ''
 		})
 	},
+	handleCancelReply: function() {
+		this.handleCleanup()
+	},
 	render: function() {
 		var username = puffworldprops.reply.replyTo
 
@@ -349,7 +352,7 @@ var ViewReplyBox = React.createClass({
 				Reply to: {username} <br/>
 				Message:
 				<textarea ref="messageText" style={{width: '100%', height: '20%'}} />
-				<button onClick={this.handleReply}>Reply</button>
+				<button onClick={this.handleReply}>Reply</button><span onClick={this.handleCancelReply}> Cancel</span>
 			</div>
 		)
 	}

@@ -29,12 +29,6 @@
 
 */
 
-// FIXME: resolve the addIdentity / addAlias conflict: you only ever add aliases to an identity... addAlias? 
-// addAlias is nice. Wardrobe->PB.M.Identity. addAlias(identityUsername, aliasUsername, capa, etc)
-// if it already exists we just merge the new details in with it as much as possible, overwriting otherwise.
-
-
-
 /*
   THINK:
     - register callback handlers for user record creation and modification
@@ -48,9 +42,9 @@ PB.M.Wardrobe = {}
 ~function() { // begin the closure
 
     var identities = {}
-// {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
+    // {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
 
-// an alias: { username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }
+    // an alias: { username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }
 
     var currentUsername = false
 
@@ -58,7 +52,7 @@ PB.M.Wardrobe = {}
 ////////// remove these functions /////////////
 existing_to_alias = function(keychain) {
     // TODO: this is deprecated, remove it
-    return addAlias(keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
+    return addAlias(keychain.username, keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
 }
 
 all_existing_to_identities = function() {
@@ -83,7 +77,7 @@ all_existing_to_identities = function() {
     
         Object.keys(identities).forEach(function(username) {
             var identity = identities[username]
-            addIdentity(username, identity.primary, identity.aliases, identity.preferences, true)
+            addIdentity(username, identity.aliases, identity.preferences, true)
         })
     
         var lastUsername = PB.Persist.get('currentUsername')
@@ -104,45 +98,82 @@ all_existing_to_identities = function() {
         return true
     }
 
-    var addIdentity = function(username, primary, aliases, preferences, nosave) {
+    var addIdentity = function(username, aliases, preferences, nosave) { // TODO: check if nosave is needed
         // TODO: validation on all available values
         // TODO: check for existing identity
         // TODO: add any unknown aliases
         // THINK: what about aliases that belong to other identities?
         // THINK: ensure primary alias exists?
 
+
+
         var identity = { username: username
-                       , primary: primary
-                       , aliases: aliases || []
+                       , primary: {}
+                       , aliases: []
                        , preferences: preferences || {}
                        }
 
         identities[username] = identity
-    
-        if(!nosave)
+        
+        if(!Array.isArray(aliases))
+            aliases = aliases ? [aliases] : []
+        
+        aliases.forEach(
+            function(alias) {
+                addAlias(username, alias.username, alias.capa, alias.privateRootKey, alias.privateAdminKey, alias.privateDefaultKey, alias.secrets)})
+        
+        // TODO: handle prefs
+        
+        if(!nosave) // TODO: change processUpdates so it only saves if we're not busy opening all identities? or just let the 100ms throttle handle it...
             processUpdates()
-    
+            
+            
+        // TODO: remove this it leaks
         return identity
     }
 
-    var addAlias = function(identity, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
+    var addAlias = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets) {
         // TODO: validation on all available values
         // TODO: check for existing username/capa
         // THINK: hit network for confirmation?
         // THINK: maybe only include viable values?
         // NOTE: this doesn't trigger processUpdates (see notes there)
 
-        var alias = { username: username
+        var alias = { username: aliasUsername
                     , capa: capa || 1
                     , privateRootKey: privateRootKey || false
                     , privateAdminKey: privateAdminKey || false
                     , privateDefaultKey: privateDefaultKey || false
                     , secrets: secrets || {}
                     }
-  
-        // do smrt stuff
-                 
-//        return alias
+
+        var identity = getIdentity(identityUsername)
+        
+        if(!identity) {
+            addIdentity(identityUsername)                   // creates an empty identity
+            identity = getIdentity(identityUsername)
+        }
+        
+        // merge alias
+        var old_alias = getOldAlias(identity, alias)
+        if(old_alias) {
+            alias.secrets = Boron.extend(old_alias.secrets, alias.secrets)
+            for(var key in alias) 
+                if(alias[key])
+                    old_alias[key] = alias[key]
+        } else {
+            identity.aliases.push(alias)
+        }
+        
+        if(aliasUsername == identityUsername && alias.capa >= (identity.capa||0))
+            identity.primary = alias                        // set primary for identity (which may have been empty)
+
+
+        // - Wardrobe->PB.M.Identity
+
+        processUpdates()
+
+       return alias // TODO: remove this it leaks
     }
 
     var setPreference = function(key, value) {
@@ -196,26 +227,12 @@ all_existing_to_identities = function() {
     //// not exported
     ////
 
-    function addAliasToIdentity(username, alias) {
-        //// TODO: merge in to addAlias
-        
-        var identity = getIdentity(username)
-    
-        if(!identity)
-            return false
-    
-        // TODO: validate alias 
-        // TODO: add alias if it isn't already in the list
-        // TODO: ensure alias isn't already in identity
-    
-        if(alias.username == identity.username && alias.capa > identity.capa) {
-            identity.aliases.push(identity.primary)
-            identity.primary = alias
-        } else {
-            identity.aliases.push(alias)
+    function getOldAlias(identity, alias) {
+        for(var i=0, l=identity.aliases.length; i<l; i++) {
+            var test = identity.aliases[i]
+            if(alias.username == test.username && alias.capa == test.capa)
+                return test
         }
-
-        processUpdates()
     }
 
     function validatePrivateKeys(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
@@ -261,7 +278,7 @@ all_existing_to_identities = function() {
 
         var identity = identities[username]
 
-        if(!identity) 
+        if(!identity) // TODO: move this error up into the callsite so we don't spam it when adding identities
             return PB.onError('That username does not match any available identity')
 
         return identity

@@ -374,10 +374,10 @@ PB.tryDecodeOyVey = function(str) {
 
 PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
-    // addAlias         = function(username, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
-    // addIdentity      = function(username, primary, aliases, preferences)
-    // setPreference    = function(key, value) // for current identity
+    // addIdentity      = function(username, aliases, preferences)
+    // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
     // removeIdentity   = function(username)
+    // setPreference    = function(key, value) // for current identity
     // switchIdentityTo = function(username)
 
     // THINK: consider ensuring all functions are present first, so it's harder to mix and match wardrobe implementations

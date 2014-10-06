@@ -571,21 +571,21 @@ var ICXInvite = React.createClass({
         // Put Why can't you in warning message?
         return (
             <div className="help-box">
-                <div id="optionOne" className="content-card option georgia">
-                    <div className="title">
-                        <span className="bold underline">Oh, it looks like this recipient doesn't have an I.CX account yet</span>
-                    </div>
-                    <span className="text-small">In order for them to see your  message or file, they will need an I.CX username and passphrase.</span>
-                    <br />
-                    <span className="text-small">Choose one of the options below to get them started:</span>
-                    <div  style={{'margin-bottom':'10px'}}></div>
+                <span className="bold red">NOTE: In order for them to see your  message or file, they will need an I.CX username and passphrase</span>
+                <br />
+                <div className="bold">Choose one of the options below to get them started:</div>
+                <br />
+
+                <div className="contentWindow content-card option" id="optionOne">
+
                     <div style={headerStyle}>Option 1: Send them an invite link</div>
-                The link will direct them to create their own account. (You won't be able to send them files or messages securely until they create their account)
-                    <br />
-                    <textarea value={inviteText} style={{'width':'80%', 'height':'50%'}}></textarea>
+                    <div className="textBox">
+                        The link will direct them to create their own account. (You won't be able to send them files or messages securely until they create their account)
+                    </div><br />
+                    <textarea value={inviteText} style={{'width':'80%', 'height':'40%'}}></textarea>
                     <br />
 
-                    <span className="bold">Copy the message</span> and email them about I.CX
+                    <span className="bold">Copy the message above</span> and email them about I.CX
                 </div>
                 <br />
 
@@ -598,7 +598,7 @@ var ICXInvite = React.createClass({
                         {' '}<ICXCheckmark show={puffworldprops.ICX.invite.questionStatus} />
                         {' '}<span className="message">{puffworldprops.ICX.invite.questionMessage}</span>
                     <br />
-                Answer:<br />
+                    Answer:<br />
                     <input type="text" ref="passphrase" onChange={this.handleVerifyAnswer}/>
                         {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
                         {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
@@ -748,7 +748,6 @@ var ICXSend = React.createClass({
             <div className="icx-screen icx-send">
                 <div style={headerStyle}>Send an encrypted message or file</div>
                 <div className="contentWindow">
-
                     <div className="textBox">
                         Enter an <span className="shortcut">icx</span> username or an email address.
                     </div>

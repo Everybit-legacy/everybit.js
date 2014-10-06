@@ -89,14 +89,8 @@ all_existing_to_identities = function() {
     //// exported via implementSecureInterface
 
     var useSecureInfo = function(callback) {
-        var identity = getCurrentIdentity()
-    
-        if(!identity)
-            return false
-        
-        var primary = identity.primary
-        if(!primary)
-            return PB.onError('That identity has no primary outfit') // this shouldn't ever happen...
+        var identity = getCurrentIdentity() || {}
+        var primary = identity.primary || {}
 
         // we have to return all the identities because the user might be trying to list them
         callback(identities, currentUsername, primary.privateRootKey, primary.privateAdminKey, primary.privateDefaultKey)
@@ -162,11 +156,13 @@ all_existing_to_identities = function() {
     }
     
     var switchIdentityTo = function(username) {
-        var identity = getIdentity(username)
+        if(username) {
+            var identity = getIdentity(username)
 
-        if(!identity)
-            return PB.onError('No identity found with username "' + username + '"')
-
+            if(!identity)
+                return PB.onError('No identity found with username "' + username + '"')
+        }
+        
         currentUsername = username
 
         processUpdates()
@@ -177,9 +173,7 @@ all_existing_to_identities = function() {
 
         // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
         // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-        Events.pub('ui/switchIdentityTo')
-
-        PB.Persist.save('identity', username) // save to localStorage
+        // Events.pub('ui/switchIdentityTo')
     }
     
     var removeIdentity = function(username) {
@@ -263,8 +257,9 @@ all_existing_to_identities = function() {
     
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
-        if(currentUsername)
-            PB.Persist.save('currentUsername', currentUsername)
+        PB.Persist.save('currentUsername', currentUsername)
+            
+        updateUI() // THINK: there should probably be a PB function that calls this for us... or maybe just PB.updateUI?
     }
 
     function getCurrentIdentity() {

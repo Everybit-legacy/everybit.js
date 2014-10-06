@@ -61,8 +61,8 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.M.Wardrobe.getCurrentKeys()) {
-            ICX.username = PB.M.Wardrobe.getCurrentUsername()
+        if(PB.getCurrentUsername()) {
+            ICX.username = PB.getCurrentUsername()
         } else {
             ICX.username = false
         }
@@ -454,7 +454,7 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
-        if(PB.M.Wardrobe.getCurrentUsername()) {
+        if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
                 this.handleBackup();
@@ -490,14 +490,14 @@ var ICXStoreFinish = React.createClass({
     handleBackup: function() {
 
         // Same as sending the file to yourself
-        var me = PB.M.Wardrobe.getCurrentUsername()
+        var me = PB.getCurrentUsername()
         var type = 'file'
         var content = ICX.filelist[0]   // error: dont have content of the file here
         var parents = []
         var metadata = {}
         metadata.routes = [me]
         metadata.filename = content.name
-        var envelopeUserKeys = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -526,15 +526,15 @@ var ICXStoreFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
             // blob is the encoded base64 dataURI that holds file content
             ICX.fileprom.then(function (blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
@@ -660,7 +660,6 @@ var ICXInvite = React.createClass({
 
 
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        updateUI()
 
         var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
         var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
@@ -1065,7 +1064,6 @@ var ICXSendFileFinish = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
     },
 
     handleSubmitSuccess: function () {
@@ -1096,7 +1094,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
-        var envelopeUserKeys = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -1126,15 +1124,15 @@ var ICXSendFileFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
             // blob is the encoded base64 dataURI that holds file content
             ICX.fileprom.then(function(blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
@@ -1243,7 +1241,7 @@ var ICXSendMessageConfirm = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
 
         var sendToEmail = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
@@ -1334,7 +1332,7 @@ var ICXSendMessageFinish = React.createClass({
         }
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
-        var envelopeUserKeys = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -1361,13 +1359,13 @@ var ICXSendMessageFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
@@ -1723,9 +1721,6 @@ var ICXNewUser = React.createClass({
             'ICX.thinking': true
         })
 
-        updateUI()
-
-
         // Register the name
         // Error if there's an error
         // Disable register button until ready
@@ -1742,9 +1737,9 @@ var ICXNewUser = React.createClass({
         var adminKeyPublic    = publicKey
         var defaultKeyPublic  = publicKey
 
-        var rootKeyPrivate    = privateKey
-        var adminKeyPrivate   = privateKey
-        var defaultKeyPrivate = privateKey
+        var privateRootKey    = privateKey
+        var privateAdminKey   = privateKey
+        var privateDefaultKey = privateKey
 
         var self = this
 
@@ -1765,21 +1760,27 @@ var ICXNewUser = React.createClass({
         prom.then(function(userRecord) {
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
-
+                // TODO: pull this code out of the GUI and down a level
+                var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+                PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+                
                 // Set this person as the current user
-                PB.M.Wardrobe.switchCurrent(requestedUsername)
+                PB.switchIdentityTo(requestedUsername)
 
+                // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time?
+                var idFile = PB.formatIdentityFile()
+                ICX.identityForFile = idFile
+                
                 // Create identity file
-                ICX.identityForFile = {
-                    comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-                    username: requestedUsername,
-                    rootKeyPrivate: privateKey,
-                    adminKeyPrivate: privateKey,
-                    defaultKeyPrivate: privateKey,
-                    passphrase: passphrase,
-                    version: "1.0"
-                }
+                // ICX.identityForFile = {
+                //     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
+                //     username: requestedUsername,
+                //     privateRootKey: privateRootKey,
+                //     privateAdminKey: privateAdminKey,
+                //     privateDefaultKey: privateDefaultKey,
+                //     passphrase: passphrase,
+                //     version: "1.0"
+                // }
 
                 publishProfilePuff()
 
@@ -1820,7 +1821,7 @@ var ICXLogin = React.createClass({
 
         var baseFontH = ICX.calculated.baseFontH
 
-        var currUser = PB.M.Wardrobe.getCurrentUsername()
+        var currUser = PB.getCurrentUsername()
         if (currUser)
             currUser = '.' + currUser
 
@@ -1966,81 +1967,92 @@ var ICXLogin = React.createClass({
     },
 
     handleLoginWithFile: function(event) {
+        // TODO: start spinner here
+        
         fileprom = PBFiles.openTextFile(event.target)
         fileprom.then(function(content) {
 
+            // TODO: move all of this out of the GUI
+
             // Try and parse, if can't return error
-            try {
-                var identityObj = JSON.parse(content)
-            } catch (e) {
-                console.log('failed')
-                // TODO: return an error here
-                return false
+            // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
+            var identityObj = PB.parseJSON(content)
+            if(!identityObj) {
+                // TODO: END SPINNER
+                return PB.onError('Failed to parse identity file content')
             }
 
             var username = identityObj.username
-            if(!username)
-                return false
-
-            // Do login, return error as needed
-            if(identityObj.passphrase) {
-                var privateKey = passphraseToPrivateKeyWif(identityObj.passphrase)
-            } else if(identityObj.defaultKeyPrivate) {
-                 var privateKey = identityObj.defaultKeyPrivate
-            } else {
-                // TODO: Send to error box
-                // console.log("Missing info");
-                /// console.log(identityObj)
-                return PB.onError("Missing info")
+            if(!username) {
+                // TODO: END SPINNER                
+                return PB.onError('No username in identity file')
             }
-            // Convert to public key
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            if (!publicKey) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey':'Bad key'
-                })
-                return false
+            
+            var aliases = identityObj.aliases
+            if(!aliases) {
+                // TODO: END SPINNER                
+                return PB.onError('No aliases in identity file')
             }
-
+            
+            var preferences = identityObj.preferences || {}
+            
+            // load complete identity
+            PB.addIdentity(username, aliases, preferences)
+            
+            // then check against the user record
             var prom = PB.getUserRecord(username)
 
             prom.then(function (userInfo) {
-
-                if (publicKey != userInfo.defaultKey) {
-                    console.log('incorrect key')
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey':'Incorrect key'
-                    })
-                    return false
-                } else {
-
-                    // Add this to wardrobe, set username to current
-                    PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-
-                    // At least one good key, set this to current user
-                    PB.M.Wardrobe.switchCurrent(username)
-
-
+                if(!userInfo || userInfo.username != username) {
+                    // TODO: END SPINNER
+                    PB.removeIdentity(username)
+                    return PB.onError('Username not found in public record')
+                }
+                    
+                PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
+                    var identity = identities[username]
+                    if(!identity || !identity.primary) {
+                        // TODO: END SPINNER
+                        PB.removeIdentity(username)
+                        return PB.onError('Identity not properly loaded')
+                    }
+                    
+                    var primary = identity.primary
+                    
+                    if(primary.privateDefaultKey) {
+                        if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
+                            // TODO: END SPINNER
+                            PB.removeIdentity(username)
+                            Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
+                            return PB.onError('Private default key in identity file does not match public user record')
+                        }
+                    }
+                    // TODO: add public-private sanity check for root and admin keys
+                    
+                    // TODO: END SPINNER
+                    PB.switchIdentityTo(username)
                     ICX.username = username
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
-
-                }
-            })
-                .catch(function (err) {
-                    console.log('fail')
-                    Events.pub('ui/event', {
-                        'ICX.defaultKey':'Not found'
-                    })
-
-                    return false
                 })
-            return false
+            })
+            .catch(function (err) {
+                Events.pub('ui/event', {
+                    'ICX.defaultKey':'Not found'
+                })
+
+                // TODO: END SPINNER
+                PB.removeIdentity(username)
+                return PB.throwError('File-based login failed')
+            })
+            
         })
 
         return false
     },
 
     handleLogin: function() {
+        // TODO: move this out of the GUI
+        
         // First convert to private key, then to public, then verify against DHT
         var self = this
 
@@ -2079,28 +2091,20 @@ var ICXLogin = React.createClass({
         var prom = PB.getUserRecord(username)
 
         prom.then(function (userInfo) {
-            var didSomething = false
+            var goodKeys = {}
         
-            if (publicKey == userInfo['defaultKey']) {
-                PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-                didSomething = true
-            }
+            if (publicKey == userInfo.defaultKey)
+                goodKeys.privateDefaultKey = privateKey
         
-            if (publicKey == userInfo['adminKey']) {
-                PB.M.Wardrobe.storeAdminKey(username, privateKey)
-                didSomething = true
-            }
+            if (publicKey == userInfo.adminKey) 
+                goodKeys.privateAdminKey = privateKey                
         
-            if (publicKey == userInfo['rootKey']) {
-                PB.M.Wardrobe.storeRootKey(username, privateKey)
-                didSomething = true
-            }
-        
-            if(!didSomething) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': 'Incorrect'
-                })
-                return false
+            if (publicKey == userInfo.rootKey)
+                goodKeys.privateRootKey = privateKey
+            
+            if(!Object.keys(goodKeys).length) {
+                Events.pub('ui/event', { 'ICX.defaultKey': 'Incorrect' })
+                return PB.onError('Passphrase did not match any keys in the user record')
             } 
             
             Events.pub('ui/event', {
@@ -2109,9 +2113,11 @@ var ICXLogin = React.createClass({
             })
 
             // At least one good key: make current user and add passphrase to wardrobe
-            PB.M.Wardrobe.switchCurrent(username)
-            PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
-
+            var capa = username.capa || 1
+            var secrets = {passphrase: passphrase}
+            PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
+            
+            PB.switchIdentityTo(username)
 
             if(puffworldprops.view.icx.firstLogin) {
                 return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
@@ -2120,10 +2126,8 @@ var ICXLogin = React.createClass({
             Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
             return false
         }).catch(function (err) {
-            Events.pub('ui/event', {
-                'ICX.defaultKey': 'Not found'
-            })
-            return false
+            Events.pub('ui/event', { 'ICX.defaultKey': 'Not found' })
+            return PB.onError('Passphrase-based login failed')
         })
         return false
     }
@@ -2233,39 +2237,7 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
-
-        // Bail if no username,
-        var username = PB.M.Wardrobe.getCurrentUsername()
-        if(!username)
-            return false
-
-        // Only generate if it doesn't already exist
-        // if(isEmpty(ICX.identityForFile)) {
-
-            ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = username
-            ICX.identityForFile.version = "1.0"
-
-            if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
-                ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root
-
-            if(typeof PB.M.Wardrobe.currentKeys.admin !== 'undefined')
-                ICX.identityForFile.adminKeyPrivate =  PB.M.Wardrobe.currentKeys.admin
-
-            if(typeof PB.M.Wardrobe.currentKeys.default !== 'undefined')
-                ICX.identityForFile.defaultKeyPrivate =  PB.M.Wardrobe.currentKeys.default
-
-            if(typeof PB.M.Wardrobe.currentKeys.bonus !== 'undefined')
-                if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
-                    ICX.identityForFile.passphrase =  PB.M.Wardrobe.currentKeys.bonus.passphrase
-
-        //}
-
-        // Identity file for a freshly registered user does not have the username field filled in
-        // if(isEmpty(ICX.identityForFile.username) || typeof ICX.identityForFile.username === 'undefined') {
-        //     ICX.identityForFile.username = username
-        // }
-
+        ICX.identityForFile = PB.formatIdentityFile() // THINK: do we really need the identityForFile variable?
         return ICX.identityForFile
     },
 
@@ -2284,7 +2256,7 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
 
-        var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
+        var filename = PB.getCurrentUsername() + "Identity.json"
 
         fileLink = this.refs.fileLink.getDOMNode()
 
@@ -2294,7 +2266,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -2304,7 +2276,7 @@ var ICXDashboard = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
@@ -2351,21 +2323,15 @@ var ICXChangePassphrase = React.createClass({
 
     handleChangePassphrase: function() {
         var payload = {}
-        var rootKeyPrivate = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKeyPrivate = PB.M.Wardrobe.getCurrentKeys().admin
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
+        var username = ICX.username // THINK: is this always just the current identity?
+        var newCapa = PB.getCurrentCapa() + 1
 
-
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
-        updateUI()
-
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
 
         var newKeyRaw = this.refs.passphrase.getDOMNode().value
-
         var newPrivateKey = passphraseToPrivateKeyWif(newKeyRaw)
         var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
@@ -2375,6 +2341,7 @@ var ICXChangePassphrase = React.createClass({
 
         function updateKeyHelper(keys) {
             if(keys.length == 0) {
+                // End of processing cycle
 
                 Events.pub('ui/thinking', {
                     'ICX.thinking': false
@@ -2389,65 +2356,68 @@ var ICXChangePassphrase = React.createClass({
 
             var keyToModify = keys.pop()
 
-            if (keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-                if (!rootKeyPrivate) {
-                    ICX.errors = "WARNING: You do not have the proper keys set to change this key."
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                } else {
-                    var signingUserKey = rootKeyPrivate
-                    // console.log("request will be signed with root key")
-                }
-            } else if (keyToModify == 'defaultKey') {
-                if (!adminKeyPrivate) {
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    ICX.errors = "WARNING: You do not have the proper keys set to change your default key."
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-
-                } else {
-                    var signingUserKey = adminKeyPrivate
-                    // console.log("request will be signed with admin key")
-                }
-            }
+            if (keyToModify == 'rootKey' || keyToModify == 'adminKey')
+                var signingUserKey = 'privateRootKey'
+            
+            if (keyToModify == 'defaultKey')
+                var signingUserKey = 'privateAdminKey'
 
             payload.keyToModify = keyToModify
             payload.newKey = newPublicKey
+            payload.newCapa = newCapa // TODO: is this right?
             payload.time = Date.now()
 
-            var puff = PB.buildPuff(ICX.username, signingUserKey, routes, type, content, payload)
+            var puff
+
+            PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                // NOTE: puff leaks, but only contains publicly accessible data
+                var identity = identities[username] // THINK: can we just use current identity here? ICX.username?
+                var privateRootKey = identity.primary.privateRootKey
+                var privateAdminKey = identity.primary.privateAdminKey
+                var privateKey = {privateRootKey: privateRootKey, privateAdminKey: privateAdminKey}[signingUserKey]
+                if(!privateKey) {
+                    ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    return PB.onError("You need the " + signingUserKey + " to change the " + keyToModify + " key.")
+                } else {
+                    puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
+                }
+            })
 
             var prom = PB.Net.updateUserRecord(puff)
 
-            prom.then(function (result) {
+            // TODO: change these AFTER the thing with the stuff.
 
+            prom.then(function (result) {
                 if(keyToModify == 'defaultKey') {
-                    PB.M.Wardrobe.storeDefaultKey(ICX.username, newPrivateKey)
-                    PB.M.Wardrobe.storePrivateBonus(ICX.username, {passphrase: newKeyRaw})
+                    var secrets = {passphrase: newKeyRaw}
+                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                        // THINK: using current identity
+                        PB.addAlias(username, username, newCapa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
+                    })
                 }
 
                 if(keyToModify == 'adminKey') {
-                    PB.M.Wardrobe.storeAdminKey(ICX.username, newPrivateKey)
+                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                        // THINK: using current identity
+                        PB.addAlias(username, username, newCapa, privateRootKey, newPrivateKey)
+                    })
                 }
 
                 if(keyToModify == 'rootKey') {
-                    PB.M.Wardrobe.storeRootKey(ICX.username, newPrivateKey)
+                    PB.addAlias(username, username, newCapa, newPrivateKey)
                 }
 
                 updateKeyHelper(keys)
 
             })
-                .catch(function (err) {
-                    Events.pub('ui/thinking', {
-                        'ICX.thinking': false
-                    })
-                    // console.log(puff)
-                    ICX.errors = "FAILED " + err
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                })
+            .catch(function (err) {
+                ICX.errors = "FAILED " + err
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                return PB.onError('Failed to complete passphrase change', err)
+            })
         }
     }
 
@@ -2673,14 +2643,13 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
-            var letterPuff = PBFiles.extractLetterPuffForReals(fileguts)
+            var letterPuff = PBFiles.extractLetterPuff(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
                 Events.pub('ui/thinking', {
@@ -2721,7 +2690,7 @@ var ICXFileConverter = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': true
         })
-        updateUI();
+
         //Encrypt the file in a puff
         var element = event.target
 
@@ -3103,7 +3072,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -3113,7 +3082,7 @@ var ICXUserButton = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         ICX.currScreen = 'home'

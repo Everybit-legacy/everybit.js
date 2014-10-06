@@ -23,11 +23,12 @@
     // Take a .json file, parse it, sign each puff, chain them together,
     // Maintain referential integrity of posts.
     var key2sig = {};
-    var defaultKeyPrivate = '';
+    var privateDefaultKey = '';
     var username = 'ishmael';
     // NOTE: does not confirm key validity in DHT
-    PB.M.Wardrobe.storePrivateKeys(username, '', '', defaultKeyPrivate);
-    PB.M.Wardrobe.switchCurrent(username);
+    // FIXME: upgrade these calls before use
+    // PB.M.Wardrobe.storePrivateKeys(username, '', '', privateDefaultKey);
+    // PB.switchIdentityTo(username);
 
     function createPuffs() {
 

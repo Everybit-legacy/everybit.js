@@ -803,7 +803,7 @@ var ICXSend = React.createClass({
     componentDidMount: function() {
         // Were we sent to user by props?
         if(puffworldprops.view.icx.toUser) {
-            this.refs.toUser.getDOMNode().value = puffworldprops.view.icx.toUser
+            this.refs.toUser.getDOMNode().value = puffworldprops.ICX.toUser
             this.handleUsernameLookup()
         }
         this.refs.toUser.getDOMNode().focus()

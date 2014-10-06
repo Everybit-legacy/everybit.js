@@ -82,7 +82,10 @@ PBFiles.handleFileOpen = function(element, asDataURI) {
             // var blob = PBFiles.dataURItoBlob(dataURIContent)
             resolve(dataURIContent)
         }
-
+        
+        if(!element.files[0]) // THINK: is false the right response?
+            return false
+            
         if(asDataURI)
             reader.readAsDataURL(element.files[0])
         else

@@ -57,7 +57,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 
 a {
     text-decoration:none;
-    color: rgba(0, 3, 82, 0.8);
+    color: rgba(29, 31, 91, 0.8);
     cursor: pointer;
 }
 
@@ -72,6 +72,14 @@ a.footerText {
 
 a.inline {
     background-color: rgba(255,255,255,.5)
+}
+
+a.inline:hover {
+    background-color: rgba(255,255,255,.8)
+}
+
+a.inline:active {
+    background-color: rgba(255,255,255,1)
 }
 
 a.ICXbuttonLink {
@@ -101,7 +109,7 @@ html {
 }
 
 body {
-    background-color: #F0F0F0;
+    background-color: #FAFAED;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;

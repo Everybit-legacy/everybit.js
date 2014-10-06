@@ -2545,7 +2545,7 @@ var ICXLearn = React.createClass({
                     <iframe width={vidW} height={vidH} src={vidURL} frameBorder="0" allowFullScreen></iframe>
                 </div>
                 <div className="contentWindow">
-                <br /><br />
+                <br />
                 <span className="textBox">{polyglot.t("learn.more")}<a href="#" className="inline" onClick={this.handleGoInDepth}>{polyglot.t("learn.link")}</a>.</span>
                 </div>
             </div>
@@ -2892,7 +2892,8 @@ var ICXLogo = React.createClass({
                         <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, marginBottom: ICX.calculated.baseFontH+'px', left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
                     </div>
                     <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>
-                        {polyglot.t("header.home")}
+                        The world’s first 100% secure file storage and messaging system to work right in your web browser.
+                        Find out <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'learn')}>what makes us different</a>.
                     </div>
                 </div>
                 )

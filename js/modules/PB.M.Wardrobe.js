@@ -233,7 +233,7 @@ all_existing_to_identities = function() {
     }
 
     ////
-    //// not exported
+    //// internal helper functions. not exported.
     ////
 
     function getOldAlias(identity, alias) {
@@ -296,86 +296,5 @@ all_existing_to_identities = function() {
         return identity
     }
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Store the user's root key
- * @param  {string} username
- * @param  {string} rootKey
- */
-PB.M.Wardrobe.storeRootKey = function(username, rootKey) {
-    PB.M.Wardrobe.storePrivateKeys(username, rootKey)
-}
-
-/**
- * Store the user's admin key
- * @param  {string} username
- * @param  {string} rootKey
- */
-PB.M.Wardrobe.storeAdminKey = function(username, adminKey) {
-    PB.M.Wardrobe.storePrivateKeys(username, false, adminKey)
-}
-
-/**
- * Store the user's default key
- * @param  {string} username
- * @param  {string} rootKey
- */
-PB.M.Wardrobe.storeDefaultKey = function(username, defaultKey) {
-    PB.M.Wardrobe.storePrivateKeys(username, false, false, defaultKey)
-}
-
-/**
- * Store some extra information
- * @param  {string} username
- * @param  {obj} bonusInfo
- */
-PB.M.Wardrobe.storePrivateBonus = function(username, bonusInfo) {
-    // TODO: this should probably merge with existing bonuses instead of overwriting them
-    PB.M.Wardrobe.storePrivateKeys(username, false, false, false, bonusInfo)
-}
-
-/**
- * Add keys to the wardrobe with no validation
- * @param  {string} username
- * @param  {string} rootKey
- * @param  {string} adminKey
- * @param  {string} defaultKey
- * @param  {obj} bonusInfo
- */
-PB.M.Wardrobe.storePrivateKeys = function(username, rootKey, adminKey, defaultKey, bonusInfo) {
-    //// Add keys to the wardrobe with no validation
-    PB.M.Wardrobe.keychain = PB.M.Wardrobe.getAll()
-    
-    PB.M.Wardrobe.keychain[username] = PB.M.Wardrobe.keychain[username] || {username: username}
-    
-    if(rootKey)
-        PB.M.Wardrobe.keychain[username].root    = rootKey
-    if(adminKey)
-        PB.M.Wardrobe.keychain[username].admin   = adminKey
-    if(defaultKey)
-        PB.M.Wardrobe.keychain[username].default = defaultKey
-    if(typeof bonusInfo != 'undefined')
-        PB.M.Wardrobe.keychain[username].bonus   = bonusInfo
-    
-    if(!CONFIG.ephemeralKeychain)
-        PB.Persist.save('keychain', PB.M.Wardrobe.keychain)
-}
-
-
 
 }() // end the closure

@@ -2024,6 +2024,8 @@ var ICXLogin = React.createClass({
     },
 
     handleLogin: function() {
+        // TODO: move this out of the GUI
+        
         // First convert to private key, then to public, then verify against DHT
         var self = this
 
@@ -2062,28 +2064,20 @@ var ICXLogin = React.createClass({
         var prom = PB.getUserRecord(username)
 
         prom.then(function (userInfo) {
-            var didSomething = false
+            var goodKeys = {}
         
-            if (publicKey == userInfo['defaultKey']) {
-                PB.M.Wardrobe.storeDefaultKey(username, privateKey)
-                didSomething = true
-            }
+            if (publicKey == userInfo.defaultKey)
+                goodKeys.privateDefaultKey = privateKey
         
-            if (publicKey == userInfo['adminKey']) {
-                PB.M.Wardrobe.storeAdminKey(username, privateKey)
-                didSomething = true
-            }
+            if (publicKey == userInfo.adminKey) 
+                goodKeys.privateAdminKey = privateKey                
         
-            if (publicKey == userInfo['rootKey']) {
-                PB.M.Wardrobe.storeRootKey(username, privateKey)
-                didSomething = true
-            }
-        
-            if(!didSomething) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey': 'Incorrect'
-                })
-                return false
+            if (publicKey == userInfo.rootKey)
+                goodKeys.privateRootKey = privateKey
+            
+            if(!Object.keys(goodKeys).length) {
+                Events.pub('ui/event', { 'ICX.defaultKey': 'Incorrect' })
+                return PB.onError('Passphrase did not match any keys in the user record')
             } 
             
             Events.pub('ui/event', {
@@ -2092,9 +2086,11 @@ var ICXLogin = React.createClass({
             })
 
             // At least one good key: make current user and add passphrase to wardrobe
+            var capa = username.capa || 1
+            var secrets = {passphrase: passphrase}
+            PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
+            
             PB.switchIdentityTo(username)
-            PB.M.Wardrobe.storePrivateBonus(username, {passphrase: passphrase})
-
 
             if(puffworldprops.view.icx.firstLogin) {
                 return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
@@ -2103,10 +2099,8 @@ var ICXLogin = React.createClass({
             Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
             return false
         }).catch(function (err) {
-            Events.pub('ui/event', {
-                'ICX.defaultKey': 'Not found'
-            })
-            return false
+            Events.pub('ui/event', { 'ICX.defaultKey': 'Not found' })
+            return PB.onError('Passphrase-based login failed')
         })
         return false
     }

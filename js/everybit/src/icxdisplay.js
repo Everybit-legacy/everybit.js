@@ -538,15 +538,21 @@ var ICXStoreFinish = React.createClass({
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
+            }).catch(function(err){
+                ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
+
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
             })
         }).catch(function (err) {
 
             // TODO: Show user the error
             // self.cleanUpSubmit()
-            Events.pub('ui/event/', {
+            return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
+
             /*Events.pub('ui/thinking', {
                 'ICX.thinking': false
             })*/

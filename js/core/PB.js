@@ -118,7 +118,7 @@ PB.packagePuffStructure = function(versionedUsername, routes, type, content, pay
     var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
+               ,  version: '0.1.0'                      // version accounts for crypto type and puff shape
                ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
                }
     
@@ -209,6 +209,75 @@ PB.breakVersionedUsername = function(versionedUsername) {
 }
 
 
+PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
+    //// attempts to update a private key for the current user. 
+    //// if successful it adds the new alias to the current identity.
+    //// returns a promise for the new userRecord.
+    
+    var username = PB.getCurrentUsername()
+    var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
+
+    var payload = {}
+    var routes = []
+    var type = 'updateUserRecord'
+    var content = 'modifyUserKey'
+
+    payload.keyToModify = keyToModify
+    payload.newKey = newPublicKey
+    payload.time = Date.now()
+
+    var prom = new Promise(function(resolve, reject) {
+        var puff
+
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+            // NOTE: puff leaks, but only contains publicly accessible data
+        
+            var signingUserKey = 'privateRootKey'  // changing admin or root keys requires root privileges
+            var privateKey = privateRootKey
+
+            if (keyToModify == 'defaultKey') { 
+                signingUserKey = 'privateAdminKey' // changing the default key only requires admin privileges
+                privateKey = privateAdminKey
+            }
+
+            if(!privateKey) {
+                return reject(PB.makeError("You need the " + signingUserKey + " to change the " + keyToModify + " key."))
+            } else {
+                puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
+            }
+        })
+
+        var userRecordPromise = PB.Net.updateUserRecord(puff)
+
+        userRecordPromise.then(function(userRecord) {
+            if(keyToModify == 'defaultKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
+                })
+            }
+
+            if(keyToModify == 'adminKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, newPrivateKey, privateDefaultKey, secrets)
+                })
+            }
+
+            if(keyToModify == 'rootKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
+                })
+            }
+
+            resolve(userRecord)
+        })
+        .catch(function(err) {
+            reject(PB.makeError(err))
+        })
+    })
+
+    return prom
+}
+
 
 /**
  * to process user records
@@ -259,6 +328,8 @@ PB.getUserRecord = function(username, capa) {
  */
 PB.getUserRecordNoCache = function(username, capa) {
     //// This never checks the cache
+    
+    capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
     
     var prom = PB.Net.getUserRecord(username, capa); 
     

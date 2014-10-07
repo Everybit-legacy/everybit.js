@@ -451,6 +451,45 @@ function getUnicodeFromName(name) {
 
 
 
+function updatePassphrase(newPassphrase) {
+    //// update the passphrase of the current user. 
+    //// returns a promise that resolves with the final newUserRecord after all the modifications are made, 
+    //// or rejects with an error thrown along the way
+    
+    var newPrivateKey = passphraseToPrivateKeyWif(newPassphrase)
+    var secrets = {passphrase: newPassphrase}
+    var newUserRecord = false
+
+    var keysToModify = ['rootKey', 'adminKey', 'defaultKey']
+
+    var prom = new Promise(function(resolve, reject) {
+        updateKeyHelper(keysToModify, resolve, reject)
+    })
+
+    return prom
+    
+    // recursive helper function
+
+    function updateKeyHelper(keys, resolve, reject) {
+        if(keys.length == 0) {
+            resolve(newUserRecord) // End of processing cycle: resolve to final newUserRecord
+        }
+
+        var keyToModify = keys.pop()
+
+        var userRecordPromise = PB.updatePrivateKey(keyToModify, newPrivateKey, secrets)
+
+        userRecordPromise.then(function(userRecord) {
+            newUserRecord = userRecord
+            updateKeyHelper(keys, resolve, reject)
+        }).catch(function(err) {
+            reject(err) // error while updating the user record, so reject
+        })
+    }
+}
+
+
+
 /////////////////////////////////////////////
 // THINGS FROM MAIN
 

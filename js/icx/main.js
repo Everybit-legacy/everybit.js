@@ -63,7 +63,8 @@ puffworldprops = {
 
         icx: {                                          // ICX related
             screen: 'init',
-            toUser: ""
+            toUser: "",
+            activeReplies: []
         },
         
         mode: 'list',
@@ -71,7 +72,7 @@ puffworldprops = {
         language  : 'en',
 
         query: {
-            sort: 'DESC',                               // direction of sort
+            sort: 'DESC'                              // direction of sort
         },
 
         filters: {},
@@ -79,6 +80,8 @@ puffworldprops = {
         score: {},
         
         slider: {},
+
+
 
         // TABLEVIEW
         table: {

@@ -66,6 +66,7 @@ var TableView = React.createClass({
 						return <ICXContentItem key={index} puff={puff} />
 					})
 				}
+                <ViewLoadMore query={this.props.view.query} />
 			</div>
 		)
 	}
@@ -123,8 +124,17 @@ var ICXContentItem = React.createClass({
     },
 
     handleShowReply: function() {
-        console.log("trigger reply \n")
-        this.setState({showReply: true})
+        this.setState({expanded: true})
+        var activeReplies = puffworldprops.view.icx.activeReplies
+        // Add if not already in there
+        var sig = this.props.puff.sig
+        if(activeReplies.indexOf(sig) === -1) {
+            activeReplies.push(sig)
+        }
+
+        Events.pub('ui/reply/activate',
+            {'view.icx.activeReplies': activeReplies}
+        )
     },
 
 	render: function() {
@@ -178,7 +188,7 @@ var ICXContentItem = React.createClass({
                     <ICXDownloadLink puff={puff} />
                 </div>
                 <ICXItemMainContent show={this.state.expanded} puff={puff} />
-                <ICXInlineReply show={this.state.showReply} puff={puff} />
+
             </div>
 		)
 	}
@@ -186,7 +196,6 @@ var ICXContentItem = React.createClass({
 
 
 var ICXItemMainContent = React.createClass({
-
 
     render: function() {
         if(this.props.show) {
@@ -202,6 +211,7 @@ var ICXItemMainContent = React.createClass({
             return(
                 <div className="accordion-content" style={itemContentStyle}>
                     <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                    <ICXInlineReply puff={this.props.puff} />
                 </div>
                 )
 
@@ -233,14 +243,15 @@ var ICXTableUserInfo = React.createClass({
     },
     render: function() {
 
-        var username = this.props.puff.username.stripCapa()
-        var routes = this.props.puff.routes[0]
+        var fromUser = this.props.puff.username.stripCapa()
+        var toUser = this.props.puff.routes[0].stripCapa()
 
         // If current user is the sender, we will render the recipient
-        if(ICX.username == username) {
-            username = routes
+        if(ICX.username == fromUser) {
+            var username = toUser
             var isSender = true
         } else {
+            var username = fromUser
             var isSender = false
         }
 
@@ -271,7 +282,7 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="date"> sent {timeSince(date)} ago</span>
+                <span className="date">&nbsp;sent {timeSince(date)} ago</span>
             )
     }
 
@@ -375,10 +386,12 @@ var ICXInlineReply = React.createClass({
         var envelopeUserKeys = ''
         var self = this
 
+        /*
         Events.pub('ui/reply/add-parent', {
                'reply.parents': parents
             }
         )
+        */
 
         var prom = Promise.resolve() // a promise we use to string everything along
 
@@ -410,20 +423,23 @@ var ICXInlineReply = React.createClass({
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            self.handleCleanup()
+
             return post_prom
         }).catch(function (err) {
             // self.cleanUpSubmit()
             console.log("ERROR")
         })
-
-        self.handleCleanup()
 	},
+
 	handleSubmitSuccess: function () {
         console.log("SUCCESS")
 
     },
+
 	handleCleanup: function() {
-		this.refs["replyBox"+this.props.puff.sig].getDOMNode().style.display = "none"
+		/*
+        this.refs["replyBox"+this.props.puff.sig].getDOMNode().style.display = "none"
 		this.refs.messageText.getDOMNode().value = ''
 
 		return Events.pub('ui/reply', {
@@ -431,22 +447,55 @@ var ICXInlineReply = React.createClass({
             'reply.isReply': false,
             'reply.replyTo': ''
 		})
+		*/
+
+        var activeReplies = puffworldprops.view.icx.activeReplies
+
+        // Remove this one for things we are replying to
+        var sig = this.props.puff.sig
+        if(activeReplies.indexOf(sig) !== -1) {
+            activeReplies.splice(activeReplies.indexOf(sig),1)
+        }
+
+        Events.pub('ui/reply/activate',
+            {'view.icx.activeReplies': activeReplies}
+        )
 	},
+
+    handleShowReply: function() {
+
+    },
+
 	render: function() {
 		var puff=this.props.puff
 		var username = puff.username.stripCapa()
 
         var inlineReplyStyle = {}
-        if(this.props.show) {
+
+        var activeReplies = puffworldprops.view.icx.activeReplies
+
+        if(activeReplies.indexOf(puff.sig) !== -1) {
             inlineReplyStyle.display = 'block'
+
         } else {
             inlineReplyStyle.display = 'none'
         }
 
+        inlineReplyStyle.border = '1px solid #000000'
+        inlineReplyStyle.padding = Math.floor(ICX.calculated.baseFontH/4)+'px'
+        inlineReplyStyle.backgroundColor = 'rgba(200,200,200,.5)'
+
+
+        var thisScreen = ICX.screens.filter(function( obj ) {
+            return (obj.name == 'dashboard');
+        })[0]
+
+        ICX.buttonStyle.backgroundColor = thisScreen.color
+
         return (
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
-            Reply to: {username} <br/>
-            Message:
+            <b>Reply to: {username}</b><br/>
+            <b>Message:</b><br />
                 <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
@@ -457,39 +506,39 @@ var ICXInlineReply = React.createClass({
 	}
 })
 
-// var ViewLoadMore = React.createClass({
-// 	handleForceLoad: function() {
-// 		var query = Boron.shallow_copy(this.props.query)
-// 		query.offset = (+query.offset || 0) + puffworldprops.view.table.loaded
-// 		var filters = puffworldprops.view.filters
-// 		var puffs = PB.M.Forum.getPuffList(query, filters, 10)
-// 		if ((!puffs) || (puffs.length == 0)) {
-// 			Events.pub('ui/event', {
-// 				'view.table.noMorePuffs': true
-// 			})
-// 		} else {
-// 			Events.pub('ui/event', {
-// 				'view.table.noMorePuffs': false
-// 			})
-// 			this.handleLoadMore()
-// 		}
-// 		return false
-// 	},
-// 	handleLoadMore: function() {
-// 		var loaded = puffworldprops.view.table.loaded
-// 		return Events.pub('ui/event', {
-// 			'view.table.loaded': loaded + CONFIG.newLoad
-// 		})
-// 	},
-// 	render: function() {
-// 		var footer = <div></div>
-// 		if (puffworldprops.view.table.noMorePuffs) {
-// 			footer = <div>Nothing more to show</div>
-// 		} else {
-// 			footer = <div onClick={this.handleForceLoad}>Load More Puffs</div>
-// 		}
-// 		return (
-// 			<div>{footer}</div>
-// 		)
-// 	}
-// })
+var ViewLoadMore = React.createClass({
+	handleForceLoad: function() {
+		var query = Boron.shallow_copy(this.props.query)
+		query.offset = (+query.offset || 0) + puffworldprops.view.table.loaded
+		var filters = puffworldprops.view.filters
+		var puffs = PB.M.Forum.getPuffList(query, filters, 10)
+		if ((!puffs) || (puffs.length == 0)) {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': true
+			})
+		} else {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': false
+			})
+			this.handleLoadMore()
+		}
+		return false
+	},
+	handleLoadMore: function() {
+		var loaded = puffworldprops.view.table.loaded
+		return Events.pub('ui/event', {
+			'view.table.loaded': loaded + CONFIG.newLoad
+		})
+	},
+	render: function() {
+		var footer = <div></div>
+		if (puffworldprops.view.table.noMorePuffs) {
+			footer = <div>Nothing more to show</div>
+		} else {
+			footer = <a className="inline" onClick={this.handleForceLoad}>Load more messages</a>
+		}
+		return (
+			<div>{footer}</div>
+		)
+	}
+})

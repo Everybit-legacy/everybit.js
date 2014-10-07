@@ -4,16 +4,7 @@
  BROKEN:
  hover over puff to show preview
  Hover over avatar if down on page
- Inline reply
- Scroll to view more puffs
  Refresh button
- Message for no puffs
-
-
-WORKING:
-Download link
-View text of message
- Collapse of row
 
 
   */
@@ -45,6 +36,11 @@ var TableView = React.createClass({
 		})
 		return puffs
 	},
+
+    forceRefreshPuffs: function() {
+        getMyPrivateShells()
+    },
+
 	componentWillMount: function() {
 		Events.pub('ui/event', {
 			'view.table.loaded': CONFIG.initialLoad
@@ -60,6 +56,7 @@ var TableView = React.createClass({
 		
 		return (
 			<div className="viewContainer">
+                <span style={{position: 'absolute', right: 0, top: 0}}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh" /></a></span>
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
@@ -335,9 +332,9 @@ var ICXRelationshipInfo = React.createClass({
 
         if (children.length) {
             if(children.length > 1) {
-                childrenEle = <span>{children.length} replies: {childrenIcons}</span>
+                childrenEle = <span>&nbsp;{children.length} replies: {childrenIcons}</span>
             } else {
-                childrenEle = <span>{children.length} reply: {childrenIcons}</span>
+                childrenEle = <span>&nbsp;{children.length} reply: {childrenIcons}</span>
             }
 
         }
@@ -507,23 +504,6 @@ var ICXInlineReply = React.createClass({
 })
 
 var ViewLoadMore = React.createClass({
-	handleForceLoad: function() {
-		var query = Boron.shallow_copy(this.props.query)
-		query.offset = (+query.offset || 0) + puffworldprops.view.table.loaded
-		var filters = puffworldprops.view.filters
-		var puffs = PB.M.Forum.getPuffList(query, filters, 10)
-		if ((!puffs) || (puffs.length == 0)) {
-			Events.pub('ui/event', {
-				'view.table.noMorePuffs': true
-			})
-		} else {
-			Events.pub('ui/event', {
-				'view.table.noMorePuffs': false
-			})
-			this.handleLoadMore()
-		}
-		return false
-	},
 	handleLoadMore: function() {
 		var loaded = puffworldprops.view.table.loaded
 		return Events.pub('ui/event', {
@@ -532,10 +512,19 @@ var ViewLoadMore = React.createClass({
 	},
 	render: function() {
 		var footer = <div></div>
-		if (puffworldprops.view.table.noMorePuffs) {
+
+        // TODO: clean up query and friends
+        var query = Boron.shallow_copy(this.props.query)
+        query.offset = 0
+        var filters = puffworldprops.view.filters
+        var puffs = PB.M.Forum.getPuffList(query, filters)
+        var availablePuffs = puffs.length
+        var showingPuffs = puffworldprops.view.table.loaded
+
+        if (availablePuffs <= showingPuffs) {
 			footer = <div>Nothing more to show</div>
 		} else {
-			footer = <a className="inline" onClick={this.handleForceLoad}>Load more messages</a>
+			footer = <a className="inline" onClick={this.handleLoadMore}>Load more messages</a>
 		}
 		return (
 			<div>{footer}</div>

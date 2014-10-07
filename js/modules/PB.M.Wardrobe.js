@@ -204,7 +204,8 @@ all_existing_to_identities = function() {
 
         processUpdates()
         
-        PB.getUserRecord(username, identity.primary.capa) // get our userRecord 
+        if(username && identity && identity.primary)
+            PB.getUserRecord(username, identity.primary.capa) // fetch our userRecord 
 
         // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
         PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary

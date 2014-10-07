@@ -146,7 +146,7 @@ var ICXContentItem = React.createClass({
             width: '90%',
             marginBottom: itemPadding,
             padding: itemPadding,
-            borderLeft: Math.floor(ICX.calculated.baseFontH/2)+'px' + ' solid rgba(26, 40, 60,.5)'
+            borderLeft: Math.floor(ICX.calculated.baseFontH/2.5)+'px' + ' solid rgba(26, 40, 60,.4)'
         }
 
         // Put it left or right depending on from or to
@@ -379,7 +379,7 @@ var ICXInlineReply = React.createClass({
         var content = this.refs.messageText.getDOMNode().value
         var parents = [puff.sig]
         var metadata = {}
-        metadata.routes = [puff.username]
+        metadata.routes = [puff.username.stripCapa()]
         var envelopeUserKeys = ''
         var self = this
 
@@ -481,6 +481,7 @@ var ICXInlineReply = React.createClass({
         inlineReplyStyle.border = '1px solid #000000'
         inlineReplyStyle.padding = Math.floor(ICX.calculated.baseFontH/4)+'px'
         inlineReplyStyle.backgroundColor = 'rgba(200,200,200,.5)'
+        inlineReplyStyle.marginTop = Math.floor(ICX.calculated.baseFontH/2)+'px'
 
 
         var thisScreen = ICX.screens.filter(function( obj ) {
@@ -489,9 +490,10 @@ var ICXInlineReply = React.createClass({
 
         ICX.buttonStyle.backgroundColor = thisScreen.color
 
+        // <b>Reply to: {username}</b><br/>
         return (
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
-            <b>Reply to: {username}</b><br/>
+
             <b>Message:</b><br />
                 <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}

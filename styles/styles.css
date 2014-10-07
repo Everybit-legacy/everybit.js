@@ -321,7 +321,7 @@ header h1 {
 
 /* Colors */
 .red {
-    color: #FF0000;
+    color: #880000;
 }
 
 .blue {
@@ -965,11 +965,8 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-tableview .viewContainer .accordion-content {
     overflow-y: hidden;
-    transition: all .5s ease-in-out;
-}
-
-.icx-tableview .viewContainer .accordion-content.expanded {
     max-height: 450px;
+    transition: all .5s ease-in-out;
 }
 
 .icx-tableview .viewContainer .accordion-content.collapsed {

@@ -316,7 +316,11 @@ PB.Net.sendPuffToServer = function(puff) {
                , puff: JSON.stringify(puff) }
                
     return PB.Net.post(CONFIG.puffApi, data)
-                  .catch(PB.promiseError('Could not send puff to server'));
+                 .then(function(response) { 
+                     if(response.slice(0,6) == '{"FAIL')
+                         PB.throwError(response)
+                  }) 
+                 .catch(PB.promiseError('Could not send puff to server'));
 }
 
 /**

@@ -209,7 +209,8 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
     
         function getProm(envelope, yourUserRecord) {
-            var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
+            var prom = PB.getDecryptedPuffPromise(envelope)
+            // var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
             return prom.then(function(letter) {
                 if(!letter) {
                     PB.M.Forum.horridStash[envelope.sig] = true
@@ -419,8 +420,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
                        .catch(PB.promiseError('Posting failed'))
-                       
-                       
+
     prom.then(function(puff) {
         if(puff.keys) { // TODO: this is hacky
             PB.Data.removeShellFromCache(puff.sig)
@@ -475,7 +475,9 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
             if(!privateDefaultKey)
                 throw Error('No valid private key found for signing the content')
 
-            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+            // TODOUR: use PB.simpleBuildPuff here
+            var capa = PB.getCurrentCapa()
+            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias, capa)
         })
 
         return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already

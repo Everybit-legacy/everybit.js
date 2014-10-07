@@ -71,18 +71,33 @@ PB.init = function(zone) {
  * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
+PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias, capa) {
+    var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous, capa)
 
     // TODOUR: add capa
 
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias, capa)
     }
     
     return puff
 }
+
+PB.simpleBuildPuff = function(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    
+    var puff 
+    
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        var previous = false // TODO: get the sig of this user's latest puff
+        var capa = PB.getCurrentCapa()
+        
+        puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias, capa)
+    })
+    
+    return puff
+}
+
 
 /**
  * pack all the parameters into an object with puff structure (without signature)
@@ -94,7 +109,7 @@ PB.buildPuff = function(username, privatekey, routes, type, content, payload, pr
  * @param  {string} previous 
  * @return {object}          object which has similar structure as a puff (without signature)
  */
-PB.packagePuffStructure = function(username, routes, type, content, payload, previous) {
+PB.packagePuffStructure = function(username, routes, type, content, payload, previous, capa) {
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
@@ -103,6 +118,7 @@ PB.packagePuffStructure = function(username, routes, type, content, payload, pre
     previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
     var puff = { username: username
+               ,     capa: capa
                ,   routes: routes
                , previous: previous
                ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
@@ -305,7 +321,7 @@ PB.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias, capa) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
@@ -320,7 +336,8 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlia
     }
     
     var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
-                           , 'encryptedpuff', letterCipher, {}, letter.previous)  // it includes the letter
+                           , 'encryptedpuff', letterCipher, {}, letter.previous   // it includes the letter
+                           , capa || 1 ) // TODOUR: from whence?
     
     envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
     envelope.sig = PB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
@@ -336,12 +353,29 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlia
  * @param  {string} myPrivateWif
  * @return {object}
  */
-PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
+PB.getDecryptedPuffPromise = function(envelope) {
     //// pull a letter out of the envelope -- returns a promise!
 
-    return new Promise(function(resolve, reject) {
-        PB.workersend('decryptPuffForReals', [envelope, yourPublicWif, myUsername, myPrivateWif], resolve, reject)
+    if(!envelope || !envelope.keys) 
+        return PB.onError('Envelope does not contain an encrypted letter')
+    
+    var yourUsername   = envelope.username
+    var yourUserRecord = PB.Data.getCachedUserRecord(yourUsername)
+    var prom
+    
+    PB.useSecureInfo(function(identites, currentUsername) {
+        // NOTE: leaks a promise which resolves to unencrypted puff
+        var capa = envelope.capa || 1 // default to 1, which is always the initial keys
+        var alias = PB.getCapaAliasForCurrentIdentity(identites, capa)
+        var privateDefaultKey = alias.privateDefaultKey
+        // letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
+
+        prom = new Promise(function(resolve, reject) {
+            PB.workersend('decryptPuffForReals', [envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey], resolve, reject)
+        })
     })
+
+    return prom
 }
 
 PB.decryptPuffForReals = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
@@ -442,6 +476,17 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
             return PB.onError('That user does not exist in our records')
     
         return userRecord
+    }
+    
+    PB.getCapaAliasForCurrentIdentity = function(identities, capa) {
+        // this requires identities to be the list of identities from PB.useSecureInfo
+        var currentUsername = PB.getCurrentUsername()
+        var aliases = (identities[currentUsername]||{}).aliases||[]
+        capa = capa || 1
+        var alias = aliases.filter(function(alias) {
+            return alias.capa == capa && alias.username == currentUsername
+        })
+        return alias[0] || {}
     }
     
 }

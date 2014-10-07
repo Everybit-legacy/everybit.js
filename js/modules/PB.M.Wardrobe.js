@@ -66,10 +66,9 @@ all_existing_to_identities = function() {
 }
 ////////// end removal zone /////////////
 
-    // TODO: get file-based login working (and maybe login in general)
-    // TODO: change storeKeys over to new style
-    // TODO: get anon creation working
     // TODO: integrate capa with userRecords and puffs everywhere
+    // TODO: use capa returned from server on update passphrase
+    // TODO: get anon creation working
 
 
 

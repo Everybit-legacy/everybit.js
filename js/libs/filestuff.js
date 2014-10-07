@@ -11,12 +11,15 @@ PBFiles.createPuff = function(content, type) {
 
     var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
-    var previous, puff
+    var previous, puff, privateEnvelopeAlias
+    
+    puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    
 
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
-        var privateEnvelopeAlias
-        puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    })
+    // PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+    //     var privateEnvelopeAlias
+    //     puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    // })
 
     return puff
 }
@@ -45,17 +48,10 @@ PBFiles.extractLetterPuff = function(content) {
     if(!puff) 
         return PB.onError('Envelope was not JSON encoded')
     
-    if(!puff.keys) 
-        return PB.onError('Envelope does not contain an encrypted letter')
+    // var userRecord = PB.getCurrentUserRecord()
+    // var pubkey = userRecord.defaultKey
     
-    var userRecord  = PB.getCurrentUserRecord()
-    var pubkey = userRecord.defaultKey
-    
-    var letter
-    
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
-        letter = PB.decryptPuff(puff, pubkey, currentUsername, privateDefaultKey)
-    })
+    var letter = PB.getDecryptedPuffPromise(puff)
     
     return letter
 }

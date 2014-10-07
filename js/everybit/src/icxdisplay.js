@@ -2650,6 +2650,7 @@ var ICXFileConverter = React.createClass({
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
+            // FIXME: does this work??? letterPuff is a promise...
             var letterPuff = PBFiles.extractLetterPuff(fileguts)
 
             if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong

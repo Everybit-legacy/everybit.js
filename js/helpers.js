@@ -682,6 +682,8 @@ function handleUpdateProfile(puff) {
         var payload = {}
         payload.profile = puff.sig
 
+        // TODOUR: use PB.simpleBuildPuff here
+
         var update_puff = PB.buildPuff(currentUsername, privateAdminKey, [], type, content, payload)
 
         var update_prom = PB.Net.updateUserRecord(update_puff)

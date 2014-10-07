@@ -228,7 +228,15 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
         if(yourUserRecord) {        
             var prom = getProm(envelope, yourUserRecord)
             prom.then(function(decrypted) {
-                if(decrypted) updateUI()
+                // if(decrypted) updateUI()
+
+                if(!decrypted) return false
+            
+                PB.Data.currentDecryptedShells.push(decrypted)
+                PB.Data.addToGraph([decrypted])
+                PB.M.Forum.addFamilialEdges([decrypted])
+            
+                updateUI() // redraw everything once DHT responds            
             })
             return false
         }

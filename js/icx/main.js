@@ -266,9 +266,7 @@ PB.M.Wardrobe.init()                                // rehydrate identities and 
 
 handleImportRedirect();                             // check if import
 
-
-// TODO: figure out why this breaks the first round
-// PB.Data.depersistUserRecords()                      // get cached userRecords
+PB.Data.depersistUserRecords()                      // get cached userRecords
 
 setPropsFromURL();                                  // handle pushstate hash
 

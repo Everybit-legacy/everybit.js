@@ -1322,7 +1322,6 @@ var ICXSendMessageFinish = React.createClass({
             'ICX.messageSent': true,
             'ICX.successMessage': 'Message sent!'
         })
-
     },
 
     cleanUpSubmit: function () {
@@ -1366,6 +1365,9 @@ var ICXSendMessageFinish = React.createClass({
                         return PB.getUserRecordNoCache(username).then(function (userRecord) {
                             userRecords.push(userRecord)
                         })
+                    }).catch(function (err){
+                        ICX.errors = err.message
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     })
                 }
             })
@@ -1380,6 +1382,15 @@ var ICXSendMessageFinish = React.createClass({
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                .catch(function (err){
+                    ICX.errors = err.message
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                    Events.pub('ui/event/', {
+                        'ICX.messageSent': true,
+                        'ICX.successMessage': "Save your message: "+ICX.messageText
+                    })
+                })
             return post_prom
         }).catch(function (err) {
             // self.cleanUpSubmit()

@@ -1489,7 +1489,7 @@ var ICXNewUser = React.createClass({
                     <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
                     <br /><br />
                     <b>Avatar:</b><br />
-                    <canvas id="avatarCanvas" width="100" height="100">
+                    <canvas id="avatarCanvas" width="105" height="105">
                     </canvas>
                     <br />
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
@@ -1819,8 +1819,7 @@ var ICXNewUser = React.createClass({
                 'ICX.thinking': false
             })
 
-            ICX.errors = "ERROR: Failed to register. That username may have already been registered or reserved."
-
+            ICX.errors = "ERROR: "+err.message
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         })
     }

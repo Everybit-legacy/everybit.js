@@ -24,8 +24,7 @@
   An identity file can be exported to the local filesystem and imported back in to the system.
 
   Usage examples:
-      PB.switchIdentityTo(user.username)
-      PB.M.Wardrobe.getCurrentKeys()
+      PB.switchIdentityTo(username)
 
 */
 

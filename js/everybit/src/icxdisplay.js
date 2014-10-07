@@ -2301,17 +2301,40 @@ var ICXChangePassphrase = React.createClass({
 
         var username = ICX.username
 
+        //CSS for toggle passphrase masking
+        var cb = React.addons.classSet
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'fa-eye-slash': puffworldprops.ICX.hidePassphrase,
+            'fa-eye': !puffworldprops.ICX.hidePassphrase,
+            'green': !puffworldprops.ICX.hidePassphrase
+        })
+        var textClass = cb({
+            'masked': puffworldprops.ICX.hidePassphrase,
+            'gudea': !puffworldprops.ICX.hidePassphrase
+        })
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div>
                 {mustChangeMsg}
                 <div className="contentWindow">
+
                     {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
                     <br />
                     <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
                     <br />
                     NOTE: If you downloaded an identity file, it will no longer work after updating your passphrase.
                     You'll need to download a new identity file after chaniging your passphrase.
+
+                    {polyglot.t("pass.new")}
+                    <br />
+                    <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onKeyDown={this.handleKeyDown} onChange={this.handleRecheckPassphrase}/>
+                    {' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />{' '}<i className={cbClass} onClick={this.togglePassphraseView} ></i>
+                    <br />
+                    <br />
+                    <a style={ICX.buttonStyle} onClick={this.handleButtonPress} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
         )
@@ -2319,7 +2342,40 @@ var ICXChangePassphrase = React.createClass({
 
     handleKeyDown: function(e) {
         if(e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            if(this.handleRecheckPassphrase()) {
+                this.handleChangePassphrase()
+            }
+        }
+    },
+
+    handleButtonPress: function() {
+        if(this.handleRecheckPassphrase()) {
             this.handleChangePassphrase()
+        }
+    },
+
+    togglePassphraseView: function() {
+        return Events.pub('ui/event', {
+            'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
+        })
+    },
+
+    handleRecheckPassphrase: function() {
+        var passphrase = this.refs.passphrase.getDOMNode().value
+        if(passphrase.length < 8) {
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': false,
+                'ICX.newUser.passphraseMessage': 'Too short'
+
+            })
+            return false
+
+        } else {
+            Events.pub('ui/event', {
+                'ICX.newUser.passphraseStatus': true,
+                'ICX.newUser.passphraseMessage': ''
+            })
+            return true
         }
     },
 

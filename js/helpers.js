@@ -481,7 +481,7 @@ function updatePassphrase(newPassphrase) {
 
         userRecordPromise.then(function(userRecord) {
             newUserRecord = userRecord
-            updateKeyHelper(keys)
+            updateKeyHelper(keys, resolve, reject)
         }).catch(function(err) {
             reject(err) // error while updating the user record, so reject
         })
@@ -542,7 +542,9 @@ function updatePrivateKey(keyToModify, newPrivateKey, secrets) {
             }
 
             if(keyToModify == 'rootKey') {
-                PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey, privateDefaultKey, secrets)
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
+                })
             }
 
             resolve(userRecord)

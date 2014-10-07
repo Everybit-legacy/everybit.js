@@ -744,6 +744,10 @@ function popMods() {
 }
 
 
+String.prototype.stripCapa = function() {
+    return this.replace(/:.*$/,"")
+}
+
 // END OF THINGS
 /////////////////////////////////////////////
 

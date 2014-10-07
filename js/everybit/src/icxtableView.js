@@ -1,5 +1,24 @@
 /** @jsx React.DOM */
 
+/*
+ BROKEN:
+ hover over puff to show preview
+ Hover over avatar if down on page
+ Inline reply
+ Scroll to view more puffs
+ Refresh button
+ Message for no puffs
+
+
+WORKING:
+Download link
+View text of message
+ Collapse of row
+
+
+  */
+
+
 var TableView = React.createClass({
 	sortDate: function(p1, p2) {
 		return p2.payload.time - p1.payload.time
@@ -110,72 +129,86 @@ var ICXContentItem = React.createClass({
 
 	render: function() {
         var puff = this.props.puff
-        var username = puff.username
-        var routes = puff.routes
 
 		if (!puff.sig) {return <span></span>}
 
-		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
         var itemPadding = Math.floor(ICX.calculated.baseFontH/4)+'px'
 
         var overalBoxStyle = {
             background: 'rgba(255,255,255,.7)',
-            width: '90%'
+            width: '90%',
+            marginBottom: itemPadding,
+            padding: itemPadding,
+            borderLeft: Math.floor(ICX.calculated.baseFontH/2)+'px' + ' solid rgba(26, 40, 60,.5)'
         }
 
         // Put it left or right depending on from or to
-        if(ICX.username == puff.username) {
+        if(ICX.username == puff.username.stripCapa()) {
             overalBoxStyle.marginLeft = '10%'
         } else {
             overalBoxStyle.marginRight = '10%'
-        }
-
-        var itemContentStyle = {
-            background: 'rgba(255,255,255,.9)',
-            // borderTop: '2px solid rgba(0,0,0,.9)',
-            // borderBottom: '1px solid rgba(0,0,0,.9)',
-            fontSize: '70%'
         }
 
         var cb = React.addons.classSet
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'gray': true,
             'fa-expand': !this.state.expanded,
-            'fa-compress': this.state.expanded,
-            'display': 'inline',
-            'float': 'right'
-        })
-        var toggler = <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
-
-        var isFoldedClass = cb({
-            'display': this.state.expanded ? 'block' : 'none'
+            'fa-compress': this.state.expanded
         })
 
-        var inlineReplyDisplay = cb({
-            'display': this.state.showReply ? 'block': 'none'
-        })
+        var replyStyle = {}
+        replyStyle.display = (ICX.username == puff.username.stripCapa()) ? 'none' : 'block'
+        replyStyle.float = 'right'
+
 
         return (
             <div style={overalBoxStyle}>
                 <div className="tableHeader" style={{fontSize: '65%'}} >
-                    <ICXTableUserInfo username={puff.username} routes={puff.routes[0]} />
+                    <ICXTableUserInfo puff={puff} />
                     <ICXTableItemDate date={puff.payload.time} />
                     <ICXRelationshipInfo puff={puff} />
-                    {toggler}
-                    <ICXReplyIcon onClick={this.handleShowReply} ref="reply" user={puff.username}/>
+                    <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
+                    <span className="icon reply relative" style={replyStyle}>
+                    <a onClick={this.handleShowReply}>
+                        <i className="fa fa-mail-forward fa-fw fa-rotate-180" />
+                        <Tooltip position="under" content="Reply" />
+                    </a>
+                    </span>
                     <ICXDownloadLink puff={puff} />
                 </div>
-                <div className={'accordion viewItem ' + isFoldedClass}>
-                    <div className="viewContent accordion-content" style={itemContentStyle}>
-                        <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                    </div>
-                </div>
-                <ICXInlineReply style={inlineReplyDisplay} puff={puff} />
+                <ICXItemMainContent show={this.state.expanded} puff={puff} />
+                <ICXInlineReply show={this.state.showReply} puff={puff} />
             </div>
 		)
 	}
+})
+
+
+var ICXItemMainContent = React.createClass({
+
+
+    render: function() {
+        if(this.props.show) {
+            var puffContent = PB.M.Forum.getProcessedPuffContent(this.props.puff)
+            var itemPadding = Math.floor(ICX.calculated.baseFontH/4)+'px'
+
+            var itemContentStyle = {
+                background: 'rgba(255,255,255,.9)',
+                fontSize: '70%',
+                padding: itemPadding
+            }
+
+            return(
+                <div className="accordion-content" style={itemContentStyle}>
+                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                </div>
+                )
+
+        } else {
+            return <span></span>
+        }
+    }
 })
 
 var ICXTableUserInfo = React.createClass({
@@ -199,8 +232,9 @@ var ICXTableUserInfo = React.createClass({
         }
     },
     render: function() {
-        var username = this.props.username
-        var routes = this.props.routes
+
+        var username = this.props.puff.username.stripCapa()
+        var routes = this.props.puff.routes[0]
 
         // If current user is the sender, we will render the recipient
         if(ICX.username == username) {
@@ -217,15 +251,15 @@ var ICXTableUserInfo = React.createClass({
         }
 
         if(isSender) {
-            var fromToText = 'to '
+            var fromToText = 'To '
         } else {
-            var fromToText = 'from '
+            var fromToText = 'From '
         }
 
         return (
             <div className="userInfo">
-                {fromToText} <a className="inline" onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
-                {avatar}
+                {fromToText} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
+                {' '}
             </div>
         )
     }
@@ -252,7 +286,6 @@ var ICXRelationshipInfo = React.createClass({
             var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
             preview = <div className="rowReferencePreview"><span dangerouslySetInnerHTML={{__html: puffContent}}></span></div>
         }
-        // TODO: wrapping this in a span squelches the DANGER error message, but any previews with anchor tags still don't show up. the underlying issue is that an anchor inside an anchor gets split into two consecutive anchors in the DOM.
 
         return (
             <span>
@@ -276,7 +309,7 @@ var ICXRelationshipInfo = React.createClass({
         {return self.getReferenceIcon(sig, 'parent')})
         if (parents.length) {
             parentsEle = (
-                <span className="refs">In reply to: {parentIcons}</span>
+                <span className="refs">&nbsp;in reply to: {parentIcons}</span>
                 )
         }
 
@@ -390,7 +423,7 @@ var ICXInlineReply = React.createClass({
 
     },
 	handleCleanup: function() {
-		this.refs.replyBox.getDOMNode().style.display = "none"
+		this.refs["replyBox"+this.props.puff.sig].getDOMNode().style.display = "none"
 		this.refs.messageText.getDOMNode().value = ''
 
 		return Events.pub('ui/reply', {
@@ -401,33 +434,27 @@ var ICXInlineReply = React.createClass({
 	},
 	render: function() {
 		var puff=this.props.puff
-		var username = puff.username
+		var username = puff.username.stripCapa()
 
-		return (
-			<div className="inlineReply" ref="replyBox" style={{display: 'none'}}>
-				Reply to: {username} <br/>
-				Message:
-				<textarea ref="messageText" style={{width: '100%', height: '20%'}} />
-				<button onClick={this.handleReply}>Reply</button><span onClick={this.handleCleanup}> Cancel</span>
-			</div>
-		)
-	}
-})
-
-// Reply to a single puff
-var ICXReplyIcon = React.createClass({
-    render: function() {
-        if ( this.props.user == ICX.username ) {
-            return <span></span>
+        var inlineReplyStyle = {}
+        if(this.props.show) {
+            inlineReplyStyle.display = 'block'
         } else {
-            return (
-                <span className="reply icon relative">
-                    <a><i className="fa fa-mail-forward fa-fw fa-rotate-180 small"></i></a>
-                    <Tooltip position="under" content="Reply" />
-                </span>
-            )
+            inlineReplyStyle.display = 'none'
         }
-    }
+
+        return (
+            <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
+            Reply to: {username} <br/>
+            Message:
+                <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
+                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
+                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
+            </div>
+            )
+
+
+	}
 })
 
 // var ViewLoadMore = React.createClass({

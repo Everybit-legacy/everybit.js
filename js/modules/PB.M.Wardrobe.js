@@ -48,24 +48,6 @@ PB.M.Wardrobe = {}
     var currentUsername = false
 
 
-////////// remove these functions /////////////
-existing_to_alias = function(keychain) {
-    // TODO: this is deprecated, remove it
-    return addAlias(keychain.username, keychain.username, 1, keychain.root, keychain.admin, keychain.default, keychain.bonus)
-}
-
-all_existing_to_identities = function() {
-    // TODO: this is deprecated, remove it
-    
-    // for each keychain
-    Object.keys(PB.M.Wardrobe.keychain).forEach(function(username) {
-        var keychain = PB.M.Wardrobe.keychain[username]
-        var alias = existing_to_alias(keychain)
-        addIdentity(alias.username, alias)
-    })
-}
-////////// end removal zone /////////////
-
     // TODO: integrate capa with userRecords and puffs everywhere
     // TODO: use capa returned from server on update passphrase
     // TODO: get anon creation working
@@ -169,15 +151,17 @@ all_existing_to_identities = function() {
             identity.aliases.push(alias)
         }
         
-        if(aliasUsername == identityUsername && alias.capa >= (identity.capa||0))
+        if(aliasUsername == identityUsername && alias.capa >= (identity.capa||0)) {
+            
             identity.primary = alias                        // set primary for identity (which may have been empty)
+        }
 
 
         // - Wardrobe->PB.M.Identity
 
         processUpdates()
 
-       return alias // TODO: remove this it leaks
+       return true
     }
 
     var setPreference = function(key, value) {

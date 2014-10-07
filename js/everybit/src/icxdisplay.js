@@ -2415,103 +2415,24 @@ var ICXChangePassphrase = React.createClass({
     },
 
     handleChangePassphrase: function() {
-        var payload = {}
-        var routes = []
-        var type = 'updateUserRecord'
-        var content = 'modifyUserKey'
-        var username = ICX.username // THINK: is this always just the current identity?
-        var newCapa = PB.getCurrentCapa() + 1
-
         Events.pub('ui/thinking', { 'ICX.thinking': true })
 
-        var newKeyRaw = this.refs.passphrase.getDOMNode().value
-        var newPrivateKey = passphraseToPrivateKeyWif(newKeyRaw)
-        var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
-
-        var keysToModify = ['rootKey', 'adminKey', 'defaultKey']
-
-        updateKeyHelper(keysToModify)
-
-        function updateKeyHelper(keys) {
-            if(keys.length == 0) {
-                // End of processing cycle
-
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-                //clear any error messages
-                Events.pub('/ui/icx/error', {
-                    "ICX.errorMessage": false
-                })
-
-                return Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
-            }
-
-            var keyToModify = keys.pop()
-
-            if (keyToModify == 'rootKey' || keyToModify == 'adminKey')
-                var signingUserKey = 'privateRootKey'
-            
-            if (keyToModify == 'defaultKey')
-                var signingUserKey = 'privateAdminKey'
-
-            payload.keyToModify = keyToModify
-            payload.newKey = newPublicKey
-            payload.newCapa = newCapa // TODO: is this right?
-            payload.time = Date.now()
-
-            var puff
-
-            PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                // NOTE: puff leaks, but only contains publicly accessible data
-                var identity = identities[username] // THINK: can we just use current identity here? ICX.username?
-                var privateRootKey = identity.primary.privateRootKey
-                var privateAdminKey = identity.primary.privateAdminKey
-                var privateKey = {privateRootKey: privateRootKey, privateAdminKey: privateAdminKey}[signingUserKey]
-                if(!privateKey) {
-                    ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
-                    Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                    return PB.onError("You need the " + signingUserKey + " to change the " + keyToModify + " key.")
-                } else {
-                    puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
-                }
-            })
-
-            var prom = PB.Net.updateUserRecord(puff)
-
-            // TODO: change these AFTER the thing with the stuff.
-
-            prom.then(function (result) {
-                if(keyToModify == 'defaultKey') {
-                    var secrets = {passphrase: newKeyRaw}
-                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                        // THINK: using current identity
-                        PB.addAlias(username, username, newCapa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
-                    })
-                }
-
-                if(keyToModify == 'adminKey') {
-                    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                        // THINK: using current identity
-                        PB.addAlias(username, username, newCapa, privateRootKey, newPrivateKey)
-                    })
-                }
-
-                if(keyToModify == 'rootKey') {
-                    PB.addAlias(username, username, newCapa, newPrivateKey)
-                }
-
-                updateKeyHelper(keys)
-
+        var newPassphrase = this.refs.passphrase.getDOMNode().value
+        var prom = updatePassphrase(newPassphrase)
+        prom.then(function(result) {
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', { "ICX.errorMessage": false })
+                Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
             })
             .catch(function (err) {
+                
+                // ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
+                
                 ICX.errors = "FAILED " + err
                 Events.pub('ui/thinking', { 'ICX.thinking': false })
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                return PB.onError('Failed to complete passphrase change', err)
+                PB.onError('Failed to complete passphrase change', err)
             })
-        }
     }
 
 })

@@ -266,7 +266,7 @@ PB.addRelationship(PB.M.Forum.addFamilialEdges);
 
 PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
-handleImportRedirect();                             // check if import
+// handleImportRedirect();                             // check if import
 
 PB.Data.depersistUserRecords()                      // get cached userRecords
 

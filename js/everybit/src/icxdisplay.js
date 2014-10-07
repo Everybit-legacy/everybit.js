@@ -2033,6 +2033,8 @@ var ICXLogin = React.createClass({
                 if(!userInfo || userInfo.username != username) {
                     // TODO: END SPINNER
                     PB.removeIdentity(username)
+                    ICX.errors = "ERROR: Username not found in public record."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     return PB.onError('Username not found in public record')
                 }
                     
@@ -2041,6 +2043,8 @@ var ICXLogin = React.createClass({
                     if(!identity || !identity.primary) {
                         // TODO: END SPINNER
                         PB.removeIdentity(username)
+                        ICX.errors = "ERROR: Identity not properly loaded."
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                         return PB.onError('Identity not properly loaded')
                     }
                     
@@ -2050,7 +2054,7 @@ var ICXLogin = React.createClass({
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
                             // TODO: END SPINNER
                             PB.removeIdentity(username)
-                            ICX.errors = "ERROR: Corrupt identity file."
+                            ICX.errors = "ERROR: The identity file does not contain a valid public user record."
                             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')

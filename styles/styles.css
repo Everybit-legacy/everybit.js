@@ -981,16 +981,14 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-tableview .viewContainer .tableHeader {
-    width: 100%;
-    overflow: hidden;
 }
 
 .icx-tableview .viewContainer .tableHeader:after {
     clear: both;
 }
 
-.icx-tableview .viewContainer .tableHeader .userInfo,.date,.refs {
-    float: left;
+.icx-tableview .viewContainer .tableHeader .userInfo {
+    position: relative;
 }
 
 .icx-tableview .viewContainer .tableHeader .download,.toggler,.reply {

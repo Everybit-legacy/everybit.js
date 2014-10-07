@@ -477,7 +477,7 @@ function updatePassphrase(newPassphrase) {
 
         var keyToModify = keys.pop()
 
-        var userRecordPromise = updatePrivateKey(keyToModify, newPrivateKey, secrets)
+        var userRecordPromise = PB.updatePrivateKey(keyToModify, newPrivateKey, secrets)
 
         userRecordPromise.then(function(userRecord) {
             newUserRecord = userRecord
@@ -487,77 +487,6 @@ function updatePassphrase(newPassphrase) {
         })
     }
 }
-
-function updatePrivateKey(keyToModify, newPrivateKey, secrets) {
-    //// attempts to update a private key for the current user. 
-    //// if successful it adds the new alias to the current identity.
-    //// returns a promise for the new userRecord.
-    
-    var username = PB.getCurrentUsername()
-    var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
-
-    var payload = {}
-    var routes = []
-    var type = 'updateUserRecord'
-    var content = 'modifyUserKey'
-
-    payload.keyToModify = keyToModify
-    payload.newKey = newPublicKey
-    payload.time = Date.now()
-
-    var prom = new Promise(function(resolve, reject) {
-        var puff
-
-        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-            // NOTE: puff leaks, but only contains publicly accessible data
-        
-            var signingUserKey = 'privateRootKey'  // changing admin or root keys requires root privileges
-            var privateKey = privateRootKey
-
-            if (keyToModify == 'defaultKey') { 
-                signingUserKey = 'privateAdminKey' // changing the default key only requires admin privileges
-                privateKey = privateAdminKey
-            }
-
-            if(!privateKey) {
-                return reject(PB.makeError("You need the " + signingUserKey + " to change the " + keyToModify + " key."))
-            } else {
-                puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
-            }
-        })
-
-        var userRecordPromise = PB.Net.updateUserRecord(puff)
-
-        userRecordPromise.then(function(userRecord) {
-            if(keyToModify == 'defaultKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
-                })
-            }
-
-            if(keyToModify == 'adminKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, newPrivateKey, privateDefaultKey, secrets)
-                })
-            }
-
-            if(keyToModify == 'rootKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
-                })
-            }
-
-            resolve(userRecord)
-        })
-        .catch(function(err) {
-            reject(PB.makeError(err))
-        })
-    })
-
-    return prom
-}
-
-
 
 
 

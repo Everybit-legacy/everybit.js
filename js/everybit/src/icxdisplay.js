@@ -2133,7 +2133,7 @@ var ICXLogin = React.createClass({
             return false
         }
 
-        var prom = PB.getUserRecord(username)
+        var prom = PB.getUserRecordNoCache(username)
 
         prom.then(function (userInfo) {
             var goodKeys = {}
@@ -2162,6 +2162,7 @@ var ICXLogin = React.createClass({
             // At least one good key: make current user and add passphrase to wardrobe
             var capa = username.capa || 1
             var secrets = {passphrase: passphrase}
+            // TODO: pull this out of GUI and push it down a level
             PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
             
             PB.switchIdentityTo(username)
@@ -2438,19 +2439,16 @@ var ICXChangePassphrase = React.createClass({
         var newPassphrase = this.refs.passphrase.getDOMNode().value
         var prom = updatePassphrase(newPassphrase)
         prom.then(function(result) {
-                Events.pub('ui/thinking', { 'ICX.thinking': false })
-                Events.pub('/ui/icx/error', { "ICX.errorMessage": false })
-                Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
-            })
-            .catch(function (err) {
-                
-                // ICX.errors = "WARNING: You need the " + signingUserKey + " to change the " + keyToModify + " key."
-                
-                ICX.errors = "FAILED " + err
-                Events.pub('ui/thinking', { 'ICX.thinking': false })
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                PB.onError('Failed to complete passphrase change', err)
-            })
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            Events.pub('/ui/icx/error', { "ICX.errorMessage": false })
+            Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
+        })
+        .catch(function (err) {
+            ICX.errors = "FAILED " + err
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            PB.onError('Failed to complete passphrase change', err)
+        })
     }
 
 })

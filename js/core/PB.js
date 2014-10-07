@@ -329,6 +329,8 @@ PB.getUserRecord = function(username, capa) {
 PB.getUserRecordNoCache = function(username, capa) {
     //// This never checks the cache
     
+    capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
+    
     var prom = PB.Net.getUserRecord(username, capa); 
     
     var versionedUsername = PB.maybeVersioned(username, capa)

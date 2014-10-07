@@ -195,7 +195,7 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="small"> sent {timeSince(date)} ago</span>
+                <span className="small"> {timeSince(date)} ago</span>
             )
     }
 

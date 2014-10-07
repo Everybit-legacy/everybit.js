@@ -2031,8 +2031,8 @@ var ICXLogin = React.createClass({
             // load complete identity
             PB.addIdentity(username, aliases, preferences)
             
-            // then check against the user record
-            var prom = PB.getUserRecord(username)
+            // then check against the up-to-date user record
+            var prom = PB.getUserRecordNoCache(username)
 
             prom.then(function (userInfo) {
                 if(!userInfo || userInfo.username != username) {

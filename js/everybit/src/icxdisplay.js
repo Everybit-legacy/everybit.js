@@ -1822,8 +1822,6 @@ var ICXLogin = React.createClass({
         var baseFontH = ICX.calculated.baseFontH
 
         var currUser = PB.getCurrentUsername()
-        if (currUser)
-            currUser = '.' + currUser
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
@@ -1862,10 +1860,9 @@ var ICXLogin = React.createClass({
 
                 <div className="contentWindow">
                     <div className="relative">
-                        {polyglot.t("login.id_file")}<sup>&#63;</sup>
+                        Select an identity file:
                         <Tooltip content="Authenticate with this browser using your private identity file" />
                     </div>
-                    <br />
                     <span style={ICX.buttonStyle} className="buttonSpan">
                         <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
                     </span>
@@ -1882,7 +1879,7 @@ var ICXLogin = React.createClass({
 
                     <br /><br />
                     <div className="relative">
-                        <b>{polyglot.t("login.pass")}<sup>&#63;</sup></b>
+                        <b>Private passphrase:</b>
                         <Tooltip content="This is the secret phrase you chose when signing up." />
                     </div>
 

@@ -957,15 +957,12 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-tableview .viewContainer .viewItem {
-    margin-bottom: 15px;
-    border: 1px solid green;
     width: 90%;
     position: relative;
 }
 
 .icx-tableview .viewContainer .accordion-content {
     overflow-y: hidden;
-    max-height: 450px;
     transition: all .5s ease-in-out;
 }
 
@@ -1016,7 +1013,7 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-tableview .viewContainer .userInfo {
     width: 100%;
-    overflow: hidden;
+    /* overflow: scroll; */
 }
 
 .icx-tableview .viewContainer .userInfo:after {

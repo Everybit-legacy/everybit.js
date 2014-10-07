@@ -2292,7 +2292,7 @@ var ICXChangePassphrase = React.createClass({
 
         var mustChangeMsg = ''
         if(puffworldprops.view.icx.firstLogin) {
-            var mustChangeMsg = <div>This appears to be your first login, using a shared secret. If you have not already done so, please change your passphrase right away</div>
+            var mustChangeMsg = <div>This appears to be your first login, using a shared secret. If you have not already done so, please change your passphrase right away.<br /></div>
         }
 
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -2303,13 +2303,15 @@ var ICXChangePassphrase = React.createClass({
 
         return (
             <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div><br />
+                <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div>
                 {mustChangeMsg}
                 <div className="contentWindow">
                     {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
-                    <br /><br />
+                    <br />
                     <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
-
+                    <br />
+                    NOTE: If you downloaded an identity file, it will no longer work after updating your passphrase.
+                    You'll need to download a new identity file after chaniging your passphrase.
                 </div>
             </div>
         )

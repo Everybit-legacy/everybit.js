@@ -71,16 +71,12 @@ all_existing_to_identities = function() {
     // TODO: get anon creation working
 
 
-
-
-
-
     PB.M.Wardrobe.init = init
     
     function init() {
         PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity)
     
-        var identities = PB.Persist.get('identities')
+        var identities = PB.Persist.get('identities') || {}
     
         Object.keys(identities).forEach(function(username) {
             var identity = identities[username]
@@ -88,6 +84,7 @@ all_existing_to_identities = function() {
         })
     
         var lastUsername = PB.Persist.get('currentUsername')
+        
         if (lastUsername)
             switchIdentityTo(lastUsername)
     }
@@ -206,6 +203,8 @@ all_existing_to_identities = function() {
         currentUsername = username
 
         processUpdates()
+        
+        PB.getUserRecord(username, identity.primary.capa) // get our userRecord 
 
         // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
         PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary

@@ -11,9 +11,9 @@ PBFiles.createPuff = function(content, type) {
 
     var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
-    var previous, puff, privateEnvelopeAlias
+    var previous, puff
     
-    puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt)
     
 
     // PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {

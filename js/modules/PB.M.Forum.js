@@ -245,7 +245,9 @@ PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) { 
             
                 updateUI() // redraw everything once DHT responds            
             })
-        }).catch(function(err){console.log(err)});
+        }).catch(function(err){
+            PB.onError('Failure to communicate')
+        });
     
     })
 }
@@ -468,17 +470,8 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
     return function(userRecord) {
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
 
-        var previous   = userRecord.latest
-        var puff
-
-        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
-            if(!privateDefaultKey)
-                throw Error('No valid private key found for signing the content')
-
-            // TODOUR: use PB.simpleBuildPuff here
-            var capa = PB.getCurrentCapa()
-            puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias, capa)
-        })
+        var previous = userRecord.latest
+        var puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
 
         return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }

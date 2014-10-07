@@ -67,6 +67,7 @@ var ICXWorld = React.createClass({
             ICX.username = false
         }
 
+        //Routing checks, check if you have "permission" to go somewhere, if not send you somehwere safe
         if(ICX.username) {
             //prevent them from getting to newuser page if they are logged in
             if (currScreen == 'newuser' || currScreen == 'login') {
@@ -89,6 +90,12 @@ var ICXWorld = React.createClass({
             } else {
                 currScreen = 'home'
                 Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+            }
+        }
+
+        if (currScreen == 'send.message' || currScreen == 'send.file') {
+            if (!puffworldprops.ICX.toUser) {
+                Events.pub('ui/icx/screen', {"view.icx.screen": 'send'})
             }
         }
 

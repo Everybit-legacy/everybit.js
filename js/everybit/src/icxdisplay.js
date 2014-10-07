@@ -1189,7 +1189,7 @@ var ICXSendMessage = React.createClass({
                     <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToMessage" />
                     <br /><br />
-                    <span className="shortcut">{polyglot.t("send.tip_label")}</span> The keyboard shortucts <span className="shortcut">command-enter</span> (on Mac) or <span className="shortcut">control-enter</span> (on PC) will send your message right away.
+                    <span className="shortcut">{polyglot.t("send.tip_label")}</span> The keyboard shortcuts <span className="shortcut">command-enter</span> (on Mac) or <span className="shortcut">control-enter</span> (on PC) will send your message right away.
                 </div>
 
             </div>
@@ -2031,8 +2031,8 @@ var ICXLogin = React.createClass({
             // load complete identity
             PB.addIdentity(username, aliases, preferences)
             
-            // then check against the user record
-            var prom = PB.getUserRecord(username)
+            // then check against the up-to-date user record
+            var prom = PB.getUserRecordNoCache(username)
 
             prom.then(function (userInfo) {
                 if(!userInfo || userInfo.username != username) {
@@ -2375,18 +2375,14 @@ var ICXChangePassphrase = React.createClass({
                 {mustChangeMsg}
                 <div className="contentWindow">
 
-                    {polyglot.t("pass.new")}<input type="text" ref="passphrase" onKeyDown={this.handleKeyDown}/>
-                    <br />
-                    <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
-                    <br />
                     NOTE: If you downloaded an identity file, it will no longer work after updating your passphrase.
-                    You’ll need to download a new identity file after chaniging your passphrase.
+                    You’ll need to download a new identity file after changing your passphrase.
 
-                    {polyglot.t("pass.new")}
+                    <br /><br />
+                    <b>New passphrase:</b>
                     <br />
                     <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onKeyDown={this.handleKeyDown} onChange={this.handleRecheckPassphrase}/>
                     {' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />{' '}<i className={cbClass} onClick={this.togglePassphraseView} ></i>
-                    <br />
                     <br />
                     <a style={ICX.buttonStyle} onClick={this.handleButtonPress} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
                 </div>

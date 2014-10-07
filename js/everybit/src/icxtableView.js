@@ -334,15 +334,9 @@ var ICXRelationshipInfo = React.createClass({
 
         if (children.length) {
             if(children.length > 1) {
-<<<<<<< HEAD
-                childrenEle = <span className="relative">{children.length} replies: {childrenIcons}</span>
+                childrenEle = <span className="relative">&nbsp;{children.length} replies: {childrenIcons}</span>
             } else {
-                childrenEle = <span className="relative">{children.length} reply: {childrenIcons}</span>
-=======
-                childrenEle = <span>&nbsp;{children.length} replies: {childrenIcons}</span>
-            } else {
-                childrenEle = <span>&nbsp;{children.length} reply: {childrenIcons}</span>
->>>>>>> 633bc1dee1808dbcba2f6205daa18aa627911373
+                childrenEle = <span className="relative">&nbsp;{children.length} reply: {childrenIcons}</span>
             }
 
         }

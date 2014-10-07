@@ -395,16 +395,16 @@ PB.getDecryptedPuffPromise = function(envelope) {
         // letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
 
         prom = new Promise(function(resolve, reject) {
-            PB.workersend('decryptPuffForReals', [envelope, yourVersionedUserRecord.defaultKey, currentUsername, privateDefaultKey], resolve, reject)
+            PB.workersend('decryptPuffForReals', [envelope, yourVersionedUserRecord.defaultKey, versionedUsername, privateDefaultKey], resolve, reject)
         })
     })
 
     return prom
 }
 
-PB.decryptPuffForReals = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
+PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
     if(!envelope.keys) return false
-    var keyForMe = envelope.keys[myUsername]
+    var keyForMe = envelope.keys[myVersionedUsername]
     var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)

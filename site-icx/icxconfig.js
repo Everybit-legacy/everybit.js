@@ -97,10 +97,10 @@ CONFIG.puffApi = 'https://i.cx/api/puffs/api.php';
 CONFIG.eventsApi = 'https://i.cx/api/puffs/api.php';
 
 // Zone is added in route of every puff publishing using this code
-CONFIG.zone = 'everybit';
+CONFIG.zone = 'icx';
 
-CONFIG.url = 'http://www.everybit.com';
-CONFIG.logo = 'img/EveryBitLogoLeft.svg';
+CONFIG.url = 'https://i.cx';
+// CONFIG.logo = 'img/EveryBitLogoLeft.svg';
 
 /* See translate.js */
 CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';

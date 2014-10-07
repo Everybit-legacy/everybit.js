@@ -544,15 +544,21 @@ var ICXStoreFinish = React.createClass({
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
+            }).catch(function(err){
+                ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
+
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
             })
         }).catch(function (err) {
 
             // TODO: Show user the error
             // self.cleanUpSubmit()
-            Events.pub('ui/event/', {
+            return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
+
             /*Events.pub('ui/thinking', {
                 'ICX.thinking': false
             })*/
@@ -1315,7 +1321,6 @@ var ICXSendMessageFinish = React.createClass({
             'ICX.messageSent': true,
             'ICX.successMessage': 'Message sent!'
         })
-
     },
 
     cleanUpSubmit: function () {
@@ -1359,6 +1364,9 @@ var ICXSendMessageFinish = React.createClass({
                         return PB.getUserRecordNoCache(username).then(function (userRecord) {
                             userRecords.push(userRecord)
                         })
+                    }).catch(function (err){
+                        ICX.errors = err.message
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     })
                 }
             })
@@ -1373,6 +1381,15 @@ var ICXSendMessageFinish = React.createClass({
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                .catch(function (err){
+                    ICX.errors = err.message
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                    Events.pub('ui/event/', {
+                        'ICX.messageSent': true,
+                        'ICX.successMessage': "Save your message: "+ICX.messageText
+                    })
+                })
             return post_prom
         }).catch(function (err) {
             // self.cleanUpSubmit()
@@ -1471,7 +1488,7 @@ var ICXNewUser = React.createClass({
                     <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
                     <br /><br />
                     <b>Avatar:</b><br />
-                    <canvas id="avatarCanvas" width="100" height="100">
+                    <canvas id="avatarCanvas" width="105" height="105">
                     </canvas>
                     <br />
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
@@ -1801,8 +1818,7 @@ var ICXNewUser = React.createClass({
                 'ICX.thinking': false
             })
 
-            ICX.errors = "ERROR: Failed to register. That username may have already been registered or reserved."
-
+            ICX.errors = "ERROR: "+err.message
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         })
     }
@@ -1980,6 +1996,14 @@ var ICXLogin = React.createClass({
             // Try and parse, if can't return error
             // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
             var identityObj = PB.parseJSON(content)
+            var username = identityObj.username
+            var aliases = identityObj.aliases
+
+            if(!identityObj || !username || !aliases) {
+                ICX.errors = "ERROR: Corrupt identity file."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})                
+            }
+
             if(!identityObj) {
                 // TODO: END SPINNER
                 ICX.errors = "ERROR: Failed to read passphrase file. Your file may be corrupt or outdated."
@@ -1987,8 +2011,7 @@ var ICXLogin = React.createClass({
                 return PB.onError('Failed to parse identity file content')
 
             }
-
-            var username = identityObj.username
+          
             if(!username) {
                 // TODO: END SPINNER
                 ICX.errors = "ERROR: Username missing from passphrase file."
@@ -1996,7 +2019,6 @@ var ICXLogin = React.createClass({
                 return PB.onError('No username in identity file')
             }
             
-            var aliases = identityObj.aliases
             if(!aliases) {
                 // TODO: END SPINNER
                 ICX.errors = "ERROR: Failed to read passphrase file. Your file may be corrupt or outdated."
@@ -2016,7 +2038,7 @@ var ICXLogin = React.createClass({
                 if(!userInfo || userInfo.username != username) {
                     // TODO: END SPINNER
                     PB.removeIdentity(username)
-                    ICX.errors = "ERROR: Login Failed. Check network connectivity."
+                    ICX.errors = "ERROR: Username not found in public record."
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     return PB.onError('Username not found in public record')
                 }
@@ -2026,6 +2048,8 @@ var ICXLogin = React.createClass({
                     if(!identity || !identity.primary) {
                         // TODO: END SPINNER
                         PB.removeIdentity(username)
+                        ICX.errors = "ERROR: Identity not properly loaded."
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                         return PB.onError('Identity not properly loaded')
                     }
                     
@@ -2035,8 +2059,7 @@ var ICXLogin = React.createClass({
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
                             // TODO: END SPINNER
                             PB.removeIdentity(username)
-
-                            ICX.errors = "ERROR: Failed to log in. Invalid passphrase file."
+                            ICX.errors = "ERROR: The identity file does not contain a valid public user record."
                             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')
@@ -2055,6 +2078,9 @@ var ICXLogin = React.createClass({
                     'ICX.defaultKey':'Not found'
                 })
                 ICX.errors = "ERROR: Key not found. Your keys may be outdated or you may not be connected to the network."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                ICX.errors = "NETWORK ERROR: login failed."
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 // TODO: END SPINNER

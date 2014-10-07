@@ -927,7 +927,7 @@ fieldset[disabled] .btn-primary.active {
 /* ICX Styles */
 .icx-screen {
     width: 100%;
-    height: 100%;
+    /*height: 100%;*/
 }
 
 .icx-screen .component {

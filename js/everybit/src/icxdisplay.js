@@ -285,8 +285,8 @@ var ICXWorld = React.createClass({
                 <ICXLogo screenInfo={thisScreen} />
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
-                    {pageComponent}
                     <ICXError />
+                    {pageComponent}
                 </div>
                 <ICXSpinner />
                 <ICXFooter />
@@ -587,7 +587,7 @@ var ICXInvite = React.createClass({
 
                     <div style={headerStyle}>Option 1: Send them an invite link</div>
                     <div className="textBox">
-                        The link will direct them to create their own account. (You won't be able to send them files or messages securely until they create their account)
+                        The link will direct them to create their own account. (You won’t be able to send them files or messages securely until they create their account)
                     </div><br />
                     <textarea value={inviteText} style={{'width':'80%', 'height':'40%'}}></textarea>
                     <br />
@@ -610,7 +610,7 @@ var ICXInvite = React.createClass({
                         {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
                         {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
                     <br />
-                    <span className="shortcut georgia">Note:</span> <span className="georgia">The answer to the question will be your recipient's initial passphrase. They will be able to view your message or file after logging in and changing their passphrase.</span>
+                    <span className="shortcut georgia">Note:</span> <span className="georgia">The answer to the question will be your recipient’s initial passphrase. They will be able to view your message or file after logging in and changing their passphrase.</span>
                     <br />
                     <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleSendToEmail}> Continue <i className="fa fa-chevron-right small" /></a>
                 </div>
@@ -1796,16 +1796,16 @@ var ICXNewUser = React.createClass({
                 })
                 return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
-            },
-
-            function(err) {
-                // TODO: Deal with error, show it in box
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-
-                return Events.pub('ui/event', {})
+        }).catch(function(err) {
+            // TODO: Deal with error, show it in box
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
             })
+
+            ICX.errors = "ERROR: Failed to register. That username may have already been registered or reserved."
+
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        })
     }
 });
 
@@ -2330,7 +2330,7 @@ var ICXChangePassphrase = React.createClass({
                     <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
                     <br />
                     NOTE: If you downloaded an identity file, it will no longer work after updating your passphrase.
-                    You'll need to download a new identity file after chaniging your passphrase.
+                    You’ll need to download a new identity file after chaniging your passphrase.
 
                     {polyglot.t("pass.new")}
                     <br />
@@ -2826,7 +2826,7 @@ var ICXError = React.createClass({
         // Close button needed
 
         var errorStyle = {
-            position: 'absolute',
+            //position: 'absolute',
             border: '3px solid #880000',
             bottom: '0',
             padding: Math.floor(0.4*ICX.calculated.baseFontH)+'px',

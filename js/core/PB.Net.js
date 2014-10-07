@@ -316,7 +316,11 @@ PB.Net.sendPuffToServer = function(puff) {
                , puff: JSON.stringify(puff) }
                
     return PB.Net.post(CONFIG.puffApi, data)
-                  .catch(PB.promiseError('Could not send puff to server'));
+                 .then(function(response) { 
+                     if(response.slice(0,6) == '{"FAIL')
+                         PB.throwError(response)
+                  }) 
+                 .catch(PB.promiseError('Could not send puff to server'));
 }
 
 /**
@@ -325,20 +329,31 @@ PB.Net.sendPuffToServer = function(puff) {
  * @param  {string}  capa 
  * @return {promise} on fulfilled passes the user record as object, otherwise re-throw error
  */
-PB.Net.getUserRecord = function(username) {
-    // TODOUR: add capa
+PB.Net.getUserRecord = function(username, capa) {
+    var url   = CONFIG.userApi
+    
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    username = uc.username
+    if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
+        capa = uc.capa
+    
+    var data  = { type: 'getUser'
+                , username: username
+                }
 
-    var url   = CONFIG.userApi;
-    var data  = {type: 'getUser', username: username};
-    var prom = PB.Net.getJSON(url, data);
+    if(capa)
+        data.capa = capa
+
+    var prom = PB.Net.getJSON(url, data)
 
     return prom.then(
                 function(userRecord) {
-                    var userRecord = PB.processUserRecord(userRecord);
-                    if(!userRecord)  PB.throwError('Invalid user record returned');
-                    return userRecord;
+                    var userRecord = PB.processUserRecord(userRecord)
+                    if(!userRecord)  PB.throwError('Invalid user record returned')
+                    return userRecord
                 }
-                , PB.promiseError('Unable to access user information from the DHT'));
+                , PB.promiseError('Unable to access user information from the DHT'))
 }
 
 /**
@@ -397,9 +412,6 @@ PB.Net.registerSubuser = function(signingUsername, privateAdminKey, newUsername,
  * @return {object} promise for new userRecord or error when the update fails
  */
 PB.Net.updateUserRecord = function(puff) {
-    
-    // TODOUR: add capa, maybe. 
-    
     var data = { type: 'updateUsingPuff'
                , puff: puff
                }

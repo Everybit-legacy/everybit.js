@@ -185,7 +185,15 @@ PB.userRecordToVersionedUsername = function(userRecord) {
     return PB.makeVersionedUsername(userRecord.username, userRecord.capa)
 }
 
+PB.usernameFromVersioned = function(versionedUsername) {
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    return uc.username
+}
+
 PB.maybeVersioned = function(username, capa) {
+    if(!username)
+        return ''
+    
     if(capa)
         return PB.makeVersionedUsername(username, capa)
     

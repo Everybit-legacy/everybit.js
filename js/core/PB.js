@@ -118,7 +118,7 @@ PB.packagePuffStructure = function(versionedUsername, routes, type, content, pay
     var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
+               ,  version: '0.1.0'                      // version accounts for crypto type and puff shape
                ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
                }
     

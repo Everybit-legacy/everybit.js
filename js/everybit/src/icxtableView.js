@@ -26,10 +26,15 @@ var TableView = React.createClass({
 		})
 		return puffs
 	},
+	componentWillMount: function() {
+		Events.pub('ui/event', {
+			'view.table.loaded': CONFIG.initialLoad
+		})
+	},
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
-		var limit = CONFIG.initialLoad
+		var limit = puffworldprops.view.table.loaded
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 
 		puffs = this.sortPuffs(puffs)
@@ -39,9 +44,10 @@ var TableView = React.createClass({
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
-						return <ViewItem key={index} puff={puff} />
+						return <ICXContentItem key={index} puff={puff} />
 					})
 				}
+				<ViewLoadMore query={this.props.view.query}/>
 			</div>
 		)
 	}
@@ -53,10 +59,10 @@ var ViewFilters = React.createClass({
 		var filter = ''
 
 		if ( filters.users != undefined ) {
-			filter = "From: " + filters.users[0]
+			filter = "from " + filters.users[0]
 		}
 		if ( filters.routes != undefined ) {
-			filter = "To: " + filters.routes[0]
+			filter = "to " + filters.routes[0]
 		}
 		return filter
 	},
@@ -73,99 +79,138 @@ var ViewFilters = React.createClass({
 
 		return (
 			<div style={style} className="filters">
-				Filters: {filter}
+				<b>Filters: {filter}</b>
 				<span onClick={this.handleRemoveCurrentFilter}><i className="fa fa-times"></i></span>
 			</div>
 		)
 	}
 })
 
-var ViewItem = React.createClass({
-	render: function() {
-		var puff = this.props.puff
-		if (!puff.sig) {return <span></span>}
+var ICXContentItem = React.createClass({
 
-		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
-		var foldingClass = (ICX.username == puff.username) ? "accordion viewItem sent" : "accordion viewItem received"
+    getInitialState: function() {
+        return { expanded: true }
+    },
 
-		return (
-			<div className={foldingClass}>
-                <ICXTableItemHeader puff={puff} />
-                <div className="viewContent accordion-content">
-                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                </div>
-                <ICXTableItemFooter puff={puff} />
-			</div>
-		)
-	}
-})
+    handleToggleShowItem: function() {
+        if(this.state.expanded)
+            this.setState({expanded: false})
+        else
+            this.setState({expanded: true})
 
-var ICXTableItemHeader = React.createClass({
-	handleToggleAccordion: function() {
-		var self = this.refs.acrd.getDOMNode()
-		var classes = self.classList
-		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0].classList
-		//console.log(toToggle)
-		toToggle.toggle("collapsed")
+        return false
+    },
 
-		if( classes.contains("expanded") ) {
-			self.innerHTML = '<i class="fa fa-expand" />'
-			classes.remove("expanded")
-			classes.add("collapsed")
-		} else {
-			self.innerHTML = '<i class="fa fa-compress" />'
-			classes.remove("collapsed")
-			classes.add("expanded")
-		}
-		self.classList = classes
-	},
-
-	handleViewUser: function(flag, username) {
-		if(flag) {
-			return Events.pub( 'filter/show/by-user',
-	            {
-	                'view.filters': {},
-	                'view.filters.routes': [username],
-	                'view.mode': 'tableView'
-	            }
-	        )
-		} else {
-        	return Events.pub( 'filter/show/by-user',
-	            {
-	              'view.filters': {},
-	              'view.filters.users': [username],
-	              'view.mode': 'tableView'
-	            }
-	        )
-	    }
+    handleViewUser: function(isSender, username) {
+        if(isSender) {
+            return Events.pub( 'filter/show/by-user',
+                {
+                    'view.filters': {},
+                    'view.filters.routes': [username],
+                    'view.mode': 'tableView'
+                }
+            )
+        } else {
+            return Events.pub( 'filter/show/by-user',
+                {
+                    'view.filters': {},
+                    'view.filters.users': [username],
+                    'view.mode': 'tableView'
+                }
+            )
+        }
     },
 
 	render: function() {
-		var puff = this.props.puff
-		var username = puff.username
-		var routes = puff.routes
-		var flag = false
-		if(ICX.username == username) {	// current user is the sender, render the recipient
-			username = routes[0]
-			flag = true
-		}
+        var puff = this.props.puff
+        var username = puff.username
+        var routes = puff.routes
 
-		var prof = getProfilePuff(username)
-        var avatar = <span></span>
-        if(prof && prof.payload.content) {
-        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
+		if (!puff.sig) {return <span></span>}
+
+        // If current user is the sender, we will render the recipient
+        if(ICX.username == username) {
+            username = routes[0]
+            var isSender = true
+        } else {
+            var isSender = false
         }
 
-		return (
-			<div className="userInfo">
-				<div className="infoItem userRecord">{avatar}
-					<a className="inline small" onClick={this.handleViewUser.bind(this, flag, username)}>{username}</a>
-				</div>
-				<ICXTableItemDate date={puff.payload.time}/>
-				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
-					<i className="fa fa-compress" />
-				</div>
-			</div>
+		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
+        var itemPadding = Math.floor(ICX.calculated.baseFontH/4)+'px'
+
+        var overalBoxStyle = {
+            background: 'rgba(255,255,255,.7)',
+            padding: itemPadding,
+            marginBottom: itemPadding,
+            width: '90%'
+        }
+
+        // Put it left or right depending on from or to
+        if(ICX.username == puff.username) {
+            overalBoxStyle.marginLeft = '10%'
+        } else {
+            overalBoxStyle.marginRight = '10%'
+        }
+
+        var itemContentStyle = {
+            background: 'rgba(255,255,255,.9)',
+            padding: itemPadding,
+            // borderTop: '2px solid rgba(0,0,0,.9)',
+            // borderBottom: '1px solid rgba(0,0,0,.9)',
+            fontSize: '70%'
+        }
+
+        var prof = getProfilePuff(username)
+        var avatar = <span></span>
+        if(prof && prof.payload.content) {
+            avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
+        }
+
+        if(isSender) {
+            var fromToText = 'to '
+        } else {
+            var fromToText = 'from '
+        }
+
+        var cb = React.addons.classSet
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'gray': true,
+            'fa-expand': !this.state.expanded,
+            'fa-compress': this.state.expanded,
+            'display': 'inline',
+            'float': 'right'
+        })
+
+        var isFoldedClass = cb({
+            'display': this.state.expanded ? 'block' : 'none'
+        })
+
+        return (
+            <span style={overalBoxStyle}>
+                <div className="userInfo" style={{fontSize: '65%'}} >
+                    {fromToText} <a className="inline" onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
+                    {avatar}
+                    <ICXTableItemDate date={puff.payload.time}/> <ICXRelationshipInfo puff={this.props.puff} />
+                    <span style={{float: 'right'}}>
+                        <a href="#" onClick={this.handleToggleShowItem}>
+                            <i className={cbClass}></i>
+                        </a>
+                    </span>
+                    <ICXDownloadLink puff={this.props.puff} />
+                    <ICXReplyPuff ref="reply" user={puff.username}/>
+                </div>
+                <div className={'accordion viewItem ' + isFoldedClass}>
+                    <div className="viewContent accordion-content" style={itemContentStyle}>
+                        <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                    </div>
+
+                </div>
+                <br />
+                <ICXReplyIcon puff={puff} />
+            </span>
 		)
 	}
 })
@@ -175,80 +220,79 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="date-since">{timeSince(date)} ago</span>
+                <span> sent {timeSince(date)} ago</span>
             )
     }
 
 })
 
-var ICXTableItemFooter = React.createClass({
-    render: function() {
-        return (
-        	<div>
-            	<metaInfo puff={this.props.puff} />
-            	<ViewReplyBox puff={this.props.puff}/>
-            </div>
-        )
-    }
 
-})
 
-var metaInfo = React.createClass({
-	getReferenceIcon: function(sig, type) {
-		if (!sig) return <span></span>
-		var preview = <span></span>
-		var puff = PB.M.Forum.getPuffBySig(sig)
-		if (puff.payload && puff.payload.content) {
-			var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
-			preview = <div className="rowReferencePreview"><span dangerouslySetInnerHTML={{__html: puffContent}}></span></div>
-		}
+var ICXRelationshipInfo = React.createClass({
+    getReferenceIcon: function(sig, type) {
+        if (!sig) return <span></span>
+        var preview = <span></span>
+        var puff = PB.M.Forum.getPuffBySig(sig)
+        if (puff.payload && puff.payload.content) {
+            var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
+            preview = <div className="rowReferencePreview"><span dangerouslySetInnerHTML={{__html: puffContent}}></span></div>
+        }
         // TODO: wrapping this in a span squelches the DANGER error message, but any previews with anchor tags still don't show up. the underlying issue is that an anchor inside an anchor gets split into two consecutive anchors in the DOM.
-        
-		return (
+
+        return (
             <span>
                 <a key={sig} className="rowReference">
-			        <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
-		        </a>
+                    <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
+                </a>
             </span>
-        )
-	},
-	renderRefs: function() {
-		var sig = this.props.puff.sig
-		var self = this
-
-		var parentsEle = <div></div>
-		var parents = PB.Data.graph.v(sig).out('parent').run()
-		parents = parents.map(function(v){if (v.shell) return v.shell.sig})
-						 .filter(Boolean)
-						 .filter(function(s, i, array){return i == array.indexOf(s)})
-		var parentIcons = parents.map(function(sig) 
-							{return self.getReferenceIcon(sig, 'parent')})
-		if (parents.length) {
-            parentsEle = (
-                <div><i className="fa fa-fw fa-dot-circle-o"></i>{parentIcons}</div>
             )
+    },
+
+    render: function() {
+        var sig = this.props.puff.sig
+        var self = this
+
+        var parentsEle = <div></div>
+        var parents = PB.Data.graph.v(sig).out('parent').run()
+        parents = parents.map(function(v){if (v.shell) return v.shell.sig})
+            .filter(Boolean)
+            .filter(function(s, i, array){return i == array.indexOf(s)})
+        var parentIcons = parents.map(function(sig)
+        {return self.getReferenceIcon(sig, 'parent')})
+        if (parents.length) {
+            parentsEle = (
+                <span className="refs">In reply to: {parentIcons}</span>
+                )
         }
 
-		var childrenEle = <div></div>
-		var children = PB.Data.graph.v(sig).out('child').run()
-		children = children.map(function(v){if (v.shell) return v.shell.sig})
-						   .filter(Boolean)
-						   .filter(function(s, i, array){return i == array.indexOf(s)})
-		var childrenIcons = children.map(function(sig) 
-							{return self.getReferenceIcon(sig, 'child')})
+        var childrenEle = <div></div>
+        var children = PB.Data.graph.v(sig).out('child').run()
+        children = children.map(function(v){if (v.shell) return v.shell.sig})
+            .filter(Boolean)
+            .filter(function(s, i, array){return i == array.indexOf(s)})
+        var childrenIcons = children.map(function(sig)
+        {return self.getReferenceIcon(sig, 'child')})
 
 
-		if (children.length) {
-                childrenEle = <div><i className="fa fa-fw">●</i>{childrenIcons}</div>
+        if (children.length) {
+            if(children.length > 1) {
+                childrenEle = <span>{children.length} replies: {childrenIcons}</span>
+            } else {
+                childrenEle = <span>{children.length} reply: {childrenIcons}</span>
+            }
+
         }
 
-		return (
-            <div className="refs">
-			    {parentsEle}
-			    {childrenEle}
-		    </div>
-        )
-	},
+        return (
+            <span className="refs">
+			    {parentsEle} {childrenEle}
+            </span>
+            )
+    }
+})
+
+
+var ICXDownloadLink = React.createClass({
 
 	render: function() {
 		var puff = this.props.puff
@@ -263,23 +307,18 @@ var metaInfo = React.createClass({
 			style = {display: 'inline'}
         }
 
-        var refs = this.renderRefs()
-
 		return (
 			<div className="metaInfo">
-				<div className="info">
-					{refs}
-				</div>
 				<div className="options">
 					<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
-					<ICXReplyPuff ref="reply" user={puff.username}/>
 				</div>
 			</div>
 		)
 	}
 })
 
-var ViewReplyBox = React.createClass({
+
+var ICXReplyIcon = React.createClass({
 	handleReply: function() {
 		var puff=this.props.puff
 		var type = 'text'
@@ -290,9 +329,8 @@ var ViewReplyBox = React.createClass({
         var envelopeUserKeys = ''
         var self = this
 
-        Events.pub('ui/reply/add-parent',
-            {
-               'reply.parents': parents,
+        Events.pub('ui/reply/add-parent', {
+               'reply.parents': parents
             }
         )
 
@@ -395,10 +433,47 @@ var ICXReplyPuff = React.createClass({
         } else {
             return (
                 <span className="icon relative">
-                    <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
-                    <Tooltip position="under" content="Reply to this puff" />
+                    <a onClick={this.handleReply}><i className="fa fa-mail-forward fa-fw fa-rotate-180 small"></i></a>
+                    <Tooltip position="under" content="Reply" />
                 </span>
             )
         }
     }
+})
+
+var ViewLoadMore = React.createClass({
+	handleForceLoad: function() {
+		var query = Boron.shallow_copy(this.props.query)
+		query.offset = (+query.offset || 0) + puffworldprops.view.table.loaded
+		var filters = puffworldprops.view.filters
+		var puffs = PB.M.Forum.getPuffList(query, filters, 10)
+		if ((!puffs) || (puffs.length == 0)) {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': true
+			})
+		} else {
+			Events.pub('ui/event', {
+				'view.table.noMorePuffs': false
+			})
+			this.handleLoadMore()
+		}
+		return false
+	},
+	handleLoadMore: function() {
+		var loaded = puffworldprops.view.table.loaded
+		return Events.pub('ui/event', {
+			'view.table.loaded': loaded + CONFIG.newLoad
+		})
+	},
+	render: function() {
+		var footer = <div></div>
+		if (puffworldprops.view.table.noMorePuffs) {
+			footer = <div>Nothing more to show</div>
+		} else {
+			footer = <div onClick={this.handleForceLoad}>Load More Puffs</div>
+		}
+		return (
+			<div>{footer}</div>
+		)
+	}
 })

@@ -82,6 +82,8 @@ puffworldprops = {
 
         // TABLEVIEW
         table: {
+            loaded: 0,
+            noMorePuffs: false,
             column: {
                 refs: {
                     show: true,

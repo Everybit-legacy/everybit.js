@@ -59,10 +59,10 @@ var ViewFilters = React.createClass({
 		var filter = ''
 
 		if ( filters.users != undefined ) {
-			filter = "From: " + filters.users[0]
+			filter = "from " + filters.users[0]
 		}
 		if ( filters.routes != undefined ) {
-			filter = "To: " + filters.routes[0]
+			filter = "to " + filters.routes[0]
 		}
 		return filter
 	},
@@ -79,7 +79,7 @@ var ViewFilters = React.createClass({
 
 		return (
 			<div style={style} className="filters">
-				Filters: {filter}
+				<b>Filters: {filter}</b>
 				<span onClick={this.handleRemoveCurrentFilter}><i className="fa fa-times"></i></span>
 			</div>
 		)
@@ -93,11 +93,24 @@ var ViewItem = React.createClass({
 
 		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
 		var foldingClass = (ICX.username == puff.username) ? "accordion viewItem sent" : "accordion viewItem received"
+        var itemPadding = Math.floor(ICX.calculated.baseFontH/4)+'px'
+        var overalBoxStyle = {
+            background: 'rgba(255,255,255,.8)',
+            padding: itemPadding,
+            marginBottom: itemPadding
+        }
+
+        var itemContentStyle = {
+            background: 'rgba(255,255,255,.9)',
+            padding: itemPadding,
+            borderTop: '2px solid rgba(0,0,0,.9)',
+            borderBottom: '1px solid rgba(0,0,0,.9)'
+        }
 
 		return (
-			<div className={foldingClass}>
+			<div className={foldingClass} style={overalBoxStyle}>
                 <ICXTableItemHeader puff={puff} />
-                <div className="viewContent accordion-content">
+                <div className="viewContent accordion-content" style={itemContentStyle}>
                     <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
                 </div>
                 <ICXTableItemFooter puff={puff} />
@@ -115,19 +128,19 @@ var ICXTableItemHeader = React.createClass({
 		toToggle.toggle("collapsed")
 
 		if( classes.contains("expanded") ) {
-			self.innerHTML = '<i class="fa fa-expand" />'
+			self.innerHTML = '<i class="fa fa-expand small gray" />'
 			classes.remove("expanded")
 			classes.add("collapsed")
 		} else {
-			self.innerHTML = '<i class="fa fa-compress" />'
+			self.innerHTML = '<i class="fa fa-compress small gray" />'
 			classes.remove("collapsed")
 			classes.add("expanded")
 		}
 		self.classList = classes
 	},
 
-	handleViewUser: function(flag, username) {
-		if(flag) {
+	handleViewUser: function(isSender, username) {
+		if(isSender) {
 			return Events.pub( 'filter/show/by-user',
 	            {
 	                'view.filters': {},
@@ -150,11 +163,14 @@ var ICXTableItemHeader = React.createClass({
 		var puff = this.props.puff
 		var username = puff.username
 		var routes = puff.routes
-		var flag = false
-		if(ICX.username == username) {	// current user is the sender, render the recipient
+
+        // If current user is the sender, we will render the recipient
+		if(ICX.username == username) {
 			username = routes[0]
-			flag = true
-		}
+            var isSender = true
+		} else {
+            var isSender = false
+        }
 
 		var prof = getProfilePuff(username)
         var avatar = <span></span>
@@ -162,11 +178,15 @@ var ICXTableItemHeader = React.createClass({
         	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
         }
 
+        if(isSender) {
+            var fromToText = 'to '
+        } else {
+            var fromToText = 'from '
+        }
+
 		return (
-			<div className="userInfo">
-				<div className="infoItem userRecord">{avatar}
-					<a className="inline small" onClick={this.handleViewUser.bind(this, flag, username)}>{username}</a>
-				</div>
+			<div className="userInfo small" >
+                {fromToText} <a className="inline" onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
 				<ICXTableItemDate date={puff.payload.time}/>
 				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
 					<i className="fa fa-compress" />
@@ -181,7 +201,7 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="date-since">{timeSince(date)} ago</span>
+                <span className="small"> {timeSince(date)} ago</span>
             )
     }
 
@@ -231,7 +251,7 @@ var metaInfo = React.createClass({
 							{return self.getReferenceIcon(sig, 'parent')})
 		if (parents.length) {
             parentsEle = (
-                <div><i className="fa fa-fw fa-dot-circle-o"></i>{parentIcons}</div>
+                    <span className="small">In reply to: {parentIcons}</span>
             )
         }
 
@@ -245,13 +265,17 @@ var metaInfo = React.createClass({
 
 
 		if (children.length) {
-                childrenEle = <div><i className="fa fa-fw">●</i>{childrenIcons}</div>
+            if(children.length > 1) {
+                childrenEle = <span className="small">{children.length} replies: {childrenIcons}</span>
+            } else {
+                childrenEle = <span className="small">{children.length} reply: {childrenIcons}</span>
+            }
+
         }
 
 		return (
             <div className="refs">
-			    {parentsEle}
-			    {childrenEle}
+			    {parentsEle} {childrenEle}
 		    </div>
         )
 	},
@@ -296,9 +320,8 @@ var ViewReplyBox = React.createClass({
         var envelopeUserKeys = ''
         var self = this
 
-        Events.pub('ui/reply/add-parent',
-            {
-               'reply.parents': parents,
+        Events.pub('ui/reply/add-parent', {
+               'reply.parents': parents
             }
         )
 
@@ -401,8 +424,8 @@ var ICXReplyPuff = React.createClass({
         } else {
             return (
                 <span className="icon relative">
-                    <a onClick={this.handleReply}><i className="fa fa-reply fa-fw"></i></a>
-                    <Tooltip position="under" content="Reply to this puff" />
+                    <a onClick={this.handleReply}><i className="fa fa-mail-forward fa-fw fa-rotate-180 small"></i></a>
+                    <Tooltip position="under" content="Reply" />
                 </span>
             )
         }

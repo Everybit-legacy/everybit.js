@@ -658,23 +658,17 @@ PB.Data.isGoodPuff = function(puff) {
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    // TODOUR: add capa
-    
-    var prom = PB.getUserRecord(puff.username);
+    var prom = PB.getUserRecord(puff.username); // NOTE: versionedUsername
     
     return prom.then(function(user) {
         return PB.Crypto.verifyPuffSig(puff, user.defaultKey);
     });
 }
 
-/**
- * to get cached user record
- * @param  {string} username
- * @return {object}
- */
-PB.Data.getCachedUserRecord = function(username) {
-    // TODOUR: add capa
-    return PB.Data.userRecords[username];
+
+PB.Data.getCachedUserRecord = function(versionedUsername, capa) {
+    versionedUsername = PB.maybeVersioned(versionedUsername, capa)
+    return PB.Data.userRecords[versionedUsername];
 }
 
 /**
@@ -685,13 +679,13 @@ PB.Data.getCachedUserRecord = function(username) {
 PB.Data.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
     
-    // TODOUR: add capa
+    var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
     
-    PB.Data.userRecords[userRecord.username] = userRecord;
+    PB.Data.userRecords[versionedUsername] = userRecord;
 
-    delete PB.Data.userPromises[userRecord.username];
+    delete PB.Data.userPromises[versionedUsername];
     
-    PB.Persist.save('userRecords', PB.Data.userRecords); // OPT: this could get expensive
+    PB.Persist.save('userRecords', PB.Data.userRecords);
     
     return userRecord;
 }

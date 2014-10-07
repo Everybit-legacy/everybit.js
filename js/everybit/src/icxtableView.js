@@ -39,7 +39,7 @@ var TableView = React.createClass({
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
-						return <ViewItem key={index} puff={puff} />
+						return <ICXContentItem key={index} puff={puff} />
 					})
 				}
 			</div>
@@ -80,18 +80,71 @@ var ViewFilters = React.createClass({
 	}
 })
 
-var ViewItem = React.createClass({
+var ICXContentItem = React.createClass({
+
+    getInitialState: function() {
+        return { expanded: true }
+    },
+
+    handleToggleShowItem: function() {
+        if(this.state.expanded)
+            this.setState({expanded: false})
+        else
+            this.setState({expanded: true})
+
+        return false
+    },
+
+    handleViewUser: function(isSender, username) {
+        if(isSender) {
+            return Events.pub( 'filter/show/by-user',
+                {
+                    'view.filters': {},
+                    'view.filters.routes': [username],
+                    'view.mode': 'tableView'
+                }
+            )
+        } else {
+            return Events.pub( 'filter/show/by-user',
+                {
+                    'view.filters': {},
+                    'view.filters.users': [username],
+                    'view.mode': 'tableView'
+                }
+            )
+        }
+    },
+
 	render: function() {
-		var puff = this.props.puff
+        var puff = this.props.puff
+        var username = puff.username
+        var routes = puff.routes
+
 		if (!puff.sig) {return <span></span>}
 
+        // If current user is the sender, we will render the recipient
+        if(ICX.username == username) {
+            username = routes[0]
+            var isSender = true
+        } else {
+            var isSender = false
+        }
+
 		var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
-		var foldingClass = (ICX.username == puff.username) ? "accordion viewItem sent" : "accordion viewItem received"
         var itemPadding = Math.floor(ICX.calculated.baseFontH/4)+'px'
+
         var overalBoxStyle = {
             background: 'rgba(255,255,255,.7)',
             padding: itemPadding,
-            marginBottom: itemPadding
+            marginBottom: itemPadding,
+            width: '90%'
+        }
+
+        // Put it left or right depending on from or to
+        if(ICX.username == puff.username) {
+            overalBoxStyle.marginLeft = '10%'
+        } else {
+            overalBoxStyle.marginRight = '10%'
         }
 
         var itemContentStyle = {
@@ -102,75 +155,10 @@ var ViewItem = React.createClass({
             fontSize: '70%'
         }
 
-		return (
-			<div className={foldingClass} style={overalBoxStyle}>
-                <ICXTableItemHeader puff={puff} />
-                <div className="viewContent accordion-content" style={itemContentStyle}>
-                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                </div>
-                <ICXTableItemFooter puff={puff} />
-			</div>
-		)
-	}
-})
-
-var ICXTableItemHeader = React.createClass({
-	handleToggleAccordion: function() {
-		var self = this.refs.acrd.getDOMNode()
-		var classes = self.classList
-		var toToggle = self.parentNode.parentNode.getElementsByClassName("accordion-content")[0].classList
-		//console.log(toToggle)
-		toToggle.toggle("collapsed")
-
-		if( classes.contains("expanded") ) {
-			self.innerHTML = '<i class="fa fa-expand small gray" />'
-			classes.remove("expanded")
-			classes.add("collapsed")
-		} else {
-			self.innerHTML = '<i class="fa fa-compress small gray" />'
-			classes.remove("collapsed")
-			classes.add("expanded")
-		}
-		self.classList = classes
-	},
-
-	handleViewUser: function(isSender, username) {
-		if(isSender) {
-			return Events.pub( 'filter/show/by-user',
-	            {
-	                'view.filters': {},
-	                'view.filters.routes': [username],
-	                'view.mode': 'tableView'
-	            }
-	        )
-		} else {
-        	return Events.pub( 'filter/show/by-user',
-	            {
-	              'view.filters': {},
-	              'view.filters.users': [username],
-	              'view.mode': 'tableView'
-	            }
-	        )
-	    }
-    },
-
-	render: function() {
-		var puff = this.props.puff
-		var username = puff.username
-		var routes = puff.routes
-
-        // If current user is the sender, we will render the recipient
-		if(ICX.username == username) {
-			username = routes[0]
-            var isSender = true
-		} else {
-            var isSender = false
-        }
-
-		var prof = getProfilePuff(username)
+        var prof = getProfilePuff(username)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
-        	avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
+            avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
         }
 
         if(isSender) {
@@ -179,15 +167,44 @@ var ICXTableItemHeader = React.createClass({
             var fromToText = 'from '
         }
 
-		return (
-			<div className="userInfo" style={{fontSize: '60%'}} >
-                {fromToText} <a className="inline" onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
-				<ICXTableItemDate date={puff.payload.time}/> <ICXRelationshipInfo puff={this.props.puff} />
-				<div className="infoItem accordion-control expanded" ref="acrd" onClick={this.handleToggleAccordion} >
-					<i className="fa fa-compress" />
-				</div>
-                <ICXReplyDownloadLink puff={this.props.puff} />
-			</div>
+        var cb = React.addons.classSet
+        var cbClass = cb({
+            'fa': true,
+            'fa-fw': true,
+            'gray': true,
+            'fa-expand': !this.state.expanded,
+            'fa-compress': this.state.expanded,
+            'display': 'inline',
+            'float': 'right'
+        })
+
+        var isFoldedClass = cb({
+            'display': this.state.expanded ? 'block' : 'none'
+        })
+
+        return (
+            <span style={overalBoxStyle}>
+                <div className="userInfo" style={{fontSize: '65%'}} >
+                    {fromToText} <a className="inline" onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
+                    {avatar}
+                    <ICXTableItemDate date={puff.payload.time}/> <ICXRelationshipInfo puff={this.props.puff} />
+                    <span style={{float: 'right'}}>
+                        <a href="#" onClick={this.handleToggleShowItem}>
+                            <i className={cbClass}></i>
+                        </a>
+                    </span>
+                    <ICXDownloadLink puff={this.props.puff} />
+                    <ICXReplyPuff ref="reply" user={puff.username}/>
+                </div>
+                <div className={'accordion viewItem ' + isFoldedClass}>
+                    <div className="viewContent accordion-content" style={itemContentStyle}>
+                        <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                    </div>
+
+                </div>
+                <br />
+                <ICXReplyIcon puff={puff} />
+            </span>
 		)
 	}
 })
@@ -197,23 +214,13 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span> {timeSince(date)} ago</span>
+                <span> sent {timeSince(date)} ago</span>
             )
     }
 
 })
 
-var ICXTableItemFooter = React.createClass({
-    render: function() {
-        return (
-        	<div style={{fontSize: '60%'}}>
 
-            	<ViewReplyBox puff={this.props.puff}/>
-            </div>
-        )
-    }
-
-})
 
 var ICXRelationshipInfo = React.createClass({
     getReferenceIcon: function(sig, type) {
@@ -234,7 +241,8 @@ var ICXRelationshipInfo = React.createClass({
             </span>
             )
     },
-    renderRefs: function() {
+
+    render: function() {
         var sig = this.props.puff.sig
         var self = this
 
@@ -247,7 +255,7 @@ var ICXRelationshipInfo = React.createClass({
         {return self.getReferenceIcon(sig, 'parent')})
         if (parents.length) {
             parentsEle = (
-                <span className="small">In reply to: {parentIcons}</span>
+                <span className="refs">In reply to: {parentIcons}</span>
                 )
         }
 
@@ -270,43 +278,15 @@ var ICXRelationshipInfo = React.createClass({
         }
 
         return (
-            <div className="refs">
+            <span className="refs">
 			    {parentsEle} {childrenEle}
-            </div>
-            )
-    },
-
-    render: function() {
-        var puff = this.props.puff
-
-        var filelink = ""
-        var download = ""
-        var style = {display: 'none'}
-
-        if(puff.payload.type == 'file') {
-            filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
-            download = puff.payload.filename
-            style = {display: 'inline'}
-        }
-
-        var refs = this.renderRefs()
-
-        return (
-            <div className="metaInfo">
-                <div className="info">
-					{refs}
-                </div>
-                <div className="options">
-                    <a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
-                    <ICXReplyPuff ref="reply" user={puff.username}/>
-                </div>
-            </div>
+            </span>
             )
     }
 })
 
 
-var ICXReplyDownloadLink = React.createClass({
+var ICXDownloadLink = React.createClass({
 
 	render: function() {
 		var puff = this.props.puff
@@ -332,7 +312,7 @@ var ICXReplyDownloadLink = React.createClass({
 })
 
 
-var ViewReplyBox = React.createClass({
+var ICXReplyIcon = React.createClass({
 	handleReply: function() {
 		var puff=this.props.puff
 		var type = 'text'

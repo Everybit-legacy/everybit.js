@@ -174,18 +174,20 @@ var ICXContentItem = React.createClass({
 
         return (
             <div style={overalBoxStyle}>
-                <div className="tableHeader" style={{fontSize: '65%'}} >
-                    <ICXTableUserInfo puff={puff} />
-                    <ICXTableItemDate date={puff.payload.time} />
-                    <ICXRelationshipInfo puff={puff} />
-                    <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
-                    <span className="icon reply relative" style={replyStyle}>
-                    <a onClick={this.handleShowReply}>
-                        <i className="fa fa-mail-forward fa-fw fa-rotate-180" />
-                        <Tooltip position="under" content="Reply" />
-                    </a>
-                    </span>
-                    <ICXDownloadLink puff={puff} />
+                <div>
+                    <div className="tableHeader" style={{fontSize: '65%'}} >
+                        <ICXTableUserInfo puff={puff} />
+                        <ICXTableItemDate date={puff.payload.time} />
+                        <ICXRelationshipInfo puff={puff} />
+                        <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
+                        <span className="icon reply relative" style={replyStyle}>
+                        <a onClick={this.handleShowReply}>
+                            <i className="fa fa-mail-forward fa-fw fa-rotate-180" />
+                            <Tooltip position="under" content="Reply" />
+                        </a>
+                        </span>
+                        <ICXDownloadLink puff={puff} />
+                    </div>
                 </div>
                 <ICXItemMainContent show={this.state.expanded} puff={puff} />
 
@@ -268,10 +270,10 @@ var ICXTableUserInfo = React.createClass({
         }
 
         return (
-            <div className="userInfo">
+            <span className="userInfo">
                 {fromToText} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
                 {' '}
-            </div>
+            </span>
         )
     }
 })
@@ -311,7 +313,7 @@ var ICXRelationshipInfo = React.createClass({
         var sig = this.props.puff.sig
         var self = this
 
-        var parentsEle = <div></div>
+        var parentsEle = <span></span>
         var parents = PB.Data.graph.v(sig).out('parent').run()
         parents = parents.map(function(v){if (v.shell) return v.shell.sig})
             .filter(Boolean)
@@ -320,11 +322,11 @@ var ICXRelationshipInfo = React.createClass({
         {return self.getReferenceIcon(sig, 'parent')})
         if (parents.length) {
             parentsEle = (
-                <span className="refs">&nbsp;in reply to: {parentIcons}</span>
+                <span className="relative">&nbsp;in reply to: {parentIcons}</span>
                 )
         }
 
-        var childrenEle = <div></div>
+        var childrenEle = <span></span>
         var children = PB.Data.graph.v(sig).out('child').run()
         children = children.map(function(v){if (v.shell) return v.shell.sig})
             .filter(Boolean)
@@ -335,17 +337,17 @@ var ICXRelationshipInfo = React.createClass({
 
         if (children.length) {
             if(children.length > 1) {
-                childrenEle = <span>{children.length} replies: {childrenIcons}</span>
+                childrenEle = <span className="relative">{children.length} replies: {childrenIcons}</span>
             } else {
-                childrenEle = <span>{children.length} reply: {childrenIcons}</span>
+                childrenEle = <span className="relative">{children.length} reply: {childrenIcons}</span>
             }
 
         }
 
         return (
-            <div className="refs relative">
+            <span className="refs">
 			    {parentsEle} {childrenEle}
-            </div>
+            </span>
             )
     }
 })

@@ -1998,18 +1998,24 @@ var ICXLogin = React.createClass({
             // Try and parse, if can't return error
             // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
             var identityObj = PB.parseJSON(content)
+            var username = identityObj.username
+            var aliases = identityObj.aliases
+
+            if(!identityObj || !username || !aliases) {
+                ICX.errors = "ERROR: Corrupt identity file."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})                
+            }
+
             if(!identityObj) {
                 // TODO: END SPINNER
                 return PB.onError('Failed to parse identity file content')
             }
-
-            var username = identityObj.username
+          
             if(!username) {
                 // TODO: END SPINNER                
                 return PB.onError('No username in identity file')
             }
             
-            var aliases = identityObj.aliases
             if(!aliases) {
                 // TODO: END SPINNER                
                 return PB.onError('No aliases in identity file')
@@ -2044,6 +2050,8 @@ var ICXLogin = React.createClass({
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
                             // TODO: END SPINNER
                             PB.removeIdentity(username)
+                            ICX.errors = "ERROR: Corrupt identity file."
+                            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')
                         }
@@ -2060,6 +2068,9 @@ var ICXLogin = React.createClass({
                 Events.pub('ui/event', {
                     'ICX.defaultKey':'Not found'
                 })
+
+                ICX.errors = "NETWORK ERROR: login failed."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 // TODO: END SPINNER
                 PB.removeIdentity(username)

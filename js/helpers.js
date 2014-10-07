@@ -411,7 +411,7 @@ function looksLikeEmailAddress(str) {
 function getAvatar(color, name) {
     var canvas = document.getElementById("avatarCanvas");
     var ctx = canvas.getContext('2d');
-    ctx.clearRect ( 0 , 0 , 100 , 100 );
+    ctx.clearRect ( 0 , 0 , 105 , 105 );
     var unicode = getUnicodeFromName(name);
 
     /*

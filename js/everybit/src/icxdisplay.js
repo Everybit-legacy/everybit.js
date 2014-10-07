@@ -67,6 +67,7 @@ var ICXWorld = React.createClass({
             ICX.username = false
         }
 
+        //Routing checks, check if you have "permission" to go somewhere, if not send you somehwere safe
         if(ICX.username) {
             //prevent them from getting to newuser page if they are logged in
             if (currScreen == 'newuser' || currScreen == 'login') {
@@ -89,6 +90,12 @@ var ICXWorld = React.createClass({
             } else {
                 currScreen = 'home'
                 Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+            }
+        }
+
+        if (currScreen == 'send.message' || currScreen == 'send.file') {
+            if (!puffworldprops.ICX.toUser) {
+                Events.pub('ui/icx/screen', {"view.icx.screen": 'send'})
             }
         }
 
@@ -278,8 +285,8 @@ var ICXWorld = React.createClass({
                 <ICXLogo screenInfo={thisScreen} />
                 <ICXLinks screenInfo={thisScreen} />
                 <div style={contentDivStyles}>
-                    {pageComponent}
                     <ICXError />
+                    {pageComponent}
                 </div>
                 <ICXSpinner />
                 <ICXFooter />
@@ -538,15 +545,21 @@ var ICXStoreFinish = React.createClass({
                 post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
                 return post_prom
 
+            }).catch(function(err){
+                ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
+
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
             })
         }).catch(function (err) {
 
             // TODO: Show user the error
             // self.cleanUpSubmit()
-            Events.pub('ui/event/', {
+            return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
+
             /*Events.pub('ui/thinking', {
                 'ICX.thinking': false
             })*/
@@ -580,7 +593,7 @@ var ICXInvite = React.createClass({
 
                     <div style={headerStyle}>Option 1: Send them an invite link</div>
                     <div className="textBox">
-                        The link will direct them to create their own account. (You won't be able to send them files or messages securely until they create their account)
+                        The link will direct them to create their own account. (You won’t be able to send them files or messages securely until they create their account)
                     </div><br />
                     <textarea value={inviteText} style={{'width':'80%', 'height':'40%'}}></textarea>
                     <br />
@@ -603,7 +616,7 @@ var ICXInvite = React.createClass({
                         {' '}<ICXCheckmark show={puffworldprops.ICX.invite.answerStatus} />
                         {' '}<span className="message">{puffworldprops.ICX.invite.answerMessage}</span>
                     <br />
-                    <span className="shortcut georgia">Note:</span> <span className="georgia">The answer to the question will be your recipient's initial passphrase. They will be able to view your message or file after logging in and changing their passphrase.</span>
+                    <span className="shortcut georgia">Note:</span> <span className="georgia">The answer to the question will be your recipient’s initial passphrase. They will be able to view your message or file after logging in and changing their passphrase.</span>
                     <br />
                     <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleSendToEmail}> Continue <i className="fa fa-chevron-right small" /></a>
                 </div>
@@ -1309,7 +1322,6 @@ var ICXSendMessageFinish = React.createClass({
             'ICX.messageSent': true,
             'ICX.successMessage': 'Message sent!'
         })
-
     },
 
     cleanUpSubmit: function () {
@@ -1353,6 +1365,9 @@ var ICXSendMessageFinish = React.createClass({
                         return PB.getUserRecordNoCache(username).then(function (userRecord) {
                             userRecords.push(userRecord)
                         })
+                    }).catch(function (err){
+                        ICX.errors = err.message
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     })
                 }
             })
@@ -1367,6 +1382,15 @@ var ICXSendMessageFinish = React.createClass({
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                .catch(function (err){
+                    ICX.errors = err.message
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                    Events.pub('ui/event/', {
+                        'ICX.messageSent': true,
+                        'ICX.successMessage': "Save your message: "+ICX.messageText
+                    })
+                })
             return post_prom
         }).catch(function (err) {
             // self.cleanUpSubmit()
@@ -1465,7 +1489,7 @@ var ICXNewUser = React.createClass({
                     <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
                     <br /><br />
                     <b>Avatar:</b><br />
-                    <canvas id="avatarCanvas" width="100" height="100">
+                    <canvas id="avatarCanvas" width="105" height="105">
                     </canvas>
                     <br />
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
@@ -1789,16 +1813,15 @@ var ICXNewUser = React.createClass({
                 })
                 return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
-            },
-
-            function(err) {
-                // TODO: Deal with error, show it in box
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-
-                return Events.pub('ui/event', {})
+        }).catch(function(err) {
+            // TODO: Deal with error, show it in box
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
             })
+
+            ICX.errors = "ERROR: "+err.message
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        })
     }
 });
 
@@ -1974,18 +1997,24 @@ var ICXLogin = React.createClass({
             // Try and parse, if can't return error
             // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
             var identityObj = PB.parseJSON(content)
+            var username = identityObj.username
+            var aliases = identityObj.aliases
+
+            if(!identityObj || !username || !aliases) {
+                ICX.errors = "ERROR: Corrupt identity file."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})                
+            }
+
             if(!identityObj) {
                 // TODO: END SPINNER
                 return PB.onError('Failed to parse identity file content')
             }
-
-            var username = identityObj.username
+          
             if(!username) {
                 // TODO: END SPINNER                
                 return PB.onError('No username in identity file')
             }
             
-            var aliases = identityObj.aliases
             if(!aliases) {
                 // TODO: END SPINNER                
                 return PB.onError('No aliases in identity file')
@@ -2003,6 +2032,8 @@ var ICXLogin = React.createClass({
                 if(!userInfo || userInfo.username != username) {
                     // TODO: END SPINNER
                     PB.removeIdentity(username)
+                    ICX.errors = "ERROR: Username not found in public record."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     return PB.onError('Username not found in public record')
                 }
                     
@@ -2011,6 +2042,8 @@ var ICXLogin = React.createClass({
                     if(!identity || !identity.primary) {
                         // TODO: END SPINNER
                         PB.removeIdentity(username)
+                        ICX.errors = "ERROR: Identity not properly loaded."
+                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                         return PB.onError('Identity not properly loaded')
                     }
                     
@@ -2020,6 +2053,8 @@ var ICXLogin = React.createClass({
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
                             // TODO: END SPINNER
                             PB.removeIdentity(username)
+                            ICX.errors = "ERROR: The identity file does not contain a valid public user record."
+                            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')
                         }
@@ -2036,6 +2071,9 @@ var ICXLogin = React.createClass({
                 Events.pub('ui/event', {
                     'ICX.defaultKey':'Not found'
                 })
+
+                ICX.errors = "NETWORK ERROR: login failed."
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
                 // TODO: END SPINNER
                 PB.removeIdentity(username)
@@ -2323,7 +2361,7 @@ var ICXChangePassphrase = React.createClass({
                     <a style={ICX.buttonStyle} onClick={this.handleChangePassphrase} className="icxNextButton icx-fade"> {polyglot.t("button.change")} <i className="fa fa-chevron-right small" /></a>
                     <br />
                     NOTE: If you downloaded an identity file, it will no longer work after updating your passphrase.
-                    You'll need to download a new identity file after chaniging your passphrase.
+                    You’ll need to download a new identity file after chaniging your passphrase.
 
                     {polyglot.t("pass.new")}
                     <br />
@@ -2819,7 +2857,7 @@ var ICXError = React.createClass({
         // Close button needed
 
         var errorStyle = {
-            position: 'absolute',
+            //position: 'absolute',
             border: '3px solid #880000',
             bottom: '0',
             padding: Math.floor(0.4*ICX.calculated.baseFontH)+'px',

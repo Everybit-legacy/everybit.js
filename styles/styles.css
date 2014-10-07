@@ -980,49 +980,24 @@ fieldset[disabled] .btn-primary.active {
     font-size: 100%;
 }
 
-.icx-tableview .viewContainer .metaInfo {
-    width: 100%;
-    overflow: hidden;
-}
-
-.icx-tableview .viewContainer .metaInfo .info {
-    float: left;
-    width: 70%;
-}
-
-.icx-tableview .viewContainer .metaInfo .info .date-since {
-    float: left;
-    margin-right: 2%;
-}
-.icx-tableview .viewContainer .metaInfo .info .refs {
-    float: left;
-}
-.icx-tableview .viewContainer .metaInfo .info .refs:after {
-    clear: both;
-}
-
-.icx-tableview .viewContainer .metaInfo .options {
-    float: right;
-}
-
 .icx-tableview .viewContainer .metaInfo:after {
     clear: both;
 }
 
-.icx-tableview .viewContainer .userInfo {
+.icx-tableview .viewContainer .tableHeader {
     width: 100%;
-    /* overflow: scroll; */
+    overflow: hidden;
 }
 
-.icx-tableview .viewContainer .userInfo:after {
+.icx-tableview .viewContainer .tableHeader:after {
     clear: both;
 }
 
-.icx-tableview .viewContainer .userInfo .userRecord {
+.icx-tableview .viewContainer .tableHeader .userInfo,.date,.refs {
     float: left;
 }
 
-.icx-tableview .viewContainer .userInfo .accordion-control {
+.icx-tableview .viewContainer .tableHeader .download,.toggler,.reply {
     float: right;
 }
 

@@ -1283,7 +1283,7 @@ var ICXSendMessageFinish = React.createClass({
     render: function () {
 
         var successMessage = '';
-        if(puffworldprops.ICX.wizard.invitedEmail) {
+        if(puffworldprops.ICX.wizard && puffworldprops.ICX.wizard.invitedEmail) {
             successMessage = <ICXNotifyEmail />
         } else {
             successMessage = puffworldprops.ICX.successMessage

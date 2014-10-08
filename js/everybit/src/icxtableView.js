@@ -376,8 +376,8 @@ var ICXDownloadLink = React.createClass({
 
 var ICXInlineReply = React.createClass({
 	handleReply: function() {
-		var puff=this.props.puff
-		var type = 'text'
+        var puff = this.props.puff
+        var type = 'text'
         var content = this.refs.messageText.getDOMNode().value
         var parents = [puff.sig]
         var metadata = {}
@@ -386,49 +386,51 @@ var ICXInlineReply = React.createClass({
         var self = this
 
         /*
-        Events.pub('ui/reply/add-parent', {
-               'reply.parents': parents
-            }
-        )
-        */
+         Events.pub('ui/reply/add-parent', {
+         'reply.parents': parents
+         }
+         )
+         */
+        if (content.length > 1) {
 
-        var prom = Promise.resolve() // a promise we use to string everything along
+            var prom = Promise.resolve() // a promise we use to string everything along
 
-        var usernames = [puff.username]
+            var usernames = [puff.username]
 
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
+            var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+            var userRecordUsernames = userRecords.map(function (userRecord) {
+                return userRecord.username
+            })
 
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
+            if (userRecords.length < usernames.length) {
+                usernames.forEach(function (username) {
+                    if (!~userRecordUsernames.indexOf(username)) {
+                        prom = prom.then(function () {
+                            return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                                userRecords.push(userRecord)
+                            })
                         })
-                    })
+                    }
+                })
+            }
+
+            prom = prom.then(function () {
+                if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+                    userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+                } else {                     // add our regular old boring identity to the list of available keys
+                    userRecords.push(PB.getCurrentUserRecord())
                 }
+
+                var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                self.handleCleanup()
+
+                return post_prom
+            }).catch(function (err) {
+                // self.cleanUpSubmit()
+                //console.log("ERROR")
             })
         }
-
-        prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-            } else {                     // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
-            }
-
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-            self.handleCleanup()
-
-            return post_prom
-        }).catch(function (err) {
-            // self.cleanUpSubmit()
-            //console.log("ERROR")
-        })
 	},
 
 	handleSubmitSuccess: function () {
@@ -498,6 +500,7 @@ var ICXInlineReply = React.createClass({
 
             <b>Message:</b><br />
                 <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
+            {' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

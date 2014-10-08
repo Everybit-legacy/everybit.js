@@ -1939,6 +1939,7 @@ var ICXLogin = React.createClass({
             })
             return false
         }
+        var startsWithICX = (username.substring(0,4) == "icx.")
 
         var prom = PB.getUserRecord(username)
 
@@ -1948,9 +1949,15 @@ var ICXLogin = React.createClass({
             })
         })
             .catch(function (err) {
-                Events.pub('ui/puff-packer/userlookup/failed',{
-                    'ICX.usernameStatus': 'Not found'
-                })
+                if(!startsWithICX) {
+                    Events.pub('ui/puff-packer/userlookup/failed', {
+                        'ICX.usernameStatus': 'Missing \'icx.\' prefix'
+                    })
+                } else {
+                    Events.pub('ui/puff-packer/userlookup/failed',{
+                        'ICX.usernameStatus': 'Invalid Username'
+                    })
+                }
             })
         return false
     },
@@ -1966,9 +1973,12 @@ var ICXLogin = React.createClass({
     verifyUsername: function () {
         var username = this.refs.username.getDOMNode().value
         var finalChar = username.charAt(username.length-1)
+
+        //THINK: IS this really necessary??
         username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
             .toLowerCase()
         this.refs.username.getDOMNode().value = username
+
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
             this.handleUsernameLookup()
@@ -2099,7 +2109,7 @@ var ICXLogin = React.createClass({
         // First convert to private key, then to public, then verify against DHT
         var self = this
 
-        // Check for zero length
+        // Check for zero length of username
         var username = this.refs.username.getDOMNode().value
         if (!username.length) {
 
@@ -2109,7 +2119,7 @@ var ICXLogin = React.createClass({
             return false
         }
 
-        // Check for zero length
+        // Check for zero length of passphrase
         var passphrase = this.refs['defaultKey'].getDOMNode().value
         if (!passphrase.length) {
 

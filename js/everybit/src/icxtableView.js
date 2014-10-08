@@ -27,7 +27,7 @@ var TableView = React.createClass({
 		puffs = puffs || []
 		var fn = this.sort_column(col)
 		if (fn === false) {
-			console.log('Missing sort function', col)
+			//console.log('Missing sort function', col)
 			return puffs
 		}
 		puffs = puffs.sort(function(p1, p2){
@@ -427,12 +427,12 @@ var ICXInlineReply = React.createClass({
             return post_prom
         }).catch(function (err) {
             // self.cleanUpSubmit()
-            console.log("ERROR")
+            //console.log("ERROR")
         })
 	},
 
 	handleSubmitSuccess: function () {
-        console.log("SUCCESS")
+        //console.log("SUCCESS")
 
     },
 

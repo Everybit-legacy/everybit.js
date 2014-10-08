@@ -725,15 +725,15 @@ function handleUpdateProfile(puff) {
 
         var update_prom = PB.Net.updateUserRecord(update_puff)
         update_prom.then(function(userRecord){
-            console.log('Profile updated!')
+            //console.log('Profile updated!')
         }).catch(function(err){
-            console.log('error', err)
+            //console.log('error', err)
         })
     })
 }
 
 function publishProfilePuff() {
-    console.log(puffworldprops.ICX.newUser)
+   // console.log(puffworldprops.ICX.newUser)
 
     // build puff
     var content = puffworldprops.profile.avatarUrl

@@ -2821,7 +2821,8 @@ var ICXError = React.createClass({
             borderRadius: Math.floor(0.3*ICX.calculated.baseFontH)+'px',
             width: '95%',
             marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px',
-            fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px'
+            fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px',
+            position:'relative'
         }
 
         var showThis = false

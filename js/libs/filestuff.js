@@ -35,8 +35,8 @@ PBFiles.prepBlob = function(str, type) {
     else
         blob = new Blob([str], {type: 'text/plain'})
     
-    if(PBFiles.oldFile)
-      window.URL.revokeObjectURL(PBFiles.oldFile)
+    // if(PBFiles.oldFile)
+    //   window.URL.revokeObjectURL(PBFiles.oldFile)
 
     PBFiles.oldFile = window.URL.createObjectURL(blob)
 
@@ -46,7 +46,7 @@ PBFiles.prepBlob = function(str, type) {
 PBFiles.extractLetterPuff = function(content) {
     var puff = PB.parseJSON(content)
     if(!puff) 
-        return PB.onError('Envelope was not JSON encoded')
+        return PB.emptyPromise('Envelope was not JSON encoded')
     
     // var userRecord = PB.getCurrentUserRecord()
     // var pubkey = userRecord.defaultKey
@@ -73,14 +73,14 @@ PBFiles.handleFileOpen = function(element, asDataURI) {
         var reader = new FileReader()
 
         reader.onload = function(event) {
-            console.log(reader)
+            // console.log(reader)
             var dataURIContent = event.target.result
             // var blob = PBFiles.dataURItoBlob(dataURIContent)
             resolve(dataURIContent)
         }
         
         if(!element.files[0]) // THINK: is false the right response?
-            return false
+            return reject('No file selected')
             
         if(asDataURI)
             reader.readAsDataURL(element.files[0])

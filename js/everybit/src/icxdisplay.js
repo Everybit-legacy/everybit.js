@@ -2666,9 +2666,7 @@ var ICXFileConverter = React.createClass({
 
     handleDecryptFile: function(event) {
         //start thinking
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
 
         var decryptFile = this.refs.decryptbutton.getDOMNode()
         var resultLink = this.refs.decryptedDownload.getDOMNode()
@@ -2676,39 +2674,41 @@ var ICXFileConverter = React.createClass({
         var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
             // FIXME: does this work??? letterPuff is a promise...
-            var letterPuff = PBFiles.extractLetterPuff(fileguts)
-
-            if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-                ICX.errors = "ERROR: File decryption failed. This file may already be unencrypted or you may not have permission to decrypt this file."
-                return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-            }
-            else {
-                var content = (letterPuff.payload || {}).content
-                var type = (letterPuff.payload || {}).type
-                var filelist = decryptFile.files
-                var file = filelist[0]
-                var filename = file.name
-
-                if (/\.puff/.test(filename)) {
-                    filename = filename.slice(0, -5)
+            var letterPromise = PBFiles.extractLetterPuff(fileguts)
+            
+            letterPromise.then(function(letterPuff) {
+                if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    ICX.errors = "ERROR: File decryption failed. This file may already be unencrypted or you may not have permission to decrypt this file."
+                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 }
-                resultLink.style.display = ""
-                resultLink.href = PBFiles.prepBlob(content, type)
-                resultLink.download = filename
+                else {
+                    var content = (letterPuff.payload || {}).content
+                    var type = (letterPuff.payload || {}).type
+                    var filelist = decryptFile.files
+                    var file = filelist[0]
+                    var filename = file.name
 
-                //stop thinking
-                Events.pub('ui/thinking', {
-                    'ICX.thinking': false
-                })
-                //remind them to download
-                ICX.errors = "Remember to save your decrypted file before leaving this page!"
-                Events.pub('/ui/icx/error', {
-                    "icx.errorMessage": true
-                })
-            }
+                    if (/\.puff/.test(filename)) {
+                        filename = filename.slice(0, -5)
+                    }
+                    resultLink.style.display = ""
+                    resultLink.href = PBFiles.prepBlob(content, type)
+                    resultLink.download = filename
+
+                    //stop thinking
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    
+                    //remind them to download
+                    ICX.errors = "Remember to save your decrypted file before leaving this page!"
+                    Events.pub('/ui/icx/error', {
+                        "icx.errorMessage": true
+                    })
+                }                
+            })
+        }).catch(function(err) {
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            PB.onError('File could not be accessed', err)
         })
 
     },

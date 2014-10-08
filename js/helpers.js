@@ -760,7 +760,7 @@ function getProfilePuff(username) {
     prom.then(function(puffs) {
         var puff = puffs[0]
         if(!puff) return false
-        PB.Data.profiles[puff.username] = puff
+        PB.Data.profiles[puff.username.stripCapa()] = puff
     })
     
     return false

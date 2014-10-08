@@ -27,7 +27,7 @@ var TableView = React.createClass({
 		puffs = puffs || []
 		var fn = this.sort_column(col)
 		if (fn === false) {
-			//console.log('Missing sort function', col)
+			console.log('Missing sort function', col)
 			return puffs
 		}
 		puffs = puffs.sort(function(p1, p2){
@@ -53,10 +53,20 @@ var TableView = React.createClass({
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 
 		puffs = this.sortPuffs(puffs)
+
+        var refreshStyle = {
+            right: Math.floor(ICX.calculated.baseFontH/2)+'px',
+            top: Math.floor(ICX.calculated.baseFontH/2)+'px',
+            padding: Math.floor(ICX.calculated.baseFontH/4)+'px',
+            backgroundColor: 'rgba(255,255,255,.6)',
+            borderRadius: Math.floor(ICX.calculated.baseFontH)+'px',
+            border: '1px dashed #000',
+            position: 'absolute'
+        }
 		
 		return (
 			<div className="viewContainer">
-                <span style={{position: 'absolute', right: 0, top: 0}}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh" /></a></span>
+                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh" /></a></span>
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
@@ -91,12 +101,15 @@ var ViewFilters = React.createClass({
 
 	render: function() {
 		var filter = this.handleGetCurrentFilter()
-		var style = {display: (!filter) ? 'none' : 'inline'}
+		var style = {
+            display: (!filter) ? 'none' : 'inline',
+            fontSize: '80%'
+        }
 
 		return (
 			<div style={style} className="filters">
-				<b>Filters: {filter}</b>
-				<span onClick={this.handleRemoveCurrentFilter}><i className="fa fa-times"></i></span>
+				<b>Filters: {filter}</b> <a onClick={this.handleRemoveCurrentFilter}><i className="fa fa-times-circle"></i></a>
+                <hr />
 			</div>
 		)
 	}
@@ -352,26 +365,22 @@ var ICXRelationshipInfo = React.createClass({
 
 var ICXDownloadLink = React.createClass({
 
-    handlePrepBlob: function() {
-        // only prepares the file for download after user clicks on the button
-        // this way we avoid preparing for all the files in view
-        var puff = this.props.puff
-        var link = document.createElement('a')
-        link.href = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
-        link.download = puff.payload.filename
-        document.body.appendChild(link)
-
-        link.click()
-        link.remove()
-    },
-
 	render: function() {
 		var puff = this.props.puff
-		var style = {display: (puff.payload.type == 'file') ? 'inline' : 'none'}
+
+		var filelink = ""
+		var download = ""
+		var style = {display: 'none'}
+
+    	if(puff.payload.type == 'file') {
+    		filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+			download = puff.payload.filename
+			style = {display: 'inline'}
+        }
 
 		return (
 			<div className="download">
-				<a onClick={this.handlePrepBlob} style={style}><i className="fa fa-fw fa-download" /></a>
+				<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
 			</div>
 		)
 	}
@@ -380,8 +389,8 @@ var ICXDownloadLink = React.createClass({
 
 var ICXInlineReply = React.createClass({
 	handleReply: function() {
-        var puff = this.props.puff
-        var type = 'text'
+		var puff=this.props.puff
+		var type = 'text'
         var content = this.refs.messageText.getDOMNode().value
         var parents = [puff.sig]
         var metadata = {}
@@ -390,55 +399,53 @@ var ICXInlineReply = React.createClass({
         var self = this
 
         /*
-         Events.pub('ui/reply/add-parent', {
-         'reply.parents': parents
-         }
-         )
-         */
-        if (content.length > 1) {
-
-            var prom = Promise.resolve() // a promise we use to string everything along
-
-            var usernames = [puff.username]
-
-            var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-            var userRecordUsernames = userRecords.map(function (userRecord) {
-                return userRecord.username
-            })
-
-            if (userRecords.length < usernames.length) {
-                usernames.forEach(function (username) {
-                    if (!~userRecordUsernames.indexOf(username)) {
-                        prom = prom.then(function () {
-                            return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                                userRecords.push(userRecord)
-                            })
-                        })
-                    }
-                })
+        Events.pub('ui/reply/add-parent', {
+               'reply.parents': parents
             }
+        )
+        */
 
-            prom = prom.then(function () {
-                if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                    userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-                } else {                     // add our regular old boring identity to the list of available keys
-                    userRecords.push(PB.getCurrentUserRecord())
+        var prom = Promise.resolve() // a promise we use to string everything along
+
+        var usernames = [puff.username]
+
+        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecordUsernames = userRecords.map(function (userRecord) {
+            return userRecord.username
+        })
+
+        if (userRecords.length < usernames.length) {
+            usernames.forEach(function (username) {
+                if (!~userRecordUsernames.indexOf(username)) {
+                    prom = prom.then(function () {
+                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                            userRecords.push(userRecord)
+                        })
+                    })
                 }
-
-                var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-                self.handleCleanup()
-
-                return post_prom
-            }).catch(function (err) {
-                // self.cleanUpSubmit()
-                //console.log("ERROR")
             })
         }
+
+        prom = prom.then(function () {
+            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            } else {                     // add our regular old boring identity to the list of available keys
+                userRecords.push(PB.getCurrentUserRecord())
+            }
+
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            self.handleCleanup()
+
+            return post_prom
+        }).catch(function (err) {
+            // self.cleanUpSubmit()
+            console.log("ERROR")
+        })
 	},
 
 	handleSubmitSuccess: function () {
-        //console.log("SUCCESS")
+        console.log("SUCCESS")
 
     },
 
@@ -504,7 +511,6 @@ var ICXInlineReply = React.createClass({
 
             <b>Message:</b><br />
                 <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
-            {' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

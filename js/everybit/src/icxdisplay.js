@@ -2701,13 +2701,17 @@ var ICXFileConverter = React.createClass({
                     
                     //remind them to download
                     ICX.errors = "Remember to save your decrypted file before leaving this page!"
-                    Events.pub('/ui/icx/error', {
-                        "icx.errorMessage": true
-                    })
+                    Events.pub('/ui/icx/error', { "icx.errorMessage": true })
                 }                
+            }).catch(function(err) {
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', { "icx.errorMessage": true })
+                ICX.errors = "That file was not able to be decrypted"
+                PB.onError('Improperly formatted content', err)
             })
         }).catch(function(err) {
             Events.pub('ui/thinking', { 'ICX.thinking': false })
+            Events.pub('/ui/icx/error', { "icx.errorMessage": false })
             PB.onError('File could not be accessed', err)
         })
 

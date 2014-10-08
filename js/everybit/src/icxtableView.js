@@ -356,16 +356,13 @@ var ICXDownloadLink = React.createClass({
         // only prepares the file for download after user clicks on the button
         // this way we avoid preparing for all the files in view
         var puff = this.props.puff
-        var filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
-        var download = puff.payload.filename
-        download = download.trim().replace(/\s/g, "")
+        var link = document.createElement('a')
+        link.href = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+        link.download = puff.payload.filename
+        document.body.appendChild(link)
 
-        // Inject an element outside of REACT's jurisdiction and simulate a click event
-        document.getElementById("filedownload").innerHTML = "<a id='downloadfile' href=" + filelink + " download= " + download + "></a>"
-        var surrogate = document.getElementById('downloadfile')
-        surrogate.click()
-        surrogate.remove()
-
+        link.click()
+        link.remove()
     },
 
 	render: function() {

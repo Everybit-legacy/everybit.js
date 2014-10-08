@@ -352,22 +352,26 @@ var ICXRelationshipInfo = React.createClass({
 
 var ICXDownloadLink = React.createClass({
 
+    handlePrepBlob: function() {
+        // only prepares the file for download after an onClick event
+        var puff = this.props.puff
+        var filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+        var download = puff.payload.filename
+
+        // inject link and simulate an onclick <a href={filelink} download={download}>
+    },
+
 	render: function() {
 		var puff = this.props.puff
-
-		var filelink = ""
-		var download = ""
 		var style = {display: 'none'}
 
     	if(puff.payload.type == 'file') {
-    		filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
-			download = puff.payload.filename
 			style = {display: 'inline'}
         }
 
 		return (
 			<div className="download">
-				<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
+				<a onClick={this.handlePrepBlob} style={style}><i className="fa fa-fw fa-download" /></a>
 			</div>
 		)
 	}

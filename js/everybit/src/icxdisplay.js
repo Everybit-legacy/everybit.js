@@ -1971,9 +1971,10 @@ var ICXLogin = React.createClass({
         var finalChar = username.charAt(username.length-1)
 
         //THINK: IS this really necessary??
-        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
-            .toLowerCase()
-        this.refs.username.getDOMNode().value = username
+        //THINK: Not really, since there is 1 dot at max in usernames anyway
+        // username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+        //     .toLowerCase()
+        // this.refs.username.getDOMNode().value = username
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {

@@ -187,7 +187,7 @@ var ICXContentItem = React.createClass({
                 <div>
                     <div className="tableHeader" style={{fontSize: '65%'}} >
                         <ICXTableUserInfo puff={puff} />
-                        <ICXTableItemDate date={puff.payload.time} />
+
                         <ICXRelationshipInfo puff={puff} />
                         <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
                         <span className="icon reply relative" style={replyStyle}>
@@ -274,15 +274,16 @@ var ICXTableUserInfo = React.createClass({
         }
 
         if(isSender) {
-            var fromToText = 'To '
+            var sentOrReceived = 'Sent'
         } else {
-            var fromToText = 'From '
+            var sentOrReceived = 'Received'
         }
 
         return (
             <span className="userInfo">
-                {fromToText} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
+                {avatar} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
                 {' '}
+                {sentOrReceived}<ICXTableItemDate date={this.props.puff.payload.time} />
             </span>
         )
     }
@@ -294,7 +295,7 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="date">&nbsp;sent {timeSince(date)} ago</span>
+                <span className="date">&nbsp;{timeSince(date)} ago</span>
             )
     }
 

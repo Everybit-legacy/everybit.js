@@ -1062,10 +1062,6 @@ fieldset[disabled] .btn-primary.active {
 
 }
 
-.icx-screen .rowReferencePreview {
-    max-width: none;
-}
-
 .icx-screen .menuTooltip.above {
     bottom: initial;
 }
@@ -1546,8 +1542,14 @@ fieldset[disabled] .btn-primary.active {
     text-align: left;
     border: 1px #222222 dotted;
     display: none;
-    max-width: 300px;
+    max-width: 100%;
 }
+
+.refs .rowReferencePreview {
+    width: 200%;
+}
+
+
 .rowReference:hover > .rowReferencePreview{
     display: block;
 }

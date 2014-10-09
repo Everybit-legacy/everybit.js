@@ -461,6 +461,8 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
+        var self = this
+        var foo = false
         Events.pub('ui/thinking', { 'ICX.thinking': true })
         if(PB.getCurrentUsername()) {
             //backup their file
@@ -484,12 +486,15 @@ var ICXStoreFinish = React.createClass({
                 // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
-                this.cleanUpSubmit()
+                if(!puffworldprops.ICX.backupToCloud){
+                    self.cleanUpSubmit()
+                }
+
             })
 
         } else {
 
-            this.cleanUpSubmit()
+            self.cleanUpSubmit()
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }

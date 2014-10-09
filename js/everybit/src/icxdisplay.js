@@ -812,7 +812,8 @@ var ICXSend = React.createClass({
 
     componentDidMount: function() {
         // Were we sent to user by props?
-        if(puffworldprops.view.icx.toUser) {
+        //TODO: chose one variable to keep toUser in and apply it everywhere
+        if(puffworldprops.view.icx.toUser || puffworldprops.ICX.toUser) {
             this.refs.toUser.getDOMNode().value = puffworldprops.ICX.toUser
             this.handleUsernameLookup()
         }
@@ -2600,7 +2601,7 @@ var ICXAbout = React.createClass({
                     <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a> <br />
                     <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a> <br />
                     <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')}>Adam Rafeek</a> <br />
+                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adamrafeek')}>Adam Rafeek</a> <br />
                     <br />
                     <span className="textBox">Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
                 </div>
@@ -2615,7 +2616,8 @@ var ICXAbout = React.createClass({
     messageUser: function(username) {
         return Events.pub('/ui/icx/screen', {
             "view.icx.screen": 'send',
-            "view.icx.toUser": username
+            "ICX.toUser": username,
+            "view.icx.toUser":username
         });
     }
 

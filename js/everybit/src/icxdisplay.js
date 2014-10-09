@@ -1976,9 +1976,10 @@ var ICXLogin = React.createClass({
         var finalChar = username.charAt(username.length-1)
 
         //THINK: IS this really necessary??
-        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
-            .toLowerCase()
-        this.refs.username.getDOMNode().value = username
+        //THINK: Not really, since there is 1 dot at max in usernames anyway
+        // username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+        //     .toLowerCase()
+        // this.refs.username.getDOMNode().value = username
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
@@ -2588,22 +2589,34 @@ var ICXAbout = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        //    <img src={getProfilePuff('mattasher').payload.content} className="iconSized" />{' '}
+
+        // <img src={getProfilePuff('icx.adamrafeek').payload.content} className="iconSized" />{' '}
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.about")}</div>
                 <div className="contentWindow">
-                <span className="textBox"><span className="shortcut"><b>I.CX</b></span>, or “I see X”, is a private messaging and file sending system built on the open source <a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>.</span>
+                <span className="textBox"><span className="shortcut"><b>I.CX</b></span>, or “I see X”, is a private messaging and file sending system built on the open source <a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>. Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
                     <br /><br />
                     <img src="img/icx/theCrew.jpg" style={{width: '90%'}}/><br />
                     <br />
                     <b>From left to right:</b><br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adamrafeek')}>Adam Rafeek</a> <br />
-                    <br />
-                    <span className="textBox">Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a> <span className="textBox small">is a third year student at the University of Waterloo with a major in Computer Engineering. He has several years of experience developing websites and software applications, and helped Rogers redesign their SportsNet.ca news portal. In his spare time he works on an online mafia game engine.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a>
+                    <span className="textBox small"> is an experienced start-up executive who scaled 3 ventures up from early days to well established businesses. He was COO of HomeStars where he helped shape the company strategy and refocus to achieve growth, while raising three rounds of funding and building the team from 3 to 45 employees. He has consulted for many Canadian technology and telecom companies. Early in his career Brian started and operated a small bistro in Toronto. An outlet for his passion in wines, it was his first successful entrepreneurial exit. Brian holds an MBA in entrepreneurship from Babson college and a BA from UBC.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a> <span className="textBox small">has a background in journalism, print publishing, and web design. He graduated from University of Toronto with a degree in Statistics and spent several years creating complex biological and financial simulations using <a href="http://www.statisticsblog.com/tag/r/" target="_new" className="inline">R</a>. He blogs at <a href="http://www.mattasher.com" target="_new" className="inline">Mattasher.com</a></span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a> <span className="textBox small">is a senior developer with a degree in Math from the University of Alaska. He runs a regular JavaScript meetup group as well as several other programming gatherings. This past summer Dann gave a talk at Strange Loop on Visualizing Persistent Data Structures.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.adamrafeek')}>Adam Rafeek</a> <span className="textBox small">is a third year student in the Computer Science program at the University of Waterloo. He created a widget to help Waterloo students avoid long lines at popular campus locations. Originally from the twin island republic of Trinidad and Tobago, Adam helped build houses for Habitat for Humanity in rural areas.</span>
+
                 </div>
             </div>
             )

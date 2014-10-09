@@ -35,9 +35,8 @@ PBFiles.prepBlob = function(str, type) {
     else
         blob = new Blob([str], {type: 'text/plain'})
 
-    // FIXME: unreremove this again!
-    // if(PBFiles.oldFile)
-    //   window.URL.revokeObjectURL(PBFiles.oldFile)
+    if(PBFiles.oldFile)
+       window.URL.revokeObjectURL(PBFiles.oldFile)
 
     PBFiles.oldFile = window.URL.createObjectURL(blob)
 

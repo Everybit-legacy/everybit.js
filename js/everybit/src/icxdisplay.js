@@ -444,10 +444,11 @@ var ICXStoreFinish = React.createClass({
         Events.pub('ui/event', {
             'ICX.messageStored':true
         })
+        this.cleanUpSubmit()
     },
 
     cleanUpSubmit: function () {
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
 
     componentWillMount: function() {
@@ -460,6 +461,7 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
         if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
@@ -482,12 +484,12 @@ var ICXStoreFinish = React.createClass({
                 // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
-                //Events.pub('ui/thinking', { 'ICX.thinking': false })
+                this.cleanUpSubmit()
             })
 
         } else {
 
-            //Events.pub('ui/thinking', { 'ICX.thinking': false })
+            this.cleanUpSubmit()
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -509,9 +511,7 @@ var ICXStoreFinish = React.createClass({
 
         // Bundle into puff and send this bad boy off
         var prom = Promise.resolve() // a promise we use to string everything along
-
         var usernames = [me]
-
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
             return userRecord.username
@@ -546,22 +546,17 @@ var ICXStoreFinish = React.createClass({
 
             }).catch(function(err){
                 ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
-
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                self.cleanUpSubmit()
 
             })
         }).catch(function (err) {
-
             // TODO: Show user the error
-            // self.cleanUpSubmit()
+            self.cleanUpSubmit()
             return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
-
-            /*Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })*/
 
         })
         return false
@@ -2670,7 +2665,9 @@ var ICXFileConverter = React.createClass({
                     </span>
 
                     <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_enc")}</a>
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_enc")}</a>
+
+                    <span style={{display:'none'}} ref="encryptError" className="red">Permission Denied: You need to be logged in to encrypt files</span>
                     <br />
                     <b>OR</b>
                     <br /><br />
@@ -2681,7 +2678,8 @@ var ICXFileConverter = React.createClass({
                         <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
                     </span>
                     <br /> < br />
-                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_dec")}</a>
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_dec")}</a>
+                    <span style={{display:'none'}} className="red" ref="decryptError">Decryption Failed: Only files encrypted by this user may be decrypted</span>
 
                 </div>
             </div>
@@ -2696,6 +2694,7 @@ var ICXFileConverter = React.createClass({
         var resultLink = this.refs.decryptedDownload.getDOMNode()
         var element = event.target
         var fileprom = PBFiles.openPuffFile(element)
+        var errorMsg = this.refs.decryptError.getDOMNode()
         fileprom.then(function(fileguts) {
             // FIXME: does this work??? letterPuff is a promise...
             var letterPromise = PBFiles.extractLetterPuff(fileguts)
@@ -2703,8 +2702,9 @@ var ICXFileConverter = React.createClass({
             letterPromise.then(function(letterPuff) {
                 if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    ICX.errors = "ERROR: File decryption failed. This file may already be unencrypted or you may not have permission to decrypt this file."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    resultLink.style.display='none'
+                    errorMsg.style.display = ''
+                    return false
                 }
                 else {
                     var content = (letterPuff.payload || {}).content
@@ -2716,32 +2716,34 @@ var ICXFileConverter = React.createClass({
                     if (/\.puff/.test(filename)) {
                         filename = filename.slice(0, -5)
                     }
+                    errorMsg.style.display = 'none'
                     resultLink.style.display = ""
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.download = filename
 
                     //stop thinking
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    
-                    //remind them to download
-                    ICX.errors = "Remember to save your decrypted file before leaving this page!"
-                    Events.pub('/ui/icx/error', { "icx.errorMessage": true })
                 }                
             }).catch(function(err) {
                 Events.pub('ui/thinking', { 'ICX.thinking': false })
-                Events.pub('/ui/icx/error', { "icx.errorMessage": true })
-                ICX.errors = "That file was not able to be decrypted"
+                resultLink.style.display='none'
+                errorMsg.style.display = ''
                 PB.onError('Improperly formatted content', err)
             })
         }).catch(function(err) {
             Events.pub('ui/thinking', { 'ICX.thinking': false })
-            Events.pub('/ui/icx/error', { "icx.errorMessage": false })
             PB.onError('File could not be accessed', err)
         })
 
     },
 
     handleGetFile: function(event) {
+        // if they aren't logged in just stop here
+        var errorMsg = this.refs.encryptError.getDOMNode()
+        if(!ICX.username) {
+            errorMsg.style.display = ''
+            return false
+        }
         //start thinking
         Events.pub('ui/thinking', {
             'ICX.thinking': true
@@ -2763,13 +2765,10 @@ var ICXFileConverter = React.createClass({
             var filename = file.name
             var new_filename = filename + '.puff'
 
-            // Make the link visible to download the file
-            // stop thinking
             Events.pub('ui/thinking', {
                 'ICX.thinking': false
             })
-            ICX.errors = "Remember to save your encrypted file before leaving this page!"
-            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            errorMsg.style.display = 'none'
             encryptedLink.style.display=""
             encryptedLink.href = PBFiles.prepBlob(puff)
             encryptedLink.download = new_filename
@@ -2836,7 +2835,8 @@ var ICXError = React.createClass({
             width: '95%',
             marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px',
             fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px',
-            position:'relative'
+            position:'relative',
+            color:'#ff0000'
         }
 
         var showThis = false

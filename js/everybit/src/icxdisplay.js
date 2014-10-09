@@ -444,10 +444,11 @@ var ICXStoreFinish = React.createClass({
         Events.pub('ui/event', {
             'ICX.messageStored':true
         })
+        this.cleanUpSubmit()
     },
 
     cleanUpSubmit: function () {
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
 
     componentWillMount: function() {
@@ -460,6 +461,7 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
         if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
@@ -482,12 +484,12 @@ var ICXStoreFinish = React.createClass({
                 // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
-                //Events.pub('ui/thinking', { 'ICX.thinking': false })
+                this.cleanUpSubmit()
             })
 
         } else {
 
-            //Events.pub('ui/thinking', { 'ICX.thinking': false })
+            this.cleanUpSubmit()
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -509,9 +511,7 @@ var ICXStoreFinish = React.createClass({
 
         // Bundle into puff and send this bad boy off
         var prom = Promise.resolve() // a promise we use to string everything along
-
         var usernames = [me]
-
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
             return userRecord.username
@@ -546,22 +546,17 @@ var ICXStoreFinish = React.createClass({
 
             }).catch(function(err){
                 ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
-
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                self.cleanUpSubmit()
 
             })
         }).catch(function (err) {
-
             // TODO: Show user the error
-            // self.cleanUpSubmit()
+            self.cleanUpSubmit()
             return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
-
-            /*Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })*/
 
         })
         return false
@@ -2658,7 +2653,8 @@ var ICXFileConverter = React.createClass({
                     </span>
 
                     <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_enc")}</a>
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_enc")}</a>
+
                     <span style={{display:'none'}} ref="encryptError" className="red">Permission Denied: You need to be logged in to encrypt files</span>
                     <br />
                     <b>OR</b>
@@ -2670,7 +2666,7 @@ var ICXFileConverter = React.createClass({
                         <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
                     </span>
                     <br /> < br />
-                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_dec")}</a>
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_dec")}</a>
                     <span style={{display:'none'}} className="red" ref="decryptError">Decryption Failed: Only files encrypted by this user may be decrypted</span>
 
                 </div>

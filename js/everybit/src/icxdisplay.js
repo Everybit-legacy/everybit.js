@@ -2827,7 +2827,8 @@ var ICXError = React.createClass({
             width: '95%',
             marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px',
             fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px',
-            position:'relative'
+            position:'relative',
+            color:'#ff0000'
         }
 
         var showThis = false

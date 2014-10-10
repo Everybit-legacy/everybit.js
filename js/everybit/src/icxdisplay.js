@@ -57,7 +57,6 @@ var ICXWorld = React.createClass({
             if(currScreen != 'send') { //Remove toUser if user navigates away from SEND
                 Events.pub('ui/event', {
                     "view.icx.toUser": "",
-                    "ICX.toUser": ""
                 })
             }
         }

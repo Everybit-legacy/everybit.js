@@ -40,10 +40,6 @@ var TableView = React.createClass({
         getMyPrivateShells()
     },
 
-    getSomePuffs: function() {
-
-    },
-
     componentWillMount: function() {
         Events.pub('ui/event', {
             'view.table.loaded': CONFIG.initialLoad
@@ -65,9 +61,11 @@ var TableView = React.createClass({
 		var filters = puffworldprops.view.filters
 		var limit = puffworldprops.view.table.loaded
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+        var ctr = 0
+        var total = 0
 
 		puffs = this.sortPuffs(puffs)
-        ICX.actual = puffs.length
+        total = puffs.length - 1
 
         var refreshStyle = {
             right: Math.floor(ICX.calculated.baseFontH/2)+'px',
@@ -94,6 +92,8 @@ var TableView = React.createClass({
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
+                        ctr++
+                        ICX.loading = (ctr==total)
 						return <ICXContentItem key={index} puff={puff} />
 					})
 				}
@@ -149,14 +149,14 @@ var ICXContentItem = React.createClass({
     },
 
     componentDidMount: function() {
-        console.log(this.props.key)
-        if ( this.props.key == ICX.actual-1 ) {
-            //console.log("finished loading \n")
-            ICX.loading = false
-        } else {
-            //console.log("still more to load \n")
-            ICX.loading = true
-        }
+        // console.log(this.props.key)
+        // if ( this.props.key == ICX.actual-1 ) {
+        //     //console.log("finished loading \n")
+        //     ICX.loading = false
+        // } else {
+        //     //console.log("still more to load \n")
+        //     ICX.loading = true
+        // }
     },
 
     handleToggleShowItem: function() {

@@ -274,6 +274,7 @@ var ICXWorld = React.createClass({
                     </div>
                     <ICXSpinner />
                 </div>
+                <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
             </span>
         )
     }

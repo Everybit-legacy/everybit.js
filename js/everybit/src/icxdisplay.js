@@ -227,13 +227,6 @@ var ICXWorld = React.createClass({
                 top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
                 padding: '10px', // Testing...
                 fontSize: ICX.calculated.baseFontH + 'px',
-                overflow: 'scroll'
-        }
-
-        // only invite and tableview has vertical overflow
-        // tableview handles scrolling natively already
-        if(ICX.currScreen == "invite") {
-            contentDivStyles.overflow= 'scroll'
         }
 
 

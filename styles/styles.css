@@ -106,6 +106,7 @@ html {
     /*height: 100%;*/
     width: 100%;
     padding: 0;
+    overflow:hidden;
 }
 
 body {
@@ -115,7 +116,6 @@ body {
     font-size: 1em;
     margin: 0;
     padding: 0;
-    overflow: auto;
 }
 form {
     display: inline;
@@ -1629,6 +1629,9 @@ fieldset[disabled] .btn-primary.active {
     -o-transform: rotate(90deg);
 }
 
+.screen {
+    overflow:auto;
+}
 .shadow {
     text-shadow: 0 0 3px #000; /* horizontal-offset vertical-offset 'blur' colour */
     -moz-text-shadow: 0 0 3px #000;

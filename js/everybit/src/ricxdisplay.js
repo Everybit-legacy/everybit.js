@@ -93,7 +93,7 @@ var ICXWorld = React.createClass({
         }
 
 
-        ICX.username = PB.M.Wardrobe.getCurrentUsername()
+        ICX.username = PB.getCurrentUsername()
         ICX.identitySet = true
 
 
@@ -416,7 +416,7 @@ var ICXStoreFinish = React.createClass({
 
 
 
-        if(PB.M.Wardrobe.getCurrentUsername()) {
+        if(PB.getCurrentUsername()) {
 
 
 
@@ -778,7 +778,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
-        var envelopeUserKeys = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -807,13 +807,13 @@ var ICXSendFileFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
@@ -948,7 +948,7 @@ var ICXSendMessageFinish = React.createClass({
         var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
-        var envelopeUserKeys = ''
+        var privateEnvelopeAlias = ''
         var self = this
 
 
@@ -977,13 +977,13 @@ var ICXSendMessageFinish = React.createClass({
         }
 
         prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.M.Wardrobe.getCurrentUserRecord())
+                userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
             post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
             return post_prom
         }).catch(function (err) {
@@ -1323,9 +1323,9 @@ var ICXNewUser = React.createClass({
         var adminKeyPublic    = publicKey
         var defaultKeyPublic  = publicKey
 
-        var rootKeyPrivate    = privateKey
-        var adminKeyPrivate   = privateKey
-        var defaultKeyPrivate = privateKey
+        var privateRootKey    = privateKey
+        var privateAdminKey   = privateKey
+        var privateDefaultKey = privateKey
 
         var self = this
 
@@ -1346,11 +1346,11 @@ var ICXNewUser = React.createClass({
         prom.then(function(userRecord) {
 
                 // store directly because we know they're valid
-                PB.M.Wardrobe.storePrivateKeys(requestedUsername, rootKeyPrivate, adminKeyPrivate, defaultKeyPrivate, {passphrase: passphrase})
+                PB.M.Wardrobe.storePrivateKeys(requestedUsername, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
 
 
                 // Set this person as the current user
-                PB.M.Wardrobe.switchCurrent(requestedUsername)
+                PB.switchIdentityTo(requestedUsername)
 
                 // Function below fails, so set above this
                 // PB.M.Wardrobe.storePrivateBonus({passphrase: passphrase})
@@ -1358,9 +1358,9 @@ var ICXNewUser = React.createClass({
                 // Create identity file
                 ICX.identityForFile = {
                     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-                    rootKeyPrivate: privateKey,
-                    adminKeyPrivate: privateKey,
-                    defaultKeyPrivate: privateKey,
+                    privateRootKey: privateKey,
+                    privateAdminKey: privateKey,
+                    privateDefaultKey: privateKey,
                     passphrase: passphrase,
                     version: "1.0"
                 }
@@ -1402,7 +1402,7 @@ var ICXLogin = React.createClass({
 
         var baseFontH = ICX.calculated.baseFontH
 
-        var currUser = PB.M.Wardrobe.getCurrentUsername()
+        var currUser = PB.getCurrentUsername()
         if (currUser)
             currUser = '.' + currUser
 
@@ -1594,7 +1594,7 @@ var ICXLogin = React.createClass({
                 }
 
                 // At least one good key, set this to current user
-                PB.M.Wardrobe.switchCurrent(username)
+                PB.switchIdentityTo(username)
 
                 Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 return false
@@ -1695,7 +1695,7 @@ var ICXLogin = React.createClass({
                         PB.M.Wardrobe.storeDefaultKey(username, privateKey)
 
                         // At least one good key, set this to current user
-                        PB.M.Wardrobe.switchCurrent(username)
+                        PB.switchIdentityTo(username)
 
 
                         ICX.username = username
@@ -1796,7 +1796,7 @@ var ICXDashboard = React.createClass({
     handleGenerateIdentityFile: function() {
         // Bail if no username,
         // TODO handle this error better
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
         if(!username)
             return false
 
@@ -1804,17 +1804,17 @@ var ICXDashboard = React.createClass({
         if(isEmpty(ICX.identityForFile)) {
 
             ICX.identityForFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-            ICX.identityForFile.username = PB.M.Wardrobe.getCurrentUsername()
+            ICX.identityForFile.username = PB.getCurrentUsername()
             ICX.identityForFile.version = "1.0"
 
             if(typeof PB.M.Wardrobe.currentKeys.root !== 'undefined')
-                ICX.identityForFile.rootKeyPrivate =  PB.M.Wardrobe.currentKeys.root
+                ICX.identityForFile.privateRootKey =  PB.M.Wardrobe.currentKeys.root
 
             if(typeof PB.M.Wardrobe.currentKeys.admin !== 'undefined')
-                ICX.identityForFile.adminKeyPrivate =  PB.M.Wardrobe.currentKeys.admin
+                ICX.identityForFile.privateAdminKey =  PB.M.Wardrobe.currentKeys.admin
 
             if(typeof PB.M.Wardrobe.currentKeys.default !== 'undefined')
-                ICX.identityForFile.defaultKeyPrivate =  PB.M.Wardrobe.currentKeys.default
+                ICX.identityForFile.privateDefaultKey =  PB.M.Wardrobe.currentKeys.default
 
             if(typeof PB.M.Wardrobe.currentKeys.bonus !== 'undefined')
                 if(typeof PB.M.Wardrobe.currentKeys.bonus.passphrase !== 'undefined')
@@ -1834,7 +1834,7 @@ var ICXDashboard = React.createClass({
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile())
 
-        var filename = PB.M.Wardrobe.getCurrentUsername() + "Identity.json"
+        var filename = PB.getCurrentUsername() + "Identity.json"
 
         // var el = document.getElementById.bind(document)
 
@@ -1849,7 +1849,7 @@ var ICXDashboard = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -1859,7 +1859,7 @@ var ICXDashboard = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
@@ -2334,7 +2334,7 @@ var ICXUserButton = React.createClass({
     },
 
     handleSignOut: function() {
-        var userToRemove = PB.M.Wardrobe.getCurrentUsername()
+        var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
         var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
@@ -2344,7 +2344,7 @@ var ICXUserButton = React.createClass({
             return false
         }
 
-        PB.M.Wardrobe.removeKeys(userToRemove)
+        PB.M.Wardrobe.removeIdentity(userToRemove)
         ICX.username = ''
         ICX.identityForFile = {}
         ICX.currScreen = 'home'
@@ -2916,7 +2916,7 @@ var PuffTallTree = React.createClass({
 
         // sundry miscellany
         var arrows = this.props.view.arrows
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
         var filters = this.props.view.filters
         var query = this.props.view.query
         var queryfilter = Boron.extend({}, query, filters)

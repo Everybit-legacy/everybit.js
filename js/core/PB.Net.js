@@ -70,6 +70,8 @@ PB.Net.getStarShells = function() {
 }
 
 PB.Net.getPrivatePuffsFromMe = function(username) {
+    if(!username) return PB.emptyPromise()
+    
     var url  = CONFIG.puffApi
     var data = { username: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
@@ -80,6 +82,8 @@ PB.Net.getPrivatePuffsFromMe = function(username) {
 }
 
 PB.Net.getPrivatePuffsForMe = function(username) {
+    if(!username) return PB.emptyPromise()
+    
     var url  = CONFIG.puffApi
     var data = { route: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
@@ -312,28 +316,44 @@ PB.Net.sendPuffToServer = function(puff) {
                , puff: JSON.stringify(puff) }
                
     return PB.Net.post(CONFIG.puffApi, data)
-                  .catch(PB.promiseError('Could not send puff to server'));
+                 .then(function(response) { 
+                     if(response.slice(0,6) == '{"FAIL')
+                         PB.throwError(response)
+                  }) 
+                 .catch(PB.promiseError('Could not send puff to server'));
 }
 
 /**
- * get the user record for a given username
- * @param  {string} username 
- * @return {object}          on fullfilled passes the user record as object, otherwise re-throw error
+ * fetch a particular userRecord
+ * @param  {string}  username 
+ * @param  {string}  capa 
+ * @return {promise} on fulfilled passes the user record as object, otherwise re-throw error
  */
-PB.Net.getUserRecord = function(username) {
-    // TODO: call PB.Net.getUserRecordFile, add the returned users to PB.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
+PB.Net.getUserRecord = function(username, capa) {
+    var url   = CONFIG.userApi
+    
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    username = uc.username
+    if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
+        capa = uc.capa
+    
+    var data  = { type: 'getUser'
+                , username: username
+                }
 
-    var url   = CONFIG.userApi;
-    var data  = {type: 'getUser', username: username};
-    var prom = PB.Net.getJSON(url, data);
+    if(capa)
+        data.capa = capa
+
+    var prom = PB.Net.getJSON(url, data)
 
     return prom.then(
                 function(userRecord) {
-                    var userRecord = PB.processUserRecord(userRecord);
-                    if(!userRecord)  PB.throwError('Invalid user record returned');
-                    return userRecord;
+                    var userRecord = PB.processUserRecord(userRecord)
+                    if(!userRecord)  PB.throwError('Invalid user record returned')
+                    return userRecord
                 }
-                , PB.promiseError('Unable to access user information from the DHT'));
+                , PB.promiseError('Unable to access user information from the DHT'))
 }
 
 /**
@@ -341,18 +361,20 @@ PB.Net.getUserRecord = function(username) {
  * @param {string} username
  * @returns {*}
  */
-PB.Net.getUserRecordFile = function(username) {
-    var url   = CONFIG.userApi;
-    var data  = {type: 'getUserFile', username: username};
-    var prom = PB.Net.getJSON(url, data);
+// PB.Net.getUserRecordFile = function(username) {
+    // TODO: [from getUserRecord] call PB.Net.getUserRecordFile, add the returned users to PB.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
     
-    return prom.then(
-                function(userRecords) {
-                    return userRecords.map(PB.processUserRecord)
-                                      .filter(Boolean);
-                }
-                , PB.promiseError('Unable to access user file from the DHT'));
-}
+//     var url   = CONFIG.userApi;
+//     var data  = {type: 'getUserFile', username: username};
+//     var prom = PB.Net.getJSON(url, data);
+//
+//     return prom.then(
+//                 function(userRecords) {
+//                     return userRecords.map(PB.processUserRecord)
+//                                       .filter(Boolean);
+//                 }
+//                 , PB.promiseError('Unable to access user file from the DHT'));
+// }
 
 /**
  * register a subuser for an existed user
@@ -365,20 +387,20 @@ PB.Net.getUserRecordFile = function(username) {
  * @return {object}                user record for the newly created subuser
  */
 PB.Net.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
-    var payload = {};
+    var payload = {}
     
-    payload.rootKey = rootKey;
-    payload.adminKey = adminKey;
-    payload.defaultKey = defaultKey;
+    payload.rootKey = rootKey
+    payload.adminKey = adminKey
+    payload.defaultKey = defaultKey
 
-    payload.time = Date.now();
-    payload.requestedUsername = newUsername;
+    payload.time = Date.now()
+    payload.requestedUsername = newUsername
 
-    var routing = []; // THINK: DHT?
-    var type = 'updateUserRecord';
-    var content = 'requestUsername';
+    var routing = [] // THINK: DHT?
+    var type = 'updateUserRecord'
+    var content = 'requestUsername'
 
-    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload);
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
     return PB.Net.updateUserRecord(puff)
@@ -386,24 +408,24 @@ PB.Net.registerSubuser = function(signingUsername, privateAdminKey, newUsername,
 
 /**
  * modify a user record
- * @param  {puff} puff a signed puff containing information of modified user record
- * @return {object}      throw error when the update fails
+ * @param  {puff}   puff a signed puff containing information of modified user record
+ * @return {object} promise for new userRecord or error when the update fails
  */
 PB.Net.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
-               };
+               }
 
-    var prom = PB.Net.post(CONFIG.userApi, data);
+    var prom = PB.Net.post(CONFIG.userApi, data)
     
     return prom.catch(PB.promiseError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 
-                       PB.throwError('The DHT did not approve of your request', userRecord.FAIL);
+                       PB.throwError('The DHT did not approve of your request', userRecord.FAIL)
                        
                    return PB.processUserRecord(userRecord)
-                       || PB.throwError('Invalid user record', JSON.stringify(userRecord));
+                       || PB.throwError('Invalid user record', JSON.stringify(userRecord))
                })
 }
 

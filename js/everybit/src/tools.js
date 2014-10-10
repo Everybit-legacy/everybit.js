@@ -74,9 +74,9 @@ var PuffPacker = React.createClass({
         var adminKey = PB.Crypto.generatePrivateKey()
         var defaultKey = PB.Crypto.generatePrivateKey()
 
-        this.refs.rootKeyPrivate.getDOMNode().value = rootKey
-        this.refs.adminKeyPrivate.getDOMNode().value = adminKey
-        this.refs.defaultKeyPrivate.getDOMNode().value = defaultKey
+        this.refs.privateRootKey.getDOMNode().value = rootKey
+        this.refs.privateAdminKey.getDOMNode().value = adminKey
+        this.refs.privateDefaultKey.getDOMNode().value = defaultKey
 
         this.refs.rootKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(rootKey)
         this.refs.adminKeyPublic.getDOMNode().value = PB.Crypto.privateToPublic(adminKey)
@@ -103,17 +103,19 @@ var PuffPacker = React.createClass({
 
         payload.requestedUsername = this.refs.username.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+        var username = PB.getCurrentUsername()
 
-        if(!privateKeys.username) {
+        if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building registration requests."}
             return Events.pub('ui/puff-packer/user-registration/error', {})
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.admin, routes, type, content, payload)
-        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+            var puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload)
+            // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+        })
 
         var self = this
         self.state.puff = puff
@@ -124,16 +126,13 @@ var PuffPacker = React.createClass({
     handleBuildModifyUserKeysPuff: function() {
         // Stuff to register. These are public keys
 
-        var currentUser = PB.M.Wardrobe.getCurrentUsername()
-        if(!currentUser) {
+        var username = PB.getCurrentUsername()
+        if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building a request to modify keys."}
             return Events.pub('ui/puff-packer/user-modify-keys/error', {})
         }
 
         var payload = {}
-        var rootKey = PB.M.Wardrobe.getCurrentKeys().root
-        var adminKey = PB.M.Wardrobe.getCurrentKeys().admin
-        var defaultKey = PB.M.Wardrobe.getCurrentKeys().default
         var routes = []
         var type = 'updateUserRecord'
         var content = 'modifyUserKey'
@@ -147,31 +146,31 @@ var PuffPacker = React.createClass({
 
         payload.time = Date.now()
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-
         if(keyToModify == 'rootKey' || keyToModify == 'adminKey') {
-            if(!rootKey) {
+            if(!privateRootKey) {
                 this.state.result = {"FAIL": "You must first set your root key before modifying root or admin keys."}
                 return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = rootKey
+                var signingUserKey = 'privateRootKey'
                 console.log("request will be signed with root key")
             }
         } else if(keyToModify == 'defaultKey') {
-            if(!adminKey) {
+            if(!privateAdminKey) {
                 this.state.result = {"FAIL": "You must first set your admin key before modifying default keys."}
                 return Events.pub('ui/puff-packer/user-modify-keys/error', {})
             } else {
-                var signingUserKey = adminKey
+                var signingUserKey = 'privateAdminKey'
                 console.log("request will be signed with admin key")
             }
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(currentUser, signingUserKey, routes, type, content, payload)
-        // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+            var privateKey = {privateAdminKey: privateAdminKey, privateRootKey: privateRootKey}[signingUserKey]
+            var puff = PB.buildPuff(currentUsername, privateKey, routes, type, content, payload)
+            // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+        })
 
         var self = this
         self.state.puff = puff
@@ -238,7 +237,7 @@ var PuffPacker = React.createClass({
     },
 
     handleGetLatest: function() {
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
         var self = this
 
         var prom = PB.getUserRecord(username)
@@ -260,16 +259,23 @@ var PuffPacker = React.createClass({
 
         payload.latest = this.refs.setLatestSigTo.getDOMNode().value
 
-        var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+        var username = PB.getCurrentUsername()
 
-        if(!privateKeys.username) {
+        if(!username) {
             this.state.result = {"FAIL": "You must set your identity before building set latest request."}
             return Events.pub('ui/puff-packer/user-set-latest/error', {})
         }
 
         this.state.result = {}
 
-        var puff = PB.buildPuff(privateKeys.username, privateKeys.default, routes, type, content, payload)
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+            if(!privateDefaultKey) {
+                this.state.result = {"FAIL": "You must set your private default key before building set latest request."}
+                return Events.pub('ui/puff-packer/user-set-latest/error', {})
+            }
+            
+            var puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload)
+        })
 
         var self = this
         self.state.puff = puff
@@ -280,7 +286,7 @@ var PuffPacker = React.createClass({
 
     handleSetIdentityToAnon: function() {
         PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0)
-        PB.M.Wardrobe.switchCurrent('anon')
+        PB.switchIdentityTo('anon')
         Events.pub('ui/puff-packer/set-identity-to-anon', {})
         // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0)
         // PB.M.Wardrobe.addUserReally('anon', keys)
@@ -302,7 +308,7 @@ var PuffPacker = React.createClass({
 
     render: function() {
         // Pre-fill with current user information if exists in memory
-        var username    = PB.M.Wardrobe.getCurrentUsername()
+        var username    = PB.getCurrentUsername()
         var result = formatForDisplay(this.state.result, this.props.tools.users.resultstyle)
         var setIdentityField = (<div>To register new sub-usernames, you will need to set your identity first. You will also need to set keys for the new user.<br />
 
@@ -379,13 +385,13 @@ var PuffPacker = React.createClass({
 
                     New private keys<br />
                     root:
-                        <input className="fixedLeft" type="text" name="rootKeyPrivate" ref="rootKeyPrivate" /><br />
+                        <input className="fixedLeft" type="text" name="privateRootKey" ref="privateRootKey" /><br />
 
                     admin:
-                        <input className="fixedLeft" type="text" name="adminKeyPrivate" ref="adminKeyPrivate" /><br />
+                        <input className="fixedLeft" type="text" name="privateAdminKey" ref="privateAdminKey" /><br />
 
                     default:
-                        <input className="fixedLeft" type="text" name="defaultKeyPrivate" ref="defaultKeyPrivate" /><br /><br />
+                        <input className="fixedLeft" type="text" name="privateDefaultKey" ref="privateDefaultKey" /><br /><br />
 
                     Corresponding public keys<br />
 
@@ -460,15 +466,15 @@ var PuffPacker = React.createClass({
 var PuffSwitchUser = React.createClass({
     handleUserPick: function() {
         this.setState({profileMsg: ''});
-        PB.M.Wardrobe.switchCurrent(this.refs.switcher.getDOMNode().value)
+        PB.switchIdentityTo(this.refs.switcher.getDOMNode().value)
         return Events.pub('ui/menu/user/pick-one/hide'/*, {'menu.user.pick_one': false}*/)
     },
     render: function() {
-        var all_usernames = Object.keys(PB.M.Wardrobe.getAll())
+        var all_usernames = PB.getAllIdentityUsernames()
 
         if(!all_usernames.length) return <div></div>
 
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
 
         // TODO: find a way to select from just one username (for remove user with exactly two users)
         return (

@@ -10,7 +10,7 @@
   
     The core library for the puffball platform. 
     
-    Currently a single flat file containing a mixture of parts; one day this will be the composite of modules at many levels.
+    Most calls to the platform should go through here, rather than accessing other core modules like PB.Data and PB.Crypto directly.
     
     
     Future file system idea:
@@ -68,19 +68,34 @@ PB.init = function(zone) {
  * @param  {object} payload                     other payload information for the puff
  * @param  {string} previous                    most recently published content by the user
  * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} envelopeUserKeys
+ * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(username, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys) {
-    var puff = PB.packagePuffStructure(username, routes, type, content, payload, previous)
+PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    var puff = PB.packagePuffStructure(versionedUsername, routes, type, content, payload, previous)
 
     puff.sig = PB.Crypto.signPuff(puff, privatekey)
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, envelopeUserKeys)
+        puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
     
     return puff
 }
+
+
+PB.simpleBuildPuff = function(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    var puff 
+    
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        var previous = false // TODO: get the sig of this user's latest puff
+        var versionedUsername = PB.getCurrentVersionedUsername()
+        
+        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    })
+    
+    return puff
+}
+
 
 /**
  * pack all the parameters into an object with puff structure (without signature)
@@ -92,7 +107,7 @@ PB.buildPuff = function(username, privatekey, routes, type, content, payload, pr
  * @param  {string} previous 
  * @return {object}          object which has similar structure as a puff (without signature)
  */
-PB.packagePuffStructure = function(username, routes, type, content, payload, previous) {
+PB.packagePuffStructure = function(versionedUsername, routes, type, content, payload, previous) {
     payload = payload || {}                             // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
@@ -100,10 +115,10 @@ PB.packagePuffStructure = function(username, routes, type, content, payload, pre
     routes = routes || []
     previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
 
-    var puff = { username: username
+    var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.0.4'                      // version accounts for crypto type and puff shape
+               ,  version: '0.1.0'                      // version accounts for crypto type and puff shape
                ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
                }
     
@@ -120,10 +135,11 @@ PB.packagePuffStructure = function(username, routes, type, content, payload, pre
  * @param  {string} updated    date of the most recent update to the username
  * @return {object}            a canonical user object
  */
-PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile) {
-    latest = latest || ""
+PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile, capa) {
+    latest  = latest  || ""
     updated = updated || ""
     profile = profile || ""
+    capa    = capa    || 1
     
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
@@ -133,6 +149,7 @@ PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, u
     // these keys are PUBLIC. only public keys here. no other types of keys. 
     
     return {   username: username
+           ,       capa: capa
            ,    rootKey: rootKey
            ,   adminKey: adminKey
            , defaultKey: defaultKey
@@ -164,6 +181,112 @@ PB.validateUsername = function(username) {
     return true;
 }
 
+PB.userRecordToVersionedUsername = function(userRecord) {
+    return PB.makeVersionedUsername(userRecord.username, userRecord.capa)
+}
+
+PB.usernameFromVersioned = function(versionedUsername) {
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    return uc.username
+}
+
+PB.maybeVersioned = function(username, capa) {
+    if(!username)
+        return ''
+    
+    if(capa)
+        return PB.makeVersionedUsername(username, capa)
+    
+    if(username.indexOf(':') > 0)
+        return username
+    
+    return PB.makeVersionedUsername(username)
+}
+
+PB.makeVersionedUsername = function(username, capa) {
+    capa = capa || 1 // NOTE: default capa
+    return username + ':' + capa
+}
+
+PB.breakVersionedUsername = function(versionedUsername) {
+    var list = (versionedUsername||'').split(':')
+
+    return { username: list[0]
+           , capa:     list[1] || 1 // NOTE: default capa
+           }
+}
+
+
+PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
+    //// attempts to update a private key for the current user. 
+    //// if successful it adds the new alias to the current identity.
+    //// returns a promise for the new userRecord.
+    
+    var username = PB.getCurrentUsername()
+    var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
+
+    var payload = {}
+    var routes = []
+    var type = 'updateUserRecord'
+    var content = 'modifyUserKey'
+
+    payload.keyToModify = keyToModify
+    payload.newKey = newPublicKey
+    payload.time = Date.now()
+
+    var prom = new Promise(function(resolve, reject) {
+        var puff
+
+        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+            // NOTE: puff leaks, but only contains publicly accessible data
+        
+            var signingUserKey = 'privateRootKey'  // changing admin or root keys requires root privileges
+            var privateKey = privateRootKey
+
+            if (keyToModify == 'defaultKey') { 
+                signingUserKey = 'privateAdminKey' // changing the default key only requires admin privileges
+                privateKey = privateAdminKey
+            }
+
+            if(!privateKey) {
+                return reject(PB.makeError("You need the " + signingUserKey + " to change the " + keyToModify + " key."))
+            } else {
+                puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
+            }
+        })
+
+        var userRecordPromise = PB.Net.updateUserRecord(puff)
+
+        userRecordPromise.then(function(userRecord) {
+            if(keyToModify == 'defaultKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
+                })
+            }
+
+            if(keyToModify == 'adminKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, newPrivateKey, privateDefaultKey, secrets)
+                })
+            }
+
+            if(keyToModify == 'rootKey') {
+                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
+                })
+            }
+
+            resolve(userRecord)
+        })
+        .catch(function(err) {
+            reject(PB.makeError(err))
+        })
+    })
+
+    return prom
+}
+
+
 /**
  * to process user records
  * @param  {string} userRecord
@@ -172,7 +295,7 @@ PB.validateUsername = function(username) {
 PB.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
-    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile);
+    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile, userRecord.capa);
     
     if(!userRecord)
         return PB.onError('That is not an acceptable user record', userRecord);
@@ -188,20 +311,22 @@ PB.processUserRecord = function(userRecord) {
  * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
-PB.getUserRecord = function(username) {
+PB.getUserRecord = function(username, capa) {
     //// This always checks the cache, and always returns a promise
     
-    var userRecord = PB.Data.getCachedUserRecord(username);
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    
+    var userRecord = PB.Data.getCachedUserRecord(versionedUsername);
     
     if(userRecord)
         return Promise.resolve(userRecord);
     
-    var userPromise = PB.Data.userPromises[username];
+    var userPromise = PB.Data.userPromises[versionedUsername];
     
     if(userPromise)
         return userPromise;
     
-    return PB.getUserRecordNoCache(username);
+    return PB.getUserRecordNoCache(versionedUsername);
 }
 
 /**
@@ -209,12 +334,15 @@ PB.getUserRecord = function(username) {
  * @param {string} username
  * @returns {object} Promise for a user record
  */
-PB.getUserRecordNoCache = function(username) {
+PB.getUserRecordNoCache = function(username, capa) {
     //// This never checks the cache
     
-    var prom = PB.Net.getUserRecord(username);
+    capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
     
-    PB.Data.userPromises[username] = prom
+    var prom = PB.Net.getUserRecord(username, capa); 
+    
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    PB.Data.userPromises[versionedUsername] = prom
     
     return prom;
 }
@@ -294,19 +422,19 @@ PB.addRelationship = function(callback) {
  * @param  {string} userRecords
  * @return {object}
  */
-PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
+PB.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
     var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
     
     var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
-    var username = letter.username
+    var versionedUsername = letter.username
     
-    if(envelopeUserKeys) {
-        myPrivateWif = envelopeUserKeys.default
-        username = envelopeUserKeys.username
+    if(privateEnvelopeAlias) {
+        myPrivateWif = privateEnvelopeAlias.default
+        versionedUsername = PB.makeVersionedUsername(privateEnvelopeAlias.username, privateEnvelopeAlias.capa)
     }
     
-    var envelope = PB.packagePuffStructure(username, letter.routes                // envelope is also a puff
+    var envelope = PB.packagePuffStructure(versionedUsername, letter.routes       // envelope is also a puff
                            , 'encryptedpuff', letterCipher, {}, letter.previous)  // it includes the letter
     
     envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
@@ -323,17 +451,39 @@ PB.encryptPuff = function(letter, myPrivateWif, userRecords, envelopeUserKeys) {
  * @param  {string} myPrivateWif
  * @return {object}
  */
-PB.decryptPuff = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
+PB.getDecryptedPuffPromise = function(envelope) {
     //// pull a letter out of the envelope -- returns a promise!
 
-    return new Promise(function(resolve, reject) {
-        PB.workersend('decryptPuffForReals', [envelope, yourPublicWif, myUsername, myPrivateWif], resolve, reject)
+    if(!envelope || !envelope.keys) 
+        return PB.onError('Envelope does not contain an encrypted letter')
+    
+    var yourVersionedUsername   = envelope.username
+    var yourVersionedUserRecord = PB.Data.getCachedUserRecord(yourVersionedUsername)
+    var prom = PB.emptyPromise()
+    
+    PB.useSecureInfo(function(identites, currentUsername) {
+        // NOTE: leaks a promise which resolves to unencrypted puff
+        
+        var keylist = Object.keys(envelope.keys)
+        var versionedUsername = PB.getUsernameFromList(keylist, currentUsername)
+        if(!versionedUsername)
+            return PB.onError('No key found for current user')
+        
+        var alias = PB.getAliasByVersionedUsername(identites, versionedUsername)
+        var privateDefaultKey = alias.privateDefaultKey
+        // letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
+
+        prom = new Promise(function(resolve, reject) {
+            PB.workersend('decryptPuffForReals', [envelope, yourVersionedUserRecord.defaultKey, versionedUsername, privateDefaultKey], resolve, reject)
+        })
     })
+
+    return prom
 }
 
-PB.decryptPuffForReals = function(envelope, yourPublicWif, myUsername, myPrivateWif) {
+PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
     if(!envelope.keys) return false
-    var keyForMe = envelope.keys[myUsername]
+    var keyForMe = envelope.keys[myVersionedUsername]
     var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
@@ -357,8 +507,232 @@ PB.tryDecodeOyVey = function(str) {
 
 
 
+////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-/// ERROR ERROR
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
+    // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
+    // addIdentity      = function(username, aliases, preferences)
+    // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // removeIdentity   = function(username)
+    // setPreference    = function(key, value) // for current identity
+    // switchIdentityTo = function(username)
+
+    // THINK: consider ensuring all functions are present first, so it's harder to mix and match wardrobe implementations
+    
+    if(typeof useSecureInfo == 'function') {
+        PB.useSecureInfo = function(callback) {
+            // NOTE: useSecureInfo returns true if there is a current identity, and false otherwise
+            return useSecureInfo( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) {
+                var clonedIdentities = JSON.parse(JSON.stringify(identities)) // prevent accidental mutation
+                callback(clonedIdentities, username, privateRootKey, privateAdminKey, privateDefaultKey)
+            })
+        }
+    }
+    
+    if(typeof addIdentity == 'function')
+        PB.addIdentity = addIdentity
+        
+    if(typeof addAlias == 'function')
+        PB.addAlias = addAlias
+        
+    if(typeof setPreference == 'function')
+        PB.setPreference = setPreference
+        
+    if(typeof switchIdentityTo == 'function')
+        PB.switchIdentityTo = switchIdentityTo
+        
+    if(typeof removeIdentity == 'function')
+        PB.removeIdentity = removeIdentity
+        
+    PB.getCurrentUsername = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = username })
+        return output
+    }
+    
+    PB.getCurrentCapa = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = ((identities[username]||{}).primary||{}).capa||0 })
+        return output
+    }
+    
+    PB.getCurrentVersionedUsername = function() {
+        var username = PB.getCurrentUsername()
+        if(!username)
+            return PB.onError('No current user in wardrobe')
+        
+        return PB.makeVersionedUsername(username, PB.getCurrentCapa())
+    }
+    
+    PB.getAllIdentityUsernames = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
+        return output
+    }
+    
+    PB.getCurrentUserRecord = function() {
+        var versionedUsername = PB.getCurrentVersionedUsername()
+        if(!versionedUsername)
+            return false
+        
+        // THINK: it's weird to hit the cache directly from here, but if we don't then we always get a promise,
+        //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
+        //        since after all we have stored the userRecord in our wardrobe, haven't we?
+    
+        var userRecord = PB.Data.userRecords[versionedUsername]
+        if(!userRecord)
+            return PB.onError('That user does not exist in our records')
+    
+        return userRecord
+    }
+    
+    PB.getAliasByVersionedUsername = function(identities, username, capa) {
+        // this requires identities to be the list of identities from PB.useSecureInfo
+        
+        if(!identities || typeof identities != 'object') 
+            return PB.onError('Invalid identities')
+        if(!username) 
+            return PB.onError('Non-existent username')
+        
+        var versionedUsername = PB.maybeVersioned(username, capa)
+        var uc = PB.breakVersionedUsername(versionedUsername)
+        username = uc.username
+        capa = uc.capa
+        
+        var identity = identities[username]
+        if(!identity)
+            return PB.onError('An identity matching that username could not be found') || {}
+        
+        var alias = identity.aliases.filter(function(alias) {
+            return alias.capa == capa && alias.username == username
+        })
+        return alias[0] || {}
+    }
+    
+    PB.getUsernameFromList = function(list, username) {
+        for(var i = 0; i < list.length; i++) {
+            var key = list[i]
+            if(username == PB.breakVersionedUsername(key).username)
+                return key
+        }
+        return false
+    }
+
+}
+
+////////////// END SECURE INFORMATION ZONE ////////////////////
+
+PB.formatIdentityFile = function(username) {
+    // THINK: consider passphrase protecting the identity file by default
+    
+    username = username || PB.getCurrentUsername()
+    
+    if(!username) return false
+
+    var idFile = {}
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // this leaks all of the identity information back to the caller
+        // if we passphrase protect the file, do it here to prevent that leakage
+
+        var identity = identities[username]
+
+        // assemble idFile manually to keep everything in the right order
+        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+        idFile.username = username
+        // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases
+        idFile.aliases  = identity.aliases
+        idFile.preferences = identity.preferences
+        idFile.version  = "1.1"
+    })
+
+    return idFile
+}
+
+
+/**
+ * Get the current user's DHT record, or create a new anon user, or die trying
+ * @return {string}
+ */
+PB.getUpToDateUserAtAnyCost = function() {
+    //// Either get the current user's DHT record, or create a new anon user, or die trying
+
+    var username = PB.getCurrentUsername()
+
+    if(username)
+        return PB.getUserRecordNoCache(username, 0) // 0 tells PB.Net.getUserRecord to fetch the latest
+    
+    var prom = PB.addNewAnonUser()
+    
+    return prom.then(function(userRecord) {
+        PB.switchIdentityTo(userRecord.username)
+        console.log("Setting current user to " + userRecord.username);
+        return userRecord
+    })
+}
+
+
+/**
+ * Generate a random username
+ * @return {string}
+ */
+PB.generateRandomUsername = function() {
+    // TODO: consolidate this with the new username generation functions
+    var generatedName = '';
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    for(var i=0; i<10; i++) {
+        generatedName += PB.Crypto.getRandomItem(alphabet)
+        // var randFloat = PB.Crypto.random();
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
+    }
+    return generatedName;
+}
+
+
+PB.addNewAnonUser = function(attachToUsername) {
+    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
+    //// if attachToUsername is false the alias becomes primary for its own identity.
+
+    // generate private keys
+    var privateRootKey    = PB.Crypto.generatePrivateKey()
+    var privateAdminKey   = PB.Crypto.generatePrivateKey()
+    var privateDefaultKey = PB.Crypto.generatePrivateKey()
+    
+    // generate public keys
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    // build new username
+    var anonUsername = PB.generateRandomUsername()
+    var newUsername  = 'anon.' + anonUsername
+
+    // send it off
+    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+
+    return prom
+        .then(function(userRecord) {
+            // store directly because we know they're valid, and so we don't get tangled up in more promises
+            
+            // FIXME: add to identity if attachToUsername
+            
+            // FIXME: otherwise add new identity
+            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
+            
+            
+            return userRecord
+        },
+        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
+}
+
+
+
+/// ERROR HELPERS
+
 /**
  * on error function
  * @param  {string} msg 
@@ -366,6 +740,8 @@ PB.tryDecodeOyVey = function(str) {
  * @return {false}
  */
 PB.onError = function(msg, obj) {
+    //// override this for custom error behavior
+    
     toSend = {msg: msg, obj: obj};
 
     if(puffworldprops.prefs.reporting)
@@ -404,6 +780,16 @@ PB.makeError = function(msg, errmsg) {
 }
 
 /**
+ * check if false promise
+ * @param  {string} msg     
+ * @return {boolean}     
+ */
+PB.emptyPromise = function(msg) {
+    if(msg) PB.onError(msg)
+    return Promise.reject(msg)
+}
+
+/**
  * check if the string is a valid JSON string
  * @param  {string} str 
  * @return {boolean}
@@ -414,16 +800,6 @@ PB.parseJSON = function(str) {
     } catch(err) {
         return PB.onError('Invalid JSON string', err)
     }
-}
-
-/**
- * check if false promise
- * @param  {string} msg     
- * @return {boolean}     
- */
-PB.emptyPromise = function(msg) {
-    if(msg) PB.onError(msg)
-    return Promise.reject(msg)
 }
 
 

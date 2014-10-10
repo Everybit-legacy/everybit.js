@@ -6,17 +6,20 @@ PBFiles.createPuff = function(content, type) {
     var payload = {}
     payload.time = Date.now()
     
-    var type  = type || 'file'
+    var type   = type || 'file'
     var routes = ['local'];
 
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-    var previous, envelopeUserKeys
+    var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
+    var previous, puff
     
-    var puff = PB.buildPuff(username, privateKeys.default, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, envelopeUserKeys)
+    puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt)
+    
+
+    // PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+    //     var privateEnvelopeAlias
+    //     puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    // })
 
     return puff
 }
@@ -31,9 +34,9 @@ PBFiles.prepBlob = function(str, type) {
         blob = PBFiles.dataURItoBlob(str)
     else
         blob = new Blob([str], {type: 'text/plain'})
-    
+
     if(PBFiles.oldFile)
-      window.URL.revokeObjectURL(PBFiles.oldFile)
+       window.URL.revokeObjectURL(PBFiles.oldFile)
 
     PBFiles.oldFile = window.URL.createObjectURL(blob)
 
@@ -42,39 +45,14 @@ PBFiles.prepBlob = function(str, type) {
 
 PBFiles.extractLetterPuff = function(content) {
     var puff = PB.parseJSON(content)
-    if(!puff) return content
+    if(!puff) 
+        return PB.emptyPromise('Envelope was not JSON encoded')
     
-    if(!puff.keys) return (puff.payload||{}).content
+    // var userRecord = PB.getCurrentUserRecord()
+    // var pubkey = userRecord.defaultKey
     
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
+    var letter = PB.getDecryptedPuffPromise(puff)
     
-    var pubkey = userRecord.defaultKey
-    var prikey = privateKeys.default
-    
-    var letter = PB.decryptPuff(puff, pubkey, username, prikey)
-    
-    return letter
-}
-
-PBFiles.extractLetterPuffForReals = function(content) {
-    var puff = PB.parseJSON(content)
-    if(!puff) return false
-
-    if(!puff.keys) return (puff.payload||{}).content
-
-    if(!(puff.payload.type == 'encryptedpuff')) return false
-
-    var userRecord  = PB.M.Wardrobe.getCurrentUserRecord()
-    var username    = userRecord.username
-    var privateKeys = PB.M.Wardrobe.getCurrentKeys()
-
-    var pubkey = userRecord.defaultKey
-    var prikey = privateKeys.default
-
-    var letter = PB.decryptPuffForReals(puff, pubkey, username, prikey)
-
     return letter
 }
 
@@ -95,12 +73,15 @@ PBFiles.handleFileOpen = function(element, asDataURI) {
         var reader = new FileReader()
 
         reader.onload = function(event) {
-            console.log(reader)
+            // console.log(reader)
             var dataURIContent = event.target.result
             // var blob = PBFiles.dataURItoBlob(dataURIContent)
             resolve(dataURIContent)
         }
-
+        
+        if(!element.files[0]) // THINK: is false the right response?
+            return reject('No file selected')
+            
         if(asDataURI)
             reader.readAsDataURL(element.files[0])
         else

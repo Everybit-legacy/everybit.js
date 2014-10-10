@@ -431,7 +431,7 @@ var RegisterSubuserWizard = React.createClass({
         UsernameImport[network].requestAuthentication()
     },
     render: function() {
-        var generatedName = PB.M.Wardrobe.generateRandomUsername()
+        var generatedName = PB.generateRandomUsername()
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>
         if (!this.state.nameAvailable)
             getUsername = ""
@@ -543,13 +543,13 @@ var PasswordWizard = React.createClass({
     },
     populateKeys: function() {
         var keys = {}
-        keys.rootKeyPrivate    = PB.Crypto.generatePrivateKey()
-        keys.adminKeyPrivate   = PB.Crypto.generatePrivateKey()
-        keys.defaultKeyPrivate = PB.Crypto.generatePrivateKey()
+        keys.privateRootKey    = PB.Crypto.generatePrivateKey()
+        keys.privateAdminKey   = PB.Crypto.generatePrivateKey()
+        keys.privateDefaultKey = PB.Crypto.generatePrivateKey()
 
-        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.rootKeyPrivate)
-        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.adminKeyPrivate)
-        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.defaultKeyPrivate)  
+        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.privateRootKey)
+        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.privateAdminKey)
+        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.privateDefaultKey)  
         for (var field in keys) {
             if (keys[field])
                 this.refs[field].getDOMNode().value = keys[field]
@@ -559,13 +559,13 @@ var PasswordWizard = React.createClass({
     },
     handleConvert: function() {
         var keys = {}
-        keys.rootKeyPrivate    = this.refs.rootKeyPrivate.getDOMNode().value
-        keys.adminKeyPrivate   = this.refs.adminKeyPrivate.getDOMNode().value
-        keys.defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value
+        keys.privateRootKey    = this.refs.privateRootKey.getDOMNode().value
+        keys.privateAdminKey   = this.refs.privateAdminKey.getDOMNode().value
+        keys.privateDefaultKey = this.refs.privateDefaultKey.getDOMNode().value
 
-        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.rootKeyPrivate)
-        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.adminKeyPrivate)
-        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.defaultKeyPrivate) 
+        keys.rootKeyPublic    = PB.Crypto.privateToPublic(keys.privateRootKey)
+        keys.adminKeyPublic   = PB.Crypto.privateToPublic(keys.privateAdminKey)
+        keys.defaultKeyPublic = PB.Crypto.privateToPublic(keys.privateDefaultKey) 
 
         for (var field in keys) {
             if (keys[field])
@@ -589,9 +589,9 @@ var PasswordWizard = React.createClass({
         var username = puffworldprops.view.slider.username
 
         var keys = {}
-        keys.rootKeyPrivate    = this.refs.rootKeyPrivate.getDOMNode().value
-        keys.adminKeyPrivate   = this.refs.adminKeyPrivate.getDOMNode().value
-        keys.defaultKeyPrivate = this.refs.defaultKeyPrivate.getDOMNode().value
+        keys.privateRootKey    = this.refs.privateRootKey.getDOMNode().value
+        keys.privateAdminKey   = this.refs.privateAdminKey.getDOMNode().value
+        keys.privateDefaultKey = this.refs.privateDefaultKey.getDOMNode().value
         
         keys.rootKeyPublic     = this.refs.rootKeyPublic.getDOMNode().value
         keys.adminKeyPublic    = this.refs.adminKeyPublic.getDOMNode().value
@@ -621,7 +621,7 @@ var PasswordWizard = React.createClass({
             payload.importId = importInfo.id
 
             prefix = username
-            prefixKey = keys.adminKeyPrivate          
+            prefixKey = keys.privateAdminKey          
         }
 
         var routes = []
@@ -635,8 +635,8 @@ var PasswordWizard = React.createClass({
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) { 
-                PB.M.Wardrobe.storePrivateKeys(username, keys.rootKeyPrivate, keys.adminKeyPrivate, keys.defaultKeyPrivate)
-                PB.M.Wardrobe.switchCurrent(username)
+                PB.M.Wardrobe.storePrivateKeys(username, keys.privateRootKey, keys.privateAdminKey, keys.privateDefaultKey)
+                PB.switchIdentityTo(username)
                 updateUI()
                 var enableImport = (payload.importNetwork && payload.importNetwork == 'instagram')
                 self.setState({errMsg: "","registerSuccess": true, enableImport: enableImport})
@@ -683,9 +683,9 @@ var PasswordWizard = React.createClass({
                     <em>Remeber to save your keys!</em><br/>
                     <div style={keyColumnStyle}>
                         Private Keys: <br/>
-                        <span style={labelStyle}>root:</span><input type="text" ref="rootKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'rootKey')} /><br/>
-                        <span style={labelStyle}>admin:</span><input type="text" ref="adminKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'adminKey')}/><br/>
-                        <span style={labelStyle}>default:</span><input type="text" ref="defaultKeyPrivate" size="10" onChange={this.handleClearPublic.bind(this, 'defaultKey')} />
+                        <span style={labelStyle}>root:</span><input type="text" ref="privateRootKey" size="10" onChange={this.handleClearPublic.bind(this, 'rootKey')} /><br/>
+                        <span style={labelStyle}>admin:</span><input type="text" ref="privateAdminKey" size="10" onChange={this.handleClearPublic.bind(this, 'adminKey')}/><br/>
+                        <span style={labelStyle}>default:</span><input type="text" ref="privateDefaultKey" size="10" onChange={this.handleClearPublic.bind(this, 'defaultKey')} />
                     </div>
                     <div style={keyColumnStyle}>
                         Public Keys: <br/>

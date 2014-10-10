@@ -1,15 +1,15 @@
 // DATA LAYER
 
-PB.Data = {};
-// PB.Data.puffs = [];
-PB.Data.bonii = {};
-PB.Data.shells = [];
-PB.Data.shellSort = {};
-// PB.Data.shelf = [];
-PB.Data.pending = {};
-PB.Data.userRecords = {};                                  // these are DHT user entries, not our local identity wardrobe
-PB.Data.userPromises = {};
-
+PB.Data = {}
+// PB.Data.puffs = []
+PB.Data.bonii = {}
+PB.Data.shells = []
+PB.Data.shellSort = {}
+// PB.Data.shelf = []
+PB.Data.pending = {}
+PB.Data.userRecords = {}                    // maps username to an array of DHT userRecords
+PB.Data.userPromises = {}
+PB.Data.profiles = {}
 
 ///////////////// new graph stuff ////////////////////
 
@@ -40,7 +40,7 @@ PB.Data.addShellUsernameAsVertex = function(shell) {
     var matches = PB.Data.graph.v(username).run()
     var vertex = matches[0]
     
-    if(!vertex) // THINK: make usernames unique like USERNAME::<username> or something
+    if(!vertex)                             // THINK: make usernames unique like USERNAME::<username> or something
         vertex = PB.Data.graph.addVertex({ _id: username, name: username, type: 'username' })
     else
         if(PB.Data.graph.v(shell.sig).out('author').property('name').run()[0] == username)
@@ -58,30 +58,6 @@ PB.Data.addToGraph = function(shells) {
 }
 
 // TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
-
-
-// function build_graph() {
-//     g = Dagoba.graph()
-//
-//     PB.Data.shells.forEach(function(shell) {
-//         g.addVertex({ _id: shell.sig, name: shell.sig, shell: shell, type: 'shell' })
-//     })
-//
-//     PB.Data.shells.forEach(function(shell) {
-//         (shell.payload.parents||[]).forEach(function(parent) {
-//             g.addEdge({ _out: shell.sig, _in:  parent, _label: 'parent'})
-//             g.addEdge({ _in:  shell.sig, _out: parent, _label: 'child' })
-//         })
-//     })
-//
-//
-//
-//     PB.Data.graph = g
-// }
-
-///////////////// end graph stuff ////////////////////
-
-
 
 
 /**
@@ -292,7 +268,7 @@ PB.Data.tryAddingShell = function(shell) {
     }
 
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
 
         if(!shell.keys[username]) return false
         
@@ -682,20 +658,17 @@ PB.Data.isGoodPuff = function(puff) {
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    var prom = PB.getUserRecord(puff.username);
+    var prom = PB.getUserRecord(puff.username); // NOTE: versionedUsername
     
     return prom.then(function(user) {
         return PB.Crypto.verifyPuffSig(puff, user.defaultKey);
     });
 }
 
-/**
- * to get cached user record
- * @param  {string} username
- * @return {object}
- */
-PB.Data.getCachedUserRecord = function(username) {
-    return PB.Data.userRecords[username];
+
+PB.Data.getCachedUserRecord = function(versionedUsername, capa) {
+    versionedUsername = PB.maybeVersioned(versionedUsername, capa)
+    return PB.Data.userRecords[versionedUsername];
 }
 
 /**
@@ -706,11 +679,13 @@ PB.Data.getCachedUserRecord = function(username) {
 PB.Data.cacheUserRecord = function(userRecord) {
     //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
     
-    PB.Data.userRecords[userRecord.username] = userRecord;
-
-    delete PB.Data.userPromises[userRecord.username];
+    var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
     
-    PB.Persist.save('userRecords', PB.Data.userRecords); // OPT: this could get expensive
+    PB.Data.userRecords[versionedUsername] = userRecord;
+
+    delete PB.Data.userPromises[versionedUsername];
+    
+    PB.Persist.save('userRecords', PB.Data.userRecords);
     
     return userRecord;
 }

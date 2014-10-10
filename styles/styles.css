@@ -57,7 +57,7 @@ Official z-index guide to all z-indices in the GUI so check here before you z-in
 
 a {
     text-decoration:none;
-    color: rgba(0, 3, 82, 0.8);
+    color: rgba(29, 31, 91, 0.8);
     cursor: pointer;
 }
 
@@ -72,6 +72,14 @@ a.footerText {
 
 a.inline {
     background-color: rgba(255,255,255,.5)
+}
+
+a.inline:hover {
+    background-color: rgba(255,255,255,.8)
+}
+
+a.inline:active {
+    background-color: rgba(255,255,255,1)
 }
 
 a.ICXbuttonLink {
@@ -98,16 +106,16 @@ html {
     /*height: 100%;*/
     width: 100%;
     padding: 0;
+    overflow:hidden;
 }
 
 body {
-    background-color: #F0F0F0;
+    background-color: #F9F9EE;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 form {
     display: inline;
@@ -190,8 +198,6 @@ header h1 {
     vertical-align: middle;
     margin: 0 70px;
 }
-
-
 
 /* ID elements */
 
@@ -313,7 +319,7 @@ header h1 {
 
 /* Colors */
 .red {
-    color: #FF0000;
+    color: #880000;
 }
 
 .blue {
@@ -562,6 +568,10 @@ input[type='text'].btn {
   cursor: pointer;
   border-radius: 0;
 }
+
+.btn-inline {
+    display: inline;
+}
 .btn-link,
 .btn-link:active,
 .btn-link[disabled],
@@ -690,7 +700,6 @@ fieldset[disabled] .btn-primary.active {
     padding:2%;
     margin-right:auto;
     margin-left:auto;
-    overflow: scroll;
 }
 /*.downloadIcon {
     text-align: right;
@@ -835,8 +844,18 @@ fieldset[disabled] .btn-primary.active {
     font-size: 10em;
 }
 
+.georgia {
+    font-family: Georgia;
+}
+
 .gudea {
-    font-family: Gudea
+    font-family: Gudea;
+}
+
+.help-box .content-card {
+    padding: 1%;
+    background-color: rgba(226,234,157,0.2);
+    border: 1px solid rgba(0,0,0,0.3);
 }
 
 .headerBar {
@@ -907,7 +926,7 @@ fieldset[disabled] .btn-primary.active {
 /* ICX Styles */
 .icx-screen {
     width: 100%;
-    height: 100%;
+    /*height: 100%;*/
 }
 
 .icx-screen .component {
@@ -923,6 +942,67 @@ fieldset[disabled] .btn-primary.active {
 
 .icx-newuser {
 }
+
+/* BEGIN ICX tableview */
+.icx-tableview {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.icx-tableview .viewContainer {
+    margin: 10px;
+}
+
+.icx-tableview .viewContainer .viewItem {
+    width: 90%;
+    position: relative;
+}
+
+.icx-tableview .viewContainer .accordion-content {
+    /* transition: all .5s ease-in-out; */
+}
+
+
+.icx-tableview .viewContainer .viewItem.sent {
+    margin-left: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem.received {
+    margin-right: 10%;
+}
+
+.icx-tableview .viewContainer .viewItem .markdownP {
+    font-size: 100%;
+}
+
+.icx-tableview .viewContainer .metaInfo:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .tableHeader {
+}
+
+.icx-tableview .viewContainer .tableHeader:after {
+    clear: both;
+}
+
+.icx-tableview .viewContainer .tableHeader .userInfo {
+    position: relative;
+}
+
+.icx-tableview .viewContainer .tableHeader .download,.toggler,.reply {
+    float: right;
+}
+
+.icx-tableview .viewContainer .viewItem .bigStart::first-line {
+    font-size: 100%;
+    font-family: Gudea;
+}
+
+/* END ICX tableview */
+
+
+
 
 .icx-screen .listview {
     max-height: 100%;
@@ -979,10 +1059,6 @@ fieldset[disabled] .btn-primary.active {
     overflow: ellipsis;
     white-space: nowrap;
 
-}
-
-.icx-screen .rowReferencePreview {
-    max-width: none;
 }
 
 .icx-screen .menuTooltip.above {
@@ -1465,8 +1541,14 @@ fieldset[disabled] .btn-primary.active {
     text-align: left;
     border: 1px #222222 dotted;
     display: none;
-    max-width: 300px;
+    max-width: 100%;
 }
+
+.refs .rowReferencePreview {
+    width: 200%;
+}
+
+
 .rowReference:hover > .rowReferencePreview{
     display: block;
 }
@@ -1546,6 +1628,9 @@ fieldset[disabled] .btn-primary.active {
     -o-transform: rotate(90deg);
 }
 
+.screen {
+    overflow:auto;
+}
 .shadow {
     text-shadow: 0 0 3px #000; /* horizontal-offset vertical-offset 'blur' colour */
     -moz-text-shadow: 0 0 3px #000;
@@ -1755,6 +1840,9 @@ fieldset[disabled] .btn-primary.active {
     font-size:100%
 }
 
+.underline {
+    text-decoration: underline;
+}
 .walletLink .walletInfo {
     font-family: Gudea, sans-serif;
     font-size: 1em;

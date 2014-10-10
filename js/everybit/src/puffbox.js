@@ -54,7 +54,7 @@ var PuffFancyBox = React.createClass({
         var countChildren = PB.M.Forum.getChildCount(puff)
         if (countChildren > 0) {
             var kids = PB.Data.graph.v(puff.sig).out('child').run()
-            var curUser = PB.M.Wardrobe.getCurrentUsername()
+            var curUser = PB.getCurrentUsername()
             for (var i=0; i<countChildren; i++) {
                 if (kids[i].shell.username==curUser) {
                     replied = true
@@ -284,7 +284,7 @@ var PuffFlagLink = React.createClass({
     },
 
     handleFlagRequest: function() {
-        if (PB.M.Wardrobe.getCurrentUsername() != this.props.username &&PB.M.Wardrobe.getCurrentUsername() != CONFIG.zone)
+        if (PB.getCurrentUsername() != this.props.username &&PB.getCurrentUsername() != CONFIG.zone)
             return false
         if (this.props.flagged) return false
 
@@ -322,7 +322,7 @@ var PuffFlagLink = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
 
         // Does this user have right to flag?
-        if(PB.M.Wardrobe.getCurrentUsername() == this.props.username || PB.M.Wardrobe.getCurrentUsername() == CONFIG.zone) {
+        if(PB.getCurrentUsername() == this.props.username || PB.getCurrentUsername() == CONFIG.zone) {
             return (
                 <span>
                     <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>
@@ -738,7 +738,7 @@ var PuffStar = React.createClass({
         return { pending: false }
     },
     handleClick: function() {
-        var username = PB.M.Wardrobe.getCurrentUsername()
+        var username = PB.getCurrentUsername()
         
         if(username == PB.M.Forum.getPuffBySig(this.props.sig).username)
             return false // can't star your own puff
@@ -764,7 +764,7 @@ var PuffStar = React.createClass({
             var content = this.props.sig
             var type = 'star'
 
-            var userprom = PB.M.Wardrobe.getUpToDateUserAtAnyCost()
+            var userprom = PB.getUpToDateUserAtAnyCost()
             var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, [])
             var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
             prom.then(takeUserMakePuff)
@@ -784,7 +784,7 @@ var PuffStar = React.createClass({
         var color = 'black'
         
         if(starStats && starStats.from) {
-            var username = PB.M.Wardrobe.getCurrentUsername()
+            var username = PB.getCurrentUsername()
             var selfStar = starStats.from[username]
             score = starStats.score
             color = selfStar ? 'yellow' : 'black'
@@ -800,7 +800,7 @@ var PuffStar = React.createClass({
         )
         var pointerStyle = {}
         var self = this
-        if (PB.M.Wardrobe.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
+        if (PB.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'}
             link = <span style={pointerStyle}><i className={"fa fa-fw fa-star " + color}></i></span>
         }

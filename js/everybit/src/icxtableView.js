@@ -550,7 +550,7 @@ var ICXInlineReply = React.createClass({
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
 
             <b>Message:</b><br />
-                <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
+                <textarea ref="messageText" style={{width: '100%', height: '20%'}} />{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

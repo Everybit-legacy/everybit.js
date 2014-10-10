@@ -56,7 +56,7 @@ var ICXWorld = React.createClass({
             ICX.errors = ''
             if(currScreen != 'send') { //Remove toUser if user navigates away from SEND
                 Events.pub('ui/event', {
-                    "view.icx.toUser": "",
+                    "view.icx.toUser": ""
                 })
             }
         }
@@ -225,7 +225,7 @@ var ICXWorld = React.createClass({
                 // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
                 top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
                 padding: '10px', // Testing...
-                fontSize: ICX.calculated.baseFontH + 'px',
+                fontSize: ICX.calculated.baseFontH + 'px'
         }
 
 
@@ -2611,7 +2611,8 @@ var ICXAbout = React.createClass({
                     <img src="img/icx/theCrew.jpg" style={{width: '90%'}}/><br />
                     <br />
                     <b>From left to right:</b><br />
-                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a> <span className="textBox small">is a third year student at the University of Waterloo with a major in Computer Engineering. He has several years of experience developing websites and software applications, and helped Rogers redesign their SportsNet.ca news portal. In his spare time he works on an online mafia game engine.</span>
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a>
+                    <span className="textBox small"> has several years of experience developing websites and software applications, and helped Rogers redesign their SportsNet.ca news portal. In his spare time he works on an online mafia game engine.</span>
                     <br /><br />
 
                     <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a>

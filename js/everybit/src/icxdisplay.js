@@ -1889,14 +1889,14 @@ var ICXLogin = React.createClass({
 
                     <br /><br />
                     <div className="relative">
-                        <b>Private passphrase:</b>
-                        <Tooltip content="This is the secret phrase you chose when signing up." />
+                        <b>Password:</b>
+                        <Tooltip content="This is the password you chose when signing up." />
                     </div>
 
                     <textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
+                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide password</span>
                     <br /><br />
                     <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>

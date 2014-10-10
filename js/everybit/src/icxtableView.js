@@ -58,15 +58,24 @@ var TableView = React.createClass({
             right: Math.floor(ICX.calculated.baseFontH/2)+'px',
             top: Math.floor(ICX.calculated.baseFontH/2)+'px',
             padding: Math.floor(ICX.calculated.baseFontH/4)+'px',
-            backgroundColor: 'rgba(255,255,255,.6)',
+            backgroundColor: 'rgba(255,255,255,.8)',
             borderRadius: Math.floor(ICX.calculated.baseFontH)+'px',
             border: '1px dashed #000',
             position: 'absolute'
         }
-		
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+        var polyglot = Translate.language[puffworldprops.view.language]
+
 		return (
 			<div className="viewContainer">
-                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh" /></a></span>
+                <div style={headerStyle}>View your messages and files</div>
+                <div style={{fontSize: '60%'}}>
+                    <br />
+                    <b>All content is encrypted on the user's device. Only the sender and recipient can decode it.</b><br /><br />
+                </div>
+                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){

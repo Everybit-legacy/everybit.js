@@ -109,13 +109,13 @@ html {
 }
 
 body {
-    background-color: #FAFAED;
+    background-color: #F9F9EE;
     background-repeat: repeat;
     font-family: Gudea, sans-serif;
     font-size: 1em;
     margin: 0;
     padding: 0;
-    overflow: hidden;
+    overflow: auto;
 }
 form {
     display: inline;

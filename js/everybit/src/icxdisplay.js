@@ -154,7 +154,7 @@ var ICXWorld = React.createClass({
             display: 'inline-block'
         }
 
-        var c1, c2, c3, c4, c5, c6, op1, op2
+        var c1, c2, c3, c4, c5, c6, c7, op1, op2, op3, op4
 
 
          c1 = '67, 83, 111'
@@ -163,29 +163,25 @@ var ICXWorld = React.createClass({
          c4 = '33, 35, 39'
          c5 =  '29, 3, 0'
 
-/*
-        c1 = '67, 83, 111'
-        c2 = '29, 3, 0'
-        c3 = '20, 57, 62'
-        c4 = '33, 35, 39'
-        c5 =  '26, 40, 60'
-        */
         c6 = '0, 3, 82'     // Blue border
+        c7 = '99,112,133'
 
         op1 = '0.8'
         op2 = '.08'
+        op3 = 1
+        op4 = '0.6'
 
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
             {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
-            {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 4, name: 'learn', button: true, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba('+c4+', '+op2+')'},
             {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
             {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0, border: '1px solid #000'}},
-            {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0}},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'send.confirm', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -214,34 +210,19 @@ var ICXWorld = React.createClass({
             return (obj.name == currScreen);
         })[0]
 
-        if(ICX.config.borderSide == 'right') {
-            var screenStyle = {
-                position: "absolute",
-                width: w,
-                height: h,
-                borderRightWidth: borderWidth,
-                borderRightColor: thisScreen.color,
-                borderRightStyle: 'solid'
-            }
-        } else {
-            var screenStyle = {
-                position: "absolute",
-                width: w,
-                height: h,
-                borderLeftWidth: borderWidth,
-                borderLeftColor: thisScreen.color,
-                borderLeftStyle: 'solid',
-                maxWidth: w,
-                maxHeight: h
-            }
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            maxWidth: w
         }
 
 
         var contentDivStyles = {
                 position: "absolute",
-                left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+                left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
                 width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-                height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+                // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
                 top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
                 padding: '10px', // Testing...
                 fontSize: ICX.calculated.baseFontH + 'px',
@@ -280,20 +261,32 @@ var ICXWorld = React.createClass({
             contentDivStyles.padding = '0'
         }
         */
+        var borderStyle =  {
+            width: borderWidth,
+            backgroundColor: thisScreen.color,
+            position: 'fixed',
+            height: '100%'
+        }
+
+
         return (
-            <div style={screenStyle} className="screen">
-                <ICXLogo screenInfo={thisScreen} />
-                <ICXLinks screenInfo={thisScreen} />
-                <div style={contentDivStyles}>
-                    <ICXError />
-                    {pageComponent}
+            <span>
+                <div style={borderStyle} />
+                <div style={screenStyle} className="screen">
+                    <ICXLogo screenInfo={thisScreen} />
+                    <ICXLinks screenInfo={thisScreen} />
+                    <div style={contentDivStyles}>
+                        <ICXError />
+                        {pageComponent}
+                    </div>
+                    <ICXSpinner />
                 </div>
-                <ICXSpinner />
-                <ICXFooter />
-            </div>
+            </span>
         )
     }
 })
+
+// <ICXFooter />
 
 var ICXInit = React.createClass({
     render: function () {
@@ -1450,13 +1443,13 @@ var ICXNewUser = React.createClass({
         if(typeof puffworldprops.ICX.wizard != 'undefined') {
             var wizard = puffworldprops.ICX.wizard
             if(wizard.sequence == 'send' || wizard.sequence == 'store') {
-                var extraInfo = 'In order to send a message or store a file, please sign up for an account by choosing a username and passphrase. ' +
-                    'You’ll be able to download your passphrase later.'
+                var extraInfo = 'In order to send a message or store a file, please sign up for an account by choosing a username and password. ' +
+                    'You’ll be able to download your password later.'
             }
 
         } else {
-            var extraInfo = 'Please sign up for an account by choosing a username and passphrase. ' +
-                'You’ll be able to download your passphrase later.'
+            var extraInfo = 'Please sign up for an account by choosing a username and password. ' +
+                'You’ll be able to download your password later.'
         }
 
         return (
@@ -1478,15 +1471,15 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
-                    <div><b>{polyglot.t("signup.pass")}</b></div>
+                    <div><b>Password:</b></div>
                     <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
-                        <Tooltip position='under' content="Generate a new passphrase" />
+                        <Tooltip position='under' content="Generate a new password" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
+                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide password</span>
                     <br /><br />
                     <b>Avatar:</b><br />
                     <canvas id="avatarCanvas" width="105" height="105">
@@ -2227,41 +2220,63 @@ var ICXDashboard = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
-                    <span className="textBox">Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.</span>
-                    <br /><br />
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
                         {polyglot.t("dashboard.tableview")}
                     </a>
-                    <br /><br />
-                    <a href="#" className="inline" ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
-                        <i className="fa fa-fw fa-download" />
-                        {polyglot.t("dashboard.download_id")}
-                    </a>
-                    <br /><br />
-                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'changepassphrase')}>
-                        <i className="fa fa-fw fa-gears" />
-                        {' '}Change your passphrase
-                    </a>
-
-                    <br /><br />
-
-                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
+                    <br />
+                    <span className="textBox small">
+                        View the messages and files you've sent and received, as well as the encrypted files you've stored
+                        to the cloud.<br /><br />
+                    </span>
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
                         <i className="fa fa-fw fa-file-excel-o" />
                         {polyglot.t("dashboard.filesys")}
                     </a>
+                    <br />
+                    <span className="textBox small">
+                    You can encrypt and decrypt files right in your web browser. Encrypted files can be backed up to the
+                    cloud or stored on your computer.
+                        <br /><br />
+                    </span>
+
+                    <a href="#" className="inline" ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
+                        <i className="fa fa-fw fa-download" />
+                        Save your identity file
+                    </a>
+                    <br />
+                    <span className="textBox small">
+                    Generate a file that can be used to move your identity from one web
+                    browser to another, or to log in. This is a plain text file with your username and password, it
+                    is <em>not</em> encrypted and should never be stored to the cloud.
                     <br /><br />
+                    </span>
+                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'changepassphrase')}>
+                        <i className="fa fa-fw fa-gears" />
+                        {' '}Change your password
+                    </a>
+                    <br />
+                    <span className="textBox small">
+                        <span className="shortcut bold">Tech details:</span> Your old password will be used to sign a message
+                    requesting a new public key, based on your new password. Neither password will be sent over the net.
 
+                        <br /><br />
+                    </span>
 
-
+                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
                     <a href="#" className="inline" onClick={this.handleSignOut}>
                         <i className="fa fa-fw fa-sign-out" />
                         {polyglot.t("dashboard.logout")}
                     </a>
+                    <br />
+                    <span className="textBox small">
+                    Remove all traces of your identity from this web browser. If you have not yet stored your password or
+                    saved your identity file (see link above), there will be no way to recover your files or messages.
+                        <br /><br />
+                    </span>
                 </div>
             </div>
             )
@@ -2272,7 +2287,7 @@ var ICXDashboard = React.createClass({
         var browser = getBrowser()
         if (browser == "Safari") {
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
-                "As a result, you may not be able to download passphrase files or files you have encrypted."
+                "As a result, you may not be able to download identity files or files you have encrypted."
 
             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -2335,7 +2350,7 @@ var ICXDashboard = React.createClass({
         var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
-        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
+        var msg = "WARNING: If you have not yet saved your username and password, hit Cancel and click on your username and choose Save your identity file. Are you sure you wish to continue?"
 
         var r = confirm(msg)
         if (r == false) {
@@ -2494,11 +2509,11 @@ var ICXTableView = React.createClass({
     render: function () {
 
         var viewprops = this.props.view || {}
-        var view = <TableView view={viewprops} table={viewprops.table}/>
-        document.body.style.overflowY = "auto"
 
         return (
-            <div className="icx-tableview">{view}</div>
+            <div className="icx-tableview">
+                <TableView view={viewprops} table={viewprops.table}/>
+            </div>
             )
     }
 })
@@ -2924,12 +2939,12 @@ var ICXLogo = React.createClass({
 
             var logoW = w*ICX.config.logoSmallRatio
             var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
-            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left ) + "px"
+            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left + ICX.calculated.sideBorder) + "px"
             logoW = logoW + "px"
             var divW = w*ICX.config.buttonSmallWidthRatio
 
             return (
-                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
+                <div style={{position: 'fixed', top: logoY, width: divW, left: logoX}}>
                     <a href="#" onClick={this.handleGoHome}>
                         <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
                     </a>
@@ -2977,7 +2992,7 @@ var ICXButtonLink = React.createClass({
         var buttonStyle = {
             backgroundColor: screenInfo.color,
             height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-            position: 'absolute',
+            position: 'fixed',
             fontSize:  fontSize + 'px',
             top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
@@ -2993,7 +3008,7 @@ var ICXButtonLink = React.createClass({
         if(ICX.config.borderSide == 'right' || this.props.screenInfo.name == 'login') {
             buttonStyle.right = 0
         } else {
-            buttonStyle.left = 0
+            buttonStyle.left = Math.floor(ICX.calculated.sideBorder)+'px'
         }
 
 
@@ -3012,14 +3027,15 @@ var ICXButtonLink = React.createClass({
 
         // Special case login
         if(this.props.screenInfo.name == 'login') {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
-            buttonStyle.position = 'absolute'
+            buttonStyle.position = 'fixed'
             buttonStyle.top = 0
+            buttonStyle.width = (Math.floor(w*(1-ICX.config.content.insets.left)) - ICX.calculated.sideBorder) + 'px'
+            buttonStyle.right = 0
             buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             // two styles below are needed to make tooltip display properly
             buttonStyle.overflow = 'visible'
-            buttonStyle.whiteSpace = 'normal'
+            buttonStyle.whiteSpace = 'nowrap'
             return (
                 <div style={buttonStyle}>
                     <ICXUserButton />

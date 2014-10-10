@@ -700,7 +700,6 @@ fieldset[disabled] .btn-primary.active {
     padding:2%;
     margin-right:auto;
     margin-left:auto;
-    overflow: scroll;
 }
 /*.downloadIcon {
     text-align: right;

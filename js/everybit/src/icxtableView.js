@@ -2,8 +2,7 @@
 
 /*
  BROKEN:
- hover over puff to show preview
- Hover over avatar if down on page
+ 
  Refresh button
 
 
@@ -41,11 +40,26 @@ var TableView = React.createClass({
         getMyPrivateShells()
     },
 
-	componentWillMount: function() {
-		Events.pub('ui/event', {
-			'view.table.loaded': CONFIG.initialLoad
-		})
-	},
+    getSomePuffs: function() {
+
+    },
+
+    componentWillMount: function() {
+        Events.pub('ui/event', {
+            'view.table.loaded': CONFIG.initialLoad
+        })
+    },
+
+	// componentWillUpdate: function() {
+ //        var query = puffworldprops.view.query
+ //        var filters = puffworldprops.view.filters
+ //        var limit = puffworldprops.view.table.loaded
+ //        var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+
+	// 	Events.pub('ui/event', {
+ //            'view.table.actual': puffs.length
+	// 	})
+	// },
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
@@ -53,6 +67,7 @@ var TableView = React.createClass({
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 
 		puffs = this.sortPuffs(puffs)
+        ICX.actual = puffs.length
 
         var refreshStyle = {
             right: Math.floor(ICX.calculated.baseFontH/2)+'px',
@@ -73,7 +88,7 @@ var TableView = React.createClass({
                 <div style={headerStyle}>View your messages and files</div>
                 <div style={{fontSize: '60%'}}>
                     <br />
-                    <b>All content is encrypted on the user's device. Only the sender and recipient can decode it.</b><br /><br />
+                    <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
@@ -130,6 +145,17 @@ var ICXContentItem = React.createClass({
         return {
             expanded: true,
             showReply: false
+        }
+    },
+
+    componentDidMount: function() {
+        console.log(this.props.key)
+        if ( this.props.key == ICX.actual-1 ) {
+            //console.log("finished loading \n")
+            ICX.loading = false
+        } else {
+            //console.log("still more to load \n")
+            ICX.loading = true
         }
     },
 
@@ -552,9 +578,12 @@ var ViewLoadMore = React.createClass({
         var availablePuffs = puffs.length
         var showingPuffs = puffworldprops.view.table.loaded
 
-        if (availablePuffs <= showingPuffs) {
-			footer = <div>Nothing more to show</div>
-		} else {
+        
+		if (ICX.loading) {
+            footer = <div>Loading more messages ...</div>
+        } else if (availablePuffs <= showingPuffs) {
+            footer = <div>Nothing more to show</div>
+        } else {
 			footer = <a className="inline" onClick={this.handleLoadMore}>Load more messages</a>
 		}
 		return (

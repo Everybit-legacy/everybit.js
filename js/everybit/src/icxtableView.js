@@ -305,14 +305,16 @@ var ICXTableUserInfo = React.createClass({
         }
 
         if(isSender) {
-            var sentOrReceived = 'Sent'
+            var sentOrReceived = 'sent'
+            var fromOrTo = 'To '
         } else {
-            var sentOrReceived = 'Received'
+            var sentOrReceived = 'received'
+            var fromOrTo = 'From '
         }
 
         return (
             <span className="userInfo">
-                {avatar} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
+                {avatar} {fromOrTo} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
                 {' '}
                 {sentOrReceived}<ICXTableItemDate date={this.props.puff.payload.time} />
             </span>

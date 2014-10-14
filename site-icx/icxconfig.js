@@ -90,7 +90,7 @@ ICXdefaults = JSON.parse(JSON.stringify(ICX))
 // OTHER
 CONFIG = {};
 
-CONFIG.version = '0.4.1';
+CONFIG.version = '0.5';
 
 // Array of versions of Puff supported
 // Not yet implemented

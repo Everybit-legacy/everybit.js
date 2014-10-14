@@ -800,13 +800,14 @@ var ICXSend = React.createClass({
     componentDidMount: function() {
         // Were we sent to user by props?
         //TODO: chose one variable to keep toUser in and apply it everywhere
-        if(puffworldprops.view.icx.toUser || puffworldprops.ICX.toUser) {
-            this.refs.toUser.getDOMNode().value = puffworldprops.ICX.toUser
-            this.handleUsernameLookup()
+        var userField = this.refs.toUser.getDOMNode()
+        if(typeof(puffworldprops.ICX.toUser) == "undefined") {
+            userField.value = puffworldprops.view.icx.toUser
+        } else if (typeof(puffworldprops.view.icx.toUser) == "undefined") {
+            userField.value = puffworldprops.ICX.toUser
         }
-        this.refs.toUser.getDOMNode().focus()
-
-        var browser = getBrowser()
+        this.handleUsernameLookup()
+        userField.focus()
     },
 
 

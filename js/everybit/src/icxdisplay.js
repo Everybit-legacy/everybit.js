@@ -1743,7 +1743,7 @@ var ICXNewUser = React.createClass({
 
         // Convert passphrase to key
         //append the username to passphrase to generate the hash
-        var privateKey = passphraseToPrivateKeyWif(requestedUsername + passphrase)
+        var privateKey = passphraseToPrivateKeyWif(passphrase,requestedUsername)
         var publicKey = PB.Crypto.privateToPublic(privateKey)
 
         var rootKeyPublic     = publicKey
@@ -2123,6 +2123,17 @@ var ICXLogin = React.createClass({
         //TODO: THINK
         //THINK: We need a way to differentiate legacy users (1.0) from newer users (1.1+)
         // gonna have to do something like privateKey = passphraseToPrivateKeyWif(username + passphrase)
+
+
+        /*var recordProm = PB.getUserRecordNoCache(username)
+        recordProm.then(function(userRecord) {
+            if(userRecord.updated > someval) {
+            var privateKey = passphraseToPrivateKeyWif(passphrase,username)
+            } else {
+            var privateKey = passphraseToPrivateKeyWif(passphrase)
+            }
+        }) */
+        
         var privateKey = passphraseToPrivateKeyWif(passphrase)
 
         // Convert private key to public key

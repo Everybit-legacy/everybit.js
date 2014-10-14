@@ -9,8 +9,10 @@ function keepNumberBetween(x,a,b) {
 }
 
 // From brainwallet
-function passphraseToPrivateKeyWif(passphrase) {
-    var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString();
+//modified to prepend username
+function passphraseToPrivateKeyWif(passphrase,username) {
+    var preHashStr = username ? (username + passphrase) : passphrase
+    var hashStr = Bitcoin.Crypto.SHA256(preHashStr).toString();
     // hash = Bitcoin.Crypto.util.bytesToHex(hash);
     // var hash_str = pad(hash, 64, '0');
     hash = Bitcoin.convert.hexToBytes(hashStr);

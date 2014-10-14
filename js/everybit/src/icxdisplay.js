@@ -768,7 +768,7 @@ var ICXSend = React.createClass({
                     Looking for someone to
                         {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
                         {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
-                        {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>.
+                        {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adamrafeek')} >the developers</a>.
                     </div>
                     <br />
                     <div className={inviteClass}>
@@ -915,7 +915,8 @@ var ICXSend = React.createClass({
         return Events.pub('ui/events', {
             'ICX.userConfirmed': true,
             'ICX.nextStatus': true,
-            'ICX.toUser': username
+            'ICX.toUser': username,
+            'ICX.toUserStatus': ""
         })
     }
 })

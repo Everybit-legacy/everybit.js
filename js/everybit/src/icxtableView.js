@@ -438,6 +438,9 @@ var ICXInlineReply = React.createClass({
         )
         */
 
+        if(!content || content.length < 1) {
+            return false
+        }
         var prom = Promise.resolve() // a promise we use to string everything along
 
         var usernames = [puff.username]
@@ -511,6 +514,12 @@ var ICXInlineReply = React.createClass({
 
     },
 
+    handleKeyDown: function(e) {
+        if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            this.handleReply()
+        }
+    },
+
 	render: function() {
 		var puff=this.props.puff
 		var username = puff.username.stripCapa()
@@ -543,7 +552,7 @@ var ICXInlineReply = React.createClass({
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
 
             <b>Message:</b><br />
-                <textarea ref="messageText" style={{width: '100%', height: '20%'}} />{' '}
+                <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

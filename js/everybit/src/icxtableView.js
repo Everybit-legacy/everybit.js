@@ -37,7 +37,10 @@ var TableView = React.createClass({
 	},
 
     forceRefreshPuffs: function() {
+        var cl = this.refs.refresh.getDOMNode().classList
+        cl.toggle("fa-spin")
         getMyPrivateShells()
+        cl.toggle("fa-spin")
     },
 
     componentWillMount: function() {
@@ -46,16 +49,6 @@ var TableView = React.createClass({
         })
     },
 
-	// componentWillUpdate: function() {
- //        var query = puffworldprops.view.query
- //        var filters = puffworldprops.view.filters
- //        var limit = puffworldprops.view.table.loaded
- //        var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-
-	// 	Events.pub('ui/event', {
- //            'view.table.actual': puffs.length
-	// 	})
-	// },
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
@@ -88,7 +81,7 @@ var TableView = React.createClass({
                     <br />
                     <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
                 </div>
-                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh small" /></a></span>
+                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
@@ -580,7 +573,7 @@ var ViewLoadMore = React.createClass({
 
         
 		if (ICX.loading) {
-            footer = <div>Loading more messages ...</div>
+            footer = <div>Loading more messages <img src="/img/icx/dotdotdot.gif" /></div>
         } else if (availablePuffs <= showingPuffs) {
             footer = <div>Nothing more to show</div>
         } else {

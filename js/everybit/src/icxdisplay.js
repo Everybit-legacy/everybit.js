@@ -801,9 +801,9 @@ var ICXSend = React.createClass({
         // Were we sent to user by props?
         //TODO: chose one variable to keep toUser in and apply it everywhere
         var userField = this.refs.toUser.getDOMNode()
-        if(puffworldprops.view.icx.toUser) {
+        if((typeof(puffworldprops.view.icx.toUser) != "undefined") && (puffworldprops.view.icx.toUser)) {
             userField.value = puffworldprops.view.icx.toUser
-        } else if (puffworldprops.ICX.toUser) {
+        } else if ((typeof(puffworldprops.ICX.toUser) != "undefined") &&puffworldprops.ICX.toUser) {
             userField.value = puffworldprops.ICX.toUser
         }
         this.handleUsernameLookup()

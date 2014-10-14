@@ -54,10 +54,10 @@ var TableView = React.createClass({
 		var filters = puffworldprops.view.filters
 		var limit = puffworldprops.view.table.loaded
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-        var ctr = 0
         var total = 0
 
 		puffs = this.sortPuffs(puffs)
+        //ICX.loading = !!puffs.length
         total = puffs.length - 1
 
         var refreshStyle = {
@@ -85,9 +85,8 @@ var TableView = React.createClass({
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
-                        ctr++
-                        ICX.loading = (ctr==total)
-						return <ICXContentItem key={index} puff={puff} />
+                        ICX.loading = (index < total)
+						return <ICXContentItem tot={total} key={index} puff={puff} />
 					})
 				}
                 <ViewLoadMore query={this.props.view.query} />
@@ -142,7 +141,8 @@ var ICXContentItem = React.createClass({
     },
 
     componentDidMount: function() {
-        // console.log(this.props.key)
+        console.log(this.props.key + "/" + this.props.tot)
+        console.log(ICX.loading)
         // if ( this.props.key == ICX.actual-1 ) {
         //     //console.log("finished loading \n")
         //     ICX.loading = false

@@ -171,7 +171,9 @@ puffworldprops = {
     prefs: {
         reporting: true
     },
-    profile: { },
+    profile: { 
+        customAvatar: false
+    },
     tools: {
         users: {
             resultstyle: 'raw',

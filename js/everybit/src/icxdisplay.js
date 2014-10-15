@@ -1750,6 +1750,7 @@ var ICXNewUser = React.createClass({
 
         reader2.onload = function(event){
             return Events.pub('ui/event', {
+                'profile.customAvatar': true,
                 'profile.avatarUrl': event.target.result
             })
         }

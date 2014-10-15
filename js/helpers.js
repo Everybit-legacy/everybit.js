@@ -433,9 +433,11 @@ function getAvatar(color, name) {
     ctx.fill();
     ctx.stroke();
 
-    return Events.pub('ui/event',
-        {'profile.avatarUrl': canvas.toDataURL('png')}
-    )
+    if(!puffworldprops.profile.customAvatar) {
+        return Events.pub('ui/event',
+            {'profile.avatarUrl': canvas.toDataURL('png')}
+        )
+    }
 }
 
 function getUnicodeFromName(name) {

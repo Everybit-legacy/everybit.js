@@ -1723,19 +1723,19 @@ var ICXNewUser = React.createClass({
             var int32View = new Int32Array(buffer)
             //var validImage = false
             switch(int32View[0]) {
-                case 1196314761: // "image/png"
+                case 1196314761:    // "image/png"
                     validImage = true
                     break;
-                case 944130375: // "image/gif"
+                case 944130375:     // "image/gif"
                     break;
-                case 544099650: // "image/bmp"
+                case 544099650:     // "image/bmp"
                     validImage = true
                     break;
-                case -520103681: // "image/jpg"
+                case -520103681:    // "image/jpg"
                     validImage = true
                     break;
-                default:
-                    // "unknown"
+                default:            // "unknown"
+                    // TODO: Throw error
                     break;
             }
             if(validImage) self.handleAvatarUpload(file)

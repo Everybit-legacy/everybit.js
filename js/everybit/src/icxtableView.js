@@ -141,8 +141,8 @@ var ICXContentItem = React.createClass({
     },
 
     componentDidMount: function() {
-        console.log(this.props.key + "/" + this.props.tot)
-        console.log(ICX.loading)
+        //console.log(this.props.key + "/" + this.props.tot)
+        //console.log(ICX.loading)
         // if ( this.props.key == ICX.actual-1 ) {
         //     //console.log("finished loading \n")
         //     ICX.loading = false
@@ -248,13 +248,16 @@ var ICXItemMainContent = React.createClass({
                 padding: itemPadding
             }
 
-            return(
-                <div className="accordion-content" style={itemContentStyle}>
-                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                    <ICXInlineReply puff={this.props.puff} />
-                </div>
+            if(this.props.puff.payload.type == 'file') {
+                return <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+            } else {
+                return(
+                    <div className="accordion-content" style={itemContentStyle}>
+                        <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                        <ICXInlineReply puff={this.props.puff} />
+                    </div>
                 )
-
+            }
         } else {
             return <span></span>
         }
@@ -302,14 +305,16 @@ var ICXTableUserInfo = React.createClass({
         }
 
         if(isSender) {
-            var sentOrReceived = 'Sent'
+            var sentOrReceived = 'sent'
+            var fromOrTo = 'To '
         } else {
-            var sentOrReceived = 'Received'
+            var sentOrReceived = 'received'
+            var fromOrTo = 'From '
         }
 
         return (
             <span className="userInfo">
-                {avatar} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
+                {avatar} {fromOrTo} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
                 {' '}
                 {sentOrReceived}<ICXTableItemDate date={this.props.puff.payload.time} />
             </span>
@@ -411,11 +416,17 @@ var ICXDownloadLink = React.createClass({
         var puff = this.props.puff
         var style = {display: (puff.payload.type == 'file') ? 'inline' : 'none'}
 
-		return (
-			<div className="download">
-				<a onClick={this.handlePrepBlob} style={style}><i className="fa fa-fw fa-download" /></a>
-			</div>
-		)
+        if(!this.props.filename) {
+            return (
+                <div className="download">
+                    <a onClick={this.handlePrepBlob} style={style}><i className="fa fa-fw fa-download" /></a>
+                </div>
+                )
+        } else {
+    		return (
+    			<span>File:<a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
+    		)
+        }
 	}
 })
 

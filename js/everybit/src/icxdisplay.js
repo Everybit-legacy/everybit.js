@@ -1533,6 +1533,9 @@ var ICXNewUser = React.createClass({
                     <canvas id="avatarCanvas" width="105" height="105">
                     </canvas>
                     <br />
+                    <div> Or Upload your own avatar
+                    <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageCheck}/>
+                    </div>
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
@@ -1761,17 +1764,50 @@ var ICXNewUser = React.createClass({
         return false
     },
 
-    handleImageLoad: function() {
-        var self   = this
+    handleImageCheck: function() {
+        var self = this
         var reader = new FileReader()
+        var file = this.refs.imageLoader.getDOMNode().files[0]
+        var validImage = false
 
         reader.onload = function(event){
-            return Events.pub('ui/reply/image-upload', {
+            var buffer = reader.result.slice(0,4)
+            var int32View = new Int32Array(buffer)
+            //var validImage = false
+            switch(int32View[0]) {
+                case 1196314761: // "image/png"
+                    validImage = true
+                    break;
+                case 944130375: // "image/gif"
+                    break;
+                case 544099650: // "image/bmp"
+                    validImage = true
+                    break;
+                case -520103681: // "image/jpg"
+                    validImage = true
+                    break;
+                default:
+                    // "unknown"
+                    break;
+            }
+            if(validImage) self.handleAvatarUpload(file)
+        }
+
+        reader.readAsArrayBuffer(file)
+    },
+
+    handleAvatarUpload: function(file) {
+        var self   = this
+        var reader2 = new FileReader()
+
+        reader2.onload = function(event){
+            return Events.pub('ui/event', {
+                'profile.customAvatar': true,
                 'profile.avatarUrl': event.target.result
             })
         }
 
-        reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
+        reader2.readAsDataURL(file)
         return false
     },
 

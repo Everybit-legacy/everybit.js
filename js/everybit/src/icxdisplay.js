@@ -315,9 +315,8 @@ var ICXStore = React.createClass({
                 <div className="contentWindow">
                     <span className="textBox">{polyglot.t("store.select")}</span>
                     <br />
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+
                     <br />
                     <small>
                         <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
@@ -921,8 +920,83 @@ var ICXSend = React.createClass({
     }
 })
 
+var ICXFileUploader = React.createClass({
+    render: function() {
+    var uploadStyle = this.props.styling
+    uploadStyle.width = 'auto'
+        return (
+        <div ref="dropbox" className="dropbox" onDragEnter={this.handleDrag} onDragExit={this.handleDrag} onDragOver={this.handleDrag} onDrop={this.handleDrop}>
+            <span className="droplabel" ref="droplabel" style={{fontSize:ICX.calculated.pageHeaderTextStyle.fontSize}}>Drop file here or choose one below</span>
+            <br />
+            <div className="icxFileButton icxNextButton icx-fade" style={uploadStyle}>
+                <span>Choose File</span>
+                <input type="file" className="uploadButton" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
+            </div>
+        </div>
+            )
+    },
+
+    componentWillMount: function() {
+        //clean out any previous files that may have been already sent
+        ICX.eventElement = {}
+        ICX.fileprom = false
+        ICX.filelist = false
+
+    },
+
+    handleDrag: function(event) {
+        event.stopPropagation()
+        event.preventDefault()
+    },
+
+    handleDrop: function(event) {
+        event.stopPropagation()
+        event.preventDefault()
+
+        var element = event.dataTransfer
+        /*var warning = this.refs.warning.getDOMNode()
+
+        if (element.files[0].size > 1500000) {
+            warning.style.display=''
+        } else {
+            warning.style.display='none'
+        }*/
+        this.refs.droplabel.getDOMNode().innerHTML = element.files[0].name
+
+        // needs a file field in oreder to store the event properly on drop
+        ICX.eventElement.files = element.files
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
+
+
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
+        })
+
+
+    },
+
+    handleDisplaySelectedFile: function(event) {
+        var element = event.target
+        //var warning = this.refs.warning.getDOMNode()
+
+        /*if (element.files[0].size > 1500000) {
+            warning.style.display=''
+        } else {
+            warning.style.display='none'
+        }*/
+        this.refs.droplabel.getDOMNode().innerHTML = element.files[0].name
+        ICX.eventElement = element
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
+
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
+        })
+    }
+})
+
 var ICXSendFile = React.createClass({
-    fileElement: {},
 
     render: function() {
 
@@ -931,7 +1005,6 @@ var ICXSendFile = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
-
         var invitedNote = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
             invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
@@ -946,17 +1019,13 @@ var ICXSendFile = React.createClass({
                     {invitedNote}
                     <br />
                 Your file: <br />
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
                     <br />
-
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
                         <span>{polyglot.t("store.warning")}</span>
                     </div>
-
                 </div>
             </div>
         )
@@ -979,25 +1048,8 @@ var ICXSendFile = React.createClass({
             'ICX.wizard.type': 'file',
             'ICX.nextStatus': false
         })
-    },
-
-    handleDisplaySelectedFile: function(event) {
-        var element = event.target
-        var warning = this.refs.warning.getDOMNode()
-
-        if (element.files[0].size > 1500000) {
-            warning.style.display=''
-        } else {
-            warning.style.display='none'
-        }
-
-        ICX.fileprom = PBFiles.openBinaryFile(element)
-        ICX.filelist = element.files
-
-        return Events.pub('ui/event/', {
-            'ICX.nextStatus': true
-        })
     }
+
 })
 
 
@@ -2714,13 +2766,11 @@ var ICXFileConverter = React.createClass({
                     <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-lock fa-stack-1x"></i></span>{polyglot.t("filesys.enc")}
                     <br /><br />
 
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
-                    </span>
-
+                    <ICXFileUploader styling={headerStyle} />
+                    <br />
+                    <a className="icxNextButton icx-fade" style={headerStyle} onClick={this.handleEncryptFile}> Encrypt File <i className="fa fa-lock" /></a>
                     <br /><br />
                     <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_enc")}</a>
-
                     <span style={{display:'none'}} ref="encryptError" className="red">Permission Denied: You need to be logged in to encrypt files</span>
                     <br />
                     <b>OR</b>
@@ -2728,9 +2778,9 @@ var ICXFileConverter = React.createClass({
                     <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-unlock fa-stack-1x"></i></span>{polyglot.t("filesys.dec")}
                     <br /><br />
 
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+                    <br />
+                    <a className="icxNextButton icx-fade" style={headerStyle} onClick={this.handleDecryptFile}> Decrypt File <i className="fa fa-unlock" /></a>
                     <br /> < br />
                     <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_dec")}</a>
                     <span style={{display:'none'}} className="red" ref="decryptError">Decryption Failed: Only files encrypted by this user may be decrypted</span>
@@ -2740,15 +2790,22 @@ var ICXFileConverter = React.createClass({
         )
     },
 
-    handleDecryptFile: function(event) {
+    handleDecryptFile: function() {
+        var resultLink = this.refs.decryptedDownload.getDOMNode()
+        var element = ICX.eventElement
+        var fileprom = PBFiles.openPuffFile(element)
+        var errorMsg = this.refs.decryptError.getDOMNode()
+
+        //If they haven't selected a file, let 'em know
+        if (!element) {
+            resultLink.style.display='none'
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            return false
+        }
         //start thinking
         Events.pub('ui/thinking', { 'ICX.thinking': true })
 
-        var decryptFile = this.refs.decryptbutton.getDOMNode()
-        var resultLink = this.refs.decryptedDownload.getDOMNode()
-        var element = event.target
-        var fileprom = PBFiles.openPuffFile(element)
-        var errorMsg = this.refs.decryptError.getDOMNode()
         fileprom.then(function(fileguts) {
             // FIXME: does this work??? letterPuff is a promise...
             var letterPromise = PBFiles.extractLetterPuff(fileguts)
@@ -2763,7 +2820,7 @@ var ICXFileConverter = React.createClass({
                 else {
                     var content = (letterPuff.payload || {}).content
                     var type = (letterPuff.payload || {}).type
-                    var filelist = decryptFile.files
+                    var filelist = ICX.filelist
                     var file = filelist[0]
                     var filename = file.name
 
@@ -2791,26 +2848,27 @@ var ICXFileConverter = React.createClass({
 
     },
 
-    handleGetFile: function(event) {
+    handleEncryptFile: function() {
         // if they aren't logged in just stop here
         var errorMsg = this.refs.encryptError.getDOMNode()
         if(!ICX.username) {
             errorMsg.style.display = ''
             return false
         }
-        //start thinking
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
-
-        //Encrypt the file in a puff
-        var element = event.target
-
-        ICX.fileprom = PBFiles.openBinaryFile(element)
-
-        ICX.filelist = element.files
         var encryptedLink = this.refs.encryptedLink.getDOMNode()
 
+        //Stop if they haven't selected a file
+        if(!ICX.fileprom) {
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            encryptedLink.style.display = 'none'
+            return false
+        }
+
+        //start thinking
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+
+        //Encrypt the file in a puff
         ICX.fileprom.then(function(blob) {
             var puff = PBFiles.createPuff(blob, 'file')
 
@@ -2818,19 +2876,19 @@ var ICXFileConverter = React.createClass({
             var file     = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
-
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
             errorMsg.style.display = 'none'
             encryptedLink.style.display=""
             encryptedLink.href = PBFiles.prepBlob(puff)
             encryptedLink.download = new_filename
+
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
         })
 
     },
 
-    componentDidMount: function(event){
+    componentDidMount: function(){
         var browser = getBrowser()
         if (browser == "Safari") {
             ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
@@ -2838,6 +2896,13 @@ var ICXFileConverter = React.createClass({
         }
 
 
+    },
+
+    componentWillMount: function() {
+        //ensure there are no left over files in the vars
+        ICX.fileprom = false
+        ICX.filelist =[]
+        ICX.eventElement = false
     }
 
 })

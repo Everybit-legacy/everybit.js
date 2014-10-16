@@ -332,11 +332,7 @@ function getAnimalUnicodes() {
     // on source site stylesheets are not compiled into one single file
     // on live site all stylesheets are pulled into one file
     for(var j = 0; j < document.styleSheets.length; j++) {
-        if (getBrowser() == "Chrome") {
-            animalCSS = document.styleSheets[j].rules;
-        } else {
-            animalCSS = document.styleSheets[j].cssRules;
-        }
+        animalCSS = document.styleSheets[j].cssRules;
 
         for(var k = 0; k < animalCSS.length; k++) {
             var selector = animalCSS[k].selectorText;
@@ -349,7 +345,7 @@ function getAnimalUnicodes() {
 
 
                 if( splitResult[0] == '.icon') {
-                    // Safari wraps quotes around the unicode character
+                    // Safari does not wrap quotes around the unicode character
                     if (getBrowser() == "Safari") {
                         unicodes[i] = animalCSS[k].style.cssText.slice(-2,-1).charCodeAt(0).toString(16);
                     } else if (getBrowser() == "IE") { // IE doesn't encode the unicode

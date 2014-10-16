@@ -73,8 +73,14 @@
             createLink.addEventListener('click', function() {
                 var content = textbox.value
                 var puff = PBFiles.createPuff(content, 'text')
-                link.href = PBFiles.prepBlob(puff)
-                link.style.display = ""
+
+                if (navigator.appVersion.toString().indexOf('.NET') > 0) {
+                    window.navigator.msSaveBlob(PBFiles.prepBlob(puff), 'icx.puff')
+                } else {
+                    link.href = PBFiles.prepBlob(puff)
+                    link.style.display = ""
+                }
+                
             })
             
             encryptFile.addEventListener('change', function(event) {
@@ -91,6 +97,10 @@
                     encryptedLink.href = PBFiles.prepBlob(puff)
                     encryptedLink.style.display = ""
                     encryptedLink.download = new_filename
+                    
+                    if (navigator.appVersion.toString().indexOf('.NET') > 0)
+                        window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
+                        
                 })
             })
                         
@@ -119,6 +129,9 @@
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.style.display = ""
                     resultLink.download = filename
+
+                    if (navigator.appVersion.toString().indexOf('.NET') > 0)
+                        window.navigator.msSaveBlob(PBFiles.prepBlob(content, type), new_filename)
                 })
             })
             

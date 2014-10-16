@@ -1478,13 +1478,13 @@ var ICXNewUser = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': puffworldprops.ICX.hidePassphrase,
-            'fa-square-o': !puffworldprops.ICX.hidePassphrase,
-            'green': puffworldprops.ICX.hidePassphrase
+            'fa-eye-slash': puffworldprops.ICX.hidePassphrase,
+            'fa-eye': !puffworldprops.ICX.hidePassphrase,
+            'green': !puffworldprops.ICX.hidePassphrase
         })
         var textClass = cb({
-            'masked': puffworldprops.ICX.hidePassphrase,
-            'gudea': !puffworldprops.ICX.hidePassphrase
+            'password': puffworldprops.ICX.hidePassphrase,
+            'text': !puffworldprops.ICX.hidePassphrase
         })
 
 
@@ -1520,14 +1520,14 @@ var ICXNewUser = React.createClass({
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
                     <div><b>Password:</b></div>
-                    <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <input spellCheck="false" type={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
                         <Tooltip position='under' content="Generate a new password" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide password</span>
+                    <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show / Hide password</span></a>
                     <br /><br />
                     <b>Avatar:</b><br />
                     <canvas id="avatarCanvas" width="105" height="105">
@@ -1943,16 +1943,16 @@ var ICXLogin = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': puffworldprops.ICX.hidePassphrase,
-            'fa-square-o': !puffworldprops.ICX.hidePassphrase,
-            'green': puffworldprops.ICX.hidePassphrase
+            'fa-eye-slash': puffworldprops.ICX.hidePassphrase,
+            'fa-eye': !puffworldprops.ICX.hidePassphrase,
+            'green': !puffworldprops.ICX.hidePassphrase
         })
         var textClass = cb({
-            'masked': puffworldprops.ICX.hidePassphrase,
-            'gudea': !puffworldprops.ICX.hidePassphrase
+            'password': puffworldprops.ICX.hidePassphrase,
+            'text': !puffworldprops.ICX.hidePassphrase
         })
 
-
+//<textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
         return (
 
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
@@ -1982,11 +1982,10 @@ var ICXLogin = React.createClass({
                         <b>Password:</b>
                         <Tooltip content="This is the password you chose when signing up." />
                     </div>
-
-                    <textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
+                    <input type={textClass} spellCheck="false" autoCorrect="off" autoCapitalize="off" name="defaultKey" ref="defaultKey" style={{width: '60%'}} onKeyDown={this.handleKeyDown}/>
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide password</span>
+                    <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show password</span></a>
                     <br /><br />
                     <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>
@@ -1995,9 +1994,11 @@ var ICXLogin = React.createClass({
     },
 
     togglePassphraseView: function() {
+        //var password = this.refs.defaultKey.getDOMNode()
+        //password.type = (password.type == "password") ? "text" : "password"
         return Events.pub('ui/event', {
-            'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
-        })
+         'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
+         })
     },
 
     handleKeyDown: function(e) {
@@ -2040,11 +2041,16 @@ var ICXLogin = React.createClass({
         return false
     },
 
+    componentDidMount: function() {
+      Events.pub('ui/event', {
+          'ICX.hidePassphrase':true
+      })
+    },
+
     componentWillMount: function () {
         Events.pub('ui/event', {
             'ICX.usernameStatus': false,
-            'ICX.defaultKey': false,
-            'ICX.hidePassphrase':true
+            'ICX.defaultKey': false
         })
     },
 

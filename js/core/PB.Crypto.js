@@ -221,13 +221,13 @@ PB.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWi
 PB.Crypto.random = function() { // just like Math.random, but better
     // via http://stackoverflow.com/questions/13694626/generating-random-numbers-0-to-1-with-crypto-generatevalues
 
-    var list = PB.Crypto.getRandomValues(2, 32);
+    var list = PB.Crypto.getRandomValues(2, 32)
 
     // keep all 32 bits of the the first, top 20 of the second for 52 random bits
     var mantissa = (list[0] * Math.pow(2,20)) + (list[1] >> 12)
 
     // shift all 52 bits to the right of the decimal point
-    var result = mantissa * Math.pow(2,-52);
+    var result = mantissa * Math.pow(2,-52)
     
     return result
     
@@ -304,14 +304,14 @@ PB.Crypto.getRandomValuesShim = function(number, size) {
         rcache = _r() * 0x3ade67b7;
 
         if(size == 32) {
-            words.push((_r() * 0x100000000) | 0);
+            words.push(Math.abs( (_r() * 0x100000000) | 0 ));
         } else {
             // in case we want bytes instead of 32-bit chunks
             var int32 = (_r() * 0x100000000) | 0;
-            words.push((int32 & 0xFF000000) >> 24);
-            words.push((int32 & 0x00FF0000) >> 16);
-            words.push((int32 & 0x0000FF00) >> 8);
-            words.push((int32 & 0x000000FF));
+            words.push(Math.abs(int32 & 0xFF000000) >> 24);
+            words.push(Math.abs(int32 & 0x00FF0000) >> 16);
+            words.push(Math.abs(int32 & 0x0000FF00) >> 8);
+            words.push(Math.abs(int32 & 0x000000FF));
         }
     }
 

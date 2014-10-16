@@ -40,7 +40,9 @@ var TableView = React.createClass({
         var cl = this.refs.refresh.getDOMNode().classList
         cl.toggle("fa-spin")
         getMyPrivateShells()
-        cl.toggle("fa-spin")
+        setTimeout(
+            function() {cl.toggle("fa-spin")},2000
+        )
     },
 
     componentWillMount: function() {
@@ -411,10 +413,14 @@ var ICXDownloadLink = React.createClass({
         var link = document.createElement('a')
         link.href = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
         link.download = puff.payload.filename
-        document.body.appendChild(link)
 
-        link.click()
-        link.remove()
+        if (getBrowser() == "IE") {
+            window.navigator.msSaveBlob(PBFiles.prepBlob(puff.payload.content, puff.payload.type), puff.payload.filename)
+        } else {
+            document.body.appendChild(link)
+            link.click()
+            link.remove()
+        }
     },
 
 	render: function() {

@@ -416,16 +416,33 @@ var ICXStoreFinish = React.createClass({
                 <div className="contentWindow">
                     <span className="textBox">{polyglot.t("store.success")}</span>
                     <br /><br />
-                    <a ref="encryptedLink" className="inline" download="no_file_selected" onClick={this.handleSubmitSuccess}>
+                    <a ref="encryptedLink" className="inline" download="no_file_selected" onClick={this.handleDownloadFile}>
                     <i className="fa fa-fw fa-download" /> {polyglot.t("store.save")}</a>
                     <br /><br />
                     <ICXNextButton enabled={puffworldprops.ICX.messageStored} goto={puffworldprops.ICX.nextStep} key="nextToStore" text="Encrypt another file" />
                 </div>
             </div>
         )
-
-
     },
+
+    handleDownloadFile: function(e) {
+        var self = this
+        if (getBrowser() == 'IE') {
+            e.preventDefault()
+            ICX.fileprom.then(function(blob) {
+                var puff = PBFiles.createPuff(blob, 'file')
+
+                var filelist = ICX.filelist
+                var file     = filelist[0]
+                var filename = file.name
+                var new_filename = filename + '.puff'
+
+                window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
+            })
+        }      
+        self.handleSubmitSuccess()
+    },
+
     handleSubmitSuccess: function () {
         Events.pub('ui/event', {
             'ICX.messageStored':true
@@ -456,27 +473,25 @@ var ICXStoreFinish = React.createClass({
                 this.handleBackup();
 
             } else {
+                self.cleanUpSubmit()
                 ICX.errors = "WARNING: If you chose not to backup to the network, your encrypted file only exists in this browser window. Save the file before closing this window or going to another page."
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
             }
-            var encrypedLink = this.refs.encryptedLink.getDOMNode()
 
             ICX.fileprom.then(function(blob) {
-                var puff = PBFiles.createPuff(blob, 'file')
+            var puff = PBFiles.createPuff(blob, 'file')
 
-                var filelist = ICX.filelist
-                var file     = filelist[0]
-                var filename = file.name
-                var new_filename = filename + '.puff'
+            var filelist = ICX.filelist
+            var file     = filelist[0]
+            var filename = file.name
+            var new_filename = filename + '.puff'
 
-                // Make the link visible to download the file
-                encrypedLink.href = PBFiles.prepBlob(puff)
-                encrypedLink.download = new_filename
-                if(!puffworldprops.ICX.backupToCloud){
-                    self.cleanUpSubmit()
-                }
-
-            })
+            // Make the link visible to download the file
+            var encryptedLink = self.refs.encryptedLink.getDOMNode()
+            encryptedLink.href = PBFiles.prepBlob(puff)
+            encryptedLink.download = new_filename
+            // encryptedLink.click()
+        })
 
         } else {
 
@@ -536,7 +551,7 @@ var ICXStoreFinish = React.createClass({
                 return post_prom
 
             }).catch(function(err){
-                ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
+                ICX.errors = err.message
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 self.cleanUpSubmit()
 
@@ -2430,14 +2445,17 @@ var ICXDashboard = React.createClass({
 
     handleDownloadIdentityFile: function() {
         var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
-
         var filename = PB.getCurrentUsername() + "Identity.json"
 
-        fileLink = this.refs.fileLink.getDOMNode()
-
-        fileLink.href = PBFiles.prepBlob(content)
-        fileLink.download = filename
-        fileLink.click()
+        if (getBrowser() == "IE") {
+            window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
+        } else {
+            fileLink = this.refs.fileLink.getDOMNode()
+            fileLink.href = PBFiles.prepBlob(content)
+            fileLink.download = filename
+            fileLink.click()
+        }
+        
     },
 
     handleSignOut: function() {
@@ -2842,6 +2860,9 @@ var ICXFileConverter = React.createClass({
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.download = filename
 
+                    if (getBrowser() == "IE")
+                        window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
+
                     //stop thinking
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
                 }                
@@ -2891,6 +2912,9 @@ var ICXFileConverter = React.createClass({
             encryptedLink.href = PBFiles.prepBlob(puff)
             encryptedLink.download = new_filename
 
+            if (getBrowser() == "IE")
+                window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
+
             Events.pub('ui/thinking', {
                 'ICX.thinking': false
             })
@@ -2901,7 +2925,8 @@ var ICXFileConverter = React.createClass({
     componentDidMount: function(){
         var browser = getBrowser()
         if (browser == "Safari") {
-            ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
+            ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
+                "As a result, you may not be able to download identity files or files you have encrypted."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
 

@@ -35,6 +35,10 @@ PBFiles.prepBlob = function(str, type) {
     else
         blob = new Blob([str], {type: 'text/plain'})
 
+    // IE needs to directly save the blob object
+    if (navigator.appVersion.toString().indexOf('.NET') > 0)
+        return blob
+
     if(PBFiles.oldFile)
        window.URL.revokeObjectURL(PBFiles.oldFile)
 

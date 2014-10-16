@@ -257,10 +257,10 @@ var ICXWorld = React.createClass({
         }
         */
         var borderStyle =  {
-            width: borderWidth,
-            backgroundColor: thisScreen.color,
-            position: 'fixed',
-            height: '100%'
+            //width: borderWidth,
+            backgroundColor: thisScreen.color
+            //position: 'fixed',
+            //height: '100%'
         }
 
 

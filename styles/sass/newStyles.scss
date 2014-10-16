@@ -1,3 +1,19 @@
+/*
+::::::::::::::::::README::::::::::::::::::::::
+Suggestions:
+  - Use em or % for fonts
+  - Leave window colouring in icx display, its easier to do that in js
+  - Keep to the 3 main sizes for proof of concept
+  - Don't go more than 3 levels deep in nesting
+  add more...
+
+*/
+
+
+
+
+
+
 @import "config";
 
 
@@ -9,6 +25,7 @@ $breakpoints: (
 
 $baseFontHeight: 22px;
 $baseBorderWidth:70px;
+
 /* Mixins */
 
 /*
@@ -35,7 +52,19 @@ $baseBorderWidth:70px;
 /***************************************************************/
 
 .icxWorldBorder {
-    @include respond-to('small','max-width') {
-      width:20px;
-    }
+  @include respond-to('small','max-width') {
+    width:($baseBorderWidth/2);
+  }
+  @include respond-to('small','min-width') {
+    width:($baseBorderWidth/2);
+  }
+  @include respond-to('medium','min-width') {
+    width:($baseBorderWidth/1.5);
+  }
+  @include respond-to('large','min-width') {
+    width:$baseBorderWidth;
+  }
+  position: fixed;
+  height:100%;
 }
+

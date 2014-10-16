@@ -1,0 +1,11 @@
+/* ICX Style Configurations */
+/* Mixins */
+/*
+ inspired by http://www.sitepoint.com/managing-responsive-breakpoints-sass/
+ $breakpoint: string (represents the size of the string)
+ returns @media ($threshold $name.value) {..}
+*/
+/***************************************************************/
+@media (max-width: 767px) {
+  .icxWorldBorder {
+    width: 20px; } }

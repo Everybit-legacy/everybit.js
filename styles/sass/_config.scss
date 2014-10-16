@@ -1,0 +1,50 @@
+/* ICX Style Configurations */
+
+$sideBorder: (
+        min: 2,
+        max: 100,
+        ratio: 0.055
+);
+
+$borderSide: 'left';
+
+$logo: (
+        originalW: 643,
+        originalH: 279,
+        areaRatio: 0.02,
+        minW: 32,
+        maxW: 1000,
+        insets: (top: 0.095),
+        insetsSmall: (top: 0.02, left: 0.02)
+);
+
+$text: (
+        areaRatio: 0.00065,
+        default: 14,
+        min: 5,
+        max: 100
+);
+
+$content: (
+        insets:(
+                top: 0.1,
+                right: 0.1,
+                left: 0.18,
+                bottom: 0.1
+        )
+);
+
+$minBorder: 1;
+$maxBorder: 100;
+$borderRatio: 0.03;
+$logoBigRatio: 0.2;
+$logoYFromTop: 0.05;
+$logoSmallRatio: 0.125;
+$buttonHeightRatio: 0.1;
+$buttonWidthRatio: 0.5;
+$buttonSmallWidthRatio:.14;
+$buttonFontHeightRatio:.03;
+$mainPageFontHeightRatio:.03;
+$contentLeftInset: .02;
+$contentRightInset: 0.15;
+$contentBottomInset:.04;

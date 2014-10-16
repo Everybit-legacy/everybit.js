@@ -352,6 +352,8 @@ function getAnimalUnicodes() {
                     // Safari wraps quotes around the unicode character
                     if (getBrowser() == "Safari") {
                         unicodes[i] = animalCSS[k].style.cssText.slice(-2,-1).charCodeAt(0).toString(16);
+                    } else if (getBrowser() == "IE") { // IE doesn't encode the unicode
+                        unicodes[i] = animalCSS[k].style.content.slice(2,6);
                     } else {
                         unicodes[i] = animalCSS[k].style.cssText.slice(-3,-2).charCodeAt(0).toString(16);
                     }
@@ -433,9 +435,11 @@ function getAvatar(color, name) {
     ctx.fill();
     ctx.stroke();
 
-    return Events.pub('ui/event',
-        {'profile.avatarUrl': canvas.toDataURL('png')}
-    )
+    if(!puffworldprops.profile.customAvatar) {
+        return Events.pub('ui/event',
+            {'profile.avatarUrl': canvas.toDataURL('png')}
+        )
+    }
 }
 
 function getUnicodeFromName(name) {

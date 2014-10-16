@@ -154,7 +154,7 @@ var ICXWorld = React.createClass({
             display: 'inline-block'
         }
 
-        var c1, c2, c3, c4, c5, c6, op1, op2
+        var c1, c2, c3, c4, c5, c6, c7, op1, op2, op3, op4
 
 
          c1 = '67, 83, 111'
@@ -163,29 +163,25 @@ var ICXWorld = React.createClass({
          c4 = '33, 35, 39'
          c5 =  '29, 3, 0'
 
-/*
-        c1 = '67, 83, 111'
-        c2 = '29, 3, 0'
-        c3 = '20, 57, 62'
-        c4 = '33, 35, 39'
-        c5 =  '26, 40, 60'
-        */
         c6 = '0, 3, 82'     // Blue border
+        c7 = '99,112,133'
 
         op1 = '0.8'
         op2 = '.08'
+        op3 = 1
+        op4 = '0.6'
 
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
             {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
-            {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
+            {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 4, name: 'learn', button: true, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-file-text-o', fullText: 'LEARN how it works', component: ICXLearn, backgroundColor: 'rgba('+c4+', '+op2+')'},
             {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
             {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0, border: '1px solid #000'}},
-            {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0}},
+            {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'send.confirm', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -214,44 +210,22 @@ var ICXWorld = React.createClass({
             return (obj.name == currScreen);
         })[0]
 
-        if(ICX.config.borderSide == 'right') {
-            var screenStyle = {
-                position: "absolute",
-                width: w,
-                height: h,
-                borderRightWidth: borderWidth,
-                borderRightColor: thisScreen.color,
-                borderRightStyle: 'solid'
-            }
-        } else {
-            var screenStyle = {
-                position: "absolute",
-                width: w,
-                height: h,
-                borderLeftWidth: borderWidth,
-                borderLeftColor: thisScreen.color,
-                borderLeftStyle: 'solid',
-                maxWidth: w,
-                maxHeight: h
-            }
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            maxWidth: w
         }
 
 
         var contentDivStyles = {
                 position: "absolute",
-                left: Math.floor( w*ICX.config.content.insets.left ) + "px",
+                left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
                 width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-                height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+                // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
                 top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
                 padding: '10px', // Testing...
-                fontSize: ICX.calculated.baseFontH + 'px',
-                overflow: 'scroll'
-        }
-
-        // only invite and tableview has vertical overflow
-        // tableview handles scrolling natively already
-        if(ICX.currScreen == "invite") {
-            contentDivStyles.overflow= 'scroll'
+                fontSize: ICX.calculated.baseFontH + 'px'
         }
 
 
@@ -280,20 +254,33 @@ var ICXWorld = React.createClass({
             contentDivStyles.padding = '0'
         }
         */
+        var borderStyle =  {
+            width: borderWidth,
+            backgroundColor: thisScreen.color,
+            position: 'fixed',
+            height: '100%'
+        }
+
+
         return (
-            <div style={screenStyle} className="screen">
-                <ICXLogo screenInfo={thisScreen} />
-                <ICXLinks screenInfo={thisScreen} />
-                <div style={contentDivStyles}>
-                    <ICXError />
-                    {pageComponent}
+            <span>
+                <div style={borderStyle} />
+                <div style={screenStyle} className="screen">
+                    <ICXLogo screenInfo={thisScreen} />
+                    <ICXLinks screenInfo={thisScreen} />
+                    <div style={contentDivStyles}>
+                        <ICXError />
+                        {pageComponent}
+                    </div>
+                    <ICXSpinner />
                 </div>
-                <ICXSpinner />
-                <ICXFooter />
-            </div>
+                <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
+            </span>
         )
     }
 })
+
+// <ICXFooter />
 
 var ICXInit = React.createClass({
     render: function () {
@@ -328,9 +315,8 @@ var ICXStore = React.createClass({
                 <div className="contentWindow">
                     <span className="textBox">{polyglot.t("store.select")}</span>
                     <br />
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+
                     <br />
                     <small>
                         <i className={cbClass} onClick={this.handleToggleBackupToCloud} ></i>
@@ -444,10 +430,11 @@ var ICXStoreFinish = React.createClass({
         Events.pub('ui/event', {
             'ICX.messageStored':true
         })
+        this.cleanUpSubmit()
     },
 
     cleanUpSubmit: function () {
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
 
     componentWillMount: function() {
@@ -460,6 +447,9 @@ var ICXStoreFinish = React.createClass({
     },
 
     componentDidMount: function () {
+        var self = this
+        var foo = false
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
         if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
@@ -482,12 +472,15 @@ var ICXStoreFinish = React.createClass({
                 // Make the link visible to download the file
                 encrypedLink.href = PBFiles.prepBlob(puff)
                 encrypedLink.download = new_filename
-                //Events.pub('ui/thinking', { 'ICX.thinking': false })
+                if(!puffworldprops.ICX.backupToCloud){
+                    self.cleanUpSubmit()
+                }
+
             })
 
         } else {
 
-            //Events.pub('ui/thinking', { 'ICX.thinking': false })
+            self.cleanUpSubmit()
             ICX.errors = "ERROR: Cannot encrypt file as you are not logged in under a valid identity. Please log in or create an identity before trying again."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -509,9 +502,7 @@ var ICXStoreFinish = React.createClass({
 
         // Bundle into puff and send this bad boy off
         var prom = Promise.resolve() // a promise we use to string everything along
-
         var usernames = [me]
-
         var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function (userRecord) {
             return userRecord.username
@@ -546,22 +537,17 @@ var ICXStoreFinish = React.createClass({
 
             }).catch(function(err){
                 ICX.errors = "ERROR: Failed to backup to cloud. There may have been an issue with your network connectivity."
-
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                self.cleanUpSubmit()
 
             })
         }).catch(function (err) {
-
             // TODO: Show user the error
-            // self.cleanUpSubmit()
+            self.cleanUpSubmit()
             return Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
             })
-
-            /*Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })*/
 
         })
         return false
@@ -781,7 +767,7 @@ var ICXSend = React.createClass({
                     Looking for someone to
                         {' '}send to&#63; Say <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')} >Hi!</a>
                         {' '}to <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')} >one</a> of
-                        {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')} >the developers</a>.
+                        {' '}<a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adamrafeek')} >the developers</a>.
                     </div>
                     <br />
                     <div className={inviteClass}>
@@ -812,13 +798,15 @@ var ICXSend = React.createClass({
 
     componentDidMount: function() {
         // Were we sent to user by props?
-        if(puffworldprops.view.icx.toUser) {
-            this.refs.toUser.getDOMNode().value = puffworldprops.ICX.toUser
-            this.handleUsernameLookup()
+        //TODO: chose one variable to keep toUser in and apply it everywhere
+        var userField = this.refs.toUser.getDOMNode()
+        if((typeof(puffworldprops.view.icx.toUser) != "undefined") && (puffworldprops.view.icx.toUser)) {
+            userField.value = puffworldprops.view.icx.toUser
+        } else if ((typeof(puffworldprops.ICX.toUser) != "undefined") &&puffworldprops.ICX.toUser) {
+            userField.value = puffworldprops.ICX.toUser
         }
-        this.refs.toUser.getDOMNode().focus()
-
-        var browser = getBrowser()
+        this.handleUsernameLookup()
+        userField.focus()
     },
 
 
@@ -926,13 +914,89 @@ var ICXSend = React.createClass({
         return Events.pub('ui/events', {
             'ICX.userConfirmed': true,
             'ICX.nextStatus': true,
-            'ICX.toUser': username
+            'ICX.toUser': username,
+            'ICX.toUserStatus': ""
+        })
+    }
+})
+
+var ICXFileUploader = React.createClass({
+    render: function() {
+    var uploadStyle = this.props.styling
+    uploadStyle.width = 'auto'
+        return (
+        <div ref="dropbox" className="dropbox" onDragEnter={this.handleDrag} onDragExit={this.handleDrag} onDragOver={this.handleDrag} onDrop={this.handleDrop}>
+            <span className="droplabel" ref="droplabel" style={{fontSize:ICX.calculated.pageHeaderTextStyle.fontSize}}>Drop file here or Choose File below</span>
+            <br />
+            <div className="icxFileButton icxNextButton icx-fade" style={uploadStyle}>
+                <span>Choose File</span>
+                <input type="file" className="uploadButton" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
+            </div>
+        </div>
+            )
+    },
+
+    componentWillMount: function() {
+        //clean out any previous files that may have been already sent
+        ICX.eventElement = {}
+        ICX.fileprom = false
+        ICX.filelist = false
+
+    },
+
+    handleDrag: function(event) {
+        event.stopPropagation()
+        event.preventDefault()
+    },
+
+    handleDrop: function(event) {
+        event.stopPropagation()
+        event.preventDefault()
+
+        var element = event.dataTransfer
+        /*var warning = this.refs.warning.getDOMNode()
+
+        if (element.files[0].size > 1500000) {
+            warning.style.display=''
+        } else {
+            warning.style.display='none'
+        }*/
+        this.refs.droplabel.getDOMNode().innerHTML = element.files[0].name
+
+        // needs a file field in oreder to store the event properly on drop
+        ICX.eventElement.files = element.files
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
+
+
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
+        })
+
+
+    },
+
+    handleDisplaySelectedFile: function(event) {
+        var element = event.target
+        //var warning = this.refs.warning.getDOMNode()
+
+        /*if (element.files[0].size > 1500000) {
+            warning.style.display=''
+        } else {
+            warning.style.display='none'
+        }*/
+        this.refs.droplabel.getDOMNode().innerHTML = element.files[0].name
+        ICX.eventElement = element
+        ICX.fileprom = PBFiles.openBinaryFile(element)
+        ICX.filelist = element.files
+
+        return Events.pub('ui/event/', {
+            'ICX.nextStatus': true
         })
     }
 })
 
 var ICXSendFile = React.createClass({
-    fileElement: {},
 
     render: function() {
 
@@ -941,7 +1005,6 @@ var ICXSendFile = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
-
         var invitedNote = ''
         if(puffworldprops.ICX.wizard.invitedEmail) {
             invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
@@ -956,17 +1019,13 @@ var ICXSendFile = React.createClass({
                     {invitedNote}
                     <br />
                 Your file: <br />
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleDisplaySelectedFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
                     <br />
-
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
                         <span>{polyglot.t("store.warning")}</span>
                     </div>
-
                 </div>
             </div>
         )
@@ -989,25 +1048,8 @@ var ICXSendFile = React.createClass({
             'ICX.wizard.type': 'file',
             'ICX.nextStatus': false
         })
-    },
-
-    handleDisplaySelectedFile: function(event) {
-        var element = event.target
-        var warning = this.refs.warning.getDOMNode()
-
-        if (element.files[0].size > 1500000) {
-            warning.style.display=''
-        } else {
-            warning.style.display='none'
-        }
-
-        ICX.fileprom = PBFiles.openBinaryFile(element)
-        ICX.filelist = element.files
-
-        return Events.pub('ui/event/', {
-            'ICX.nextStatus': true
-        })
     }
+
 })
 
 
@@ -1436,26 +1478,26 @@ var ICXNewUser = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': puffworldprops.ICX.hidePassphrase,
-            'fa-square-o': !puffworldprops.ICX.hidePassphrase,
-            'green': puffworldprops.ICX.hidePassphrase
+            'fa-eye-slash': puffworldprops.ICX.hidePassphrase,
+            'fa-eye': !puffworldprops.ICX.hidePassphrase,
+            'green': !puffworldprops.ICX.hidePassphrase
         })
         var textClass = cb({
-            'masked': puffworldprops.ICX.hidePassphrase,
-            'gudea': !puffworldprops.ICX.hidePassphrase
+            'password': puffworldprops.ICX.hidePassphrase,
+            'text': !puffworldprops.ICX.hidePassphrase
         })
 
 
         if(typeof puffworldprops.ICX.wizard != 'undefined') {
             var wizard = puffworldprops.ICX.wizard
             if(wizard.sequence == 'send' || wizard.sequence == 'store') {
-                var extraInfo = 'In order to send a message or store a file, please sign up for an account by choosing a username and passphrase. ' +
-                    'You’ll be able to download your passphrase later.'
+                var extraInfo = 'In order to send a message or store a file, please sign up for an account by choosing a username and password. ' +
+                    'You’ll be able to download your password later.'
             }
 
         } else {
-            var extraInfo = 'Please sign up for an account by choosing a username and passphrase. ' +
-                'You’ll be able to download your passphrase later.'
+            var extraInfo = 'Please sign up for an account by choosing a username and password. ' +
+                'You’ll be able to download your password later.'
         }
 
         return (
@@ -1477,20 +1519,23 @@ var ICXNewUser = React.createClass({
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.usernameMessage}</span>
                     <br /><br />
-                    <div><b>{polyglot.t("signup.pass")}</b></div>
-                    <textarea spellCheck="false" className={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%', height: '20%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
+                    <div><b>Password:</b></div>
+                    <input spellCheck="false" type={textClass} autoCorrect="off" autoCapitalize="off" ref="passphrase" style={{width: '50%'}} onChange={this.handleRecheckPassphrase}/>{' '}<ICXCheckmark show={puffworldprops.ICX.newUser.passphraseStatus} />
                     <span className="relative">
                         <a href="#" onClick={this.handleGenerateRandomPassphrase}><i className="fa fa-refresh" /></a>
-                        <Tooltip position='under' content="Generate a new passphrase" />
+                        <Tooltip position='under' content="Generate a new password" />
                     </span>
                     {' '}<span className="message">{puffworldprops.ICX.newUser.passphraseMessage}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
+                    <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show / Hide password</span></a>
                     <br /><br />
                     <b>Avatar:</b><br />
                     <canvas id="avatarCanvas" width="105" height="105">
                     </canvas>
                     <br />
+                    <div> Or Upload your own avatar
+                    <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleImageCheck}/>
+                    </div>
                     <a style={ICX.buttonStyle} onClick={this.handleRegisterName} className="icxNextButton icx-fade"> {puffworldprops.ICX.nextStepMessage} <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
@@ -1719,17 +1764,50 @@ var ICXNewUser = React.createClass({
         return false
     },
 
-    handleImageLoad: function() {
-        var self   = this
+    handleImageCheck: function() {
+        var self = this
         var reader = new FileReader()
+        var file = this.refs.imageLoader.getDOMNode().files[0]
+        var validImage = false
 
         reader.onload = function(event){
-            return Events.pub('ui/reply/image-upload', {
+            var buffer = reader.result.slice(0,4)
+            var int32View = new Int32Array(buffer)
+            //var validImage = false
+            switch(int32View[0]) {
+                case 1196314761:    // "image/png"
+                    validImage = true
+                    break;
+                case 944130375:     // "image/gif"
+                    break;
+                case 544099650:     // "image/bmp"
+                    validImage = true
+                    break;
+                case -520103681:    // "image/jpg"
+                    validImage = true
+                    break;
+                default:            // "unknown"
+                    // TODO: Throw error
+                    break;
+            }
+            if(validImage) self.handleAvatarUpload(file)
+        }
+
+        reader.readAsArrayBuffer(file)
+    },
+
+    handleAvatarUpload: function(file) {
+        var self   = this
+        var reader2 = new FileReader()
+
+        reader2.onload = function(event){
+            return Events.pub('ui/event', {
+                'profile.customAvatar': true,
                 'profile.avatarUrl': event.target.result
             })
         }
 
-        reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
+        reader2.readAsDataURL(file)
         return false
     },
 
@@ -1865,16 +1943,16 @@ var ICXLogin = React.createClass({
         var cbClass = cb({
             'fa': true,
             'fa-fw': true,
-            'fa-check-square-o': puffworldprops.ICX.hidePassphrase,
-            'fa-square-o': !puffworldprops.ICX.hidePassphrase,
-            'green': puffworldprops.ICX.hidePassphrase
+            'fa-eye-slash': puffworldprops.ICX.hidePassphrase,
+            'fa-eye': !puffworldprops.ICX.hidePassphrase,
+            'green': !puffworldprops.ICX.hidePassphrase
         })
         var textClass = cb({
-            'masked': puffworldprops.ICX.hidePassphrase,
-            'gudea': !puffworldprops.ICX.hidePassphrase
+            'password': puffworldprops.ICX.hidePassphrase,
+            'text': !puffworldprops.ICX.hidePassphrase
         })
 
-
+//<textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
         return (
 
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
@@ -1901,14 +1979,13 @@ var ICXLogin = React.createClass({
 
                     <br /><br />
                     <div className="relative">
-                        <b>Private passphrase:</b>
-                        <Tooltip content="This is the secret phrase you chose when signing up." />
+                        <b>Password:</b>
+                        <Tooltip content="This is the password you chose when signing up." />
                     </div>
-
-                    <textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
+                    <input type={textClass} spellCheck="false" autoCorrect="off" autoCapitalize="off" name="defaultKey" ref="defaultKey" style={{width: '60%'}} onKeyDown={this.handleKeyDown}/>
                     <span className="message">{puffworldprops.ICX.defaultKey}</span>
                     <br />
-                    <i className={cbClass} onClick={this.togglePassphraseView} ></i><span className="small">Show / Hide passphrase</span>
+                    <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show password</span></a>
                     <br /><br />
                     <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>
@@ -1917,9 +1994,11 @@ var ICXLogin = React.createClass({
     },
 
     togglePassphraseView: function() {
+        //var password = this.refs.defaultKey.getDOMNode()
+        //password.type = (password.type == "password") ? "text" : "password"
         return Events.pub('ui/event', {
-            'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
-        })
+         'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
+         })
     },
 
     handleKeyDown: function(e) {
@@ -1962,11 +2041,16 @@ var ICXLogin = React.createClass({
         return false
     },
 
+    componentDidMount: function() {
+      Events.pub('ui/event', {
+          'ICX.hidePassphrase':true
+      })
+    },
+
     componentWillMount: function () {
         Events.pub('ui/event', {
             'ICX.usernameStatus': false,
-            'ICX.defaultKey': false,
-            'ICX.hidePassphrase':true
+            'ICX.defaultKey': false
         })
     },
 
@@ -1975,9 +2059,10 @@ var ICXLogin = React.createClass({
         var finalChar = username.charAt(username.length-1)
 
         //THINK: IS this really necessary??
-        username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
-            .toLowerCase()
-        this.refs.username.getDOMNode().value = username
+        //THINK: Not really, since there is 1 dot at max in usernames anyway
+        // username = StringConversion.reduceUsernameToAlphanumeric(username, /*allowDot*/true)
+        //     .toLowerCase()
+        // this.refs.username.getDOMNode().value = username
 
         // If the last character is a space, then trigger usernameLookup
         if(finalChar == ' ') {
@@ -2225,41 +2310,63 @@ var ICXDashboard = React.createClass({
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
-                    <span className="textBox">Want a better username&#63; Try <a href="#" onClick={this.handleAskForUsername}>asking for one</a> nicely.</span>
-                    <br /><br />
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'home.table')}>
                         <i className="fa fa-fw fa-list" />
                         {polyglot.t("dashboard.tableview")}
                     </a>
-                    <br /><br />
-                    <a href="#" className="inline" ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
-                        <i className="fa fa-fw fa-download" />
-                        {polyglot.t("dashboard.download_id")}
-                    </a>
-                    <br /><br />
-                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'changepassphrase')}>
-                        <i className="fa fa-fw fa-gears" />
-                        {' '}Change your passphrase
-                    </a>
-
-                    <br /><br />
-
-                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
+                    <br />
+                    <span className="textBox small">
+                        View the messages and files you've sent and received, as well as the encrypted files you've stored
+                        to the cloud.<br /><br />
+                    </span>
 
                     <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'encryptdecrypt')}>
                         <i className="fa fa-fw fa-file-excel-o" />
                         {polyglot.t("dashboard.filesys")}
                     </a>
+                    <br />
+                    <span className="textBox small">
+                    You can encrypt and decrypt files right in your web browser. Encrypted files can be backed up to the
+                    cloud or stored on your computer.
+                        <br /><br />
+                    </span>
+
+                    <a href="#" className="inline" ref="createFileButton" onClick={this.handleDownloadIdentityFile}>
+                        <i className="fa fa-fw fa-download" />
+                        Save your identity file
+                    </a>
+                    <br />
+                    <span className="textBox small">
+                    Generate a file that can be used to move your identity from one web
+                    browser to another, or to log in. This is a plain text file with your username and password, it
+                    is <em>not</em> encrypted and should never be stored to the cloud.
                     <br /><br />
+                    </span>
+                    <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'changepassphrase')}>
+                        <i className="fa fa-fw fa-gears" />
+                        {' '}Change your password
+                    </a>
+                    <br />
+                    <span className="textBox small">
+                        <span className="shortcut bold">Tech details:</span> Your old password will be used to sign a message
+                    requesting a new public key, based on your new password. Neither password will be sent over the net.
 
+                        <br /><br />
+                    </span>
 
-
+                    <a href="#" ref="fileLink" download={filename} ><span style={{display: 'none'}}>{filename}</span></a>
 
                     <a href="#" className="inline" onClick={this.handleSignOut}>
                         <i className="fa fa-fw fa-sign-out" />
                         {polyglot.t("dashboard.logout")}
                     </a>
+                    <br />
+                    <span className="textBox small">
+                    Remove all traces of your identity from this web browser. If you have not yet stored your password or
+                    saved your identity file (see link above), there will be no way to recover your files or messages.
+                        <br /><br />
+                    </span>
                 </div>
             </div>
             )
@@ -2270,7 +2377,7 @@ var ICXDashboard = React.createClass({
         var browser = getBrowser()
         if (browser == "Safari") {
             ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
-                "As a result, you may not be able to download passphrase files or files you have encrypted."
+                "As a result, you may not be able to download identity files or files you have encrypted."
 
             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }
@@ -2333,7 +2440,7 @@ var ICXDashboard = React.createClass({
         var userToRemove = PB.getCurrentUsername()
 
         // Confirm alert first
-        var msg = "WARNING: If you have not yet saved your passphrase, hit Cancel and click on your username to access your passphrase. Are you sure you wish to continue?"
+        var msg = "WARNING: If you have not yet saved your username and password, hit Cancel and click on your username and choose Save your identity file. Are you sure you wish to continue?"
 
         var r = confirm(msg)
         if (r == false) {
@@ -2492,11 +2599,11 @@ var ICXTableView = React.createClass({
     render: function () {
 
         var viewprops = this.props.view || {}
-        var view = <TableView view={viewprops} table={viewprops.table}/>
-        document.body.style.overflowY = "auto"
 
         return (
-            <div className="icx-tableview">{view}</div>
+            <div className="icx-tableview">
+                <TableView view={viewprops} table={viewprops.table}/>
+            </div>
             )
     }
 })
@@ -2587,22 +2694,35 @@ var ICXAbout = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
+        //    <img src={getProfilePuff('mattasher').payload.content} className="iconSized" />{' '}
+
+        // <img src={getProfilePuff('icx.adamrafeek').payload.content} className="iconSized" />{' '}
+
         return (
             <div style={{width: '100%', height: '100%'}}>
                 <div style={headerStyle}>{polyglot.t("header.about")}</div>
                 <div className="contentWindow">
-                <span className="textBox"><span className="shortcut"><b>I.CX</b></span>, or “I see X”, is a private messaging and file sending system built on the open source <a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>.</span>
+                <span className="textBox"><span className="shortcut"><b>I.CX</b></span>, or “I see X”, is a private messaging and file sending system built on the open source <a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>. Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
                     <br /><br />
                     <img src="img/icx/theCrew.jpg" style={{width: '90%'}}/><br />
                     <br />
                     <b>From left to right:</b><br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a> <br />
-                    <a href="#" className="inline" onClick={this.messageUser.bind(null, 'icx.adam')}>Adam Rafeek</a> <br />
-                    <br />
-                    <span className="textBox">Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.mike')}>Michael Guo</a>
+                    <span className="textBox small"> has several years of experience developing websites and software applications, and helped Rogers redesign their SportsNet.ca news portal. In his spare time he works on an online mafia game engine.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.bsharwood')}>Brian Sharwood</a>
+                    <span className="textBox small"> is an experienced start-up executive who scaled 3 ventures up from early days to well established businesses. He was COO of HomeStars where he helped shape the company strategy and refocus to achieve growth, while raising three rounds of funding and building the team from 3 to 45 employees. He has consulted for many Canadian technology and telecom companies. Early in his career Brian started and operated a small bistro in Toronto. An outlet for his passion in wines, it was his first successful entrepreneurial exit. Brian holds an MBA in entrepreneurship from Babson college and a BA from UBC.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'mattasher')}>Matt Asher</a> <span className="textBox small">has a background in journalism, print publishing, and web design. He graduated from University of Toronto with a degree in Statistics and spent several years creating complex biological and financial simulations using <a href="http://www.statisticsblog.com/tag/r/" target="_new" className="inline">R</a>. He blogs at <a href="http://www.mattasher.com" target="_new" className="inline">Mattasher.com</a></span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'dann')}>Dann Toliver</a> <span className="textBox small">is a senior developer with a degree in Math from the University of Alaska. He runs a regular JavaScript meetup group as well as several other programming gatherings. This past summer Dann gave a talk at Strange Loop on Visualizing Persistent Data Structures.</span>
+                    <br /><br />
+
+                    <a href="#" className="inline small bold" onClick={this.messageUser.bind(null, 'icx.adamrafeek')}>Adam Rafeek</a> <span className="textBox small">is a third year student in the Computer Science program at the University of Waterloo. He created a widget to help Waterloo students avoid long lines at popular campus locations. Originally from the twin island republic of Trinidad and Tobago, Adam helped build houses for Habitat for Humanity in rural areas.</span>
+
                 </div>
             </div>
             )
@@ -2615,7 +2735,8 @@ var ICXAbout = React.createClass({
     messageUser: function(username) {
         return Events.pub('/ui/icx/screen', {
             "view.icx.screen": 'send',
-            "view.icx.toUser": username
+            "ICX.toUser": username,
+            "view.icx.toUser":username
         });
     }
 
@@ -2651,37 +2772,46 @@ var ICXFileConverter = React.createClass({
                     <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-lock fa-stack-1x"></i></span>{polyglot.t("filesys.enc")}
                     <br /><br />
 
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="uploadbutton" onChange={this.handleGetFile}/>
-                    </span>
-
+                    <ICXFileUploader styling={headerStyle} />
+                    <br />
+                    <a className="icxNextButton icx-fade" style={headerStyle} onClick={this.handleEncryptFile}> Encrypt File <i className="fa fa-lock" /></a>
                     <br /><br />
-                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_enc")}</a>
+                    <a ref="encryptedLink" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_enc")}</a>
+                    <span style={{display:'none'}} ref="encryptError" className="red">Permission Denied: You need to be logged in to encrypt files</span>
                     <br />
                     <b>OR</b>
                     <br /><br />
                     <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-unlock fa-stack-1x"></i></span>{polyglot.t("filesys.dec")}
                     <br /><br />
 
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className="fileSelect" id="fileToUpload" ref="decryptbutton" onChange={this.handleDecryptFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+                    <br />
+                    <a className="icxNextButton icx-fade" style={headerStyle} onClick={this.handleDecryptFile}> Decrypt File <i className="fa fa-unlock" /></a>
                     <br /> < br />
-                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}}>{polyglot.t("filesys.save_dec")}</a>
+                    <a ref="decryptedDownload" download="no_file_selected" style={{display:'none'}} className="inline"><i className="fa fa-fw fa-download" /> {polyglot.t("filesys.save_dec")}</a>
+                    <span style={{display:'none'}} className="red" ref="decryptError">Decryption Failed: Only files encrypted by this user may be decrypted</span>
 
                 </div>
             </div>
         )
     },
 
-    handleDecryptFile: function(event) {
+    handleDecryptFile: function() {
+        var resultLink = this.refs.decryptedDownload.getDOMNode()
+        var element = ICX.eventElement
+        var fileprom = PBFiles.openPuffFile(element)
+        var errorMsg = this.refs.decryptError.getDOMNode()
+
+        //If they haven't selected a file, let 'em know
+        if (!element) {
+            resultLink.style.display='none'
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            return false
+        }
         //start thinking
         Events.pub('ui/thinking', { 'ICX.thinking': true })
 
-        var decryptFile = this.refs.decryptbutton.getDOMNode()
-        var resultLink = this.refs.decryptedDownload.getDOMNode()
-        var element = event.target
-        var fileprom = PBFiles.openPuffFile(element)
         fileprom.then(function(fileguts) {
             // FIXME: does this work??? letterPuff is a promise...
             var letterPromise = PBFiles.extractLetterPuff(fileguts)
@@ -2689,58 +2819,62 @@ var ICXFileConverter = React.createClass({
             letterPromise.then(function(letterPuff) {
                 if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    ICX.errors = "ERROR: File decryption failed. This file may already be unencrypted or you may not have permission to decrypt this file."
-                    return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    resultLink.style.display='none'
+                    errorMsg.style.display = ''
+                    return false
                 }
                 else {
                     var content = (letterPuff.payload || {}).content
                     var type = (letterPuff.payload || {}).type
-                    var filelist = decryptFile.files
+                    var filelist = ICX.filelist
                     var file = filelist[0]
                     var filename = file.name
 
                     if (/\.puff/.test(filename)) {
                         filename = filename.slice(0, -5)
                     }
+                    errorMsg.style.display = 'none'
                     resultLink.style.display = ""
                     resultLink.href = PBFiles.prepBlob(content, type)
                     resultLink.download = filename
 
                     //stop thinking
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    
-                    //remind them to download
-                    ICX.errors = "Remember to save your decrypted file before leaving this page!"
-                    Events.pub('/ui/icx/error', { "icx.errorMessage": true })
                 }                
             }).catch(function(err) {
                 Events.pub('ui/thinking', { 'ICX.thinking': false })
-                Events.pub('/ui/icx/error', { "icx.errorMessage": true })
-                ICX.errors = "That file was not able to be decrypted"
+                resultLink.style.display='none'
+                errorMsg.style.display = ''
                 PB.onError('Improperly formatted content', err)
             })
         }).catch(function(err) {
             Events.pub('ui/thinking', { 'ICX.thinking': false })
-            Events.pub('/ui/icx/error', { "icx.errorMessage": false })
             PB.onError('File could not be accessed', err)
         })
 
     },
 
-    handleGetFile: function(event) {
-        //start thinking
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
-
-        //Encrypt the file in a puff
-        var element = event.target
-
-        ICX.fileprom = PBFiles.openBinaryFile(element)
-
-        ICX.filelist = element.files
+    handleEncryptFile: function() {
+        // if they aren't logged in just stop here
+        var errorMsg = this.refs.encryptError.getDOMNode()
+        if(!ICX.username) {
+            errorMsg.style.display = ''
+            return false
+        }
         var encryptedLink = this.refs.encryptedLink.getDOMNode()
 
+        //Stop if they haven't selected a file
+        if(!ICX.fileprom) {
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            encryptedLink.style.display = 'none'
+            return false
+        }
+
+        //start thinking
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
+
+        //Encrypt the file in a puff
         ICX.fileprom.then(function(blob) {
             var puff = PBFiles.createPuff(blob, 'file')
 
@@ -2748,22 +2882,19 @@ var ICXFileConverter = React.createClass({
             var file     = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
-
-            // Make the link visible to download the file
-            // stop thinking
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
-            ICX.errors = "Remember to save your encrypted file before leaving this page!"
-            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            errorMsg.style.display = 'none'
             encryptedLink.style.display=""
             encryptedLink.href = PBFiles.prepBlob(puff)
             encryptedLink.download = new_filename
+
+            Events.pub('ui/thinking', {
+                'ICX.thinking': false
+            })
         })
 
     },
 
-    componentDidMount: function(event){
+    componentDidMount: function(){
         var browser = getBrowser()
         if (browser == "Safari") {
             ICX.errors = "WARNING: You may not be able to download files because Safari dose not support the download attribute."
@@ -2771,6 +2902,13 @@ var ICXFileConverter = React.createClass({
         }
 
 
+    },
+
+    componentWillMount: function() {
+        //ensure there are no left over files in the vars
+        ICX.fileprom = false
+        ICX.filelist =[]
+        ICX.eventElement = false
     }
 
 })
@@ -2822,7 +2960,8 @@ var ICXError = React.createClass({
             width: '95%',
             marginBottom: Math.floor(0.5*ICX.calculated.baseFontH)+'px',
             fontSize: Math.floor(0.8*ICX.calculated.baseFontH)+'px',
-            position:'relative'
+            position:'relative',
+            color:'#ff0000'
         }
 
         var showThis = false
@@ -2904,12 +3043,12 @@ var ICXLogo = React.createClass({
 
             var logoW = w*ICX.config.logoSmallRatio
             var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
-            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left ) + "px"
+            var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left + ICX.calculated.sideBorder) + "px"
             logoW = logoW + "px"
             var divW = w*ICX.config.buttonSmallWidthRatio
 
             return (
-                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
+                <div style={{position: 'fixed', top: logoY, width: divW, left: logoX}}>
                     <a href="#" onClick={this.handleGoHome}>
                         <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
                     </a>
@@ -2957,7 +3096,7 @@ var ICXButtonLink = React.createClass({
         var buttonStyle = {
             backgroundColor: screenInfo.color,
             height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
-            position: 'absolute',
+            position: 'fixed',
             fontSize:  fontSize + 'px',
             top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
@@ -2973,7 +3112,7 @@ var ICXButtonLink = React.createClass({
         if(ICX.config.borderSide == 'right' || this.props.screenInfo.name == 'login') {
             buttonStyle.right = 0
         } else {
-            buttonStyle.left = 0
+            buttonStyle.left = Math.floor(ICX.calculated.sideBorder)+'px'
         }
 
 
@@ -2992,14 +3131,15 @@ var ICXButtonLink = React.createClass({
 
         // Special case login
         if(this.props.screenInfo.name == 'login') {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
-            buttonStyle.position = 'absolute'
+            buttonStyle.position = 'fixed'
             buttonStyle.top = 0
+            buttonStyle.width = (Math.floor(w*(1-ICX.config.content.insets.left)) - ICX.calculated.sideBorder) + 'px'
+            buttonStyle.right = 0
             buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             // two styles below are needed to make tooltip display properly
             buttonStyle.overflow = 'visible'
-            buttonStyle.whiteSpace = 'normal'
+            buttonStyle.whiteSpace = 'nowrap'
             return (
                 <div style={buttonStyle}>
                     <ICXUserButton />

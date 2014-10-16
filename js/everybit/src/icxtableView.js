@@ -2,8 +2,7 @@
 
 /*
  BROKEN:
- hover over puff to show preview
- Hover over avatar if down on page
+ 
  Refresh button
 
 
@@ -38,39 +37,56 @@ var TableView = React.createClass({
 	},
 
     forceRefreshPuffs: function() {
+        var cl = this.refs.refresh.getDOMNode().classList
+        cl.toggle("fa-spin")
         getMyPrivateShells()
+        cl.toggle("fa-spin")
     },
 
-	componentWillMount: function() {
-		Events.pub('ui/event', {
-			'view.table.loaded': CONFIG.initialLoad
-		})
-	},
+    componentWillMount: function() {
+        Events.pub('ui/event', {
+            'view.table.loaded': CONFIG.initialLoad
+        })
+    },
+
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
 		var limit = puffworldprops.view.table.loaded
 		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+        var total = 0
 
 		puffs = this.sortPuffs(puffs)
+        //ICX.loading = !!puffs.length
+        total = puffs.length - 1
 
         var refreshStyle = {
             right: Math.floor(ICX.calculated.baseFontH/2)+'px',
             top: Math.floor(ICX.calculated.baseFontH/2)+'px',
             padding: Math.floor(ICX.calculated.baseFontH/4)+'px',
-            backgroundColor: 'rgba(255,255,255,.6)',
+            backgroundColor: 'rgba(255,255,255,.8)',
             borderRadius: Math.floor(ICX.calculated.baseFontH)+'px',
             border: '1px dashed #000',
             position: 'absolute'
         }
-		
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+        var polyglot = Translate.language[puffworldprops.view.language]
+
 		return (
 			<div className="viewContainer">
-                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i className="fa fa-refresh" /></a></span>
+                <div style={headerStyle}>View your messages and files</div>
+                <div style={{fontSize: '60%'}}>
+                    <br />
+                    <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
+                </div>
+                <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
                 {
                 	puffs.map(function(puff, index){
-						return <ICXContentItem key={index} puff={puff} />
+                        ICX.loading = (index < total)
+						return <ICXContentItem tot={total} key={index} puff={puff} />
 					})
 				}
                 <ViewLoadMore query={this.props.view.query} />
@@ -122,6 +138,18 @@ var ICXContentItem = React.createClass({
             expanded: true,
             showReply: false
         }
+    },
+
+    componentDidMount: function() {
+        //console.log(this.props.key + "/" + this.props.tot)
+        //console.log(ICX.loading)
+        // if ( this.props.key == ICX.actual-1 ) {
+        //     //console.log("finished loading \n")
+        //     ICX.loading = false
+        // } else {
+        //     //console.log("still more to load \n")
+        //     ICX.loading = true
+        // }
     },
 
     handleToggleShowItem: function() {
@@ -187,7 +215,7 @@ var ICXContentItem = React.createClass({
                 <div>
                     <div className="tableHeader" style={{fontSize: '65%'}} >
                         <ICXTableUserInfo puff={puff} />
-                        <ICXTableItemDate date={puff.payload.time} />
+
                         <ICXRelationshipInfo puff={puff} />
                         <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
                         <span className="icon reply relative" style={replyStyle}>
@@ -220,13 +248,21 @@ var ICXItemMainContent = React.createClass({
                 padding: itemPadding
             }
 
-            return(
-                <div className="accordion-content" style={itemContentStyle}>
-                    <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                    <ICXInlineReply puff={this.props.puff} />
-                </div>
+            if(this.props.puff.payload.type == 'file') {
+                return (
+                    <div className="accordion-content" style={itemContentStyle}>
+                        <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+                        <ICXInlineReply puff={this.props.puff} />
+                    </div>
                 )
-
+            } else {
+                return(
+                    <div className="accordion-content" style={itemContentStyle}>
+                        <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
+                        <ICXInlineReply puff={this.props.puff} />
+                    </div>
+                )
+            }
         } else {
             return <span></span>
         }
@@ -274,15 +310,18 @@ var ICXTableUserInfo = React.createClass({
         }
 
         if(isSender) {
-            var fromToText = 'To '
+            var sentOrReceived = 'sent'
+            var fromOrTo = 'To '
         } else {
-            var fromToText = 'From '
+            var sentOrReceived = 'received'
+            var fromOrTo = 'From '
         }
 
         return (
             <span className="userInfo">
-                {fromToText} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a> {avatar}
+                {avatar} {fromOrTo} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
                 {' '}
+                {sentOrReceived}<ICXTableItemDate date={this.props.puff.payload.time} />
             </span>
         )
     }
@@ -294,7 +333,7 @@ var ICXTableItemDate = React.createClass({
         var date = new Date(this.props.date)
 
         return (
-                <span className="date">&nbsp;sent {timeSince(date)} ago</span>
+                <span className="date">&nbsp;{timeSince(date)} ago</span>
             )
     }
 
@@ -365,24 +404,34 @@ var ICXRelationshipInfo = React.createClass({
 
 var ICXDownloadLink = React.createClass({
 
+    handlePrepBlob: function() {
+        // only prepares the file for download after user clicks on the button
+        // this way we avoid preparing for all the files in view
+        var puff = this.props.puff
+        var link = document.createElement('a')
+        link.href = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
+        link.download = puff.payload.filename
+        document.body.appendChild(link)
+
+        link.click()
+        link.remove()
+    },
+
 	render: function() {
-		var puff = this.props.puff
+        var puff = this.props.puff
+        var style = {display: (puff.payload.type == 'file') ? 'inline' : 'none'}
 
-		var filelink = ""
-		var download = ""
-		var style = {display: 'none'}
-
-    	if(puff.payload.type == 'file') {
-    		filelink = PBFiles.prepBlob(puff.payload.content, puff.payload.type)
-			download = puff.payload.filename
-			style = {display: 'inline'}
+        if(!this.props.filename) {
+            return (
+                <div className="download">
+                    <a onClick={this.handlePrepBlob} style={style}><i className="fa fa-fw fa-download" /></a>
+                </div>
+                )
+        } else {
+    		return (
+    			<span>File:<a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
+    		)
         }
-
-		return (
-			<div className="download">
-				<a style={style} href={filelink} download={download}><i className="fa fa-fw fa-download" /></a>
-			</div>
-		)
 	}
 })
 
@@ -405,6 +454,10 @@ var ICXInlineReply = React.createClass({
         )
         */
 
+        if(!content || content.length < 1) {
+            return false
+        }
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
         var prom = Promise.resolve() // a promise we use to string everything along
 
         var usernames = [puff.username]
@@ -439,14 +492,15 @@ var ICXInlineReply = React.createClass({
 
             return post_prom
         }).catch(function (err) {
-            // self.cleanUpSubmit()
-            console.log("ERROR")
+            self.handleCleanup()
+            console.log(err.message)
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
         })
 	},
 
 	handleSubmitSuccess: function () {
         console.log("SUCCESS")
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
 
 	handleCleanup: function() {
@@ -476,6 +530,12 @@ var ICXInlineReply = React.createClass({
 
     handleShowReply: function() {
 
+    },
+
+    handleKeyDown: function(e) {
+        if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
+            this.handleReply()
+        }
     },
 
 	render: function() {
@@ -510,7 +570,7 @@ var ICXInlineReply = React.createClass({
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
 
             <b>Message:</b><br />
-                <textarea ref="messageText" style={{width: '100%', height: '20%'}} />
+                <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>
@@ -538,9 +598,12 @@ var ViewLoadMore = React.createClass({
         var availablePuffs = puffs.length
         var showingPuffs = puffworldprops.view.table.loaded
 
-        if (availablePuffs <= showingPuffs) {
-			footer = <div>Nothing more to show</div>
-		} else {
+        
+		if (ICX.loading) {
+            footer = <div>Loading more messages <img src="/img/icx/dotdotdot.gif" /></div>
+        } else if (availablePuffs <= showingPuffs) {
+            footer = <div>Nothing more to show</div>
+        } else {
 			footer = <a className="inline" onClick={this.handleLoadMore}>Load more messages</a>
 		}
 		return (

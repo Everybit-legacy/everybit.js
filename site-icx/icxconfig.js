@@ -68,6 +68,10 @@ ICX.config = {
 // NEEDED because loading identity doesn't happen until whole page has loaded
 ICX.identitySet = false
 
+// Actual number of puffs loaded into tableview
+ICX.actual = 0
+ICX.loading = true
+
 ICX.newUser = {}
 
 ICX.animalName = {}
@@ -86,7 +90,7 @@ ICXdefaults = JSON.parse(JSON.stringify(ICX))
 // OTHER
 CONFIG = {};
 
-CONFIG.version = '0.4.1';
+CONFIG.version = '0.5';
 
 // Array of versions of Puff supported
 // Not yet implemented

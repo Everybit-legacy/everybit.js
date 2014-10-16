@@ -1888,6 +1888,8 @@ var ICXNewUser = React.createClass({
                 Events.pub('ui/thinking', {
                     'ICX.thinking': false
                 })
+                //prevents the display of cached messages
+                document.location.reload(true)
                 return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
 
         }).catch(function(err) {
@@ -2267,6 +2269,8 @@ var ICXLogin = React.createClass({
             }
 
             Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
+            //prevents the display of cached messages
+            document.location.reload(true)
             return false
         }).catch(function (err) {
             if (err.message == "Network Error") {

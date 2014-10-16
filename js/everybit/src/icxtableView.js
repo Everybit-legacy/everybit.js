@@ -249,7 +249,12 @@ var ICXItemMainContent = React.createClass({
             }
 
             if(this.props.puff.payload.type == 'file') {
-                return <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+                return (
+                    <div className="accordion-content" style={itemContentStyle}>
+                        <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+                        <ICXInlineReply puff={this.props.puff} />
+                    </div>
+                )
             } else {
                 return(
                     <div className="accordion-content" style={itemContentStyle}>

@@ -457,6 +457,7 @@ var ICXInlineReply = React.createClass({
         if(!content || content.length < 1) {
             return false
         }
+        Events.pub('ui/thinking', { 'ICX.thinking': true })
         var prom = Promise.resolve() // a promise we use to string everything along
 
         var usernames = [puff.username]
@@ -491,14 +492,15 @@ var ICXInlineReply = React.createClass({
 
             return post_prom
         }).catch(function (err) {
-            // self.cleanUpSubmit()
-            console.log("ERROR")
+            self.handleCleanup()
+            console.log(err.message)
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
         })
 	},
 
 	handleSubmitSuccess: function () {
         console.log("SUCCESS")
-
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
 
 	handleCleanup: function() {

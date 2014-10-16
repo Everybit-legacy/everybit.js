@@ -926,7 +926,7 @@ var ICXFileUploader = React.createClass({
     uploadStyle.width = 'auto'
         return (
         <div ref="dropbox" className="dropbox" onDragEnter={this.handleDrag} onDragExit={this.handleDrag} onDragOver={this.handleDrag} onDrop={this.handleDrop}>
-            <span className="droplabel" ref="droplabel" style={{fontSize:ICX.calculated.pageHeaderTextStyle.fontSize}}>Drop file here or choose one below</span>
+            <span className="droplabel" ref="droplabel" style={{fontSize:ICX.calculated.pageHeaderTextStyle.fontSize}}>Drop file here or Choose File below</span>
             <br />
             <div className="icxFileButton icxNextButton icx-fade" style={uploadStyle}>
                 <span>Choose File</span>

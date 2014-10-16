@@ -106,7 +106,7 @@ html {
     /*height: 100%;*/
     width: 100%;
     padding: 0;
-    overflow:hidden;
+    /*overflow:hidden;*/
 }
 
 body {
@@ -1663,7 +1663,7 @@ fieldset[disabled] .btn-primary.active {
     -o-transform: rotate(90deg);
 }
 
-.screen {
+.icxWorldScreen {
     overflow:auto;
 }
 .shadow {

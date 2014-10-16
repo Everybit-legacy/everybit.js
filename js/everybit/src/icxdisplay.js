@@ -116,6 +116,7 @@ var ICXWorld = React.createClass({
             logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
 
             fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
+            //fontSizeMultiplier: 22,
 
             baseFontH: baseFontH,
 
@@ -135,6 +136,7 @@ var ICXWorld = React.createClass({
         }
 
         var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio )
+        //var fontSize = 17
 
         ICX.buttonStyle = {
             fontSize:  fontSize + 'px',
@@ -211,10 +213,10 @@ var ICXWorld = React.createClass({
         })[0]
 
         var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            maxWidth: w
+            //position: "absolute",
+            //width: w,
+            //height: h,
+            //maxWidth: w
         }
 
 
@@ -264,8 +266,8 @@ var ICXWorld = React.createClass({
 
         return (
             <span>
-                <div style={borderStyle} />
-                <div style={screenStyle} className="screen">
+                <div style={borderStyle} className="icxWorldBorder" />
+                <div style={screenStyle} className="icxWorldScreen">
                     <ICXLogo screenInfo={thisScreen} />
                     <ICXLinks screenInfo={thisScreen} />
                     <div style={contentDivStyles}>

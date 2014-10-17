@@ -2292,8 +2292,7 @@ var ICXLogin = React.createClass({
             }
 
             Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
-            //prevents the display of cached messages
-            document.location.reload(true)
+
             return false
         }).catch(function (err) {
             if (err.message == "Network Error") {

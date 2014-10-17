@@ -77,6 +77,7 @@ if(buildFor == 'icx') {
         'js/libs/events.js',
         'js/libs/gridbox.js',
         'js/libs/dagoba.js',
+        'js/libs/mandrill.js',
 
         // 'js/core/PB.js',
         'js/core/PB.Net.js',

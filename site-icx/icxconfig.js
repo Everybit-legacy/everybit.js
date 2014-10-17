@@ -194,6 +194,3 @@ CONFIG.newLoad = 10
 CONFIG.standards ={}
 CONFIG.standards.usernames = {}
 CONFIG.standards.usernames.maxLength = 255
-
-
-

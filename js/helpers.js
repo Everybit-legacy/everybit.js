@@ -345,7 +345,7 @@ function getAnimalUnicodes() {
 
 
                 if( splitResult[0] == '.icon') {
-                    var unicode = animalCSS[k].style.content.replace(/"/g, "").replace(/'/g, "");
+                    var unicode = animalCSS[k].style.content.replace(/"/g, "").replace(/'/g, "").replace("\\", "");
                     
                     if (getBrowser() == "IE") { // IE doesn't encode the unicode
                         unicodes[i] = unicode;

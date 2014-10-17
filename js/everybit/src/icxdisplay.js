@@ -210,20 +210,12 @@ var ICXWorld = React.createClass({
             return (obj.name == currScreen);
         })[0]
 
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            maxWidth: w
-        }
-
 
         var contentDivStyles = {
                 position: "absolute",
-                left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
-                width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-                // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-                top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+                left: '23.5%',
+                width: '72.5%',
+                top: '10%',
                 padding: '10px', // Testing...
                 fontSize: ICX.calculated.baseFontH + 'px'
         }
@@ -258,14 +250,14 @@ var ICXWorld = React.createClass({
             width: borderWidth,
             backgroundColor: thisScreen.color,
             position: 'fixed',
-            height: '100%'
+            height: '100%',
+            left: 0
         }
 
 
         return (
             <span>
                 <div style={borderStyle} />
-                <div style={screenStyle} className="screen">
                     <ICXLogo screenInfo={thisScreen} />
                     <ICXLinks screenInfo={thisScreen} />
                     <div style={contentDivStyles}>
@@ -273,7 +265,6 @@ var ICXWorld = React.createClass({
                         {pageComponent}
                     </div>
                     <ICXSpinner />
-                </div>
                 <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
             </span>
         )
@@ -3148,7 +3139,7 @@ var ICXButtonLink = React.createClass({
         if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
             buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
         } else  {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
+            buttonStyle.width = ICX.config.buttonSmallWidthRatio*100 + '%'
         }
 
 

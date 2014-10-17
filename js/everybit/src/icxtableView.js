@@ -60,6 +60,7 @@ var TableView = React.createClass({
 
 		puffs = this.sortPuffs(puffs)
         //ICX.loading = !!puffs.length
+        if(!puffs.length) ICX.loading = false
         total = puffs.length - 1
 
         var refreshStyle = {

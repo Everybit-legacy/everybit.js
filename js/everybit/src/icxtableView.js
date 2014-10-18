@@ -51,6 +51,10 @@ var TableView = React.createClass({
         })
     },
 
+    componentDidMount: function() {
+        ICX.loading = false
+    },
+
 	render: function() {
 		var query = puffworldprops.view.query
 		var filters = puffworldprops.view.filters
@@ -75,8 +79,7 @@ var TableView = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         var polyglot = Translate.language[puffworldprops.view.language]
-
-		return (
+            return (
 			<div className="viewContainer">
                 <div style={headerStyle}>View your messages and files</div>
                 <div style={{fontSize: '60%'}}>

@@ -249,9 +249,8 @@ var ICXWorld = React.createClass({
         var borderStyle =  {
             width: borderWidth,
             backgroundColor: thisScreen.color,
-            position: 'fixed',
             height: '100%',
-            left: 0
+            float:'left'
         }
 
 
@@ -3045,11 +3044,11 @@ var ICXLogo = React.createClass({
             var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
 
             return (
-                <div key="mainLogo" style={{width: '100%'}}>
+                <div key="mainLogo" style={{width: '100%',padding: '4% 0 2% 29%'}} className="logoHolder">
                     <div>
-                        <img src="img/icx/icxLogo.png" style={{position: 'relative', marginTop: logoY, marginBottom: ICX.calculated.baseFontH+'px', left: logoX, width: logoW, display: 'block'}} alt='I.CX Logo' />
+                        <img src="img/icx/icxLogo.png" style={{marginBottom: '2%', width: logoW}} alt='I.CX Logo' />
                     </div>
-                    <div style={{width: '60%', zIndex: 1000, fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left: logoX, position: 'absolute'}}>
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH}}>
                         The world’s first 100% secure file storage and messaging system to work right in your web browser.
                         Find out <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'learn')}>what makes us different</a>.
                     </div>

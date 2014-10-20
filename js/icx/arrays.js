@@ -382,7 +382,6 @@ ICX.adjectives = [
     "early",
     "earnest",
     "easy",
-    "easy-going",
     "ecstatic",
     "edible",
     "educated",

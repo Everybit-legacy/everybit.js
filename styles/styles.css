@@ -106,7 +106,7 @@ html {
     /*height: 100%;*/
     width: 100%;
     padding: 0;
-    overflow:hidden;
+    /*overflow:hidden;*/
 }
 
 body {
@@ -283,6 +283,10 @@ header h1 {
 }
 
 #parents {
+}
+
+#puffworld {
+    overflow-y:auto;
 }
 
 #main-content {

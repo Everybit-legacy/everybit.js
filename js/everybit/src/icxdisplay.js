@@ -212,10 +212,10 @@ var ICXWorld = React.createClass({
 
 
         var contentDivStyles = {
-                position: "absolute",
-                left: '23.5%',
+                /*position: "absolute",*/
+                marginLeft: '23.5%',
                 width: '72.5%',
-                top: '10%',
+                marginTop: '5%',
                 padding: '10px', // Testing...
                 fontSize: ICX.calculated.baseFontH + 'px'
         }
@@ -247,10 +247,11 @@ var ICXWorld = React.createClass({
         }
         */
         var borderStyle =  {
-            width: borderWidth,
+            //width: borderWidth,
+            width:'5.5%',
             backgroundColor: thisScreen.color,
             height: '100%',
-            float:'left'
+            position:'fixed'
         }
 
 
@@ -259,7 +260,7 @@ var ICXWorld = React.createClass({
                 <div style={borderStyle} />
                     <ICXLogo screenInfo={thisScreen} />
                     <ICXLinks screenInfo={thisScreen} />
-                    <div style={contentDivStyles}>
+                    <div style={contentDivStyles} className="ScreenHolder">
                         <ICXError />
                         {pageComponent}
                     </div>
@@ -300,7 +301,7 @@ var ICXStore = React.createClass({
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-store">
                 <div style={headerStyle}>{polyglot.t("header.store")}</div><br />
                 <div className="contentWindow">
                     <span className="textBox">{polyglot.t("store.select")}</span>
@@ -401,7 +402,7 @@ var ICXStoreFinish = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-store-finish" >
                 <div style={headerStyle}>{polyglot.t("header.store_fin")}</div><br />
                 <div className="contentWindow">
                     <span className="textBox">{polyglot.t("store.success")}</span>
@@ -1018,7 +1019,7 @@ var ICXSendFile = React.createClass({
         }
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-file">
                 <div style={headerStyle}>{polyglot.t("header.send_file")} {puffworldprops.ICX.toUser}</div><br />
                 <div className="contentWindow">
                     {invitedNote}
@@ -1070,7 +1071,7 @@ var ICXSendFileConfirm = React.createClass({
         var filename = file.name
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-file-confirm">
                 <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
                 <br />
                 <div className="contentWindow">
@@ -1102,7 +1103,7 @@ var ICXSendFileFinish = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-file-finish">
                 <div style={headerStyle}>{polyglot.t("header.send_file_fin")}</div>
                 <br />
                 <div className="contentWindow">
@@ -1227,7 +1228,7 @@ var ICXSendMessage = React.createClass({
         }
 
         return (
-            <div className="send-message" style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-message">
                 <div style={headerStyle}>{polyglot.t("header.send_msg")}</div>
                 <div className="contentWindow">
                     <span className="bold">{invitedNote}</span>
@@ -1308,7 +1309,7 @@ var ICXSendMessageConfirm = React.createClass({
         }
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-message-confirm">
                 <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
                 <br />
                 <div className="contentWindow">
@@ -1344,7 +1345,7 @@ var ICXSendMessageFinish = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-send-message-finish">
                 <div style={headerStyle}>{polyglot.t("header.send_msg_fin")}</div>
                 <br />
                 <div className="contentWindow">
@@ -2316,7 +2317,7 @@ var ICXDashboard = React.createClass({
          */
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-dashboard">
                 <div style={headerStyle}>{polyglot.t("header.dashboard")} {username}</div><br />
                 <div className="contentWindow">
 
@@ -2499,7 +2500,7 @@ var ICXChangePassphrase = React.createClass({
         })
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-changePassphrase">
                 <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div>
                 {mustChangeMsg}
                 <div className="contentWindow">
@@ -2587,7 +2588,7 @@ var ICXChangePassphraseFinish = React.createClass({
         var username = ICX.username
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-changePassphrase-finish">
                 <div style={headerStyle}>{polyglot.t("pass.change")} {username}</div><br />
                 <div className="contentWindow">
                 {polyglot.t("pass.success")}<a href="#" className="inline" onClick={this.handleGoToDashboard}>dashboard page</a>.
@@ -2642,7 +2643,7 @@ var ICXLearn = React.createClass({
         }
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-learn">
                 <div style={headerStyle}>{polyglot.t("header.learn")}</div><br />
                 <div className="iframeHolder">
                     <iframe width={vidW} height={vidH} src={vidURL} frameBorder="0" allowFullScreen></iframe>
@@ -2674,7 +2675,7 @@ var ICXIndepth = React.createClass({
         }
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-indepth">
                 <div style={headerStyle}>{polyglot.t("header.indepth")}</div>
                 <br />
                 <div className="contentWindow" style={textStyle}>
@@ -2711,7 +2712,7 @@ var ICXAbout = React.createClass({
         // <img src={getProfilePuff('icx.adamrafeek').payload.content} className="iconSized" />{' '}
 
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-about">
                 <div style={headerStyle}>{polyglot.t("header.about")}</div>
                 <div className="contentWindow">
                 <span className="textBox"><span className="shortcut"><b>I.CX</b></span>, or “I see X”, is a private messaging and file sending system built on the open source <a href="http://www.puffball.io" className="inline" target="_blank">{polyglot.t("about.platform")}</a>. Our office is at <a href="http://bentomiso.com" className="inline" target="_new">Bento Miso</a> in Toronto.</span>
@@ -2778,7 +2779,7 @@ var ICXFileConverter = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
         return (
-            <div style={{width: '100%', height: '100%'}}>
+            <div className="icx-screen icx-fileConverter">
                 <div style={headerStyle}>{polyglot.t("header.filesys")}</div>
                 <div className="contentWindow">
                     <span className="fa fa-stack"><i className="fa fa-square-o fa-stack-2x"></i><i className="fa fa-fw fa-lock fa-stack-1x"></i></span>{polyglot.t("filesys.enc")}
@@ -3048,7 +3049,7 @@ var ICXLogo = React.createClass({
                     <div>
                         <img src="img/icx/icxLogo.png" style={{marginBottom: '2%', width: logoW}} alt='I.CX Logo' />
                     </div>
-                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH}}>
+                    <div style={{width: '80%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH}}>
                         The world’s first 100% secure file storage and messaging system to work right in your web browser.
                         Find out <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'learn')}>what makes us different</a>.
                     </div>

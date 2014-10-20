@@ -3115,13 +3115,13 @@ var ICXButtonLink = React.createClass({
 
         var buttonStyle = {
             backgroundColor: screenInfo.color,
-            height: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
+            height: ICX.config.navButtonHeightPercent + '%',
             position: 'fixed',
             fontSize:  fontSize + 'px',
-            top: Math.floor( (h*.3) + screenInfo.position*Math.floor( ICX.config.buttonHeightRatio*h )) + 'px',
+            top: (((screenInfo.position - 1) * ICX.config.navButtonHeightPercent) + ICX.config.navButtonTopBuffer) + '%',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
             color: 'white',
-            paddingLeft: Math.floor(fontSize/2.5)+'px',
+            paddingLeft: '0.55%',
             zIndex: 100,
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
@@ -3132,12 +3132,12 @@ var ICXButtonLink = React.createClass({
         if(ICX.config.borderSide == 'right' || this.props.screenInfo.name == 'login') {
             buttonStyle.right = 0
         } else {
-            buttonStyle.left = Math.floor(ICX.calculated.sideBorder)+'px'
+            buttonStyle.left = ICX.config.leftBorderWidthPercent + '%'
         }
 
 
         if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonWidthRatio ) + 'px'
+            buttonStyle.width = ICX.config.buttonWidthRatio * 100 + '%'
         } else  {
             buttonStyle.width = ICX.config.buttonSmallWidthRatio*100 + '%'
         }

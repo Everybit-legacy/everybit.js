@@ -62,7 +62,12 @@ ICX.config = {
     mainPageFontHeightRatio:.03,
     contentLeftInset: .02,
     contentRightInset: 0.15,
-    contentBottomInset:.04
+    contentBottomInset:.04,
+
+    //new config variables
+    navButtonTopBuffer: 40,
+    navButtonHeightPercent: 10,
+    leftBorderWidthPercent: 5.5
 }
 
 // NEEDED because loading identity doesn't happen until whole page has loaded

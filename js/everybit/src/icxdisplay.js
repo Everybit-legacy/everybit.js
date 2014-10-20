@@ -2012,9 +2012,9 @@ var ICXLogin = React.createClass({
                         Select an identity file:
                         <Tooltip content="Authenticate with this browser using your private identity file" />
                     </div>
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
+
                     <br /><br />
                     <i><em>{polyglot.t("login.or")}</em></i>
                     <br /><br />
@@ -2129,10 +2129,10 @@ var ICXLogin = React.createClass({
         })
     },
 
-    handleLoginWithFile: function(event) {
+    handleLoginWithFile: function() {
         // TODO: start spinner here
         
-        fileprom = PBFiles.openTextFile(event.target)
+        fileprom = PBFiles.openTextFile(ICX.eventElement)
         fileprom.then(function(content) {
 
             // TODO: move all of this out of the GUI
@@ -2169,6 +2169,8 @@ var ICXLogin = React.createClass({
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 return PB.onError('No aliases in identity file')
             }
+
+            Events.pub('ui/thinking', { 'ICX.thinking': true })
             
             var preferences = identityObj.preferences || {}
             
@@ -2180,9 +2182,9 @@ var ICXLogin = React.createClass({
 
             prom.then(function (userInfo) {
                 if(!userInfo || userInfo.username != username) {
-                    // TODO: END SPINNER
                     PB.removeIdentity(username)
                     ICX.errors = "ERROR: Username not found in public record."
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     return PB.onError('Username not found in public record')
                 }
@@ -2190,9 +2192,9 @@ var ICXLogin = React.createClass({
                 PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
                     var identity = identities[username]
                     if(!identity || !identity.primary) {
-                        // TODO: END SPINNER
                         PB.removeIdentity(username)
                         ICX.errors = "ERROR: Identity not properly loaded."
+                        Events.pub('ui/thinking', { 'ICX.thinking': false })
                         Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                         return PB.onError('Identity not properly loaded')
                     }
@@ -2201,17 +2203,17 @@ var ICXLogin = React.createClass({
                     
                     if(primary.privateDefaultKey) {
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
-                            // TODO: END SPINNER
                             PB.removeIdentity(username)
                             ICX.errors = "ERROR: The identity file does not contain a valid public user record."
                             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                            Events.pub('ui/thinking', { 'ICX.thinking': false })
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')
                         }
                     }
                     // TODO: add public-private sanity check for root and admin keys
                     
-                    // TODO: END SPINNER
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
                     PB.switchIdentityTo(username)
                     ICX.username = username
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
@@ -2227,7 +2229,7 @@ var ICXLogin = React.createClass({
                 ICX.errors = "NETWORK ERROR: login failed."
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
-                // TODO: END SPINNER
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
                 PB.removeIdentity(username)
                 return PB.throwError('File-based login failed')
             })

@@ -151,7 +151,8 @@ puffworldprops = {
         content: '',
         state: {},
         privacy: false,
-        type: false
+        type: false,
+        replyType: 'message'
     },
 
     raw: {

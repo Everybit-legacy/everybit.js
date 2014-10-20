@@ -445,13 +445,25 @@ var ICXDownloadLink = React.createClass({
 var ICXInlineReply = React.createClass({
 	handleReply: function() {
 		var puff=this.props.puff
-		var type = 'text'
-        var content = this.refs.messageText.getDOMNode().value
         var parents = [puff.sig]
-        var metadata = {}
-        metadata.routes = [puff.username.stripCapa()]
         var envelopeUserKeys = ''
         var self = this
+        var metadata = {}
+        metadata.routes = [puff.username.stripCapa()]
+
+        if(puffworldprops.reply.replyType == 'message') {
+            var type = 'text'
+            var content = this.refs.messageText.getDOMNode().value
+        }
+
+        if (puffworldprops.reply.replyType == 'file') {
+
+            // TODO: Throw file missing error
+            if( !ICX.filelist ) return false
+            var type = 'file'
+            var content = ICX.filelist[0]
+            metadata.filename = content.name
+        }
 
         /*
         Events.pub('ui/reply/add-parent', {
@@ -492,11 +504,21 @@ var ICXInlineReply = React.createClass({
                 userRecords.push(PB.getCurrentUserRecord())
             }
 
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-            self.handleCleanup()
+            if( puffworldprops.reply.replyType == 'file') {
+                ICX.fileprom.then(function(blob) {
+                    var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                    post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                    self.handleCleanup()
 
-            return post_prom
+                    return post_prom
+                })
+            } else {
+                var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+                self.handleCleanup()
+
+                return post_prom
+            }
         }).catch(function (err) {
             self.handleCleanup()
             console.log(err.message)
@@ -529,14 +551,10 @@ var ICXInlineReply = React.createClass({
             activeReplies.splice(activeReplies.indexOf(sig),1)
         }
 
-        Events.pub('ui/reply/activate',
-            {'view.icx.activeReplies': activeReplies}
-        )
+        Events.pub('ui/reply/activate', {
+            'view.icx.activeReplies': activeReplies
+        })
 	},
-
-    handleShowReply: function() {
-
-    },
 
     handleKeyDown: function(e) {
         if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
@@ -544,13 +562,36 @@ var ICXInlineReply = React.createClass({
         }
     },
 
+    handleToggleReplyOption: function(toggle) {
+        if(toggle == 'message') {
+            Events.pub('ui/reply', {
+                'reply.replyType': 'message'
+            })
+        } else if(toggle == 'file') {
+            Events.pub('ui/reply', {
+                'reply.replyType': 'file'
+            })
+        } else {
+            Events.pub('ui/reply', {
+                'reply.replyType': false
+            })
+            return false
+        }
+    },
+
 	render: function() {
 		var puff=this.props.puff
 		var username = puff.username.stripCapa()
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
 
         var inlineReplyStyle = {}
+        var replyMsgStyle = {}
+        var replyFileStyle = {}
 
         var activeReplies = puffworldprops.view.icx.activeReplies
+
+        replyMsgStyle.display = (puffworldprops.reply.replyType == 'message') ? 'block' : 'none'
+        replyFileStyle.display = (puffworldprops.reply.replyType == 'file') ? 'block' : 'none'
 
         if(activeReplies.indexOf(puff.sig) !== -1) {
             inlineReplyStyle.display = 'block'
@@ -564,7 +605,6 @@ var ICXInlineReply = React.createClass({
         inlineReplyStyle.backgroundColor = 'rgba(200,200,200,.5)'
         inlineReplyStyle.marginTop = Math.floor(ICX.calculated.baseFontH/2)+'px'
 
-
         var thisScreen = ICX.screens.filter(function( obj ) {
             return (obj.name == 'dashboard');
         })[0]
@@ -574,9 +614,17 @@ var ICXInlineReply = React.createClass({
         // <b>Reply to: {username}</b><br/>
         return (
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
+                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption.bind(this, 'message')} >Message</a>
+                {' '}
+                <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleToggleReplyOption.bind(this, 'file')} >File</a>
 
-            <b>Message:</b><br />
-                <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
+                <div className="replyMessage" style={replyMsgStyle}>
+                    <b>Message:</b><br />
+                    <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
+                </div>
+                <div className="replyFile" style={replyFileStyle}>
+                    <ICXFileUploader styling={headerStyle} />
+                </div>
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

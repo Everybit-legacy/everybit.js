@@ -1158,7 +1158,7 @@ var ICXSendFileFinish = React.createClass({
     componentDidMount: function () {
         // Set information for this send
         var type = 'file'
-        var content = ICX.filelist[0]   // error: dont have content of the file here
+        var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]

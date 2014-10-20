@@ -444,7 +444,7 @@ var ICXDownloadLink = React.createClass({
                 )
         } else {
     		return (
-    			<span>File:<a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
+    			<span><b>File: </b><a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
     		)
         }
 	}
@@ -574,7 +574,11 @@ var ICXInlineReply = React.createClass({
 
     handleAddCaption: function() {
         if(!ICX.filelist) return false
-        ICX.filelist[0].caption = this.refs.caption.getDOMNode().value
+
+        // TODO: We need a more reliable way to append caption
+        // Right now the caption may be lost randomly after a React render pass
+        var caption = this.refs.caption.getDOMNode().value
+        ICX.filelist[0].caption = caption
     },
 
     handleToggleReplyOption: function(toggle) {

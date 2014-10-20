@@ -251,9 +251,18 @@ var ICXItemMainContent = React.createClass({
             }
 
             if(this.props.puff.payload.type == 'file') {
+                var showCaption = {}
+                if(!this.props.puff.payload.caption) {
+                    showCaption.display = 'none'
+                } else {
+                    var caption = this.props.puff.payload.caption
+                    showCaption.display = 'block'
+                }
+
                 return (
                     <div className="accordion-content" style={itemContentStyle}>
                         <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+                        <span style={showCaption}>{caption}</span>
                         <ICXInlineReply puff={this.props.puff} />
                     </div>
                 )
@@ -463,6 +472,7 @@ var ICXInlineReply = React.createClass({
             var type = 'file'
             var content = ICX.filelist[0]
             metadata.filename = content.name
+            metadata.caption = content.caption
         }
 
         /*
@@ -562,6 +572,11 @@ var ICXInlineReply = React.createClass({
         }
     },
 
+    handleAddCaption: function() {
+        if(!ICX.filelist) return false
+        ICX.filelist[0].caption = this.refs.caption.getDOMNode().value
+    },
+
     handleToggleReplyOption: function(toggle) {
         if(toggle == 'message') {
             Events.pub('ui/reply', {
@@ -572,9 +587,6 @@ var ICXInlineReply = React.createClass({
                 'reply.replyType': 'file'
             })
         } else {
-            Events.pub('ui/reply', {
-                'reply.replyType': false
-            })
             return false
         }
     },
@@ -624,6 +636,8 @@ var ICXInlineReply = React.createClass({
                 </div>
                 <div className="replyFile" style={replyFileStyle}>
                     <ICXFileUploader styling={headerStyle} />
+                    <br />Memo: <br />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} onChange={this.handleAddCaption} />
                 </div>
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>

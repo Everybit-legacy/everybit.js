@@ -1021,10 +1021,10 @@ var ICXSendFile = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
         var invitedNote = ''
-        if(puffworldprops.ICX.wizard.invitedEmail) {
-            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
-        } else {
+        if(!puffworldprops.ICX.wizard.invitedEmail) {
             invitedNote = 'Sending to user ' + puffworldprops.ICX.toUser
+        } else {
+            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
         }
 
         return (
@@ -1036,6 +1036,9 @@ var ICXSendFile = React.createClass({
                 Your file: <br />
                     <ICXFileUploader styling={headerStyle} />
                     <br />
+                    Memo: <br />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                    <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
@@ -1044,6 +1047,11 @@ var ICXSendFile = React.createClass({
                 </div>
             </div>
         )
+    },
+
+    handleAddCaption: function() {
+        if(!ICX.filelist) return false
+        ICX.filelist[0].caption = this.refs.caption.getDOMNode().value
     },
 
     componentWillMount: function() {
@@ -1078,6 +1086,7 @@ var ICXSendFileConfirm = React.createClass({
         var filelist = ICX.filelist
         var file     = filelist[0]
         var filename = file.name
+        var caption  = file.caption
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1086,6 +1095,7 @@ var ICXSendFileConfirm = React.createClass({
                 <div className="contentWindow">
                     <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
                     <b>{polyglot.t("send.file")}</b> {filename}
+                    <br />{caption}
                     <br /><br />
                     <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
                 </div>
@@ -1163,6 +1173,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
+        metadata.caption = content.caption
         var privateEnvelopeAlias = ''
         var self = this
 

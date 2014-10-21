@@ -219,15 +219,14 @@ var ICXWorld = React.createClass({
 
 
         var contentDivStyles = {
-                position: "absolute",
-                left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
-                width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-                // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-                top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-                padding: '10px', // Testing...
-                fontSize: ICX.calculated.baseFontH + 'px'
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
         }
-
 
         contentDivStyles.backgroundColor = thisScreen.backgroundColor
 
@@ -3263,7 +3262,7 @@ var ICXFooter = React.createClass({
 });
 
 
-var ICXUserButton = React.createClass({
+var ICXUserButton = React.createClass({ 
     mixins: [TooltipMixin],
 
     render: function() {
@@ -3351,7 +3350,7 @@ var ICXUserButton = React.createClass({
 
 })
 
-var ICXNextButton = React.createClass({
+var ICXNextButton = React.createClass({  /* good */
     handleNext: function () {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     },
@@ -3383,7 +3382,7 @@ var ICXNextButton = React.createClass({
 })
 
 // Not yet implemented
-var ICXLangSelect = React.createClass({
+var ICXLangSelect = React.createClass({ /* good */
     handlePickLanguage: function() {
         var language = this.refs.picklanguage.getDOMNode().value
         return Events.pub('ui/view/language/set', {'view.language': language})
@@ -3405,7 +3404,7 @@ var ICXLangSelect = React.createClass({
     }
 })
 
-var ICXCheckmark = React.createClass({
+var ICXCheckmark = React.createClass({ /* good */
     render: function() {
         if(this.props.show === false) {
             return <i className="fa fa-check-circle fa-fw gray"></i>
@@ -3423,18 +3422,17 @@ var ICXCheckmark = React.createClass({
 
 
 
+/*******************************************************************************************
 
 
 
 
+            Only unused components below here? Let's remove them from this file!
 
 
 
 
-
-
-
-
+/*******************************************************************************************/
 
 
 

@@ -61,29 +61,23 @@ var ICXWorld = React.createClass({
             }
         }
 
-        if(PB.getCurrentUsername()) {
-            ICX.username = PB.getCurrentUsername()
-        } else {
-            ICX.username = false
-        }
-
         //Routing checks, check if you have "permission" to go somewhere, if not send you somehwere safe
-        if(ICX.username) {
+        if(!PB.getCurrentUsername()) {
+            //lock them out of dashboard if no user is logged in
+            if (currScreen == 'dashboard') {
+                currScreen = 'home'
+                Events.pub('/ui/icx/screen',{"view.icx.screen":'home'})
+            }
+        } else {
             //prevent them from getting to newuser page if they are logged in
             if ((currScreen == 'newuser' || currScreen == 'login') && !(puffworldprops.ICX.nextStep == "send" || puffworldprops.ICX.nextStep == "store")) {
                 currScreen = 'dashboard'
                 Events.pub('/ui/icx/screen',{"view.icx.screen":'dashboard'})
             }
-
-        } else if (!ICX.username) {
-            if (currScreen == 'dashboard') {
-                currScreen = 'home'
-                Events.pub('/ui/icx/screen',{"view.icx.screen":'home'})
-            }
         }
 
         if (currScreen == 'init') {
-            if (ICX.username) {
+            if (PB.getCurrentUsername()) {
                 currScreen = 'dashboard'
                 Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
 
@@ -341,7 +335,8 @@ var ICXStore = React.createClass({
     },
 
     componentWillMount: function() {
-       if(!ICX.username) {
+        // TODO: Move this to the main routing section
+       if(!PB.getCurrentUsername()) {
             return Events.pub('ui/event/newuser', {
                 "view.icx.screen": 'newuser',
                 'ICX.wizard.inProcess': true,
@@ -365,9 +360,9 @@ var ICXStore = React.createClass({
             'ICX.nextStatus': false
         })
 
-        var username = ICX.username
-
-        if(username) {
+        // TODO: This check is not needed anymore
+        // since we route them to sign up right away if not logged in
+        if(PB.getCurrentUsername()) {
             Events.pub('ui/event', {
                 'ICX.nextStep': 'store.finish',
                 'ICX.nextStepMessage': 'Finish'
@@ -577,8 +572,9 @@ var ICXInvite = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language]
         // Next step is file or message, then final step has warning about NOT DONE
-       var userURL = 'https://i.cx/u/'+ICX.username
-       var inviteText = polyglot.t("invite.proposal_1")+"\n"+userURL+"\n"+polyglot.t("invite.proposal_2")+"\n"+ICX.username
+        var username = PB.getCurrentUsername()
+        var userURL = 'https://i.cx/u/'+username
+        var inviteText = polyglot.t("invite.proposal_1")+"\n"+userURL+"\n"+polyglot.t("invite.proposal_2")+"\n"+username
 
         // Put Why can't you in warning message?
         return (
@@ -794,7 +790,8 @@ var ICXSend = React.createClass({
 
     componentWillMount: function() {
 
-        if(!ICX.username) {
+        // TODO: Move this to main routing section
+        if(!PB.getCurrentUsername()) {
             return Events.pub('ui/event/newuser', {
                 "view.icx.screen": 'newuser',
                 'ICX.wizard.inProcess': true,
@@ -1057,11 +1054,12 @@ var ICXSendFile = React.createClass({
     },
 
     componentWillMount: function() {
-        if(ICX.username) {
+        if(PB.getCurrentUsername()) {
             Events.pub('ui/event/', {
                 'ICX.nextStep': 'send.file.finish',
                 'ICX.nextStepMessage': 'SEND FILE'
             })
+        // TODO: Remove this extra logic
         } else {
             Events.pub('ui/event/', {
                 'ICX.nextStep': 'newuser',
@@ -1075,35 +1073,6 @@ var ICXSendFile = React.createClass({
         })
     }
 
-})
-
-
-var ICXSendFileConfirm = React.createClass({
-    render: function () {
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        var filelist = ICX.filelist
-        var file     = filelist[0]
-        var filename = file.name
-        var caption  = puffworldprops.reply.caption
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
-                <br />
-                <div className="contentWindow">
-                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
-                    <b>{polyglot.t("send.file")}</b> {filename}
-                    <br />{caption}
-                    <br /><br />
-                    <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
-                </div>
-            </div>
-        )
-    }
 })
 
 
@@ -1260,7 +1229,8 @@ var ICXSendMessage = React.createClass({
     },
 
     componentWillMount: function() {
-        if(ICX.username) {
+        // TODO: Move this to main routing section
+        if(PB.getCurrentUsername()) {
             Events.pub('ui/event/', {
                 'ICX.nextStep': 'send.finish',
                 'ICX.nextStepMessage': 'SEND'
@@ -1307,38 +1277,6 @@ var ICXSendMessage = React.createClass({
         }
     }
 });
-
-var ICXSendMessageConfirm = React.createClass({
-    render: function () {
-
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        var username = PB.getCurrentUsername()
-
-        var sendToEmail = ''
-        if(puffworldprops.ICX.wizard.invitedEmail) {
-            sendToEmail = '(' + puffworldprops.ICX.wizard.invitedEmail + ')'
-        }
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
-                <br />
-                <div className="contentWindow">
-                    <b>{polyglot.t("send.from")}</b> {username}<br/>
-                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser} {sendToEmail}<br />
-                    <b>MESSAGE:</b><br />
-                    {ICX.messageText}
-                    <br /><br />
-                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
-                </div>
-            </div>
-        )
-    }
-})
 
 
 var ICXSendMessageFinish = React.createClass({
@@ -1954,15 +1892,8 @@ var ICXNewUser = React.createClass({
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         })
     }
-});
-
-
-
-var ICXNewUserFinish = React.createClass({
-    render: function() {
-        return <span>User created</span>
-    }
 })
+
 
 var passphraseBuffer = []
 
@@ -1975,8 +1906,6 @@ var ICXLogin = React.createClass({
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
         var baseFontH = ICX.calculated.baseFontH
-
-        var currUser = PB.getCurrentUsername()
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
@@ -2221,7 +2150,6 @@ var ICXLogin = React.createClass({
                     
                     Events.pub('ui/thinking', { 'ICX.thinking': false })
                     PB.switchIdentityTo(username)
-                    ICX.username = username
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
                 })
             })
@@ -2349,7 +2277,7 @@ var ICXDashboard = React.createClass({
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
 
-        var username = ICX.username
+        var username = PB.getCurrentUsername()
 
         var filename = username + "Identity.json"
 
@@ -2509,7 +2437,6 @@ var ICXDashboard = React.createClass({
         }
 
         PB.removeIdentity(userToRemove)
-        ICX.username = ''
         ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
@@ -2531,7 +2458,7 @@ var ICXChangePassphrase = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
 
-        var username = ICX.username
+        var username = PB.getCurrentUsername()
 
         //CSS for toggle passphrase masking
         var cb = React.addons.classSet
@@ -2633,7 +2560,7 @@ var ICXChangePassphraseFinish = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
-        var username = ICX.username
+        var username = PB.getCurrentUsername()
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -2920,8 +2847,9 @@ var ICXFileConverter = React.createClass({
 
     handleEncryptFile: function() {
         // if they aren't logged in just stop here
+        // TODO: Route them to sign up in main routing section
         var errorMsg = this.refs.encryptError.getDOMNode()
-        if(!ICX.username) {
+        if(!PB.getCurrentUsername()) {
             errorMsg.style.display = ''
             return false
         }
@@ -3269,7 +3197,7 @@ var ICXUserButton = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
-        var username = ICX.username
+        var username = PB.getCurrentUsername()
         if (!username) {
             return(
                 <span>
@@ -3343,7 +3271,6 @@ var ICXUserButton = React.createClass({
         }
 
         PB.removeIdentity(userToRemove)
-        ICX.username = ''
         ICX.identityForFile = {}
         ICX.currScreen = 'home'
     }
@@ -3436,8 +3363,71 @@ var ICXCheckmark = React.createClass({ /* good */
 
 
 
+var ICXNewUserFinish = React.createClass({
+    render: function() {
+        return <span>User created</span>
+    }
+})
 
+var ICXSendFileConfirm = React.createClass({
+    render: function () {
+        var polyglot = Translate.language[puffworldprops.view.language]
 
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        var filelist = ICX.filelist
+        var file     = filelist[0]
+        var filename = file.name
+        var caption  = puffworldprops.reply.caption
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
+                <br />
+                <div className="contentWindow">
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
+                    <b>{polyglot.t("send.file")}</b> {filename}
+                    <br />{caption}
+                    <br /><br />
+                    <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
+                </div>
+            </div>
+        )
+    }
+})
+
+var ICXSendMessageConfirm = React.createClass({
+    render: function () {
+
+        var polyglot = Translate.language[puffworldprops.view.language]
+
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = ICX.currScreenInfo.color
+
+        var username = PB.getCurrentUsername()
+
+        var sendToEmail = ''
+        if(puffworldprops.ICX.wizard.invitedEmail) {
+            sendToEmail = '(' + puffworldprops.ICX.wizard.invitedEmail + ')'
+        }
+
+        return (
+            <div style={{width: '100%', height: '100%'}}>
+                <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
+                <br />
+                <div className="contentWindow">
+                    <b>{polyglot.t("send.from")}</b> {username}<br/>
+                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser} {sendToEmail}<br />
+                    <b>MESSAGE:</b><br />
+                    {ICX.messageText}
+                    <br /><br />
+                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
+                </div>
+            </div>
+        )
+    }
+})
 
 
 

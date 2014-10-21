@@ -1754,9 +1754,9 @@ var ICXNewUser = React.createClass({
             // Set this person as the current user
             PB.switchIdentityTo(requestedUsername)
 
-            // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time?
-            var idFile = PB.formatIdentityFile()
-            ICX.identityForFile = idFile
+            // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time? Yes.
+            // var idFile = PB.formatIdentityFile()
+            // ICX.identityForFile = idFile
 
             // Create identity file
             // ICX.identityForFile = {
@@ -2289,8 +2289,8 @@ var ICXDashboard = React.createClass({
 
     // Generate download link of file
     handleGenerateIdentityFile: function() {
-        ICX.identityForFile = PB.formatIdentityFile() // THINK: do we really need the identityForFile variable?
-        return ICX.identityForFile
+        // ICX.identityForFile = PB.formatIdentityFile() // THINK: do we really need the identityForFile variable? No.
+        return PB.formatIdentityFile()
     },
 
     handleAskForUsername: function() {
@@ -2332,7 +2332,6 @@ var ICXDashboard = React.createClass({
         }
 
         PB.removeIdentity(userToRemove)
-        ICX.identityForFile = {}
         Events.pub('user/'+userToRemove+'/remove', {})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
     }
@@ -3174,7 +3173,6 @@ var ICXUserButton = React.createClass({
         }
 
         PB.removeIdentity(userToRemove)
-        ICX.identityForFile = {}
         ICX.currScreen = 'home'
     }
 

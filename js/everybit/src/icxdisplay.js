@@ -219,15 +219,14 @@ var ICXWorld = React.createClass({
 
 
         var contentDivStyles = {
-                position: "absolute",
-                left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
-                width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-                // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-                top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-                padding: '10px', // Testing...
-                fontSize: ICX.calculated.baseFontH + 'px'
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
         }
-
 
         contentDivStyles.backgroundColor = thisScreen.backgroundColor
 
@@ -3414,18 +3413,17 @@ var ICXCheckmark = React.createClass({
 
 
 
+/*******************************************************************************************
 
 
 
 
+        Only unused components below here? Let's remove them from this file!
 
 
 
 
-
-
-
-
+/********************************************************************************************/
 
 
 

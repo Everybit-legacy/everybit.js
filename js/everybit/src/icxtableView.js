@@ -472,15 +472,8 @@ var ICXInlineReply = React.createClass({
             var type = 'file'
             var content = ICX.filelist[0]
             metadata.filename = content.name
-            metadata.caption = content.caption
+            metadata.caption = puffworldprops.reply.caption
         }
-
-        /*
-        Events.pub('ui/reply/add-parent', {
-               'reply.parents': parents
-            }
-        )
-        */
 
         if(!content || content.length < 1) {
             return false
@@ -537,8 +530,10 @@ var ICXInlineReply = React.createClass({
 	},
 
 	handleSubmitSuccess: function () {
-        console.log("SUCCESS")
         Events.pub('ui/thinking', { 'ICX.thinking': false })
+        Events.pub('ui/reply', {
+            'reply.caption': ''
+        })
     },
 
 	handleCleanup: function() {
@@ -562,7 +557,8 @@ var ICXInlineReply = React.createClass({
         }
 
         Events.pub('ui/reply/activate', {
-            'view.icx.activeReplies': activeReplies
+            'view.icx.activeReplies': activeReplies,
+            'reply.caption': ''
         })
 	},
 
@@ -575,10 +571,10 @@ var ICXInlineReply = React.createClass({
     handleAddCaption: function() {
         if(!ICX.filelist) return false
 
-        // TODO: We need a more reliable way to append caption
-        // Right now the caption may be lost randomly after a React render pass
         var caption = this.refs.caption.getDOMNode().value
-        ICX.filelist[0].caption = caption
+        Events.pub('ui/reply', {
+            'reply.caption': caption
+        })
     },
 
     handleToggleReplyOption: function(toggle) {

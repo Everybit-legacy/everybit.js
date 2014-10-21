@@ -1051,7 +1051,10 @@ var ICXSendFile = React.createClass({
 
     handleAddCaption: function() {
         if(!ICX.filelist) return false
-        ICX.filelist[0].caption = this.refs.caption.getDOMNode().value
+        var caption = this.refs.caption.getDOMNode().value
+        Events.pub('ui/reply', {
+            'reply.caption': caption
+        })
     },
 
     componentWillMount: function() {
@@ -1086,7 +1089,7 @@ var ICXSendFileConfirm = React.createClass({
         var filelist = ICX.filelist
         var file     = filelist[0]
         var filename = file.name
-        var caption  = file.caption
+        var caption  = puffworldprops.reply.caption
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1153,16 +1156,10 @@ var ICXSendFileFinish = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': false
         })
-
-    },
-
-    cleanUpSubmit: function () {
-        // TODO: do something fancy, clear out global vars
-        return Events.pub('ui/reply/add-parent',
-        {
-           'reply.parents': [],
-           'reply.isReply': false
+        Events.pub('ui/reply', {
+            'reply.caption': ''
         })
+
     },
 
     componentDidMount: function () {
@@ -1173,7 +1170,7 @@ var ICXSendFileFinish = React.createClass({
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
-        metadata.caption = content.caption
+        metadata.caption = puffworldprops.reply.caption
         var privateEnvelopeAlias = ''
         var self = this
 
@@ -1218,7 +1215,6 @@ var ICXSendFileFinish = React.createClass({
 
             })
         }).catch(function (err) {
-            // self.cleanUpSubmit()
             Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message

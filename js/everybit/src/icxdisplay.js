@@ -595,7 +595,7 @@ var ICXInvite = React.createClass({
                     <div className="textBox">
                         The link will direct them to create their own account. (You won’t be able to communicate securely until they create their account)
                     </div><br />
-                    <textarea value={inviteText} style={{'width':'80%', 'height':'40%'}}></textarea>
+                    <textarea value={inviteText} style={{'width':'80%', 'height':'40%'}} readOnly></textarea>
                     <br />
 
                     <span className="bold">Copy and paste</span> the above message into an email to invite your friend to ICX
@@ -1444,7 +1444,7 @@ var ICXSendMessageFinish = React.createClass({
             }
 
             var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
-            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
+            post_prom = post_prom.then(self.handleSubmitSuccess)
                 .catch(function (err){
                     ICX.errors = err.message
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
@@ -1500,7 +1500,7 @@ var ICXNotifyEmail = React.createClass({
         var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
         return (
             <span>{polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}:
-            <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
+            <textarea value={textAreaContent} style={{width: '80%', height: '50%'}} readOnly/>
             </span>
         )
     }

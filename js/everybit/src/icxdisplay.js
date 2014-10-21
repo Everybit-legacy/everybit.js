@@ -106,22 +106,24 @@ var ICXWorld = React.createClass({
         var l = ICX.config.logo.originalW*ICX.config.logo.originalH
         var logoAdjustRatio = Math.sqrt(p*ICX.config.logo.areaRatio/l)
 
-        var fontSizeMultiplier = Math.sqrt(p * ICX.config.text.areaRatio)
-        var baseFontH = keepNumberBetween( Math.floor( fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)
+        //newbaseFontH
+        var baseFontH = 22
 
         ICX.calculated = {
 
             sideBorder: keepNumberBetween(w * ICX.config.sideBorder.ratio, ICX.config.sideBorder.min, ICX.config.sideBorder.max),
 
+            //Somewhat Deprecated
             logoW: keepNumberBetween(ICX.config.logo.originalW * logoAdjustRatio, ICX.config.logo.minW, ICX.config.logo.maxW),
 
             fontSizeMultiplier: Math.sqrt(p * ICX.config.text.areaRatio),
 
+            //new baseFontH
             baseFontH: baseFontH,
 
             pageHeaderTextStyle: {
                 fontFamily: "Gudea, helvetica, arial",
-                fontSize: (1.1 * baseFontH) + 'px',
+                fontSize: baseFontH + 'px',
                 width: '100%',
                 textAlign: 'center',
                 padding: '5px',
@@ -134,7 +136,7 @@ var ICXWorld = React.createClass({
             }
         }
 
-        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio )
+        var fontSize = Math.floor( 0.8 * baseFontH)
 
         ICX.buttonStyle = {
             fontSize:  fontSize + 'px',
@@ -210,16 +212,8 @@ var ICXWorld = React.createClass({
             return (obj.name == currScreen);
         })[0]
 
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            maxWidth: w
-        }
-
 
         var contentDivStyles = {
-                /*position: "absolute",*/
                 marginLeft: '23.5%',
                 width: '72.5%',
                 marginTop: '5%',
@@ -247,12 +241,7 @@ var ICXWorld = React.createClass({
                 contentDivStyles[key] = screenInfo.styles[key]
             }
         }
-        /*
 
-        if(thisScreen.name=='home.table') {
-            contentDivStyles.padding = '0'
-        }
-        */
         var borderStyle =  {
             //width: borderWidth,
             width:'5.5%',
@@ -265,8 +254,9 @@ var ICXWorld = React.createClass({
         return (
             <span>
                 <div style={borderStyle} />
-                <div style={screenStyle} className="screen">
+                <div className="screen" style={{position:'absolute', width:'100%',height:'100%'}}>
                     <ICXLogo screenInfo={thisScreen} />
+                    <div className="header-spacer"></div>
                     <ICXLinks screenInfo={thisScreen} />
                     <div style={contentDivStyles} className="ScreenHolder">
                         <ICXError />
@@ -763,7 +753,7 @@ var ICXSend = React.createClass({
                     <div className="textBox">
                         Enter a username or email address.
                     </div>
-                    To: <input type="text" ref="toUser" onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
+                    To: <input type="text" ref="toUser" style={{maxWidth: '100%'}}onChange={this.verifyUsername} onKeyDown={this.handleSubmit} />
                         <span className="relative">
                             <a href="#" onClick={this.handleUsernameLookup.bind(null, false)}><ICXCheckmark show={puffworldprops.ICX.userConfirmed} /></a>
                             <Tooltip position='under' content="Check for a valid ICX username or email address" />
@@ -3073,25 +3063,20 @@ var ICXLogo = React.createClass({
 
 
     render: function() {
-        var w = window.innerWidth
         var h = window.innerHeight
         var polyglot = Translate.language[puffworldprops.view.language]
 
         if(!puffworldprops.view.icx.screen || puffworldprops.view.icx.screen == 'home') {
-            var logoW = ICX.calculated.logoW
+            var logoW = '21%'
 
-            var logoX = keepNumberBetween(Math.floor( w*(1-ICX.config.buttonWidthRatio)-ICX.calculated.sideBorder-logoW ),0,10000) + "px"
-            var logoY = Math.floor( h*ICX.config.logo.insets.top ) + "px"
-            logoW = Math.floor(logoW) + 'px';
-
-            var fontH = keepNumberBetween( Math.floor( ICX.calculated.fontSizeMultiplier ), ICX.config.text.min, ICX.config.text.max)  + 'px'
+            var fontH = '22px'
 
             return (
-                <div key="mainLogo" style={{width: '100%',padding: '4% 0 2% 29%'}} className="logoHolder">
+                <div key="mainLogo" style={{width: '100%', position:'relative',top:'9%'}} className="logoHolder">
                     <div>
-                        <img src="img/icx/icxLogo.png" style={{marginBottom: '2%', width: logoW}} alt='I.CX Logo' />
+                        <img src="img/icx/icxLogo.png" style={{marginBottom: '2.5%', width: logoW, left:'29%', position:'relative', minWidth:'107px'}} alt='I.CX Logo' />
                     </div>
-                    <div style={{width: '80%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH}}>
+                    <div style={{width: '60%', fontFamily: 'Minion pro, Times, "Times New Roman", serif', fontSize: fontH, left:'29%', position:'absolute'}}>
                         The world’s first 100% secure file storage and messaging system to work right in your web browser.
                         Find out <a href="#" className="inline" onClick={this.handleGoTo.bind(null, 'learn')}>what makes us different</a>.
                     </div>
@@ -3103,16 +3088,14 @@ var ICXLogo = React.createClass({
                 return obj.name == puffworldprops.view.icx.screen;
             })[0];
 
-            var logoW = w*ICX.config.logoSmallRatio
             var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
             var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left + ICX.calculated.sideBorder) + "px"
-            logoW = logoW + "px"
-            var divW = w*ICX.config.buttonSmallWidthRatio
+            var divW = '12.5%'
 
             return (
-                <div style={{position: 'fixed', top: logoY, width: divW, left: logoX}}>
+                <div style={{position: 'absolute', top: logoY, width: divW, left: logoX}}>
                     <a href="#" onClick={this.handleGoHome}>
-                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
+                        <img src="img/icx/icxLogo.png" style={{width: '100%'}} alt={thisScreen.fullText} />
                     </a>
                 </div>
             )
@@ -3124,9 +3107,6 @@ var ICXLogo = React.createClass({
 var ICXLinks = React.createClass({
 
     render: function () {
-        var w = window.innerWidth
-        var h = window.innerHeight
-
         var self = this
         var buttonLinks = ICX.screens.map(function(data) {
 
@@ -3153,12 +3133,12 @@ var ICXButtonLink = React.createClass({
         var h = window.innerHeight
         var screenInfo = this.props.screenInfo
 
-        var fontSize = Math.floor( h*ICX.config.buttonFontHeightRatio )
+        var fontSize = (0.85 * ICX.calculated.baseFontH)
 
         var buttonStyle = {
             backgroundColor: screenInfo.color,
             height: ICX.config.navButtonHeightPercent + '%',
-            position: 'fixed',
+            position: 'absolute',
             fontSize:  fontSize + 'px',
             top: (((screenInfo.position - 1) * ICX.config.navButtonHeightPercent) + ICX.config.navButtonTopBuffer) + '%',
             lineHeight: Math.floor( h*ICX.config.buttonHeightRatio ) + 'px',
@@ -3181,7 +3161,7 @@ var ICXButtonLink = React.createClass({
         if(this.props.currScreen == 'home' || this.props.currScreen == 'init') {
             buttonStyle.width = ICX.config.buttonWidthRatio * 100 + '%'
         } else  {
-            buttonStyle.width = Math.floor( w*ICX.config.buttonSmallWidthRatio ) + 'px'
+            buttonStyle.width = '14%'
         }
 
 
@@ -3193,11 +3173,11 @@ var ICXButtonLink = React.createClass({
 
         // Special case login
         if(this.props.screenInfo.name == 'login') {
-            buttonStyle.position = 'fixed'
+            buttonStyle.position = 'absolute'
             buttonStyle.top = 0
-            buttonStyle.width = (Math.floor(w*(1-ICX.config.content.insets.left)) - ICX.calculated.sideBorder) + 'px'
-            buttonStyle.right = 0
-            buttonStyle.height = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
+            buttonStyle.width = '100%'
+            buttonStyle.left = '24%'
+            buttonStyle.height =  ICX.config.headerHeightPercent + '%'
             buttonStyle.lineHeight = Math.floor( h*ICX.config.buttonHeightRatio/2 ) + 'px'
             // two styles below are needed to make tooltip display properly
             buttonStyle.overflow = 'visible'

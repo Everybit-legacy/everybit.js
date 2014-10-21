@@ -637,7 +637,7 @@ var ICXInlineReply = React.createClass({
                 <div className="replyFile" style={replyFileStyle}>
                     <ICXFileUploader styling={headerStyle} />
                     <br />Memo: <br />
-                    <input type="text" ref="caption" style={{ 'width': '80%' }} onChange={this.handleAddCaption} />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
                 </div>
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>

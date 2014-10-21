@@ -78,7 +78,7 @@ ICX.animalName = {}
 
 ICX.userColor = {}
 
-ICX.identityForFile = {}
+// ICX.identityForFile = {}
 
 ICX.errors = ''
 

@@ -450,6 +450,21 @@ var ICXDownloadLink = React.createClass({
 
 
 var ICXInlineReply = React.createClass({
+    componentWillUnmount: function() {
+        var messageToCache = this.refs.messageText.getDOMNode().value
+        var sigKey = this.props.puff.sig
+        if(messageToCache) {
+            ICX.cachedReplies[sigKey] = messageToCache
+        }
+    },
+
+    componentDidMount: function() {
+        var sig = this.props.puff.sig
+        if(cachedReplies[sig]) {
+            this.refs.messageText.getDOMNode().value = cachedReplies[sig]
+        }
+    },
+
 	handleReply: function() {
 		var puff=this.props.puff
         var parents = [puff.sig]
@@ -553,6 +568,9 @@ var ICXInlineReply = React.createClass({
         if(activeReplies.indexOf(sig) !== -1) {
             activeReplies.splice(activeReplies.indexOf(sig),1)
         }
+        //clear out reply text and any cache
+        this.refs.messageText.getDOMNode().value = ""
+        ICX.cachedReplies[sig] = ""
 
         Events.pub('ui/reply/activate', {
             'view.icx.activeReplies': activeReplies,

@@ -361,12 +361,10 @@ var ICXRelationshipInfo = React.createClass({
         }
 
         return (
-            <span>
-                <a key={sig} className="rowReference">
-                    <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
-                </a>
-            </span>
-            )
+            <a key={sig} className="rowReference">
+                <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
+            </a>
+        )
     },
 
     render: function() {
@@ -577,18 +575,11 @@ var ICXInlineReply = React.createClass({
         })
     },
 
-    handleToggleReplyOption: function(toggle) {
-        if(toggle == 'message') {
-            Events.pub('ui/reply', {
-                'reply.replyType': 'message'
-            })
-        } else if(toggle == 'file') {
-            Events.pub('ui/reply', {
-                'reply.replyType': 'file'
-            })
-        } else {
-            return false
-        }
+    handleToggleReplyOption: function(event) {
+        var toggle = event.target.attributes.label.value
+        Events.pub('ui/reply', {
+            'reply.replyType': toggle
+        })
     },
 
 	render: function() {
@@ -626,9 +617,9 @@ var ICXInlineReply = React.createClass({
         // <b>Reply to: {username}</b><br/>
         return (
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
-                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption.bind(this, 'message')} >Message</a>
+                <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
                 {' '}
-                <a className="icxNextButton icx-fade"style={ICX.buttonStyle} onClick={this.handleToggleReplyOption.bind(this, 'file')} >File</a>
+                <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
 
                 <div className="replyMessage" style={replyMsgStyle}>
                     <b>Message:</b><br />

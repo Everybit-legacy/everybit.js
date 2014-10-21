@@ -1890,12 +1890,6 @@ fieldset[disabled] .btn-primary.active {
     color: #000;
 }
 
-@media(max-width:420px) {
-    .icx-send {
-        text-align:center;
-    }
-}
-
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }

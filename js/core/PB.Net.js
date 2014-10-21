@@ -476,9 +476,11 @@ PB.Net.xhr = function(url, options, data) {
                   && options.type == 'json' ? PB.parseJSON(req.response) : req.response);
         };
 
-        req.onerror = function() {
-            reject(PB.makeError("Network Error"));
+        req.onerror = function(event) {
+            reject(PB.makeError("Network Error", event));
         };
+        
+        //// TODO: add xhr.ontimeout
 
         req.send(formdata);
     });

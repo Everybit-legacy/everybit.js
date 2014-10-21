@@ -191,12 +191,16 @@ var ICXContentItem = React.createClass({
             padding: itemPadding,
             borderLeft: Math.floor(ICX.calculated.baseFontH/2.5)+'px' + ' solid rgba(26, 40, 60,.4)'
         }
+        var replyStyle = {}
+        replyStyle.float = 'right'
 
         // Put it left or right depending on from or to
-        if(ICX.username == puff.username.stripCapa()) {
+        if(PB.getCurrentUsername() == puff.username.stripCapa()) {
             overalBoxStyle.marginLeft = '10%'
+            replyStyle.display = 'none'
         } else {
             overalBoxStyle.marginRight = '10%'
+            replyStyle.display = 'block'
         }
 
         var cb = React.addons.classSet
@@ -207,9 +211,6 @@ var ICXContentItem = React.createClass({
             'fa-compress': this.state.expanded
         })
 
-        var replyStyle = {}
-        replyStyle.display = (ICX.username == puff.username.stripCapa()) ? 'none' : 'block'
-        replyStyle.float = 'right'
 
 
         return (
@@ -306,26 +307,22 @@ var ICXTableUserInfo = React.createClass({
         var toUser = this.props.puff.routes[0].stripCapa()
 
         // If current user is the sender, we will render the recipient
-        if(ICX.username == fromUser) {
+        if(PB.getCurrentUsername() == fromUser) {
             var username = toUser
             var isSender = true
+            var sentOrReceived = 'sent'
+            var fromOrTo = 'To '
         } else {
             var username = fromUser
             var isSender = false
+            var sentOrReceived = 'received'
+            var fromOrTo = 'From '
         }
 
         var prof = getProfilePuff(username)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
             avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
-        }
-
-        if(isSender) {
-            var sentOrReceived = 'sent'
-            var fromOrTo = 'To '
-        } else {
-            var sentOrReceived = 'received'
-            var fromOrTo = 'From '
         }
 
         return (

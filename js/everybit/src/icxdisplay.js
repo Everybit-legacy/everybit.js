@@ -2435,7 +2435,7 @@ var ICXDashboard = React.createClass({
         // resetting ICX.wizard here
         var browser = getBrowser()
         if (browser == "Safari") {
-            ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
+            ICX.errors = "WARNING: Safari does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download identity files or files you have encrypted."
 
             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
@@ -2965,7 +2965,7 @@ var ICXFileConverter = React.createClass({
     componentDidMount: function(){
         var browser = getBrowser()
         if (browser == "Safari") {
-            ICX.errors = "WARNING: You web browser does not support saving files created in the browser itself. " +
+            ICX.errors = "WARNING: Safari does not support saving files created in the browser itself. " +
                 "As a result, you may not be able to download identity files or files you have encrypted."
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
         }

@@ -87,6 +87,9 @@ ICX.currScreen = 'init'
 
 ICXdefaults = JSON.parse(JSON.stringify(ICX))
 
+//Holds users replies in case of loss
+ICX.cachedReplies = {}
+
 // OTHER
 CONFIG = {};
 

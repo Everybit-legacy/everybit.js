@@ -3198,13 +3198,11 @@ var ICXNextButton = React.createClass({  /* good */
             ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
             return <a style={ICX.buttonStyle} onClick={this.handleNext} className="icxNextButton icx-fade"> {buttonText} <i className="fa fa-chevron-right small" /></a>
-            //return <button style={ICX.buttonStyle} onClick={this.handleNext}>{buttonText} <i className="fa fa-chevron-right" /></button>
 
         } else {
             ICX.buttonStyle.backgroundColor = 'rgba(0, 3, 82, .1)' //
             ICX.buttonStyle.cursor = 'default' //
 
-            //return <button style={ICX.buttonStyle} onClick={this.handleNext} disabled>{buttonText}<i className="fa fa-chevron-right" /></button>
             return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} <i className="fa fa-chevron-right small" /></a>
 
         }

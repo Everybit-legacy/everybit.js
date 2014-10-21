@@ -61,12 +61,17 @@ var ICXWorld = React.createClass({
             }
         }
 
+
         //Routing checks, check if you have "permission" to go somewhere, if not send you somehwere safe
         if(!PB.getCurrentUsername()) {
             //lock them out of dashboard if no user is logged in
             if (currScreen == 'dashboard') {
                 currScreen = 'home'
                 Events.pub('/ui/icx/screen',{"view.icx.screen":'home'})
+            }
+            if (currScreen == 'store' || currScreen == 'send') {
+                currScreen = 'newuser'
+                Events.pub('/ui/icx/screen', {'view.icx.screen': 'newuser'})
             }
         } else {
             //prevent them from getting to newuser page if they are logged in
@@ -316,7 +321,7 @@ var ICXStore = React.createClass({
                     {polyglot.t("store.backup")}
                     </small>
                     <br />
-                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} key="nextToStore" text={puffworldprops.ICX.nextStepMessage} />
+                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto='store.finish' key="nextToStore" text='Finish' />
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}>
                         <span>{polyglot.t("store.warning")}</span>
@@ -335,44 +340,11 @@ var ICXStore = React.createClass({
     },
 
     componentWillMount: function() {
-        // TODO: Move this to the main routing section
-       if(!PB.getCurrentUsername()) {
-            return Events.pub('ui/event/newuser', {
-                "view.icx.screen": 'newuser',
-                'ICX.wizard.inProcess': true,
-                'ICX.wizard.sequence': 'store'
-            })
-        }
-       Events.pub('ui/event/store', {
-            'ICX.userConfirmed': false,
-            'ICX.nextStatus': false,
-            'ICX.wizard.inProcess': true,
-            'ICX.wizard.sequence': 'store'
-       })
-    },
-
-    componentDidMount: function() {
         Events.pub('ui/event', {
-            'ICX.wizard.inProcess': true,
-            'ICX.wizard.sequence': 'store',
             'ICX.wizard.type': 'file',
             'ICX.backupToCloud': true,
             'ICX.nextStatus': false
         })
-
-        // TODO: This check is not needed anymore
-        // since we route them to sign up right away if not logged in
-        if(PB.getCurrentUsername()) {
-            Events.pub('ui/event', {
-                'ICX.nextStep': 'store.finish',
-                'ICX.nextStepMessage': 'Finish'
-            })
-        } else {
-            Events.pub('ui/event', {
-                'ICX.nextStep': 'newuser',
-                'ICX.nextStepMessage': 'Next'
-            })
-        }
     },
 
 
@@ -789,21 +761,9 @@ var ICXSend = React.createClass({
     },
 
     componentWillMount: function() {
-
-        // TODO: Move this to main routing section
-        if(!PB.getCurrentUsername()) {
-            return Events.pub('ui/event/newuser', {
-                "view.icx.screen": 'newuser',
-                'ICX.wizard.inProcess': true,
-                'ICX.wizard.sequence': 'send'
-            })
-        }
-
         Events.pub('ui/event/send', {
             'ICX.userConfirmed': false,
-            'ICX.nextStatus': false,
-            'ICX.wizard.inProcess': true,
-            'ICX.wizard.sequence': 'send'
+            'ICX.nextStatus': false
         })
     },
 
@@ -1054,20 +1014,9 @@ var ICXSendFile = React.createClass({
     },
 
     componentWillMount: function() {
-        if(PB.getCurrentUsername()) {
-            Events.pub('ui/event/', {
-                'ICX.nextStep': 'send.file.finish',
-                'ICX.nextStepMessage': 'SEND FILE'
-            })
-        // TODO: Remove this extra logic
-        } else {
-            Events.pub('ui/event/', {
-                'ICX.nextStep': 'newuser',
-                'ICX.nextStepMessage': 'NEXT'
-            })
-        }
-
         Events.pub('ui/event/', {
+            'ICX.nextStep': 'send.file.finish',
+            'ICX.nextStepMessage': 'SEND FILE',
             'ICX.wizard.type': 'file',
             'ICX.nextStatus': false
         })
@@ -1229,22 +1178,9 @@ var ICXSendMessage = React.createClass({
     },
 
     componentWillMount: function() {
-        // TODO: Move this to main routing section
-        if(PB.getCurrentUsername()) {
-            Events.pub('ui/event/', {
-                'ICX.nextStep': 'send.finish',
-                'ICX.nextStepMessage': 'SEND'
-            })
-
-
-        } else {
-            Events.pub('ui/event/', {
-                'ICX.nextStep': 'newuser',
-                'ICX.nextStepMessage': 'NEXT'
-            })
-        }
-
         Events.pub('ui/event/', {
+            'ICX.nextStep': 'send.finish',
+            'ICX.nextStepMessage': 'SEND',
             'ICX.wizard.type': 'message',
             'ICX.nextStatus': false
         })
@@ -1324,24 +1260,11 @@ var ICXSendMessageFinish = React.createClass({
         })
     },
 
-    cleanUpSubmit: function () {
-        // TODO: do something fancy, clear out global vars
-        return Events.pub('ui/reply/add-parent',
-        {
-           'reply.parents': [],
-           'reply.isReply': false
-        })
-    },
-
     componentDidMount: function () {
         // Set information for this send
         var type = 'text'
         var content = ICX.messageText
-        if(puffworldprops.reply.isReply) {
-            var parents = puffworldprops.reply.parents
-        } else {
-            var parents = []
-        }
+        var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         var privateEnvelopeAlias = ''
@@ -1399,8 +1322,6 @@ var ICXSendMessageFinish = React.createClass({
                 'ICX.successMessage': err.message
             })
         })
-
-        this.cleanUpSubmit()
 
         return false
     }
@@ -1552,40 +1473,14 @@ var ICXNewUser = React.createClass({
 
         if(typeof wizard === 'undefined') {
             // User hasn't clicked SEND or STORE
-            // User coming from Send but has not chosen a username to send to
-            // User coming from Send, has toUser, but does not have message or file
-            // User coming from Store but does not have a file uploaded
             return Events.pub('ui/event', {
                 'ICX.nextStep': 'dashboard',
                 'ICX.nextStepMessage': 'Finish'
             })
-        } else if(wizard.sequence == 'send') {
-            // User coming from Send, put them back there after they register
+        } else {
+            // User coming from Send or Store, put them back there after they register
             return Events.pub('ui/event', {
-                'ICX.nextStep': 'send',
-                'ICX.nextStepMessage': 'Next'
-            })
-
-            /*
-             // This will go elsewhere
-
-             if(wizard.type == 'message') {
-             return Events.pub('ui/event', {
-             'ICX.nextStep': 'send.confirm',
-             'ICX.nextStepMessage': 'Continue'
-             })
-             } else {
-             return Events.pub('ui/event', {
-             'ICX.nextStep': 'send.file.confirm',
-             'ICX.nextStepMessage': 'Continue'
-             })
-             }
-             */
-        } else if(wizard.sequence == 'store') {
-
-            // User coming from Store, and has uploaded a file
-            return Events.pub('ui/event', {
-                'ICX.nextStep': 'store',
+                'ICX.nextStep': wizard.sequence,
                 'ICX.nextStepMessage': 'Next'
             })
         }
@@ -3078,6 +2973,14 @@ var ICXLinks = React.createClass({
 
 var ICXButtonLink = React.createClass({
     handleGoTo: function(screen) {
+        if(!PB.getCurrentUsername()) {
+            if (screen == 'store' || screen == 'send') {
+                Events.pub('ui/wizard', {
+                    'ICX.wizard.inProcess': true,
+                    'ICX.wizard.sequence': screen
+                })
+            }
+        }
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen})
 
     },

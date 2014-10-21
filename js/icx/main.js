@@ -142,9 +142,6 @@ puffworldprops = {
     },
 
     reply: {
-        parents: [],
-        replyTo: "", // temp var for single recipient reply
-        isReply: false,
         // show: false,
         lastType: false, // type of the last published puff
         expand: false,

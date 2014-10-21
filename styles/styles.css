@@ -1576,11 +1576,10 @@ fieldset[disabled] .btn-primary.active {
     text-align: left;
     border: 1px #222222 dotted;
     display: none;
-    max-width: 100%;
 }
 
 .refs .rowReferencePreview {
-    width: 200%;
+    
 }
 
 

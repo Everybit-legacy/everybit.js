@@ -1020,10 +1020,10 @@ var ICXSendFile = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         ICX.buttonStyle.background = headerStyle.backgroundColor
         var invitedNote = ''
-        if(puffworldprops.ICX.wizard.invitedEmail) {
-            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
-        } else {
+        if(!puffworldprops.ICX.wizard.invitedEmail) {
             invitedNote = 'Sending to user ' + puffworldprops.ICX.toUser
+        } else {
+            invitedNote = 'Sending to new user ' + puffworldprops.ICX.toUser + ' (' +  puffworldprops.ICX.wizard.invitedEmail + ')'
         }
 
         return (
@@ -1035,6 +1035,9 @@ var ICXSendFile = React.createClass({
                 Your file: <br />
                     <ICXFileUploader styling={headerStyle} />
                     <br />
+                    Memo: <br />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                    <br />
                     <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
@@ -1043,6 +1046,14 @@ var ICXSendFile = React.createClass({
                 </div>
             </div>
         )
+    },
+
+    handleAddCaption: function() {
+        if(!ICX.filelist) return false
+        var caption = this.refs.caption.getDOMNode().value
+        Events.pub('ui/reply', {
+            'reply.caption': caption
+        })
     },
 
     componentWillMount: function() {
@@ -1077,6 +1088,7 @@ var ICXSendFileConfirm = React.createClass({
         var filelist = ICX.filelist
         var file     = filelist[0]
         var filename = file.name
+        var caption  = puffworldprops.reply.caption
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1085,6 +1097,7 @@ var ICXSendFileConfirm = React.createClass({
                 <div className="contentWindow">
                     <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
                     <b>{polyglot.t("send.file")}</b> {filename}
+                    <br />{caption}
                     <br /><br />
                     <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
                 </div>
@@ -1142,26 +1155,21 @@ var ICXSendFileFinish = React.createClass({
         Events.pub('ui/thinking', {
             'ICX.thinking': false
         })
-
-    },
-
-    cleanUpSubmit: function () {
-        // TODO: do something fancy, clear out global vars
-        return Events.pub('ui/reply/add-parent',
-        {
-           'reply.parents': [],
-           'reply.isReply': false
+        Events.pub('ui/reply', {
+            'reply.caption': ''
         })
+
     },
 
     componentDidMount: function () {
         // Set information for this send
         var type = 'file'
-        var content = ICX.filelist[0]   // error: dont have content of the file here
+        var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
         metadata.routes = [puffworldprops.ICX.toUser]
         metadata.filename = content.name
+        metadata.caption = puffworldprops.reply.caption
         var privateEnvelopeAlias = ''
         var self = this
 
@@ -1206,7 +1214,6 @@ var ICXSendFileFinish = React.createClass({
 
             })
         }).catch(function (err) {
-            // self.cleanUpSubmit()
             Events.pub('ui/event/', {
                 'ICX.messageSent': true,
                 'ICX.successMessage': err.message
@@ -2011,9 +2018,9 @@ var ICXLogin = React.createClass({
                         Select an identity file:
                         <Tooltip content="Authenticate with this browser using your private identity file" />
                     </div>
-                    <span style={ICX.buttonStyle} className="buttonSpan">
-                        <input type="file" className ="fileSelect" id="fileToUpload" ref="textFile" onChange={this.handleLoginWithFile}/>
-                    </span>
+                    <ICXFileUploader styling={headerStyle} />
+                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
+
                     <br /><br />
                     <i><em>{polyglot.t("login.or")}</em></i>
                     <br /><br />
@@ -2128,10 +2135,10 @@ var ICXLogin = React.createClass({
         })
     },
 
-    handleLoginWithFile: function(event) {
+    handleLoginWithFile: function() {
         // TODO: start spinner here
         
-        fileprom = PBFiles.openTextFile(event.target)
+        fileprom = PBFiles.openTextFile(ICX.eventElement)
         fileprom.then(function(content) {
 
             // TODO: move all of this out of the GUI
@@ -2168,6 +2175,8 @@ var ICXLogin = React.createClass({
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                 return PB.onError('No aliases in identity file')
             }
+
+            Events.pub('ui/thinking', { 'ICX.thinking': true })
             
             var preferences = identityObj.preferences || {}
             
@@ -2179,9 +2188,9 @@ var ICXLogin = React.createClass({
 
             prom.then(function (userInfo) {
                 if(!userInfo || userInfo.username != username) {
-                    // TODO: END SPINNER
                     PB.removeIdentity(username)
                     ICX.errors = "ERROR: Username not found in public record."
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                     return PB.onError('Username not found in public record')
                 }
@@ -2189,9 +2198,9 @@ var ICXLogin = React.createClass({
                 PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
                     var identity = identities[username]
                     if(!identity || !identity.primary) {
-                        // TODO: END SPINNER
                         PB.removeIdentity(username)
                         ICX.errors = "ERROR: Identity not properly loaded."
+                        Events.pub('ui/thinking', { 'ICX.thinking': false })
                         Events.pub('/ui/icx/error', {"icx.errorMessage": true})
                         return PB.onError('Identity not properly loaded')
                     }
@@ -2200,17 +2209,17 @@ var ICXLogin = React.createClass({
                     
                     if(primary.privateDefaultKey) {
                         if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
-                            // TODO: END SPINNER
                             PB.removeIdentity(username)
                             ICX.errors = "ERROR: The identity file does not contain a valid public user record."
                             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                            Events.pub('ui/thinking', { 'ICX.thinking': false })
                             Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                             return PB.onError('Private default key in identity file does not match public user record')
                         }
                     }
                     // TODO: add public-private sanity check for root and admin keys
                     
-                    // TODO: END SPINNER
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
                     PB.switchIdentityTo(username)
                     ICX.username = username
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
@@ -2226,7 +2235,7 @@ var ICXLogin = React.createClass({
                 ICX.errors = "NETWORK ERROR: login failed."
                 Events.pub('/ui/icx/error', {"icx.errorMessage": true})
 
-                // TODO: END SPINNER
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
                 PB.removeIdentity(username)
                 return PB.throwError('File-based login failed')
             })

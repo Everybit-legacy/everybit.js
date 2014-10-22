@@ -51,17 +51,6 @@ var ICXWorld = React.createClass({
             currScreen = 'init'
         }
 
-        // Detect a screen change, remove error in that case
-        if(currScreen != ICX.currScreen) {
-            ICX.errors = ''
-            if(currScreen != 'send') { //Remove toUser if user navigates away from SEND
-                Events.pub('ui/event', {
-                    "view.icx.toUser": ""
-                })
-            }
-        }
-
-
         //Routing checks, check if you have "permission" to go somewhere, if not send you somehwere safe
         if(!PB.getCurrentUsername()) {
             //lock them out of dashboard if no user is logged in
@@ -97,8 +86,6 @@ var ICXWorld = React.createClass({
                 Events.pub('ui/icx/screen', {"view.icx.screen": 'send'})
             }
         }
-
-        ICX.currScreen = currScreen
 
         var p = w*h
 
@@ -205,30 +192,6 @@ var ICXWorld = React.createClass({
 
         var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
 
-        var thisScreen = ICX.screens.filter(function( obj ) {
-            return (obj.name == currScreen);
-        })[0]
-
-        var screenStyle = {
-            position: "absolute",
-            width: w,
-            height: h,
-            maxWidth: w
-        }
-
-
-        var contentDivStyles = {
-            position: "absolute",
-            left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
-            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
-            // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
-            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
-            padding: '10px', // Testing...
-            fontSize: ICX.calculated.baseFontH + 'px'
-        }
-
-        contentDivStyles.backgroundColor = thisScreen.backgroundColor
-
         ICX.screenMap = ICX.screens.reduce(function(acc, screenInfo) {
             acc[screenInfo.name] = screenInfo
             return acc
@@ -240,21 +203,35 @@ var ICXWorld = React.createClass({
 
         var pageComponent = fun( {screenInfo:screenInfo} )
 
+        var contentDivStyles = {
+            position: "absolute",
+            left: Math.floor( w*ICX.config.content.insets.left ) + Math.floor(ICX.calculated.sideBorder) + "px",
+            width: Math.floor( (1-(ICX.config.content.insets.left+ICX.config.content.insets.right))*w ) + 'px',
+            // height: Math.floor( (1-(ICX.config.content.insets.top+ICX.config.content.insets.bottom))*h ) + 'px',
+            top: Math.floor( (ICX.config.content.insets.top)*h ) + 'px',
+            padding: '10px', // Testing...
+            fontSize: ICX.calculated.baseFontH + 'px'
+        }
+        contentDivStyles.backgroundColor = screenInfo.backgroundColor
         // Apply any additional styling
         if(screenInfo.styles) {
             for (var key in screenInfo.styles) {
                 contentDivStyles[key] = screenInfo.styles[key]
             }
         }
-        /*
 
-        if(thisScreen.name=='home.table') {
-            contentDivStyles.padding = '0'
+        var screenStyle = {
+            position: "absolute",
+            width: w,
+            height: h,
+            maxWidth: w
         }
-        */
+
+
+
         var borderStyle =  {
             width: borderWidth,
-            backgroundColor: thisScreen.color,
+            backgroundColor: screenInfo.color,
             position: 'fixed',
             height: '100%'
         }
@@ -264,8 +241,8 @@ var ICXWorld = React.createClass({
             <span>
                 <div style={borderStyle} />
                 <div style={screenStyle} className="screen">
-                    <ICXLogo screenInfo={thisScreen} />
-                    <ICXLinks screenInfo={thisScreen} />
+                    <ICXLogo screenInfo={screenInfo} />
+                    <ICXLinks screenInfo={screenInfo} />
                     <div style={contentDivStyles}>
                         <ICXError />
                         {pageComponent}
@@ -1804,11 +1781,6 @@ var ICXLogin = React.createClass({
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
-        var thisScreen = ICX.screens.filter(function (obj) {
-            return obj.name == puffworldprops.view.icx.screen;
-        })[0] // NOTE RETURNS ARRAY
-
-
         var labelStyle = {
             marginRight: baseFontH + 'px'
         }
@@ -2992,10 +2964,6 @@ var ICXLogo = React.createClass({
                 )
         } else {
 
-            var thisScreen = ICX.screens.filter(function( obj ) {
-                return obj.name == puffworldprops.view.icx.screen;
-            })[0];
-
             var logoW = w*ICX.config.logoSmallRatio
             var logoY = Math.floor( h*ICX.config.logo.insetsSmall.top ) + "px"
             var logoX = Math.floor( h*ICX.config.logo.insetsSmall.left + ICX.calculated.sideBorder) + "px"
@@ -3005,7 +2973,7 @@ var ICXLogo = React.createClass({
             return (
                 <div style={{position: 'fixed', top: logoY, width: divW, left: logoX}}>
                     <a href="#" onClick={this.handleGoHome}>
-                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={thisScreen.fullText} />
+                        <img src="img/icx/icxLogo.png" style={{width: logoW}} alt={ICX.currScreenInfo.fullText} />
                     </a>
                 </div>
             )
@@ -3238,7 +3206,6 @@ var ICXUserButton = React.createClass({
         }
 
         PB.removeIdentity(userToRemove)
-        ICX.currScreen = 'home'
     }
 
 })

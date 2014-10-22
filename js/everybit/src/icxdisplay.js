@@ -1569,99 +1569,28 @@ var ICXNewUser = React.createClass({
     },
 
     handleRegisterName: function() {
-
         if( !this.handleRecheckPassphrase() ) {
             return false
         }
 
-        // START THINKING
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
-
-        // Register the name
-        // Error if there's an error
-        // Disable register button until ready
-        // When done, redirect to next location.
-
         var requestedUsername = this.refs.username.getDOMNode().value
         var passphrase = this.refs.passphrase.getDOMNode().value
 
-        // Convert passphrase to key
-        var privateKey = passphraseToPrivateKeyWif(passphrase)
-        var publicKey = PB.Crypto.privateToPublic(privateKey)
+        toggleSpinner()
 
-        var rootKeyPublic     = publicKey
-        var adminKeyPublic    = publicKey
-        var defaultKeyPublic  = publicKey
-
-        var privateRootKey    = privateKey
-        var privateAdminKey   = privateKey
-        var privateDefaultKey = privateKey
-
-        var self = this
-
-        var payload = {
-            requestedUsername: requestedUsername,
-            rootKey: rootKeyPublic,
-            adminKey: adminKeyPublic,
-            defaultKey: defaultKeyPublic
+        try {
+            createICXUser(requestedUsername, passphrase, function() {
+                toggleSpinner()
+            })
         }
-        var routes = []
-        var type = 'updateUserRecord'
-        var content = 'requestUsername'
-
-        var puff = PB.buildPuff(requestedUsername, privateAdminKey, routes, type, content, payload)
-
-        // SUBMIT REQUEST
-        var prom = PB.Net.updateUserRecord(puff)
-        prom.then(function(userRecord) {
-
-            // store directly because we know they're valid
-            // TODO: pull this code out of the GUI and down a level
-            var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
-            PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
-
-            // Set this person as the current user
-            PB.switchIdentityTo(requestedUsername)
-
-            // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time? Yes.
-            // var idFile = PB.formatIdentityFile()
-            // ICX.identityForFile = idFile
-
-            // Create identity file
-            // ICX.identityForFile = {
-            //     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-            //     username: requestedUsername,
-            //     privateRootKey: privateRootKey,
-            //     privateAdminKey: privateAdminKey,
-            //     privateDefaultKey: privateDefaultKey,
-            //     passphrase: passphrase,
-            //     version: "1.0"
-            // }
-
-            publishProfilePuff()
-
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
-
-            return Events.pub('ui/icx/screen', {"view.icx.screen": puffworldprops.ICX.nextStep})
-
-        }).catch(function(err) {
-            // TODO: Deal with error, show it in box
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
-
-            ICX.errors = "ERROR: "+err.message
+        catch(err) {
+            toggleSpinner()
+            ICX.errors = "ERROR: " + err.message
             return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-        })
+        }
+
     }
 })
-
-
-var passphraseBuffer = []
 
 var ICXLogin = React.createClass({
     mixins: [TooltipMixin],
@@ -1697,7 +1626,6 @@ var ICXLogin = React.createClass({
             'text': !puffworldprops.ICX.hidePassphrase
         })
 
-//<textarea spellCheck="false" autoCorrect="off" className={textClass} autoCapitalize="off" type="text" name="defaultKey" ref="defaultKey" style={{width: '60%', height: '15%'}} onKeyDown={this.handleKeyDown}/>
         return (
 
             <div className="icx-screen icx-login" style={ICX.calculated.baseTextStyle}>
@@ -1739,8 +1667,6 @@ var ICXLogin = React.createClass({
     },
 
     togglePassphraseView: function() {
-        //var password = this.refs.defaultKey.getDOMNode()
-        //password.type = (password.type == "password") ? "text" : "password"
         return Events.pub('ui/event', {
          'ICX.hidePassphrase': !puffworldprops.ICX.hidePassphrase
          })
@@ -2584,136 +2510,29 @@ var ICXFileConverter = React.createClass({
         var errorMsg = this.refs.encryptError.getDOMNode()
         var encryptedLink = this.refs.encryptedLink.getDOMNode()
 
-        if(!PB.getCurrentUsername()) {
+        if (!PB.getCurrentUsername()) {
             errorMsg.style.display = ''
             return false
         }
 
-        if(!ICX.fileprom) {
+        if (!ICX.fileprom) {
             errorMsg.innerHTML = "You need to choose a file first!"
             errorMsg.style.display = ''
             encryptedLink.style.display = 'none'
             return false
         }
 
-        icxEncryptFile(ICX.fileprom, ICX.filelist, function(preppedBlob) {
+        icxEncryptFile(ICX.fileprom, ICX.filelist, function (preppedBlob) {
             var filelist = ICX.filelist
-            var file     = filelist[0]
+            var file = filelist[0]
             var filename = file.name
             var new_filename = filename + '.puff'
             errorMsg.style.display = 'none'
-            encryptedLink.style.display=""
+            encryptedLink.style.display = ""
             encryptedLink.href = preppedBlob
             encryptedLink.download = new_filename
         })
-
     },
-    /*
-    handleDecryptFile: function() {
-        var resultLink = this.refs.decryptedDownload.getDOMNode()
-        var element = ICX.eventElement
-        var fileprom = PBFiles.openPuffFile(element)
-        var errorMsg = this.refs.decryptError.getDOMNode()
-
-        //If they haven't selected a file, let 'em know
-        if (!element) {
-            resultLink.style.display='none'
-            errorMsg.innerHTML = "You need to choose a file first!"
-            errorMsg.style.display = ''
-            return false
-        }
-        //start thinking
-            Events.pub('ui/thinking', { 'ICX.thinking': true })
-
-        fileprom.then(function(fileguts) {
-            // FIXME: does this work??? letterPuff is a promise...
-            var letterPromise = PBFiles.extractLetterPuff(fileguts)
-            
-            letterPromise.then(function(letterPuff) {
-                if (!letterPuff ||typeof letterPuff === 'undefined') { //check if something went wrong
-                    Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    resultLink.style.display='none'
-                    errorMsg.style.display = ''
-                    return false
-                }
-                else {
-                    var content = (letterPuff.payload || {}).content
-                    var type = (letterPuff.payload || {}).type
-                    var filelist = ICX.filelist
-                    var file = filelist[0]
-                    var filename = file.name
-
-                    if (/\.puff/.test(filename)) {
-                        filename = filename.slice(0, -5)
-                    }
-                    errorMsg.style.display = 'none'
-                    resultLink.style.display = ""
-                    resultLink.href = PBFiles.prepBlob(content, type)
-                    resultLink.download = filename
-
-                    if (getBrowser() == "IE")
-                        window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
-
-                    //stop thinking
-                    Events.pub('ui/thinking', { 'ICX.thinking': false })
-                }                
-            }).catch(function(err) {
-                Events.pub('ui/thinking', { 'ICX.thinking': false })
-                resultLink.style.display='none'
-                errorMsg.style.display = ''
-                PB.onError('Improperly formatted content', err)
-            })
-        }).catch(function(err) {
-            Events.pub('ui/thinking', { 'ICX.thinking': false })
-            PB.onError('File could not be accessed', err)
-        })
-
-    },*/
-
-    /*
-    handleEncryptFile: function() {
-        // if they aren't logged in just stop here
-        // TODO: Route them to sign up in main routing section
-        var errorMsg = this.refs.encryptError.getDOMNode()
-        if(!PB.getCurrentUsername()) {
-            errorMsg.style.display = ''
-            return false
-        }
-        var encryptedLink = this.refs.encryptedLink.getDOMNode()
-
-        //Stop if they haven't selected a file
-        if(!ICX.fileprom) {
-            errorMsg.innerHTML = "You need to choose a file first!"
-            errorMsg.style.display = ''
-            encryptedLink.style.display = 'none'
-            return false
-        }
-
-        //start thinking
-        Events.pub('ui/thinking', { 'ICX.thinking': true })
-
-        //Encrypt the file in a puff
-        ICX.fileprom.then(function(blob) {
-            var puff = PBFiles.createPuff(blob, 'file')
-
-            var filelist = ICX.filelist
-            var file     = filelist[0]
-            var filename = file.name
-            var new_filename = filename + '.puff'
-            errorMsg.style.display = 'none'
-            encryptedLink.style.display=""
-            encryptedLink.href = PBFiles.prepBlob(puff)
-            encryptedLink.download = new_filename
-
-            if (getBrowser() == "IE")
-                window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
-
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
-        })
-
-    },*/
 
     componentDidMount: function(){
         var browser = getBrowser()

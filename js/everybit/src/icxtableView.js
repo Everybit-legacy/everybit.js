@@ -457,8 +457,8 @@ var ICXInlineReply = React.createClass({
 
     componentDidMount: function() {
         var sig = this.props.puff.sig
-        if(cachedReplies[sig]) {
-            this.refs.messageText.getDOMNode().value = cachedReplies[sig]
+        if(ICX.cachedReplies[sig]) {
+            this.refs.messageText.getDOMNode().value = ICX.cachedReplies[sig]
         }
     },
 

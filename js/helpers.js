@@ -8,6 +8,54 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+function toggleSpinner() {
+    Events.pub('ui/thinking', { 'ICX.thinking': !puffworldprops.ICX.thinking })
+}
+
+//Decrypts files and manipulates the GUI when it is done
+//TODO:Implement Better Error handling
+function icxDecryptFile(element, files, callback) {
+    var filename = files.name
+    var fileprom = PBFiles.openPuffFile(element)
+
+    fileprom.then(function(fileguts) {
+        var letterPromise = PBFiles.extractLetterPuff(fileguts)
+
+        letterPromise.then(function(letterPuff) {
+            if (!letterPuff ||typeof letterPuff === 'undefined') {
+                callback(false)
+            }
+            else {
+                var content = (letterPuff.payload || {}).content
+                var type = (letterPuff.payload || {}).type
+
+                //TODO: Move this browser dependancy out of here
+                if (getBrowser() == "IE") //additional check for ie
+                    window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
+
+                callback(PBFiles.prepBlob(content, type))
+            }
+
+        }).catch(function(err) {
+            PB.onError('Improperly formatted content', err)
+        })
+    })
+}
+
+function icxEncryptFile(promise, files, callback) {
+    promise.then(function(blob) {
+        var puff = PBFiles.createPuff(blob, 'file')
+        var filename = files.name
+        var new_filename = filename + '.puff'
+
+        //TODO: Move this browser dependency out of here
+        if (getBrowser() == "IE")
+            window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
+        callback(PBFiles.prepBlob(puff))
+
+    })
+}
+
 // From brainwallet
 function passphraseToPrivateKeyWif(passphrase) {
     var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString();

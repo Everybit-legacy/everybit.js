@@ -2663,7 +2663,8 @@ var ICXFileConverter = React.createClass({
 
         toggleSpinner()
 
-        icxDecryptFile(ICX.eventElement, function(preppedBlob) {
+        //do a better job of refactoring this
+        icxDecryptFile(ICX.eventElement, ICX.filelist, function(preppedBlob) {
             if (!preppedBlob) {
                 resultLink.style.display='none'
                 errorMsg.style.display = ''

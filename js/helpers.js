@@ -13,7 +13,9 @@ function toggleSpinner() {
 }
 
 //Decrypts files and manipulates the GUI when it is done
-function icxDecryptFile(element, callback) {
+//TODO:Implement Better Error handling
+function icxDecryptFile(element, files, callback) {
+    var filename = files.name
     var fileprom = PBFiles.openPuffFile(element)
 
     fileprom.then(function(fileguts) {
@@ -27,7 +29,9 @@ function icxDecryptFile(element, callback) {
                 var content = (letterPuff.payload || {}).content
                 var type = (letterPuff.payload || {}).type
 
-
+                //TODO: Move this browser dependancy out of here
+                if (getBrowser() == "IE") //additional check for ie
+                    window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
 
                 callback(PBFiles.prepBlob(content, type))
             }
@@ -44,7 +48,7 @@ function icxEncryptFile(promise, files, callback) {
         var filename = files.name
         var new_filename = filename + '.puff'
 
-        //TODO: Move this browser dependancy out of here
+        //TODO: Move this browser dependency out of here
         if (getBrowser() == "IE")
             window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
         callback(PBFiles.prepBlob(puff))

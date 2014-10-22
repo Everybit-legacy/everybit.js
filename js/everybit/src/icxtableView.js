@@ -463,12 +463,13 @@ var ICXInlineReply = React.createClass({
     },
 
 	handleReply: function() {
-		var puff=this.props.puff
+		var puff = this.props.puff
+        var toUser = puff.username.stripCapa()
         var parents = [puff.sig]
         var envelopeUserKeys = ''
         var self = this
         var metadata = {}
-        metadata.routes = [puff.username.stripCapa()]
+        metadata.routes = [toUser]
 
         if(puffworldprops.reply.replyType == 'message') {
             var type = 'text'
@@ -489,53 +490,13 @@ var ICXInlineReply = React.createClass({
             return false
         }
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        var prom = Promise.resolve() // a promise we use to string everything along
-
-        var usernames = [puff.username]
-
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
-
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
-                        })
-                    })
-                }
-            })
-        }
-
-        prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-            } else {                     // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
-            }
-
-            if( puffworldprops.reply.replyType == 'file') {
-                ICX.fileprom.then(function(blob) {
-                    var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
-                    post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-                    self.handleCleanup()
-
-                    return post_prom
-                })
+        
+        ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, function (err) {
+            if (!err) {
+                self.handleSubmitSuccess()
             } else {
-                var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-                self.handleCleanup()
-
-                return post_prom
+                self.handleSubmitError(err)
             }
-        }).catch(function (err) {
-            self.handleCleanup()
-            console.log(err.message)
-            Events.pub('ui/thinking', { 'ICX.thinking': false })
         })
 	},
 
@@ -544,6 +505,14 @@ var ICXInlineReply = React.createClass({
         Events.pub('ui/reply', {
             'reply.caption': ''
         })
+        this.handleCleanup()
+    },
+
+    handleSubmitError: function (err) {
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        // We don't know where to insert errors in tableview yet
+        console.log(err.message)
+        this.handleCleanup()
     },
 
 	handleCleanup: function() {

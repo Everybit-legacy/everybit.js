@@ -8,11 +8,71 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+
+function createICXUser(username, passphrase, GUIcallback) {
+    // Convert passphrase to key
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+    var rootKeyPublic     = publicKey
+    var adminKeyPublic    = publicKey
+    var defaultKeyPublic  = publicKey
+
+    var privateRootKey    = privateKey
+    var privateAdminKey   = privateKey
+    var privateDefaultKey = privateKey
+
+    var payload = {
+        requestedUsername: username,
+        rootKey: rootKeyPublic,
+        adminKey: adminKeyPublic,
+        defaultKey: defaultKeyPublic
+    }
+
+    var routes = []
+    var type = 'updateUserRecord'
+    var content = 'requestUsername'
+
+    var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+
+    // SUBMIT REQUEST
+    var prom = PB.Net.updateUserRecord(puff)
+    prom.then(function(userRecord) {
+        //THINK: Do we need to check if this username is valid? Currently it is done in the GUI
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(username, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+
+        // Set this person as the current user
+        PB.switchIdentityTo(username)
+
+        // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time? Yes.
+        // var idFile = PB.formatIdentityFile()
+        // ICX.identityForFile = idFile
+
+        // Create identity file
+        // ICX.identityForFile = {
+        //     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
+        //     username: requestedUsername,
+        //     privateRootKey: privateRootKey,
+        //     privateAdminKey: privateAdminKey,
+        //     privateDefaultKey: privateDefaultKey,
+        //     passphrase: passphrase,
+        //     version: "1.0"
+        // }
+
+        publishProfilePuff()
+        GUIcallback()
+
+    })
+}
+
+
+
 function toggleSpinner() {
     Events.pub('ui/thinking', { 'ICX.thinking': !puffworldprops.ICX.thinking })
 }
 
-//Decrypts files and manipulates the GUI when it is done
+//Decrypts files and hands them off to a callback when complete
 //TODO:Implement Better Error handling
 function icxDecryptFile(element, files, callback) {
     var filename = files.name
@@ -42,6 +102,8 @@ function icxDecryptFile(element, files, callback) {
     })
 }
 
+//Encrypts files and hands them off to a callback when complete
+//TODO: Better error handling
 function icxEncryptFile(promise, files, callback) {
     promise.then(function(blob) {
         var puff = PBFiles.createPuff(blob, 'file')

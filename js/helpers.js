@@ -566,7 +566,7 @@ function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, 
         }
 
         if( type == 'file') {
-            ICX.fileprom.then(function (blob) {
+            content.then(function (blob) {
                 var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
                 post_prom = post_prom.then(function (){
                     // GUI cleanup in callback

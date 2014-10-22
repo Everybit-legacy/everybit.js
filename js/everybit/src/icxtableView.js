@@ -481,8 +481,9 @@ var ICXInlineReply = React.createClass({
             // TODO: Throw file missing error
             if( !ICX.filelist ) return false
             var type = 'file'
-            var content = ICX.filelist[0]
-            metadata.filename = content.name
+            var file = ICX.filelist[0]
+            var content = ICX.fileprom
+            metadata.filename = file.name
             metadata.caption = puffworldprops.reply.caption
         }
 

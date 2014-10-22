@@ -463,7 +463,7 @@ var ICXStoreFinish = React.createClass({
         var privateEnvelopeAlias = ''
         var self = this
 
-        ICXAddPost(me, type, parents, content, metadata, privateEnvelopeAlias, function(err) {
+        ICXAddPost(me, type, parents, ICX.fileprom, metadata, privateEnvelopeAlias, function(err) {
             if(!err) {
                 self.handleSubmitSuccess()
             } else {
@@ -1037,7 +1037,7 @@ var ICXSendFileFinish = React.createClass({
         var privateEnvelopeAlias = ''
         var self = this
 
-        ICXAddPost(toUser, type, parents, content, metadata, privateEnvelopeAlias, function (err) {
+        ICXAddPost(toUser, type, parents, ICX.fileprom, metadata, privateEnvelopeAlias, function (err) {
             if (!err) {
                 self.handleSubmitSuccess()
             } else {

@@ -2680,6 +2680,70 @@ var ICXFileConverter = React.createClass({
 
     handleDecryptFile: function() {
         var resultLink = this.refs.decryptedDownload.getDOMNode()
+        var errorMsg = this.refs.decryptError.getDOMNode()
+
+        if (!ICX.eventElement) {
+            resultLink.style.display = 'none'
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            return false
+        }
+
+        toggleSpinner()
+
+        icxDecryptFile(ICX.eventElement, function(preppedBlob) {
+            if (!preppedBlob) {
+                resultLink.style.display='none'
+                errorMsg.style.display = ''
+                toggleSpinner()
+            } else {
+                var filename = ICX.filelist[0].name
+
+                if (/\.puff/.test(filename)) {
+                    filename = filename.slice(0, -5)
+                }
+                errorMsg.style.display = 'none'
+                resultLink.style.display = ""
+                resultLink.href = preppedBlob
+                resultLink.download = filename
+
+                toggleSpinner()
+            }
+        })
+
+    },
+
+    handleEncryptFile: function() {
+        var errorMsg = this.refs.encryptError.getDOMNode()
+        var encryptedLink = this.refs.encryptedLink.getDOMNode()
+
+        if(!PB.getCurrentUsername()) {
+            errorMsg.style.display = ''
+            return false
+        }
+
+        if(!ICX.fileprom) {
+            errorMsg.innerHTML = "You need to choose a file first!"
+            errorMsg.style.display = ''
+            encryptedLink.style.display = 'none'
+            return false
+        }
+
+        icxEncryptFile(ICX.fileprom, ICX.filelist, function(preppedBlob) {
+            var filelist = ICX.filelist
+            var file     = filelist[0]
+            var filename = file.name
+            var new_filename = filename + '.puff'
+            errorMsg.style.display = 'none'
+            encryptedLink.style.display=""
+            encryptedLink.href = preppedBlob
+            encryptedLink.download = new_filename
+        })
+
+    },
+    /*
+    handleDecryptFile: function() {
+        var resultLink = this.refs.decryptedDownload.getDOMNode()
         var element = ICX.eventElement
         var fileprom = PBFiles.openPuffFile(element)
         var errorMsg = this.refs.decryptError.getDOMNode()
@@ -2692,7 +2756,7 @@ var ICXFileConverter = React.createClass({
             return false
         }
         //start thinking
-        Events.pub('ui/thinking', { 'ICX.thinking': true })
+            Events.pub('ui/thinking', { 'ICX.thinking': true })
 
         fileprom.then(function(fileguts) {
             // FIXME: does this work??? letterPuff is a promise...
@@ -2737,8 +2801,9 @@ var ICXFileConverter = React.createClass({
             PB.onError('File could not be accessed', err)
         })
 
-    },
+    },*/
 
+    /*
     handleEncryptFile: function() {
         // if they aren't logged in just stop here
         // TODO: Route them to sign up in main routing section
@@ -2781,7 +2846,7 @@ var ICXFileConverter = React.createClass({
             })
         })
 
-    },
+    },*/
 
     componentDidMount: function(){
         var browser = getBrowser()

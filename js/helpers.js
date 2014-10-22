@@ -364,8 +364,8 @@ function isEmpty(obj) {
 // Browser detection by kennebec
 // http://stackoverflow.com/questions/2400935/browser-detection-in-javascript
 
-// Original function
-// Do not touch, might be useful later on when support on more browser is needed
+// Original function, keep this here for now 
+// might be useful later on when support on more browser is needed
 
 // function getBrowserAndVersion() {
 //     var ua= navigator.userAgent, tem, 
@@ -597,6 +597,62 @@ function updatePassphrase(newPassphrase) {
     }
 }
 
+
+function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, callback) {
+
+    var prom = Promise.resolve() // a promise we use to string everything along
+    var usernames = [toUser]
+
+    var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+    var userRecordUsernames = userRecords.map(function (userRecord) {
+        return userRecord.username
+    })
+
+    if (userRecords.length < usernames.length) {
+        usernames.forEach(function (username) {
+            if (!~userRecordUsernames.indexOf(username)) {
+                prom = prom.then(function () {
+                    return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                        userRecords.push(userRecord)
+                    })
+                })
+            }
+        })
+    }
+
+    prom = prom.then(function () {
+        if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+            userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+        } else {                     // add our regular old boring identity to the list of available keys
+            userRecords.push(PB.getCurrentUserRecord())
+        }
+
+        if( type == 'file') {
+            ICX.fileprom.then(function (blob) {
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(function (){
+                    // GUI cleanup in callback
+                    callback()
+                }).catch(function (err) {
+                    callback(err)
+                })
+
+                return post_prom
+            })
+        } else {
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            post_prom = post_prom.then(function () {
+                callback()
+            }).catch(function (err) {
+                callback(err)
+            })
+
+            return post_prom
+        }
+    }).catch(function (err) {
+        callback(err)
+    })
+}
 
 
 /////////////////////////////////////////////

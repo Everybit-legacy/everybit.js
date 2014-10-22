@@ -186,8 +186,8 @@ var ICXWorld = React.createClass({
         //gracefully deal with invalid screen input
         var screenNames = ICX.screens.map(function(screen) {return screen.name})
         if (screenNames.indexOf(currScreen) < 0) {
-            currScreen = 'home'
-            Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
+            // currScreen = 'home'
+            return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
         }
 
         var borderWidth = Math.floor(ICX.calculated.sideBorder)+'px'
@@ -393,6 +393,12 @@ var ICXStoreFinish = React.createClass({
         this.cleanUpSubmit()
     },
 
+    handleSubmitError: function (err) {
+        ICX.errors = err.message
+        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        this.cleanUpSubmit()
+    },
+
     cleanUpSubmit: function () {
         Events.pub('ui/thinking', { 'ICX.thinking': false })
     },
@@ -413,7 +419,7 @@ var ICXStoreFinish = React.createClass({
         if(PB.getCurrentUsername()) {
             //backup their file
             if (puffworldprops.ICX.backupToCloud) {
-                this.handleBackup();
+                this.handleBackup()
 
             } else {
                 self.cleanUpSubmit()
@@ -449,7 +455,7 @@ var ICXStoreFinish = React.createClass({
         // Same as sending the file to yourself
         var me = PB.getCurrentUsername()
         var type = 'file'
-        var content = ICX.filelist[0]   // error: dont have content of the file here
+        var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
         metadata.routes = [me]
@@ -457,57 +463,14 @@ var ICXStoreFinish = React.createClass({
         var privateEnvelopeAlias = ''
         var self = this
 
-
-        // Bundle into puff and send this bad boy off
-        var prom = Promise.resolve() // a promise we use to string everything along
-        var usernames = [me]
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
-
-        // if we haven't cached all the users, we'll need to grab them first
-        // THINK: maybe convert this to using PB.getUserRecords instead
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
-                        })
-                    })
-                }
-            })
-        }
-
-        prom = prom.then(function () {
-            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
-            } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
+        ICXAddPost(me, type, parents, content, metadata, privateEnvelopeAlias, function(err) {
+            if(!err) {
+                self.handleSubmitSuccess()
+            } else {
+                self.handleSubmitError(err)
             }
-
-            // blob is the encoded base64 dataURI that holds file content
-            ICX.fileprom.then(function (blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
-                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-                return post_prom
-
-            }).catch(function(err){
-                ICX.errors = err.message
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                self.cleanUpSubmit()
-
-            })
-        }).catch(function (err) {
-            // TODO: Show user the error
-            self.cleanUpSubmit()
-            return Events.pub('ui/event/', {
-                'ICX.messageSent': true,
-                'ICX.successMessage': err.message
-            })
-
         })
+
         return false
     }
 })
@@ -1045,79 +1008,43 @@ var ICXSendFileFinish = React.createClass({
     handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
             'ICX.messageSent': true,
-            'ICX.successMessage': 'File sent!'
-        })
-        Events.pub('ui/thinking', {
-            'ICX.thinking': false
-        })
-        Events.pub('ui/reply', {
+            'ICX.successMessage': 'File sent!',
+            'ICX.thinking': false,
             'reply.caption': ''
         })
+    },
 
+    handleSubmitError: function (err) {
+        ICX.errors = err.message
+        Events.pub('ui/event', {
+            'icx.errorMessage': true,
+            'ICX.thinking': false,
+            'reply.caption': ''
+        })
     },
 
     componentDidMount: function () {
+
         // Set information for this send
+        var toUser = puffworldprops.ICX.toUser
         var type = 'file'
         var content = ICX.filelist[0]
         var parents = []
         var metadata = {}
-        metadata.routes = [puffworldprops.ICX.toUser]
+        metadata.routes = [toUser]
         metadata.filename = content.name
         metadata.caption = puffworldprops.reply.caption
         var privateEnvelopeAlias = ''
         var self = this
 
-
-        // Bundle into puff and send this bad boy off
-        var prom = Promise.resolve() // a promise we use to string everything along
-
-        var usernames = [puffworldprops.ICX.toUser]
-
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
-
-
-        // if we haven't cached all the users, we'll need to grab them first
-        // THINK: maybe convert this to using PB.getUserRecords instead
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
-                        })
-                    })
-                }
-            })
-        }
-
-        prom = prom.then(function () {
-            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
-            } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
+        ICXAddPost(toUser, type, parents, content, metadata, privateEnvelopeAlias, function (err) {
+            if (!err) {
+                self.handleSubmitSuccess()
+            } else {
+                self.handleSubmitError(err)
             }
-
-            // blob is the encoded base64 dataURI that holds file content
-            ICX.fileprom.then(function(blob) {
-                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, privateEnvelopeAlias)
-                post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-                return post_prom
-
-            })
-        }).catch(function (err) {
-            Events.pub('ui/event/', {
-                'ICX.messageSent': true,
-                'ICX.successMessage': err.message
-            })
-            Events.pub('ui/thinking', {
-                'ICX.thinking': false
-            })
-
         })
+
         return false
     }
 })
@@ -1237,69 +1164,36 @@ var ICXSendMessageFinish = React.createClass({
         })
     },
 
+    handleSubmitError: function (err) {
+        ICX.errors = err.message
+        Events.pub('ui/event', {
+            'ICX.messageSent': false,
+            'ICX.successMessage': ICX.messageText,
+            'icx.errorMessage': true
+        })
+    },
+
     componentDidMount: function () {
+
         // Set information for this send
+        var toUser = puffworldprops.ICX.toUser
         var type = 'text'
         var content = ICX.messageText
         var parents = []
         var metadata = {}
-        metadata.routes = [puffworldprops.ICX.toUser]
+        metadata.routes = [toUser]
         var privateEnvelopeAlias = ''
         var self = this
 
-
-        // Bundle into puff and send this bad boy off
-        var prom = Promise.resolve() // a promise we use to string everything along
-
-        var usernames = [puffworldprops.ICX.toUser]
-
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
-
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
-                        })
-                    }).catch(function (err){
-                        ICX.errors = err.message
-                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                    })
-                }
-            })
-        }
-
-        prom = prom.then(function () {
-            if (privateEnvelopeAlias) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
-            } else {                    // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
+        ICXAddPost(toUser, type, parents, content, metadata, privateEnvelopeAlias, function(err) {
+            if(!err) {
+                // No error, proceed with GUI Cleanup
+                self.handleSubmitSuccess()
+            } else {
+                // Error handling
+                self.handleSubmitError(err)
             }
-
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, privateEnvelopeAlias)
-            post_prom = post_prom.then(self.handleSubmitSuccess)
-                .catch(function (err){
-                    ICX.errors = err.message
-                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-
-                    Events.pub('ui/event/', {
-                        'ICX.messageSent': true,
-                        'ICX.successMessage': "Save your message: "+ICX.messageText
-                    })
-                })
-            return post_prom
-        }).catch(function (err) {
-            // self.cleanUpSubmit()
-            Events.pub('ui/event/', {
-                'ICX.messageSent': true,
-                'ICX.successMessage': err.message
-            })
         })
-
         return false
     }
 })
@@ -2743,17 +2637,18 @@ var ICXError = React.createClass({
 
     handleCloseError: function() {
         ICX.errors = ''
-        return Events.pub('/ui/icx/errorMessage', {"icx.errorMessage": false});
+        return Events.pub('/ui/icx/errorMessage', {"icx.errorMessage": false})
     }
 })
 
 var ICXLogo = React.createClass({
     handleGoHome: function() {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'});
+        Events.pub('/ui/icx/error', {"icx.errorMessage": false})
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
     },
 
     handleGoTo: function(screen) {
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": screen})
     },
 
 
@@ -2833,6 +2728,7 @@ var ICXButtonLink = React.createClass({
                 })
             }
         }
+        Events.pub('/ui/icx/error', {"icx.errorMessage": false})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen})
 
     },

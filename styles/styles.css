@@ -1576,11 +1576,10 @@ fieldset[disabled] .btn-primary.active {
     text-align: left;
     border: 1px #222222 dotted;
     display: none;
-    max-width: 100%;
 }
 
 .refs .rowReferencePreview {
-    width: 200%;
+    
 }
 
 
@@ -1889,12 +1888,6 @@ fieldset[disabled] .btn-primary.active {
     position:absolute;
     background-color: rgba(242, 242, 242, 0.90);
     color: #000;
-}
-
-@media(max-width:420px) {
-    .icx-send {
-        text-align:center;
-    }
 }
 
 @keyframes fadein {

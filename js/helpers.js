@@ -8,6 +8,131 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+function generateRandomUsername() {
+    var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
+    var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
+    var animalColor = PB.Crypto.getRandomItem(ICX.colornames)
+
+    return adjective+animalColor+animalName
+}
+
+// Takes in a username and passphrase and returns a new puff
+function buildICXUserPuff(username, passphrase) {
+
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+    var rootKeyPublic     = publicKey
+    var adminKeyPublic    = publicKey
+    var defaultKeyPublic  = publicKey
+
+    var privateRootKey    = privateKey
+    var privateAdminKey   = privateKey
+    var privateDefaultKey = privateKey
+
+    var payload = {
+        requestedUsername: username,
+        rootKey: rootKeyPublic,
+        adminKey: adminKeyPublic,
+        defaultKey: defaultKeyPublic
+    }
+
+    var routes = []
+    var type = 'updateUserRecord'
+    var content = 'requestUsername'
+
+    return PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+}
+
+function inviteICXUser(passphrase, GUIcallback) {
+    //needs to be here for add alias
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    var requestedUsername = generateRandomUsername()
+
+    var puff = buildICXUserPuff(requestedUsername,passphrase)
+
+    var prom = PB.Net.updateUserRecord(puff)
+    prom.then(function() {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(requestedUsername, requestedUsername, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
+
+        GUIcallback(requestedUsername)
+    })
+
+}
+
+function createICXUser(username, passphrase, GUIcallback) {
+    //needs to be here for add alias
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    var puff = buildICXUserPuff(username, passphrase)
+
+    var prom = PB.Net.updateUserRecord(puff)
+    prom.then(function(userRecord) {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
+
+        PB.switchIdentityTo(username)
+
+        publishProfilePuff()
+        GUIcallback()
+
+    })
+}
+
+
+
+function toggleSpinner() {
+    Events.pub('ui/thinking', { 'ICX.thinking': !puffworldprops.ICX.thinking })
+}
+
+//Decrypts files and hands them off to a callback when complete
+//TODO:Implement Better Error handling
+function icxDecryptFile(element, files, callback) {
+    var filename = files.name
+    var fileprom = PBFiles.openPuffFile(element)
+
+    fileprom.then(function(fileguts) {
+        var letterPromise = PBFiles.extractLetterPuff(fileguts)
+
+        letterPromise.then(function(letterPuff) {
+            if (!letterPuff ||typeof letterPuff === 'undefined') {
+                callback(false)
+            }
+            else {
+                var content = (letterPuff.payload || {}).content
+                var type = (letterPuff.payload || {}).type
+
+                //TODO: Move this browser dependancy out of here
+                if (getBrowser() == "IE") //additional check for ie
+                    window.navigator.msSaveBlob(PBFiles.prepBlob(content), filename)
+
+                callback(PBFiles.prepBlob(content, type))
+            }
+
+        }).catch(function(err) {
+            PB.onError('Improperly formatted content', err)
+        })
+    })
+}
+
+//Encrypts files and hands them off to a callback when complete
+//TODO: Better error handling
+function icxEncryptFile(promise, files, callback) {
+    promise.then(function(blob) {
+        var puff = PBFiles.createPuff(blob, 'file')
+        var filename = files.name
+        var new_filename = filename + '.puff'
+
+        //TODO: Move this browser dependency out of here
+        if (getBrowser() == "IE")
+            window.navigator.msSaveBlob(PBFiles.prepBlob(puff), new_filename)
+        callback(PBFiles.prepBlob(puff))
+
+    })
+}
+
 // From brainwallet
 function passphraseToPrivateKeyWif(passphrase) {
     var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString();
@@ -254,8 +379,8 @@ function isEmpty(obj) {
 // Browser detection by kennebec
 // http://stackoverflow.com/questions/2400935/browser-detection-in-javascript
 
-// Original function
-// Do not touch, might be useful later on when support on more browser is needed
+// Original function, keep this here for now 
+// might be useful later on when support on more browser is needed
 
 // function getBrowserAndVersion() {
 //     var ua= navigator.userAgent, tem, 
@@ -345,13 +470,12 @@ function getAnimalUnicodes() {
 
 
                 if( splitResult[0] == '.icon') {
-                    // Safari does not wrap quotes around the unicode character
-                    if (getBrowser() == "Safari") {
-                        unicodes[i] = animalCSS[k].style.cssText.slice(-2,-1).charCodeAt(0).toString(16);
-                    } else if (getBrowser() == "IE") { // IE doesn't encode the unicode
-                        unicodes[i] = animalCSS[k].style.content.slice(2,6);
+                    var unicode = animalCSS[k].style.content.replace(/"/g, "").replace(/'/g, "").replace("\\", "");
+                    
+                    if (getBrowser() == "IE") { // IE doesn't encode the unicode
+                        unicodes[i] = unicode;
                     } else {
-                        unicodes[i] = animalCSS[k].style.cssText.slice(-3,-2).charCodeAt(0).toString(16);
+                        unicodes[i] = unicode.charCodeAt(0).toString(16);
                     }
                     i++;
                 }
@@ -488,6 +612,176 @@ function updatePassphrase(newPassphrase) {
     }
 }
 
+
+function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, callback) {
+
+    var prom = Promise.resolve() // a promise we use to string everything along
+    var usernames = [toUser]
+
+    var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+    var userRecordUsernames = userRecords.map(function (userRecord) {
+        return userRecord.username
+    })
+
+    if (userRecords.length < usernames.length) {
+        usernames.forEach(function (username) {
+            if (!~userRecordUsernames.indexOf(username)) {
+                prom = prom.then(function () {
+                    return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                        userRecords.push(userRecord)
+                    })
+                })
+            }
+        })
+    }
+
+    prom = prom.then(function () {
+        if (envelopeUserKeys) {      // add our secret identity to the list of available keys
+            userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
+        } else {                     // add our regular old boring identity to the list of available keys
+            userRecords.push(PB.getCurrentUserRecord())
+        }
+
+        if( type == 'file') {
+            content.then(function (blob) {
+                var post_prom = PB.M.Forum.addPost(type, blob, parents, metadata, userRecords, envelopeUserKeys)
+                post_prom = post_prom.then(function (){
+                    // GUI cleanup in callback
+                    callback()
+                }).catch(function (err) {
+                    callback(err)
+                })
+
+                return post_prom
+            })
+        } else {
+            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
+            post_prom = post_prom.then(function () {
+                callback()
+            }).catch(function (err) {
+                callback(err)
+            })
+
+            return post_prom
+        }
+    }).catch(function (err) {
+        callback(err)
+    })
+}
+
+function ICXAuthenticateIdFile(content, callback) {
+    // Try and parse, if can't return error
+    // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
+    var identityObj = PB.parseJSON(content)
+    var username = identityObj.username
+    var aliases = identityObj.aliases
+
+    if(!identityObj || !username || !aliases) {
+        callback("Corrupt Identity File", 'Incorrect')
+    }
+
+    Events.pub('ui/thinking', { 'ICX.thinking': true })
+    
+    var preferences = identityObj.preferences || {}
+    
+    // load complete identity
+    PB.addIdentity(username, aliases, preferences)
+    
+    // then check against the up-to-date user record
+    var prom = PB.getUserRecordNoCache(username)
+
+    prom.then(function (userInfo) {
+        if(!userInfo || userInfo.username != username) {
+            PB.removeIdentity(username)
+            ICX.errors = "ERROR: Username not found in public record."
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            return PB.onError('Username not found in public record')
+        }
+            
+        PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
+            var identity = identities[username]
+            if(!identity || !identity.primary) {
+                PB.removeIdentity(username)
+                ICX.errors = "ERROR: Identity not properly loaded."
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                return PB.onError('Identity not properly loaded')
+            }
+            
+            var primary = identity.primary
+            
+            if(primary.privateDefaultKey) {
+                if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
+                    PB.removeIdentity(username)
+                    ICX.errors = "ERROR: The identity file does not contain a valid public user record."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
+                    return PB.onError('Private default key in identity file does not match public user record')
+                }
+            }
+            // TODO: add public-private sanity check for root and admin keys
+            
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            PB.switchIdentityTo(username)
+            callback()
+        })
+    })
+    .catch(function (err) {
+        callback(err.message, 'Not found')
+
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        PB.removeIdentity(username)
+        return PB.throwError('File-based login failed')
+    })
+}
+
+function ICXAuthenticateUser (username, passphrase, callback) {
+    // Convert passphrase to private key
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    // Convert private key to public key
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+    if (!publicKey) {
+        callback('ERROR: Failed to generate public key', 'Bad Key')
+    }
+
+    var prom = PB.getUserRecordNoCache(username)
+
+    prom.then(function (userInfo) {
+        var goodKeys = {}
+    
+        if (publicKey == userInfo.defaultKey)
+            goodKeys.privateDefaultKey = privateKey
+    
+        if (publicKey == userInfo.adminKey) 
+            goodKeys.privateAdminKey = privateKey                
+    
+        if (publicKey == userInfo.rootKey)
+            goodKeys.privateRootKey = privateKey
+        
+        if(!Object.keys(goodKeys).length) {
+            callback('ERROR: Invalid passphrase', 'Incorrect')
+            return PB.onError('Passphrase did not match any keys in the user record')
+        } 
+
+        // At least one good key: make current user and add passphrase to wardrobe
+        var capa = username.capa || 1
+        var secrets = {passphrase: passphrase}
+        // TODO: pull this out of GUI and push it down a level
+        PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
+        
+        PB.switchIdentityTo(username)
+
+        callback()
+        return false
+
+    }).catch(function (err) {
+        callback(err.message, 'Not found')
+        return PB.onError('Passphrase-based login failed')
+    })
+}
 
 
 /////////////////////////////////////////////

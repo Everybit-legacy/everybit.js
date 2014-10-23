@@ -191,12 +191,16 @@ var ICXContentItem = React.createClass({
             padding: itemPadding,
             borderLeft: Math.floor(ICX.calculated.baseFontH/2.5)+'px' + ' solid rgba(26, 40, 60,.4)'
         }
+        var replyStyle = {}
+        replyStyle.float = 'right'
 
         // Put it left or right depending on from or to
-        if(ICX.username == puff.username.stripCapa()) {
+        if(PB.getCurrentUsername() == puff.username.stripCapa()) {
             overalBoxStyle.marginLeft = '10%'
+            replyStyle.display = 'none'
         } else {
             overalBoxStyle.marginRight = '10%'
+            replyStyle.display = 'block'
         }
 
         var cb = React.addons.classSet
@@ -207,9 +211,6 @@ var ICXContentItem = React.createClass({
             'fa-compress': this.state.expanded
         })
 
-        var replyStyle = {}
-        replyStyle.display = (ICX.username == puff.username.stripCapa()) ? 'none' : 'block'
-        replyStyle.float = 'right'
 
 
         return (
@@ -251,9 +252,18 @@ var ICXItemMainContent = React.createClass({
             }
 
             if(this.props.puff.payload.type == 'file') {
+                var showCaption = {}
+                if(!this.props.puff.payload.caption) {
+                    showCaption.display = 'none'
+                } else {
+                    var caption = this.props.puff.payload.caption
+                    showCaption.display = 'block'
+                }
+
                 return (
                     <div className="accordion-content" style={itemContentStyle}>
                         <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
+                        <span style={showCaption}>{caption}</span>
                         <ICXInlineReply puff={this.props.puff} />
                     </div>
                 )
@@ -297,26 +307,22 @@ var ICXTableUserInfo = React.createClass({
         var toUser = this.props.puff.routes[0].stripCapa()
 
         // If current user is the sender, we will render the recipient
-        if(ICX.username == fromUser) {
+        if(PB.getCurrentUsername() == fromUser) {
             var username = toUser
             var isSender = true
+            var sentOrReceived = 'sent'
+            var fromOrTo = 'To '
         } else {
             var username = fromUser
             var isSender = false
+            var sentOrReceived = 'received'
+            var fromOrTo = 'From '
         }
 
         var prof = getProfilePuff(username)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
             avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
-        }
-
-        if(isSender) {
-            var sentOrReceived = 'sent'
-            var fromOrTo = 'To '
-        } else {
-            var sentOrReceived = 'received'
-            var fromOrTo = 'From '
         }
 
         return (
@@ -352,12 +358,10 @@ var ICXRelationshipInfo = React.createClass({
         }
 
         return (
-            <span>
-                <a key={sig} className="rowReference">
-                    <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
-                </a>
-            </span>
-            )
+            <a key={sig} className="rowReference">
+                <img style={{marginRight: '2px', marginBottom:'2px',display: 'inline-block',verticalAlign: 'middle'}} src={getImageCode(sig)}/>{preview}
+            </a>
+        )
     },
 
     render: function() {
@@ -435,7 +439,7 @@ var ICXDownloadLink = React.createClass({
                 )
         } else {
     		return (
-    			<span>File:<a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
+    			<span><b>File: </b><a onClick={this.handlePrepBlob} style={style}>{this.props.filename}</a></span>
     		)
         }
 	}
@@ -443,70 +447,73 @@ var ICXDownloadLink = React.createClass({
 
 
 var ICXInlineReply = React.createClass({
+    componentWillUnmount: function() {
+        var messageToCache = this.refs.messageText.getDOMNode().value
+        var sigKey = this.props.puff.sig
+        if(messageToCache) {
+            ICX.cachedReplies[sigKey] = messageToCache
+        }
+    },
+
+    componentDidMount: function() {
+        var sig = this.props.puff.sig
+        if(ICX.cachedReplies[sig]) {
+            this.refs.messageText.getDOMNode().value = ICX.cachedReplies[sig]
+        }
+    },
+
 	handleReply: function() {
-		var puff=this.props.puff
-		var type = 'text'
-        var content = this.refs.messageText.getDOMNode().value
+		var puff = this.props.puff
+        var toUser = puff.username.stripCapa()
         var parents = [puff.sig]
-        var metadata = {}
-        metadata.routes = [puff.username.stripCapa()]
         var envelopeUserKeys = ''
         var self = this
+        var metadata = {}
+        metadata.routes = [toUser]
 
-        /*
-        Events.pub('ui/reply/add-parent', {
-               'reply.parents': parents
-            }
-        )
-        */
+        if(puffworldprops.reply.replyType == 'message') {
+            var type = 'text'
+            var content = this.refs.messageText.getDOMNode().value
+        }
+
+        if (puffworldprops.reply.replyType == 'file') {
+
+            // TODO: Throw file missing error
+            if( !ICX.filelist ) return false
+            var type = 'file'
+            var file = ICX.filelist[0]
+            var content = ICX.fileprom
+            metadata.filename = file.name
+            metadata.caption = puffworldprops.reply.caption
+        }
 
         if(!content || content.length < 1) {
             return false
         }
         Events.pub('ui/thinking', { 'ICX.thinking': true })
-        var prom = Promise.resolve() // a promise we use to string everything along
-
-        var usernames = [puff.username]
-
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-        var userRecordUsernames = userRecords.map(function (userRecord) {
-            return userRecord.username
-        })
-
-        if (userRecords.length < usernames.length) {
-            usernames.forEach(function (username) {
-                if (!~userRecordUsernames.indexOf(username)) {
-                    prom = prom.then(function () {
-                        return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                            userRecords.push(userRecord)
-                        })
-                    })
-                }
-            })
-        }
-
-        prom = prom.then(function () {
-            if (envelopeUserKeys) {      // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(envelopeUserKeys.username))
-            } else {                     // add our regular old boring identity to the list of available keys
-                userRecords.push(PB.getCurrentUserRecord())
+        
+        ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, function (err) {
+            if (!err) {
+                self.handleSubmitSuccess()
+            } else {
+                self.handleSubmitError(err)
             }
-
-            var post_prom = PB.M.Forum.addPost(type, content, parents, metadata, userRecords, envelopeUserKeys)
-            post_prom = post_prom.then(self.handleSubmitSuccess.bind(self))
-            self.handleCleanup()
-
-            return post_prom
-        }).catch(function (err) {
-            self.handleCleanup()
-            console.log(err.message)
-            Events.pub('ui/thinking', { 'ICX.thinking': false })
         })
 	},
 
 	handleSubmitSuccess: function () {
-        console.log("SUCCESS")
         Events.pub('ui/thinking', { 'ICX.thinking': false })
+        Events.pub('ui/reply', {
+            'reply.caption': ''
+        })
+        this.handleCleanup()
+    },
+
+    handleSubmitError: function (err) {
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        // We don't know where to insert errors in tableview yet
+        console.log(err.message)
+        this.handleCleanup()
     },
 
 	handleCleanup: function() {
@@ -528,15 +535,15 @@ var ICXInlineReply = React.createClass({
         if(activeReplies.indexOf(sig) !== -1) {
             activeReplies.splice(activeReplies.indexOf(sig),1)
         }
+        //clear out reply text and any cache
+        this.refs.messageText.getDOMNode().value = ""
+        ICX.cachedReplies[sig] = ""
 
-        Events.pub('ui/reply/activate',
-            {'view.icx.activeReplies': activeReplies}
-        )
+        Events.pub('ui/reply/activate', {
+            'view.icx.activeReplies': activeReplies,
+            'reply.caption': ''
+        })
 	},
-
-    handleShowReply: function() {
-
-    },
 
     handleKeyDown: function(e) {
         if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
@@ -544,13 +551,35 @@ var ICXInlineReply = React.createClass({
         }
     },
 
+    handleAddCaption: function() {
+        if(!ICX.filelist) return false
+
+        var caption = this.refs.caption.getDOMNode().value
+        Events.pub('ui/reply', {
+            'reply.caption': caption
+        })
+    },
+
+    handleToggleReplyOption: function(event) {
+        var toggle = event.target.attributes.label.value
+        Events.pub('ui/reply', {
+            'reply.replyType': toggle
+        })
+    },
+
 	render: function() {
 		var puff=this.props.puff
 		var username = puff.username.stripCapa()
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
 
         var inlineReplyStyle = {}
+        var replyMsgStyle = {}
+        var replyFileStyle = {}
 
         var activeReplies = puffworldprops.view.icx.activeReplies
+
+        replyMsgStyle.display = (puffworldprops.reply.replyType == 'message') ? 'block' : 'none'
+        replyFileStyle.display = (puffworldprops.reply.replyType == 'file') ? 'block' : 'none'
 
         if(activeReplies.indexOf(puff.sig) !== -1) {
             inlineReplyStyle.display = 'block'
@@ -564,7 +593,6 @@ var ICXInlineReply = React.createClass({
         inlineReplyStyle.backgroundColor = 'rgba(200,200,200,.5)'
         inlineReplyStyle.marginTop = Math.floor(ICX.calculated.baseFontH/2)+'px'
 
-
         var thisScreen = ICX.screens.filter(function( obj ) {
             return (obj.name == 'dashboard');
         })[0]
@@ -574,9 +602,19 @@ var ICXInlineReply = React.createClass({
         // <b>Reply to: {username}</b><br/>
         return (
             <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
+                <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
+                {' '}
+                <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
 
-            <b>Message:</b><br />
-                <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
+                <div className="replyMessage" style={replyMsgStyle}>
+                    <b>Message:</b><br />
+                    <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
+                </div>
+                <div className="replyFile" style={replyFileStyle}>
+                    <ICXFileUploader styling={headerStyle} />
+                    <br />Memo: <br />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                </div>
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
             </div>

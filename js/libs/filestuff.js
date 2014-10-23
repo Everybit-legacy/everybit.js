@@ -25,15 +25,16 @@ PBFiles.createPuff = function(content, type) {
 }
 
 PBFiles.prepBlob = function(str, type) {
-    if(typeof str != 'string')
+    if (typeof str != 'string')
         str = JSON.stringify(str)
-    
+
     var blob
-    
-    if(type == 'file')
+
+    if (type == 'file')
         blob = PBFiles.dataURItoBlob(str)
     else
         blob = new Blob([str], {type: 'text/plain'})
+
 
     // IE needs to directly save the blob object
     if (navigator.appVersion.toString().indexOf('.NET') > 0)

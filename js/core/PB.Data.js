@@ -396,6 +396,9 @@ PB.Data.clearExistingPrivateShells = function() {
 }
 
 PB.Data.addPrivateShells = function(privateShells) {
+    if(!privateShells.length) return false
+    // privateShells = [privateShells[0]]
+  
     var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
                                        .filter(Boolean)
 

@@ -142,16 +142,15 @@ puffworldprops = {
     },
 
     reply: {
-        parents: [],
-        replyTo: "", // temp var for single recipient reply
-        isReply: false,
         // show: false,
         lastType: false, // type of the last published puff
         expand: false,
         content: '',
         state: {},
         privacy: false,
-        type: false
+        type: false,
+        replyType: 'message',
+        caption: ''
     },
 
     raw: {
@@ -366,3 +365,6 @@ Events.sub('ui/*', function(data) {
     if(puffworldprops.prefs.reporting)
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
 });
+
+// Mandrill declaration
+// var mail = new mandrill.Mandrill("Oz8yE_58ZGkI2mS2e-X2YQ")

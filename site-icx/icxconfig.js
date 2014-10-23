@@ -78,7 +78,7 @@ ICX.animalName = {}
 
 ICX.userColor = {}
 
-ICX.identityForFile = {}
+// ICX.identityForFile = {}
 
 ICX.errors = ''
 
@@ -86,6 +86,9 @@ ICX.errors = ''
 ICX.currScreen = 'init'
 
 ICXdefaults = JSON.parse(JSON.stringify(ICX))
+
+//Holds users replies in case of loss
+ICX.cachedReplies = {}
 
 // OTHER
 CONFIG = {};
@@ -194,6 +197,3 @@ CONFIG.newLoad = 10
 CONFIG.standards ={}
 CONFIG.standards.usernames = {}
 CONFIG.standards.usernames.maxLength = 255
-
-
-

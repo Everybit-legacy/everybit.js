@@ -16,55 +16,9 @@ function generateRandomUsername() {
     return adjective+animalColor+animalName
 }
 
-//needs to be refactored still
-function inviteICXUser(passphrase, GUIcallback) {
-    // Start the spinner, generate a new username,
-    // Send them to next step, message or file send page.
-    // TODO: Check for blank, or too short values in question and answer
+// Takes in a username and passphrase and returns a new puff
+function buildICXUserPuff(username, passphrase) {
 
-    var requestedUsername = generateRandomUsername()
-
-    // Convert passphrase to key
-    var privateKey = passphraseToPrivateKeyWif(passphrase)
-    var publicKey = PB.Crypto.privateToPublic(privateKey)
-
-    var rootKeyPublic     = publicKey
-    var adminKeyPublic    = publicKey
-    var defaultKeyPublic  = publicKey
-
-    var privateRootKey    = privateKey
-    var privateAdminKey   = privateKey
-    var privateDefaultKey = privateKey
-
-    var self = this
-
-    var payload = {
-        requestedUsername: requestedUsername,
-        rootKey: rootKeyPublic,
-        adminKey: adminKeyPublic,
-        defaultKey: defaultKeyPublic
-    }
-
-    var routes = []
-    var type = 'updateUserRecord'
-    var content = 'requestUsername'
-
-    var puff = PB.buildPuff(requestedUsername, privateAdminKey, routes, type, content, payload)
-
-
-    // SUBMIT REQUEST
-    var prom = PB.Net.updateUserRecord(puff)
-    prom.then(function() {
-        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
-        PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
-
-        GUIcallback(requestedUsername)
-    })
-
-}
-
-function createICXUser(username, passphrase, GUIcallback) {
-    // Convert passphrase to key
     var privateKey = passphraseToPrivateKeyWif(passphrase)
     var publicKey = PB.Crypto.privateToPublic(privateKey)
 
@@ -87,32 +41,39 @@ function createICXUser(username, passphrase, GUIcallback) {
     var type = 'updateUserRecord'
     var content = 'requestUsername'
 
-    var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+    return PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+}
 
-    // SUBMIT REQUEST
+function inviteICXUser(passphrase, GUIcallback) {
+    //needs to be here for add alias
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    var requestedUsername = generateRandomUsername()
+
+    var puff = buildICXUserPuff(requestedUsername,passphrase)
+
+    var prom = PB.Net.updateUserRecord(puff)
+    prom.then(function() {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(requestedUsername, requestedUsername, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
+
+        GUIcallback(requestedUsername)
+    })
+
+}
+
+function createICXUser(username, passphrase, GUIcallback) {
+    //needs to be here for add alias
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    var puff = buildICXUserPuff(username, passphrase)
+
     var prom = PB.Net.updateUserRecord(puff)
     prom.then(function(userRecord) {
-        //THINK: Do we need to check if this username is valid? Currently it is done in the GUI
         var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
-        PB.addAlias(username, username, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+        PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
 
-        // Set this person as the current user
         PB.switchIdentityTo(username)
-
-        // THINK: do we need this saved in the ICX.identityForFile variable? can we generate it at click time? Yes.
-        // var idFile = PB.formatIdentityFile()
-        // ICX.identityForFile = idFile
-
-        // Create identity file
-        // ICX.identityForFile = {
-        //     comment: "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!",
-        //     username: requestedUsername,
-        //     privateRootKey: privateRootKey,
-        //     privateAdminKey: privateAdminKey,
-        //     privateDefaultKey: privateDefaultKey,
-        //     passphrase: passphrase,
-        //     version: "1.0"
-        // }
 
         publishProfilePuff()
         GUIcallback()

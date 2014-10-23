@@ -929,9 +929,9 @@ var ICXSendFile = React.createClass({
                     <ICXFileUploader styling={headerStyle} />
                     <br />
                     Memo: <br />
-                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} />
                     <br />
-                    <ICXNextButton enabled={puffworldprops.ICX.nextStatus} goto={puffworldprops.ICX.nextStep} text={puffworldprops.ICX.nextStepMessage}  key="nextToSendFile" />
+                    <a style={ICX.buttonStyle} onClick={this.handleSendFile} className="icxNextButton icx-fade"> SEND FILE <i className="fa fa-chevron-right small" /></a>
                     <br />
                     <div ref="warning" style={{'display':'none','color':'red'}}className="small-margin-bottom">
                         <span>{polyglot.t("store.warning")}</span>
@@ -941,21 +941,58 @@ var ICXSendFile = React.createClass({
         )
     },
 
-    handleAddCaption: function() {
-        if(!ICX.filelist) return false
-        var caption = this.refs.caption.getDOMNode().value
-        Events.pub('ui/reply', {
-            'reply.caption': caption
+    componentWillMount: function() {
+        Events.pub('ui/event/', {
+            'ICX.nextStatus': false
         })
     },
 
-    componentWillMount: function() {
+    handleSubmitSuccess: function () {
         Events.pub('ui/event/', {
-            'ICX.nextStep': 'send.file.finish',
-            'ICX.nextStepMessage': 'SEND FILE',
-            'ICX.wizard.type': 'file',
-            'ICX.nextStatus': false
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'File sent!',
+            'ICX.thinking': false
         })
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": 'send.file.finish'})
+    },
+
+    handleSubmitError: function (err) {
+        ICX.errors = err.message
+        Events.pub('ui/event', {
+            'icx.errorMessage': true,
+            'ICX.thinking': false
+        })
+    },
+
+    handleSendFile: function () {
+
+        if(!ICX.filelist) return false
+
+        // Set information for this send
+        var toUser = puffworldprops.ICX.toUser
+        var type = 'file'
+        var content = ICX.filelist[0]
+        var parents = []
+        var metadata = {}
+        metadata.routes = [toUser]
+        metadata.filename = content.name
+        metadata.caption = this.refs.caption.getDOMNode().value
+        var privateEnvelopeAlias = ''
+        var self = this
+
+        Events.pub('ui/event', {
+            'ICX.thinking': true
+        })
+
+        ICXAddPost(toUser, type, parents, ICX.fileprom, metadata, privateEnvelopeAlias, function (err) {
+            if (!err) {
+                self.handleSubmitSuccess()
+            } else {
+                self.handleSubmitError(err)
+            }
+        })
+
+        return false
     }
 })
 
@@ -989,57 +1026,11 @@ var ICXSendFileFinish = React.createClass({
     },
 
     componentWillMount: function () {
-        Events.pub('ui/event/', {
-            'ICX.messageSent': false,
-            'ICX.successMessage': ''
-        })
-        //start thinking
-        Events.pub('ui/thinking', {
-            'ICX.thinking': true
-        })
-    },
 
-    handleSubmitSuccess: function () {
-        Events.pub('ui/event/', {
-            'ICX.messageSent': true,
-            'ICX.successMessage': 'File sent!',
-            'ICX.thinking': false,
-            'reply.caption': ''
-        })
-    },
-
-    handleSubmitError: function (err) {
-        ICX.errors = err.message
-        Events.pub('ui/event', {
-            'icx.errorMessage': true,
-            'ICX.thinking': false,
-            'reply.caption': ''
-        })
     },
 
     componentDidMount: function () {
 
-        // Set information for this send
-        var toUser = puffworldprops.ICX.toUser
-        var type = 'file'
-        var content = ICX.filelist[0]
-        var parents = []
-        var metadata = {}
-        metadata.routes = [toUser]
-        metadata.filename = content.name
-        metadata.caption = puffworldprops.reply.caption
-        var privateEnvelopeAlias = ''
-        var self = this
-
-        ICXAddPost(toUser, type, parents, ICX.fileprom, metadata, privateEnvelopeAlias, function (err) {
-            if (!err) {
-                self.handleSubmitSuccess()
-            } else {
-                self.handleSubmitError(err)
-            }
-        })
-
-        return false
     }
 })
 

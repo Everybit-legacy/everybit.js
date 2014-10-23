@@ -149,8 +149,7 @@ puffworldprops = {
         state: {},
         privacy: false,
         type: false,
-        replyType: 'message',
-        caption: ''
+        replyType: 'message'
     },
 
     raw: {

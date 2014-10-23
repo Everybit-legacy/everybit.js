@@ -484,7 +484,7 @@ var ICXInlineReply = React.createClass({
             var file = ICX.filelist[0]
             var content = ICX.fileprom
             metadata.filename = file.name
-            metadata.caption = puffworldprops.reply.caption
+            metadata.caption = this.refs.caption.getDOMNode().value
         }
 
         if(!content || content.length < 1) {
@@ -503,9 +503,6 @@ var ICXInlineReply = React.createClass({
 
 	handleSubmitSuccess: function () {
         Events.pub('ui/thinking', { 'ICX.thinking': false })
-        Events.pub('ui/reply', {
-            'reply.caption': ''
-        })
         this.handleCleanup()
     },
 
@@ -517,17 +514,6 @@ var ICXInlineReply = React.createClass({
     },
 
 	handleCleanup: function() {
-		/*
-        this.refs["replyBox"+this.props.puff.sig].getDOMNode().style.display = "none"
-		this.refs.messageText.getDOMNode().value = ''
-
-		return Events.pub('ui/reply', {
-			'reply.parents': [],
-            'reply.isReply': false,
-            'reply.replyTo': ''
-		})
-		*/
-
         var activeReplies = puffworldprops.view.icx.activeReplies
 
         // Remove this one for things we are replying to
@@ -540,8 +526,7 @@ var ICXInlineReply = React.createClass({
         ICX.cachedReplies[sig] = ""
 
         Events.pub('ui/reply/activate', {
-            'view.icx.activeReplies': activeReplies,
-            'reply.caption': ''
+            'view.icx.activeReplies': activeReplies
         })
 	},
 
@@ -549,15 +534,6 @@ var ICXInlineReply = React.createClass({
         if (e.keyCode == 13 && (e.metaKey || e.ctrlKey)) {
             this.handleReply()
         }
-    },
-
-    handleAddCaption: function() {
-        if(!ICX.filelist) return false
-
-        var caption = this.refs.caption.getDOMNode().value
-        Events.pub('ui/reply', {
-            'reply.caption': caption
-        })
     },
 
     handleToggleReplyOption: function(event) {
@@ -613,7 +589,7 @@ var ICXInlineReply = React.createClass({
                 <div className="replyFile" style={replyFileStyle}>
                     <ICXFileUploader styling={headerStyle} />
                     <br />Memo: <br />
-                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                    <input type="text" ref="caption" style={{ 'width': '80%' }} />
                 </div>
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
                 <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>

@@ -566,6 +566,37 @@ var ICXInvite = React.createClass({
     },
 
     handleSendToEmail: function() {
+        if( !this.handleVerifyQuestion() || !this.handleVerifyAnswer() ) {
+            return false
+        }
+
+        toggleSpinner()
+        var prompt = this.refs.question.getDOMNode().value
+        var passphrase = this.refs.passphrase.getDOMNode().value
+
+        try {
+            inviteICXUser(passphrase, function(toUser) {
+                toggleSpinner()
+                return Events.pub('ui/icx/screen', {
+                    "view.icx.screen": puffworldprops.ICX.wizard.type,
+                    'ICX.wizard.invitedEmail': puffworldprops.ICX.toUser,
+                    'ICX.wizard.prompt': prompt,
+                    'ICX.toUser': toUser
+                })
+            })
+        }
+        catch(err) {
+            toggleSpinner()
+            ICX.Errors = "ERROR: "+err
+            return Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+
+        }
+
+    }
+
+    /*
+    handleSendToEmail: function() {
         // Start the spinner, generate a new username,
         // Send them to next step, message or file send page.
         // TODO: Check for blank, or too short values in question and answer
@@ -581,7 +612,7 @@ var ICXInvite = React.createClass({
         var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
         var animalColor = PB.Crypto.getRandomItem(ICX.colornames)
 
-        var requestedUsername = "icx." + adjective+animalColor+animalName
+        var requestedUsername = adjective+animalColor+animalName
 
         var prompt = this.refs.question.getDOMNode().value
         var passphrase = this.refs.passphrase.getDOMNode().value
@@ -641,7 +672,7 @@ var ICXInvite = React.createClass({
         // Redirect to the next page in process.
 
         // On final confirm page, put the email in parenthesis next to the username in To: Same if file
-    }
+    }*/
 })
 
 var ICXSend = React.createClass({

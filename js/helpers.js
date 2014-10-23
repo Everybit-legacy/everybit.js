@@ -8,6 +8,60 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+function generateRandomUsername() {
+    var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
+    var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
+    var animalColor = PB.Crypto.getRandomItem(ICX.colornames)
+
+    return adjective+animalColor+animalName
+}
+
+//needs to be refactored still
+function inviteICXUser(passphrase, GUIcallback) {
+    // Start the spinner, generate a new username,
+    // Send them to next step, message or file send page.
+    // TODO: Check for blank, or too short values in question and answer
+
+    var requestedUsername = generateRandomUsername()
+
+    // Convert passphrase to key
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+    var rootKeyPublic     = publicKey
+    var adminKeyPublic    = publicKey
+    var defaultKeyPublic  = publicKey
+
+    var privateRootKey    = privateKey
+    var privateAdminKey   = privateKey
+    var privateDefaultKey = privateKey
+
+    var self = this
+
+    var payload = {
+        requestedUsername: requestedUsername,
+        rootKey: rootKeyPublic,
+        adminKey: adminKeyPublic,
+        defaultKey: defaultKeyPublic
+    }
+
+    var routes = []
+    var type = 'updateUserRecord'
+    var content = 'requestUsername'
+
+    var puff = PB.buildPuff(requestedUsername, privateAdminKey, routes, type, content, payload)
+
+
+    // SUBMIT REQUEST
+    var prom = PB.Net.updateUserRecord(puff)
+    prom.then(function() {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(requestedUsername, requestedUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, {passphrase: passphrase})
+
+        GUIcallback(requestedUsername)
+    })
+
+}
 
 function createICXUser(username, passphrase, GUIcallback) {
     // Convert passphrase to key

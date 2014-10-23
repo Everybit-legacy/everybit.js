@@ -654,6 +654,120 @@ function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, 
     })
 }
 
+function ICXAuthenticateIdFile(content, callback) {
+    // Try and parse, if can't return error
+    // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
+    var identityObj = PB.parseJSON(content)
+    var username = identityObj.username
+    var aliases = identityObj.aliases
+
+    if(!identityObj || !username || !aliases) {
+        callback("Corrupt Identity File", 'Incorrect')
+    }
+
+    Events.pub('ui/thinking', { 'ICX.thinking': true })
+    
+    var preferences = identityObj.preferences || {}
+    
+    // load complete identity
+    PB.addIdentity(username, aliases, preferences)
+    
+    // then check against the up-to-date user record
+    var prom = PB.getUserRecordNoCache(username)
+
+    prom.then(function (userInfo) {
+        if(!userInfo || userInfo.username != username) {
+            PB.removeIdentity(username)
+            ICX.errors = "ERROR: Username not found in public record."
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+            return PB.onError('Username not found in public record')
+        }
+            
+        PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
+            var identity = identities[username]
+            if(!identity || !identity.primary) {
+                PB.removeIdentity(username)
+                ICX.errors = "ERROR: Identity not properly loaded."
+                Events.pub('ui/thinking', { 'ICX.thinking': false })
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                return PB.onError('Identity not properly loaded')
+            }
+            
+            var primary = identity.primary
+            
+            if(primary.privateDefaultKey) {
+                if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
+                    PB.removeIdentity(username)
+                    ICX.errors = "ERROR: The identity file does not contain a valid public user record."
+                    Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+                    Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
+                    return PB.onError('Private default key in identity file does not match public user record')
+                }
+            }
+            // TODO: add public-private sanity check for root and admin keys
+            
+            Events.pub('ui/thinking', { 'ICX.thinking': false })
+            PB.switchIdentityTo(username)
+            callback()
+        })
+    })
+    .catch(function (err) {
+        callback(err.message, 'Not found')
+
+        Events.pub('ui/thinking', { 'ICX.thinking': false })
+        PB.removeIdentity(username)
+        return PB.throwError('File-based login failed')
+    })
+}
+
+function ICXAuthenticateUser (username, passphrase, callback) {
+    // Convert passphrase to private key
+    var privateKey = passphraseToPrivateKeyWif(passphrase)
+
+    // Convert private key to public key
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+    if (!publicKey) {
+        callback('ERROR: Failed to generate public key', 'Bad Key')
+    }
+
+    var prom = PB.getUserRecordNoCache(username)
+
+    prom.then(function (userInfo) {
+        var goodKeys = {}
+    
+        if (publicKey == userInfo.defaultKey)
+            goodKeys.privateDefaultKey = privateKey
+    
+        if (publicKey == userInfo.adminKey) 
+            goodKeys.privateAdminKey = privateKey                
+    
+        if (publicKey == userInfo.rootKey)
+            goodKeys.privateRootKey = privateKey
+        
+        if(!Object.keys(goodKeys).length) {
+            callback('ERROR: Invalid passphrase', 'Incorrect')
+            return PB.onError('Passphrase did not match any keys in the user record')
+        } 
+
+        // At least one good key: make current user and add passphrase to wardrobe
+        var capa = username.capa || 1
+        var secrets = {passphrase: passphrase}
+        // TODO: pull this out of GUI and push it down a level
+        PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
+        
+        PB.switchIdentityTo(username)
+
+        callback()
+        return false
+
+    }).catch(function (err) {
+        callback(err.message, 'Not found')
+        return PB.onError('Passphrase-based login failed')
+    })
+}
+
 
 /////////////////////////////////////////////
 // THINGS FROM MAIN

@@ -1748,112 +1748,24 @@ var ICXLogin = React.createClass({
         
         fileprom = PBFiles.openTextFile(ICX.eventElement)
         fileprom.then(function(content) {
-
-            // TODO: move all of this out of the GUI
-
-            // Try and parse, if can't return error
-            // NOTE: don't inline try/catch, it kills browser optimizations. use PB.parseJSON &c instead.
-            var identityObj = PB.parseJSON(content)
-            var username = identityObj.username
-            var aliases = identityObj.aliases
-
-            if(!identityObj || !username || !aliases) {
-                ICX.errors = "ERROR: Corrupt identity file."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})                
-            }
-
-            if(!identityObj) {
-                // TODO: END SPINNER
-                ICX.errors = "ERROR: Failed to read passphrase file. Your file may be corrupt or outdated."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                return PB.onError('Failed to parse identity file content')
-
-            }
-          
-            if(!username) {
-                // TODO: END SPINNER
-                ICX.errors = "ERROR: Username missing from passphrase file."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                return PB.onError('No username in identity file')
-            }
-            
-            if(!aliases) {
-                // TODO: END SPINNER
-                ICX.errors = "ERROR: Failed to read passphrase file. Your file may be corrupt or outdated."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                return PB.onError('No aliases in identity file')
-            }
-
-            Events.pub('ui/thinking', { 'ICX.thinking': true })
-            
-            var preferences = identityObj.preferences || {}
-            
-            // load complete identity
-            PB.addIdentity(username, aliases, preferences)
-            
-            // then check against the up-to-date user record
-            var prom = PB.getUserRecordNoCache(username)
-
-            prom.then(function (userInfo) {
-                if(!userInfo || userInfo.username != username) {
-                    PB.removeIdentity(username)
-                    ICX.errors = "ERROR: Username not found in public record."
-                    Events.pub('ui/thinking', { 'ICX.thinking': false })
+            ICXAuthenticateIdFile(content, function (err, status) {
+                if(!err) {
+                    Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
+                } else {
+                    ICX.errors = err
+                    Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
                     Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                    return PB.onError('Username not found in public record')
+
+                    return false
                 }
-                    
-                PB.useSecureInfo( function(identities, currentUsername, currentPrivateRootKey, currentPrivateAdminKey, currentPrivateDefaultKey) {
-                    var identity = identities[username]
-                    if(!identity || !identity.primary) {
-                        PB.removeIdentity(username)
-                        ICX.errors = "ERROR: Identity not properly loaded."
-                        Events.pub('ui/thinking', { 'ICX.thinking': false })
-                        Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                        return PB.onError('Identity not properly loaded')
-                    }
-                    
-                    var primary = identity.primary
-                    
-                    if(primary.privateDefaultKey) {
-                        if(userInfo.defaultKey != PB.Crypto.privateToPublic(primary.privateDefaultKey)) {
-                            PB.removeIdentity(username)
-                            ICX.errors = "ERROR: The identity file does not contain a valid public user record."
-                            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                            Events.pub('ui/thinking', { 'ICX.thinking': false })
-                            Events.pub('ui/event', { 'ICX.defaultKey':'Incorrect key' })
-                            return PB.onError('Private default key in identity file does not match public user record')
-                        }
-                    }
-                    // TODO: add public-private sanity check for root and admin keys
-                    
-                    Events.pub('ui/thinking', { 'ICX.thinking': false })
-                    PB.switchIdentityTo(username)
-                    return Events.pub('/ui/icx/screen', {"view.icx.screen": 'dashboard'})
-                })
             })
-            .catch(function (err) {
-                Events.pub('ui/event', {
-                    'ICX.defaultKey':'Not found'
-                })
-                ICX.errors = "ERROR: Key not found. Your keys may be outdated or you may not be connected to the network."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-
-                ICX.errors = "NETWORK ERROR: login failed."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-
-                Events.pub('ui/thinking', { 'ICX.thinking': false })
-                PB.removeIdentity(username)
-                return PB.throwError('File-based login failed')
-            })
-            
         })
 
         return false
     },
 
     handleLogin: function() {
-        // TODO: move this out of the GUI
+        // TODO: better erro handling
         
         // First convert to private key, then to public, then verify against DHT
         var self = this
@@ -1878,71 +1790,26 @@ var ICXLogin = React.createClass({
             return false
         }
 
-        // Convert passphrase to private key
-        var privateKey = passphraseToPrivateKeyWif(passphrase)
+        ICXAuthenticateUser(username, passphrase, function (err, status) {
+            if(!err) {
+                Events.pub('ui/event', {
+                    'ICX.defaultKey': true,
+                    'ICX.usernameStatus': true
+                })
+                if(puffworldprops.view.icx.firstLogin) {
+                    return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
+                }
 
-        // Convert private key to public key
-        var publicKey = PB.Crypto.privateToPublic(privateKey)
-        if (!publicKey) {
-            Events.pub('ui/event', {
-                'ICX.defaultKey': 'Bad Key'
-            })
-            ICX.errors = "ERROR: Failed to generate public key."
-            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-            return false
-        }
-
-        var prom = PB.getUserRecordNoCache(username)
-
-        prom.then(function (userInfo) {
-            var goodKeys = {}
-        
-            if (publicKey == userInfo.defaultKey)
-                goodKeys.privateDefaultKey = privateKey
-        
-            if (publicKey == userInfo.adminKey) 
-                goodKeys.privateAdminKey = privateKey                
-        
-            if (publicKey == userInfo.rootKey)
-                goodKeys.privateRootKey = privateKey
-            
-            if(!Object.keys(goodKeys).length) {
-                ICX.errors = "ERROR: Invalid passphrase."
-                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-                Events.pub('ui/event', { 'ICX.defaultKey': 'Incorrect' })
-                return PB.onError('Passphrase did not match any keys in the user record')
-            } 
-            
-            Events.pub('ui/event', {
-                'ICX.defaultKey': true,
-                'ICX.usernameStatus': true
-            })
-
-            // At least one good key: make current user and add passphrase to wardrobe
-            var capa = username.capa || 1
-            var secrets = {passphrase: passphrase}
-            // TODO: pull this out of GUI and push it down a level
-            PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
-            
-            PB.switchIdentityTo(username)
-
-            if(puffworldprops.view.icx.firstLogin) {
-                return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
-            }
-
-            Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
-
-            return false
-        }).catch(function (err) {
-            if (err.message == "Network Error") {
-                ICX.errors = "ERROR: Login failed. Check network connectivity."
+                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
             } else {
-                ICX.errors = "ERROR: Login failed. Your username / passphrase combination may be invalid or you may not be connected to the network."
+                ICX.errors = err
+                Events.pub('ui/event', { 'ICX.defaultKey': status})
+                Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+
+                return false
             }
-            Events.pub('/ui/icx/error', {"icx.errorMessage": true})
-            Events.pub('ui/event', { 'ICX.defaultKey': 'Not found' })
-            return PB.onError('Passphrase-based login failed')
         })
+
         return false
     }
 })

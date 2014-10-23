@@ -255,14 +255,11 @@ var ICXWorld = React.createClass({
     }
 })
 
-// <ICXFooter />
-
-var ICXInit = React.createClass({
+var ICXInit = React.createClass({ /* Good */
     render: function () {
         return <span></span>
     }
 })
-
 
 var ICXStore = React.createClass({
     render: function () {
@@ -474,7 +471,6 @@ var ICXStoreFinish = React.createClass({
         return false
     }
 })
-
 
 var ICXInvite = React.createClass({
     render: function () {
@@ -961,9 +957,7 @@ var ICXSendFile = React.createClass({
             'ICX.nextStatus': false
         })
     }
-
 })
-
 
 var ICXSendFileFinish = React.createClass({
 
@@ -1116,8 +1110,7 @@ var ICXSendMessage = React.createClass({
             })
         }
     }
-});
-
+})
 
 var ICXSendMessageFinish = React.createClass({
 
@@ -1234,7 +1227,6 @@ var ICXNotifyEmail = React.createClass({
         )
     }
 })
-
 
 var ICXNewUser = React.createClass({
     mixins: [TooltipMixin],
@@ -1955,7 +1947,6 @@ var ICXLogin = React.createClass({
     }
 })
 
-
 var ICXDashboard = React.createClass({
     render: function () {
 
@@ -2129,7 +2120,6 @@ var ICXDashboard = React.createClass({
     }
 })
 
-
 var ICXChangePassphrase = React.createClass({
     render: function () {
 
@@ -2237,11 +2227,9 @@ var ICXChangePassphrase = React.createClass({
             PB.onError('Failed to complete passphrase change', err)
         })
     }
-
 })
 
-
-var ICXChangePassphraseFinish = React.createClass({
+var ICXChangePassphraseFinish = React.createClass({ /* Good */
     render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
         var headerStyle = ICX.calculated.pageHeaderTextStyle
@@ -2265,10 +2253,9 @@ var ICXChangePassphraseFinish = React.createClass({
     componentDidMount: function() {
         // TODO clear firstLogin from puffworldprops.view.icx
     }
-
 })
 
-var ICXTableView = React.createClass({
+var ICXTableView = React.createClass({ /* Good */
 
     render: function () {
 
@@ -2282,7 +2269,7 @@ var ICXTableView = React.createClass({
     }
 })
 
-var ICXLearn = React.createClass({
+var ICXLearn = React.createClass({ /* Good */
 
     render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -2322,7 +2309,7 @@ var ICXLearn = React.createClass({
     }
 })
 
-var ICXIndepth = React.createClass({
+var ICXIndepth = React.createClass({ /* Good */
 
     render: function () {
 
@@ -2358,8 +2345,7 @@ var ICXIndepth = React.createClass({
     }
 })
 
-
-var ICXAbout = React.createClass({
+var ICXAbout = React.createClass({ /* Good */
 
     render: function () {
 
@@ -2411,12 +2397,11 @@ var ICXAbout = React.createClass({
             "view.icx.screen": 'send',
             "ICX.toUser": username,
             "view.icx.toUser":username
-        });
+        })
     }
-
 })
 
-var ICXHome = React.createClass({
+var ICXHome = React.createClass({ /* Good */
 
     render: function () {
         return (
@@ -2551,7 +2536,6 @@ var ICXFileConverter = React.createClass({
         ICX.filelist =[]
         ICX.eventElement = false
     }
-
 })
 
 // SUBCOMPONENTS
@@ -2586,7 +2570,6 @@ var ICXSpinner = React.createClass({
         }
     }
 })
-
 
 var ICXError = React.createClass({
     render: function () {
@@ -2641,7 +2624,7 @@ var ICXError = React.createClass({
     }
 })
 
-var ICXLogo = React.createClass({
+var ICXLogo = React.createClass({ /* Good */
     handleGoHome: function() {
         Events.pub('/ui/icx/error', {"icx.errorMessage": false})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": 'home'})
@@ -2694,10 +2677,9 @@ var ICXLogo = React.createClass({
             )
         }
     }
+})
 
-});
-
-var ICXLinks = React.createClass({
+var ICXLinks = React.createClass({ /* Good */
 
     render: function () {
         var w = window.innerWidth
@@ -2718,7 +2700,7 @@ var ICXLinks = React.createClass({
     }
 })
 
-var ICXButtonLink = React.createClass({
+var ICXButtonLink = React.createClass({  /* Good */
     handleGoTo: function(screen) {
         if(!PB.getCurrentUsername()) {
             if (screen == 'store' || screen == 'send') {
@@ -2807,9 +2789,9 @@ var ICXButtonLink = React.createClass({
             </a>
             )
     }
-});
+})
 
-var ICXFooter = React.createClass({
+var ICXFooter = React.createClass({  /* Good */
 
     render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -2838,10 +2820,9 @@ var ICXFooter = React.createClass({
             </div>
         )
     }
-});
+})
 
-
-var ICXUserButton = React.createClass({ 
+var ICXUserButton = React.createClass({  /* Good */
     mixins: [TooltipMixin],
 
     render: function() {
@@ -2923,7 +2904,6 @@ var ICXUserButton = React.createClass({
 
         PB.removeIdentity(userToRemove)
     }
-
 })
 
 var ICXNextButton = React.createClass({  /* good */

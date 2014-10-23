@@ -1469,9 +1469,26 @@ var ICXNotifyEmail = React.createClass({
         var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
         return (
             <span>{polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}:
-            <textarea value={textAreaContent} style={{width: '80%', height: '50%'}}/>
+                <input ref="from" type="text" />
+
+                <a onClick={this.handleSendNotificationEmail}>Send your friend a notification email</a>
+
+
             </span>
         )
+    },
+
+    handleSendNotificationEmail: function() {
+        // To email
+        // Shared question
+        // Sender email
+        var to = puffworldprops.ICX.wizard.invitedEmail
+        var sender = this.refs.from.getDOMNode().value
+        var question = puffworldprops.ICX.wizard.prompt
+        var username = puffworldprops.ICX.toUser
+
+        PB.Net.post('https://i.cx/api/mandrill/', {to: to, sender: sender, question: question, username: username})
+
     }
 })
 

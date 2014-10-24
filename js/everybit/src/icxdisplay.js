@@ -1248,6 +1248,11 @@ var ICXNotifyEmail = React.createClass({
 
         PB.Net.post('https://i.cx/api/mandrill/', {to: to, sender: sender, question: question, username: username})
 
+        return Events.pub('ui/event/', {
+            'ICX.wizard': false,
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'Message sent!'
+        })
     }
 })
 

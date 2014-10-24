@@ -118,9 +118,12 @@ PB.postPrivateMessage = function(content, usernames, type) {
 
 PB.usernamesToUserRecords = function(usernames) {
     //// returns a promise of userRecords. thanks to capa we usually don't need the latest and can use cached versions.
-    if(!usernames || !Array.isArray(usernames) || !usernames.length)
+    if(!usernames || !usernames.length)
         return Promise.resolve([])
     
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
+        
     var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
     
     if (userRecords.length == usernames.length)

@@ -170,9 +170,7 @@ var ICXWorld = React.createClass({
             {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
-            {position: 0, name: 'send.confirm', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'send.file',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFile, backgroundColor: 'rgba('+c2+', '+op2+')'},
-            {position: 0, name: 'send.file.confirm',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileConfirm, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'send.file.finish',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a file', component: ICXSendFileFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'encryptdecrypt',    button: false, color: 'rgba('+c4+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'Encrypt / Decrypt Page', component: ICXFileConverter, backgroundColor: 'rgba('+c4+', '+op2+')'},
             {position: 0, name: 'store.finish', button:false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'Store encrypted files', component: ICXStoreFinish, backgroundColor: 'rgba('+c3+', '+op2+')'},
@@ -261,7 +259,7 @@ var ICXInit = React.createClass({ /* Good */
     }
 })
 
-var ICXStore = React.createClass({
+var ICXStore = React.createClass({ /* Good */
     render: function () {
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -342,7 +340,7 @@ var ICXStore = React.createClass({
     }
 })
 
-var ICXStoreFinish = React.createClass({
+var ICXStoreFinish = React.createClass({ /* Good */
     render: function () {
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -675,7 +673,7 @@ var ICXInvite = React.createClass({
     }*/
 })
 
-var ICXSend = React.createClass({
+var ICXSend = React.createClass({ /* Good */
     mixins: [TooltipMixin],
 
     render: function () {
@@ -858,7 +856,7 @@ var ICXSend = React.createClass({
     }
 })
 
-var ICXFileUploader = React.createClass({
+var ICXFileUploader = React.createClass({ /* Good */
     render: function() {
     var uploadStyle = this.props.styling
     uploadStyle.width = 'auto'
@@ -934,7 +932,7 @@ var ICXFileUploader = React.createClass({
     }
 })
 
-var ICXSendFile = React.createClass({
+var ICXSendFile = React.createClass({ /* Good */
 
     render: function() {
 
@@ -990,7 +988,7 @@ var ICXSendFile = React.createClass({
     }
 })
 
-var ICXSendFileFinish = React.createClass({
+var ICXSendFileFinish = React.createClass({ /* Good */
 
     render: function () {
 
@@ -1074,7 +1072,7 @@ var ICXSendFileFinish = React.createClass({
     }
 })
 
-var ICXSendMessage = React.createClass({
+var ICXSendMessage = React.createClass({ /* Good */
     render: function () {
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -1143,18 +1141,15 @@ var ICXSendMessage = React.createClass({
     }
 })
 
-var ICXSendMessageFinish = React.createClass({
+var ICXSendMessageFinish = React.createClass({ /* Good */
 
     render: function () {
-
-        var successMessage = '';
+        var successMessage = ''
         if(puffworldprops.ICX.wizard && puffworldprops.ICX.wizard.invitedEmail) {
             successMessage = <ICXNotifyEmail />
         } else {
             successMessage = puffworldprops.ICX.successMessage
         }
-
-
 
         var polyglot = Translate.language[puffworldprops.view.language]
 
@@ -1253,9 +1248,27 @@ var ICXNotifyEmail = React.createClass({
         var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
         return (
             <span>{polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}:
-            <textarea value={textAreaContent} style={{width: '80%', height: '50%'}} readOnly/>
+                <input ref="from" type="text" />
+
+                <a onClick={this.handleSendNotificationEmail}>Send your friend a notification email</a>
+
+
+
             </span>
         )
+    },
+
+    handleSendNotificationEmail: function() {
+        // To email
+        // Shared question
+        // Sender email
+        var to = puffworldprops.ICX.wizard.invitedEmail
+        var sender = this.refs.from.getDOMNode().value
+        var question = puffworldprops.ICX.wizard.prompt
+        var username = puffworldprops.ICX.toUser
+
+        PB.Net.post('https://i.cx/api/mandrill/', {to: to, sender: sender, question: question, username: username})
+
     }
 })
 
@@ -1845,7 +1858,7 @@ var ICXLogin = React.createClass({
     }
 })
 
-var ICXDashboard = React.createClass({
+var ICXDashboard = React.createClass({ /* Good */
     render: function () {
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -1856,17 +1869,6 @@ var ICXDashboard = React.createClass({
         var username = PB.getCurrentUsername()
 
         var filename = username + "Identity.json"
-
-        /*
-        <a href="#" >
-         <i className="fa fa-fw fa-file-image-o" />
-         Change your avatar
-         </a>
-         <br />
-         <div>
-         <input type="file" id="imageLoader" name="imageLoader" ref="imageLoader" onChange={this.handleUploadAvatar}/>
-         </div>
-         */
 
         return (
             <div style={{width: '100%', height: '100%'}}>
@@ -1947,47 +1949,14 @@ var ICXDashboard = React.createClass({
             'ICX.wizard': undefined,
             'ICX.nextStatus': false
         })
-
-
-
     },
-
-    handleUploadAvatar: function() {
-        var self   = this
-        var reader = new FileReader()
-
-        reader.onload = function(event){
-            return Events.pub('ui/event', {
-                'profile.avatarUrl': event.target.result
-            })
-        }
-
-        reader.readAsDataURL(this.refs.imageLoader.getDOMNode().files[0])
-        publishProfilePuff()
-
-        return false
-    },
-
-    // Generate download link of file
-    handleGenerateIdentityFile: function() {
-        // ICX.identityForFile = PB.formatIdentityFile() // THINK: do we really need the identityForFile variable? No.
-        return PB.formatIdentityFile()
-    },
-
-    handleAskForUsername: function() {
-        return Events.pub('/ui/icx/screen', {
-            "view.icx.screen": 'send',
-            "view.icx.toUser": 'mattasher'
-        });
-    },
-
 
     handleGoTo: function(screen) {
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen});
     },
 
     handleDownloadIdentityFile: function() {
-        var content = JSON.stringify(this.handleGenerateIdentityFile(),null,'\n')
+        var content = JSON.stringify(PB.formatIdentityFile(),null,'\n')
         var filename = PB.getCurrentUsername() + "Identity.json"
 
         if (getBrowser() == "IE") {
@@ -1997,8 +1966,7 @@ var ICXDashboard = React.createClass({
             fileLink.href = PBFiles.prepBlob(content)
             fileLink.download = filename
             fileLink.click()
-        }
-        
+        } 
     },
 
     handleSignOut: function() {
@@ -2014,11 +1982,11 @@ var ICXDashboard = React.createClass({
 
         PB.removeIdentity(userToRemove)
         Events.pub('user/'+userToRemove+'/remove', {})
-        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto});
+        return Events.pub('/ui/icx/screen', {"view.icx.screen": this.props.goto})
     }
 })
 
-var ICXChangePassphrase = React.createClass({
+var ICXChangePassphrase = React.createClass({ /* Good */
     render: function () {
 
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -2116,7 +2084,7 @@ var ICXChangePassphrase = React.createClass({
         prom.then(function(result) {
             Events.pub('ui/thinking', { 'ICX.thinking': false })
             Events.pub('/ui/icx/error', { "ICX.errorMessage": false })
-            Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'});
+            Events.pub('/ui/icx/screen', {"view.icx.screen": 'changepassphrase.finish'})
         })
         .catch(function (err) {
             ICX.errors = "FAILED " + err
@@ -2314,7 +2282,7 @@ var ICXHome = React.createClass({ /* Good */
     }
 })
 
-var ICXFileConverter = React.createClass({
+var ICXFileConverter = React.createClass({ /* Good */
 
     render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
@@ -2885,759 +2853,3 @@ var ICXCheckmark = React.createClass({ /* good */
 
 
 /*******************************************************************************************/
-
-
-
-var ICXNewUserFinish = React.createClass({
-    render: function() {
-        return <span>User created</span>
-    }
-})
-
-var ICXSendFileConfirm = React.createClass({
-    render: function () {
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        var filelist = ICX.filelist
-        var file     = filelist[0]
-        var filename = file.name
-        var caption  = puffworldprops.reply.caption
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_file_conf")}</div>
-                <br />
-                <div className="contentWindow">
-                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser}<br />
-                    <b>{polyglot.t("send.file")}</b> {filename}
-                    <br />{caption}
-                    <br /><br />
-                    <ICXNextButton enabled={true} goto='send.file.finish' text='SEND NOW' />
-                </div>
-            </div>
-        )
-    }
-})
-
-var ICXSendMessageConfirm = React.createClass({
-    render: function () {
-
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var headerStyle = ICX.calculated.pageHeaderTextStyle
-        headerStyle.backgroundColor = ICX.currScreenInfo.color
-
-        var username = PB.getCurrentUsername()
-
-        var sendToEmail = ''
-        if(puffworldprops.ICX.wizard.invitedEmail) {
-            sendToEmail = '(' + puffworldprops.ICX.wizard.invitedEmail + ')'
-        }
-
-        return (
-            <div style={{width: '100%', height: '100%'}}>
-                <div style={headerStyle}>{polyglot.t("header.send_msg_conf")}</div>
-                <br />
-                <div className="contentWindow">
-                    <b>{polyglot.t("send.from")}</b> {username}<br/>
-                    <b>{polyglot.t("send.to")}</b> {puffworldprops.ICX.toUser} {sendToEmail}<br />
-                    <b>MESSAGE:</b><br />
-                    {ICX.messageText}
-                    <br /><br />
-                    <ICXNextButton enabled={true} goto='send.finish' text='SEND NOW' />
-                </div>
-            </div>
-        )
-    }
-})
-
-
-
-var PuffBarShortcutMixin = {
-    // call methods from PuffBar of cursor puff directly for shortcuts
-    componentDidMount: function() {
-        // shift+f bomb the cursor puff
-        Mousetrap.bind(['shift+f'], function(){
-            var cursor = puffworldprops.view.cursor
-            var bar = this.refs[cursor].refs['bar']
-            if (bar.refs.flag)
-                bar.refs.flag.handleFlagRequest()
-        }.bind(this))
-
-        // shift+i toggle the infobar for the cursored puff only
-        Mousetrap.bind(['shift+i'], function(){
-            var cursor = puffworldprops.view.cursor
-            var bar = this.refs[cursor].refs['bar']
-            var author = this.refs[cursor].refs['author']
-            var className = ' ' + bar.getDOMNode().className + ' '
-            if (className.indexOf(' hidden ') == -1) {
-                bar.getDOMNode().className += ' hidden'
-                author.getDOMNode().className += ' hidden'
-            } else {
-                bar.getDOMNode().className = className.replace(' hidden ', '')
-                var authorClassName = ' ' + author.getDOMNode().className + ' '
-                author.getDOMNode().className = authorClassName.replace(' hidden ', '')
-            }
-        }.bind(this))
-
-        // r replies to the cursored puff
-        Mousetrap.bind('r', function() {
-            // if (puffworldprops.reply.preview) return false
-
-            var cursor = puffworldprops.view.cursor
-            var bar = this.refs[cursor].refs['bar']
-            if (bar.refs.reply) {
-                bar.refs.reply.handleClick()
-            }
-            return false
-        }.bind(this))
-    }
-}
-
-var ViewKeybindingsMixin = {
-    componentDidMount: function() {
-
-        // n shows new puff form
-        Mousetrap.bind('n', function() {
-            // if (puffworldprops.reply.preview) return false
-
-            var menu = Boron.shallow_copy(puffworlddefaults.menu)
-            menu.show = true
-            menu.section = 'publish'
-
-            return Events.pub('ui/reply/open', { 'clusters.publish': true
-                , 'menu': menu
-            })
-        }.bind(this))
-
-        // a toggles animation
-        Mousetrap.bind('a', function() {
-            return Events.pub( 'ui/animation/toggle',
-                { 'view.animation': !this.props.view.animation })
-        }.bind(this))
-
-        // i toggles info boxes
-        Mousetrap.bind('i', function() {
-            return Events.pub( 'ui/view/showinfo/toggle',
-                { 'view.showinfo': !this.props.view.showinfo })
-        }.bind(this))
-
-        // m toggles menu show
-        Mousetrap.bind('m', function() {
-            return Events.pub('ui/menu/toggle',
-                {'menu.show': !puffworldprops.menu.show})
-        }.bind(this))
-
-        // k go to keyboard shortcut
-        Mousetrap.bind('k', function() {
-            var polyglot = Translate.language[puffworldprops.view.language]
-            Events.pub('ui/view/rows/1', {'view.rows': 1})
-            showPuff(polyglot.t("puff.shortcut"))
-            return false
-        }.bind(this))
-
-
-        // l shows latest puffs
-        Mousetrap.bind('l', function() {
-            if(puffworldprops.view.rows < 2)
-                var showRows = puffworlddefaults.view.rows
-            else
-                var showRows = puffworldprops.view.rows
-
-            return Events.pub('ui/show/latest', { 'view.mode': 'list'
-                , 'view.rows': showRows
-                , 'view.filters': {}
-                , 'view.query': puffworlddefaults.view.query
-                , 'menu': puffworlddefaults.menu})
-        }.bind(this))
-
-        // 1-9 controls number of rows
-        Mousetrap.bind(['1','2','3','4','5','6','7','8','9'], function(e) {
-            return Events.pub('ui/view/rows/set', {'view.rows': 1*String.fromCharCode(e.which)})
-        }.bind(this))
-
-        // Go with wide aspect ratio
-        Mousetrap.bind('w', function(e) {
-            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1.618})
-        }.bind(this))
-
-        // Go with tall aspect ratio
-        Mousetrap.bind('t', function(e) {
-            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 0.618})
-        }.bind(this))
-
-        // Go square
-        Mousetrap.bind('s', function(e) {
-            return Events.pub('ui/view/boxRatio/set', {'view.boxRatio': 1})
-        }.bind(this))
-
-        // spacebar toggles arrow display
-        Mousetrap.bind('space', function(e) {
-            return Events.pub( 'ui/relationships/toggle',
-                { 'view.arrows': !this.props.view.arrows })
-        }.bind(this))
-
-        // escape closes expand, else closes menu, else set cursor back to default (topleft for list mode, or focused puff for focus mode)
-        //// NOT removes cursor, else pops up 'nothing to close' alert since we are setting the cursor to a default position when it is false
-        Mousetrap.bind('esc', function(e) {
-            if(puffworldprops.menu.popout) {
-                var section = puffworldprops.menu.popout
-                return Events.pub('ui/close-popout', {'menu.popout': false,
-                    'menu.show': true,
-                    'menu.section': section})
-
-            }
-
-            if(puffworldprops.slider.show)
-                return Events.pub('ui/slider/close', {'slider.show': false})
-
-            if(puffworldprops.menu.show)
-                return Events.pub('ui/menu/close', {'menu.show': false})
-
-            /*if(puffworldprops.reply.expand)
-             return Events.pub('ui/expand/close', {'reply': {expand: false, parents: []}})*/
-
-            if(puffworldprops.view.cursor) {
-                var cursor = document.getElementById(puffworldprops.view.cursor)
-                cursor.className = cursor.className.replace(' cursor', '')
-                return Events.pub('ui/menu/close', {'view.cursor': false})
-            }
-
-            // alert("I'm afraid there's nothing left to close!")
-        }.bind(this))
-
-        // cmd-enter submits the reply box
-        Mousetrap.bind(['command+enter','ctrl+enter'], function(e) {
-            if(!(puffworldprops.menu.popout == 'publish' ||
-                (puffworldprops.menu.show && puffworldprops.menu.section == 'publish'))) {
-                return true
-            }
-
-            if(typeof globalReplyFormSubmitArg == 'function')
-                globalReplyFormSubmitArg()
-        }.bind(this))
-
-
-        // we have to customize stopCallback to make cmd-enter work inside reply boxes
-        Mousetrap.stopCallback = function(e, element, combo) {
-
-            // if the element has the class "mousetrap" AND the combo is command+enter or esc, then no need to stop
-            if(~['command+enter', 'esc','ctrl+enter'].indexOf(combo) && (' ' + element.className + ' ').indexOf(' mousetrap ') > -1) {
-                return false
-            }
-
-            // stop for input, select, and textarea
-            return element.tagName == 'INPUT' || element.tagName == 'SELECT' || element.tagName == 'TEXTAREA' || (element.contentEditable && element.contentEditable == 'true')
-        }
-    },
-    componentWillUnmount: function() {
-        Mousetrap.reset()
-    }
-}
-
-var CursorBindingsMixin = {
-    gotoNext: function(current, dir) {
-        var next = Gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
-        if (next) {
-            Events.pub('ui/view/cursor/set', {'view.cursor': next.sig})
-            return true
-        }
-        return false
-    },
-    componentDidMount: function() {
-
-        var arrowToDir = { 37: 'left'
-            , 38: 'up'
-            , 39: 'right'
-            , 40: 'down' }
-
-        // arrows move the selection cursor
-        // THINK: wasd?
-        Mousetrap.bind(['left', 'up', 'right', 'down'], function(e) {
-            var current = this.props.view.cursor
-            var dir = arrowToDir[e.which]
-
-            if (!current)                              // default cursors handled elsewhere (there should always
-                return false                           // be an active cursor, if we are in a cursorable mode)
-
-            var nextFn = this.gotoNext.bind(this, current, dir)
-            var success = nextFn()
-            if (!success){
-                if (e.which == 38 && this.refs.scrollup) {
-                    this.refs.scrollup.handleScroll()
-                    var success = false
-                    var readyStateCheckInterval = setInterval(function() {
-                        success = nextFn()
-                        if (success) {
-                            clearInterval(readyStateCheckInterval)
-                        }
-                    }, 25)
-                }
-                if (e.which == 40 && this.refs.scrolldown) {
-                    this.refs.scrolldown.handleScroll()
-                    // may need a limit on this
-                    var limit = 40
-                    var success = false
-                    var readyStateCheckInterval = setInterval(function() {
-                        success = nextFn()
-                        limit--
-                        if (success || limit < 0) {
-                            clearInterval(readyStateCheckInterval)
-                        }
-                    }, 25)
-                }
-            }
-
-            return false
-        }.bind(this))
-
-        // enter focuses the selected puff
-        Mousetrap.bind('enter', function(e) {
-            // don't refocus if there's nothing selected
-            if (!this.props.view.cursor)
-                return false
-
-            // don't refocus if we're selecting the focused puff
-            if (this.props.view.cursor == this.props.view.query.focus)
-                return false
-
-            showPuff(this.props.view.cursor)
-            return false
-        }.bind(this))
-
-
-    },
-    componentWillUnmount: function() {
-        Mousetrap.reset()
-    },
-    cursorPower: function(puffs, defaultPuff) {
-        // set the cursor to default when cursor puff is outside the view or cursor is set to false
-        var cursor = this.props.view.cursor
-
-        if(cursor) {
-            var oneOfThesePuffsIsSelected = puffs.filter(function(puff) {return puff.sig == cursor}).length
-            if(oneOfThesePuffsIsSelected) {
-                return false
-            }
-        }
-
-        var newCursor = (defaultPuff||puffs[0]||{}).sig
-
-        if(newCursor) {  // do this manually so auto-cursoring doesn't gum up history
-            update_puffworldprops({'view.cursor': newCursor})
-            updateUI()
-        }
-    }
-}
-
-var GridLayoutMixin = {
-    getScreenCoords: function() {
-        if(CONFIG.menuRight) {
-            var margin = CONFIG.rightMargin
-        } else {
-            var margin = CONFIG.leftMargin
-        }
-
-        return { width:  window.innerWidth - margin
-            , height: window.innerHeight - CONFIG.verticalPadding
-        }
-    },
-    getDimensions: function() {
-        var rows = ~~this.props.view.rows || 4
-        var cols = this.getCols(rows)
-        return { rows: rows
-            , cols: cols
-        }
-    },
-    getCols: function(rows) {
-        var screencoords = this.getScreenCoords()
-        var boxHeight = (screencoords.height / rows)
-
-
-        var boxWidth = this.props.view.boxRatio * boxHeight
-        // Make sure this is not too big for page!
-        if (boxWidth > screencoords.width) {
-            boxWidth = screencoords.width
-        }
-
-        var nCol = Math.floor(screencoords.width/boxWidth)
-
-        return nCol
-
-    },
-    getGridBox: function(rows) {
-        var screencoords = this.getScreenCoords()
-        var boxHeight = screencoords.height / rows
-
-        // How many cols fit in this page
-        var nCol = this.getCols(rows)
-        var w = nCol * this.props.view.boxRatio* boxHeight
-        if(w > screencoords.width) {
-            w = screencoords.width
-        }
-
-        var myGridbox = Gridbox.getGridCoordBox(rows, nCol, w, screencoords.height)
-
-        // this.setState({gridBox: myGridbox}) // ugh state but whaddyagonnado
-        globalGridBox = myGridbox // ugh globals but whaddyagonnado
-        return myGridbox
-    },
-    getStandardBox: function(rows, cols) {
-        var gridbox = this.getGridBox(rows)
-        var arrows  = this.props.view.arrows
-        return this.applySizes(1, 1, gridbox.add, {arrows: arrows})
-    },
-    applySizes: function(width, height, gridCoords, bonus, miny, minx, maxy, maxx) {
-        return function(className) {
-            return function(puff) {
-                return Boron.extend((bonus || {}), gridCoords(width, height, miny, minx, maxy, maxx, puff), // THINK: puff gc ok?
-                    {puff: puff, className: className}) } }
-    },
-    getPuffBoxList: function(puffs) {
-        var dimensions  = this.getDimensions()
-        var standardBox = this.getStandardBox(dimensions.rows)
-        return puffs.map(standardBox('child'))
-            .filter(function(pbox) {return pbox.height})
-    },
-    makeArrowPairs: function(puffBoxen) {
-        var screencoords = this.getScreenCoords()
-
-        var arrows = puffBoxen.reduce(function(acc, puffbox) {
-            return acc.concat(
-                (puffbox.puff.payload.parents||[]).map(
-                    function(parent) {
-                        return [puffBoxen.filter(
-                            function(pb) {
-                                return pb.puff.sig == parent})[0], puffbox]}))}, [])
-            .filter(function(pair) {return pair[0]})
-
-        return (
-            <svg width={screencoords.width} height={screencoords.height} style={{position:'absolute', top:'0px', left:CONFIG.leftMargin}}>
-                <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ></defs>
-                {arrows.map(function(arrow) {
-                    return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
-                })}
-            </svg>
-            )
-    },
-    standardGridify: function(puffs) {
-        var puffBoxList = this.getPuffBoxList(puffs)
-        return this.manualGridify(puffBoxList)
-    },
-    manualGridify: function(puffBoxList) {
-        var arrowList = this.props.view.arrows ? this.makeArrowPairs(puffBoxList) : ''
-        var viewprops = this.props.view
-
-        var fancyWrapper = (function() {
-            return function(puffplus) {     // this is getting really messy -- maybe just transfer props
-                var className = puffplus.className
-                var stats = puffplus
-                var puff  = puffplus.puff
-                var view  = viewprops
-                return <PuffFancyBox puff={puff} key={puff.sig} extraClassy={className} stats={stats} view={view} ref={puff.sig} />
-            }
-        })()
-
-
-        return (
-            <div>
-                <div id="talltree">
-                    {puffBoxList.map(fancyWrapper)}
-                </div>
-
-                {arrowList}
-            </div>
-            )
-    }
-}
-
-
-// MAIN VIEWS
-var PuffWorld = React.createClass({
-    render: function() {
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        var view
-        var viewprops = this.props.view || {}
-
-        if( viewprops.mode == 'focus' ) {
-            view = <PuffTallTree view={viewprops} reply={this.props.reply} />
-            document.body.style.overflowY = "hidden"
-        }
-
-        else if( viewprops.mode == 'list' ) {
-            view = <PuffList view={viewprops} reply={this.props.reply} />
-            document.body.style.overflowY = "hidden"
-        }
-
-        else { // ( viewprops.mode == 'tableView' ) {
-            view = <TableView view={viewprops} table={this.props.view.table}/>
-            document.body.style.overflowY = "auto"
-        }
-
-        var animateClass = this.props.view.animation ? "animation" : ''
-
-        return (
-            <div className={animateClass}>
-                {view}
-            </div>
-            )
-    }
-})
-
-var PuffList = React.createClass({
-    mixins: [ViewKeybindingsMixin, CursorBindingsMixin, GridLayoutMixin, PuffBarShortcutMixin],
-
-    render: function() {
-        // if(!PB.Data.stupidHorribleGlobalThing) return <div></div>
-
-        globalSillyPropsClone = Boron.shallow_copy(puffworldprops)
-
-        var dimensions = this.getDimensions()
-        var limit = dimensions.cols * dimensions.rows
-
-        var query   = this.props.view.query
-        var filters = this.props.view.filters
-        var puffs   = PB.M.Forum.getPuffList(query, filters, limit)
-
-        this.cursorPower(puffs)
-
-        var showScrollUp = this.props.view.mode == 'list' && this.props.view.query.offset
-        var showScrollDown = this.props.view.mode == 'list' && puffs.length == limit
-        return (
-            <div>
-                {this.standardGridify(puffs)}
-                <PuffScroller ref="scrollup" position="up" view={this.props.view} show={showScrollUp} />
-                <PuffScroller ref="scrolldown" position="down" view={this.props.view} show={showScrollDown} />
-            </div>
-            )
-    }
-})
-
-
-var PuffArrow =  React.createClass({
-    render: function() {
-        var arrow = this.props.arrow
-
-        var p = arrow[0]
-        var c = arrow[1]
-
-        var offset = 30
-        // Move over if menu open
-        var yoffset = 0
-        var baseShift = 12
-
-        var x1 = p.x + p.width/2
-        var y1 = p.y + p.height/2
-        var x2 = c.x + c.width/2
-        var y2 = c.y + c.height/2
-
-        /*
-         var leftEdge = x2 - (c.height/2) - offset/2
-         var rightEdge = x2 + (c.height/2) + offset/2
-         var topEdge = y2 -(c.height/2) - offset/2
-         var bottomEdge = y2 + (c.height/2) + offset/2
-         */
-
-        var boxSlope = Math.abs(c.height/c.width)
-
-        var dx = x2-x1
-        var dy = y2-y1
-        var lineSlope = Math.abs(dy/dx)
-        var theta = Math.atan(lineSlope)
-
-        // Child is below parent or sideways
-        if(y2 >= y1) {
-            // arrow is top to down
-            // Which does it hit first, top edge or left edge?
-            if (x2 > x1) {
-                // Arrow is left to right
-                if (boxSlope < lineSlope) {
-
-                    // Limited by top edge
-                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
-                    y2 -= ((c.height / 2) - offset / 2)
-
-                    y2 -= Math.abs(Math.sin(theta)) * 5
-                } else {
-
-                    // Limited by right edge
-                    x2 -= ((c.width / 2) - offset / 2)
-                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
-
-                    x2 -= Math.abs(Math.cos(theta)) * 5
-
-                }
-            } else {
-                // arrow is right to left
-                if (boxSlope < lineSlope) {
-
-                    // Limited by top edge
-                    x2 += ((c.height / 2) - offset / 2) / lineSlope
-                    y2 -= ((c.height / 2) - offset / 2)
-
-                    y2 -= Math.abs(Math.sin(theta)) * 5
-                } else {
-
-                    // Limited by left edge
-                    x2 += ((c.width / 2) - offset / 2)
-                    y2 -= ((c.width / 2) - offset / 2) * lineSlope
-
-                    x2 += Math.abs(Math.cos(theta)) * 5
-                }
-            }
-        } else {
-            // Which does it hit first, top edge or left edge?
-            if (x2 < x1) {
-                // Arrow is right to left
-                if (boxSlope < lineSlope) {
-
-                    // Limited by bottom edge
-                    x2 += ((c.height / 2) - offset / 2) / lineSlope
-                    y2 += ((c.height / 2) - offset / 2)
-
-                    y2 += Math.abs(Math.sin(theta)) * 5
-                } else {
-
-                    // Limited by right edge
-                    x2 += ((c.width / 2) - offset / 2)
-                    y2 += ((c.width / 2) - offset / 2) * lineSlope
-
-                    x2 += Math.abs(Math.cos(theta)) * 5
-
-                }
-            } else {
-                // Arrow is left to right
-                if (boxSlope < lineSlope) {
-
-                    // Limited by bottom edge
-                    x2 -= ((c.height / 2) - offset / 2) / lineSlope
-                    y2 += ((c.height / 2) - offset / 2)
-
-                    y2 += Math.abs(Math.sin(theta)) * 5
-                } else {
-
-                    // Limited by left edge
-                    x2 -= ((c.width / 2) - offset / 2)
-                    y2 += ((c.width / 2) - offset / 2) * lineSlope
-
-                    x2 -= Math.abs(Math.cos(theta)) * 5
-                }
-            }
-        }
-
-        // WORKING: All downward arrows
-        // WORKING: Straight up
-        // ?: Up and left limited by bottom
-        // ?: Up and right limited by bottom
-        // ?: Up and left limited by edge
-        // WORKING: Up and right limited by edge
-
-
-        // Use mod of sig, so we can do same for arrowheads!
-        // TODO: Make mini-helper function
-        var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16)
-        colNumber = colNumber % CONFIG.arrowColors.length
-
-        var stroke = CONFIG.arrowColors[colNumber]
-        return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} fill={stroke} />
-    }
-})
-
-var Arrow = React.createClass({
-    componentDidMount: function() {
-        this.getDOMNode().setAttribute('marker-end', 'url(#triangle)')
-    },
-    render: function() {
-
-        // dangerouslySetInnerHTML={{__html: '<animate attributeName="x2" from='+PB.Crypto.random()+' to='+this.props.x2+' dur="1s" /><animate attributeName="y2" from='+PB.Crypto.random()+' to='+this.props.y2+'  dur="1s" />'}}
-
-        // save this!
-        // <path d={'M ' + this.props.x1 + ' ' + this.props.y1 + ' Q ' + (this.props.x2  + (this.props.x2 - this.props.x1)/2 - 10) + ' ' + (this.props.y2 + (this.props.y2 - this.props.y1)/2 - 20) + ' ' + this.props.x2 + ' ' + this.props.y2} fillOpacity="0" stroke={this.props.stroke} strokeWidth="2" />
-
-        //
-
-        return (
-            <line x1={this.props.x1} y1={this.props.y1} x2={this.props.x2} y2={this.props.y2} stroke={this.props.stroke} strokeWidth="2" fill={this.props.fill} ></line>
-            )
-    }
-})
-
-
-var PuffFooter = React.createClass({
-    render: function() {
-        var width = (window.innerHeight-66)+'px'
-        var polyglot = Translate.language[puffworldprops.view.language]
-
-        return (
-
-            <div className="footer" style={{maxWidth: width}}>
-                <div className="footerText">
-                {polyglot.t("footer.powered")} <a href={CONFIG.url} className="footerText">puffball</a>.
-                {polyglot.t("footer.rest")}
-                </div>
-            </div>
-            )
-    }
-})
-
-
-
-var Logo = React.createClass({
-    render: function() {
-        return (
-            <div>
-                <a href={CONFIG.url}>
-                    <img src={CONFIG.logo} alt="Logo" className="logo" />
-                </a>
-            </div>
-            )
-    }
-})
-
-
-var PuffScroller = React.createClass({
-    mixins: [GridLayoutMixin],
-
-    handleScroll: function() {
-        if (!this.props.show) return false
-
-        var col   = this.getDimensions().cols
-        var offset = parseInt(this.props.view.query.offset) || 0
-        offset = this.props.position == "up" ? offset - col : offset + col
-        offset = Math.max(offset, 0)
-        return Events.pub("ui/scroll/down", {'view.query.offset': offset})
-    },
-
-    render: function() {
-        if (!this.props.show) {
-            return (<span></span>)
-        }
-
-        var left = CONFIG.leftMargin
-
-        var col   = this.getDimensions().cols
-        var screencoords = this.getScreenCoords()
-        var boxHeight = screencoords.height / this.getDimensions().rows
-        var w = col * this.props.view.boxRatio* boxHeight
-        if(w > screencoords.width) {
-            w = screencoords.width
-        }
-
-        var style = {left: left, width: w}
-        var className = "scroller gray " + this.props.position
-        var iconClass = "fa fa-fw fa-chevron-"+this.props.position
-        return (
-            <div className={className} style={style}>
-                <a href="#" onClick={this.handleScroll}>
-                    <i className={iconClass}></i><br/>
-                    <i className={iconClass}></i><br/>
-                    <i className={iconClass}></i><br/>
-                </a>
-            </div>
-            )
-    }
-})

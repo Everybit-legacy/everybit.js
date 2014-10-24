@@ -669,7 +669,12 @@ PB.Data.isGoodPuff = function(puff) {
 }
 
 
-PB.Data.getCachedUserRecord = function(versionedUsername, capa) {
+PB.Data.getCachedUserRecord = function(versionedUsername) {
+    return PB.Data.getCachedUserRecordWithCapa(versionedUsername)
+}
+
+PB.Data.getCachedUserRecordWithCapa = function(versionedUsername, capa) {
+    // TODO: map of just username to versionedUsername, so we can always get a user record for a user regardless of version
     versionedUsername = PB.maybeVersioned(versionedUsername, capa)
     return PB.Data.userRecords[versionedUsername];
 }

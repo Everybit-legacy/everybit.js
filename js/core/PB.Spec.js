@@ -2,76 +2,74 @@
  * Comprehensive, canonical set of functions defining
  * and validating a puff.
  * All of these are STRICTLY FORMAL validations
- * they don't depend on the state of the puffball
- * Puff version: 0.
+ * they don't depend on the state of the universe
  */
 
 
 PB.Spec = {}
 
-PB.Spec.Puff = {};
 
 /**
  * to validate the username
  * @param  {string} username
  */
-PB.Spec.Puff.validateUsername = function(username) {
-
-}
-
-
-/**
- * to validate the payload key
- * @param  {string} key
- */
-PB.Spec.Puff.validatePayloadKey = function(key) {
-    // Characters
-
-    // Length
-
-}
-
-/**
- * to validate the content length
- * @param  {string} content
- * @return {boolean}
- */
-PB.Spec.Puff.validateContentLength = function(content) {
-    if (content.length > 10e6)
-        return false
-}
-
-
-/**
- * Meta function that runs all sub functions to validate a puff
- * @returns boolean true if valid puff, otherwise stops at first error
- * and returns false
- */
-PB.Spec.Puff.validate = function(puff) {
-
-}
-
-
-
-/**
- * Set of canonical validations for everything related to puffs and users.
- *
- */
-
-
-
-/**
- * check if it is a valid username
- * @param {string} username
- * @returns {boolean}
- */
 PB.Spec.isValidUsername = function(username) {
-    if (!username.match(/^[A-Za-z0-9]+$/)) {
-        return false;
-    } else {
-        return true;
-    }
+    /*
+    RULES:
+    - Minimum length is 1
+    - Maximum length of full username (including subusers and .) is 255 characters
+    - Only alphanumeric
+    - Only lowercase
+    - Cannot begin or end with a .
+     */
+
+    PB.Spec.isValidUsername.rulesStatement = 'Usernames can only contain lowercase letters, numbers, and periods. They cannot ' +
+        'be longer than 255 characters or end with a period.'
+
+    if(!username)
+        return false
+
+    if(username.length > 255)
+        return false
+
+    if(!username.match(/^[a-z0-9.]+$/))
+        return false
+
+    if(username.slice(0, 1) == '.')
+        return false
+
+    if(username.slice(-1) == '.')
+        return false
+
+    return true
 }
+
+
+/**
+ * Does everything possible to make a username valid
+ */
+PB.Spec.sanitizeUsername = function(username) {
+    /*
+     TRANSFORMATIONS:
+     - Remove leading and trailing space
+     - Convert to lowercase
+     - Remove all illegal characters, including leading and trailing .
+     */
+    username = username.trim()
+
+    username = username.toLowerCase()
+
+    if(username.slice(0, 1) == '.')
+        username = username.slice(1)
+
+    if(username.slice(-1) == '.')
+        username = username.slice(0,-1)
+
+    username = username.replace(/[^a-z0-9.]+/g, '')
+
+    return username
+}
+
 
 /**
  * check if it is a valid public key
@@ -98,10 +96,4 @@ PB.Spec.isValidPrivateKey = function(privateKey) {
     } else {
         return true;
     }
-}
-
-// TODO implement
-PB.Spec.isValidPid = function(pid) {
-    // Validate puff id in terms of characters
-
 }

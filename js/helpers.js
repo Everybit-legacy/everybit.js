@@ -1,4 +1,5 @@
-// TODO: Rename into PB. namespace
+// TODO: Rename most of these into the PB namespace
+
 function keepNumberBetween(x,a,b) {
     if(x < a)
         return a

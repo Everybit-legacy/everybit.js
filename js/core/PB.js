@@ -83,7 +83,8 @@ PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, pa
 }
 
 
-PB.simpleBuildPuff = function(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
     
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
@@ -94,6 +95,57 @@ PB.simpleBuildPuff = function(routes, type, content, payload, userRecordsForWhom
     })
     
     return puff
+}
+
+PB.postPublicMessage = function(content, type) {
+    //// post a public puff. type is optional and defaults to 'text'
+    type = type || 'text'
+    var puff = PB.simpleBuildPuff(type, content)
+    return PB.addPuffToSystem(puff)
+}
+
+PB.postPrivateMessage = function(content, usernames, type) {
+    //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
+    type = type || 'text'
+    var prom = PB.usernamesToUserRecords(usernames)
+    return prom.then(function(userRecords) {
+        var puff = PB.simpleBuildPuff(type, content, null, null, userRecords)
+        return PB.addPuffToSystem(puff)
+    })
+}
+
+
+
+PB.usernamesToUserRecords = function(usernames) {
+    //// returns a promise of userRecords. thanks to capa we usually don't need the latest and can use cached versions.
+    if(!usernames || !usernames.length)
+        return Promise.resolve([])
+    
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
+        
+    var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+    
+    if (userRecords.length == usernames.length)
+        return Promise.resolve(userRecords) // got 'em all!
+    
+    var prom = Promise.resolve() // a promise we use to string everything along
+
+    var userRecordUsernames = userRecords.map(function (userRecord) {
+        return userRecord.username
+    })
+    
+    usernames.forEach(function (username) {
+        if (!~userRecordUsernames.indexOf(username)) { // we need this one
+            prom = prom.then(function() {
+                return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                    userRecords.push(userRecord)
+                })
+            })
+        }
+    })
+    
+    return prom.then(function() { return userRecords }) // when it's all done, give back the userRecords
 }
 
 

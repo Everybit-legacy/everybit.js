@@ -1218,41 +1218,20 @@ var ICXSendMessageFinish = React.createClass({ /* Good */
 })
 
 var ICXNotifyEmail = React.createClass({
-    // componentDidMount: function() {
-    //     var polyglot = Translate.language[puffworldprops.view.language]
-    //     var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
 
-    //     // TODO: Refactor this into an ICX config variable perhaps?
-    //     var params = {
-    //         "message": {
-    //             "from_email": "mandrill@quo.org",
-    //             "from_name": "ICX",
-    //             "to": [
-    //                 { "email":puffworldprops.ICX.wizard.invitedEmail }
-    //             ],
-    //             "subject": "TODO: Make this a good subject and maybe change FROM NAME",
-    //             "text": textAreaContent
-    //         }
-    //     }
-
-    //     mail.messages.send(params, function(res) {
-    //         console.log(res)
-    //     }, function(err) {
-    //         console.log("Mandrill Error " + err.message)
-    //     })
-    // },
 
     render: function () {
         var polyglot = Translate.language[puffworldprops.view.language]
+        ICX.buttonStyle.backgroundColor = ICX.currScreenInfo.color
 
         var textAreaContent = polyglot.t("invite.email_1") + puffworldprops.ICX.toUser + polyglot.t("invite.email_2") + puffworldprops.ICX.wizard.prompt
         return (
-            <span>{polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}:
-                <input ref="from" type="text" />
-
-                <a onClick={this.handleSendNotificationEmail}>Send your friend a notification email</a>
-
-
+            <span>
+                {polyglot.t("invite.sent_1")}<em>{polyglot.t("invite.sent_2")}</em>{polyglot.t("invite.sent_3")} {puffworldprops.ICX.wizard.invitedEmail}
+                <br /><br />
+                Your email: <input ref="from" type="text" />
+                <br />
+                <a style={ICX.buttonStyle} className="icxNextButton" onClick={this.handleSendNotificationEmail}>Send your friend a notification email</a>
 
             </span>
         )

@@ -19,7 +19,8 @@ function generateRandomUsername() {
 
 // Takes in a username and passphrase and returns a new puff
 function buildICXUserPuff(username, passphrase) {
-    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    var prependedPassphrase = username + passphrase
+    var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
     var publicKey = PB.Crypto.privateToPublic(privateKey)
 
     var rootKeyPublic     = publicKey
@@ -45,10 +46,11 @@ function buildICXUserPuff(username, passphrase) {
 }
 
 function inviteICXUser(passphrase, GUIcallback) {
-    //needs to be here for add alias
-    var privateKey = passphraseToPrivateKeyWif(passphrase)
-
     var requestedUsername = generateRandomUsername()
+
+    //needs to be here for add alias
+    var prependedPassphrase = requestedUsername + passphrase
+    var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
 
     var puff = buildICXUserPuff(requestedUsername,passphrase)
 
@@ -64,7 +66,8 @@ function inviteICXUser(passphrase, GUIcallback) {
 
 function createICXUser(username, passphrase, GUIcallback) {
     //needs to be here for add alias
-    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    var prependedPassphrase = username + passphrase
+    var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
 
     var puff = buildICXUserPuff(username, passphrase)
 
@@ -737,9 +740,15 @@ function ICXAuthenticateIdFile(content, callback) {
     })
 }
 
-function ICXAuthenticateUser (username, passphrase, callback) {
+function ICXAuthenticateUser (username, passphrase, callback, flag) {
     // Convert passphrase to private key
-    var privateKey = passphraseToPrivateKeyWif(passphrase)
+    //needs to be here for add alias
+    if (flag) {
+        var privateKey = passphraseToPrivateKeyWif(passphrase)
+    } else {
+        var prependedPassphrase = username + passphrase
+        var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
+    }
 
     // Convert private key to public key
     var publicKey = PB.Crypto.privateToPublic(privateKey)
@@ -750,6 +759,7 @@ function ICXAuthenticateUser (username, passphrase, callback) {
     var prom = PB.getUserRecordNoCache(username)
 
     prom.then(function (userInfo) {
+
         var goodKeys = {}
     
         if (publicKey == userInfo.defaultKey)
@@ -762,8 +772,13 @@ function ICXAuthenticateUser (username, passphrase, callback) {
             goodKeys.privateRootKey = privateKey
         
         if(!Object.keys(goodKeys).length) {
-            callback('ERROR: Invalid passphrase', 'Incorrect')
-            return PB.onError('Passphrase did not match any keys in the user record')
+            if (flag) {
+                callback('ERROR: Invalid passphrase', 'Incorrect')
+                return PB.onError('Passphrase did not match any keys in the user record')
+            }
+            else {
+                ICXAuthenticateUser (username,passphrase,callback,true)
+            }
         } 
 
         // At least one good key: make current user and add passphrase to wardrobe

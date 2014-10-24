@@ -109,7 +109,9 @@ PB.postPrivateMessage = function(content, usernames, type) {
     type = type || 'text'
     var prom = PB.usernamesToUserRecords(usernames)
     return prom.then(function(userRecords) {
-        var puff = PB.simpleBuildPuff(type, content, null, null, userRecords)
+        var myUserRecord = PB.getCurrentUserRecord()
+        userRecords.push(myUserRecord)
+        var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
 }

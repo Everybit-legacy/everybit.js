@@ -414,7 +414,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
         return PB.M.Forum.getPuffBySig(id).username;
     });
     if (metadata.routes) {
-        routes = metadata.routes;
+        routes = metadata.routes; // THINK: this should probably merge with above instead of replacing it...
         delete metadata['routes'];
     }
     
@@ -478,7 +478,7 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
 
         var previous = userRecord.latest
-        var puff = PB.simpleBuildPuff(routes, type, content, payload, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
 
         return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }

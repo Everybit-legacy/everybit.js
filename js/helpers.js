@@ -1,4 +1,5 @@
-// TODO: Rename into PB. namespace
+// TODO: Rename most of these into the PB namespace
+
 function keepNumberBetween(x,a,b) {
     if(x < a)
         return a
@@ -18,7 +19,6 @@ function generateRandomUsername() {
 
 // Takes in a username and passphrase and returns a new puff
 function buildICXUserPuff(username, passphrase) {
-
     var privateKey = passphraseToPrivateKeyWif(passphrase)
     var publicKey = PB.Crypto.privateToPublic(privateKey)
 

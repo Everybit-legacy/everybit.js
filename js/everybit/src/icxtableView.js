@@ -120,7 +120,7 @@ var ViewFilters = React.createClass({
 			filter = "from " + filters.users[0]
 		}
 		if ( filters.routes != undefined ) {
-			filter = "to " + filters.routes[0]
+			filter = "to " + (filters.routes||[''])[0]
 		}
 		return filter
 	},
@@ -322,7 +322,8 @@ var ICXTableUserInfo = React.createClass({
     render: function() {
 
         var fromUser = this.props.puff.username.stripCapa()
-        var toUser = this.props.puff.routes[0].stripCapa()
+        var toUser = (this.props.puff.routes||[])[0]||''
+        toUser = toUser.stripCapa()
 
         // If current user is the sender, we will render the recipient
         if(PB.getCurrentUsername() == fromUser) {

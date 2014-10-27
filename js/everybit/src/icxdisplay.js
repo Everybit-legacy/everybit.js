@@ -470,7 +470,7 @@ var ICXStoreFinish = React.createClass({ /* Good */
     }
 })
 
-var ICXInvite = React.createClass({
+var ICXInvite = React.createClass({ /* Good */
     render: function () {
         var headerStyle = ICX.calculated.pageHeaderTextStyle
         headerStyle.backgroundColor = ICX.currScreenInfo.color
@@ -1217,7 +1217,7 @@ var ICXSendMessageFinish = React.createClass({ /* Good */
     }
 })
 
-var ICXNotifyEmail = React.createClass({
+var ICXNotifyEmail = React.createClass({ /* Good */
 
 
     render: function () {
@@ -1248,10 +1248,15 @@ var ICXNotifyEmail = React.createClass({
 
         PB.Net.post('https://i.cx/api/mandrill/', {to: to, sender: sender, question: question, username: username})
 
+        return Events.pub('ui/event/', {
+            'ICX.wizard': false,
+            'ICX.messageSent': true,
+            'ICX.successMessage': 'Message sent!'
+        })
     }
 })
 
-var ICXNewUser = React.createClass({
+var ICXNewUser = React.createClass({ /* Good */
     mixins: [TooltipMixin],
 
     render: function () {
@@ -1613,7 +1618,7 @@ var ICXNewUser = React.createClass({
     }
 })
 
-var ICXLogin = React.createClass({
+var ICXLogin = React.createClass({ /* Good */
     mixins: [TooltipMixin],
 
     render: function () {
@@ -2392,7 +2397,7 @@ var ICXFileConverter = React.createClass({ /* Good */
 })
 
 // SUBCOMPONENTS
-var ICXSpinner = React.createClass({
+var ICXSpinner = React.createClass({ /* Good */
     render: function () {
         var spinnerHeight = ICX.calculated.baseFontH*3
 
@@ -2424,7 +2429,7 @@ var ICXSpinner = React.createClass({
     }
 })
 
-var ICXError = React.createClass({
+var ICXError = React.createClass({ /* Good */
     render: function () {
         // Close button needed
 

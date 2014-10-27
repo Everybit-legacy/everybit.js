@@ -8,6 +8,24 @@
 
   */
 
+var puffContainer = React.createClass({
+    render: function() {
+        var puffs = this.props.content.map(function (puff) {
+            return (
+                <ICXContentItem puff={puff} />
+            )
+        })
+        return (
+            <div className="messageList">
+                {puffs}
+            </div>
+        )
+    },
+
+    componentDidMount: function() {
+        ICX.loading = true
+    }
+})
 
 var TableView = React.createClass({
 	sortDate: function(p1, p2) {
@@ -51,16 +69,16 @@ var TableView = React.createClass({
         })
     },
 
-	render: function() {
-		var query = puffworldprops.view.query
-		var filters = puffworldprops.view.filters
-		var limit = puffworldprops.view.table.loaded
-		var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-        var total = 0
+    getContent: function() {
+        var query = puffworldprops.view.query
+        var filters = puffworldprops.view.filters
+        var limit = puffworldprops.view.table.loaded
+        return getTableViewContent(query, filters, limit)
 
-		puffs = this.sortPuffs(puffs)
-        //ICX.loading = !!puffs.length
-        total = puffs.length - 1
+    },
+
+
+	render: function() {
 
         var refreshStyle = {
             right: Math.floor(ICX.calculated.baseFontH/2)+'px',
@@ -85,13 +103,9 @@ var TableView = React.createClass({
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
-                {
-                	puffs.map(function(puff, index){
-                        ICX.loading = (index < total)
-						return <ICXContentItem tot={total} key={index} puff={puff} />
-					})
-				}
-                <ViewLoadMore query={this.props.view.query} />
+                <puffContainer content={this.getContent()} />
+
+                <ViewLoadMore query={this.props.view.query} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
 			</div>
 		)
 	}
@@ -175,6 +189,10 @@ var ICXContentItem = React.createClass({
         Events.pub('ui/reply/activate',
             {'view.icx.activeReplies': activeReplies}
         )
+    },
+
+    componentDidUpdate: function() {
+        ICX.loading = false
     },
 
 	render: function() {
@@ -625,6 +643,10 @@ var ICXInlineReply = React.createClass({
 })
 
 var ViewLoadMore = React.createClass({
+    shouldComponentUpdate: function(nextProps) {
+        return nextProps.update !== this.props.update || nextProps.loading !== this.props.loading
+    },
+
 	handleLoadMore: function() {
 		var loaded = puffworldprops.view.table.loaded
 		return Events.pub('ui/event', {
@@ -638,14 +660,15 @@ var ViewLoadMore = React.createClass({
         var query = Boron.shallow_copy(this.props.query)
         query.offset = 0
         var filters = puffworldprops.view.filters
-        var puffs = PB.M.Forum.getPuffList(query, filters)
-        var availablePuffs = puffs.length
         var showingPuffs = puffworldprops.view.table.loaded
 
+
         
-		if (ICX.loading) {
+        if (puffworldprops.ICX.hasShells == 0) {
+            footer = <div>No messages to display</div>
+        } else if (this.props.loading == true) {
             footer = <div>Loading more messages <img src="/img/icx/dotdotdot.gif" /></div>
-        } else if (availablePuffs <= showingPuffs) {
+        } else if (puffworldprops.ICX.hasShells <= showingPuffs) {
             footer = <div>Nothing more to show</div>
         } else {
 			footer = <a className="inline" onClick={this.handleLoadMore}>Load more messages</a>

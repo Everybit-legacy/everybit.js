@@ -1596,6 +1596,12 @@ var ICXNewUser = React.createClass({
         try {
             createICXUser(requestedUsername, passphrase, function() {
                 toggleSpinner()
+
+                userHasShells(PB.getCurrentUsername(), function(numShells) {
+                    Events.pub('ui/event',{
+                        'ICX.hasShells': numShells
+                    })
+                })
             })
         }
         catch(err) {
@@ -1813,17 +1819,19 @@ var ICXLogin = React.createClass({
             return false
         }
 
-        ICXAuthenticateUser(username, passphrase, function (err, status) {
+        ICXAuthenticateUser(username, passphrase, function (err, status, returned) {
+            if (!returned) {
+                return false
+            }
             if(!err) {
                 Events.pub('ui/event', {
                     'ICX.defaultKey': true,
                     'ICX.usernameStatus': true
                 })
+                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
                 if(puffworldprops.view.icx.firstLogin) {
                     return Events.pub('/ui/icx/screen', {"view.icx.screen": "changepassphrase"})
                 }
-
-                Events.pub('/ui/icx/screen', {"view.icx.screen": "dashboard"})
             } else {
                 ICX.errors = err
                 Events.pub('ui/event', { 'ICX.defaultKey': status})

@@ -365,3 +365,11 @@ Events.sub('ui/*', function(data) {
     if(puffworldprops.prefs.reporting)
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
 });
+
+
+//tells us if the user has any delicious puffs
+userHasShells(PB.getCurrentUsername(), function(numShells) {
+    Events.pub('ui/event',{
+        'ICX.hasShells': numShells
+    })
+})

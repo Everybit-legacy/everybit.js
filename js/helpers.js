@@ -9,6 +9,54 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+//wrapper to get puffs to display in table view
+function getTableViewContent(query, filters, limit) {
+    return PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+}
+
+/*
+    The next 3 functions should definitely be living somewhere else, possibly PB.Net as that is where
+    they were taken from and then modified here
+ */
+var getPrivateShellsFromMe = function(username) {
+    if(!username) return PB.emptyPromise()
+
+    var url  = CONFIG.puffApi
+    var data = { username: username
+        , contentType: 'encryptedpuff', fullOrShell: 'shell'
+        , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+    }
+
+    return PB.Net.getJSON(url, data)
+}
+
+var getPrivateShellsForMe = function(username) {
+    if(!username) return PB.emptyPromise()
+
+    var url  = CONFIG.puffApi
+    var data = { route: username
+        , contentType: 'encryptedpuff', fullOrShell: 'shell'
+        , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+    }
+
+    return PB.Net.getJSON(url, data)
+}
+
+function userHasShells(username, callback) {
+    var checkFromMe = getPrivateShellsFromMe(username)
+
+    checkFromMe.then(function(shells) {
+        var numShells = shells.length
+            var checkForMe = getPrivateShellsForMe(username)
+
+            checkForMe.then(function(shells) {
+                numShells += shells.length
+
+                callback(numShells)
+            })
+    })
+}
+
 function generateRandomUsername() {
     var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
     var adjective = PB.Crypto.getRandomItem(ICX.adjectives)
@@ -753,7 +801,7 @@ function ICXAuthenticateUser (username, passphrase, callback, flag) {
     // Convert private key to public key
     var publicKey = PB.Crypto.privateToPublic(privateKey)
     if (!publicKey) {
-        callback('ERROR: Failed to generate public key', 'Bad Key')
+        callback('ERROR: Failed to generate public key', 'Bad Key',true)
     }
 
     var prom = PB.getUserRecordNoCache(username)
@@ -771,26 +819,28 @@ function ICXAuthenticateUser (username, passphrase, callback, flag) {
         if (publicKey == userInfo.rootKey)
             goodKeys.privateRootKey = privateKey
         
-        if(!Object.keys(goodKeys).length) {
+        if(Object.keys(goodKeys).length == 0) {
             if (flag) {
-                callback('ERROR: Invalid passphrase', 'Incorrect')
-                return PB.onError('Passphrase did not match any keys in the user record')
+                callback('ERROR: Invalid passphrase', 'Incorrect', true)
+                PB.onError('Passphrase did not match any keys in the user record')
+                return false
             }
             else {
                 ICXAuthenticateUser (username,passphrase,callback,true)
             }
-        } 
+        }
+        else {
+            // At least one good key: make current user and add passphrase to wardrobe
+            var capa = username.capa || 1
+            var secrets = {passphrase: passphrase}
+            // TODO: pull this out of GUI and push it down a level
+            PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
 
-        // At least one good key: make current user and add passphrase to wardrobe
-        var capa = username.capa || 1
-        var secrets = {passphrase: passphrase}
-        // TODO: pull this out of GUI and push it down a level
-        PB.addAlias(username, username, capa, goodKeys.privateRootKey, goodKeys.privateAdminKey, goodKeys.privateDefaultKey, secrets)
-        
-        PB.switchIdentityTo(username)
+            PB.switchIdentityTo(username)
 
-        callback()
-        return false
+            callback()
+            return false
+        }
 
     }).catch(function (err) {
         callback(err.message, 'Not found')

@@ -69,6 +69,16 @@ var TableView = React.createClass({
         })
     },
 
+    componentDidMount: function() {
+        if(typeof puffworldprops.ICX.hasShells === "undefined") {
+            userHasShells(PB.getCurrentUsername(), function(numShells) {
+                Events.pub('ui/event',{
+                    'ICX.hasShells': numShells
+                })
+            })
+        }
+    },
+
     getContent: function() {
         var query = puffworldprops.view.query
         var filters = puffworldprops.view.filters

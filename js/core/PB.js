@@ -248,6 +248,11 @@ PB.justUsername = function(versionedUsername) {
     return uc.username
 }
 
+PB.justCapa = function(versionedUsername) {
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    return uc.capa
+}
+
 PB.maybeVersioned = function(username, capa) {
     if(!username)
         return ''
@@ -516,26 +521,35 @@ PB.getDecryptedPuffPromise = function(envelope) {
         return PB.onError('Envelope does not contain an encrypted letter')
     
     var senderVersionedUsername   = envelope.username
-    var senderVersionedUserRecord = PB.Data.getCachedUserRecord(senderVersionedUsername)
-    var prom = PB.emptyPromise()
+    var userProm = PB.getUserRecord(senderVersionedUsername)
     
-    PB.useSecureInfo(function(identites, currentUsername) {
-        // NOTE: leaks a promise which resolves to unencrypted puff
+    var prom = userProm.catch(function(err) {
+        PB.promiseError('User record acquisition failed')
+    }).then(function(senderVersionedUserRecord) {
+        var prom // used for leaking secure promise
+    
+        PB.useSecureInfo(function(identites, currentUsername) {
+            // NOTE: leaks a promise which resolves to unencrypted puff
         
-        var keylist = Object.keys(envelope.keys)
-        var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-        if(!myVersionedUsername)
-            return PB.onError('No key found for current user')
+            var keylist = Object.keys(envelope.keys)
+            var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
+            if(!myVersionedUsername) {
+                prom = Promise.reject()
+                return PB.onError('No key found for current user')
+            }
         
-        var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
-        var privateDefaultKey = alias.privateDefaultKey
-        // letter = PB.decryptPuff(envelope, senderUserRecord.defaultKey, currentUsername, privateDefaultKey)
+            var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
+            var privateDefaultKey = alias.privateDefaultKey
+            // letter = PB.decryptPuff(envelope, senderUserRecord.defaultKey, currentUsername, privateDefaultKey)
         
-        prom = new Promise(function(resolve, reject) {
-            PB.workersend('decryptPuffForReals', [envelope, senderVersionedUserRecord.defaultKey, myVersionedUsername, privateDefaultKey], resolve, reject)
+            prom = new Promise(function(resolve, reject) {
+                PB.workersend('decryptPuffForReals', [envelope, senderVersionedUserRecord.defaultKey, myVersionedUsername, privateDefaultKey], resolve, reject)
+            })
         })
-    })
 
+        return prom
+    })
+    
     return prom
 }
 
@@ -656,9 +670,8 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
             return PB.onError('Non-existent username')
         
         var versionedUsername = PB.maybeVersioned(username, capa)
-        var uc = PB.breakVersionedUsername(versionedUsername)
-        username = uc.username
-        capa = uc.capa
+        username = PB.justUsername(versionedUsername)
+        capa = PB.justCapa(versionedUsername)
         
         var identity = identities[username]
         if(!identity)
@@ -673,7 +686,7 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     PB.getUsernameFromList = function(list, username) {
         for(var i = 0; i < list.length; i++) {
             var key = list[i]
-            if(username == PB.breakVersionedUsername(key).username)
+            if(username == PB.justUsername(key))
                 return key
         }
         return false

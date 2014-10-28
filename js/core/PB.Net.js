@@ -363,10 +363,10 @@ PB.Net.getUserRecord = function(username, capa) {
     var url   = CONFIG.userApi
     
     var versionedUsername = PB.maybeVersioned(username, capa)
-    var uc = PB.breakVersionedUsername(versionedUsername)
-    username = uc.username
+    username = PB.justUsername(versionedUsername)
+    
     if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
-        capa = uc.capa
+        capa = PB.justCapa(versionedUsername)
     
     var data  = { type: 'getUser'
                 , username: username

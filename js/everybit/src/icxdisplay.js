@@ -1974,6 +1974,8 @@ var ICXDashboard = React.createClass({ /* Good */
                 "As a result, you may not be able to download identity files or files you have encrypted."
 
             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        } else {
+            Events.pub('/ui/icx/error', {"icx.errorMessage": false})
         }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,

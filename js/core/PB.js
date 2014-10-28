@@ -543,7 +543,17 @@ PB.getDecryptedPuffPromise = function(envelope) {
             // letter = PB.decryptPuff(envelope, senderUserRecord.defaultKey, currentUsername, privateDefaultKey)
         
             prom = new Promise(function(resolve, reject) {
-                PB.workersend('decryptPuffForReals', [envelope, senderVersionedUserRecord.defaultKey, myVersionedUsername, privateDefaultKey], resolve, reject)
+                return PB.workersend
+                     ? PB.workersend( 'decryptPuffForReals'
+                                    , [ envelope
+                                      , senderVersionedUserRecord.defaultKey
+                                      , myVersionedUsername
+                                      , privateDefaultKey ]
+                                    , resolve, reject )
+                     : PB.decryptPuffForReals( envelope
+                                             , senderVersionedUserRecord.defaultKey
+                                             , myVersionedUsername
+                                             , privateDefaultKey )
             })
         })
 

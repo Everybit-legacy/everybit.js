@@ -111,6 +111,10 @@ PB.postPrivateMessage = function(content, usernames, type) {
     return prom.then(function(userRecords) {
         var myUserRecord = PB.getCurrentUserRecord()
         userRecords.push(myUserRecord)
+        
+        // TODO: add timestamp here (sigh)
+        // TODO: actually, move this off in to a helper where it can be easily edited (maybe include a function here to do accept that function as an argument?)
+        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
@@ -239,7 +243,7 @@ PB.userRecordToVersionedUsername = function(userRecord) {
     return PB.makeVersionedUsername(userRecord.username, userRecord.capa)
 }
 
-PB.usernameFromVersioned = function(versionedUsername) {
+PB.justUsername = function(versionedUsername) {
     var uc = PB.breakVersionedUsername(versionedUsername)
     return uc.username
 }
@@ -511,24 +515,24 @@ PB.getDecryptedPuffPromise = function(envelope) {
     if(!envelope || !envelope.keys) 
         return PB.onError('Envelope does not contain an encrypted letter')
     
-    var yourVersionedUsername   = envelope.username
-    var yourVersionedUserRecord = PB.Data.getCachedUserRecord(yourVersionedUsername)
+    var senderVersionedUsername   = envelope.username
+    var senderVersionedUserRecord = PB.Data.getCachedUserRecord(senderVersionedUsername)
     var prom = PB.emptyPromise()
     
     PB.useSecureInfo(function(identites, currentUsername) {
         // NOTE: leaks a promise which resolves to unencrypted puff
         
         var keylist = Object.keys(envelope.keys)
-        var versionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-        if(!versionedUsername)
+        var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
+        if(!myVersionedUsername)
             return PB.onError('No key found for current user')
         
-        var alias = PB.getAliasByVersionedUsername(identites, versionedUsername)
+        var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
         var privateDefaultKey = alias.privateDefaultKey
-        // letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
-
+        // letter = PB.decryptPuff(envelope, senderUserRecord.defaultKey, currentUsername, privateDefaultKey)
+        
         prom = new Promise(function(resolve, reject) {
-            PB.workersend('decryptPuffForReals', [envelope, yourVersionedUserRecord.defaultKey, versionedUsername, privateDefaultKey], resolve, reject)
+            PB.workersend('decryptPuffForReals', [envelope, senderVersionedUserRecord.defaultKey, myVersionedUsername, privateDefaultKey], resolve, reject)
         })
     })
 

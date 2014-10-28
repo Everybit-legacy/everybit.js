@@ -139,7 +139,7 @@ PB.M.Forum.filterByFilters = function(filters) {
 
         // USERS
         if(filters.users && filters.users.length > 0)
-            if(!~filters.users.indexOf(PB.usernameFromVersioned(shell.username))) return false
+            if(!~filters.users.indexOf(PB.justUsername(shell.username))) return false
 
 
         if(filters.roots)

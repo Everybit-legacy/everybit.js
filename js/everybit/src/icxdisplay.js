@@ -1602,11 +1602,11 @@ var ICXNewUser = React.createClass({ /* Good */
             createICXUser(requestedUsername, passphrase, function() {
                 toggleSpinner()
 
-                userHasShells(PB.getCurrentUsername(), function(numShells) {
+                /*userHasShells(PB.getCurrentUsername(), function(numShells) {
                     Events.pub('ui/event',{
                         'ICX.hasShells': numShells
                     })
-                })
+                })*/
             })
         }
         catch(err) {
@@ -1716,7 +1716,7 @@ var ICXLogin = React.createClass({ /* Good */
             })
             return false
         }
-        var startsWithICX = (username.substring(0,4) == "icx.")
+        //var startsWithICX = (username.substring(0,4) == "icx.")
 
         var prom = PB.getUserRecord(username)
 
@@ -1726,15 +1726,9 @@ var ICXLogin = React.createClass({ /* Good */
             })
         })
             .catch(function (err) {
-                if(!startsWithICX) {
-                    Events.pub('ui/puff-packer/userlookup/failed', {
-                        'ICX.usernameStatus': 'Missing \'icx.\' prefix'
-                    })
-                } else {
-                    Events.pub('ui/puff-packer/userlookup/failed',{
-                        'ICX.usernameStatus': 'Invalid Username'
-                    })
-                }
+                Events.pub('ui/puff-packer/userlookup/failed',{
+                    'ICX.usernameStatus': 'Invalid Username'
+                })
             })
         return false
     },

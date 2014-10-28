@@ -1658,16 +1658,6 @@ var ICXLogin = React.createClass({ /* Good */
                 <div style={headerStyle}>{polyglot.t("header.login")}</div>
 
                 <div className="contentWindow">
-                    <div className="relative">
-                        Select an identity file:
-                        <Tooltip content="Authenticate with this browser using your private identity file" />
-                    </div>
-                    <ICXFileUploader styling={headerStyle} />
-                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
-
-                    <br /><br />
-                    <i><em>{polyglot.t("login.or")}</em></i>
-                    <br /><br />
                     <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
                     <input type="text" name="username" ref="username" defaultValue='' style={{size: 16, width:'60%'}} onBlur={this.handleUsernameLookup} onChange={this.verifyUsername} />
                     <span className="relative">
@@ -1687,6 +1677,17 @@ var ICXLogin = React.createClass({ /* Good */
                     <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show password</span></a>
                     <br /><br />
                     <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
+
+                    <br /><br />
+                    <i><em>{polyglot.t("login.or")}</em></i>
+                    <br /><br />
+
+                    <div className="relative">
+                    Select an identity file:
+                        <Tooltip content="Authenticate with this browser using your private identity file" />
+                    </div>
+                    <ICXFileUploader styling={headerStyle} />
+                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
             )

@@ -250,6 +250,7 @@ var ICXWorld = React.createClass({
                         </div>
                         <ICXSpinner />
                     </div>
+                    <ICXTour />
                     <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
                 </span>
             )
@@ -261,6 +262,13 @@ var ICXSplash = React.createClass({
     handleGoTo: function(screen) {
         return Events.pub('ui/icx/screen', {
             'view.icx.screen': screen
+        })
+    },
+    handleBeginTour: function() {
+        return Events.pub('ui/tour', {
+            'ICX.tour': {},
+            'ICX.tour.sequence': 1,
+            'view.icx.screen': 'home.table'
         })
     },
     render: function() {
@@ -282,7 +290,7 @@ var ICXSplash = React.createClass({
                     <div className="splashButtons">
                         <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Register</p></div>
                         <div className="splashButton" onClick={this.handleGoTo.bind(null, 'login')}><p>Login</p></div>
-                        <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Take a Tour</p></div>
+                        <div className="splashButton" onClick={this.handleBeginTour}><p>Take a Tour</p></div>
                     </div>
                 </div>
             </div>
@@ -2667,7 +2675,7 @@ var ICXButtonLink = React.createClass({  /* Good */
             buttonStyle.overflow = 'visible'
             buttonStyle.whiteSpace = 'nowrap'
             return (
-                <div style={buttonStyle}>
+                <div id="tour-step-1" style={buttonStyle}>
                     <ICXUserButton />
                 </div>
             )
@@ -2676,7 +2684,7 @@ var ICXButtonLink = React.createClass({  /* Good */
 
         return (
             <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
-                <div className="navBtn" style={buttonStyle}>
+                <div id="tour-step-2" className="navBtn" style={buttonStyle}>
                     <i className={this.props.screenInfo.icon}></i>
                         <span className="icxButtonlinkText">
                             {' '}
@@ -2829,6 +2837,104 @@ var ICXNextButton = React.createClass({  /* good */
 
             return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} <i className="fa fa-chevron-right small" /></a>
 
+        }
+    }
+})
+
+var ICXTour = React.createClass({
+    getInitialState: function() {
+        return {
+            sequence: 1,
+            top: '100px',
+            left: '100px',
+            tourText: 'Lets begin the tour by clicking BEGIN TOUR'
+        }
+    },
+    handleBeginTour: function() {
+        this.handleLocateCurrentElement()
+    },
+
+    handleExitTour: function() {
+        return Events.pub('ui/tour', {
+            'ICX.tour': false
+        })
+    },
+    handleLocateCurrentElement: function(step) {
+        if(!step) step = this.state.sequence
+        var id = 'tour-step-' + step
+
+        var ele = document.getElementById(id)
+        ele.style.zIndex = 1001
+
+        var marginTop = ele.style.top
+        var eleHeight = ele.scrollHeight
+        var top = parseInt(marginTop.slice(0,-2)) + eleHeight
+
+        this.setState({
+            top: top.toString()+'px',
+            left: ele.style.left
+        })
+
+        // Change the text
+    },
+    handleResetCurrentElement: function() {
+        var step = this.state.sequence
+        var id = 'tour-step-' + step
+
+        var ele = document.getElementById(id)
+        ele.style.zIndex = 100
+
+        this.setState({
+            tourText: ''
+        })
+    },
+    handleNextStep: function() {
+        this.handleResetCurrentElement()
+        this.handleLocateCurrentElement(this.state.sequence+1)
+        this.setState({
+            sequence: this.state.sequence + 1
+        })
+    },
+    render: function() {
+        if(puffworldprops.ICX.tour) {
+            //var itemHeight = this.handleLocateCurrentElement()
+        }
+
+        var wizardStyle = {
+            zIndex: 1001,
+            position: 'fixed',
+            width: '300px',
+            height: '150px',
+            left: this.state.left,
+            top: this.state.top,
+            backgroundColor: 'white'
+        }
+
+        var backDropStyle = {
+            zIndex: 1000,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            position: 'fixed',
+            backgroundColor: '#000',
+            opacity: 0.8
+        }
+
+        if(typeof puffworldprops.ICX.tour === 'undefined' || !puffworldprops.ICX.tour) {
+            return <span></span>
+        } else {
+            return (
+                <div>
+                    <div style={backDropStyle}></div>
+                    <div style={wizardStyle}>
+                        <p>{this.state.tourText}</p>
+                        <button onClick={this.handleBeginTour} > Begin Tour </button>
+                        <button onClick={this.handleNextStep} > Next Step </button>
+                        <button onClick={this.handleExitTour} > Exit Tour </button>
+                    </div>
+                </div>
+            )
         }
     }
 })

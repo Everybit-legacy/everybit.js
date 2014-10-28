@@ -379,11 +379,12 @@ PB.Data.getCurrentDecryptedShells = function() {
 
 PB.Data.importPrivateShells = function(username) {    
     // Race condition while toggling identities?
+    var batchsize = 20
 
-    var promForMe = PB.Net.getPrivatePuffsForMe(username) 
+    var promForMe = PB.Net.getPrivatePuffsForMe(username, batchsize) 
     promForMe.then(PB.Data.addPrivateShells)
     
-    var promFromMe = PB.Net.getPrivatePuffsFromMe(username) 
+    var promFromMe = PB.Net.getPrivatePuffsFromMe(username, batchsize) 
     promFromMe.then(PB.Data.addPrivateShells)
 }
 

@@ -69,25 +69,55 @@ PB.Net.getStarShells = function() {
     return PB.Net.getJSON(url, data);
 }
 
-PB.Net.getPrivatePuffsFromMe = function(username) {
+PB.Net.getPrivatePuffsFromMe = function(username, batchsize, offset) {
     if(!username) return PB.emptyPromise()
+    batchsize = batchsize || CONFIG.globalBigBatchLimit
     
     var url  = CONFIG.puffApi
     var data = { username: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+               , type: 'getPuffs', numb: batchsize, offset: offset
+               , sort: 'DESC'
                }
+    
+               // ok. same thing as usual: grab the latest 20, then let the table drive it after that. 
+               // also, you can test for newness with just 1 puff.
+               // also, this should be so much simpler...
+
+/*
+
+    So something like:
+    
+    PB.getSomePuffs(query, limit, etc)
+
+    helper.js:
+    tryGettingMorePuffs(visibleLimit) {
+        // figure out how many we've requested already (ICX.currentOffset)
+        // figure out how many we actually have (PB.Data.getDecryptedPuffs)
+        var delta = visibleLimit - PB.Data.getDecryptedPuffs().length
+        ICX.currentOffset += delta
+        return PB.getSomePuffs(query, ICX.currentOffset)
+    }
+
+    // TODO: put a timeout in xhr
+    // TODO: chain this in to the table view
+
+*/ 
+               
+               
     
     return PB.Net.getJSON(url, data)
 }
 
-PB.Net.getPrivatePuffsForMe = function(username) {
+PB.Net.getPrivatePuffsForMe = function(username, batchsize, offset) {
     if(!username) return PB.emptyPromise()
+    batchsize = batchsize || CONFIG.globalBigBatchLimit
     
     var url  = CONFIG.puffApi
     var data = { route: username
                , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+               , type: 'getPuffs', numb: batchsize, offset: offset
+               , sort: 'DESC'
                }
     
     return PB.Net.getJSON(url, data)

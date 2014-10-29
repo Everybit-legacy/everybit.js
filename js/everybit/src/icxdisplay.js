@@ -265,6 +265,14 @@ var ICXSplash = React.createClass({
         })
     },
     handleBeginTour: function() {
+        toggleSpinner()
+
+        passphrase = generatePassphrase(ICX.passphraseWords,4)
+        createICXUser(generateRandomUsername(), passphrase, function() {
+            console.log("logged in and ready to tour!")
+            toggleSpinner()
+            // Login overhere
+        })
         return Events.pub('ui/tour', {
             'ICX.tour': {},
             'ICX.tour.sequence': 1,
@@ -2461,7 +2469,7 @@ var ICXSpinner = React.createClass({ /* Good */
             return <span></span>
         } else {
             return (
-                <div style={{zIndex: 1000, top: 0, textAlign: 'center', verticalAlign: 'middle', position: 'fixed', fontSize: spinnerHeight+'px', width: w+'px', height: h+'px', backgroundColor: 'rgba(255,255,255,.8)'}}>
+                <div style={{zIndex: 2000, top: 0, textAlign: 'center', verticalAlign: 'middle', position: 'fixed', fontSize: spinnerHeight+'px', width: w+'px', height: h+'px', backgroundColor: 'rgba(255,255,255,.8)'}}>
                     <div style={{width: '100%', height: '100%', position: 'relative', top: spinnerTop+'px'}}>
                         <i className="fa fa-spinner fa-spin" />
                     </div>
@@ -2844,12 +2852,17 @@ var ICXTour = React.createClass({
     getInitialState: function() {
         return {
             sequence: 1,
+            started: false,
+            ended: false,
             top: 100,
             left: 100,
-            tourText: 'Lets begin the tour by clicking BEGIN TOUR'
+            tourText: 'Lets begin the tour by clicking BEGIN TOUR, you may end the tour by clicking end tour'
         }
     },
     handleBeginTour: function() {
+        // Call register new user and send them welcome messages
+        // so that there are messages to show in tableview
+        this.setState({started: true})
         this.handleTriggerElement(1)
     },
 
@@ -2925,10 +2938,17 @@ var ICXTour = React.createClass({
     },
     handleNextStep: function() {
         this.handleResetElement(this.state.sequence)
-        this.handleTriggerElement(this.state.sequence+1)
-        this.setState({
-            sequence: this.state.sequence + 1
-        })
+        if(this.state.sequence == 5) {
+            this.setState({
+                tourText: 'Thanks for taking this tour, you may click end tour now',
+                ended: true
+            })
+        } else {
+            this.setState({
+                sequence: this.state.sequence + 1
+            })
+            this.handleTriggerElement(this.state.sequence+1)
+        }
     },
     render: function() {
 
@@ -2953,6 +2973,14 @@ var ICXTour = React.createClass({
             opacity: 0.8
         }
 
+        var beginToggle = {
+            display: (this.state.started) ? 'none' : 'block'
+        }
+
+        var nextToggle = {
+            display: (!this.state.ended && this.state.started) ? 'block': 'none'
+        }
+
         if(typeof puffworldprops.ICX.tour === 'undefined' || !puffworldprops.ICX.tour) {
             return <span></span>
         } else {
@@ -2961,8 +2989,8 @@ var ICXTour = React.createClass({
                     <div style={backDropStyle}></div>
                     <div style={wizardStyle}>
                         <p>{this.state.tourText}</p>
-                        <button onClick={this.handleBeginTour} > Begin Tour </button>
-                        <button onClick={this.handleNextStep} > Next Step </button>
+                        <button onClick={this.handleBeginTour} style={beginToggle}> Begin Tour </button>
+                        <button onClick={this.handleNextStep} style={nextToggle}> Next Step </button>
                         <button onClick={this.handleExitTour} > Exit Tour </button>
                     </div>
                 </div>

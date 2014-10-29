@@ -1162,7 +1162,7 @@ function getOffsetRect(elem) {
     var clientLeft = docElem.clientLeft || body.clientLeft || 0
     
     // (4)
-    var top  = box.top +  scrollTop - clientTop
+    var top  = box.top + box.height - scrollTop - clientTop
     var left = box.left + scrollLeft - clientLeft
     
     return { top: Math.round(top), left: Math.round(left) }

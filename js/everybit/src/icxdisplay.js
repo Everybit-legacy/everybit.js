@@ -2880,7 +2880,7 @@ var ICXTour = React.createClass({
         var coords = getOffsetRect(item)
 
         this.setState({
-            top: coords.top+item.scrollHeight,
+            top: coords.top,
             left: coords.left
         })
 

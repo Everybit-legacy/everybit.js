@@ -89,19 +89,6 @@ PB.Data.getPublicShells = function() {
 }
 
 /**
- * get currently known private shells for a particular user
- * @param {string} username
- * @returns {Shell[]}
- */
-PB.Data.getMyPrivateShells = function(username) {
-    // CURRENTLY UNUSED
-    //// Get currently known private shells for a particular user
-    var shells = PB.Data.getShells()
-    username = username || PB.getCurrentUsername()
-    return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
-}
-
-/**
  * Get cached shells by sig
  * @param {string} sig
  * @returns {shell[]}
@@ -439,18 +426,33 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
     PB.M.Forum.addFamilialEdges([letter])                          // we're doing this manually because no onNewPuffs 
 }
 
-PB.Data.importPrivateShells = function(username) {    
+PB.Data.importPrivateShells = function(username) {
+    if(!username)
+        username = PB.getCurrentUsername()
+    
     // THINK: race condition while toggling identities?
     var batchsize = 20
 
-    var promForMe = PB.Net.getPrivatePuffsForMe(username, batchsize) 
-    promForMe.then(PB.Data.addShellsThenMakeAvailable)
-    
-    var promFromMe = PB.Net.getPrivatePuffsFromMe(username, batchsize) 
-    promFromMe.then(PB.Data.addShellsThenMakeAvailable)
+    PB.Net.getMyPrivatePuffs(username, batchsize)
+          .then(PB.Data.addShellsThenMakeAvailable)
+
+    // var promForMe = PB.Net.getPrivatePuffsForMe(username, batchsize)
+    // promForMe.then(PB.Data.addShellsThenMakeAvailable)
+    //
+    // var promFromMe = PB.Net.getPrivatePuffsFromMe(username, batchsize)
+    // promFromMe.then(PB.Data.addShellsThenMakeAvailable)
 }
 
-PB.Data.clearExistingPrivateShells = function() {
+PB.Data.updatePrivateShells = function() {
+    var username = PB.getCurrentUsername()
+    
+    var batchsize = 1
+
+    PB.Net.getMyPrivatePuffs(username, batchsize)
+          .then(PB.Data.addShellsThenMakeAvailable)
+}
+
+PB.Data.removeExistingPrivateShells = function() {
     PB.Data.currentDecryptedLetters.forEach(function(shell) {
         PB.Data.purgeShellFromGraph(shell.sig) // THINK: is this always the most effective way?
     })

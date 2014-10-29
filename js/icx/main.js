@@ -276,17 +276,7 @@ setPropsFromURL();                                  // handle pushstate hash
 
 popMods();                                          // deflate any machine prefs
 
-//// PRIVATE PUFF GATHERER
-
-var getMyPrivateShells = function() {
-    var username = PB.getCurrentUsername()
-    if(username)
-        PB.Data.importPrivateShells(username)
-}
-
-setInterval(getMyPrivateShells, 60*1000)
-
-//// END PRIVATE PUFF GATHERER
+setInterval(PB.Data.updatePrivateShells, 60*1000)
 
 
 //// BUILD CRYPTO WORKER

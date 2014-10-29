@@ -56,6 +56,43 @@ PB.init = function(zone) {
     PB.Net.init()
 }
 
+/**
+ * it is called by core Puff library any time puffs are added to the system
+ * @param  {Puff[]} puffs
+ * @return {Puff[]}
+ */
+PB.receiveNewPuffs = function(puffs) {
+    //// called by core Puff library any time puffs are added to the system
+    
+    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
+    
+    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
+
+    // THINK: why didn't we allow shells through here, and should we in the future?
+    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
+    // puffs = puffs.filter(function(puff) {
+    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
+    
+    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    
+    return puffs;
+}
+
+/**
+ * add new callback which is called when a new puff added to the system
+ * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
+ */
+PB.onNewPuffs = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    PB.newPuffCallbacks.push(callback);
+}
+
+PB.addRelationship = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    // TODO: make this apply to the graph cycle directly!
+    PB.newPuffCallbacks.push(callback);
+}
+
 
 /**
  * build a new puff object based on the parameters;  
@@ -163,21 +200,21 @@ PB.usernamesToUserRecords = function(usernames) {
  * @param  {string} content  
  * @param  {object} payload  
  * @param  {string} previous 
- * @return {object}          object which has similar structure as a puff (without signature)
+ * @return {object} object which has similar structure as a puff (without signature)
  */
 PB.packagePuffStructure = function(versionedUsername, routes, type, content, payload, previous) {
-    payload = payload || {}                             // TODO: check all of these values more carefully
+    payload = payload || {}                     // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
 
     routes = routes || []
-    previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
+    previous = previous || false                // false for DHT requests and beginning of blockchain, else valid sig
 
     var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.1.0'                      // version accounts for crypto type and puff shape
-               ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
+               ,  version: '0.1.0'              // version accounts for crypto type and puff shape
+               ,  payload: payload              // early versions will be aggressively deprecated and unsupported
                }
     
     return puff
@@ -442,41 +479,6 @@ PB.addPuffToSystem = function(puff) {
     return puff;
 }
 
-/**
- * it is called by core Puff library any time puffs are added to the system
- * @param  {Puff[]} puffs
- * @return {Puff[]}
- */
-PB.receiveNewPuffs = function(puffs) {
-    //// called by core Puff library any time puffs are added to the system
-    
-    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
-    
-    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
-
-    // THINK: why didn't we allow shells through here, and should we in the future?
-    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
-    // puffs = puffs.filter(function(puff) {
-    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
-    
-    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
-    
-    return puffs;
-}
-
-/**
- * add new callback which is called when a new puff added to the system
- * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
- */
-PB.onNewPuffs = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback);
-}
-
-PB.addRelationship = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback);
-}
 
 /**
  * return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.

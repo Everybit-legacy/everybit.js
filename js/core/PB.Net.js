@@ -123,6 +123,22 @@ PB.Net.getPrivatePuffsForMe = function(username, batchsize, offset) {
     return PB.Net.getJSON(url, data)
 }
 
+PB.Net.getMyPrivatePuffs = function(username, batchsize, offset) {
+    if(!username) return PB.emptyPromise()
+    batchsize = batchsize || CONFIG.globalBigBatchLimit
+    
+    var url  = CONFIG.puffApi
+    var data = { route: username
+               , contentType: 'encryptedpuff', fullOrShell: 'full'
+               , type: 'getPuffs', numb: batchsize, offset: offset
+               , sort: 'DESC', fromAndTo: 1
+               }
+    
+    return PB.Net.getJSON(url, data)
+}
+
+// https://i.cx/api/puffs/api.php?conversationPartners=mattasher,icx.adamrafeek&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
+
 PB.Net.getProfilePuff = function(username) {
     var url  = CONFIG.puffApi
     var data = { username: username

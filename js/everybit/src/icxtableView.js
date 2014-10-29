@@ -57,7 +57,7 @@ var TableView = React.createClass({
     forceRefreshPuffs: function() {
         var cl = this.refs.refresh.getDOMNode().classList
         cl.toggle("fa-spin")
-        getMyPrivateShells()
+        PB.Data.updatePrivateShells()
         setTimeout(
             function() {cl.toggle("fa-spin")},2000
         )

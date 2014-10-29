@@ -159,6 +159,7 @@ var ICXWorld = React.createClass({
 
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
+            {position: 0, name: 'splash', button: false, icon: 'fa-home', fullText: 'ICX', component: ICXSplash},
             {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -225,8 +226,6 @@ var ICXWorld = React.createClass({
             maxWidth: w
         }
 
-
-
         var borderStyle =  {
             width: borderWidth,
             backgroundColor: screenInfo.color,
@@ -234,21 +233,59 @@ var ICXWorld = React.createClass({
             height: '100%'
         }
 
+        if(currScreen == 'splash') {
+            return (
+                <ICXSplash />
+            )
+        } else {
+            return (
+                <span>
+                    <div style={borderStyle} />
+                    <div style={screenStyle} className="screen">
+                        <ICXLogo screenInfo={screenInfo} />
+                        <ICXLinks screenInfo={screenInfo} />
+                        <div style={contentDivStyles}>
+                            <ICXError />
+                            {pageComponent}
+                        </div>
+                        <ICXSpinner />
+                    </div>
+                    <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
+                </span>
+            )
+        }
+    }
+})
+
+var ICXSplash = React.createClass({
+    handleGoTo: function(screen) {
+        return Events.pub('ui/icx/screen', {
+            'view.icx.screen': screen
+        })
+    },
+    render: function() {
+
+        var screenStyle = {
+            width: '100%',
+            height: '100%',
+            overflow: 'hidden',
+            backgroundColor: 'black',
+            backgroundImage: 'url(' + 'img/icx/splash.jpg' + ')'
+        }
 
         return (
-            <span>
-                <div style={borderStyle} />
-                <div style={screenStyle} className="screen">
-                    <ICXLogo screenInfo={screenInfo} />
-                    <ICXLinks screenInfo={screenInfo} />
-                    <div style={contentDivStyles}>
-                        <ICXError />
-                        {pageComponent}
+            <div style={screenStyle}>
+                <div className="splashContainer">
+                    <div className="splashText">
+                        <p>The world’s first 100% secure file storage and messaging system to work right in your web browser.</p>
                     </div>
-                    <ICXSpinner />
+                    <div className="splashButtons">
+                        <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Register</p></div>
+                        <div className="splashButton" onClick={this.handleGoTo.bind(null, 'login')}><p>Login</p></div>
+                        <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Take a Tour</p></div>
+                    </div>
                 </div>
-                <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
-            </span>
+            </div>
         )
     }
 })
@@ -1602,11 +1639,11 @@ var ICXNewUser = React.createClass({ /* Good */
             createICXUser(requestedUsername, passphrase, function() {
                 toggleSpinner()
 
-                userHasShells(PB.getCurrentUsername(), function(numShells) {
+                /*userHasShells(PB.getCurrentUsername(), function(numShells) {
                     Events.pub('ui/event',{
                         'ICX.hasShells': numShells
                     })
-                })
+                })*/
             })
         }
         catch(err) {
@@ -1658,16 +1695,6 @@ var ICXLogin = React.createClass({ /* Good */
                 <div style={headerStyle}>{polyglot.t("header.login")}</div>
 
                 <div className="contentWindow">
-                    <div className="relative">
-                        Select an identity file:
-                        <Tooltip content="Authenticate with this browser using your private identity file" />
-                    </div>
-                    <ICXFileUploader styling={headerStyle} />
-                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
-
-                    <br /><br />
-                    <i><em>{polyglot.t("login.or")}</em></i>
-                    <br /><br />
                     <div style={labelStyle}><b>{polyglot.t("login.username")}</b></div>
                     <input type="text" name="username" ref="username" defaultValue='' style={{size: 16, width:'60%'}} onBlur={this.handleUsernameLookup} onChange={this.verifyUsername} />
                     <span className="relative">
@@ -1687,6 +1714,17 @@ var ICXLogin = React.createClass({ /* Good */
                     <a className="inline" onClick={this.togglePassphraseView}><i className={cbClass}></i><span className="small">Show password</span></a>
                     <br /><br />
                     <a style={ICX.buttonStyle} onClick={this.handleLogin} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
+
+                    <br /><br />
+                    <i><em>{polyglot.t("login.or")}</em></i>
+                    <br /><br />
+
+                    <div className="relative">
+                    Select an identity file:
+                        <Tooltip content="Authenticate with this browser using your private identity file" />
+                    </div>
+                    <ICXFileUploader styling={headerStyle} />
+                    <a style={ICX.buttonStyle} onClick={this.handleLoginWithFile} className="icxNextButton icx-fade"> Authenticate <i className="fa fa-chevron-right small" /></a>
                 </div>
             </div>
             )
@@ -1715,7 +1753,7 @@ var ICXLogin = React.createClass({ /* Good */
             })
             return false
         }
-        var startsWithICX = (username.substring(0,4) == "icx.")
+        //var startsWithICX = (username.substring(0,4) == "icx.")
 
         var prom = PB.getUserRecordPromise(username)
 
@@ -1725,15 +1763,9 @@ var ICXLogin = React.createClass({ /* Good */
             })
         })
             .catch(function (err) {
-                if(!startsWithICX) {
-                    Events.pub('ui/puff-packer/userlookup/failed', {
-                        'ICX.usernameStatus': 'Missing \'icx.\' prefix'
-                    })
-                } else {
-                    Events.pub('ui/puff-packer/userlookup/failed',{
-                        'ICX.usernameStatus': 'Invalid Username'
-                    })
-                }
+                Events.pub('ui/puff-packer/userlookup/failed',{
+                    'ICX.usernameStatus': 'Invalid Username'
+                })
             })
         return false
     },
@@ -1936,6 +1968,8 @@ var ICXDashboard = React.createClass({ /* Good */
                 "As a result, you may not be able to download identity files or files you have encrypted."
 
             Events.pub('/ui/icx/error', {"icx.errorMessage": true})
+        } else {
+            Events.pub('/ui/icx/error', {"icx.errorMessage": false})
         }
         Events.pub('ui/event', {
             'ICX.wizard': undefined,
@@ -2518,6 +2552,8 @@ var ICXLogo = React.createClass({ /* Good */
                     </div>
                 </div>
                 )
+        } else if(puffworldprops.view.icx.screen == 'splash') {
+            return <span></span>
         } else {
 
             var logoW = w*ICX.config.logoSmallRatio
@@ -2553,8 +2589,11 @@ var ICXLinks = React.createClass({ /* Good */
             }
 
         })
-
-        return <span>{buttonLinks}</span>
+        if (puffworldprops.view.icx.screen == 'splash') {
+            return <span></span>
+        } else {
+            return <span>{buttonLinks}</span>
+        }
     }
 })
 
@@ -2746,6 +2785,7 @@ var ICXUserButton = React.createClass({  /* Good */
 
     handleGoTo: function(screen) {
         if(screen == 'home.table') this.handleClearFilters()
+        Events.pub('ui/icx/errors', {"icx.errorMessage": false})
         return Events.pub('/ui/icx/screen', {"view.icx.screen": screen})
     },
 

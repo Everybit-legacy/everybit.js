@@ -57,7 +57,7 @@ var TableView = React.createClass({
     forceRefreshPuffs: function() {
         var cl = this.refs.refresh.getDOMNode().classList
         cl.toggle("fa-spin")
-        getMyPrivateShells()
+        PB.Data.updatePrivateShells()
         setTimeout(
             function() {cl.toggle("fa-spin")},2000
         )
@@ -380,7 +380,7 @@ var ICXRelationshipInfo = React.createClass({
     getReferenceIcon: function(sig, type) {
         if (!sig) return <span></span>
         var preview = <span></span>
-        var puff = PB.M.Forum.getPuffBySig(sig)
+        var puff = PB.getPuffBySig(sig)
         if (puff.payload && puff.payload.content) {
             var puffContent = PB.M.Forum.getProcessedPuffContent(puff)
             preview = <div className="rowReferencePreview"><span dangerouslySetInnerHTML={{__html: puffContent}}></span></div>

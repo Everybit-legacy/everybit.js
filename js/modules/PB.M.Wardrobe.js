@@ -6,10 +6,10 @@
     |   __/|____/ |__|   |__|    \/\_/  (____  /__|  \____ | |__|   \____/|___  /\___  >
     |__|                                     \/           \/                  \/     \/ 
   
-  A Puffball module for managing identities locally.
+  A Puffball module for managing identities and private data locally.
   ==================================================
 
-  The Wardrobe manages identities and aliases.  
+  The Wardrobe manages identities, aliases, and private data.
 
   An identity is a username and a list of all known aliases. The identity also lists the last known primary alias, if there is one, and the identity's private preferences. 
 
@@ -22,6 +22,8 @@
   Currently capa counts by consecutive integers. This may change in the future. Any set deriving Eq and Ord will work.
 
   An identity file can be exported to the local filesystem and imported back in to the system.
+
+  Private data is a black box for 
 
   Usage examples:
       PB.switchIdentityTo(username)
@@ -189,10 +191,10 @@ PB.M.Wardrobe = {}
         processUpdates()
         
         if(username && identity && identity.primary)
-            PB.getUserRecord(username, identity.primary.capa) // fetch our userRecord 
+            PB.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
 
         // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-        PB.Data.clearExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
+        PB.Data.removeAllPrivateShells() // OPT: destroying and re-requesting this is unnecessary
         PB.Data.importPrivateShells(username)
 
         // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
@@ -230,7 +232,7 @@ PB.M.Wardrobe = {}
         //// Ensure keys match the userRecord
         //// NOTE: this is currently unused
     
-        var prom = PB.getUserRecord(username, capa)
+        var prom = PB.getUserRecordPromise(username, capa)
     
         return prom
             .then(function(userRecord) {
@@ -244,7 +246,7 @@ PB.M.Wardrobe = {}
         
                 return userRecord
             }
-            , PB.promiseError('Could not store private keys due to faulty user record'))
+            , PB.catchError('Could not store private keys due to faulty user record'))
     }
 
     function processUpdates() {

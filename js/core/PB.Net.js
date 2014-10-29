@@ -46,21 +46,6 @@ PB.Net.getKidSigs = function(sig) {
 PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
 
 
-/**
- * get the shells of all puff as an array
- * @return {Puff[]}
- */
-PB.Net.getAllShells = function() {
-    
-    // NOTE: don't use this in production!!
-    
-    var url  = CONFIG.puffApi;
-    var data = {type: 'getAllPuffShells'};
-    
-    if(CONFIG.noNetwork) return PB.emptyPromise();    // THINK: this is only for debugging and development
-    
-    return PB.Net.getJSON(url, data);
-}
 
 PB.Net.getStarShells = function() {
     var url  = CONFIG.puffApi;
@@ -69,29 +54,51 @@ PB.Net.getStarShells = function() {
     return PB.Net.getJSON(url, data);
 }
 
-PB.Net.getPrivatePuffsFromMe = function(username) {
+
+
+PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     if(!username) return PB.emptyPromise()
+    batchsize = batchsize || CONFIG.globalBigBatchLimit
     
     var url  = CONFIG.puffApi
-    var data = { username: username
-               , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+    var data = { route: username, username: username, fromAndTo: 1
+               , type: 'getPuffs', contentType: 'encryptedpuff'
+               , fullOrShell: fullOrShell || 'full'
+               , numb: batchsize
+               , offset: offset
                }
     
     return PB.Net.getJSON(url, data)
+    
+    
+    // ok. same thing as usual: grab the latest 20, then let the table drive it after that. 
+    // also, you can test for newness with just 1 puff.
+    // also, this should be so much simpler...
+
+/*
+
+    So something like:
+
+    PB.getSomePuffs(query, limit, etc)
+
+    helper.js:
+    tryGettingMorePuffs(visibleLimit) {
+        // figure out how many we've requested already (ICX.currentOffset)
+        // figure out how many we actually have (PB.Data.getDecryptedPuffs)
+        var delta = visibleLimit - PB.Data.getDecryptedPuffs().length
+        ICX.currentOffset += delta
+        return PB.getSomePuffs(query, ICX.currentOffset)
+    }
+
+
+*/ 
+
+    // TODO: put a timeout in xhr
+    // TODO: chain this in to the table view
+    
+    // https://i.cx/api/puffs/api.php?conversationPartners=mattasher,icx.adamrafeek&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
 }
 
-PB.Net.getPrivatePuffsForMe = function(username) {
-    if(!username) return PB.emptyPromise()
-    
-    var url  = CONFIG.puffApi
-    var data = { route: username
-               , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
-               }
-    
-    return PB.Net.getJSON(url, data)
-}
 
 PB.Net.getProfilePuff = function(username) {
     var url  = CONFIG.puffApi
@@ -277,7 +284,7 @@ PB.Net.getAllPuffs = function() {
                .catch(function(err) {
                    rec(gen, resolve, reject);
                    // setTimeout(function() {rec(gen, resolve, reject)}, 100);
-                   // reject(PB.promiseError('Network error while accumulating puffs')(err))
+                   // reject(PB.catchError('Network error while accumulating puffs')(err))
                });
     }
     
@@ -320,7 +327,7 @@ PB.Net.sendPuffToServer = function(puff) {
                      if(response.slice(0,6) == '{"FAIL')
                          PB.throwError(response)
                   }) 
-                 .catch(PB.promiseError('Could not send puff to server'));
+                 .catch(PB.catchError('Could not send puff to server'));
 }
 
 /**
@@ -333,10 +340,10 @@ PB.Net.getUserRecord = function(username, capa) {
     var url   = CONFIG.userApi
     
     var versionedUsername = PB.maybeVersioned(username, capa)
-    var uc = PB.breakVersionedUsername(versionedUsername)
-    username = uc.username
+    username = PB.justUsername(versionedUsername)
+    
     if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
-        capa = uc.capa
+        capa = PB.justCapa(versionedUsername)
     
     var data  = { type: 'getUser'
                 , username: username
@@ -353,7 +360,7 @@ PB.Net.getUserRecord = function(username, capa) {
                     if(!userRecord)  PB.throwError('Invalid user record returned')
                     return userRecord
                 }
-                , PB.promiseError('Unable to access user information from the DHT'))
+                , PB.catchError('Unable to access user information from the DHT'))
 }
 
 /**
@@ -373,7 +380,7 @@ PB.Net.getUserRecord = function(username, capa) {
 //                     return userRecords.map(PB.processUserRecord)
 //                                       .filter(Boolean);
 //                 }
-//                 , PB.promiseError('Unable to access user file from the DHT'));
+//                 , PB.catchError('Unable to access user file from the DHT'));
 // }
 
 /**
@@ -418,7 +425,7 @@ PB.Net.updateUserRecord = function(puff) {
 
     var prom = PB.Net.post(CONFIG.userApi, data)
     
-    return prom.catch(PB.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(PB.catchError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 

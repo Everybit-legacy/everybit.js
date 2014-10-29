@@ -56,6 +56,43 @@ PB.init = function(zone) {
     PB.Net.init()
 }
 
+/**
+ * it is called by core Puff library any time puffs are added to the system
+ * @param  {Puff[]} puffs
+ * @return {Puff[]}
+ */
+PB.receiveNewPuffs = function(puffs) {
+    //// called by core Puff library any time puffs are added to the system
+    
+    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
+    
+    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
+
+    // THINK: why didn't we allow shells through here, and should we in the future?
+    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
+    // puffs = puffs.filter(function(puff) {
+    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
+    
+    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    
+    return puffs;
+}
+
+/**
+ * add new callback which is called when a new puff added to the system
+ * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
+ */
+PB.onNewPuffs = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    PB.newPuffCallbacks.push(callback);
+}
+
+PB.addRelationship = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    // TODO: make this apply to the graph cycle directly!
+    PB.newPuffCallbacks.push(callback);
+}
+
 
 /**
  * build a new puff object based on the parameters;  
@@ -111,6 +148,10 @@ PB.postPrivateMessage = function(content, usernames, type) {
     return prom.then(function(userRecords) {
         var myUserRecord = PB.getCurrentUserRecord()
         userRecords.push(myUserRecord)
+        
+        // TODO: add timestamp here (sigh)
+        // TODO: actually, move this off in to a helper where it can be easily edited (maybe include a function here to do accept that function as an argument?)
+        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
@@ -159,21 +200,21 @@ PB.usernamesToUserRecords = function(usernames) {
  * @param  {string} content  
  * @param  {object} payload  
  * @param  {string} previous 
- * @return {object}          object which has similar structure as a puff (without signature)
+ * @return {object} object which has similar structure as a puff (without signature)
  */
 PB.packagePuffStructure = function(versionedUsername, routes, type, content, payload, previous) {
-    payload = payload || {}                             // TODO: check all of these values more carefully
+    payload = payload || {}                     // TODO: check all of these values more carefully
     payload.content = content
     payload.type = type
 
     routes = routes || []
-    previous = previous || false                        // false for DHT requests and beginning of blockchain, else valid sig
+    previous = previous || false                // false for DHT requests and beginning of blockchain, else valid sig
 
     var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.1.0'                      // version accounts for crypto type and puff shape
-               ,  payload: payload                      // early versions will be aggressively deprecated and unsupported
+               ,  version: '0.1.0'              // version accounts for crypto type and puff shape
+               ,  payload: payload              // early versions will be aggressively deprecated and unsupported
                }
     
     return puff
@@ -239,9 +280,14 @@ PB.userRecordToVersionedUsername = function(userRecord) {
     return PB.makeVersionedUsername(userRecord.username, userRecord.capa)
 }
 
-PB.usernameFromVersioned = function(versionedUsername) {
+PB.justUsername = function(versionedUsername) {
     var uc = PB.breakVersionedUsername(versionedUsername)
     return uc.username
+}
+
+PB.justCapa = function(versionedUsername) {
+    var uc = PB.breakVersionedUsername(versionedUsername)
+    return uc.capa
 }
 
 PB.maybeVersioned = function(username, capa) {
@@ -365,7 +411,7 @@ PB.processUserRecord = function(userRecord) {
  * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
-PB.getUserRecord = function(username, capa) {
+PB.getUserRecordPromise = function(username, capa) {
     //// This always checks the cache, and always returns a promise
     
     var versionedUsername = PB.maybeVersioned(username, capa)
@@ -433,41 +479,6 @@ PB.addPuffToSystem = function(puff) {
     return puff;
 }
 
-/**
- * it is called by core Puff library any time puffs are added to the system
- * @param  {Puff[]} puffs
- * @return {Puff[]}
- */
-PB.receiveNewPuffs = function(puffs) {
-    //// called by core Puff library any time puffs are added to the system
-    
-    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
-    
-    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
-
-    // THINK: why didn't we allow shells through here, and should we in the future?
-    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
-    // puffs = puffs.filter(function(puff) {
-    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
-    
-    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
-    
-    return puffs;
-}
-
-/**
- * add new callback which is called when a new puff added to the system
- * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
- */
-PB.onNewPuffs = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback);
-}
-
-PB.addRelationship = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback);
-}
 
 /**
  * return an encrypted version of the puff. this has to be done before signing. userRecords must be fully instantiated.
@@ -509,29 +520,45 @@ PB.getDecryptedPuffPromise = function(envelope) {
     //// pull a letter out of the envelope -- returns a promise!
 
     if(!envelope || !envelope.keys) 
-        return PB.onError('Envelope does not contain an encrypted letter')
+        return PB.emptyPromise('Envelope does not contain an encrypted letter')
     
-    var yourVersionedUsername   = envelope.username
-    var yourVersionedUserRecord = PB.Data.getCachedUserRecord(yourVersionedUsername)
-    var prom = PB.emptyPromise()
+    var senderVersionedUsername = envelope.username
+    var userProm = PB.getUserRecordPromise(senderVersionedUsername)
     
-    PB.useSecureInfo(function(identites, currentUsername) {
-        // NOTE: leaks a promise which resolves to unencrypted puff
+    var prom = userProm
+    .catch(PB.catchError('User record acquisition failed'))
+    .then(function(senderVersionedUserRecord) {
+        var prom // used for leaking secure promise
+    
+        PB.useSecureInfo(function(identites, currentUsername) {
+            // NOTE: leaks a promise which resolves to unencrypted puff
         
-        var keylist = Object.keys(envelope.keys)
-        var versionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-        if(!versionedUsername)
-            return PB.onError('No key found for current user')
-        
-        var alias = PB.getAliasByVersionedUsername(identites, versionedUsername)
-        var privateDefaultKey = alias.privateDefaultKey
-        // letter = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
+            var keylist = Object.keys(envelope.keys)
+            var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
+            if(!myVersionedUsername)
+                return PB.throwError('No key found for current user')
 
-        prom = new Promise(function(resolve, reject) {
-            PB.workersend('decryptPuffForReals', [envelope, yourVersionedUserRecord.defaultKey, versionedUsername, privateDefaultKey], resolve, reject)
+            var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
+            var privateDefaultKey = alias.privateDefaultKey
+
+            prom = new Promise(function(resolve, reject) {
+                return PB.workersend
+                     ? PB.workersend( 'decryptPuffForReals'
+                                    , [ envelope
+                                      , senderVersionedUserRecord.defaultKey
+                                      , myVersionedUsername
+                                      , privateDefaultKey ]
+                                    , resolve, reject )
+                     : resolve( PB.decryptPuffForReals( envelope
+                                                      , senderVersionedUserRecord.defaultKey
+                                                      , myVersionedUsername
+                                                      , privateDefaultKey ) )
+            })
         })
-    })
 
+        return prom
+    })
+    
     return prom
 }
 
@@ -541,22 +568,89 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
     var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = PB.tryDecodeOyVey(escape(letterString)); // encoding
+    letterString = PB.tryDecodeURIComponent(escape(letterString)); // encoding
     return PB.parseJSON(letterString)
 }
 
-// PB.decryptPuff -> PB.decryptPuffForReals if there's no PB.cryptoworker
-// returns a promise that resolves to the decrypted whatsit. 
-// update forum function and filesystem call site
-// maybe make worker promise wrapper layer
+// -- PB.decryptPuff -> PB.decryptPuffForReals if there's no PB.cryptoworker
+// -- returns a promise that resolves to the decrypted whatsit. 
+// -- update forum function and filesystem call site
+// - maybe make worker promise wrapper layer
 
-PB.tryDecodeOyVey = function(str) {
+PB.tryDecodeURIComponent = function(str) {
     //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.
     try {
         return decodeURIComponent(str)
     } catch(err) {
         return PB.onError('Invalid URI string', err)
     }
+}
+
+
+PB.extractLetterFromEnvelope = function(envelope) {                     // the envelope is a puff
+    if(PB.Data.isBadEnvelope(envelope.sig)) 
+        return Promise.reject('Bad envelope')                           // flagged as invalid envelope
+
+    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
+    
+    if(maybeLetter)
+        return Promise.resolve(maybeLetter)                             // resolve to existing letter
+    
+    var prom = PB.getDecryptedPuffPromise(envelope)                     // do the decryption
+    
+    return prom.catch(function(err) { return false })
+               .then(function(letter) {
+                   if(!letter) {
+                       PB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
+                       return PB.throwError('Invalid envelope')         // bail out
+                   }
+
+                   return letter
+               })
+    
+}
+
+PB.addPrivateShell = function(envelope) {
+    var prom = PB.extractLetterFromEnvelope(envelope)
+
+    prom = prom.then(function(letter) {
+        if(!letter) return false
+        
+        var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
+        if(!fresh) return false
+        
+        PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
+        return true
+    })
+    
+    return prom
+    
+    // var letterPromises = privateShells.map(PB.extractLetterFromEnvelope)
+    
+    // NOTE: this doesn't appear to do much, mostly because PB.extractLetterFromEnvelope is quite effectful.
+    //       it calls PB.Data.addDecryptedLetter as part of its processing, which does all the real work.
+    
+    
+
+    // THINK: consider adding this back in, though remember that each decryption pushes its own errors...
+    // if (letters.length != privateShells.length) {
+    //     Events.pub('track/decrypt/some-decrypt-fails',
+    //                 {letters: letters.map(function(p){return p.sig}),
+    //                  privateShells: privateShells.map(function(p){return p.sig})})
+    // }
+}
+
+
+
+
+PB.getPuffBySig = function(sig) {
+    //// get a particular puff
+    var shell = PB.Data.getCachedShellBySig(sig)                        // check in regular cache
+    
+    if(!shell)
+        shell = PB.Data.getDecryptedLetterBySig(sig)                    // check in private cache
+    
+    return PB.getPuffFromShell(shell || sig)
 }
 
 
@@ -652,9 +746,8 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
             return PB.onError('Non-existent username')
         
         var versionedUsername = PB.maybeVersioned(username, capa)
-        var uc = PB.breakVersionedUsername(versionedUsername)
-        username = uc.username
-        capa = uc.capa
+        username = PB.justUsername(versionedUsername)
+        capa = PB.justCapa(versionedUsername)
         
         var identity = identities[username]
         if(!identity)
@@ -669,7 +762,7 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     PB.getUsernameFromList = function(list, username) {
         for(var i = 0; i < list.length; i++) {
             var key = list[i]
-            if(username == PB.breakVersionedUsername(key).username)
+            if(username == PB.justUsername(key))
                 return key
         }
         return false
@@ -780,7 +873,7 @@ PB.addNewAnonUser = function(attachToUsername) {
             
             return userRecord
         },
-        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
+        PB.catchError('Anonymous user ' + anonUsername + ' could not be added'))
 }
 
 
@@ -805,50 +898,37 @@ PB.onError = function(msg, obj) {
     return false
 }
 
-/**
- * promise error function
- * @param  {string} mes
- * @return {boolean}
- */
-PB.promiseError = function(msg) {
+// TODO: build a more general error handling system for GUI integration
+
+PB.catchError = function(msg) {
+    //// ex: prom.catch( PB.catchError('invalid foo') ).then(function(foo) {...})
     return function(err) {
         PB.onError(msg, err)
         throw err
     }
 }
 
-/**
- * throw error function
- * @param  {string} msg    
- * @param  {string} errmsg 
- * @return {boolean}
- */
 PB.throwError = function(msg, errmsg) {
+    //// ex: prom.then(function(foo) {if(!foo) PB.throwError('no foo'); ...})
     throw PB.makeError(msg, errmsg)
 }
 
 PB.makeError = function(msg, errmsg) {
+    //// ex: new Promise(function(resolve, reject) { if(!foo) reject( PB.makeError('no foo') ) ... })
     var err = Error(errmsg || msg)
     PB.onError(msg, err)
     return err
 }
 
-/**
- * check if false promise
- * @param  {string} msg     
- * @return {boolean}     
- */
 PB.emptyPromise = function(msg) {
+    //// ex: function(foo) { if(!foo) return PB.emptyPromise('no foo'); return getFooPromise(foo) }
     if(msg) PB.onError(msg)
     return Promise.reject(msg)
 }
 
-/**
- * check if the string is a valid JSON string
- * @param  {string} str 
- * @return {boolean}
- */
+
 PB.parseJSON = function(str) {
+    //// JSON.parse throws, so we catch it. throw/catch borks the JS VM optimizer, so we box it.
     try {
         return JSON.parse(str)
     } catch(err) {

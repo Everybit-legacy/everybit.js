@@ -184,7 +184,7 @@ var ViewKeybindingsMixin = {
 
 var CursorBindingsMixin = {
     gotoNext: function(current, dir) {
-        var next = Gridbox.findNeighbor(globalGridBox.get(), PB.M.Forum.getPuffBySig(current), dir)
+        var next = Gridbox.findNeighbor(globalGridBox.get(), PB.getPuffBySig(current), dir)
         if (next) {
             Events.pub('ui/view/cursor/set', {'view.cursor': next.sig})
             return true
@@ -532,7 +532,7 @@ var PuffTallTree = React.createClass({
     render: function() {
 
         var sig    = this.props.view.query.focus
-        var puff   = PB.M.Forum.getPuffBySig(sig)
+        var puff   = PB.getPuffBySig(sig)
 
         if(!puff) return <div></div>
         
@@ -592,7 +592,7 @@ var PuffTallTree = React.createClass({
         if(ancestorRows >= 1) {
             parents = PB.Data.graph.v(sig).out('parent')
                               .unique().filter(propsfilter).take(cols)
-                              .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                              .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             parentBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-1, 0, bigBoxStartRow-1, cols)
             ancestorBoxes = ancestorBoxes.concat(parents.map(parentBox('parent')))
@@ -603,7 +603,7 @@ var PuffTallTree = React.createClass({
         if(ancestorRows >= 2) {
             grandparents = PB.Data.graph.v(sig).out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notParent).take(cols)
-                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             gpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-2, 0, bigBoxStartRow-2, cols)
             ancestorBoxes = ancestorBoxes.concat(grandparents.map(gpBox('parent')))
@@ -614,7 +614,7 @@ var PuffTallTree = React.createClass({
         if(ancestorRows >= 2) {
             greatgrandparents = PB.Data.graph.v(sig).out('parent').out('parent').out('parent')
                                    .unique().filter(propsfilter).filter(notGrandParent).take(cols)
-                                   .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                                   .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             ggpBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, bigBoxStartRow-3, 0, bigBoxStartRow-3, cols)
             ancestorBoxes = ancestorBoxes.concat(greatgrandparents.map(ggpBox('parent')))
@@ -633,7 +633,7 @@ var PuffTallTree = React.createClass({
         if(descendantRows >= 1) {
             kids = PB.Data.graph.v(sig).out('child')
                            .unique().filter(propsfilter).take(cols)
-                           .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                           .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             kidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow, 0, childrenStartRow, cols)
             descendantBoxes = descendantBoxes.concat(kids.map(kidsBox('child')))
@@ -644,7 +644,7 @@ var PuffTallTree = React.createClass({
         if(descendantRows >= 2) {
             gkids = PB.Data.graph.v(sig).out('child').out('child')
                             .unique().filter(propsfilter).filter(notKid).take(cols)
-                            .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                            .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             gkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+1, 0, childrenStartRow+1, cols)
             descendantBoxes = descendantBoxes.concat(gkids.map(gkidsBox('child')))
@@ -655,7 +655,7 @@ var PuffTallTree = React.createClass({
         if(descendantRows >= 3) {
             ggkids = PB.Data.graph.v(sig).out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGKid).take(cols)
-                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             ggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+2, 0, childrenStartRow+2, cols)
             descendantBoxes = descendantBoxes.concat(ggkids.map(ggkidsBox('child')))
@@ -666,7 +666,7 @@ var PuffTallTree = React.createClass({
         if(descendantRows >= 4) {
             gggkids = PB.Data.graph.v(sig).out('child').out('child').out('child').out('child')
                              .unique().filter(propsfilter).filter(notGGKid).take(cols)
-                             .property('shell').run().map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                             .property('shell').run().map(PB.getPuffBySig).filter(Boolean)
 
             gggkidsBox = this.applySizes(1, 1, gridbox.add, {arrows: arrows}, childrenStartRow+3, 0, childrenStartRow+3, cols)
             descendantBoxes = descendantBoxes.concat(gggkids.map(gggkidsBox('child')))
@@ -687,21 +687,21 @@ var PuffTallTree = React.createClass({
         // var ancestorPuffs = PB.Data.graph.v(sig).outAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notSelf)
         //                             .take(ancestorTotal).property('shell').run()
-        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.getPuffBySig).filter(Boolean)
         //
         // var notAncestor = graphize(difffilter([puff].concat(ancestorPuffs)))
         //
         // var childrenPuffs = PB.Data.graph.v(sig).inAllN('parent', genLimit)
         //                             .unique().filter(propsfilter).filter(notAncestor)
         //                             .take(childrenTotal).property('shell').run()
-        //                             .map(PB.M.Forum.getPuffBySig).filter(Boolean)
+        //                             .map(PB.getPuffBySig).filter(Boolean)
         
         var notRelated = graphize(difffilter([puff].concat(ancestorPuffs, childrenPuffs)))
         
         var siblingPuffs  = PB.Data.graph.v(sig).out('parent').out('child')  // THINK: second cousins?
                                     .unique().filter(propsfilter).filter(notRelated)
                                     .take(siblingTotal).property('shell').run()
-                                    .map(PB.M.Forum.getPuffBySig).filter(Boolean)
+                                    .map(PB.getPuffBySig).filter(Boolean)
         
         // fill remaining slots
         // TODO: this isn't right with the new stuff

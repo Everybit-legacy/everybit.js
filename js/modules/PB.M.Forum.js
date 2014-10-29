@@ -37,63 +37,6 @@ PB.M.Forum.init = function() {
     PB.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }
 
-/**
- * get shells, filtered by a query and queried by filters
- * @param {string} query
- * @param {string} filters
- * @returns {Shell[]}
- */
-PB.M.Forum.getShells = function(query, filters) {
-    /// get shells, filtered by a query and queried by filters
-    //  NOTE: we include query and filters here so this layer can grow more sophisticated over time
-    //  TODO: actually make this more sophisticated (probably via Dagoba)
-    
-    var shells = PB.M.Forum.getAllMyShells()
-    
-    return PB.M.Forum.filterShells(shells, query, filters)   
-}
-
-/**
- * filter shells from provided query and filters
- * @param {Array} shells
- * @param {string} query
- * @param {string} filters
- * @returns {Shell[]}
- */
-PB.M.Forum.filterShells = function(shells, query, filters) {
-    return shells.filter(PB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
-}
-
-/**
- * to get all my shells
- * @returns {Shell[]}
- */
-PB.M.Forum.getAllMyShells = function() {
-    var publicShells = PB.Data.getPublicShells()
-    var encryptedShells = PB.M.Forum.getEncryptedShells()
-    return publicShells.concat(encryptedShells)
-}
-
-/**
- * to get encrypted shells
- * @returns {Shell[]}
- */
-PB.M.Forum.getEncryptedShells = function() {
-    // TODO: check 'all or one' wardrobe toggle, if true get for all wardrobe users
-
-    
-    
-    return PB.Data.getCurrentDecryptedShells()
-    
-    
-    
-    // var myUsername = PB.getCurrentUsername()
-    // var encryptedShells = PB.Data.getMyEncryptedShells(myUsername)
-    //                              .map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
-    //                              .filter(Boolean)
-    //
-    // return encryptedShells
-}
 
 /**
  * filter puffs by prop filters
@@ -139,14 +82,14 @@ PB.M.Forum.filterByFilters = function(filters) {
 
         // USERS
         if(filters.users && filters.users.length > 0)
-            if(!~filters.users.indexOf(PB.usernameFromVersioned(shell.username))) return false
+            if(!~filters.users.indexOf(PB.justUsername(shell.username))) return false
 
 
         if(filters.roots)
             if((shell.payload.parents||[]).length) return false
 
         if(filters.ancestors && filters.focus) {
-            var focus = PB.M.Forum.getPuffBySig(filters.focus) // TODO: this is wrong
+            var focus = PB.getPuffBySig(filters.focus) // TODO: this is wrong
             if(focus.payload && !~focus.payload.parents.indexOf(shell.sig)) return false
         }
 
@@ -162,119 +105,6 @@ PB.M.Forum.filterByFilters = function(filters) {
 }
 
 
-
-
-PB.M.Forum.secretStash = {}
-PB.M.Forum.horridStash = {}
-
-/**
- * get stashed shells by sig
- * @param {string} username
- * @param {string} sig
- * @returns {Shell[]}
- */
-PB.M.Forum.getStashedShellBySig = function(username, sig) {
-    if(!PB.M.Forum.secretStash[username])
-        PB.M.Forum.secretStash[username] = {}
-    
-    if(PB.M.Forum.secretStash[username][sig])
-        return PB.M.Forum.secretStash[username][sig]
-}
-
-/**
- * determine if it is bad envelope
- * @param {string} sig
- * @returns {Object}
- */
-PB.M.Forum.badEnvelope = function(sig) {
-    return PB.M.Forum.horridStash[sig]
-}
-
-/**
- * extract letter from envelope by virtue of decryption
- * @param {Object} envelope
- * @returns {Boolean|Shell[]}
- */
-PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption = function(envelope) {      // the envelope is a puff
-    var currentUsername = PB.getCurrentUsername()
-    var maybeShell = PB.M.Forum.getStashedShellBySig(currentUsername, envelope.sig)  // also preps stash for additions
-    
-    if(maybeShell) return maybeShell                                                 // already decrypted it
-    if(PB.M.Forum.badEnvelope(envelope.sig)) return false
-
-    var yourUsername   = envelope.username
-    var yourUserRecord = PB.Data.getCachedUserRecord(yourUsername)
-
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
-    
-        function getProm(envelope, yourUserRecord) {
-            var prom = PB.getDecryptedPuffPromise(envelope)
-            // var prom = PB.decryptPuff(envelope, yourUserRecord.defaultKey, currentUsername, privateDefaultKey)
-            return prom.then(function(letter) {
-                if(!letter) {
-                    PB.M.Forum.horridStash[envelope.sig] = true
-                    Events.pub('track/decryption-fail/bad-envelope', {envelope: envelope.sig})
-                    return false
-                }
-            
-                PB.M.Forum.secretStash[currentUsername][envelope.sig] = letter       // letter is a puff too
-                PB.M.Forum.secretStash[currentUsername][letter.sig] = letter         // stash it both ways
-                PB.Data.addBonus(letter, 'envelope', envelope)                       // mark it for later
-                return letter
-            })
-        }
-    
-        if(yourUserRecord) {        
-            var prom = getProm(envelope, yourUserRecord)
-            prom.then(function(decrypted) {
-                // if(decrypted) updateUI()
-
-                if(!decrypted) return false
-            
-                PB.Data.currentDecryptedShells.push(decrypted)
-                PB.Data.addToGraph([decrypted])
-                PB.M.Forum.addFamilialEdges([decrypted])
-            
-                updateUI() // redraw everything once DHT responds            
-            })
-            return false
-        }
-    
-        var yourUserRecordPromise = PB.getUserRecord(yourUsername)
-        yourUserRecordPromise.then(function(yourUserRecord) {
-            var prom = getProm(envelope, yourUserRecord)
-            prom.then(function(decrypted) {
-                if(!decrypted) return false
-            
-                PB.Data.currentDecryptedShells.push(decrypted)
-                PB.Data.addToGraph([decrypted])
-                PB.M.Forum.addFamilialEdges([decrypted])
-            
-                updateUI() // redraw everything once DHT responds            
-            })
-        }).catch(function(err){
-            PB.onError('Failure to communicate')
-        });
-    
-    })
-}
-
-/**
- * Get a particular puff by its sig
- * @param  {String} sig
- * @return {Object}
- */
-PB.M.Forum.getPuffBySig = function(sig) {
-    //// get a particular puff
-    var myUsername = PB.getCurrentUsername()
-  
-    var shell = PB.Data.getCachedShellBySig(sig)                              // check in lower cache
-    
-    if(!shell)
-        shell = PB.M.Forum.getStashedShellBySig(myUsername, sig)                // check the forum's secret stash
-    
-    return PB.getPuffFromShell(shell || sig)
-}
 
 /**
  * Helper for sorting by payload.time
@@ -296,6 +126,7 @@ PB.M.Forum.sortByPayload = function(a,b) {
  * @return {boolean}
  */		
 PB.M.Forum.getPropsFilter = function(props) {
+    // CURRENTLY UNUSED
     if(!props) return function() {return true}
     
     // props = props.view ? props.view : props
@@ -345,9 +176,6 @@ PB.M.Forum.getChildCount = function(puff) {
 }
 
 
-// TODO: add a simple way to get shells by user, route, roots only, etc.
-
-
 /**
  * returns a list of puffs
  * @param  {string} query
@@ -364,7 +192,8 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
     limit = limit || Infinity
     var offset = +query.offset||0
 
-    var shells = PB.M.Forum.getShells(query, filters)
+    // var shells = PB.M.Forum.getShells(query, filters)
+    var shells = PB.Data.getAllMyShells()
     
     var filtered_shells = shells.filter(PB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
                                 .sort(PB.M.Forum.sortByPayload) // TODO: sort by query
@@ -385,6 +214,7 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
 } 
 
 
+
 /**
  * takes a string of content, create a puff and push it into the system
  * @param {string} type
@@ -403,7 +233,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     if(!Array.isArray(parents)) parents = [parents]
     
     // ensure parents contains only puff ids
-    if(parents.map(PB.M.Forum.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
+    if(parents.map(PB.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
         return PB.emptyPromise('Those are not good parents')
     
     // ensure parents are unique
@@ -411,7 +241,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
 
     // find the routes using parents
     var routes = parents.map(function(id) {
-        return PB.M.Forum.getPuffBySig(id).username;
+        return PB.getPuffBySig(id).username;
     });
     if (metadata.routes) {
         routes = metadata.routes; // THINK: this should probably merge with above instead of replacing it...
@@ -426,21 +256,24 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     // get a user promise
     var userprom = PB.getUpToDateUserAtAnyCost();
     
-    var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
+    var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
-                       .catch(PB.promiseError('Posting failed'))
+                       .catch(PB.catchError('Posting failed'))
 
-    prom.then(function(puff) {
-        if(puff.keys) { // TODO: this is hacky
-            PB.Data.removeShellFromCache(puff.sig)
-            PB.Data.addPrivateShells([puff])
-            updateUI()
-            // username = PB.getCurrentUsername()
-            // PB.Data.importPrivateShells(username)
-        }
-        
-        return puff
-    })
+    // NOTE: all puffs go through the same ingestion cycle now, so there's no need to special-case adding encrypted puffs
+    // prom.then(function(puff) {
+    //     if(puff.keys) { // TODO: this is hacky
+    //         PB.Data.removeShellFromCache(puff.sig)
+    //         PB.Data.addShellsThenMakeAvailable([puff])
+    //         // PB.Data.addPrivateShells([puff])
+    //         // updateUI()
+    //
+    //         // username = PB.getCurrentUsername()
+    //         // PB.Data.importPrivateShells(username)
+    //     }
+    //
+    //     return puff
+    // })
     
     return prom;
     
@@ -518,7 +351,7 @@ PB.M.Forum.addFamilialEdgesForParent = function(child) {
     var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
     
     return function(parentSig) {
-        if(~existingParents.indexOf(parentSig)) return false                        // done?
+        if(~existingParents.indexOf(parentSig)) return false                       // done?
         PB.Data.addSigAsVertex(parentSig)                                          // idempotent
         PB.Data.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
         PB.Data.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
@@ -528,22 +361,6 @@ PB.M.Forum.addFamilialEdgesForParent = function(child) {
 
 
 
-/**
- * to add content type
- * @param {string} name
- * @param {string} type
- */
-PB.M.Forum.addContentType = function(name, type) {
-    if(!name) 
-        return console.log('Invalid content type name');
-    if (CONFIG.supportedContentTypes.indexOf(name) == -1) 
-        return console.log('Unsupported content type: ' + name);
-    if(!type.toHtml) 
-        return console.log('Invalid content type: object is missing toHtml method', name);
-    
-    // TODO: add more thorough name/type checks
-    PB.M.Forum.contentTypes[name] = type
-}
 
 /**
  * to process the content
@@ -562,7 +379,7 @@ PB.M.Forum.processContent = function(type, content, puff) {
 }
 
 
-// THINK: this might get big, need some GC here
+// TODO: this might get big, need some GC here
 PB.M.Forum.puffContentStash = {}
 
 /**
@@ -581,12 +398,25 @@ PB.M.Forum.getProcessedPuffContent = function(puff) {
     return content
 }
 
-// DEFAULT CONTENT TYPES
 /**
- * to add content type text
- * @param  {string} content
- * @return {string}
+ * to add content type
+ * @param {string} name
+ * @param {string} type
  */
+PB.M.Forum.addContentType = function(name, type) {
+    if(!name) 
+        return console.log('Invalid content type name');
+    if (CONFIG.supportedContentTypes.indexOf(name) == -1)  // THINK: should this be a blacklist instead?
+        return console.log('Unsupported content type: ' + name);
+    if(!type.toHtml) 
+        return console.log('Invalid content type: object is missing toHtml method', name);
+    
+    PB.M.Forum.contentTypes[name] = type
+}
+
+
+// DEFAULT CONTENT TYPES
+
 PB.M.Forum.addContentType('text', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
@@ -595,11 +425,6 @@ PB.M.Forum.addContentType('text', {
     }
 })
 
-/**
- * to add content type bbcode
- * @param  {string} content
- * @return {string}
- */
 PB.M.Forum.addContentType('bbcode', {
     toHtml: function(content) {
         var bbcodeParse = XBBCODE.process({ text: content });
@@ -608,11 +433,6 @@ PB.M.Forum.addContentType('bbcode', {
     }
 })
 
-/**
- * to add content type image
- * @param  {string} content
- * @return {string}
- */
 PB.M.Forum.addContentType('image', {
     toHtml: function(content) {
         if(puffworldprops.view.mode == "tableView")
@@ -622,11 +442,6 @@ PB.M.Forum.addContentType('image', {
     }
 })
 
-/**
- * to add content type markdown
- * @param  {string} content
- * @return {string}
- */
 PB.M.Forum.addContentType('markdown', {
     toHtml: function(content) {
         var converter = new Markdown.Converter();
@@ -634,17 +449,11 @@ PB.M.Forum.addContentType('markdown', {
     }
 })
 
-/**
- * to add content type PGN
- * @param  {string} content
- * @return {string}
- */
 PB.M.Forum.addContentType('PGN', {
     toHtml: function(content) {
         return chessBoard(content);
     }
 })
-
 
 PB.M.Forum.addContentType('profile', {
     toHtml: function(content, puff) {
@@ -671,37 +480,17 @@ PB.M.Forum.addContentType('file', {
 
 })
 
-/**
- * to add content type LaTex
- * @param  {string} content
- * @return {string}
-
-PB.M.Forum.addContentType('LaTex', {
+/*PB.M.Forum.addContentType('LaTex', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content }) 
         return '<p>' + safe_content.html + '</p>'
     }
 }) */
 
-/**
- * Encrypted puffs 
- * @param  {string} Content type name
- * @param  {object} Content type methods
- * @return {string}
- */
-// PB.M.Forum.addContentType('encryptedpuff', {
-//     toHtml: function(content, envelope) {                                                 // the envelope is a puff
-//         var letter = PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption(envelope);   // the letter is also a puff
-//         if(!letter) return 'This is encrypted';                                           // can't read the letter
-//         return PB.M.Forum.getProcessedPuffContent(letter);                                 // show the letter
-//     }
-// })
-
 
 // flag a puff
 PB.M.Forum.flagPuff = function (sig) {
 
-    // Stuff to register. These are public keys
     var payload = {};
     var routes = [];
     var type = 'flagPuff';
@@ -715,7 +504,7 @@ PB.M.Forum.flagPuff = function (sig) {
             alert("You must first set your username before you can flag content");
             return false;
         }
-        /*if(!currentUsername == PB.M.Forum.getPuffBySig(sig).username) {
+        /*if(!currentUsername == PB.getPuffBySig(sig).username) {
             alert("You must set your identity to the author of the puff you want to flag");
         }*/
         if(!privateAdminKey) {
@@ -752,6 +541,8 @@ PB.M.Forum.flagPuff = function (sig) {
 PB.M.Forum.metaFields = []
 PB.M.Forum.context = {};
 PB.M.Forum.addMetaFields = function(fieldInfo, context, excludeContext) {
+    // NOTE: this isn't used outside of publishEmbed.js, but it might provide a good basis for generic/required metadata
+    
     if (!fieldInfo.name) return console.log('Invalid meta field name.');
 
     // supported type: text, textarea, pulldown, array

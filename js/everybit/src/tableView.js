@@ -143,7 +143,7 @@ var RowRenderMixin = {
 	getReferenceIcon: function(sig, type) {
 		if (!sig) return <span></span>
 		var preview = <span></span>
-		var puff = PB.M.Forum.getPuffBySig(sig)
+		var puff = PB.getPuffBySig(sig)
 		if (puff.payload && puff.payload.content)
 			preview = <div className="rowReferencePreview"><PuffContent puff={puff} /></div>
 		var highlight = this.props.highlight || []
@@ -374,7 +374,7 @@ var TableView = React.createClass({
 					{overlay}
 					<RowHeader ref="header" />
 					<div ref="container" className="listrowContainer" style={{marginTop: '46px'}}>
-						<RowBox puff={PB.M.Forum.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
+						<RowBox puff={PB.getPuffBySig(focus)} lastClick={puffworldprops.view.table.lastClick} />
 					</div>
 				</div>
 			)
@@ -678,7 +678,7 @@ var RowBox = React.createClass({
 		var level = 2 // start from 2 since 1st generation is the row that's changing itself
 		while (group.length != 0 && level < CONFIG.maxGeneration) {
 			var nextSig = group[0].sig // default to first item in list
-			// groupArray.push(group.map(PB.M.Forum.getPuffBySig))
+			// groupArray.push(group.map(PB.getPuffBySig))
 			groupArray.push(group)
 			level = level + 1
 			group = this.getGroup(nextSig, relation)
@@ -804,7 +804,7 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = totalLevel - 1 - index
-					return <RowGroup key={"parent"+index} puffs={group.map(PB.M.Forum.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={true}/>
+					return <RowGroup key={"parent"+index} puffs={group.map(PB.getPuffBySig)} sig={parent} direction="parent" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={true}/>
 				})}
 			</div>
 		}
@@ -846,7 +846,7 @@ var RowBox = React.createClass({
 						highlight.push(self.props.puff.sig)
 					}
 					var level = index
-					return <RowGroup key={"child"+index} puffs={group.map(PB.M.Forum.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={level != childGroups.length-1}/>
+					return <RowGroup key={"child"+index} puffs={group.map(PB.getPuffBySig)} sig={child} direction="child" level={level} highlight={highlight} boxShowPrevNext={self.handleShowPrevNext} cntr={self.props.cntr} showArrow={level != childGroups.length-1}/>
 				})}
 			</div>
 		}
@@ -870,11 +870,11 @@ var RowGroup = React.createClass({
 		var boxShowPrevNext = this.props.boxShowPrevNext
 		if (!boxShowPrevNext) return false
 
-		return boxShowPrevNext(offset, PB.M.Forum.getPuffBySig(this.props.sig), this.props.direction, this.props.level)
+		return boxShowPrevNext(offset, PB.getPuffBySig(this.props.sig), this.props.direction, this.props.level)
 	},
 	render: function() {
 		var puffList = this.props.puffs
-		var puff = PB.M.Forum.getPuffBySig(this.props.sig)
+		var puff = PB.getPuffBySig(this.props.sig)
 		if (!puffList || !puffList.length || !puff)
 			return <span></span>
 

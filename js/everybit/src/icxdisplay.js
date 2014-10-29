@@ -265,19 +265,21 @@ var ICXSplash = React.createClass({
         })
     },
     handleBeginTour: function() {
+        // TODO: Check if they are already logged in
+        // But this should not be the case if they are on the splash page
         toggleSpinner()
 
         passphrase = generatePassphrase(ICX.passphraseWords,4)
         createICXUser(generateRandomUsername(), passphrase, function() {
             console.log("logged in and ready to tour!")
             toggleSpinner()
-            // Login overhere
+            Events.pub('ui/tour', {
+                'ICX.tour': true,
+                'view.icx.screen': 'home.table'
+            })
         })
-        return Events.pub('ui/tour', {
-            'ICX.tour': {},
-            'ICX.tour.sequence': 1,
-            'view.icx.screen': 'home.table'
-        })
+
+        return false
     },
     render: function() {
 

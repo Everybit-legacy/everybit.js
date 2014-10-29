@@ -244,7 +244,7 @@ var ICXWorld = React.createClass({
                     <div style={screenStyle} className="screen">
                         <ICXLogo screenInfo={screenInfo} />
                         <ICXLinks screenInfo={screenInfo} />
-                        <div style={contentDivStyles}>
+                        <div className="tour-item" style={contentDivStyles} key="tableview">
                             <ICXError />
                             {pageComponent}
                         </div>
@@ -2593,7 +2593,7 @@ var ICXLinks = React.createClass({ /* Good */
             if(!data.button) {
                 return // <span key={self.props.screenInfo + '_' + data.name}></span>
             } else {
-                return <ICXButtonLink key={self.props.screenInfo.name + '_' + data.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
+                return <ICXButtonLink key={data.name + '_' + self.props.screenInfo.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
             }
 
         })
@@ -2851,9 +2851,6 @@ var ICXTour = React.createClass({
     },
     handleBeginTour: function() {
         this.handleTriggerElement(1)
-        this.setState({
-            tourText: 'Here is your userbar'
-        })
     },
 
     handleExitTour: function() {
@@ -2865,19 +2862,26 @@ var ICXTour = React.createClass({
         if(!step) step = this.state.sequence
 
         // Put this somewhere in config
-        var stepItems = ['login', 'dashboard', 'logout', 'send', 'store']
+        // these are unique identifiers that are part of the data-reactid attribute
+        var stepItems = ['messages', 'dashboard', 'logout', 'send', 'store']
+        var highlightItems = ['tableview', 'login', 'login', 'send', 'store']
 
         var items = document.getElementsByClassName('tour-item')
-        for( var i = 0; i < items.length; i++) {
+        var result = {}
+        for( var i = items.length-1; i >= 0; i--) {
             if(items[i].dataset.reactid.indexOf(stepItems[step-1]) > 0)
-                return items[i]
+                result.step = items[i]
+
+            if(items[i].dataset.reactid.indexOf(highlightItems[step-1]) > 0)
+                result.highlight = items[i]
         }
+        return result
     },
     handleTriggerElement: function(step) {
         var item = this.handleGetElement(step)
-        item.style.zIndex = 1001
+        item.highlight.style.zIndex = 1001
 
-        var coords = getOffsetRect(item)
+        var coords = getOffsetRect(item.step)
 
         this.setState({
             top: coords.top,
@@ -2885,6 +2889,11 @@ var ICXTour = React.createClass({
         })
 
         switch(step) {
+            case 1:
+                this.setState({
+                    tourText: 'Here is where you can view your messages and reply to them'
+                })
+                break
             case 2:
                 this.setState({
                     tourText: 'Here is your dashboard, you can change password'
@@ -2906,16 +2915,13 @@ var ICXTour = React.createClass({
                 })
                 break
             default:
+                this.setState({tourText: ''})
                 break
         }
     },
     handleResetElement: function(step) {
         var item = this.handleGetElement(step)
-        item.style.zIndex = 100
-
-        this.setState({
-            tourText: ''
-        })
+        item.highlight.style.zIndex = 100
     },
     handleNextStep: function() {
         this.handleResetElement(this.state.sequence)

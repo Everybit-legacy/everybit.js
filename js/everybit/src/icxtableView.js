@@ -16,7 +16,7 @@ var puffContainer = React.createClass({
             )
         })
         return (
-            <div className="messageList">
+            <div className="tour-item messageList">
                 {puffs}
             </div>
         )
@@ -113,7 +113,7 @@ var TableView = React.createClass({
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
-                <puffContainer content={this.getContent()} />
+                <puffContainer content={this.getContent()} key="messages"/>
 
                 <ViewLoadMore query={this.props.view.query} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
 			</div>

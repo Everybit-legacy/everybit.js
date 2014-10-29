@@ -60,12 +60,20 @@ PB.Data.addToGraph = function(shells) {
 // TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
 
 
+
+PB.Data.getAllMyShells = function() {
+    var publicShells = PB.Data.getPublicShells()
+    var privateShells = PB.Data.getCurrentDecryptedLetters()
+    return publicShells.concat(privateShells)
+}
+
+
 /**
- * get the current known shells
+ * get all currently known shells
  * @return {Shell[]}
  */
 PB.Data.getShells = function() {
-    //// Get the currently known shells
+    //// Get all currently known shells
     // NOTE: always use this accessor instead of referencing PB.Data.shells directly, as what this function does will change.
     return PB.Data.shells
 }
@@ -85,9 +93,11 @@ PB.Data.getPublicShells = function() {
  * @param {string} username
  * @returns {Shell[]}
  */
-PB.Data.getMyEncryptedShells = function(username) {
+PB.Data.getMyPrivateShells = function(username) {
+    // CURRENTLY UNUSED
     //// Get currently known private shells for a particular user
     var shells = PB.Data.getShells()
+    username = username || PB.getCurrentUsername()
     return shells.filter(function(shell) {return shell.keys && shell.keys[username]})
 }
 
@@ -134,68 +144,14 @@ PB.Data.getBonus = function(puff, key) {
 
 
 
-/*
-    Some new shell handling equipment. Need to integrate this more deeply and clean and test.
-*/
-/**
- * add shells then makr then available
- * @param {Shell[]}
- * @returns {*}
- */
-PB.Data.addShellsThenMakeAvailable = function(shells) {
-    var new_shells = PB.Data.hereHaveSomeNewShells(shells)
-    var delta = new_shells.length
-    if(delta) 
-        PB.Data.makeShellsAvailable(new_shells)
-    return delta
-}
 
-/**
- * handle incoming shells
- * @param {Shell[]}
- * @returns {*}
- */
-PB.Data.hereHaveSomeNewShells = function(shells) {
-    //// handle incoming shells
-    
-    shells = Array.isArray(shells) ? shells : [shells]
-    
-    shells = shells.filter(PB.Data.isGoodShell)
-    
-    var useful_shells = shells.filter(PB.Data.tryAddingShell) // note that we're filtering effectfully,
-                                                               //   and that useful shells may be new or just new content
-    if(!useful_shells.length) return []                        //   and that we remove stars, which may change things
-    
-    PB.Data.addToGraph(shells)
-    
-    PB.Data.rateSomePuffs(shells)
-    
-    PB.Data.persistShells()
-    
-    var compacted = PB.Data.garbageCompactor()                // OPT: call this earlier
-    
-    if(!compacted) return useful_shells
-    
-    return useful_shells.map(R.prop('sig'))                    // if GC eats puffs this spits them out
-                        .map(PB.Data.getCachedShellBySig).filter(Boolean)
-}
 
-/**
- * to make shells available
- */
-PB.Data.makeShellsAvailable = function(shells) {
-    //// alert everyone: new shells have arrived!
-
-    // PB.receiveNewPuffs(PB.Data.shells) // may have to pass delta here
-    
-    PB.receiveNewPuffs(shells) // may have to pass delta here
-    
-}
 
 
 PB.Data.addStar = function(sig, username, starsig) {
-
-    var fauxshell = {sig: sig} // THINK: ye gads is this ugly
+    // TODO: consider moving this to a module
+    
+    var fauxshell = {sig: sig} // THINK: can we formalize this?
     var starStats = PB.Data.getBonus(fauxshell, 'starStats') || {score: 0, from: {}}
     
     starStats.from[username] = starsig                                  // admittedly strange, but helpful when unstarring
@@ -205,7 +161,8 @@ PB.Data.addStar = function(sig, username, starsig) {
 }
 
 PB.Data.removeStar = function(sig, username) {
-
+    // TODO: consider moving this to a module
+    
     var fauxshell = {sig: sig} // THINK: ye gads is this ugly
     var starStats = PB.Data.getBonus(fauxshell, 'starStats') || {score: 0, from: {}}
     
@@ -217,6 +174,7 @@ PB.Data.removeStar = function(sig, username) {
 }
 
 PB.Data.scoreStars = function(usernames) {
+    // TODO: consider moving this to a module
 
     var tluScore = 0;
     var suScore = 0;
@@ -245,6 +203,73 @@ PB.Data.scoreStars = function(usernames) {
 }
 
 
+
+
+
+
+
+
+/*
+    Some new shell handling equipment. Need to integrate this more deeply and clean and test.
+*/
+/**
+ * add shells then makr then available
+ * @param {Shell[]}
+ * @returns {*}
+ */
+PB.Data.addShellsThenMakeAvailable = function(shells) {
+    var new_shells = PB.Data.hereHaveSomeNewShells(shells)
+    var delta = new_shells.length
+    if(delta) 
+        PB.Data.makeShellsAvailable(new_shells)
+    // THINK: consider remov this optimization back in, but remember that encrypted puffs won't trigger a delta because they short-circuit the hereHaveSomeNewShells process. (also, updateUI is already batched)
+    return delta
+}
+
+/**
+ * handle incoming shells
+ * @param {Shell[]}
+ * @returns {*}
+ */
+PB.Data.hereHaveSomeNewShells = function(shells) {
+    //// handle incoming shells
+    
+    shells = Array.isArray(shells) ? shells : [shells]
+    
+    shells = shells.filter(PB.Data.isGoodShell)
+    
+    var useful_shells = shells.filter(PB.Data.tryAddingShell)  // note that we're filtering effectfully,
+                                                               //   and that useful shells may be new or just new content
+    if(!useful_shells.length) return []                        //   and that we remove stars, which may change things
+    
+    PB.Data.addToGraph(useful_shells)                          // THINK: ensure this should be useful_shells, not shells
+    
+    PB.Data.rateSomePuffs(useful_shells)                       // THINK: ensure this should be useful_shells, not shells
+    
+    PB.Data.persistShells()
+    
+    var compacted = PB.Data.garbageCompactor()                 // OPT: call this earlier
+    
+    if(!compacted) return useful_shells
+    
+    return useful_shells.map(R.prop('sig'))                    // if GC eats puffs this spits them out
+                        .map(PB.Data.getCachedShellBySig).filter(Boolean)
+}
+
+/**
+ * to make shells available
+ */
+PB.Data.makeShellsAvailable = function(shells) {
+    //// alert everyone: new shells have arrived!
+
+    // THINK: should this calculate the delta?
+
+    // PB.receiveNewPuffs(PB.Data.shells) // may have to pass delta here
+    
+    PB.receiveNewPuffs(shells) // may have to pass delta here
+    
+}
+
 /**
  * tries to add a shell, or update the content of an existing shell
  * @param {Shell[]}
@@ -259,6 +284,7 @@ PB.Data.tryAddingShell = function(shell) {
     // metapuff wonkery
 
     if(shell.payload.type == 'star') {
+        // TODO: consider moving this to a module
         // update shell bonii
         var sig = shell.payload.content
         
@@ -270,9 +296,9 @@ PB.Data.tryAddingShell = function(shell) {
     if(shell.payload.type == 'encryptedpuff') {
         var username = PB.getCurrentUsername()
 
-        if(!shell.keys[username]) return false
+        // if(!shell.keys[username]) return false // THINK: antiquated filter for unversioned usernames...
         
-        PB.Data.addPrivateShells([shell])
+        PB.addPrivateShell(shell)
         
         return false // we added a shell, but not the normal way... 
     }
@@ -349,7 +375,6 @@ PB.Data.importShells = function() {
     
     // when you want to look at shells that don't exist, like when scrolling, grab them as a batch
     
-    
     PB.Data.importLocalShells()
     // PB.Data.getMoreShells()
     PB.Data.importRemoteShells()
@@ -368,63 +393,72 @@ PB.Data.importLocalShells = function() {   // callback) {
 
 
 PB.Data.importAllStars = function() {
+    // TODO: consider moving this to a module
     var prom = PB.Net.getStarShells()
     prom.then(PB.Data.addShellsThenMakeAvailable)
 }
 
-PB.Data.currentDecryptedShells = []
-PB.Data.getCurrentDecryptedShells = function() {
-    return PB.Data.currentDecryptedShells
+
+PB.Data.horridStash = {}
+
+PB.Data.isBadEnvelope = function(sig) {
+    return PB.Data.horridStash[sig]
+}
+
+PB.Data.addBadEnvelope = function(sig) {
+    PB.Data.horridStash[sig] = true
+}
+
+
+PB.Data.currentDecryptedLetters = []
+PB.Data.currentDecryptedLetterMap = {}
+
+PB.Data.getCurrentDecryptedLetters = function() {
+    //// NOTE: always use this instead of hitting currentDecryptedLetters directly, as this function may change
+    return PB.Data.currentDecryptedLetters
+}
+
+PB.Data.getDecryptedLetterBySig = function(sig) {
+    if(PB.Data.currentDecryptedLetterMap[sig])
+        return PB.Data.currentDecryptedLetterMap[sig]
+}
+
+
+PB.Data.addDecryptedLetter = function(letter, envelope) {
+    // letters = letters
+    //     .filter(function(puff) {
+    //         return !PB.Data.currentDecryptedLetters.filter(                           // don't repeat yourself
+    //             function(otherpuff) { return otherpuff.sig == puff.sig}).length})
+
+    
+    PB.Data.currentDecryptedLetters.push(letter)
+    
+    PB.Data.currentDecryptedLetterMap[envelope.sig] = letter       // letter is a puff too
+    PB.Data.currentDecryptedLetterMap[letter.sig] = letter         // stash it both ways
+    PB.Data.addBonus(letter, 'envelope', envelope)                 // mark it for later
+    
+    PB.Data.addToGraph([letter])
+    PB.M.Forum.addFamilialEdges([letter])                          // we're doing this manually because no onNewPuffs 
 }
 
 PB.Data.importPrivateShells = function(username) {    
-    // Race condition while toggling identities?
+    // THINK: race condition while toggling identities?
     var batchsize = 20
 
     var promForMe = PB.Net.getPrivatePuffsForMe(username, batchsize) 
-    promForMe.then(PB.Data.addPrivateShells)
+    promForMe.then(PB.Data.addShellsThenMakeAvailable)
     
     var promFromMe = PB.Net.getPrivatePuffsFromMe(username, batchsize) 
-    promFromMe.then(PB.Data.addPrivateShells)
+    promFromMe.then(PB.Data.addShellsThenMakeAvailable)
 }
 
 PB.Data.clearExistingPrivateShells = function() {
-    PB.Data.currentDecryptedShells.forEach(function(shell) {
-        PB.Data.purgeShellFromGraph(shell.sig)
+    PB.Data.currentDecryptedLetters.forEach(function(shell) {
+        PB.Data.purgeShellFromGraph(shell.sig) // THINK: is this always the most effective way?
     })
     
-    PB.Data.currentDecryptedShells = [] 
+    PB.Data.currentDecryptedLetters = [] 
 }
-
-PB.Data.addPrivateShells = function(privateShells) {
-    if(!privateShells.length) return false
-    // privateShells = [privateShells[0]]
-  
-    var decryptedShells = privateShells.map(PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption)
-                                       .filter(Boolean)
-
-    // THINK: decryptedShells is the empty array here, and PB.Data.currentDecryptedShells is actually set inside extractL...
-    //        switch that so the promises are eaten here, once pan-wardrobe browsing is a reality
-    
-    if (decryptedShells.length != privateShells.length) {
-        Events.pub('track/decrypt/some-decrypt-fails', 
-                    {decryptedShells: decryptedShells.map(function(p){return p.sig}), 
-                     privateShells: privateShells.map(function(p){return p.sig})})
-    }
-    
-    decryptedShells = decryptedShells
-        .filter(function(puff) { 
-            return !PB.Data.currentDecryptedShells.filter(                           // don't repeat yourself
-                function(otherpuff) { return otherpuff.sig == puff.sig}).length})
-    
-    PB.Data.currentDecryptedShells = PB.Data.currentDecryptedShells.concat(decryptedShells)
-    
-    PB.Data.addToGraph(decryptedShells)
-    PB.M.Forum.addFamilialEdges(decryptedShells)
-    
-    updateUI()
-}
-
 
 
 
@@ -435,6 +469,7 @@ PB.Data.addPrivateShells = function(privateShells) {
 // to set it to -1 when it is running and then replace it when done.
 PB.Data.slotLocker = {}
 
+// THINK: we're calling this from the 'refresh' button now...
 
 
 PB.Data.importRemoteShells = function() {
@@ -446,9 +481,13 @@ PB.Data.importRemoteShells = function() {
     var new_shells = []
     var keep_going = true
     
-    var key = '[{"sort":"DESC"},{"tags":[],"types":[],"users":[],"routes":[]}]'
+    var key = '[{"sort":"DESC"},{"tags":[],"types":[],"users":[],"routes":[]}]' // TODO: upgrade this default query
     PB.Data.slotLocker[key] = -1
     
+    // TODO: index by username
+    // TODO: if duplicate check update times for latest
+    // TODO: persist to LS (maybe only sometimes? onunload? probabilistic?)
+         
     function getMeSomeShells(puffs) {
         if(puffs) {
             var delta = PB.Data.addShellsThenMakeAvailable(puffs)
@@ -615,8 +654,8 @@ PB.Data.getPuffBySig = function(sig) {
     PB.Data.pending[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
     PB.Data.pending[sig].then(badShellClearCache)
                          .then(PB.Data.addShellsThenMakeAvailable)
-                         .then(function() {                                                    // delay GC to prevent
-                             setTimeout(function() { delete PB.Data.pending[sig] }, 10000) }) // runaway network requests
+                         .then(function() {                                                   // delay GC to prevent
+                             setTimeout(function() { delete PB.Data.pending[sig] }, 10000) }) //     runaway network requests
     
     return false
 }
@@ -662,7 +701,7 @@ PB.Data.isGoodPuff = function(puff) {
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    var prom = PB.getUserRecord(puff.username); // NOTE: versionedUsername
+    var prom = PB.getUserRecordPromise(puff.username); // NOTE: versionedUsername
     
     return prom.then(function(user) {
         return PB.Crypto.verifyPuffSig(puff, user.defaultKey);
@@ -713,6 +752,7 @@ PB.Data.depersistUserRecords = function() {
  * @return {object}
  */
 PB.Data.getMyPuffChain = function(username) {
+    // CURRENTLY UNUSED
     // TODO: this should grab my puffs from a file or localStorage or wherever my identity's puffs get stored
     // TODO: that collection should be updated automatically with new puffs created through other devices
     // TODO: the puffchain should also be sorted in chain order, not general collection order
@@ -750,7 +790,7 @@ PB.Data.addHeuristics(function(shell) {
 
 
 PB.Data.rateMyPuff = function(puff) {
-    var scores = PB.Data.heuristics.map(function(h) {return h(puff)})          // apply heuristics
+    var scores = PB.Data.heuristics.map(function(h) {return h(puff)})           // apply heuristics
     var total  = scores.reduce(function(acc, score) {return acc+(score||0)}, 0) // get total // TODO: improve algo
     return total
 }
@@ -769,8 +809,8 @@ PB.Data.rateSomePuffs = function(puffs) {
 
 
 PB.Data.doStuffWithScore = function(puff, score) {
-    PB.Data.removeCachedPuffScore(puff)                                        // NOTE: has to come before bonii
-    PB.Data.addBonus(puff, 'rating', score)                                    // add rating to bonii
+    PB.Data.removeCachedPuffScore(puff)                                         // NOTE: has to come before bonii
+    PB.Data.addBonus(puff, 'rating', score)                                     // add rating to bonii
     PB.Data.cachePuffScore(puff, score)    
     // OPT: cache sorted version
     // maybe bins[score.floor].push(puff) or something...

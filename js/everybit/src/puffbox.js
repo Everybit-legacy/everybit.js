@@ -479,7 +479,7 @@ var TipButton = React.createClass({
         // TODO: Get the link so have meta-data set, like "From puffball"
 
         var self = this
-        var prom = PB.getUserRecord(this.props.username)
+        var prom = PB.getUserRecordPromise(this.props.username)
 
         prom.then(function(result) {
 
@@ -612,7 +612,7 @@ var PuffChildrenCount = React.createClass({
 var PuffPermaLink = React.createClass({
     handleClick: function() {
         var sig  = this.props.sig
-        // var puff = PB.M.Forum.getPuffBySig(sig)
+        // var puff = PB.getPuffBySig(sig)
         showPuff(sig)
         return false
     },
@@ -645,7 +645,7 @@ var PuffReplyLink = React.createClass({
         var type = puffworldprops.reply.type
         if(index == -1) {
             if (parents.length == 0)
-                type = PB.M.Forum.getPuffBySig(sig).payload.type
+                type = PB.getPuffBySig(sig).payload.type
             parents.push(sig)
         } else {
             parents.splice(index, 1)
@@ -740,7 +740,7 @@ var PuffStar = React.createClass({
     handleClick: function() {
         var username = PB.getCurrentUsername()
         
-        if(username == PB.M.Forum.getPuffBySig(this.props.sig).username)
+        if(username == PB.getPuffBySig(this.props.sig).username)
             return false // can't star your own puff
             
         var sig = this.props.sig
@@ -800,7 +800,7 @@ var PuffStar = React.createClass({
         )
         var pointerStyle = {}
         var self = this
-        if (PB.getCurrentUsername() == PB.M.Forum.getPuffBySig(this.props.sig).username) {
+        if (PB.getCurrentUsername() == PB.getPuffBySig(this.props.sig).username) {
             pointerStyle = {cursor: 'default'}
             link = <span style={pointerStyle}><i className={"fa fa-fw fa-star " + color}></i></span>
         }

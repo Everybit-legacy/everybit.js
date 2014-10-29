@@ -442,8 +442,10 @@ var PuffPublishFormEmbed = React.createClass({
         // go to the puff
         var sig = puff.sig
         if (typeof puff.payload.parents == 'undefined') {
-            var decrypted = PB.M.Forum.extractLetterFromEnvelopeByVirtueOfDecryption(puff)
-            sig = decrypted.sig
+            // FIXME: extractLetterFromEnvelope returns a promise. also, don't call it directly. 
+            //        instead, pass this puff through the regular onboarding process
+            // var decrypted = PB.extractLetterFromEnvelope(puff)
+            // sig = decrypted.sig
         }
         showPuff(sig)
         Events.pub('ui/submit/success', 
@@ -740,7 +742,7 @@ var PuffPublishFormEmbed = React.createClass({
         var newUsername = StringConversion.toActualUsername(usernameNode.value)
         if (newUsername.length == 0) return false
         var usernames = this.state.usernames
-        var prom = PB.getUserRecord(newUsername)
+        var prom = PB.getUserRecordPromise(newUsername)
         prom.then(function(){
             self.setState({usernameError: ''})
             if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
@@ -795,7 +797,7 @@ var PuffPublishFormEmbed = React.createClass({
         }
         var parentUsernames = []
         if (parents.length) {
-            parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
+            parentUsernames = parents.map(function(id) { return PB.getPuffBySig(id) })
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(function(item, index, array) { return array.indexOf(item) == index })
                                      .filter(Boolean)
@@ -848,7 +850,7 @@ var PuffPublishFormEmbed = React.createClass({
             parents = this.props.reply.parents
         }
         if(parents.length) {
-            var parent = PB.M.Forum.getPuffBySig(parents[0])
+            var parent = PB.getPuffBySig(parents[0])
             // type = parent.payload.type
 
             // figure out reply privacy
@@ -860,17 +862,17 @@ var PuffPublishFormEmbed = React.createClass({
                 privacyDefault = parent.payload.reply_privacy
 
             // by default we include all parent users in the reply
-            /*var parentUsernames = parents.map(function(id) { return PB.M.Forum.getPuffBySig(id) })
+            /*var parentUsernames = parents.map(function(id) { return PB.getPuffBySig(id) })
                                          .map(function(puff) { return puff.payload.replyTo || puff.username })
                                          .filter(function(item, index, array) { return array.indexOf(item) == index })
                                          .filter(Boolean)
                                          // .join(', ')*/
 
             // Should we quote the parent
-            if (typeof PB.M.Forum.getPuffBySig(parents[0]).payload.quote != 'undefined') {
-                if(PB.M.Forum.getPuffBySig(parents[0]).payload.quote) {
+            if (typeof PB.getPuffBySig(parents[0]).payload.quote != 'undefined') {
+                if(PB.getPuffBySig(parents[0]).payload.quote) {
                     if (!defaultContent)
-                        defaultContent = PB.M.Forum.getPuffBySig(parents[0]).payload.content
+                        defaultContent = PB.getPuffBySig(parents[0]).payload.content
                 }
             }
         }

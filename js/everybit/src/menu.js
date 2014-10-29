@@ -761,7 +761,7 @@ var AuthorPicker = React.createClass({
         var profile = userRecord.profile
         var self = this
         if (profile.length) {
-            var puff = PB.M.Forum.getPuffBySig(profile)
+            var puff = PB.getPuffBySig(profile)
             if (puff) {
                 this.setState({profileMsg: ''})
                 return showPuffDirectly(puff)
@@ -874,7 +874,7 @@ var SetIdentity = React.createClass({
         if (username.slice(0, 1) == '.')
             username = username.slice(1)
 
-        var prom = PB.getUserRecord(username)
+        var prom = PB.getUserRecordPromise(username)
 
         prom.then(function(result) {
             self.state.usernameStatus = true
@@ -918,7 +918,7 @@ var SetIdentity = React.createClass({
             return false
         }
 
-        var prom = PB.getUserRecord(username)
+        var prom = PB.getUserRecordPromise(username)
 
         prom.then(function(userInfo) {
 
@@ -1538,7 +1538,7 @@ var NewIdentity = React.createClass({
         this.state.usernameAvailable = 'checking'
         var username = this.refs.newUsername.getDOMNode().value
 
-        var prom = PB.getUserRecord(username)
+        var prom = PB.getUserRecordPromise(username)
 
         prom.then(function(result) {
             console.log(result)

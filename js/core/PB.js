@@ -374,7 +374,7 @@ PB.processUserRecord = function(userRecord) {
  * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
-PB.getUserRecord = function(username, capa) {
+PB.getUserRecordPromise = function(username, capa) {
     //// This always checks the cache, and always returns a promise
     
     var versionedUsername = PB.maybeVersioned(username, capa)
@@ -518,10 +518,10 @@ PB.getDecryptedPuffPromise = function(envelope) {
     //// pull a letter out of the envelope -- returns a promise!
 
     if(!envelope || !envelope.keys) 
-        return PB.onError('Envelope does not contain an encrypted letter')
+        return PB.emptyPromise('Envelope does not contain an encrypted letter')
     
-    var senderVersionedUsername   = envelope.username
-    var userProm = PB.getUserRecord(senderVersionedUsername)
+    var senderVersionedUsername = envelope.username
+    var userProm = PB.getUserRecordPromise(senderVersionedUsername)
     
     var prom = userProm.catch(function(err) {
         PB.promiseError('User record acquisition failed')
@@ -569,22 +569,91 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
     var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = PB.tryDecodeOyVey(escape(letterString)); // encoding
+    letterString = PB.tryDecodeURIComponent(escape(letterString)); // encoding
     return PB.parseJSON(letterString)
 }
 
-// PB.decryptPuff -> PB.decryptPuffForReals if there's no PB.cryptoworker
-// returns a promise that resolves to the decrypted whatsit. 
-// update forum function and filesystem call site
-// maybe make worker promise wrapper layer
+// -- PB.decryptPuff -> PB.decryptPuffForReals if there's no PB.cryptoworker
+// -- returns a promise that resolves to the decrypted whatsit. 
+// -- update forum function and filesystem call site
+// - maybe make worker promise wrapper layer
 
-PB.tryDecodeOyVey = function(str) {
+PB.tryDecodeURIComponent = function(str) {
     //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.
     try {
         return decodeURIComponent(str)
     } catch(err) {
         return PB.onError('Invalid URI string', err)
     }
+}
+
+
+PB.extractLetterFromEnvelope = function(envelope) {                     // the envelope is a puff
+    if(PB.Data.isBadEnvelope(envelope.sig)) 
+        return Promise.reject('Bad envelope')                           // flagged as invalid envelope
+
+    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
+    
+    if(maybeLetter)
+        return Promise.resolve(maybeLetter)                             // resolve to existing letter
+    
+    var prom = PB.getDecryptedPuffPromise(envelope)                     // do the decryption
+    
+    prom = prom.then(function(letter) {
+        if(!letter) {
+            PB.Data.addBadEnvelope(envelope.sig)                        // decryption failed: flag envelope
+            return PB.throwError('Invalid envelope')                    // bail out
+        }
+
+        return letter
+    }) // TODO: put a catch *before* this then for worker errors
+    
+    return prom
+}
+
+PB.addPrivateShell = function(envelope) {
+    // THINK: how can we avoid doing this 'existing letter' check twice?
+    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
+    
+    if(maybeLetter)
+        return Promise.resolve(maybeLetter)                             // resolve to existing letter    
+    
+    var prom = PB.extractLetterFromEnvelope(envelope)
+
+    prom = prom.then(function(letter) {
+        if(!letter) return false
+        PB.Data.addDecryptedLetter(letter, envelope)                    // add the letter to our system
+        PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
+    })
+    
+    return prom
+    
+    // var letterPromises = privateShells.map(PB.extractLetterFromEnvelope)
+    
+    // NOTE: this doesn't appear to do much, mostly because PB.extractLetterFromEnvelope is quite effectful.
+    //       it calls PB.Data.addDecryptedLetter as part of its processing, which does all the real work.
+    
+    
+
+    // THINK: consider adding this back in, though remember that each decryption pushes its own errors...
+    // if (letters.length != privateShells.length) {
+    //     Events.pub('track/decrypt/some-decrypt-fails',
+    //                 {letters: letters.map(function(p){return p.sig}),
+    //                  privateShells: privateShells.map(function(p){return p.sig})})
+    // }
+}
+
+
+
+
+PB.getPuffBySig = function(sig) {
+    //// get a particular puff
+    var shell = PB.Data.getCachedShellBySig(sig)                        // check in regular cache
+    
+    if(!shell)
+        shell = PB.Data.getDecryptedLetterBySig(sig)                    // check in private cache
+    
+    return PB.getPuffFromShell(shell || sig)
 }
 
 
@@ -832,11 +901,6 @@ PB.onError = function(msg, obj) {
     return false
 }
 
-/**
- * promise error function
- * @param  {string} mes
- * @return {boolean}
- */
 PB.promiseError = function(msg) {
     return function(err) {
         PB.onError(msg, err)
@@ -844,12 +908,6 @@ PB.promiseError = function(msg) {
     }
 }
 
-/**
- * throw error function
- * @param  {string} msg    
- * @param  {string} errmsg 
- * @return {boolean}
- */
 PB.throwError = function(msg, errmsg) {
     throw PB.makeError(msg, errmsg)
 }
@@ -860,21 +918,12 @@ PB.makeError = function(msg, errmsg) {
     return err
 }
 
-/**
- * check if false promise
- * @param  {string} msg     
- * @return {boolean}     
- */
 PB.emptyPromise = function(msg) {
     if(msg) PB.onError(msg)
     return Promise.reject(msg)
 }
 
-/**
- * check if the string is a valid JSON string
- * @param  {string} str 
- * @return {boolean}
- */
+
 PB.parseJSON = function(str) {
     try {
         return JSON.parse(str)

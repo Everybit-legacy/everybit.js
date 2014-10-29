@@ -862,7 +862,7 @@ function showPuff(sig) {
     if(!sig)
         return false
 
-    var puff = PB.M.Forum.getPuffBySig(sig)                         // get it?
+    var puff = PB.getPuffBySig(sig)                                 // get it?
 
     if(puff)
         return showPuffDirectly(puff)                               // got it.
@@ -902,7 +902,7 @@ function handleImportRedirect() {
         // update_puffworldprops({'menu.show': true, 'menu.import': true, 'menu.section': 'identity'})
         update_puffworldprops({'view.slider.show': true, 'view.slider.wizard':true, 'view.slider.currentSlide': 3})
 
-        state = Boron.shallow_copy(state)                                      // clone before delete
+        state = Boron.shallow_copy(state)                               // clone before delete
         
         for(var key in state) {
             if(!~keysToStash.indexOf(key)) continue
@@ -1162,7 +1162,7 @@ String.prototype.stripCapa = function() {
 //   var mapdom = $('#minimap')
 //   
 //   // PB.Data.getShells().forEach(function(puff) {
-//   //   template = '<p><a href="#" onclick="showPuff(PB.M.Forum.getPuffBySig(\'' 
+//   //   template = '<p><a href="#" onclick="showPuff(PB.getPuffBySig(\'' 
 //   //            + puff.sig + '\'));return false;" class="under">' 
 //   //            + puff.sig + '</a></p>'
 //   //   mapdom.append($(template))

@@ -33,8 +33,8 @@ puffworldprops = {
         show: false,
         prefs: false,
         profile: false,
-        import: false,                                  // import username
-        section: false,                                 // the section user is currently working on
+        import: false,                              // import username
+        section: false,                             // the section user is currently working on
         popout: false,
 
         user: {
@@ -61,7 +61,7 @@ puffworldprops = {
 
     view: {
 
-        icx: {                                          // ICX related
+        icx: {                                      // ICX related
             screen: 'init',
             toUser: "",
             activeReplies: []
@@ -72,7 +72,7 @@ puffworldprops = {
         language  : 'en',
 
         query: {
-            sort: 'DESC'                              // direction of sort
+            sort: 'DESC'                            // direction of sort
         },
 
         filters: {},
@@ -130,20 +130,20 @@ puffworldprops = {
                 },
             },
             bar: {
-                tmp: 1      // to prevent bar from disappearing
+                tmp: 1                              // to prevent bar from disappearing
             },
             sort: {
                 column: 'date',
                 desc: true
             },
             format: 'list',
-            maxRowHeight: 99    // We want to show everything
+            maxRowHeight: 99                        // We want to show everything
         },
     },
 
     reply: {
         // show: false,
-        lastType: false, // type of the last published puff
+        lastType: false,                            // type of the last published puff
         expand: false,
         content: '',
         state: {},
@@ -171,7 +171,7 @@ puffworldprops = {
     }
 }
 
-puffworlddefaults = puffworldprops  // it's immutable so we don't care
+puffworlddefaults = puffworldprops                  // it's immutable so we don't care
 
 
 //// event bindings for controlling core behavior from the display ////
@@ -192,11 +192,11 @@ Events.sub('ui/*', function(data, path) {
 
     // OPT: batch process recent log items on requestAnimationFrame
 
-    update_puffworldprops(data)                             // change props in a persistent fashion
+    update_puffworldprops(data)                     // change props in a persistent fashion
 
-    setURLfromViewProps()                                   // set the props in the url and history
+    setURLfromViewProps()                           // set the props in the url and history
     
-    updateUI()                                              // then re-render PuffWorld w/ the new props
+    updateUI()                                      // then re-render PuffWorld w/ the new props
 })
 
 Events.sub("filter/*", function(data, path) {
@@ -260,7 +260,7 @@ CONFIG.icxmode   = true
 PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update function    
 
 // PB.M.Forum.init();                               // initialize the forum module (and by extension the puffball network)
-PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);
+PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);          // manually connect the Forum module to avoid initializing the P2P network
 PB.addRelationship(PB.M.Forum.addFamilialEdges);
 
 
@@ -268,7 +268,7 @@ PB.addRelationship(PB.M.Forum.addFamilialEdges);
 
 PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
-// handleImportRedirect();                             // check if import
+// handleImportRedirect();                          // check if import
 
 PB.Data.depersistUserRecords()                      // get cached userRecords
 

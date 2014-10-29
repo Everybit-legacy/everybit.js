@@ -199,8 +199,9 @@ PB.Data.scoreStars = function(usernames) {
 /*
     Some new shell handling equipment. Need to integrate this more deeply and clean and test.
 */
+
 /**
- * add shells then makr then available
+ * add shells then make then available
  * @param {Shell[]}
  * @returns {*}
  */
@@ -209,7 +210,7 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
     var delta = new_shells.length
     if(delta) 
         PB.Data.makeShellsAvailable(new_shells)
-    // THINK: consider remov this optimization back in, but remember that encrypted puffs won't trigger a delta because they short-circuit the hereHaveSomeNewShells process. (also, updateUI is already batched)
+    // THINK: consider removing this delta optimization, since encrypted puffs won't be in new_shells as they short-circuit the hereHaveSomeNewShells process. (also, updateUI is already batched)
     return delta
 }
 
@@ -281,7 +282,7 @@ PB.Data.tryAddingShell = function(shell) {
     }
 
     if(shell.payload.type == 'encryptedpuff') {
-        var username = PB.getCurrentUsername()
+        // var username = PB.getCurrentUsername()
 
         // if(!shell.keys[username]) return false // THINK: antiquated filter for unversioned usernames...
         
@@ -424,6 +425,15 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
     
     PB.Data.addToGraph([letter])
     PB.M.Forum.addFamilialEdges([letter])                          // we're doing this manually because no onNewPuffs 
+    return true
+}
+
+PB.Data.removeAllPrivateShells = function() {
+    PB.Data.currentDecryptedLetters.forEach(function(shell) {
+        PB.Data.purgeShellFromGraph(shell.sig) // THINK: is this always the most effective way?
+    })
+    
+    PB.Data.currentDecryptedLetters = [] 
 }
 
 PB.Data.importPrivateShells = function(username) {
@@ -435,30 +445,29 @@ PB.Data.importPrivateShells = function(username) {
 
     PB.Net.getMyPrivatePuffs(username, batchsize)
           .then(PB.Data.addShellsThenMakeAvailable)
-
-    // var promForMe = PB.Net.getPrivatePuffsForMe(username, batchsize)
-    // promForMe.then(PB.Data.addShellsThenMakeAvailable)
-    //
-    // var promFromMe = PB.Net.getPrivatePuffsFromMe(username, batchsize)
-    // promFromMe.then(PB.Data.addShellsThenMakeAvailable)
 }
 
-PB.Data.updatePrivateShells = function() {
+PB.Data.updatePrivateShells = function(offset) {
     var username = PB.getCurrentUsername()
-    
     var batchsize = 1
+    var fullOrShell = 'full' // OPT: just gather the shell (or sig) here when checking latest
+    offset = offset || 0     //      actually... we need a list of all sigs we've encountered (not just good ones)
+                             //      otherwise bad envelopes (etc) could block prior good content.
 
-    PB.Net.getMyPrivatePuffs(username, batchsize)
-          .then(PB.Data.addShellsThenMakeAvailable)
+    PB.Net.getMyPrivatePuffs(username, batchsize, offset, fullOrShell)
+          .then(function(shells) {
+              var shell = shells[0]
+              if(!shell) return false
+              
+              var prom = PB.addPrivateShell(shell) // manual because we need the decryption promise
+              
+              prom.then(function(fresh) {
+                  if(fresh)
+                      PB.Data.updatePrivateShells(1+offset)
+              })
+          })
 }
 
-PB.Data.removeExistingPrivateShells = function() {
-    PB.Data.currentDecryptedLetters.forEach(function(shell) {
-        PB.Data.purgeShellFromGraph(shell.sig) // THINK: is this always the most effective way?
-    })
-    
-    PB.Data.currentDecryptedLetters = [] 
-}
 
 
 

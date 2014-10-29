@@ -46,21 +46,6 @@ PB.Net.getKidSigs = function(sig) {
 PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
 
 
-/**
- * get the shells of all puff as an array
- * @return {Puff[]}
- */
-PB.Net.getAllShells = function() {
-    
-    // NOTE: don't use this in production!!
-    
-    var url  = CONFIG.puffApi;
-    var data = {type: 'getAllPuffShells'};
-    
-    if(CONFIG.noNetwork) return PB.emptyPromise();    // THINK: this is only for debugging and development
-    
-    return PB.Net.getJSON(url, data);
-}
 
 PB.Net.getStarShells = function() {
     var url  = CONFIG.puffApi;
@@ -69,25 +54,31 @@ PB.Net.getStarShells = function() {
     return PB.Net.getJSON(url, data);
 }
 
-PB.Net.getPrivatePuffsFromMe = function(username, batchsize, offset) {
+
+
+PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     if(!username) return PB.emptyPromise()
     batchsize = batchsize || CONFIG.globalBigBatchLimit
     
     var url  = CONFIG.puffApi
-    var data = { username: username
-               , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: batchsize, offset: offset
-               , sort: 'DESC'
+    var data = { route: username, username: username, fromAndTo: 1
+               , type: 'getPuffs', contentType: 'encryptedpuff'
+               , fullOrShell: fullOrShell || 'full'
+               , numb: batchsize
+               , offset: offset
                }
     
-               // ok. same thing as usual: grab the latest 20, then let the table drive it after that. 
-               // also, you can test for newness with just 1 puff.
-               // also, this should be so much simpler...
+    return PB.Net.getJSON(url, data)
+    
+    
+    // ok. same thing as usual: grab the latest 20, then let the table drive it after that. 
+    // also, you can test for newness with just 1 puff.
+    // also, this should be so much simpler...
 
 /*
 
     So something like:
-    
+
     PB.getSomePuffs(query, limit, etc)
 
     helper.js:
@@ -99,45 +90,15 @@ PB.Net.getPrivatePuffsFromMe = function(username, batchsize, offset) {
         return PB.getSomePuffs(query, ICX.currentOffset)
     }
 
-    // TODO: put a timeout in xhr
-    // TODO: chain this in to the table view
 
 */ 
-               
-               
+
+    // TODO: put a timeout in xhr
+    // TODO: chain this in to the table view
     
-    return PB.Net.getJSON(url, data)
+    // https://i.cx/api/puffs/api.php?conversationPartners=mattasher,icx.adamrafeek&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
 }
 
-PB.Net.getPrivatePuffsForMe = function(username, batchsize, offset) {
-    if(!username) return PB.emptyPromise()
-    batchsize = batchsize || CONFIG.globalBigBatchLimit
-    
-    var url  = CONFIG.puffApi
-    var data = { route: username
-               , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: batchsize, offset: offset
-               , sort: 'DESC'
-               }
-    
-    return PB.Net.getJSON(url, data)
-}
-
-PB.Net.getMyPrivatePuffs = function(username, batchsize, offset) {
-    if(!username) return PB.emptyPromise()
-    batchsize = batchsize || CONFIG.globalBigBatchLimit
-    
-    var url  = CONFIG.puffApi
-    var data = { route: username
-               , contentType: 'encryptedpuff', fullOrShell: 'full'
-               , type: 'getPuffs', numb: batchsize, offset: offset
-               , sort: 'DESC', fromAndTo: 1
-               }
-    
-    return PB.Net.getJSON(url, data)
-}
-
-// https://i.cx/api/puffs/api.php?conversationPartners=mattasher,icx.adamrafeek&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
 
 PB.Net.getProfilePuff = function(username) {
     var url  = CONFIG.puffApi

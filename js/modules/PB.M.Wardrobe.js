@@ -194,7 +194,7 @@ PB.M.Wardrobe = {}
             PB.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
 
         // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-        PB.Data.removeExistingPrivateShells() // OPT: destroying and re-requesting this is unnecessary
+        PB.Data.removeAllPrivateShells() // OPT: destroying and re-requesting this is unnecessary
         PB.Data.importPrivateShells(username)
 
         // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback

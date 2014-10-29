@@ -615,8 +615,12 @@ PB.addPrivateShell = function(envelope) {
 
     prom = prom.then(function(letter) {
         if(!letter) return false
-        PB.Data.addDecryptedLetter(letter, envelope)                    // add the letter to our system
+        
+        var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
+        if(!fresh) return false
+        
         PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
+        return true
     })
     
     return prom

@@ -655,6 +655,7 @@ var ViewLoadMore = React.createClass({
 
 	handleLoadMore: function() {
 		var loaded = puffworldprops.view.table.loaded
+        getMorePuffs(loaded, CONFIG.newLoad)
 		return Events.pub('ui/event', {
 			'view.table.loaded': loaded + CONFIG.newLoad
 		})

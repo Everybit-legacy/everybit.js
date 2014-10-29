@@ -246,7 +246,7 @@ PB.M.Wardrobe = {}
         
                 return userRecord
             }
-            , PB.promiseError('Could not store private keys due to faulty user record'))
+            , PB.catchError('Could not store private keys due to faulty user record'))
     }
 
     function processUpdates() {

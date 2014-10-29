@@ -425,11 +425,9 @@ PB.Data.getDecryptedLetterBySig = function(sig) {
 
 
 PB.Data.addDecryptedLetter = function(letter, envelope) {
-    // letters = letters
-    //     .filter(function(puff) {
-    //         return !PB.Data.currentDecryptedLetters.filter(                           // don't repeat yourself
-    //             function(otherpuff) { return otherpuff.sig == puff.sig}).length})
-
+    // THINK: how can we avoid doing this 'existing letter' check twice?
+    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)
+    if(maybeLetter) return false
     
     PB.Data.currentDecryptedLetters.push(letter)
     
@@ -644,7 +642,7 @@ PB.Data.getPuffBySig = function(sig) {
             var fauxshell = {sig: sig}
             if(!PB.Data.getBonus(fauxshell, 'envelope')) {
                 PB.Data.removeShellFromCache(sig) // no updateUI call
-                return PB.throwError("Content can not be found for shell '" + sig + "'")
+                return PB.onError("Content can not be found for shell '" + sig + "'") // THINK: why was this throwError?
                 // THINK: unlock PB.Data.pending[sig]? probably not, but it might re-appear later...
             }
         }
@@ -653,9 +651,9 @@ PB.Data.getPuffBySig = function(sig) {
     
     PB.Data.pending[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
     PB.Data.pending[sig].then(badShellClearCache)
-                         .then(PB.Data.addShellsThenMakeAvailable)
-                         .then(function() {                                                   // delay GC to prevent
-                             setTimeout(function() { delete PB.Data.pending[sig] }, 10000) }) //     runaway network requests
+                        .then(PB.Data.addShellsThenMakeAvailable)
+                        .then(function() {                                                   // delay GC to prevent
+                            setTimeout(function() { delete PB.Data.pending[sig] }, 10000) }) // runaway network requests
     
     return false
 }

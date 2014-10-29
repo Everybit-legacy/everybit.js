@@ -307,7 +307,7 @@ PB.Net.getAllPuffs = function() {
                .catch(function(err) {
                    rec(gen, resolve, reject);
                    // setTimeout(function() {rec(gen, resolve, reject)}, 100);
-                   // reject(PB.promiseError('Network error while accumulating puffs')(err))
+                   // reject(PB.catchError('Network error while accumulating puffs')(err))
                });
     }
     
@@ -350,7 +350,7 @@ PB.Net.sendPuffToServer = function(puff) {
                      if(response.slice(0,6) == '{"FAIL')
                          PB.throwError(response)
                   }) 
-                 .catch(PB.promiseError('Could not send puff to server'));
+                 .catch(PB.catchError('Could not send puff to server'));
 }
 
 /**
@@ -383,7 +383,7 @@ PB.Net.getUserRecord = function(username, capa) {
                     if(!userRecord)  PB.throwError('Invalid user record returned')
                     return userRecord
                 }
-                , PB.promiseError('Unable to access user information from the DHT'))
+                , PB.catchError('Unable to access user information from the DHT'))
 }
 
 /**
@@ -403,7 +403,7 @@ PB.Net.getUserRecord = function(username, capa) {
 //                     return userRecords.map(PB.processUserRecord)
 //                                       .filter(Boolean);
 //                 }
-//                 , PB.promiseError('Unable to access user file from the DHT'));
+//                 , PB.catchError('Unable to access user file from the DHT'));
 // }
 
 /**
@@ -448,7 +448,7 @@ PB.Net.updateUserRecord = function(puff) {
 
     var prom = PB.Net.post(CONFIG.userApi, data)
     
-    return prom.catch(PB.promiseError('Sending user record modification puff failed miserably'))
+    return prom.catch(PB.catchError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
                    if(!userRecord.username) 

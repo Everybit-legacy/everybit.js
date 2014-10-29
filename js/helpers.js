@@ -1105,7 +1105,7 @@ function publishProfilePuff() {
         // self.cleanUpSubmit()
         // self.refs.meta.handleCleanFields()
         handleUpdateProfile(puff)
-    }).catch(PB.promiseError('Posting failed'))
+    }).catch(PB.catchError('Posting failed'))
 }
 
 function getProfilePuff(username) {

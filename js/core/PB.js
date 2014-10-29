@@ -523,9 +523,9 @@ PB.getDecryptedPuffPromise = function(envelope) {
     var senderVersionedUsername = envelope.username
     var userProm = PB.getUserRecordPromise(senderVersionedUsername)
     
-    var prom = userProm.catch(function(err) {
-        PB.promiseError('User record acquisition failed')
-    }).then(function(senderVersionedUserRecord) {
+    var prom = userProm
+    .catch(PB.catchError('User record acquisition failed'))
+    .then(function(senderVersionedUserRecord) {
         var prom // used for leaking secure promise
     
         PB.useSecureInfo(function(identites, currentUsername) {
@@ -533,15 +533,12 @@ PB.getDecryptedPuffPromise = function(envelope) {
         
             var keylist = Object.keys(envelope.keys)
             var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-            if(!myVersionedUsername) {
-                prom = Promise.reject()
-                return PB.onError('No key found for current user')
-            }
-        
+            if(!myVersionedUsername)
+                return PB.throwError('No key found for current user')
+
             var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
             var privateDefaultKey = alias.privateDefaultKey
-            // letter = PB.decryptPuff(envelope, senderUserRecord.defaultKey, currentUsername, privateDefaultKey)
-        
+
             prom = new Promise(function(resolve, reject) {
                 return PB.workersend
                      ? PB.workersend( 'decryptPuffForReals'
@@ -550,10 +547,10 @@ PB.getDecryptedPuffPromise = function(envelope) {
                                       , myVersionedUsername
                                       , privateDefaultKey ]
                                     , resolve, reject )
-                     : PB.decryptPuffForReals( envelope
-                                             , senderVersionedUserRecord.defaultKey
-                                             , myVersionedUsername
-                                             , privateDefaultKey )
+                     : resolve( PB.decryptPuffForReals( envelope
+                                                      , senderVersionedUserRecord.defaultKey
+                                                      , myVersionedUsername
+                                                      , privateDefaultKey ) )
             })
         })
 
@@ -599,25 +596,19 @@ PB.extractLetterFromEnvelope = function(envelope) {                     // the e
     
     var prom = PB.getDecryptedPuffPromise(envelope)                     // do the decryption
     
-    prom = prom.then(function(letter) {
-        if(!letter) {
-            PB.Data.addBadEnvelope(envelope.sig)                        // decryption failed: flag envelope
-            return PB.throwError('Invalid envelope')                    // bail out
-        }
+    return prom.catch(function(err) { return false })
+               .then(function(letter) {
+                   if(!letter) {
+                       PB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
+                       return PB.throwError('Invalid envelope')         // bail out
+                   }
 
-        return letter
-    }) // TODO: put a catch *before* this then for worker errors
+                   return letter
+               })
     
-    return prom
 }
 
 PB.addPrivateShell = function(envelope) {
-    // THINK: how can we avoid doing this 'existing letter' check twice?
-    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
-    
-    if(maybeLetter)
-        return Promise.resolve(maybeLetter)                             // resolve to existing letter    
-    
     var prom = PB.extractLetterFromEnvelope(envelope)
 
     prom = prom.then(function(letter) {
@@ -876,7 +867,7 @@ PB.addNewAnonUser = function(attachToUsername) {
             
             return userRecord
         },
-        PB.promiseError('Anonymous user ' + anonUsername + ' could not be added'))
+        PB.catchError('Anonymous user ' + anonUsername + ' could not be added'))
 }
 
 
@@ -901,7 +892,10 @@ PB.onError = function(msg, obj) {
     return false
 }
 
-PB.promiseError = function(msg) {
+// TODO: build a more general error handling system for GUI integration
+
+PB.catchError = function(msg) {
+    //// ex: prom.catch( PB.catchError('invalid foo') ).then(function(foo) {...})
     return function(err) {
         PB.onError(msg, err)
         throw err
@@ -909,22 +903,26 @@ PB.promiseError = function(msg) {
 }
 
 PB.throwError = function(msg, errmsg) {
+    //// ex: prom.then(function(foo) {if(!foo) PB.throwError('no foo'); ...})
     throw PB.makeError(msg, errmsg)
 }
 
 PB.makeError = function(msg, errmsg) {
+    //// ex: new Promise(function(resolve, reject) { if(!foo) reject( PB.makeError('no foo') ) ... })
     var err = Error(errmsg || msg)
     PB.onError(msg, err)
     return err
 }
 
 PB.emptyPromise = function(msg) {
+    //// ex: function(foo) { if(!foo) return PB.emptyPromise('no foo'); return getFooPromise(foo) }
     if(msg) PB.onError(msg)
     return Promise.reject(msg)
 }
 
 
 PB.parseJSON = function(str) {
+    //// JSON.parse throws, so we catch it. throw/catch borks the JS VM optimizer, so we box it.
     try {
         return JSON.parse(str)
     } catch(err) {

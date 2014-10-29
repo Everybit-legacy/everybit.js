@@ -661,7 +661,7 @@ var PuffPublishFormEmbed = React.createClass({
                         self.handleUpdateProfile(puff)
                         var sig = puff.sig
                     })
-                    .catch(PB.promiseError('Posting failed'))    
+                    .catch(PB.catchError('Posting failed'))    
         } else {
             // publish private profile
             var prom = Promise.resolve()
@@ -675,7 +675,7 @@ var PuffPublishFormEmbed = React.createClass({
                         self.refs.meta.handleCleanFields()
                         self.handleUpdateProfile(puff)
                     })
-                    .catch(PB.promiseError("Posting failed"))
+                    .catch(PB.catchError("Posting failed"))
         }
 
         return false

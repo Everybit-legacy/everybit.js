@@ -766,13 +766,13 @@ var PuffStar = React.createClass({
 
             var userprom = PB.getUpToDateUserAtAnyCost()
             var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, [])
-            var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
+            var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
             prom.then(takeUserMakePuff)
                 .then(function(puff){
                     self.setState({ pending: false })
                     PB.Data.addStar(sig, username, puff.sig)
                 })
-                .catch(PB.promiseError('Posting failed'))
+                .catch(PB.catchError('Posting failed'))
         }
         return false
     },

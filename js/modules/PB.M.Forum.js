@@ -256,23 +256,24 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     // get a user promise
     var userprom = PB.getUpToDateUserAtAnyCost();
     
-    var prom = userprom.catch(PB.promiseError('Failed to add post: could not access or create a valid user'))
+    var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
-                       .catch(PB.promiseError('Posting failed'))
+                       .catch(PB.catchError('Posting failed'))
 
-    prom.then(function(puff) {
-        if(puff.keys) { // TODO: this is hacky
-            PB.Data.removeShellFromCache(puff.sig)
-            PB.Data.addShellsThenMakeAvailable([puff])
-            // PB.Data.addPrivateShells([puff])
-            // updateUI()
-
-            // username = PB.getCurrentUsername()
-            // PB.Data.importPrivateShells(username)
-        }
-        
-        return puff
-    })
+    // NOTE: all puffs go through the same ingestion cycle now, so there's no need to special-case adding encrypted puffs
+    // prom.then(function(puff) {
+    //     if(puff.keys) { // TODO: this is hacky
+    //         PB.Data.removeShellFromCache(puff.sig)
+    //         PB.Data.addShellsThenMakeAvailable([puff])
+    //         // PB.Data.addPrivateShells([puff])
+    //         // updateUI()
+    //
+    //         // username = PB.getCurrentUsername()
+    //         // PB.Data.importPrivateShells(username)
+    //     }
+    //
+    //     return puff
+    // })
     
     return prom;
     

@@ -265,7 +265,6 @@ var ICXContentItem = React.createClass({
 	}
 })
 
-
 var ICXItemMainContent = React.createClass({
 
     render: function() {
@@ -364,7 +363,6 @@ var ICXTableUserInfo = React.createClass({
     }
 })
 
-
 var ICXTableItemDate = React.createClass({
     render: function() {
         var date = new Date(this.props.date)
@@ -373,7 +371,6 @@ var ICXTableItemDate = React.createClass({
                 <span className="date">&nbsp;{timeSince(date)} ago</span>
             )
     }
-
 })
 
 var ICXRelationshipInfo = React.createClass({
@@ -436,7 +433,6 @@ var ICXRelationshipInfo = React.createClass({
     }
 })
 
-
 var ICXDownloadLink = React.createClass({
 
     handlePrepBlob: function() {
@@ -473,7 +469,6 @@ var ICXDownloadLink = React.createClass({
         }
 	}
 })
-
 
 var ICXInlineReply = React.createClass({
     componentWillUnmount: function() {

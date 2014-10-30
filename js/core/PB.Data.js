@@ -200,117 +200,117 @@ PB.Data.scoreStars = function(usernames) {
     Some new shell handling equipment. Need to integrate this more deeply and clean and test.
 */
 
-/**
- * add shells then make then available
- * @param {Shell[]}
- * @returns {*}
- */
 PB.Data.addShellsThenMakeAvailable = function(shells) {
-    var new_shells = PB.Data.hereHaveSomeNewShells(shells)
-    var delta = new_shells.length
-    if(delta) 
-        PB.Data.makeShellsAvailable(new_shells)
-    // THINK: consider removing this delta optimization, since encrypted puffs won't be in new_shells as they short-circuit the hereHaveSomeNewShells process. (also, updateUI is already batched)
-    return delta
-}
-
-/**
- * handle incoming shells
- * @param {Shell[]}
- * @returns {*}
- */
-PB.Data.hereHaveSomeNewShells = function(shells) {
-    //// handle incoming shells
+    //// adds shells to the system, then returns a report on its progress
+    
+    // report.delivered: 10
+    // report.valid: 8
+    // report.new_shells: 7
+    // report.new_puffs: 5
+    // report.GC: 0
+    
+    // report.public: 2
+    // report.stars: 0
+    
+    // report.private_promise: {sigs:[], failed: }
+    
+    // report.public_puff_sigs: []
+    
+    function not(fun) {return function(x) {return !fun(x)}}
+    
+    var report = {counts: {}}
     
     shells = Array.isArray(shells) ? shells : [shells]
+    report.counts.delivered = shells.length
     
-    shells = shells.filter(PB.Data.isGoodShell)
+    shells = shells.filter(PB.Data.isValidShell)
+    report.counts.valid = shells.length
     
-    var useful_shells = shells.filter(PB.Data.tryAddingShell)  // note that we're filtering effectfully,
-                                                               //   and that useful shells may be new or just new content
-    if(!useful_shells.length) return []                        //   and that we remove stars, which may change things
+    report.meta = PB.Data.handleMetaPuffs(shells)
     
-    PB.Data.addToGraph(useful_shells)                          // THINK: ensure this should be useful_shells, not shells
+    shells = shells.filter(not(PB.Data.isMetaPuff))
+    report.counts.nonmeta = shells.length
     
-    PB.Data.rateSomePuffs(useful_shells)                       // THINK: ensure this should be useful_shells, not shells
+    report.private_promise = PB.Data.handlePrivatePuffs(shells)
     
-    PB.Data.persistShells()
+    shells = shells.filter(not(PB.Data.isPrivatePuff))
+    report.counts.public = shells.length
     
-    var compacted = PB.Data.garbageCompactor()                 // OPT: call this earlier
+    shells = PB.Data.handleAndFilterExistingShells(shells)
+    report.counts.new_public = report.counts.public - shells.length
     
-    if(!compacted) return useful_shells
+    PB.Data.handleNewPublicShells(shells)
     
-    return useful_shells.map(R.prop('sig'))                    // if GC eats puffs this spits them out
-                        .map(PB.Data.getCachedShellBySig).filter(Boolean)
+    shells = PB.Data.handleAndFilterByGC(shells)
+    report.counts.gc = report.counts.new_public - shells.length
+
+    report.public_puff_sigs = shells.map(R.prop('sig'))
+    
+    PB.receiveNewPuffs(shells) /// THINK!
+    
+    return report
 }
 
-/**
- * to make shells available
- */
-PB.Data.makeShellsAvailable = function(shells) {
-    //// alert everyone: new shells have arrived!
-
-    // THINK: should this calculate the delta?
-
-    // PB.receiveNewPuffs(PB.Data.shells) // may have to pass delta here
+PB.Data.handleMetaPuffs = function(shells) {
+    // TODO: move this to a module
+    var metapuffs = shells.filter(PB.Data.isMetaPuff)
     
-    PB.receiveNewPuffs(shells) // may have to pass delta here
-    
-}
-
-/**
- * tries to add a shell, or update the content of an existing shell
- * @param {Shell[]}
- * @returns {(false|Shell[])}
- */
-PB.Data.tryAddingShell = function(shell) {
-    //// try adding a shell, or updating the content of an existing shell
-    //// this is the central shell ingestation station, where metapuffs meet their doom
-    
-    // NOTE: don't call this without filtering using isGoodShell
-        
-    // metapuff wonkery
-
-    if(shell.payload.type == 'star') {
-        // TODO: consider moving this to a module
-        // update shell bonii
+    metapuffs.forEach(function(shell) {
         var sig = shell.payload.content
-        
         PB.Data.addStar(sig, shell.username, shell.sig)
-        
-        return false // because we didn't actually add a new shell  // THINK: but we did change one...
-    }
-
-    if(shell.payload.type == 'encryptedpuff') {
-        // var username = PB.getCurrentUsername()
-
-        // if(!shell.keys[username]) return false // THINK: antiquated filter for unversioned usernames...
-        
-        PB.addPrivateShell(shell)
-        
-        return false // we added a shell, but not the normal way... 
-    }
+    })
     
-    var existing = PB.Data.getCachedShellBySig(shell.sig)
-    
-    if(existing) {
-        if(existing.payload.content) return false
-        if(shell.payload.content === undefined) return false
-        existing.payload.content = shell.payload.content        // add the missing content
-        return true // true because we changed it
-    }
-
-    // only add the shell if it is supported content type
-    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
-        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig});
-        return false;        
-    }
-    
-    PB.Data.shells.push(shell)
-    PB.Data.shellSort[shell.sig] = shell
-
-    return true // true because we added it
+    return {stars: metapuffs.length}
 }
+
+PB.Data.isMetaPuff = function(shell) {
+    // TODO: move this to a module
+    return shell.payload.type == 'star'    
+}
+
+PB.Data.handlePrivatePuffs = function(shells) {
+    var privatepuffs = shells.filter(PB.Data.isPrivatePuff)    
+    return PB.addPrivateShells(privatepuffs) // TODO: this returns our promise report
+}
+
+PB.Data.isPrivatePuff = function(shell) {
+    return shell.payload.type == 'encryptedpuff'
+}
+    
+PB.Data.handleAndFilterExistingShells = function(shells) {
+    // THINK: this can't answer the question of "did we updated an existing shell with content"?
+    return shells.filter(function(shell) {
+        var existing = PB.Data.getCachedShellBySig(shell.sig)
+
+        if(existing) {
+            if(existing.payload.content) return false
+            if(shell.payload.content === undefined) return false    // it's an empty shell
+            existing.payload.content = shell.payload.content        // add the missing content
+            return true // true because we changed it
+        }
+    })
+}
+
+PB.Data.handleNewPublicShells = function(shells) {
+    shells.forEach(function(shell) {
+        PB.Data.shells.push(shell)
+        PB.Data.shellSort[shell.sig] = shell
+    })
+
+    PB.Data.addToGraph(shells)
+    PB.Data.rateSomePuffs(shells)
+    PB.Data.persistShells()                                     // drop new stuff into localStorage
+}
+
+PB.Data.handleAndFilterByGC = function(shells) {
+    var compacted = PB.Data.garbageCompactor()                  // OPT: call this earlier
+    if(!compacted) return shells
+    
+    return shells.map(R.prop('sig'))                            // if GC eats puffs this spits them out
+                 .map(PB.Data.getCachedShellBySig)
+                 .filter(Boolean)
+}
+
 
 /**
  * to persist shells
@@ -332,21 +332,6 @@ PB.Data.persistShells = function(shells) {
     // shells = shells.filter(function(shell) { return !shell.payload.content || (shell.payload.content.length < 1000) })
     
     PB.Persist.save('shells', shells)
-}
-
-/**
- * determine if it is a good shell, checks for the existence of required fields
- * @param {Shell[]}
- * @returns {boolean}
- */
-PB.Data.isGoodShell = function(shell) {
-    //// this just checks for the existence of required fields
-    if(!shell.sig) return false
-    if(!shell.routes) return false
-    if(!shell.username) return false
-    if(typeof shell.payload != 'object') return false
-    if(!shell.payload.type) return false
-    return true
 }
 
 /**
@@ -436,16 +421,20 @@ PB.Data.removeAllPrivateShells = function() {
     PB.Data.currentDecryptedLetters = [] 
 }
 
-PB.Data.importPrivateShells = function(username) {
-    if(!username)
-        username = PB.getCurrentUsername()
-    
+PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     // THINK: race condition while toggling identities?
-    var batchsize = 20
-
-    PB.Net.getMyPrivatePuffs(username, batchsize)
-          .then(PB.Data.addShellsThenMakeAvailable)
+    if(!username) username = PB.getCurrentUsername()
+    
+    offset = offset || 0
+    // offset = offset || CONFIG.initLoadBatchSize || 20
+    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    
+    var prom
+    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
 }
+
 
 PB.Data.updatePrivateShells = function(offset) {
     var username = PB.getCurrentUsername()
@@ -594,37 +583,37 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
     // OLD STUFF SAVE FOR REFERENCE
 
     // var batchSize = CONFIG.fillSlotsBatchSize
-    var giveup = CONFIG.fillSlotsGiveup
-    var new_shells = []
-    
-    giveup = giveup + my_offset
-    
-    function getMeSomeShells(puffs) {
-        if(puffs) {
-            var my_new_shells = PB.Data.hereHaveSomeNewShells(puffs)
-            new_shells = new_shells.concat(my_new_shells)
-            var delta = my_new_shells.length
-            // THINK: but do they pass the filter?
-            // TODO: can we make available here now that we're locking?
-            have += delta || 0
-        }
-        
-        if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
-            PB.Data.makeShellsAvailable(new_shells)
-            PB.Data.slotLocker[key] = my_offset-limit
-            return false
-        }
-        
-        var limit = need - have 
-        // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
-        
-        var prom = PB.Net.getSomeShells(query, filters, limit, my_offset)
-        prom.then(getMeSomeShells)
-
-        my_offset += limit
-    }
-    
-    getMeSomeShells()
+    // var giveup = CONFIG.fillSlotsGiveup
+    // var new_shells = []
+    //
+    // giveup = giveup + my_offset
+    //
+    // function getMeSomeShells(puffs) {
+    //     if(puffs) {
+    //         var my_new_shells = PB.Data.hereHaveSomeNewShells(puffs)
+    //         new_shells = new_shells.concat(my_new_shells)
+    //         var delta = my_new_shells.length
+    //         // THINK: but do they pass the filter?
+    //         // TODO: can we make available here now that we're locking?
+    //         have += delta || 0
+    //     }
+    //
+    //     if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
+    //         PB.Data.makeShellsAvailable(new_shells)
+    //         PB.Data.slotLocker[key] = my_offset-limit
+    //         return false
+    //     }
+    //
+    //     var limit = need - have
+    //     // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
+    //
+    //     var prom = PB.Net.getSomeShells(query, filters, limit, my_offset)
+    //     prom.then(getMeSomeShells)
+    //
+    //     my_offset += limit
+    // }
+    //
+    // getMeSomeShells()
 }
 
 
@@ -705,16 +694,42 @@ PB.Data.purgeShellFromGraph = function(sig) {
  * @return {(string|boolean)}
  */
 PB.Data.isGoodPuff = function(puff) {
+    // NOT CURRENTLY USED
     // TODO: check previous sig, maybe
     // TODO: check for well-formed-ness
     // TODO: use this to verify incoming puffs
     // TODO: if prom doesn't match, try again with getUserRecordNoCache
     
-    var prom = PB.getUserRecordPromise(puff.username); // NOTE: versionedUsername
+    // TODO: rewrite this function to give a consistent return value
+    
+    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
+        // TODO: this needs to include 'encryptedpuff' as a valid type
+        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig})
+        return false
+    }
+    
+    var prom = PB.getUserRecordPromise(puff.username) // NOTE: versionedUsername
     
     return prom.then(function(user) {
-        return PB.Crypto.verifyPuffSig(puff, user.defaultKey);
-    });
+        return PB.Crypto.verifyPuffSig(puff, user.defaultKey)
+    })
+    
+}
+
+/**
+ * determine if it is a good shell, checks for the existence of required fields
+ * @param {Shell[]}
+ * @returns {boolean}
+ */
+PB.Data.isValidShell = function(shell) {
+    //// this just checks for the existence of required fields
+    if(!shell.sig) return false
+    if(!shell.routes) return false
+    if(!shell.username) return false
+    if(typeof shell.payload != 'object') return false
+    if(!shell.payload.type) return false
+        
+    return true
 }
 
 

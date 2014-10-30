@@ -565,7 +565,7 @@ PB.getDecryptedPuffPromise = function(envelope) {
 PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
     if(!envelope.keys) return false
     var keyForMe = envelope.keys[myVersionedUsername]
-    var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
     letterString = PB.tryDecodeURIComponent(escape(letterString)); // encoding
@@ -610,6 +610,31 @@ PB.extractLetterFromEnvelope = function(envelope) {                     // the e
     
 }
 
+PB.addPrivateShells = function(shells) {
+    var proms = shells.map(PB.addPrivateShell)
+    
+    // NOTE: Promise.all rejects immediately upon any rejection, so we have to do this manually
+    
+    return new Promise(function(resolve, reject) {
+        var remaining = proms.length
+        var report = {good: 0, bad: 0, goodsigs: []}
+        
+        function unhappy_path() {
+            report.bad++
+            if(!--remaining) resolve(report)
+        }
+        
+        proms.forEach(function(prom) {
+            prom.then(function(letter) {
+                if(!letter) return unhappy_path()                       // catches old or weird puffs 
+                report.good++
+                report.goodsigs.push(letter.sig)
+                if(!--remaining) resolve(report)
+            }, unhappy_path )                                           // catches decryption errors
+        })
+    })
+}
+
 PB.addPrivateShell = function(envelope) {
     var prom = PB.extractLetterFromEnvelope(envelope)
 
@@ -620,7 +645,7 @@ PB.addPrivateShell = function(envelope) {
         if(!fresh) return false
         
         PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
-        return true
+        return letter
     })
     
     return prom

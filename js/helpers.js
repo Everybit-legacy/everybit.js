@@ -143,15 +143,6 @@ function updateLatestConvoPuff() {
     })
 }
 
-// TODO: move this
-function getMorePuffs(offset, batchsize) {
-    offset = offset || 20
-    batchsize = batchsize || 10
-    PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
-              .then(PB.Data.addShellsThenMakeAvailable)
-}
-
-
 
 function generateRandomUsername() {
     var animalName = PB.Crypto.getRandomItem(ICX.animalNames)

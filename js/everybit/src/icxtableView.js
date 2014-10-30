@@ -76,7 +76,7 @@ var TableView = React.createClass({
     componentWillMount: function() {
         getUniqueConvoKeys()
         Events.pub('ui/event', {
-            'view.table.loaded': CONFIG.initialLoad
+            'view.table.loaded': CONFIG.initLoadBatchSize
         })
     },
 
@@ -666,9 +666,15 @@ var ViewLoadMore = React.createClass({
 
 	handleLoadMore: function() {
 		var loaded = puffworldprops.view.table.loaded
-        getMorePuffs(loaded, CONFIG.newLoad)
+        var report = PB.Data.getMorePrivatePuffs('', loaded, CONFIG.pageBatchSize) // report is a Promise
+        // TODO: use report to determine next state of button:
+        //       - if report.counts.delivered == CONFIG.pageBatchSize then we can try loading more
+        //       - otherwise we failed to gather all the puffs we tried to gather (either No More or Network Error)
+        
+        // NOTE: until report.private_promise resolves, not all puffs have been displayed in the GUI. 
+        //       use that as the signal to transition from 'Loading' to 'Load More' or 'No more messages found'
 		return Events.pub('ui/event', {
-			'view.table.loaded': loaded + CONFIG.newLoad
+			'view.table.loaded': loaded + CONFIG.pageBatchSize
 		})
 	},
 	render: function() {

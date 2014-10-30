@@ -259,13 +259,13 @@ var RowSortMixin = {
 var TableView = React.createClass({
 	mixins: [ViewKeybindingsMixin, ComputeDimensionMixin, RowSortMixin],
 	getInitialState: function() {
-		return {loaded: CONFIG.initialLoad, 
+		return {loaded: CONFIG.initLoadBatchSize, 
 				noMorePuff: false/*, 
 				headerHeight: 0*/}
 	},
 	loadMore: function() {
 		if (this.state.noMorePuff !== true) {
-			this.setState({loaded: this.state.loaded + CONFIG.newLoad,
+			this.setState({loaded: this.state.loaded + CONFIG.pageBatchSize,
 					   	   noMorePuff: false})
 			this.refs.header.forceUpdate()
 		}

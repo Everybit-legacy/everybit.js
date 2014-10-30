@@ -145,5 +145,3 @@ CONFIG.defaultColumn = {
 CONFIG.maxGeneration = 5
 CONFIG.maxParentGen = 3
 CONFIG.maxChildGen = 4
-CONFIG.initialLoad = 20
-CONFIG.newLoad = 10

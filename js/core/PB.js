@@ -565,7 +565,7 @@ PB.getDecryptedPuffPromise = function(envelope) {
 PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
     if(!envelope.keys) return false
     var keyForMe = envelope.keys[myVersionedUsername]
-    var puffkey  = PB.Crypto.decodePrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
     letterString = PB.tryDecodeURIComponent(escape(letterString)); // encoding
@@ -608,6 +608,27 @@ PB.extractLetterFromEnvelope = function(envelope) {                     // the e
                    return letter
                })
     
+}
+
+PB.addPrivateShells = function(shells) {
+    var proms = shells.map(PB.addPrivateShell)
+    
+    // NOTE: Promise.all rejects immediately upon any rejection, so we have to do this manually
+    
+    return new Promise(function(resolve, reject) {
+        var remaining = proms.length
+        var report = {good: 0, bad: 0}
+        
+        proms.forEach(function(prom) {
+            prom.then(function() {
+                report.good++
+                if(!--remaining) resolve(report)
+            }, function() {
+                report.bad++
+                if(!--remaining) resolve(report)
+            })
+        })
+    })
 }
 
 PB.addPrivateShell = function(envelope) {

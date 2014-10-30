@@ -196,7 +196,7 @@ PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
  * @param  {string} myPrivateWif
  * @return {string}
  */
-PB.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
+PB.Crypto.encryptPrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
     var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key) return false
     var ciphertext = PB.Crypto.encryptWithAES(plaintext, key)
@@ -210,7 +210,7 @@ PB.Crypto.encodePrivateMessage = function(plaintext, yourPublicWif, myPrivateWif
  * @param  {string} myPrivateWif
  * @return {string}
  */
-PB.Crypto.decodePrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
+PB.Crypto.decryptPrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
     var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key || !ciphertext) return false
     var plaintext = PB.Crypto.decryptWithAES(ciphertext, key)
@@ -328,7 +328,7 @@ PB.Crypto.getRandomValuesShim = function(number, size) {
 PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     return userRecords.reduce(function(acc, userRecord) {
         var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
-        acc[versionedUsername] = PB.Crypto.encodePrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
+        acc[versionedUsername] = PB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
         return acc
     }, {})
 }

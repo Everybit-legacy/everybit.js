@@ -61,8 +61,19 @@ function userHasShells(username, callback) {
 function getMorePuffs(offset, batchsize) {
     offset = offset || 20
     batchsize = batchsize || 10
-    PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
-              .then(PB.Data.addShellsThenMakeAvailable)
+    var prom
+    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
+    
+    // .then(function(report) {
+    //     // report.delivered: 10
+    //     // report.valid: 8
+    //     // report.new: 5
+    // }
+    // .catch(function(err) {
+    //     // err -> Network error
+    // })
 }
 
 

@@ -244,12 +244,13 @@ var ICXWorld = React.createClass({
                     <div style={screenStyle} className="screen">
                         <ICXLogo screenInfo={screenInfo} />
                         <ICXLinks screenInfo={screenInfo} />
-                        <div style={contentDivStyles}>
+                        <div className="tour-item" style={contentDivStyles} key="tableview">
                             <ICXError />
                             {pageComponent}
                         </div>
                         <ICXSpinner />
                     </div>
+                    <ICXTour />
                     <i className="icon-gavia" style={{fontSize: '1px', fontFamily: 'icxicon', opacity: 0, position:'fixed'}} />
                 </span>
             )
@@ -261,6 +262,13 @@ var ICXSplash = React.createClass({
     handleGoTo: function(screen) {
         return Events.pub('ui/icx/screen', {
             'view.icx.screen': screen
+        })
+    },
+    handleBeginTour: function() {
+        return Events.pub('ui/tour', {
+            'ICX.tour': {},
+            'ICX.tour.sequence': 1,
+            'view.icx.screen': 'home.table'
         })
     },
     render: function() {
@@ -282,7 +290,7 @@ var ICXSplash = React.createClass({
                     <div className="splashButtons">
                         <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Register</p></div>
                         <div className="splashButton" onClick={this.handleGoTo.bind(null, 'login')}><p>Login</p></div>
-                        <div className="splashButton" onClick={this.handleGoTo.bind(null, 'newuser')}><p>Take a Tour</p></div>
+                        <div className="splashButton" onClick={this.handleBeginTour}><p>Take a Tour</p></div>
                     </div>
                 </div>
             </div>
@@ -2585,7 +2593,7 @@ var ICXLinks = React.createClass({ /* Good */
             if(!data.button) {
                 return // <span key={self.props.screenInfo + '_' + data.name}></span>
             } else {
-                return <ICXButtonLink key={self.props.screenInfo + '_' + data.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
+                return <ICXButtonLink key={data.name + '_' + self.props.screenInfo.name} currScreen={self.props.screenInfo.name} screenInfo={data} />
             }
 
         })
@@ -2631,7 +2639,8 @@ var ICXButtonLink = React.createClass({  /* Good */
             zIndex: 100,
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            cursor: 'pointer'
         }
 
         // Login always on right!
@@ -2667,7 +2676,7 @@ var ICXButtonLink = React.createClass({  /* Good */
             buttonStyle.overflow = 'visible'
             buttonStyle.whiteSpace = 'nowrap'
             return (
-                <div style={buttonStyle}>
+                <div className="tour-item" style={buttonStyle}>
                     <ICXUserButton />
                 </div>
             )
@@ -2675,16 +2684,14 @@ var ICXButtonLink = React.createClass({  /* Good */
 
 
         return (
-            <a href="#" onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)} style ={{color: '#ffffff'}}>
-                <div className="navBtn" style={buttonStyle}>
-                    <i className={this.props.screenInfo.icon}></i>
-                        <span className="icxButtonlinkText">
-                            {' '}
-                            {linkText}
-                        </span>
-                </div>
-            </a>
-            )
+            <div className="tour-item navBtn" style={buttonStyle} onClick={this.handleGoTo.bind(null, this.props.screenInfo.name)}>
+                <i className={this.props.screenInfo.icon}></i>
+                    <span className="icxButtonlinkText">
+                        {' '}
+                        {linkText}
+                    </span>
+            </div>
+        )
     }
 })
 
@@ -2756,14 +2763,14 @@ var ICXUserButton = React.createClass({  /* Good */
                         <Tooltip position="under" content="View your messages and files" />
                     </span>
                     {' '}
-                    <span className="relative">
+                    <span className="tour-item relative" key="dashboard">
                         <a href="#"  onClick={this.handleGoTo.bind(null, 'dashboard')} style={{color: '#ffffff'}}>
                             <i className="fa fa-fw fa-user" />{username}
                         </a>
                         <Tooltip position="under" content="Go to your dashboard" />
                     </span>
                     {' '}
-                    <span className="relative">
+                    <span className="tour-item relative" key="logout">
                         <a href="#"  onClick={this.handleSignOut} style={{color: '#ffffff'}} goto="home">
                             <i className="fa fa-fw fa-sign-out" />
                         </a>
@@ -2829,6 +2836,137 @@ var ICXNextButton = React.createClass({  /* good */
 
             return <a style={ICX.buttonStyle} className="icxNextButton" disabled> {buttonText} <i className="fa fa-chevron-right small" /></a>
 
+        }
+    }
+})
+
+var ICXTour = React.createClass({
+    getInitialState: function() {
+        return {
+            sequence: 1,
+            top: 100,
+            left: 100,
+            tourText: 'Lets begin the tour by clicking BEGIN TOUR'
+        }
+    },
+    handleBeginTour: function() {
+        this.handleTriggerElement(1)
+    },
+
+    handleExitTour: function() {
+        return Events.pub('ui/tour', {
+            'ICX.tour': false
+        })
+    },
+    handleGetElement: function(step) {
+        if(!step) step = this.state.sequence
+
+        // Put this somewhere in config
+        // these are unique identifiers that are part of the data-reactid attribute
+        var stepItems = ['messages', 'dashboard', 'logout', 'send', 'store']
+        var highlightItems = ['tableview', 'login', 'login', 'send', 'store']
+
+        var items = document.getElementsByClassName('tour-item')
+        var result = {}
+        for( var i = items.length-1; i >= 0; i--) {
+            if(items[i].dataset.reactid.indexOf(stepItems[step-1]) > 0)
+                result.step = items[i]
+
+            if(items[i].dataset.reactid.indexOf(highlightItems[step-1]) > 0)
+                result.highlight = items[i]
+        }
+        return result
+    },
+    handleTriggerElement: function(step) {
+        var item = this.handleGetElement(step)
+        item.highlight.style.zIndex = 1001
+
+        var coords = getOffsetRect(item.step)
+
+        this.setState({
+            top: coords.top,
+            left: coords.left
+        })
+
+        switch(step) {
+            case 1:
+                this.setState({
+                    tourText: 'Here is where you can view your messages and reply to them'
+                })
+                break
+            case 2:
+                this.setState({
+                    tourText: 'Here is your dashboard, you can change password'
+                })
+                break
+            case 3:
+                this.setState({
+                    tourText: 'Here you can click to log out'
+                })
+                break
+            case 4:
+                this.setState({
+                    tourText: 'Here is where you send messages or files'
+                })
+                break
+            case 5:
+                this.setState({
+                    tourText: 'Here is where you encrypt and store files locally or have it backed up in the cloud'
+                })
+                break
+            default:
+                this.setState({tourText: ''})
+                break
+        }
+    },
+    handleResetElement: function(step) {
+        var item = this.handleGetElement(step)
+        item.highlight.style.zIndex = 100
+    },
+    handleNextStep: function() {
+        this.handleResetElement(this.state.sequence)
+        this.handleTriggerElement(this.state.sequence+1)
+        this.setState({
+            sequence: this.state.sequence + 1
+        })
+    },
+    render: function() {
+
+        var wizardStyle = {
+            zIndex: 1001,
+            position: 'fixed',
+            width: 300,
+            height: 150,
+            left: this.state.left,
+            top: this.state.top,
+            backgroundColor: 'white'
+        }
+
+        var backDropStyle = {
+            zIndex: 1000,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            position: 'fixed',
+            backgroundColor: '#000',
+            opacity: 0.8
+        }
+
+        if(typeof puffworldprops.ICX.tour === 'undefined' || !puffworldprops.ICX.tour) {
+            return <span></span>
+        } else {
+            return (
+                <div>
+                    <div style={backDropStyle}></div>
+                    <div style={wizardStyle}>
+                        <p>{this.state.tourText}</p>
+                        <button onClick={this.handleBeginTour} > Begin Tour </button>
+                        <button onClick={this.handleNextStep} > Next Step </button>
+                        <button onClick={this.handleExitTour} > Exit Tour </button>
+                    </div>
+                </div>
+            )
         }
     }
 })

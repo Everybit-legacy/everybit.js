@@ -16,7 +16,7 @@ var puffContainer = React.createClass({
             )
         })
         return (
-            <div className="messageList">
+            <div className="tour-item messageList">
                 {puffs}
             </div>
         )
@@ -113,7 +113,7 @@ var TableView = React.createClass({
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
-                <puffContainer content={this.getContent()} />
+                <puffContainer content={this.getContent()} key="messages"/>
 
                 <ViewLoadMore query={this.props.view.query} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
 			</div>
@@ -265,7 +265,6 @@ var ICXContentItem = React.createClass({
 	}
 })
 
-
 var ICXItemMainContent = React.createClass({
 
     render: function() {
@@ -364,7 +363,6 @@ var ICXTableUserInfo = React.createClass({
     }
 })
 
-
 var ICXTableItemDate = React.createClass({
     render: function() {
         var date = new Date(this.props.date)
@@ -373,7 +371,6 @@ var ICXTableItemDate = React.createClass({
                 <span className="date">&nbsp;{timeSince(date)} ago</span>
             )
     }
-
 })
 
 var ICXRelationshipInfo = React.createClass({
@@ -436,7 +433,6 @@ var ICXRelationshipInfo = React.createClass({
     }
 })
 
-
 var ICXDownloadLink = React.createClass({
 
     handlePrepBlob: function() {
@@ -473,7 +469,6 @@ var ICXDownloadLink = React.createClass({
         }
 	}
 })
-
 
 var ICXInlineReply = React.createClass({
     componentWillUnmount: function() {

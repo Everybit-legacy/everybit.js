@@ -11,7 +11,10 @@ function keepNumberBetween(x,a,b) {
 
 //wrapper to get puffs to display in table view
 function getTableViewContent(query, filters, limit) {
-    return PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+    var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
+    getUniqueConvoKeys()
+    updateLatestConvoPuff()
+    return puffs
 }
 
 /*
@@ -54,6 +57,89 @@ function userHasShells(username, callback) {
 
                 callback(numShells)
             })
+    })
+}
+
+// API to get conversations
+// @Param {string} convoId
+// '&' separated usernames involved in convo
+var getPuffsByConvoId = function(convoId) {
+    convoId = convoId.replace('&',',')
+    var url  = CONFIG.puffApi
+    var data = {
+        contentType: 'encryptedpuff',
+        type: 'getPuffs',
+        conversationPartners: convoId
+    }
+    
+    return PB.Net.getJSON(url, data)
+}
+
+
+function updateCurrentConvos(puff) {
+    getUniqueConvoKeys()
+    updateLatestConvoPuff()
+}
+
+
+function getConvoKeyByPuff(puff) {
+    var envelope = PB.Data.getBonus(puff, 'envelope')
+    return mergeConvoKeys(envelope.keys)
+}
+
+
+function mergeConvoKeys(keys) {
+    var mergedKey = ''
+    keys = Object.keys(keys)
+    keys.sort()
+    for(var i = 0; i < keys.length; i++) {
+        mergedKey = mergedKey.concat(PB.justUsername(keys[i]))
+        if(i != keys.length-1)
+            mergedKey = mergedKey.concat('&')
+    }
+    // console.log(mergedKey)
+    return mergedKey
+}
+
+// gets the current decrypted puffs and
+// returns a list of unique convo IDs
+function getUniqueConvoKeys() {
+    var uniqueConvoIDs = [] || puffworldprops.ICX.uniqueConvoIDs
+
+    var letters = PB.Data.getCurrentDecryptedLetters()
+    letters.map(function(letter) {
+        key = getConvoKeyByPuff(letter)
+        if(uniqueConvoIDs.indexOf(key) === -1) {
+            uniqueConvoIDs.push(key)
+        }
+    })
+
+    Events.pub('ui/event', {
+        'ICX.uniqueConvoIDs': uniqueConvoIDs
+    })
+}
+
+// props needs to have the unique convo IDs ready before this function is called
+function updateLatestConvoPuff() {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
+    var latestStamps = {} || puffworldprops.ICX.latestConvoPuffTimestamps
+    var stampIDs = Object.keys(latestStamps)
+
+    var letters = PB.Data.getCurrentDecryptedLetters()
+    letters.map(function(letter) {
+        key = getConvoKeyByPuff(letter)
+        time = letter.payload.time
+        if(uniqueConvoIDs.indexOf(key) > -1) {
+            if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].time) ) {
+                latestStamps[key] = {}
+                latestStamps[key].time = time
+                latestStamps[key].sig = letter.sig
+            }
+        }
+    })
+
+    Events.pub('ui/event', {
+        'ICX.latestConvoPuffTimestamps': latestStamps
     })
 }
 

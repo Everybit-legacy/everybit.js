@@ -246,6 +246,12 @@ var eatPuffs = function(puffs) {
     updateUI();
 }
 
+var updateLatestConvo = function(puffs) {
+    puffs.map(function(puff) {
+        updateCurrentConvos(puff)
+    })
+}
+
 
 ////
 
@@ -257,7 +263,8 @@ var eatPuffs = function(puffs) {
 CONFIG.noNetwork = true
 CONFIG.icxmode   = true
 
-PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update function    
+PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update function
+PB.M.Forum.onNewPuffs(updateLatestConvo);
 
 // PB.M.Forum.init();                               // initialize the forum module (and by extension the puffball network)
 PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);          // manually connect the Forum module to avoid initializing the P2P network

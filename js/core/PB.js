@@ -617,16 +617,20 @@ PB.addPrivateShells = function(shells) {
     
     return new Promise(function(resolve, reject) {
         var remaining = proms.length
-        var report = {good: 0, bad: 0}
+        var report = {good: 0, bad: 0, goodsigs: []}
+        
+        function unhappy_path() {
+            report.bad++
+            if(!--remaining) resolve(report)
+        }
         
         proms.forEach(function(prom) {
-            prom.then(function() {
+            prom.then(function(letter) {
+                if(!letter) return unhappy_path()                       // catches old or weird puffs 
                 report.good++
+                report.goodsigs.push(letter.sig)
                 if(!--remaining) resolve(report)
-            }, function() {
-                report.bad++
-                if(!--remaining) resolve(report)
-            })
+            }, unhappy_path )                                           // catches decryption errors
         })
     })
 }
@@ -641,7 +645,7 @@ PB.addPrivateShell = function(envelope) {
         if(!fresh) return false
         
         PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
-        return true
+        return letter
     })
     
     return prom

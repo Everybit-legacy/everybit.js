@@ -57,27 +57,6 @@ function userHasShells(username, callback) {
     })
 }
 
-// TODO: move this
-function getMorePuffs(offset, batchsize) {
-    offset = offset || 20
-    batchsize = batchsize || 10
-    var prom
-    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
-    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
-    return prom
-    
-    // .then(function(report) {
-    //     // report.delivered: 10
-    //     // report.valid: 8
-    //     // report.new: 5
-    // }
-    // .catch(function(err) {
-    //     // err -> Network error
-    // })
-}
-
-
-
 function generateRandomUsername() {
     var animalName = PB.Crypto.getRandomItem(ICX.animalNames)
     var adjective = PB.Crypto.getRandomItem(ICX.adjectives)

@@ -163,7 +163,9 @@ CONFIG.defaultBgcolor = "E0E0E0";
 
 
 // configurations for network requests. eventually queries will track their timing and we'll automate these settings.
-CONFIG.initLoadBatchSize = 50
+CONFIG.pageBatchSize = 10
+
+CONFIG.initLoadBatchSize = 20
 CONFIG.initLoadGiveup    = 300
 
 CONFIG.fillSlotsBatchSize = 50
@@ -190,8 +192,6 @@ CONFIG.defaultColumn = {
 CONFIG.maxGeneration = 5
 CONFIG.maxParentGen = 3
 CONFIG.maxChildGen = 4
-CONFIG.initialLoad = 20
-CONFIG.newLoad = 10
 
 //should only be changed if the underlying platform changes
 CONFIG.standards ={}

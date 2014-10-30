@@ -231,7 +231,7 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
     shells = shells.filter(not(PB.Data.isMetaPuff))
     report.counts.nonmeta = shells.length
     
-    report.private = PB.Data.handlePrivatePuffs(shells)
+    report.private_promise = PB.Data.handlePrivatePuffs(shells)
     
     shells = shells.filter(not(PB.Data.isPrivatePuff))
     report.counts.public = shells.length
@@ -421,16 +421,20 @@ PB.Data.removeAllPrivateShells = function() {
     PB.Data.currentDecryptedLetters = [] 
 }
 
-PB.Data.importPrivateShells = function(username) {
-    if(!username)
-        username = PB.getCurrentUsername()
-    
+PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     // THINK: race condition while toggling identities?
-    var batchsize = 20
-
-    PB.Net.getMyPrivatePuffs(username, batchsize)
-          .then(PB.Data.addShellsThenMakeAvailable)
+    if(!username) username = PB.getCurrentUsername()
+    
+    offset = offset || 0
+    // offset = offset || CONFIG.initLoadBatchSize || 20
+    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    
+    var prom
+    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
 }
+
 
 PB.Data.updatePrivateShells = function(offset) {
     var username = PB.getCurrentUsername()

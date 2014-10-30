@@ -74,7 +74,6 @@ var TableView = React.createClass({
     },
 
     componentWillMount: function() {
-        getUniqueConvoKeys()
         Events.pub('ui/event', {
             'view.table.loaded': CONFIG.initLoadBatchSize
         })

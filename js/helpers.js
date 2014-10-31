@@ -12,8 +12,12 @@ function keepNumberBetween(x,a,b) {
 //wrapper to get puffs to display in table view
 function getTableViewContent(query, filters, limit) {
     var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-    getUniqueConvoKeys()
-    updateLatestConvoPuff()
+    // var convos = puffworldprops.ICX.uniqueConvoIDs
+    // var latest = puffworldprops.ICX.latestConvoPuffTimestamps
+
+    // puffs = convos.map(function(convoId) {
+    //     puff = PB.getPuffBySig(latest[convoId].sig)
+    // })
     return puffs
 }
 
@@ -77,8 +81,8 @@ var getPuffsByConvoId = function(convoId) {
 
 
 function updateCurrentConvos(puff) {
-    getUniqueConvoKeys()
-    updateLatestConvoPuff()
+    updateUniqueConvoKeys(puff)
+    updateLatestConvoPuff(puff)
 }
 
 
@@ -101,17 +105,20 @@ function mergeConvoKeys(keys) {
     return mergedKey
 }
 
-// gets the current decrypted puffs and
-// returns a list of unique convo IDs
+// Returns a list of ALL unique conversation IDs
+// Needs to be called only once per lifecycle
 function getUniqueConvoKeys() {
-    var uniqueConvoIDs = [] || puffworldprops.ICX.uniqueConvoIDs
+    var uniqueConvoIDs = []
+    var username = PB.getCurrentUsername()
 
-    var letters = PB.Data.getCurrentDecryptedLetters()
-    letters.map(function(letter) {
-        key = getConvoKeyByPuff(letter)
-        if(uniqueConvoIDs.indexOf(key) === -1) {
-            uniqueConvoIDs.push(key)
-        }
+    var prom = PB.Net.getMyPrivatePuffs(username, 0, 0, 'shell')
+    prom.then(function(shells) {
+        shells.map(function(shell) {
+            key = mergeConvoKeys(shell.keys)
+            if(uniqueConvoIDs.indexOf(key) === -1) {
+                uniqueConvoIDs.push(key)
+            }
+        })  
     })
 
     Events.pub('ui/event', {
@@ -119,10 +126,26 @@ function getUniqueConvoKeys() {
     })
 }
 
-// props needs to have the unique convo IDs ready before this function is called
-function updateLatestConvoPuff() {
+// updates the list of unique IDs for incoming puff
+function updateUniqueConvoKeys(puff) {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || []
+
+    key = getConvoKeyByPuff(puff)
+    if(uniqueConvoIDs.indexOf(key) === -1) {
+        uniqueConvoIDs.push(key)
+
+        Events.pub('ui/event', {
+            'ICX.uniqueConvoIDs': uniqueConvoIDs
+        })
+    }
+}
+
+// returns a list of objects which has the sig and timestamp
+// of the latest puff per convo (key prop is the convoId)
+// This only looks in the available decrypted puffs
+function getLatestConvoPuff() {
     var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
-    var latestStamps = {} || puffworldprops.ICX.latestConvoPuffTimestamps
+    var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}
     var stampIDs = Object.keys(latestStamps)
 
     var letters = PB.Data.getCurrentDecryptedLetters()
@@ -133,6 +156,7 @@ function updateLatestConvoPuff() {
             if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].time) ) {
                 latestStamps[key] = {}
                 latestStamps[key].time = time
+                // maybe store the entire puff?
                 latestStamps[key].sig = letter.sig
             }
         }
@@ -141,6 +165,29 @@ function updateLatestConvoPuff() {
     Events.pub('ui/event', {
         'ICX.latestConvoPuffTimestamps': latestStamps
     })
+}
+
+// props needs to have the unique convo IDs ready before this function is called
+// FIXME: latestStamps does not update fast enough ?
+// Currently not in use
+function updateLatestConvoPuff(puff) {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
+    var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}
+    var stampIDs = Object.keys(latestStamps)
+
+    key = getConvoKeyByPuff(puff)
+    time = puff.payload.time
+    if(uniqueConvoIDs.indexOf(key) > -1) {
+        if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].time) ) {
+            latestStamps[key] = {}
+            latestStamps[key].time = time
+            latestStamps[key].sig = puff.sig
+            
+            Events.pub('ui/event', {
+                'ICX.latestConvoPuffTimestamps': latestStamps
+            })
+        }
+    }
 }
 
 

@@ -2166,6 +2166,10 @@ var ICXChangePassphraseFinish = React.createClass({ /* Good */
 })
 
 var ICXTableView = React.createClass({ /* Good */
+    componentWillMount: function() {
+        getUniqueConvoKeys()
+        getLatestConvoPuff()
+    },
 
     render: function () {
 

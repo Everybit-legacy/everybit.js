@@ -1,13 +1,5 @@
 /** @jsx React.DOM */
 
-/*
- BROKEN:
- 
- Refresh button
-
-
-  */
-
 var puffContainer = React.createClass({
     render: function() {
         // var convos = puffworldprops.ICX.uniqueConvoIDs
@@ -22,7 +14,7 @@ var puffContainer = React.createClass({
 
         var puffs = this.props.content.map(function (puff) {
             return (
-                <ICXContentItem puff={puff} />
+                <ICXContentItem puff={puff} key={puff.sig} />
             )
         })
         return (

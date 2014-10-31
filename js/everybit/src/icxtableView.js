@@ -2,15 +2,6 @@
 
 var puffContainer = React.createClass({
     render: function() {
-        // var convos = puffworldprops.ICX.uniqueConvoIDs
-        // var latest = puffworldprops.ICX.latestConvoPuffTimestamps
-
-        // puffs = convos.map(function(convoId) {
-        //     puff = PB.getPuffBySig(latest[convoId].sig)
-        //     return (
-        //         <ICXContentItem puff={puff} />
-        //     )
-        // })
 
         var puffs = this.props.content.map(function (puff) {
             return (

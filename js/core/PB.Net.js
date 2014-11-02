@@ -54,7 +54,18 @@ PB.Net.getStarShells = function() {
     return PB.Net.getJSON(url, data);
 }
 
+PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) {
+    convoId  = convoId.replace('&',',')
 
+    var url  = CONFIG.puffApi
+    var data = { type: 'getPuffs', contentType: 'encryptedpuff'
+               , conversationPartners: convoId
+               , numb: batchsize
+               , offset: offset
+               }
+    
+    return PB.Net.getJSON(url, data)
+}
 
 PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     if(!username) return PB.emptyPromise()
@@ -70,11 +81,6 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     
     return PB.Net.getJSON(url, data)
     
-    
-    // ok. same thing as usual: grab the latest 20, then let the table drive it after that. 
-    // also, you can test for newness with just 1 puff.
-    // also, this should be so much simpler...
-
 /*
 
     So something like:

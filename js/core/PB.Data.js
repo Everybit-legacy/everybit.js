@@ -437,6 +437,16 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     return prom
 }
 
+PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
+    offset = offset || 0
+    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    
+    var prom
+    prom = PB.Net.getConversationPuffs(convoId, batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
+}
+
 
 PB.Data.updatePrivateShells = function(offset) {
     var username = PB.getCurrentUsername()

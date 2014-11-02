@@ -221,7 +221,7 @@ var ICXContentItem = React.createClass({
     },
 
     handleShowConvo: function(convoId) {
-        var prom = getPuffsByConvoId(convoId)
+        var prom = PB.Data.getConversationPuffs(convoId)
         // re-render tableview with these puffs
         // TODO: Optimize the decryption
         prom.then(function(puffs) {

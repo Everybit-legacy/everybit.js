@@ -9,15 +9,27 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+function getConvoViewContent() {
+    var convos = puffworldprops.ICX.uniqueConvoIDs
+    var latest = puffworldprops.ICX.latestConvoPuffTimestamps
+    var puffs = []
+
+    // var puffs = convos.map(function(convoId) {
+    //     if(Object.keys(latest).indexOf(convoId) !== -1)
+    //         return PB.getPuffBySig(latest[convoId].sig)
+    // })
+    for(var i = 0; i < convos.length; i++) {
+        if(Object.keys(latest).indexOf(convos[i]) !== -1) {
+            puffs.push(PB.getPuffBySig(latest[convos[i]].sig))
+        }
+    }
+
+    return puffs
+}
+
 //wrapper to get puffs to display in table view
 function getTableViewContent(query, filters, limit) {
     var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
-    // var convos = puffworldprops.ICX.uniqueConvoIDs
-    // var latest = puffworldprops.ICX.latestConvoPuffTimestamps
-
-    // puffs = convos.map(function(convoId) {
-    //     puff = PB.getPuffBySig(latest[convoId].sig)
-    // })
     return puffs
 }
 
@@ -64,7 +76,7 @@ function userHasShells(username, callback) {
     })
 }
 
-// API to get conversations
+// function to call the API to get conversations
 // @Param {string} convoId
 // '&' separated usernames involved in convo
 var getPuffsByConvoId = function(convoId) {
@@ -143,6 +155,7 @@ function updateUniqueConvoKeys(puff) {
 // returns a list of objects which has the sig and timestamp
 // of the latest puff per convo (key prop is the convoId)
 // This only looks in the available decrypted puffs
+// Only needs to be called once
 function getLatestConvoPuff() {
     var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
     var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}
@@ -168,8 +181,7 @@ function getLatestConvoPuff() {
 }
 
 // props needs to have the unique convo IDs ready before this function is called
-// FIXME: latestStamps does not update fast enough ?
-// Currently not in use
+// Possible weak link: latestStamps does not update fast enough ?
 function updateLatestConvoPuff(puff) {
     var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
     var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}

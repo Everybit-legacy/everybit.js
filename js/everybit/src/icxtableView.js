@@ -1,5 +1,27 @@
 /** @jsx React.DOM */
 
+var ConversationListView = React.createClass({
+    getContent: function() {
+        return getConvoViewContent()
+    },
+    render: function() {
+        return (
+            <puffContainer content={this.getContent()} key="convoView" />
+            )
+    }
+})
+
+var ConversationView = React.createClass({
+    getContent: function() {
+        return getConvoContent()
+    },
+    render: function() {
+        return (
+            <puffContainer content={this.getContent()} key="convoView" />
+            )
+    }
+})
+
 var puffContainer = React.createClass({
     render: function() {
 
@@ -198,8 +220,20 @@ var ICXContentItem = React.createClass({
         ICX.loading = false
     },
 
+    handleShowConvo: function(convoId) {
+        var prom = getPuffsByConvoId(convoId)
+        // re-render tableview with these puffs
+        // TODO: Optimize the decryption
+        prom.then(function(puffs) {
+            puffs.map(function(puff) {
+                console.log(PB.getPuffBySig(puff.sig))
+            })
+        })
+    },
+
 	render: function() {
         var puff = this.props.puff
+        var convoId = getConvoKeyByPuff(puff)
 
 		if (!puff.sig) {return <span></span>}
 
@@ -235,7 +269,7 @@ var ICXContentItem = React.createClass({
 
 
         return (
-            <div style={overalBoxStyle}>
+            <div style={overalBoxStyle} onClick={this.handleShowConvo.bind(null, convoId)}>
                 <div>
                     <div className="tableHeader" style={{fontSize: '65%'}} >
                         <ICXTableUserInfo puff={puff} />

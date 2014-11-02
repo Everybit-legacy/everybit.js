@@ -2175,9 +2175,14 @@ var ICXTableView = React.createClass({ /* Good */
 
         var viewprops = this.props.view || {}
 
+        // return (
+        //     <div className="icx-tableview">
+        //         <TableView view={viewprops} table={viewprops.table}/>
+        //     </div>
+        //     )
         return (
             <div className="icx-tableview">
-                <TableView view={viewprops} table={viewprops.table}/>
+                <ConversationListView />
             </div>
             )
     }

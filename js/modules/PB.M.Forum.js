@@ -30,9 +30,9 @@ PB.M.Forum.init = function() {
     // THINK: maybe you can only call this once?
     // THINK: maybe take a zone arg, but default to config
   
-    PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);
+    PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs);
     
-    PB.addRelationship(PB.M.Forum.addFamilialEdges);
+    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges);
   
     PB.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }

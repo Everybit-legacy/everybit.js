@@ -246,9 +246,12 @@ var eatPuffs = function(puffs) {
     updateUI();
 }
 
-var updateLatestConvo = function(puffs) {
-    puffs.map(function(puff) {
-        updateCurrentConvos(puff)
+var updateLatestConvo = function(report) {
+    report.private_promise.then(function(private_report) {
+        var sigs = private_report.goodsigs
+        sigs.map(PB.Data.getDecryptedLetterBySig).forEach(function(puff) {
+            updateCurrentConvos(puff)
+        })
     })
 }
 
@@ -263,12 +266,12 @@ var updateLatestConvo = function(puffs) {
 CONFIG.noNetwork = true
 CONFIG.icxmode   = true
 
-PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update function
-PB.M.Forum.onNewPuffs(updateLatestConvo);
+PB.addNewPuffHandler(eatPuffs)                      // register our update function
+PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
 
 // PB.M.Forum.init();                               // initialize the forum module (and by extension the puffball network)
-PB.onNewPuffs(PB.M.Forum.receiveNewPuffs);          // manually connect the Forum module to avoid initializing the P2P network
-PB.addRelationship(PB.M.Forum.addFamilialEdges);
+PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs)    // manually connect the Forum module to avoid initializing the P2P network
+PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
 
 
 // END MANUAL FORUM MODULE INIT

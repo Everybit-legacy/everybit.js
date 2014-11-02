@@ -10,7 +10,7 @@ function keepNumberBetween(x,a,b) {
 }
 
 function getConvoViewContent() {
-    var convos = puffworldprops.ICX.uniqueConvoIDs
+    var convos = puffworldprops.ICX.uniqueConvoIDs || []
     var latest = puffworldprops.ICX.latestConvoPuffTimestamps
     var puffs = []
 

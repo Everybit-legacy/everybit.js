@@ -33,28 +33,73 @@
 
 */
 
-PB = {};
+PB = {}
 
 PB.Modules = {}
 PB.M = PB.Modules
 
-PB.newPuffCallbacks = [];
+PB.newPuffCallbacks = []
+PB.newPayloadModifiers = []
+
+
+////////////// STANDARD API FUNCTIONS //////////////////
+
 
 /**
- * initialize the network layer;  
- * slurp in available data;  
- * do other amazing things
- * @param  {array} zone array of zones
+ * get the ball rolling
+ * @param {zones} connect to these zones
  */
 PB.init = function(zone) {
-    PB.Data.depersistUserRecords()
+    PB.Data.depersistUserRecords()                  // pop URs out of LS
     
-    PB.Data.importShells()
+    PB.Data.importShells()                          // preload relevant shells
     
-    if(CONFIG.noNetwork) return false // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return false               // THINK: this is only for debugging and development
     
-    PB.Net.init()
+    PB.Net.init()                                   // initialize the network layer
 }
+
+PB.postPublicMessage = function(content, type) {
+    //// post a public puff. type is optional and defaults to 'text'
+    type = type || 'text'
+    var puff = PB.simpleBuildPuff(type, content)
+    return PB.addPuffToSystem(puff)
+}
+
+PB.postPrivateMessage = function(content, usernames, type) {
+    //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
+    type = type || 'text'
+    var prom = PB.usernamesToUserRecordsPromise(usernames)
+    return prom.then(function(userRecords) {
+        var myUserRecord = PB.getCurrentUserRecord()
+        userRecords.push(myUserRecord)
+        
+        // TODO: add timestamp here (sigh)
+        // TODO: actually, move this off in to a helper where it can be easily edited (maybe include a function here to accept that function as an argument?)
+        
+        var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
+        return PB.addPuffToSystem(puff)
+    })
+}
+
+PB.onNewPuffs = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    PB.newPuffCallbacks.push(callback)
+}
+
+PB.addRelationship = function(callback) {
+    //// use this to add a new hook into the receiveNewPuffs cycle
+    // TODO: make this apply to the graph cycle directly!
+    PB.newPuffCallbacks.push(callback)
+}
+
+PB.addPayloadModifier = function(callback) {
+    //// payload modifiers run whenever simpleBuildPuff is called
+    PB.newPayloadModifiers.push(callback)
+}
+
+////////////// END STANDARD API //////////////////
+
 
 /**
  * it is called by core Puff library any time puffs are added to the system
@@ -66,36 +111,22 @@ PB.receiveNewPuffs = function(puffs) {
     
     // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
     
-    puffs = Array.isArray(puffs) ? puffs : [puffs];                                 // make puffs an array
+    puffs = Array.isArray(puffs) ? puffs : [puffs]                          // make puffs an array
 
     // THINK: why didn't we allow shells through here, and should we in the future?
     //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
     // puffs = puffs.filter(function(puff) {
-    //     return puff.payload && puff.payload.content !== undefined})                 // no partial puffs
+    //     return puff.payload && puff.payload.content !== undefined})      // no partial puffs
     
-    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) });      // call all callbacks back
+    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) })     // call all callbacks back
     
-    return puffs;
+    return puffs
 }
 
-/**
- * add new callback which is called when a new puff added to the system
- * @param  {Function} callback takes an array of puff as its argument, and is called each time puffs are added to the system
- */
-PB.onNewPuffs = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback);
-}
-
-PB.addRelationship = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    // TODO: make this apply to the graph cycle directly!
-    PB.newPuffCallbacks.push(callback);
-}
 
 
 /**
- * build a new puff object based on the parameters;  
+ * build a new puff object based on the parameters  
  * does not hit the network, hence does no real verification whatsoever
  * @param  {string} username                    user who sign the puff
  * @param  {string} privatekey                  private default key for the user
@@ -134,32 +165,8 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     return puff
 }
 
-PB.postPublicMessage = function(content, type) {
-    //// post a public puff. type is optional and defaults to 'text'
-    type = type || 'text'
-    var puff = PB.simpleBuildPuff(type, content)
-    return PB.addPuffToSystem(puff)
-}
 
-PB.postPrivateMessage = function(content, usernames, type) {
-    //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
-    type = type || 'text'
-    var prom = PB.usernamesToUserRecords(usernames)
-    return prom.then(function(userRecords) {
-        var myUserRecord = PB.getCurrentUserRecord()
-        userRecords.push(myUserRecord)
-        
-        // TODO: add timestamp here (sigh)
-        // TODO: actually, move this off in to a helper where it can be easily edited (maybe include a function here to do accept that function as an argument?)
-        
-        var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
-        return PB.addPuffToSystem(puff)
-    })
-}
-
-
-
-PB.usernamesToUserRecords = function(usernames) {
+PB.usernamesToUserRecordsPromise = function(usernames) {
     //// returns a promise of userRecords. thanks to capa we usually don't need the latest and can use cached versions.
     if(!usernames || !usernames.length)
         return Promise.resolve([])
@@ -239,7 +246,7 @@ PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, u
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
 
     if(!PB.validateUsername(username))
-        return false; // already logged the error
+        return false // already logged the error
     
     // these keys are PUBLIC. only public keys here. no other types of keys. 
     
@@ -273,7 +280,7 @@ PB.validateUsername = function(username) {
     if(!/^[0-9a-z.]+$/.test(username))
         return PB.onError('Usernames must be alphanumeric', username)
     
-    return true;
+    return true
 }
 
 PB.userRecordToVersionedUsername = function(userRecord) {
@@ -395,14 +402,14 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
 PB.processUserRecord = function(userRecord) {
     //// Use this on all incoming user records
     
-    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile, userRecord.capa);
+    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile, userRecord.capa)
     
     if(!userRecord)
-        return PB.onError('That is not an acceptable user record', userRecord);
+        return PB.onError('That is not an acceptable user record', userRecord)
     
-    PB.Data.cacheUserRecord(userRecord);
+    PB.Data.cacheUserRecord(userRecord)
     
-    return userRecord;
+    return userRecord
 }
 
 /**
@@ -416,17 +423,17 @@ PB.getUserRecordPromise = function(username, capa) {
     
     var versionedUsername = PB.maybeVersioned(username, capa)
     
-    var userRecord = PB.Data.getCachedUserRecord(versionedUsername);
+    var userRecord = PB.Data.getCachedUserRecord(versionedUsername)
     
     if(userRecord)
-        return Promise.resolve(userRecord);
+        return Promise.resolve(userRecord)
     
-    var userPromise = PB.Data.userPromises[versionedUsername];
+    var userPromise = PB.Data.userPromises[versionedUsername]
     
     if(userPromise)
-        return userPromise;
+        return userPromise
     
-    return PB.getUserRecordNoCache(versionedUsername);
+    return PB.getUserRecordNoCache(versionedUsername)
 }
 
 /**
@@ -439,12 +446,12 @@ PB.getUserRecordNoCache = function(username, capa) {
     
     capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
     
-    var prom = PB.Net.getUserRecord(username, capa); 
+    var prom = PB.Net.getUserRecord(username, capa) 
     
     var versionedUsername = PB.maybeVersioned(username, capa)
     PB.Data.userPromises[versionedUsername] = prom
     
-    return prom;
+    return prom
 }
 
 /**
@@ -472,11 +479,11 @@ PB.addPuffToSystem = function(puff) {
     
     if(PB.Data.getCachedShellBySig(puff.sig)) return false
     
-    PB.Data.addShellsThenMakeAvailable(puff);
+    PB.Data.addShellsThenMakeAvailable(puff)
 
-    PB.Net.distributePuff(puff);
+    PB.Net.distributePuff(puff)
     
-    return puff;
+    return puff
 }
 
 
@@ -568,7 +575,7 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
     var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = PB.tryDecodeURIComponent(escape(letterString)); // encoding
+    letterString = PB.tryDecodeURIComponent(escape(letterString)) // encoding
     return PB.parseJSON(letterString)
 }
 
@@ -842,7 +849,7 @@ PB.getUpToDateUserAtAnyCost = function() {
     
     return prom.then(function(userRecord) {
         PB.switchIdentityTo(userRecord.username)
-        console.log("Setting current user to " + userRecord.username);
+        console.log("Setting current user to " + userRecord.username)
         return userRecord
     })
 }
@@ -854,14 +861,14 @@ PB.getUpToDateUserAtAnyCost = function() {
  */
 PB.generateRandomUsername = function() {
     // TODO: consolidate this with the new username generation functions
-    var generatedName = '';
-    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    var generatedName = ''
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
     for(var i=0; i<10; i++) {
         generatedName += PB.Crypto.getRandomItem(alphabet)
-        // var randFloat = PB.Crypto.random();
-        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))];
+        // var randFloat = PB.Crypto.random()
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))]
     }
-    return generatedName;
+    return generatedName
 }
 
 
@@ -914,7 +921,7 @@ PB.addNewAnonUser = function(attachToUsername) {
 PB.onError = function(msg, obj) {
     //// override this for custom error behavior
     
-    toSend = {msg: msg, obj: obj};
+    toSend = {msg: msg, obj: obj}
 
     if(puffworldprops.prefs.reporting)
         PB.Net.xhr(CONFIG.eventsApi, {method: 'POST'}, toSend)

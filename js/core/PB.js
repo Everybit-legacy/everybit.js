@@ -69,36 +69,71 @@ PB.postPublicMessage = function(content, type) {
 PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
+    
     var prom = PB.usernamesToUserRecordsPromise(usernames)
+    
     return prom.then(function(userRecords) {
         var myUserRecord = PB.getCurrentUserRecord()
         userRecords.push(myUserRecord)
-        
-        // TODO: add timestamp here (sigh)
-        // TODO: actually, move this off in to a helper where it can be easily edited (maybe include a function here to accept that function as an argument?)
-        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
-}
-
-PB.onNewPuffs = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    PB.newPuffCallbacks.push(callback)
-}
-
-PB.addRelationship = function(callback) {
-    //// use this to add a new hook into the receiveNewPuffs cycle
-    // TODO: make this apply to the graph cycle directly!
-    PB.newPuffCallbacks.push(callback)
-}
-
-PB.addPayloadModifier = function(callback) {
-    //// payload modifiers run whenever simpleBuildPuff is called
-    PB.newPayloadModifiers.push(callback)
+    
+    return prom
 }
 
 ////////////// END STANDARD API //////////////////
+
+
+////////////// Handler Handlers //////////////////
+
+PB.handlers = {}
+
+PB.addHandler = function(type, callback) {
+  if(!PB.handlers[type]) PB.handlers[type] = []
+  PB.handlers[type].push(callback)
+}
+
+PB.runHandlers = function(type) {
+  var args = [].slice.call(arguments, 1)
+  return (PB.handlers[type] || []).reduce(
+      function(acc, callback) {
+          return callback.apply(null, acc == null ? args : Array.isArray(acc) ? acc : [acc])}, args)
+}
+
+PB.makeHandlerHandler = function(type) {
+    return function(callback) {return PB.addHandler(type, callback)}
+}
+
+// USEFUL HANDLERS:
+
+PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')
+
+PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')
+
+PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')
+
+PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
+
+// PB.onNewPuffs = function(callback) {
+//     //// use this to add a new hook into the receiveNewPuffs cycle
+//     PB.newPuffCallbacks.push(callback)
+// }
+//
+// PB.addRelationship = function(callback) {
+//     //// use this to add a new hook into the receiveNewPuffs cycle
+//     // TODO: make this apply to the graph cycle directly!
+//     PB.newPuffCallbacks.push(callback)
+// }
+//
+// PB.addPayloadModifier = function(callback) {
+//     //// payload modifiers run whenever simpleBuildPuff is called
+//     PB.newPayloadModifiers.push(callback)
+// }
+
+
+
+////////////// End Handler Handlers //////////////
 
 
 /**
@@ -124,6 +159,20 @@ PB.receiveNewPuffs = function(puffs) {
 }
 
 
+PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
+    var puff 
+    
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        var previous = false // TODO: get the sig of this user's latest puff
+        var versionedUsername = PB.getCurrentVersionedUsername()
+        
+        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    })
+    
+    return puff
+}
+
 
 /**
  * build a new puff object based on the parameters  
@@ -146,21 +195,6 @@ PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, pa
     if(userRecordsForWhomToEncrypt) {
         puff = PB.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
-    
-    return puff
-}
-
-
-PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
-    var puff 
-    
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-        var previous = false // TODO: get the sig of this user's latest puff
-        var versionedUsername = PB.getCurrentVersionedUsername()
-        
-        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    })
     
     return puff
 }

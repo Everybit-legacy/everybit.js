@@ -44,6 +44,11 @@ PB.init = function(zone) {
 PB.postPublicMessage = function(content, type) {
     //// post a public puff. type is optional and defaults to 'text'
     type = type || 'text'
+    
+    var myUsername = PB.getCurrentUsername()
+    if(!myUsername)
+        return PB.onError('You must have a current identity to post a public message')
+    
     var puff = PB.simpleBuildPuff(type, content)
     return PB.addPuffToSystem(puff)
 }
@@ -51,19 +56,17 @@ PB.postPublicMessage = function(content, type) {
 PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
+    usernames = usernames || []
     
+    var myUsername = PB.getCurrentUsername()
+    if(!myUsername)
+        return PB.onError('You must have a current identity to post a private message')
+    
+    usernames.push(myUsername)
+    usernames = PB.uniquify(usernames)
     var prom = PB.Users.usernamesToUserRecordsPromise(usernames)
     
-    return prom.then(function(userRecords) {
-        // TODO: move this into the pre-promise phase, and uniquify usernames
-        var myUsername = PB.getCurrentUsername()
-        var myUserRecord = userRecords.filter(function(record) {return record.username == myUsername})
-        
-        if(!myUserRecord.length) {
-            myUserRecord = PB.getCurrentUserRecord()
-            userRecords.push(myUserRecord)
-        }
-        
+    return prom.then(function(userRecords) {        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
@@ -488,15 +491,6 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
 // -- update forum function and filesystem call site
 // - maybe make worker promise wrapper layer
 
-PB.tryDecodeURIComponent = function(str) {
-    //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.
-    try {
-        return decodeURIComponent(str)
-    } catch(err) {
-        return PB.onError('Invalid URI string', err)
-    }
-}
-
 
 PB.extractLetterFromEnvelope = function(envelope) {                     // the envelope is a puff
     if(PB.Data.isBadEnvelope(envelope.sig)) 
@@ -820,12 +814,8 @@ PB.addNewAnonUser = function(attachToUsername) {
 
 /// ERROR HELPERS
 
-/**
- * on error function
- * @param  {string} msg 
- * @param  {object} obj 
- * @return {false}
- */
+// TODO: build a more general error handling system for GUI integration
+
 PB.onError = function(msg, obj) {
     //// override this for custom error behavior
     
@@ -837,8 +827,6 @@ PB.onError = function(msg, obj) {
     console.log(msg, obj) // adding this back in for debugging help
     return false
 }
-
-// TODO: build a more general error handling system for GUI integration
 
 PB.catchError = function(msg) {
     //// ex: prom.catch( PB.catchError('invalid foo') ).then(function(foo) {...})
@@ -867,6 +855,9 @@ PB.emptyPromise = function(msg) {
 }
 
 
+
+//// Exceptional API wrappers
+
 PB.parseJSON = function(str) {
     //// JSON.parse throws, so we catch it. throw/catch borks the JS VM optimizer, so we box it.
     try {
@@ -876,9 +867,19 @@ PB.parseJSON = function(str) {
     }
 }
 
+PB.tryDecodeURIComponent = function(str) {
+    //// decodeURIComponent throws, so we wrap it. try/catch kills the optimizer, so we isolate it.
+    try {
+        return decodeURIComponent(str)
+    } catch(err) {
+        return PB.onError('Invalid URI string', err)
+    }
+}
 
 
-// HELPERS
+
+// TIMING HELPERS
+// TODO: move these into a library
 
 ~function() {
     //// postpone until next tick
@@ -985,5 +986,7 @@ PB.prop = function(p, obj) { // THINK: consider importing all of Rambda.js
 }
 
 PB.uniquify = function(list) {
-    return list.filter(function(item, index, array) {return array.indexOf(item) == index})
+    return list.filter(PB.unique)
 }
+
+PB.unique = function(item, index, array) {return array.indexOf(item) == index}

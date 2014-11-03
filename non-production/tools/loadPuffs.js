@@ -19,7 +19,7 @@ function choose(arr, num) {
     var output = []
     for (var i = 0; i < num; i++)
         output.push(arrayRandom(arr))
-    return output.filter(Boolean).filter(function(item, index, array) {return array.indexOf(item) == index}) 
+    return output.filter(Boolean).filter(PB.unique) 
 }
 
 function arrayRandom(arr) {

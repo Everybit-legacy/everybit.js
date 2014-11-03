@@ -237,30 +237,30 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
         return PB.emptyPromise('Those are not good parents')
     
     // ensure parents are unique
-    parents = parents.filter(function(item, index, array) {return array.indexOf(item) == index}) 
+    parents = PB.uniquify(parents)
 
     // find the routes using parents
     var routes = parents.map(function(id) {
-        return PB.getPuffBySig(id).username;
+        return PB.getPuffBySig(id).username
     });
     if (metadata.routes) {
-        routes = metadata.routes; // THINK: this should probably merge with above instead of replacing it...
-        delete metadata['routes'];
+        routes = metadata.routes // THINK: this should probably merge with above instead of replacing it...
+        delete metadata['routes']
     }
     
     // ensure all routes are unique
-    routes = routes.filter(function(item, index, array){return array.indexOf(item) == index});
+    routes = PB.uniquify(routes)
     
     var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     
     // get a user promise
-    var userprom = PB.getUpToDateUserAtAnyCost();
+    var userprom = PB.getUpToDateUserAtAnyCost()
     
     var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)
                        .catch(PB.catchError('Posting failed'))
     
-    return prom;
+    return prom
     
     // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
     // TODO: make an official interface fulfillment thing

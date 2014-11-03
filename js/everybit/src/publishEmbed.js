@@ -799,7 +799,7 @@ var PuffPublishFormEmbed = React.createClass({
         if (parents.length) {
             parentUsernames = parents.map(function(id) { return PB.getPuffBySig(id) })
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
-                                     .filter(function(item, index, array) { return array.indexOf(item) == index })
+                                     .filter(PB.unique)
                                      .filter(Boolean)
                                      .filter(function(value){return value!=CONFIG.zone})
         }
@@ -864,7 +864,7 @@ var PuffPublishFormEmbed = React.createClass({
             // by default we include all parent users in the reply
             /*var parentUsernames = parents.map(function(id) { return PB.getPuffBySig(id) })
                                          .map(function(puff) { return puff.payload.replyTo || puff.username })
-                                         .filter(function(item, index, array) { return array.indexOf(item) == index })
+                                         .filter(PB.unique)
                                          .filter(Boolean)
                                          // .join(', ')*/
 

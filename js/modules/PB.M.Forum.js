@@ -333,7 +333,7 @@ PB.M.Forum.addFamilialEdgesForShell = function(child) {
 }
 
 PB.M.Forum.addFamilialEdgesForParent = function(child) {
-    var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(R.prop('sig'))
+    var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(PB.prop('sig'))
     
     return function(parentSig) {
         if(~existingParents.indexOf(parentSig)) return false                       // done?

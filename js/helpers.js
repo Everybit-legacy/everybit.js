@@ -820,8 +820,10 @@ function updatePassphrase(newPassphrase) {
 
 function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, callback) {
 
-    var prom = Promise.resolve() // a promise we use to string everything along
     var usernames = [toUser]
+    var userPromise = PB.Users.usernamesToUserRecordsPromise(usernames)
+
+    var prom = Promise.resolve() // a promise we use to string everything along
 
     var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
     var userRecordUsernames = userRecords.map(function (userRecord) {

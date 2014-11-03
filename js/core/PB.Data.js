@@ -251,7 +251,7 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
     shells = PB.Data.handleAndFilterByGC(shells)
     report.counts.gc = report.counts.new_public - shells.length
 
-    report.public_puff_sigs = shells.map(R.prop('sig'))
+    report.public_puff_sigs = shells.map(PB.prop('sig'))
     
     PB.runHandlers('newpuffs', shells)
     PB.runHandlers('newpuffreport', report)
@@ -314,7 +314,7 @@ PB.Data.handleAndFilterByGC = function(shells) {
     var compacted = PB.Data.garbageCompactor()                  // OPT: call this earlier
     if(!compacted) return shells
     
-    return shells.map(R.prop('sig'))                            // if GC eats puffs this spits them out
+    return shells.map(PB.prop('sig'))                            // if GC eats puffs this spits them out
                  .map(PB.Data.getCachedShellBySig)
                  .filter(Boolean)
 }
@@ -900,7 +900,7 @@ PB.Data.garbageCompactor = function() {
 
     if(PB.Data.shells.length > limit) {
         didStuff = true
-        PB.Data.shells.slice(limit).map(R.prop('sig')).forEach(PB.Data.removeShellFromCache)
+        PB.Data.shells.slice(limit).map(PB.prop('sig')).forEach(PB.Data.removeShellFromCache)
     }
     
     if(PB.Data.runningSizeTally > memlimit) {

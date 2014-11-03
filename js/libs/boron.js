@@ -133,22 +133,3 @@ Boron.memoize = function(f) {
         return table[key] ? table[key] : (table[key] = f.apply(null, args))
     } 
 }
-
-
-
-
-
-
-
-////////////// stealing a few items from Ramda (consider importing whole lib) ///////////////
-
-R = {}
-
-R.prop = function (p, obj) {
-    return arguments.length < 2 ? function (obj) { return obj[p]; } : obj[p]
-}
-
-
-
-
-

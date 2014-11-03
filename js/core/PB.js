@@ -52,7 +52,7 @@ PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
     
-    var prom = PB.UsersusernamesToUserRecordsPromise(usernames)
+    var prom = PB.Users.usernamesToUserRecordsPromise(usernames)
     
     return prom.then(function(userRecords) {
         // TODO: move this into the pre-promise phase, and uniquify usernames
@@ -974,3 +974,16 @@ PB.once = function() {
         }
     }
 }()
+
+
+
+
+////////////// A few small helpers for building functional pipelines ///////////////
+
+PB.prop = function(p, obj) { // THINK: consider importing all of Rambda.js
+    return arguments.length < 2 ? function (obj) { return obj[p]; } : obj[p]
+}
+
+PB.uniquify = function(list) {
+    return list.filter(function(item, index, array) {return array.indexOf(item) == index})
+}

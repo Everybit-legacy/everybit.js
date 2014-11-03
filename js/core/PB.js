@@ -8,20 +8,17 @@
       |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|                                                
  
   
-    The core library for the puffball platform. 
+    The main interface for the puffball platform. 
     
-    Most calls to the platform should go through here, rather than accessing other core modules like PB.Data and PB.Crypto directly.
-
+    Most calls to the platform should go through here, 
+    rather than accessing core systems like PB.Data and PB.Crypto directly.
 
 */
 
 PB = {}
 
-PB.Modules = {}
+PB.Modules = {}                                     // supplementary extensions live here
 PB.M = PB.Modules
-
-PB.newPuffCallbacks = []
-PB.newPayloadModifiers = []
 
 
 ////////////// STANDARD API FUNCTIONS //////////////////
@@ -32,9 +29,9 @@ PB.newPayloadModifiers = []
  * @param {zones} connect to these zones
  */
 PB.init = function(zone) {
-    PB.Users.depersist()                            // pop URs out of LS
+    PB.Users.depersist()                            // pop URs out of LS // TODO: move this to Users.init()
     
-    PB.Data.importShells()                          // preload relevant shells
+    PB.Data.importShells()                          // preload relevant shells // TODO: move this to Data.init()
     
     if(CONFIG.noNetwork) return false               // THINK: this is only for debugging and development
     
@@ -104,6 +101,8 @@ PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')
 PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')
 
 PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')
+
+// PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
 PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
 

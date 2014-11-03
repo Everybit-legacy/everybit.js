@@ -419,7 +419,7 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
     PB.Data.addBonus(letter, 'envelope', envelope)                 // mark it for later
     
     PB.Data.addToGraph([letter])
-    PB.M.Forum.addFamilialEdges([letter])                          // TODO: onNewPuffs -> addRelationshipHandler and do it in the graph
+
     return true
 }
 

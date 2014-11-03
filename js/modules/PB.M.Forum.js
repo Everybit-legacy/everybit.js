@@ -10,15 +10,13 @@
   A Puffball module for managing forum-style puffs. Wraps the core Puffball API in a fluffy layer of syntactic spun sugar.
 
   Usage example:
-  PB.M.Forum.onNewPuffs( function(puffs) { console.log(puffs) } )
   PB.M.Forum.init()
+  ...
 
 */
 
 PB.M.Forum = {};
 
-PB.M.Forum.graph = {};
-PB.M.Forum.newPuffCallbacks = [];
 PB.M.Forum.contentTypes = {}
 
 
@@ -29,12 +27,13 @@ PB.M.Forum.init = function() {
     //// set up everything. 
     // THINK: maybe you can only call this once?
     // THINK: maybe take a zone arg, but default to config
-  
-    PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs);
-    
-    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges);
-  
-    PB.init(CONFIG.zone); // establishes the P2P network, pulls in interesting puffs, caches user information, etc
+
+    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
+
+    PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
+
+    // THINK: maybe don't call this here? maybe PB.init calls all the module inits? ooooh.... yeah, do that.
+    PB.init(CONFIG.zone) // establishes the P2P network, pulls in interesting puffs, caches user information, etc
 }
 
 
@@ -118,34 +117,6 @@ PB.M.Forum.sortByPayload = function(a,b) {
         return b.payload.time - a.payload.time;
     else
         return a.payload.time - b.payload.time;
-}
-
-/**
- * Filter it out if it's not in props
- * @param  {Object} props
- * @return {boolean}
- */		
-PB.M.Forum.getPropsFilter = function(props) {
-    // CURRENTLY UNUSED
-    if(!props) return function() {return true}
-    
-    // props = props.view ? props.view : props
-    props = props.filter ? props.filter : props
-    // puffs = puffs.filter(function(shell) { return route ? ~shell.routes.indexOf(route) : true })
-    
-    //// get a filtering function
-    return function(shell) {
-        if(props.routes && props.routes.length > 0) {
-            var routeMatch = false;
-            for (var i=0; i<props.routes.length; i++) {
-                if (shell.routes.indexOf(props.routes[i]) > -1) routeMatch = true;
-            }
-            if (!routeMatch) return false;
-        }
-        if(props.usernames && props.usernames.length > 0)
-            if (!~props.usernames.indexOf(shell.username)) return false
-        return true
-    }
 }
 
 /**
@@ -302,26 +273,7 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
     }
 }
 
-/**
- * callback takes an array of puffs as its argument, and is called each time puffs are added to the system
- * @param  {function} callback
- */
-PB.M.Forum.onNewPuffs = function(callback) {
-    //// callback takes an array of puffs as its argument, and is called each time puffs are added to the system
-  
-    PB.M.Forum.newPuffCallbacks.push(callback)
-}
-
-/**
- * called by core Puff library any time puffs are added to the system
- * @param  {Puff[]} puffs
- */
-PB.M.Forum.receiveNewPuffs = function(puffs) {
-    //// called by core Puff library any time puffs are added to the system
-  
-    PB.M.Forum.newPuffCallbacks.forEach(function(callback) {callback(puffs)})
-}
-
+/// graph relationships ///
 
 PB.M.Forum.addFamilialEdges = function(shells) {
     shells.forEach(PB.M.Forum.addFamilialEdgesForShell)
@@ -343,6 +295,7 @@ PB.M.Forum.addFamilialEdgesForParent = function(child) {
     }
 }
 
+/// end graph relationships ///
 
 
 
@@ -367,6 +320,10 @@ PB.M.Forum.processContent = function(type, content, puff) {
 // TODO: this might get big, need some GC here
 PB.M.Forum.puffContentStash = {}
 
+PB.M.Forum.clearPuffContentStash = function() {
+    PB.M.Forum.puffContentStash = {}
+}
+
 /**
  * to the the processed puff content
  * @param  {puff} puff
@@ -389,6 +346,8 @@ PB.M.Forum.getProcessedPuffContent = function(puff) {
  * @param {string} type
  */
 PB.M.Forum.addContentType = function(name, type) {
+    // THINK: move this down into PB?
+    
     if(!name) 
         return console.log('Invalid content type name');
     if (CONFIG.supportedContentTypes.indexOf(name) == -1)  // THINK: should this be a blacklist instead?

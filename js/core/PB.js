@@ -11,24 +11,6 @@
     The core library for the puffball platform. 
     
     Most calls to the platform should go through here, rather than accessing other core modules like PB.Data and PB.Crypto directly.
-    
-    
-    Future file system idea:
-    
-    PB.js
-    
-    /data
-      Data.js
-      PuffValidator.js
-    
-    /net
-      Net.js
-      Socket.js
-      RTC.js
-      LocalStorage.js
-
-    /crypto
-      Crypto.js
 
 
 */
@@ -127,29 +109,6 @@ PB.addPreSwitchIdentityHandler  = PB.makeHandlerHandler('preswitchidentity')
 PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
 
 ////////////// End Handler Handlers //////////////
-
-
-/**
- * it is called by core Puff library any time puffs are added to the system
- * @param  {Puff[]} puffs
- * @return {Puff[]}
- */
-PB.receiveNewPuffs = function(puffs) {
-    //// called by core Puff library any time puffs are added to the system
-    
-    // TODO: this is only called from PB.Data.makeShellsAvailable -- pull this down there or rethink it all
-    
-    puffs = Array.isArray(puffs) ? puffs : [puffs]                          // make puffs an array
-
-    // THINK: why didn't we allow shells through here, and should we in the future?
-    //        if we don't, find a different way in getAncestors and getDescendants to add edges to shells
-    // puffs = puffs.filter(function(puff) {
-    //     return puff.payload && puff.payload.content !== undefined})      // no partial puffs
-    
-    PB.newPuffCallbacks.forEach(function(callback) { callback(puffs) })     // call all callbacks back
-    
-    return puffs
-}
 
 
 PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
@@ -680,7 +639,7 @@ PB.addPrivateShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.receiveNewPuffs(letter)                                      // TODO: ensure this doesn't leak!
+        PB.runHandlers('newpuffs', letter)
         return letter
     })
     

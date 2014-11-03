@@ -19,6 +19,7 @@ var ConversationView = React.createClass({
         return (
             <puffContainer content={this.getContent()} key="convoView" />
             )
+
     }
 })
 
@@ -95,6 +96,7 @@ var TableView = React.createClass({
     },
 
     getContent: function() {
+        console.log(puffworldprops.view.icx.screen)
         var query = puffworldprops.view.query
         var filters = puffworldprops.view.filters
         var limit = puffworldprops.view.table.loaded
@@ -221,13 +223,11 @@ var ICXContentItem = React.createClass({
     },
 
     handleShowConvo: function(convoId) {
-        var prom = getPuffsByConvoId(convoId)
-        // re-render tableview with these puffs
-        // TODO: Optimize the decryption
-        prom.then(function(puffs) {
-            puffs.map(function(puff) {
-                console.log(PB.getPuffBySig(puff.sig))
-            })
+        Events.pub('ui/event', {
+            'view.icx.convoId': convoId
+        })
+        return Events.pub('ui/screen', {
+            'view.icx.screen': 'convo'
         })
     },
 

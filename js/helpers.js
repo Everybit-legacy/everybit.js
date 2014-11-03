@@ -40,20 +40,6 @@ function getConvoContent(convoId) {
     })
 }
 
-// function to call the API to get conversations
-// @Param {string} convoId
-// '&' separated usernames involved in convo
-var getPuffsByConvoId = function(convoId) {
-    convoId = convoId.replace('&',',')
-    var url  = CONFIG.puffApi
-    var data = {
-        contentType: 'encryptedpuff',
-        type: 'getPuffs',
-        conversationPartners: convoId
-    }
-    
-    return PB.Net.getJSON(url, data)
-}
 
 //wrapper to get puffs to display in table view
 function getTableViewContent(query, filters, limit) {

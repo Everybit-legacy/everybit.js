@@ -55,6 +55,7 @@ PB.postPrivateMessage = function(content, usernames, type) {
     var prom = PB.usernamesToUserRecordsPromise(usernames)
     
     return prom.then(function(userRecords) {
+        // TODO: move this into the pre-promise phase, and uniquify usernames
         var myUsername = PB.getCurrentUsername()
         var myUserRecord = userRecords.filter(function(record) {return record.username == myUsername})
         
@@ -416,7 +417,7 @@ PB.getUserRecordPromise = function(username, capa) {
     if(userRecord)
         return Promise.resolve(userRecord)
     
-    var userPromise = PB.Data.userPromises[versionedUsername]
+    var userPromise = PB.Users.promises[versionedUsername]
     
     if(userPromise)
         return userPromise
@@ -437,7 +438,7 @@ PB.getUserRecordNoCache = function(username, capa) {
     var prom = PB.Net.getUserRecord(username, capa) 
     
     var versionedUsername = PB.maybeVersioned(username, capa)
-    PB.Data.userPromises[versionedUsername] = prom
+    PB.Users.promises[versionedUsername] = prom
     
     return prom
 }
@@ -754,7 +755,7 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         //        even if we hit the cache, and this should return a proper userRecord, not a promise, 
         //        since after all we have stored the userRecord in our wardrobe, haven't we?
     
-        var userRecord = PB.Data.userRecords[versionedUsername]
+        var userRecord = PB.Users.records[versionedUsername]
         if(!userRecord)
             return PB.onError('That user does not exist in our records')
     
@@ -786,7 +787,7 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     PB.getUsernameFromList = function(list, username) {
         for(var i = 0; i < list.length; i++) {
             var key = list[i]
-            if(username == PB.justUsername(key))
+            if(PB.justUsername(key) == username)
                 return key
         }
         return false

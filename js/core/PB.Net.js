@@ -193,7 +193,7 @@ PB.Net.getAncestors = function(start, limit) {
 
         // no puff? that's ok. attach a then clause to its pending promise. // TODO: this is a major hack
         remaining-- // because we're adding a new puff, or at least new content
-        var prom = PB.Data.pending[sig]
+        var prom = PB.Data.pendingPuffPromises[sig]
         prom.then(function(puffs) {
             getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
         })

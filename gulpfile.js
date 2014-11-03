@@ -81,6 +81,7 @@ if(buildFor == 'icx') {
         // 'js/core/PB.js',
         'js/core/PB.Net.js',
         'js/core/PB.Data.js',
+        'js/core/PB.Users.js',
         // 'js/core/PB.Crypto.js',
         'js/core/PB.Persist.js',
 
@@ -104,6 +105,7 @@ if(buildFor == 'icx') {
         'js/core/PB.js',
         'js/core/PB.Net.js',
         'js/core/PB.Data.js',
+        'js/core/PB.Users.js',
         'js/core/PB.Crypto.js',
         'js/core/PB.Persist.js',
 

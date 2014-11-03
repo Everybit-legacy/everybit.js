@@ -6,9 +6,8 @@ PB.Data.bonii = {}
 PB.Data.shells = []
 PB.Data.shellSort = {}
 // PB.Data.shelf = []
-PB.Data.pending = {}
-PB.Data.userRecords = {}                    // maps username to an array of DHT userRecords
-PB.Data.userPromises = {}
+PB.Data.pendingPuffPromises = {}
+
 PB.Data.profiles = {}
 
 ///////////////// new graph stuff ////////////////////
@@ -644,7 +643,7 @@ PB.Data.getPuffBySig = function(sig) {
     if(shell && shell.payload && typeof shell.payload.content != 'undefined')
         return shell
     
-    if(PB.Data.pending[sig])
+    if(PB.Data.pendingPuffPromises[sig])
         return false
         
     // locally cached shells that are missing content on the network prevent slotfills from resolving,
@@ -655,17 +654,17 @@ PB.Data.getPuffBySig = function(sig) {
             if(!PB.Data.getBonus(fauxshell, 'envelope')) {
                 PB.Data.removeShellFromCache(sig) // no updateUI call
                 return PB.onError("Content can not be found for shell '" + sig + "'") // THINK: why was this throwError?
-                // THINK: unlock PB.Data.pending[sig]? probably not, but it might re-appear later...
+                // THINK: unlock PB.Data.pendingPuffPromises[sig]? probably not, but it might re-appear later...
             }
         }
         return shells
     }
     
-    PB.Data.pending[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
-    PB.Data.pending[sig].then(badShellClearCache)
+    PB.Data.pendingPuffPromises[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
+    PB.Data.pendingPuffPromises[sig].then(badShellClearCache)
                         .then(PB.Data.addShellsThenMakeAvailable)
                         .then(function() {                                                   // delay GC to prevent
-                            setTimeout(function() { delete PB.Data.pending[sig] }, 10000) }) // runaway network requests
+                            setTimeout(function() { delete PB.Data.pendingPuffPromises[sig] }, 10000) }) // runaway network requests
     
     return false
 }
@@ -752,7 +751,7 @@ PB.Data.getCachedUserRecord = function(versionedUsername) {
 PB.Data.getCachedUserRecordWithCapa = function(versionedUsername, capa) {
     // TODO: map of just username to versionedUsername, so we can always get a user record for a user regardless of version
     versionedUsername = PB.maybeVersioned(versionedUsername, capa)
-    return PB.Data.userRecords[versionedUsername];
+    return PB.Users.records[versionedUsername];
 }
 
 /**
@@ -765,11 +764,11 @@ PB.Data.cacheUserRecord = function(userRecord) {
     
     var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
     
-    PB.Data.userRecords[versionedUsername] = userRecord;
+    PB.Users.records[versionedUsername] = userRecord;
 
-    delete PB.Data.userPromises[versionedUsername];
+    delete PB.Users.promises[versionedUsername];
     
-    PB.Persist.save('userRecords', PB.Data.userRecords);
+    PB.Persist.save('userRecords', PB.Users.records);
     
     return userRecord;
 }
@@ -779,7 +778,7 @@ PB.Data.cacheUserRecord = function(userRecord) {
  */
 PB.Data.depersistUserRecords = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    PB.Data.userRecords = PB.Persist.get('userRecords') || {};
+    PB.Users.records = PB.Persist.get('userRecords') || {};
 }
 
 /**

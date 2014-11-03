@@ -9,6 +9,8 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
+// Should we push this down a level ?
+// Or call M.Forum.getPuffList with a filter or query ?
 function getConvoViewContent() {
     var latest = puffworldprops.ICX.latestConvoPuffTimestamps
     if(!latest) return false
@@ -23,7 +25,8 @@ function getConvoViewContent() {
     return puffs
 }
 
-// example convoId: 'icx.user&icx.user2'
+// If any puff of interest is already in the
+// local cache, it will return as a bad puff
 function getConvoContent(convoId) {
     var convoId = convoId || puffworldprops.view.icx.convoId
     if(!convoId) return false

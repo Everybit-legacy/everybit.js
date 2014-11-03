@@ -180,18 +180,6 @@ var ICXContentItem = React.createClass({
         }
     },
 
-    componentDidMount: function() {
-        //console.log(this.props.key + "/" + this.props.tot)
-        //console.log(ICX.loading)
-        // if ( this.props.key == ICX.actual-1 ) {
-        //     //console.log("finished loading \n")
-        //     ICX.loading = false
-        // } else {
-        //     //console.log("still more to load \n")
-        //     ICX.loading = true
-        // }
-    },
-
     handleToggleShowItem: function() {
         if(this.state.expanded)
             this.setState({expanded: false})

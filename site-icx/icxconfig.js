@@ -68,8 +68,6 @@ ICX.config = {
 // NEEDED because loading identity doesn't happen until whole page has loaded
 ICX.identitySet = false
 
-// Actual number of puffs loaded into tableview
-ICX.actual = 0
 ICX.loading = true
 
 ICX.newUser = {}

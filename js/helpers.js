@@ -9,38 +9,39 @@ function keepNumberBetween(x,a,b) {
     return x
 }
 
-// Should we push this down a level ?
-// Or call M.Forum.getPuffList with a filter or query ?
-function getConvoViewContent() {
-    var latest = puffworldprops.ICX.latestConvoPuffTimestamps
-    if(!latest) return false
-
-    var convos = Object.keys(latest)
-    var puffs = []
-
-    for(var i = 0; i < convos.length; i++) {
-        puffs.push(latest[convos[i]])
-    }
-
-    return puffs
-}
-
 // If any puff of interest is already in the
 // local cache, it will return as a bad puff
 function getConvoContent(convoId) {
-    var convoId = convoId || puffworldprops.view.icx.convoId
-    if(!convoId) return false
+    var convoId = convoId || puffworldprops.view.convoId
+    if(!convoId) return []
+
+    var puffs = getLocalConvoContent(convoId)
+    if(puffs.length) 
+        return puffs
 
     // var puffs = []
 
     var prom = PB.Data.getConversationPuffs(convoId)
+    return []
     // re-render tableview with these puffs
     // TODO: Optimize the decryption
-    prom.then(function(result) {
-        result.private_promise.then(function(report) {
-            console.log(report)
-        })
+    // prom = prom.then(function(result) {
+    //     return result.private_promise.then(function(report) {
+    //         return report.goodsigs.map(PB.Data.getDecryptedLetterBySig)
+    //     })
+    // })
+
+    // return prom
+}
+
+function getLocalConvoContent(convoId) {
+
+    var letters = PB.Data.getCurrentDecryptedLetters()
+    return letters.filter(function(letter) {
+        key = getConvoKeyByPuff(letter)
+        return key == convoId
     })
+
 }
 
 
@@ -96,7 +97,6 @@ function userHasShells(username, callback) {
 
 function updateCurrentConvos(puff) {
     updateUniqueConvoKeys(puff)
-    updateLatestConvoPuff(puff)
 }
 
 
@@ -119,18 +119,26 @@ function mergeConvoKeys(keys) {
     return mergedKey
 }
 
-// Returns a list of ALL unique conversation IDs
+// Returns a list of ALL unique conversation IDs, signature, and count
 // Needs to be called only once per lifecycle
 function getUniqueConvoKeys() {
-    var uniqueConvoIDs = []
+    var uniqueConvoIDs = {}
     var username = PB.getCurrentUsername()
 
     var prom = PB.Net.getMyPrivatePuffs(username, 0, 0, 'shell')
     prom.then(function(shells) {
         shells.map(function(shell) {
+            // shells are returned in order of most to least recent
+            // so we push the sig of the first item returned then start counting
             key = mergeConvoKeys(shell.keys)
-            if(uniqueConvoIDs.indexOf(key) === -1) {
-                uniqueConvoIDs.push(key)
+            ids = Object.keys(uniqueConvoIDs)
+            if(ids.indexOf(key) === -1) {
+                uniqueConvoIDs[key] = {}
+                uniqueConvoIDs[key].key = key
+                uniqueConvoIDs[key].sig = shell.sig
+                uniqueConvoIDs[key].count = 1
+            } else {
+                uniqueConvoIDs[key].count += 1 
             }
         })  
     })
@@ -140,63 +148,25 @@ function getUniqueConvoKeys() {
     })
 }
 
+
 // updates the list of unique IDs for incoming puff
 function updateUniqueConvoKeys(puff) {
-    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || []
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || {}
+    var ids = Object.keys(uniqueConvoIDs)
+    var key = getConvoKeyByPuff(puff)
 
-    key = getConvoKeyByPuff(puff)
-    if(uniqueConvoIDs.indexOf(key) === -1) {
-        uniqueConvoIDs.push(key)
-
-        Events.pub('ui/event', {
-            'ICX.uniqueConvoIDs': uniqueConvoIDs
-        })
+    if(ids.indexOf(key) === -1) {
+        uniqueConvoIDs[key] = {}
+        uniqueConvoIDs[key].key = key
+        uniqueConvoIDs[key].sig = puff.sig
+        uniqueConvoIDs[key].count = 1
+    } else {
+        uniqueConvoIDs[key].count += 1 
     }
-}
-
-// returns a list of objects which has the sig and timestamp
-// of the latest puff per convo (key prop is the convoId)
-// This only looks in the available decrypted puffs
-// Only needs to be called once
-function getLatestConvoPuff() {
-    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
-    var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}
-    var stampIDs = Object.keys(latestStamps)
-
-    var letters = PB.Data.getCurrentDecryptedLetters()
-    letters.map(function(letter) {
-        key = getConvoKeyByPuff(letter)
-        time = letter.payload.time
-        if(uniqueConvoIDs.indexOf(key) > -1) {
-            if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].payload.time) ) {
-                latestStamps[key] = letter
-            }
-        }
-    })
 
     Events.pub('ui/event', {
-        'ICX.latestConvoPuffTimestamps': latestStamps
+        'ICX.uniqueConvoIDs': uniqueConvoIDs
     })
-}
-
-// props needs to have the unique convo IDs ready before this function is called
-// Possible weak link: latestStamps does not update fast enough ?
-function updateLatestConvoPuff(puff) {
-    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
-    var latestStamps = puffworldprops.ICX.latestConvoPuffTimestamps || {}
-    var stampIDs = Object.keys(latestStamps)
-
-    key = getConvoKeyByPuff(puff)
-    time = puff.payload.time
-    if(uniqueConvoIDs.indexOf(key) > -1) {
-        if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].payload.time) ) {
-            latestStamps[key] = puff
-            
-            Events.pub('ui/event', {
-                'ICX.latestConvoPuffTimestamps': latestStamps
-            })
-        }
-    }
 }
 
 

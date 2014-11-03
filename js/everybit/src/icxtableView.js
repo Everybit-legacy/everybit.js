@@ -1,15 +1,39 @@
 /** @jsx React.DOM */
 
 var ConversationListView = React.createClass({
-    getContent: function() {
-        return getConvoViewContent()
-    },
     render: function() {
+        var convos = puffworldprops.ICX.uniqueConvoIDs
+        var ids = Object.keys(puffworldprops.ICX.uniqueConvoIDs)
+
+        var conversations = ids.map(function (id) {
+            return <ConversationItem content={convos[id]} key={convos[id].key} />
+        })
+
         return (
-            <puffContainer content={this.getContent()} key="convoView" />
+            <div>
+                {conversations}
+            </div>
             )
     }
 })
+
+var ConversationItem = React.createClass({
+    handleShowConvo: function() {
+        return Events.pub('ui/event/', {
+            'view.convoId': this.props.content.key,
+            'view.icx.screen': 'convo'
+        })
+    },
+    render: function() {
+        var content = this.props.content
+        return (
+            <div onClick={this.handleShowConvo}>
+                <span>Conversation partners: {content.key} | Messages: {content.count}</span>
+            </div>
+            )
+    }
+})
+
 
 var ConversationView = React.createClass({
     getContent: function() {
@@ -95,10 +119,11 @@ var TableView = React.createClass({
     },
 
     getContent: function() {
-        var query = puffworldprops.view.query
-        var filters = puffworldprops.view.filters
-        var limit = puffworldprops.view.table.loaded
-        return getTableViewContent(query, filters, limit)
+        // var query = puffworldprops.view.query
+        // var filters = puffworldprops.view.filters
+        // var limit = puffworldprops.view.table.loaded
+        // return getTableViewContent(query, filters, limit)
+        return getConvoContent()
     },
 
 

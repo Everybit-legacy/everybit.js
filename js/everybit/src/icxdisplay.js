@@ -2167,34 +2167,28 @@ var ICXChangePassphraseFinish = React.createClass({ /* Good */
 })
 
 var ICXTableView = React.createClass({ /* Good */
-    componentWillMount: function() {
-        getUniqueConvoKeys()
-        getLatestConvoPuff()
-    },
-
     render: function () {
 
         var viewprops = this.props.view || {}
 
+        // return (
+        //     <div className="icx-tableview">
+        //         <TableView view={viewprops} table={viewprops.table}/>
+        //     </div>
+        //     )
+        if(puffworldprops.view.icx.screen == 'convo') {
+            return (
+                <div className="icx-tableview">
+                    <TableView view={viewprops}/>
+                </div>
+            )
+        }
+
         return (
             <div className="icx-tableview">
-                <TableView view={viewprops} table={viewprops.table}/>
+                <ConversationListView />
             </div>
-            )
-        // if(puffworldprops.view.icx.screen == 'convo') {
-        //     return (
-        //         <div className="icx-tableview">
-        //             <ConversationView />
-        //         </div>
-        //     )
-        // }
-        // if(puffworldprops.view.icx.screen == 'home.table') {
-        //     return (
-        //         <div className="icx-tableview">
-        //             <ConversationListView />
-        //         </div>
-        //     )
-        // }
+        )
     }
 })
 

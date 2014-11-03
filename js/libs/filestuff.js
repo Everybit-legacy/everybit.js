@@ -4,7 +4,6 @@ PBFiles.oldFile = null
 
 PBFiles.createPuff = function(content, type) {
     var payload = {}
-    payload.time = Date.now()
     
     var type   = type || 'file'
     var routes = ['local'];

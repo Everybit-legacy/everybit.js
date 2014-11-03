@@ -1,4 +1,11 @@
-// DATA LAYER
+/*
+
+  PB.Data
+
+  All puff-related data flows through here: 
+  caching, persistence, optimizations and network access are all handled within this module. 
+  
+*/
 
 PB.Data = {}
 // PB.Data.puffs = []
@@ -743,43 +750,6 @@ PB.Data.isValidShell = function(shell) {
     return true
 }
 
-
-PB.Data.getCachedUserRecord = function(versionedUsername) {
-    return PB.Data.getCachedUserRecordWithCapa(versionedUsername)
-}
-
-PB.Data.getCachedUserRecordWithCapa = function(versionedUsername, capa) {
-    // TODO: map of just username to versionedUsername, so we can always get a user record for a user regardless of version
-    versionedUsername = PB.maybeVersioned(versionedUsername, capa)
-    return PB.Users.records[versionedUsername];
-}
-
-/**
- * to cache user record
- * @param  {object} userRecord
- * @return {object}
- */
-PB.Data.cacheUserRecord = function(userRecord) {
-    //// This caches with no validation -- don't use it directly, use PB.processUserRecord instead
-    
-    var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
-    
-    PB.Users.records[versionedUsername] = userRecord;
-
-    delete PB.Users.promises[versionedUsername];
-    
-    PB.Persist.save('userRecords', PB.Users.records);
-    
-    return userRecord;
-}
-
-/**
- * to depersist user records
- */
-PB.Data.depersistUserRecords = function() {
-    //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    PB.Users.records = PB.Persist.get('userRecords') || {};
-}
 
 /**
  * to get my puff chain

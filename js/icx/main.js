@@ -201,16 +201,16 @@ Events.sub('ui/*', function(data, path) {
 
 Events.sub("filter/*", function(data, path) {
     // side effects: query set to default; view.table.format set to list
-    data['view.query'] = Boron.shallow_copy(puffworlddefaults.view.query);
-    data['view.table.format'] = 'list';
+    data['view.query'] = Boron.shallow_copy(puffworlddefaults.view.query)
+    data['view.table.format'] = 'list'
     
     // TODO put this in config as default view
     if (puffworldprops.view.mode != 'list' || 
         puffworldprops.view.mode != 'tableView') {
-        data['view.mode'] = 'list';
+        data['view.mode'] = 'list'
     } 
 
-    Events.pub('ui/query/default', data);
+    Events.pub('ui/query/default', data)
     PB.Data.importRemoteShells() // TODO: remove once we upgrade to websockets as our workaround for non-rtc browsers
 })
 
@@ -241,9 +241,9 @@ var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
 var eatPuffs = function(puffs) {
     // if(!Array.isArray(puffs) || !puffs.length)   // THINK: this disrupts cold load of contentless shells...
-    //     return false;
+    //     return false
 
-    updateUI();
+    updateUI()
 }
 
 var updateLatestConvo = function(report) {
@@ -269,7 +269,7 @@ CONFIG.icxmode   = true
 PB.addNewPuffHandler(eatPuffs)                      // register our update function
 PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
 
-// PB.M.Forum.init();                               // initialize the forum module (and by extension the puffball network)
+// PB.M.Forum.init()                                // initialize the forum module (and by extension the puffball network)
 PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs)    // manually connect the Forum module to avoid initializing the P2P network
 PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
 
@@ -277,13 +277,13 @@ PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
 
 PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
-// handleImportRedirect();                          // check if import
+// handleImportRedirect()                           // check if import
 
-PB.Data.depersistUserRecords()                      // get cached userRecords
+PB.Users.depersist()                                // get cached userRecords
 
-setPropsFromURL();                                  // handle pushstate hash
+setPropsFromURL()                                   // handle pushstate hash
 
-popMods();                                          // deflate any machine prefs
+popMods()                                           // deflate any machine prefs
 
 PB.addPayloadModifierHandler(function(payload) {
     payload = payload || {}
@@ -339,8 +339,8 @@ PB.cryptoworker.addEventListener("message", PB.workerreceive)
 
 
 window.addEventListener('resize', function() {
-    updateUI();
-});
+    updateUI()
+})
 
 window.addEventListener('load', function() {
     /// this is cumbersome, but it gets around browser inconsistencies (some fire popstate on page load, others don't)
@@ -348,23 +348,23 @@ window.addEventListener('load', function() {
     setTimeout(function() {
         window.addEventListener('popstate', function(event) {
             if(event.state)
-                return setPropsFromPushstate(event.state);
-            puffworldprops = puffworlddefaults;
-            updateUI();
-        });
-    }, 0);
-});
+                return setPropsFromPushstate(event.state)
+            puffworldprops = puffworlddefaults
+            updateUI()
+        })
+    }, 0)
+})
 
 
 // Hide slideshow from people with at least one identity
 // Make sure not problem if empty
 var identityUsernames = PB.getAllIdentityUsernames()
 if(identityUsernames.length < 1)
-    Events.pub( 'ui/slider/close',{ 'view.slider.show': true});
+    Events.pub( 'ui/slider/close',{ 'view.slider.show': true})
     // console.log("hide silder cuz several users")
 
 // TODO: pull out of global, more fineness
-ACTIVITY = [];
+ACTIVITY = []
 Events.sub('ui/*', function(data) {
     if(ACTIVITY.length) {
         var last = ACTIVITY[ACTIVITY.length - 1]
@@ -372,13 +372,13 @@ Events.sub('ui/*', function(data) {
             return false
     }
 
-    ACTIVITY.push(data);
+    ACTIVITY.push(data)
 
 
     // XHR this bad boy!
     if(puffworldprops.prefs.reporting)
         PB.Net.xhr('https://i.cx/api/events.php', {method: 'POST'}, data)
-});
+})
 
 
 //tells us if the user has any delicious puffs

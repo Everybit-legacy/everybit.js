@@ -32,7 +32,7 @@ PB.newPayloadModifiers = []
  * @param {zones} connect to these zones
  */
 PB.init = function(zone) {
-    PB.Data.depersistUserRecords()                  // pop URs out of LS
+    PB.Users.depersist()                            // pop URs out of LS
     
     PB.Data.importShells()                          // preload relevant shells
     
@@ -52,7 +52,7 @@ PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
     
-    var prom = PB.usernamesToUserRecordsPromise(usernames)
+    var prom = PB.UsersusernamesToUserRecordsPromise(usernames)
     
     return prom.then(function(userRecords) {
         // TODO: move this into the pre-promise phase, and uniquify usernames
@@ -155,39 +155,6 @@ PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, pa
 }
 
 
-PB.usernamesToUserRecordsPromise = function(usernames) {
-    //// returns a promise of userRecords. thanks to capa we usually don't need the latest and can use cached versions.
-    if(!usernames || !usernames.length)
-        return Promise.resolve([])
-    
-    if(!Array.isArray(usernames))
-        usernames = [usernames]
-        
-    var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
-    
-    if (userRecords.length == usernames.length)
-        return Promise.resolve(userRecords) // got 'em all!
-    
-    var prom = Promise.resolve() // a promise we use to string everything along
-
-    var userRecordUsernames = userRecords.map(function (userRecord) {
-        return userRecord.username
-    })
-    
-    usernames.forEach(function (username) {
-        if (!~userRecordUsernames.indexOf(username)) { // we need this one
-            prom = prom.then(function() {
-                return PB.getUserRecordNoCache(username).then(function (userRecord) {
-                    userRecords.push(userRecord)
-                })
-            })
-        }
-    })
-    
-    return prom.then(function() { return userRecords }) // when it's all done, give back the userRecords
-}
-
-
 /**
  * pack all the parameters into an object with puff structure (without signature)
  * @param  {string} username 
@@ -214,40 +181,6 @@ PB.packagePuffStructure = function(versionedUsername, routes, type, content, pay
                }
     
     return puff
-}
-
-/**
- * returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc)
- * @param  {string} username   
- * @param  {string} defaultKey public default key
- * @param  {string} adminKey   public admin key
- * @param  {string} rootKey    public root key
- * @param  {string} latest     signature of the most recent puff published by the user
- * @param  {string} updated    date of the most recent update to the username
- * @return {object}            a canonical user object
- */
-PB.buildUserRecord = function(username, defaultKey, adminKey, rootKey, latest, updated, profile, capa) {
-    latest  = latest  || ""
-    updated = updated || ""
-    profile = profile || ""
-    capa    = capa    || 1
-    
-    // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
-
-    if(!PB.validateUsername(username))
-        return false // already logged the error
-    
-    // these keys are PUBLIC. only public keys here. no other types of keys. 
-    
-    return {   username: username
-           ,       capa: capa
-           ,    rootKey: rootKey
-           ,   adminKey: adminKey
-           , defaultKey: defaultKey
-           ,     latest: latest
-           ,    updated: updated
-           ,    profile: profile
-           }
 }
 
 /**
@@ -382,24 +315,6 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     return prom
 }
 
-
-/**
- * to process user records
- * @param  {string} userRecord
- * @return {object}
- */
-PB.processUserRecord = function(userRecord) {
-    //// Use this on all incoming user records
-    
-    userRecord = PB.buildUserRecord(userRecord.username, userRecord.defaultKey, userRecord.adminKey, userRecord.rootKey, userRecord.latest, userRecord.updated, userRecord.profile, userRecord.capa)
-    
-    if(!userRecord)
-        return PB.onError('That is not an acceptable user record', userRecord)
-    
-    PB.Data.cacheUserRecord(userRecord)
-    
-    return userRecord
-}
 
 /**
  * checks the cache, and always returns a promise

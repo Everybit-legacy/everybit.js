@@ -362,7 +362,7 @@ PB.Net.getUserRecord = function(username, capa) {
 
     return prom.then(
                 function(userRecord) {
-                    var userRecord = PB.processUserRecord(userRecord)
+                    var userRecord = PB.Users.process(userRecord)
                     if(!userRecord)  PB.throwError('Invalid user record returned')
                     return userRecord
                 }
@@ -383,7 +383,7 @@ PB.Net.getUserRecord = function(username, capa) {
 //
 //     return prom.then(
 //                 function(userRecords) {
-//                     return userRecords.map(PB.processUserRecord)
+//                     return userRecords.map(PB.Users.process)
 //                                       .filter(Boolean);
 //                 }
 //                 , PB.catchError('Unable to access user file from the DHT'));
@@ -437,7 +437,7 @@ PB.Net.updateUserRecord = function(puff) {
                    if(!userRecord.username) 
                        PB.throwError('The DHT did not approve of your request', userRecord.FAIL)
                        
-                   return PB.processUserRecord(userRecord)
+                   return PB.Users.process(userRecord)
                        || PB.throwError('Invalid user record', JSON.stringify(userRecord))
                })
 }

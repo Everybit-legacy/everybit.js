@@ -37,6 +37,14 @@ function getConvoContent(convoId) {
 function getLocalConvoContent(convoId) {
 
     var letters = PB.Data.getCurrentDecryptedLetters()
+
+    letters.sort(function(a,b) {
+        if (a.payload.time < b.payload.time)
+            return -1
+        if (a.payload.time > b.payload.time)
+            return 1
+        return 0
+    })
     return letters.filter(function(letter) {
         key = getConvoKeyByPuff(letter)
         return key == convoId

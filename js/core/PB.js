@@ -73,8 +73,14 @@ PB.postPrivateMessage = function(content, usernames, type) {
     var prom = PB.usernamesToUserRecordsPromise(usernames)
     
     return prom.then(function(userRecords) {
-        var myUserRecord = PB.getCurrentUserRecord()
-        userRecords.push(myUserRecord)
+        var myUsername = PB.getCurrentUsername()
+        var myUserRecord = userRecords.filter(function(record) {return record.username == myUsername})
+        
+        if(!myUserRecord.length) {
+            myUserRecord = PB.getCurrentUserRecord()
+            userRecords.push(myUserRecord)
+        }
+        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
     })
@@ -149,6 +155,8 @@ PB.receiveNewPuffs = function(puffs) {
 PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
+    
+    payload = PB.runHandlers('payloadmodifier', payload)
     
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
         var previous = false // TODO: get the sig of this user's latest puff

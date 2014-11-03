@@ -273,7 +273,6 @@ PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update fun
 PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs)    // manually connect the Forum module to avoid initializing the P2P network
 PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
 
-
 // END MANUAL FORUM MODULE INIT
 
 PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
@@ -285,6 +284,12 @@ PB.Data.depersistUserRecords()                      // get cached userRecords
 setPropsFromURL();                                  // handle pushstate hash
 
 popMods();                                          // deflate any machine prefs
+
+PB.addPayloadModifierHandler(function(payload) {
+    payload = payload || {}
+    payload.time = Date.now()
+    return payload
+})
 
 // private puff management for ICX:
 

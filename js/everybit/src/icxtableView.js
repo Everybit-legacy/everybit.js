@@ -1,15 +1,39 @@
 /** @jsx React.DOM */
 
 var ConversationListView = React.createClass({
-    getContent: function() {
-        return getConvoViewContent()
-    },
     render: function() {
+        var convos = puffworldprops.ICX.uniqueConvoIDs
+        var ids = Object.keys(puffworldprops.ICX.uniqueConvoIDs)
+
+        var conversations = ids.map(function (id) {
+            return <ConversationItem content={convos[id]} key={convos[id].key} />
+        })
+
         return (
-            <puffContainer content={this.getContent()} key="convoView" />
+            <div>
+                {conversations}
+            </div>
             )
     }
 })
+
+var ConversationItem = React.createClass({
+    handleShowConvo: function() {
+        return Events.pub('ui/event/', {
+            'view.convoId': this.props.content.key,
+            'view.icx.screen': 'convo'
+        })
+    },
+    render: function() {
+        var content = this.props.content
+        return (
+            <div onClick={this.handleShowConvo}>
+                <span>Conversation partners: {content.key} | Messages: {content.count}</span>
+            </div>
+            )
+    }
+})
+
 
 var ConversationView = React.createClass({
     getContent: function() {
@@ -95,10 +119,11 @@ var TableView = React.createClass({
     },
 
     getContent: function() {
-        var query = puffworldprops.view.query
-        var filters = puffworldprops.view.filters
-        var limit = puffworldprops.view.table.loaded
-        return getTableViewContent(query, filters, limit)
+        // var query = puffworldprops.view.query
+        // var filters = puffworldprops.view.filters
+        // var limit = puffworldprops.view.table.loaded
+        // return getTableViewContent(query, filters, limit)
+        return getConvoContent()
     },
 
 
@@ -207,15 +232,6 @@ var ICXContentItem = React.createClass({
         ICX.loading = false
     },
 
-    handleShowConvo: function(convoId) {
-        Events.pub('ui/event', {
-            'view.icx.convoId': convoId
-        })
-        return Events.pub('ui/screen', {
-            'view.icx.screen': 'convo'
-        })
-    },
-
 	render: function() {
         var puff = this.props.puff
         var convoId = getConvoKeyByPuff(puff)
@@ -254,7 +270,7 @@ var ICXContentItem = React.createClass({
 
 
         return (
-            <div style={overalBoxStyle} onClick={this.handleShowConvo.bind(null, convoId)}>
+            <div style={overalBoxStyle}>
                 <div>
                     <div className="tableHeader" style={{fontSize: '65%'}} >
                         <ICXTableUserInfo puff={puff} />
@@ -499,13 +515,15 @@ var ICXInlineReply = React.createClass({
     },
 
 	handleReply: function() {
-		var puff = this.props.puff
-        var toUser = puff.username.stripCapa()
+		var puff = this.props.puff              // no longer needed
+        var toUser = puff.username.stripCapa()  // getting usernames from convoId in viewProps
+
+        // THINK: Do we still need to keep track of parents in ICX?
         var parents = [puff.sig]
         var envelopeUserKeys = ''
         var self = this
         var metadata = {}
-        metadata.routes = [toUser]
+        metadata.routes = [toUser]              // viewProps
 
         if(puffworldprops.reply.replyType == 'message') {
             var type = 'text'
@@ -604,15 +622,15 @@ var ICXInlineReply = React.createClass({
     },
 
 	render: function() {
-		var puff=this.props.puff
-		var username = puff.username.stripCapa()
+		var puff=this.props.puff                      // no longer needed
+		var username = puff.username.stripCapa()      // getting it from viewProps
         var headerStyle = ICX.calculated.pageHeaderTextStyle
 
         var inlineReplyStyle = {}
         var replyMsgStyle = {}
         var replyFileStyle = {}
 
-        var activeReplies = puffworldprops.view.icx.activeReplies
+        var activeReplies = puffworldprops.view.icx.activeReplies       // no longer need to keep track of active replies
 
         replyMsgStyle.display = (puffworldprops.reply.replyType == 'message') ? 'block' : 'none'
         replyFileStyle.display = (puffworldprops.reply.replyType == 'file') ? 'block' : 'none'

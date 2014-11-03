@@ -305,6 +305,8 @@ PB.addPayloadModifierHandler(function(payload) {
     return payload
 })
 
+getUniqueConvoKeys()
+
 
 //// BUILD CRYPTO WORKER
 

@@ -286,7 +286,16 @@ setPropsFromURL();                                  // handle pushstate hash
 
 popMods();                                          // deflate any machine prefs
 
+// private puff management for ICX:
+
 setInterval(PB.Data.updatePrivateShells, 60*1000)
+
+PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells) 
+
+PB.addPostSwitchIdentityHandler(function(username) {    
+    PB.Data.getMorePrivatePuffs(username, 0, CONFIG.initLoadBatchSize)
+    // Events.pub('ui/switchIdentityTo')
+})
 
 
 //// BUILD CRYPTO WORKER

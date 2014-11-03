@@ -115,23 +115,10 @@ PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')
 
 PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
 
-// PB.onNewPuffs = function(callback) {
-//     //// use this to add a new hook into the receiveNewPuffs cycle
-//     PB.newPuffCallbacks.push(callback)
-// }
-//
-// PB.addRelationship = function(callback) {
-//     //// use this to add a new hook into the receiveNewPuffs cycle
-//     // TODO: make this apply to the graph cycle directly!
-//     PB.newPuffCallbacks.push(callback)
-// }
-//
-// PB.addPayloadModifier = function(callback) {
-//     //// payload modifiers run whenever simpleBuildPuff is called
-//     PB.newPayloadModifiers.push(callback)
-// }
-
-
+// preswitchidentity is called prior to switchIdentity and removeIdentity, while the old identity is active
+// postswitchidentity is called after switchIdentity, once the new identity is active
+PB.addPreSwitchIdentityHandler  = PB.makeHandlerHandler('preswitchidentity')
+PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
 
 ////////////// End Handler Handlers //////////////
 
@@ -753,7 +740,11 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         PB.setPreference = setPreference
         
     if(typeof switchIdentityTo == 'function')
-        PB.switchIdentityTo = switchIdentityTo
+        PB.switchIdentityTo = function(username) {
+            PB.runHandlers('preswitchidentity', username)
+            switchIdentityTo(username)
+            PB.runHandlers('postswitchidentity', username)
+        }
         
     if(typeof removeIdentity == 'function')
         PB.removeIdentity = removeIdentity

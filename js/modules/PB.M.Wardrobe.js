@@ -192,17 +192,6 @@ PB.M.Wardrobe = {}
         
         if(username && identity && identity.primary)
             PB.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
-
-
-            /// TODO: move this!
-
-        // TODO: this doesn't belong here, move it (probably by registering interesting users with the platform)
-        PB.Data.removeAllPrivateShells() // OPT: destroying and re-requesting this is unnecessary
-        PB.Data.getMorePrivatePuffs(username, 0, CONFIG.initLoadBatchSize)
-
-        // TODO: this doesn't belong here, move it by having registering a switchIdentityTo callback
-        // THINK: can we automate callbackable functions by wrapping them at runtime? or at callback setting time?
-        // Events.pub('ui/switchIdentityTo')
     }
     
     var removeIdentity = function(username) {

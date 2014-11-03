@@ -13,7 +13,7 @@ PB.Users.records  = {}                              // maps username to an array
 PB.Users.promises = {}                              // pending userRecord requests
 
 
-PB.Data.getCachedUserRecord = function(versionedUsername) {
+PB.Users.getCachedUserRecord = function(versionedUsername) {
     return PB.Users.getCachedWithCapa(versionedUsername)
 }
 
@@ -39,6 +39,10 @@ PB.Users.process = function(userRecord) {
 
 
 
+PB.Users.getCachedUserRecord = function(versionedUsername) {
+    //// TODO: start here!
+    return PB.Users.getCachedWithCapa(versionedUsername)
+}
 
 
 
@@ -86,7 +90,7 @@ PB.Users.usernamesToUserRecordsPromise = function(usernames) {
     if(!Array.isArray(usernames))
         usernames = [usernames]
         
-    var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+    var userRecords = usernames.map(PB.Users.getCachedUserRecord).filter(Boolean)
     
     if (userRecords.length == usernames.length)
         return Promise.resolve(userRecords) // got 'em all!

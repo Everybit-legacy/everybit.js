@@ -330,7 +330,7 @@ PB.getUserRecordPromise = function(username, capa) {
     
     var versionedUsername = PB.maybeVersioned(username, capa)
     
-    var userRecord = PB.Data.getCachedUserRecord(versionedUsername)
+    var userRecord = PB.Users.getCachedUserRecord(versionedUsername)
     
     if(userRecord)
         return Promise.resolve(userRecord)

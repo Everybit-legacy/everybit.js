@@ -818,7 +818,7 @@ function ICXAddPost(toUser, type, parents, content, metadata, envelopeUserKeys, 
     var prom = PB.Users.usernamesToUserRecordsPromise(usernames)
 
     prom = prom.then(function(userRecords) {
-        if(type != 'file') 
+        if(type != 'file')   // TODO: invert this so the blob is sent from the callsite
             return carryon(userRecords, content)
         
         content.then(function (blob) {

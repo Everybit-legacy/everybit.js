@@ -269,9 +269,9 @@ CONFIG.icxmode   = true
 PB.addNewPuffHandler(eatPuffs)                      // register our update function
 PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
 
-// PB.M.Forum.init()                                // initialize the forum module (and by extension the puffball network)
-PB.addNewPuffHandler(PB.M.Forum.receiveNewPuffs)    // manually connect the Forum module to avoid initializing the P2P network
+// PB.M.Forum.init()                                // don't call this -- it initializes the P2P network
 PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
+PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
 
 // END MANUAL FORUM MODULE INIT
 

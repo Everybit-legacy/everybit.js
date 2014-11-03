@@ -55,6 +55,7 @@ PB.Data.graph = Dagoba.graph()
 PB.Data.addToGraph = function(shells) {
     shells.forEach(PB.Data.addShellAsVertex)
     shells.forEach(PB.Data.addShellUsernameAsVertex)
+    PB.runHandlers('relationship', shells)
 }
 
 // TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
@@ -246,7 +247,8 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
 
     report.public_puff_sigs = shells.map(R.prop('sig'))
     
-    PB.receiveNewPuffs(shells) /// THINK!
+    PB.runHandlers('newpuffs', shells)
+    PB.runHandlers('newpuffreport', report)
     
     return report
 }
@@ -409,7 +411,7 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
     PB.Data.addBonus(letter, 'envelope', envelope)                 // mark it for later
     
     PB.Data.addToGraph([letter])
-    PB.M.Forum.addFamilialEdges([letter])                          // we're doing this manually because no onNewPuffs 
+    PB.M.Forum.addFamilialEdges([letter])                          // TODO: onNewPuffs -> addRelationshipHandler and do it in the graph
     return true
 }
 
@@ -431,6 +433,16 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     
     var prom
     prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
+}
+
+PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
+    offset = offset || 0
+    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    
+    var prom
+    prom = PB.Net.getConversationPuffs(convoId, batchsize, offset)
     prom = prom.then(PB.Data.addShellsThenMakeAvailable)
     return prom
 }

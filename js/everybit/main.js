@@ -307,7 +307,7 @@ var eatPuffs = function(puffs) {
 
 
 ////
-PB.M.Forum.onNewPuffs(eatPuffs);                    // register our update function
+PB.M.Forum.addNewPuffHandler(eatPuffs);             // register our update function
 
 PB.M.Forum.init();                                  // initialize the forum module (and by extension the puffball network)
 

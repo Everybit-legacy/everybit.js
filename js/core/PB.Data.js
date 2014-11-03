@@ -66,6 +66,8 @@ PB.Data.addToGraph = function(shells) {
 
 // TODO: alias children() as .in('parent') and parents() as .out('parent') and use those instead (halves # of edges)
 
+///////////////// end new graph stuff ////////////////////
+
 
 
 PB.Data.getAllMyShells = function() {

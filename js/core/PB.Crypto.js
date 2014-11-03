@@ -326,6 +326,9 @@ PB.Crypto.getRandomValuesShim = function(number, size) {
  * @return {object}
  */
 PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
+    if(!Array.isArray(userRecords))
+        return PB.throwError('Invalid userRecords')
+    
     return userRecords.reduce(function(acc, userRecord) {
         var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
         acc[versionedUsername] = PB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)

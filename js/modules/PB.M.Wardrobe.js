@@ -70,7 +70,7 @@ PB.M.Wardrobe = {}
         var lastUsername = PB.Persist.get('currentUsername')
         
         if (lastUsername)
-            switchIdentityTo(lastUsername)
+            PB.switchIdentityTo(lastUsername) // NOTE: call wrapped version to get handlers
     }
     
     

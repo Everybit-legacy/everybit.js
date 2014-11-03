@@ -275,10 +275,24 @@ PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
 
 // END MANUAL FORUM MODULE INIT
 
+// private puff management for ICX:
+
+setInterval(PB.Data.updatePrivateShells, 60*1000)
+
+PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells) 
+
+PB.addPostSwitchIdentityHandler(function(username) {    
+    PB.Data.getMorePrivatePuffs(username, 0, CONFIG.initLoadBatchSize)
+    // Events.pub('ui/switchIdentityTo')
+})
+
+// initialize other modules
+
 PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
 // handleImportRedirect()                           // check if import
 
+// TODO: PB.Users.init()
 PB.Users.depersist()                                // get cached userRecords
 
 setPropsFromURL()                                   // handle pushstate hash
@@ -289,17 +303,6 @@ PB.addPayloadModifierHandler(function(payload) {
     payload = payload || {}
     payload.time = Date.now()
     return payload
-})
-
-// private puff management for ICX:
-
-setInterval(PB.Data.updatePrivateShells, 60*1000)
-
-PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells) 
-
-PB.addPostSwitchIdentityHandler(function(username) {    
-    PB.Data.getMorePrivatePuffs(username, 0, CONFIG.initLoadBatchSize)
-    // Events.pub('ui/switchIdentityTo')
 })
 
 

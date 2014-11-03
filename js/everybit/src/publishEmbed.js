@@ -555,7 +555,7 @@ var PuffPublishFormEmbed = React.createClass({
                 
         var usernames = this.state.usernames
         
-        var userRecords = usernames.map(PB.Data.getCachedUserRecord).filter(Boolean)
+        var userRecords = usernames.map(PB.Users.getCachedUserRecord).filter(Boolean)
         var userRecordUsernames = userRecords.map(function(userRecord) {return userRecord.username})
         
         // if we haven't cached all the users, we'll need to grab them first
@@ -573,8 +573,8 @@ var PuffPublishFormEmbed = React.createClass({
         }
 
         prom = prom.then(function() {
-            if(privateEnvelopeAlias) {     // add our secret identity to the list of available keys
-                userRecords.push(PB.Data.getCachedUserRecord(privateEnvelopeAlias.username))
+            if(privateEnvelopeAlias) {      // add our secret identity to the list of available keys
+                userRecords.push(PB.Users.getCachedUserRecord(privateEnvelopeAlias.username))
             } else {                        // add our regular old boring identity to the list of available keys
                 userRecords.push(PB.getCurrentUserRecord())
             }

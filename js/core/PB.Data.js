@@ -425,9 +425,10 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
 
 PB.Data.removeAllPrivateShells = function() {
     PB.Data.currentDecryptedLetters.forEach(function(shell) {
-        PB.Data.purgeShellFromGraph(shell.sig) // THINK: is this always the most effective way?
+        PB.Data.removeShellFromCache(shell.sig)
     })
     
+    PB.Data.currentDecryptedLetterMap = {}
     PB.Data.currentDecryptedLetters = [] 
 }
 

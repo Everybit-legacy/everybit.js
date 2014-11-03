@@ -10,21 +10,48 @@ function keepNumberBetween(x,a,b) {
 }
 
 function getConvoViewContent() {
-    var convos = puffworldprops.ICX.uniqueConvoIDs || []
     var latest = puffworldprops.ICX.latestConvoPuffTimestamps
+    if(!latest) return false
+
+    var convos = Object.keys(latest)
     var puffs = []
 
-    // var puffs = convos.map(function(convoId) {
-    //     if(Object.keys(latest).indexOf(convoId) !== -1)
-    //         return PB.getPuffBySig(latest[convoId].sig)
-    // })
     for(var i = 0; i < convos.length; i++) {
-        if(Object.keys(latest).indexOf(convos[i]) !== -1) {
-            puffs.push(PB.getPuffBySig(latest[convos[i]].sig))
-        }
+        puffs.push(latest[convos[i]])
     }
 
     return puffs
+}
+
+function getConvoContent() {
+    var convoId = puffworldprops.view.icx.convoId
+    var puffs = []
+
+    var prom = getPuffsByConvoId(convoId)
+        // re-render tableview with these puffs
+        // TODO: Optimize the decryption
+    prom.then(function(encPuffs) {
+        encPuffs.map(function(puff) {
+            puffs.push(PB.getPuffBySig(puff.sig))
+        })
+
+        return puffs
+    })
+}
+
+// function to call the API to get conversations
+// @Param {string} convoId
+// '&' separated usernames involved in convo
+var getPuffsByConvoId = function(convoId) {
+    convoId = convoId.replace('&',',')
+    var url  = CONFIG.puffApi
+    var data = {
+        contentType: 'encryptedpuff',
+        type: 'getPuffs',
+        conversationPartners: convoId
+    }
+    
+    return PB.Net.getJSON(url, data)
 }
 
 //wrapper to get puffs to display in table view
@@ -151,11 +178,8 @@ function getLatestConvoPuff() {
         key = getConvoKeyByPuff(letter)
         time = letter.payload.time
         if(uniqueConvoIDs.indexOf(key) > -1) {
-            if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].time) ) {
-                latestStamps[key] = {}
-                latestStamps[key].time = time
-                // maybe store the entire puff?
-                latestStamps[key].sig = letter.sig
+            if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].payload.time) ) {
+                latestStamps[key] = letter
             }
         }
     })
@@ -175,10 +199,8 @@ function updateLatestConvoPuff(puff) {
     key = getConvoKeyByPuff(puff)
     time = puff.payload.time
     if(uniqueConvoIDs.indexOf(key) > -1) {
-        if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].time) ) {
-            latestStamps[key] = {}
-            latestStamps[key].time = time
-            latestStamps[key].sig = puff.sig
+        if(stampIDs.indexOf(key) === -1 || (time>latestStamps[key].payload.time) ) {
+            latestStamps[key] = puff
             
             Events.pub('ui/event', {
                 'ICX.latestConvoPuffTimestamps': latestStamps

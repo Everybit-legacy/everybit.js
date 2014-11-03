@@ -160,6 +160,7 @@ var ICXWorld = React.createClass({
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
             {position: 0, name: 'splash', button: false, icon: 'fa-home', fullText: 'ICX', component: ICXSplash},
+            {position: 0, name: 'convo', button: false, icon: 'fa-home', fullText: 'Conversation View', component: ICXTableView},
             {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -2180,11 +2181,20 @@ var ICXTableView = React.createClass({ /* Good */
         //         <TableView view={viewprops} table={viewprops.table}/>
         //     </div>
         //     )
-        return (
-            <div className="icx-tableview">
-                <ConversationListView />
-            </div>
+        if(puffworldprops.view.icx.screen == 'convo') {
+            return (
+                <div className="icx-tableview">
+                    <ConversationView />
+                </div>
             )
+        }
+        if(puffworldprops.view.icx.screen == 'home.table') {
+            return (
+                <div className="icx-tableview">
+                    <ConversationListView />
+                </div>
+            )
+        }
     }
 })
 

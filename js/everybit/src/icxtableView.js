@@ -34,20 +34,8 @@ var ConversationItem = React.createClass({
     }
 })
 
-
-var ConversationView = React.createClass({
-    getContent: function() {
-        return getConvoContent()
-    },
-    render: function() {
-        return (
-            <puffContainer content={this.getContent()} key="convoView" />
-            )
-
-    }
-})
-
 var puffContainer = React.createClass({
+
     render: function() {
         var puffs = this.props.content.map(function (puff) {
             return (
@@ -102,11 +90,13 @@ var TableView = React.createClass({
         )
     },
 
-    componentWillMount: function() {
-        Events.pub('ui/event', {
-            'view.table.loaded': CONFIG.initLoadBatchSize
-        })
-    },
+    // Note: Instead of loading the LIMIT of puffs
+    // We will try to load the ACTUAL number of puffs in puffContainer
+    // componentWillMount: function() {
+    //     Events.pub('ui/event', {
+    //         'view.table.loaded': CONFIG.initLoadBatchSize
+    //     })
+    // },
 
     componentDidMount: function() {
         if(typeof puffworldprops.ICX.hasShells === "undefined") {
@@ -154,7 +144,8 @@ var TableView = React.createClass({
 				<ViewFilters />
                 <puffContainer content={this.getContent()} key="messages"/>
 
-                <ViewLoadMore query={this.props.view.query} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
+                <ICXInlineReply convoId={puffworldprops.view.convoId} key={puffworldprops.view.convoId} />
+                <ViewLoadMore convoId={puffworldprops.view.convoId} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
 			</div>
 		)
 	}
@@ -214,20 +205,6 @@ var ICXContentItem = React.createClass({
         return false
     },
 
-    handleShowReply: function() {
-        this.setState({expanded: true})
-        var activeReplies = puffworldprops.view.icx.activeReplies
-        // Add if not already in there
-        var sig = this.props.puff.sig
-        if(activeReplies.indexOf(sig) === -1) {
-            activeReplies.push(sig)
-        }
-
-        Events.pub('ui/reply/activate',
-            {'view.icx.activeReplies': activeReplies}
-        )
-    },
-
     componentDidUpdate: function() {
         ICX.loading = false
     },
@@ -277,12 +254,6 @@ var ICXContentItem = React.createClass({
 
                         <ICXRelationshipInfo puff={puff} />
                         <a className="toggler" onClick={this.handleToggleShowItem}><i className={cbClass}></i></a>
-                        <span className="icon reply relative" style={replyStyle}>
-                        <a onClick={this.handleShowReply}>
-                            <i className="fa fa-mail-forward fa-fw fa-rotate-180" />
-                            <Tooltip position="under" content="Reply" />
-                        </a>
-                        </span>
                         <ICXDownloadLink puff={puff} />
                     </div>
                 </div>
@@ -319,14 +290,12 @@ var ICXItemMainContent = React.createClass({
                     <div className="accordion-content" style={itemContentStyle}>
                         <ICXDownloadLink puff={this.props.puff} filename={puffContent} />
                         <span style={showCaption}>{caption}</span>
-                        <ICXInlineReply puff={this.props.puff} />
                     </div>
                 )
             } else {
                 return(
                     <div className="accordion-content" style={itemContentStyle}>
                         <span dangerouslySetInnerHTML={{__html: puffContent}}></span>
-                        <ICXInlineReply puff={this.props.puff} />
                     </div>
                 )
             }
@@ -501,29 +470,28 @@ var ICXDownloadLink = React.createClass({
 var ICXInlineReply = React.createClass({
     componentWillUnmount: function() {
         var messageToCache = this.refs.messageText.getDOMNode().value
-        var sigKey = this.props.puff.sig
+        var sigKey = this.props.convoId
         if(messageToCache) {
             ICX.cachedReplies[sigKey] = messageToCache
         }
     },
 
     componentDidMount: function() {
-        var sig = this.props.puff.sig
-        if(ICX.cachedReplies[sig]) {
-            this.refs.messageText.getDOMNode().value = ICX.cachedReplies[sig]
+        var convoId = this.props.convoId
+        if(ICX.cachedReplies[convoId]) {
+            this.refs.messageText.getDOMNode().value = ICX.cachedReplies[convoId]
         }
     },
 
 	handleReply: function() {
-		var puff = this.props.puff              // no longer needed
-        var toUser = puff.username.stripCapa()  // getting usernames from convoId in viewProps
+        var toUser = getUsernamesFromConvoKey(this.props.convoId)  // getting usernames from convoId in viewProps
 
         // THINK: Do we still need to keep track of parents in ICX?
-        var parents = [puff.sig]
+        var parents = []
         var envelopeUserKeys = ''
         var self = this
         var metadata = {}
-        metadata.routes = [toUser]              // viewProps
+        metadata.routes = toUser
 
         if(puffworldprops.reply.replyType == 'message') {
             var type = 'text'
@@ -582,19 +550,19 @@ var ICXInlineReply = React.createClass({
 		})
 		*/
 
-        var activeReplies = puffworldprops.view.icx.activeReplies
+        // var activeReplies = puffworldprops.view.icx.activeReplies
 
         // Remove this one for things we are replying to
-        var sig = this.props.puff.sig
-        if(activeReplies.indexOf(sig) !== -1) {
-            activeReplies.splice(activeReplies.indexOf(sig),1)
-        }
+        // var sig = this.props.puff.sig
+        // if(activeReplies.indexOf(sig) !== -1) {
+        //     activeReplies.splice(activeReplies.indexOf(sig),1)
+        // }
         //clear out reply text and any cache
         this.refs.messageText.getDOMNode().value = ""
-        ICX.cachedReplies[sig] = ""
+        ICX.cachedReplies[this.props.convoId] = ""
 
         Events.pub('ui/reply/activate', {
-            'view.icx.activeReplies': activeReplies,
+            //'view.icx.activeReplies': activeReplies,
             'reply.caption': ''
         })
 	},
@@ -622,25 +590,24 @@ var ICXInlineReply = React.createClass({
     },
 
 	render: function() {
-		var puff=this.props.puff                      // no longer needed
-		var username = puff.username.stripCapa()      // getting it from viewProps
+		var username = getUsernamesFromConvoKey(this.props.convoId)
         var headerStyle = ICX.calculated.pageHeaderTextStyle
 
         var inlineReplyStyle = {}
         var replyMsgStyle = {}
         var replyFileStyle = {}
 
-        var activeReplies = puffworldprops.view.icx.activeReplies       // no longer need to keep track of active replies
+        // var activeReplies = puffworldprops.view.icx.activeReplies       // no longer need to keep track of active replies
 
         replyMsgStyle.display = (puffworldprops.reply.replyType == 'message') ? 'block' : 'none'
         replyFileStyle.display = (puffworldprops.reply.replyType == 'file') ? 'block' : 'none'
 
-        if(activeReplies.indexOf(puff.sig) !== -1) {
-            inlineReplyStyle.display = 'block'
+        // if(activeReplies.indexOf(puff.sig) !== -1) {
+        //     inlineReplyStyle.display = 'block'
 
-        } else {
-            inlineReplyStyle.display = 'none'
-        }
+        // } else {
+        //     inlineReplyStyle.display = 'none'
+        // }
 
         inlineReplyStyle.border = '1px solid #000000'
         inlineReplyStyle.padding = Math.floor(ICX.calculated.baseFontH/4)+'px'
@@ -655,7 +622,7 @@ var ICXInlineReply = React.createClass({
 
         // <b>Reply to: {username}</b><br/>
         return (
-            <div ref={"replyBox"+this.props.puff.sig} style={inlineReplyStyle}>
+            <div ref={"replyBox"+this.props.convoId} style={inlineReplyStyle}>
                 <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
                 {' '}
                 <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
@@ -684,17 +651,21 @@ var ViewLoadMore = React.createClass({
     },
 
 	handleLoadMore: function() {
-		var loaded = puffworldprops.view.table.loaded
-        var report = PB.Data.getMorePrivatePuffs('', loaded, CONFIG.pageBatchSize) // report is a Promise
+        var convoId = this.props.convoId
+        var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
+        // var report = PB.Data.getMorePrivatePuffs('', loaded, CONFIG.pageBatchSize) // report is a Promise
+        PB.Data.getConversationPuffs(convoId, convoInfo.loaded, CONFIG.pageBatchSize)
         // TODO: use report to determine next state of button:
         //       - if report.counts.delivered == CONFIG.pageBatchSize then we can try loading more
         //       - otherwise we failed to gather all the puffs we tried to gather (either No More or Network Error)
         
         // NOTE: until report.private_promise resolves, not all puffs have been displayed in the GUI. 
         //       use that as the signal to transition from 'Loading' to 'Load More' or 'No more messages found'
-		return Events.pub('ui/event', {
-			'view.table.loaded': loaded + CONFIG.pageBatchSize
-		})
+
+        var obj = {}
+        convoInfo.loaded += CONFIG.pageBatchSize
+        obj['ICX.uniqueConvoIDs.' + convoId] = convoInfo
+		return Events.pub('ui/event', obj)
 	},
 	render: function() {
 		var footer = <div></div>

@@ -64,7 +64,7 @@ puffworldprops = {
         icx: {                                      // ICX related
             screen: 'init',
             toUser: "",
-            activeReplies: []
+            // activeReplies: []
         },
         
         mode: 'list',

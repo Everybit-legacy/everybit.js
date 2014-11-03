@@ -107,6 +107,13 @@ function updateCurrentConvos(puff) {
     updateUniqueConvoKeys(puff)
 }
 
+function getUsernamesFromConvoKey(convoId) {
+    var currentId = PB.getCurrentUsername()
+    return convoId.split('&').filter(function (username) {
+        return username != currentId
+    })
+}
+
 
 function getConvoKeyByPuff(puff) {
     var envelope = PB.Data.getBonus(puff, 'envelope')
@@ -144,6 +151,7 @@ function getUniqueConvoKeys() {
                 uniqueConvoIDs[key] = {}
                 uniqueConvoIDs[key].key = key
                 uniqueConvoIDs[key].sig = shell.sig
+                uniqueConvoIDs[key].loaded = 0
                 uniqueConvoIDs[key].count = 1
             } else {
                 uniqueConvoIDs[key].count += 1 

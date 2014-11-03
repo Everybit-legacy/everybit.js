@@ -322,7 +322,7 @@ PB.workerreceive = function(msg) {
 
     fun(msg.data.evaluated)
 
-    delete PB.workerqueue[id]
+    delete PB.workerqueue[id] // THINK: this leaves a sparse array, but is probably faster than splicing
 }
 
 PB.workersend = function(funstr, args, resolve, reject) {

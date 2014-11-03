@@ -23,19 +23,20 @@ function getConvoViewContent() {
     return puffs
 }
 
-function getConvoContent() {
-    var convoId = puffworldprops.view.icx.convoId
-    var puffs = []
+// example convoId: 'icx.user&icx.user2'
+function getConvoContent(convoId) {
+    var convoId = convoId || puffworldprops.view.icx.convoId
+    if(!convoId) return false
 
-    var prom = getPuffsByConvoId(convoId)
-        // re-render tableview with these puffs
-        // TODO: Optimize the decryption
-    prom.then(function(encPuffs) {
-        encPuffs.map(function(puff) {
-            puffs.push(PB.getPuffBySig(puff.sig))
+    // var puffs = []
+
+    var prom = PB.Data.getConversationPuffs(convoId)
+    // re-render tableview with these puffs
+    // TODO: Optimize the decryption
+    prom.then(function(result) {
+        result.private_promise.then(function(report) {
+            console.log(report)
         })
-
-        return puffs
     })
 }
 

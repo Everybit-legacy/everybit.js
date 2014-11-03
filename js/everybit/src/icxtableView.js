@@ -25,7 +25,6 @@ var ConversationView = React.createClass({
 
 var puffContainer = React.createClass({
     render: function() {
-
         var puffs = this.props.content.map(function (puff) {
             return (
                 <ICXContentItem puff={puff} key={puff.sig} />
@@ -96,12 +95,10 @@ var TableView = React.createClass({
     },
 
     getContent: function() {
-        console.log(puffworldprops.view.icx.screen)
         var query = puffworldprops.view.query
         var filters = puffworldprops.view.filters
         var limit = puffworldprops.view.table.loaded
         return getTableViewContent(query, filters, limit)
-
     },
 
 

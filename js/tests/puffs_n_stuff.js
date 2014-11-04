@@ -19,7 +19,7 @@
 // -- High level flows using user-facing API functions
 
 // create an anonymous user
-var userPromise = PB.addNewAnonUser()
+var userPromise = PB.Users.addNewAnonUser()
 userPromise.then(function(userRecord) {
                if(!userRecord)
                    throwfail('No user record in anon user creation', userRecord)
@@ -82,7 +82,7 @@ userPromise.then(function(userRecord) {
 // -- (in general the high level functions are preferred, as they have error handling baked in)
 
 // generate new random username
-var randomUsername = PB.generateRandomUsername()
+var randomUsername = PB.Users.generateRandomUsername()
 if(!/[0-9a-z]/.test(randomUsername))
     testfail('Random username failed: ', randomUsername)
 

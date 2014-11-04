@@ -185,28 +185,6 @@ PB.packagePuffStructure = function(versionedUsername, routes, type, content, pay
     return puff
 }
 
-/**
- * check if a username is valid
- *     a username must be shorter than 256 characters, all lowercase and contains only alphanumeric and . sign
- * @param  {string} username the string to be check
- * @return {boolean}          return true if  the parameter string is a valid username, otherwise throw error
- */
-PB.validateUsername = function(username) {
-    if(!username) 
-        return PB.onError('Username is required', username)
-
-    if(username.length > 256) 
-        return PB.onError('Usernames must be shorter than 256 characters', username)
-
-    if(username != username.toLowerCase()) 
-        return PB.onError('Usernames must be lowercase', username)
-    
-    if(!/^[0-9a-z.]+$/.test(username))
-        return PB.onError('Usernames must be alphanumeric', username)
-    
-    return true
-}
-
 PB.userRecordToVersionedUsername = function(userRecord) {
     return PB.makeVersionedUsername(userRecord.username, userRecord.capa)
 }
@@ -317,49 +295,6 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     return prom
 }
 
-
-/**
- * checks the cache, and always returns a promise
- * @param {string} username
- * @returns {object} Promise for a user record
- * Looks first in the cache, then grabs from the network
- */
-PB.getUserRecordPromise = function(username, capa) {
-    //// This always checks the cache, and always returns a promise
-    
-    var versionedUsername = PB.maybeVersioned(username, capa)
-    
-    var userRecord = PB.Users.getCachedUserRecord(versionedUsername)
-    
-    if(userRecord)
-        return Promise.resolve(userRecord)
-    
-    var userPromise = PB.Users.promises[versionedUsername]
-    
-    if(userPromise)
-        return userPromise
-    
-    return PB.getUserRecordNoCache(versionedUsername)
-}
-
-/**
- * Forces a request to the network, ignores cached
- * @param {string} username
- * @returns {object} Promise for a user record
- */
-PB.getUserRecordNoCache = function(username, capa) {
-    //// This never checks the cache
-    
-    capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
-    
-    var prom = PB.Net.getUserRecord(username, capa) 
-    
-    var versionedUsername = PB.maybeVersioned(username, capa)
-    PB.Users.promises[versionedUsername] = prom
-    
-    return prom
-}
-
 /**
  * returns a puff from a shell
  * @param  {(string|object)} shell a string which is a signature of a puff; or an object contains partial information of a puff
@@ -436,7 +371,7 @@ PB.getDecryptedPuffPromise = function(envelope) {
         return PB.emptyPromise('Envelope does not contain an encrypted letter')
     
     var senderVersionedUsername = envelope.username
-    var userProm = PB.getUserRecordPromise(senderVersionedUsername)
+    var userProm = PB.Users.getUserRecordPromise(senderVersionedUsername)
     
     var prom = userProm
     .catch(PB.catchError('User record acquisition failed'))
@@ -513,63 +448,6 @@ PB.extractLetterFromEnvelope = function(envelope) {                     // the e
                })
     
 }
-
-PB.addPrivateShells = function(shells) {
-    var proms = shells.map(PB.addPrivateShell)
-    
-    // NOTE: Promise.all rejects immediately upon any rejection, so we have to do this manually
-    
-    return new Promise(function(resolve, reject) {
-        var remaining = proms.length
-        var report = {good: 0, bad: 0, goodsigs: []}
-        
-        function unhappy_path() {
-            report.bad++
-            if(!--remaining) resolve(report)
-        }
-        
-        proms.forEach(function(prom) {
-            prom.then(function(letter) {
-                if(!letter) return unhappy_path()                       // catches old or weird puffs 
-                report.good++
-                report.goodsigs.push(letter.sig)
-                if(!--remaining) resolve(report)
-            }, unhappy_path )                                           // catches decryption errors
-        })
-    })
-}
-
-PB.addPrivateShell = function(envelope) {
-    var prom = PB.extractLetterFromEnvelope(envelope)
-
-    prom = prom.then(function(letter) {
-        if(!letter) return false
-        
-        var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
-        if(!fresh) return false
-        
-        PB.runHandlers('newpuffs', letter)
-        return letter
-    })
-    
-    return prom
-    
-    // var letterPromises = privateShells.map(PB.extractLetterFromEnvelope)
-    
-    // NOTE: this doesn't appear to do much, mostly because PB.extractLetterFromEnvelope is quite effectful.
-    //       it calls PB.Data.addDecryptedLetter as part of its processing, which does all the real work.
-    
-    
-
-    // THINK: consider adding this back in, though remember that each decryption pushes its own errors...
-    // if (letters.length != privateShells.length) {
-    //     Events.pub('track/decrypt/some-decrypt-fails',
-    //                 {letters: letters.map(function(p){return p.sig}),
-    //                  privateShells: privateShells.map(function(p){return p.sig})})
-    // }
-}
-
-
 
 
 PB.getPuffBySig = function(sig) {
@@ -734,84 +612,81 @@ PB.formatIdentityFile = function(username) {
 }
 
 
+
+//// VALIDATIONS
+// TODO: merge these into PB.Spec
+
 /**
- * Get the current user's DHT record, or create a new anon user, or die trying
- * @return {string}
+ * check if a username is valid
+ *     a username must be shorter than 256 characters, all lowercase and contains only alphanumeric and . sign
+ * @param  {string} username the string to be check
+ * @return {boolean}          return true if  the parameter string is a valid username, otherwise throw error
  */
-PB.getUpToDateUserAtAnyCost = function() {
-    //// Either get the current user's DHT record, or create a new anon user, or die trying
+PB.validateUsername = function(username) {
+    if(!username) 
+        return PB.onError('Username is required', username)
 
-    var username = PB.getCurrentUsername()
+    if(username.length > 256) 
+        return PB.onError('Usernames must be shorter than 256 characters', username)
 
-    if(username)
-        return PB.getUserRecordNoCache(username, 0) // 0 tells PB.Net.getUserRecord to fetch the latest
+    if(username != username.toLowerCase()) 
+        return PB.onError('Usernames must be lowercase', username)
     
-    var prom = PB.addNewAnonUser()
+    if(!/^[0-9a-z.]+$/.test(username))
+        return PB.onError('Usernames must be alphanumeric', username)
     
-    return prom.then(function(userRecord) {
-        PB.switchIdentityTo(userRecord.username)
-        console.log("Setting current user to " + userRecord.username)
-        return userRecord
+    return true
+}
+
+
+/**
+ * determine if it is a good shell, checks for the existence of required fields
+ * @param {Shell[]}
+ * @returns {boolean}
+ */
+PB.isValidShell = function(shell) {
+    //// this just checks for the existence of required fields
+    if(!shell.sig) return false
+    if(!shell.routes) return false
+    if(!shell.username) return false
+    if(typeof shell.payload != 'object') return false
+    if(!shell.payload.type) return false
+        
+    return true
+}
+
+/**
+ * to verify a puff
+ * @param  {object} puff
+ * @return {(string|boolean)}
+ */
+PB.isGoodPuff = function(puff) {
+    // CURRENTLY UNUSED
+    // TODO: check previous sig, maybe
+    // TODO: check for well-formed-ness
+    // TODO: use this to verify incoming puffs
+    // TODO: if prom doesn't match, try again with getUserRecordNoCache
+    
+    // TODO: rewrite this function to give a consistent return value
+    
+    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
+        // TODO: this needs to include 'encryptedpuff' as a valid type
+        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig})
+        return false
+    }
+    
+    var prom = PB.Users.getUserRecordPromise(puff.username) // NOTE: versionedUsername
+    
+    return prom.then(function(user) {
+        return PB.Crypto.verifyPuffSig(puff, user.defaultKey)
     })
 }
 
 
-/**
- * Generate a random username
- * @return {string}
- */
-PB.generateRandomUsername = function() {
-    // TODO: consolidate this with the new username generation functions
-    var generatedName = ''
-    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    for(var i=0; i<10; i++) {
-        generatedName += PB.Crypto.getRandomItem(alphabet)
-        // var randFloat = PB.Crypto.random()
-        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))]
-    }
-    return generatedName
-}
-
-
-PB.addNewAnonUser = function(attachToUsername) {
-    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
-    //// if attachToUsername is false the alias becomes primary for its own identity.
-
-    // generate private keys
-    var privateRootKey    = PB.Crypto.generatePrivateKey()
-    var privateAdminKey   = PB.Crypto.generatePrivateKey()
-    var privateDefaultKey = PB.Crypto.generatePrivateKey()
-    
-    // generate public keys
-    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
-    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
-    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
-
-    // build new username
-    var anonUsername = PB.generateRandomUsername()
-    var newUsername  = 'anon.' + anonUsername
-
-    // send it off
-    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
-
-    return prom
-        .then(function(userRecord) {
-            // store directly because we know they're valid, and so we don't get tangled up in more promises
-            
-            // FIXME: add to identity if attachToUsername
-            
-            // FIXME: otherwise add new identity
-            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
-            
-            
-            return userRecord
-        },
-        PB.catchError('Anonymous user ' + anonUsername + ' could not be added'))
-}
 
 
 
-/// ERROR HELPERS
+//// ERROR HELPERS
 
 // TODO: build a more general error handling system for GUI integration
 

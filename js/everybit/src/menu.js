@@ -874,7 +874,7 @@ var SetIdentity = React.createClass({
         if (username.slice(0, 1) == '.')
             username = username.slice(1)
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function(result) {
             self.state.usernameStatus = true
@@ -918,7 +918,7 @@ var SetIdentity = React.createClass({
             return false
         }
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function(userInfo) {
 
@@ -1240,7 +1240,7 @@ var NewIdentity = React.createClass({
     render: function() {
         var showNext = true
         var polyglot = Translate.language[puffworldprops.view.language]
-        var generatedName = PB.generateRandomUsername()
+        var generatedName = PB.Users.generateRandomUsername()
 
         var usernameField = (
             <div>
@@ -1360,7 +1360,7 @@ var NewIdentity = React.createClass({
     },
 
     handleGenerateUsername: function() {
-        var generatedName = PB.generateRandomUsername()
+        var generatedName = PB.Users.generateRandomUsername()
         if (this.refs.newUsername) 
             this.refs.newUsername.getDOMNode().value = generatedName
         return false
@@ -1538,7 +1538,7 @@ var NewIdentity = React.createClass({
         this.state.usernameAvailable = 'checking'
         var username = this.refs.newUsername.getDOMNode().value
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function(result) {
             console.log(result)

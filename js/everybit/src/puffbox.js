@@ -479,7 +479,7 @@ var TipButton = React.createClass({
         // TODO: Get the link so have meta-data set, like "From puffball"
 
         var self = this
-        var prom = PB.getUserRecordPromise(this.props.username)
+        var prom = PB.Users.getUserRecordPromise(this.props.username)
 
         prom.then(function(result) {
 
@@ -764,7 +764,7 @@ var PuffStar = React.createClass({
             var content = this.props.sig
             var type = 'star'
 
-            var userprom = PB.getUpToDateUserAtAnyCost()
+            var userprom = PB.Users.getUpToDateUserAtAnyCost()
             var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, [], {}, [])
             var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
             prom.then(takeUserMakePuff)

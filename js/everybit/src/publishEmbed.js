@@ -524,7 +524,7 @@ var PuffPublishFormEmbed = React.createClass({
         // are we currently anonymous? make a new user and switch.
         if(!PB.getCurrentUsername()) {
             prom = prom.then(function() {
-                return PB.addNewAnonUser().then(function(userRecord) {
+                return PB.Users.addNewAnonUser().then(function(userRecord) {
                     PB.switchIdentityTo(userRecord.username)
                 })
             })
@@ -534,7 +534,7 @@ var PuffPublishFormEmbed = React.createClass({
         var privateEnvelopeAlias = ''
         if(privacy == 'anonymous' || privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PB.addNewAnonUser().then(function(userRecord) {
+                return PB.Users.addNewAnonUser().then(function(userRecord) {
                     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
                         // NOTE: leaking private keys of new anon user
                         identity = identities[userRecord.username]
@@ -547,7 +547,7 @@ var PuffPublishFormEmbed = React.createClass({
         // are we paranoid? make another new user
         if(privacy == 'paranoid') {
             prom = prom.then(function() {
-                return PB.addNewAnonUser(function(userRecord) {
+                return PB.Users.addNewAnonUser(function(userRecord) {
                     metadata.replyTo = userRecord.username
                 })
             })
@@ -564,7 +564,7 @@ var PuffPublishFormEmbed = React.createClass({
             usernames.forEach(function(username) {
                 if(!~userRecordUsernames.indexOf(username)) {
                     prom = prom.then(function() {
-                        return PB.getUserRecordNoCache(username).then(function(userRecord) {
+                        return PB.Users.getUserRecordNoCache(username).then(function(userRecord) {
                             userRecords.push(userRecord)
                         })
                     })
@@ -742,7 +742,7 @@ var PuffPublishFormEmbed = React.createClass({
         var newUsername = StringConversion.toActualUsername(usernameNode.value)
         if (newUsername.length == 0) return false
         var usernames = this.state.usernames
-        var prom = PB.getUserRecordPromise(newUsername)
+        var prom = PB.Users.getUserRecordPromise(newUsername)
         prom.then(function(){
             self.setState({usernameError: ''})
             if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {

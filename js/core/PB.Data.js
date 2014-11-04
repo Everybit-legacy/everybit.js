@@ -232,7 +232,7 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
     shells = Array.isArray(shells) ? shells : [shells]
     report.counts.delivered = shells.length
     
-    shells = shells.filter(PB.Data.isValidShell)
+    shells = shells.filter(PB.isValidShell)
     report.counts.valid = shells.length
     
     report.meta = PB.Data.handleMetaPuffs(shells)
@@ -280,7 +280,7 @@ PB.Data.isMetaPuff = function(shell) {
 
 PB.Data.handlePrivatePuffs = function(shells) {
     var privatepuffs = shells.filter(PB.Data.isPrivatePuff)    
-    return PB.addPrivateShells(privatepuffs) // TODO: this returns our promise report
+    return PB.Data.ingestEncryptedShells(privatepuffs) // TODO: this returns our promise report
 }
 
 PB.Data.isPrivatePuff = function(shell) {
@@ -469,13 +469,67 @@ PB.Data.updatePrivateShells = function(offset) {
               var shell = shells[0]
               if(!shell) return false
               
-              var prom = PB.addPrivateShell(shell) // manual because we need the decryption promise
+              var prom = PB.Data.ingestAnEncryptedShell(shell) // manual because we need the decryption promise
               
               prom.then(function(fresh) {
                   if(fresh)
                       PB.Data.updatePrivateShells(1+offset)
               })
           })
+}
+
+
+PB.Data.ingestEncryptedShells = function(shells) {
+    var proms = shells.map(PB.Data.ingestAnEncryptedShell)
+    
+    // NOTE: Promise.all rejects immediately upon any rejection, so we have to do this manually
+    
+    return new Promise(function(resolve, reject) {
+        var remaining = proms.length
+        var report = {good: 0, bad: 0, goodsigs: []}
+        
+        function unhappy_path() {
+            report.bad++
+            if(!--remaining) resolve(report)
+        }
+        
+        proms.forEach(function(prom) {
+            prom.then(function(letter) {
+                if(!letter) return unhappy_path()                       // catches old or weird puffs 
+                report.good++                                           // TODO: differentiate above cases
+                report.goodsigs.push(letter.sig)
+                if(!--remaining) resolve(report)
+            }, unhappy_path )                                           // catches decryption errors
+        })
+    })
+}
+
+PB.Data.ingestAnEncryptedShell = function(envelope) {
+    var prom = PB.extractLetterFromEnvelope(envelope)
+
+    prom = prom.then(function(letter) {
+        if(!letter) return false
+        
+        var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
+        if(!fresh) return false
+        
+        PB.runHandlers('newpuffs', letter)
+        return letter
+    })
+    
+    return prom
+    
+    // var letterPromises = privateShells.map(PB.extractLetterFromEnvelope)
+    
+    // NOTE: this doesn't appear to do much, mostly because PB.extractLetterFromEnvelope is quite effectful.
+    //       it calls PB.Data.addDecryptedLetter as part of its processing, which does all the real work.
+    
+    // THINK: consider adding this back in, though remember that each decryption pushes its own errors...
+    // if (letters.length != privateShells.length) {
+    //     Events.pub('track/decrypt/some-decrypt-fails',
+    //                 {letters: letters.map(function(p){return p.sig}),
+    //                  privateShells: privateShells.map(function(p){return p.sig})})
+    // }
 }
 
 
@@ -599,8 +653,6 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
     //////
 
 
-
-
     // OLD STUFF SAVE FOR REFERENCE
 
     // var batchSize = CONFIG.fillSlotsBatchSize
@@ -706,51 +758,6 @@ PB.Data.purgeShellFromGraph = function(sig) {
         vertex.type = 'purged'
         vertex.shell = undefined
     }
-}
-
-
-/**
- * to verify a puff
- * @param  {object} puff
- * @return {(string|boolean)}
- */
-PB.Data.isGoodPuff = function(puff) {
-    // NOT CURRENTLY USED
-    // TODO: check previous sig, maybe
-    // TODO: check for well-formed-ness
-    // TODO: use this to verify incoming puffs
-    // TODO: if prom doesn't match, try again with getUserRecordNoCache
-    
-    // TODO: rewrite this function to give a consistent return value
-    
-    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
-        // TODO: this needs to include 'encryptedpuff' as a valid type
-        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig})
-        return false
-    }
-    
-    var prom = PB.getUserRecordPromise(puff.username) // NOTE: versionedUsername
-    
-    return prom.then(function(user) {
-        return PB.Crypto.verifyPuffSig(puff, user.defaultKey)
-    })
-    
-}
-
-/**
- * determine if it is a good shell, checks for the existence of required fields
- * @param {Shell[]}
- * @returns {boolean}
- */
-PB.Data.isValidShell = function(shell) {
-    //// this just checks for the existence of required fields
-    if(!shell.sig) return false
-    if(!shell.routes) return false
-    if(!shell.username) return false
-    if(typeof shell.payload != 'object') return false
-    if(!shell.payload.type) return false
-        
-    return true
 }
 
 

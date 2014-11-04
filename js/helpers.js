@@ -841,7 +841,7 @@ function ICXAuthenticateIdFile(content, callback) {
     PB.addIdentity(username, aliases, preferences)
     
     // then check against the up-to-date user record
-    var prom = PB.getUserRecordNoCache(username)
+    var prom = PB.Users.getUserRecordNoCache(username)
 
     prom.then(function (userInfo) {
         if(!userInfo || userInfo.username != username) {
@@ -906,7 +906,7 @@ function ICXAuthenticateUser (username, passphrase, callback, flag) {
         callback('ERROR: Failed to generate public key', 'Bad Key',true)
     }
 
-    var prom = PB.getUserRecordNoCache(username)
+    var prom = PB.Users.getUserRecordNoCache(username)
 
     prom.then(function (userInfo) {
 

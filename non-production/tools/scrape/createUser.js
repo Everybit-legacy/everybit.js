@@ -7,7 +7,7 @@ Scrape.userCreate = function(parent, signingKey, username, privateRk, privateAk,
     var resultDiv = document.getElementById('userCreateResult');
     //resultDiv.innerHTML += parent + '<br>';
     
-    var prom = PB.getUserRecordPromise(username)
+    var prom = PB.Users.getUserRecordPromise(username)
             .then(function() {
                 resultDiv.innerHTML += username + ' exist <br>';
                 Scrape.rec();

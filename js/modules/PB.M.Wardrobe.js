@@ -191,7 +191,7 @@ PB.M.Wardrobe = {}
         processUpdates()
         
         if(username && identity && identity.primary)
-            PB.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
+            PB.Users.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
     }
     
     var removeIdentity = function(username) {
@@ -221,10 +221,10 @@ PB.M.Wardrobe = {}
     }
 
     function validatePrivateKeys(username, capa, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // CURRENTLY UNUSED
         //// Ensure keys match the userRecord
-        //// NOTE: this is currently unused
     
-        var prom = PB.getUserRecordPromise(username, capa)
+        var prom = PB.Users.getUserRecordPromise(username, capa)
     
         return prom
             .then(function(userRecord) {

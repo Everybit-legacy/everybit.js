@@ -225,7 +225,7 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
     var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     
     // get a user promise
-    var userprom = PB.getUpToDateUserAtAnyCost()
+    var userprom = PB.Users.getUpToDateUserAtAnyCost()
     
     var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
                        .then(takeUserMakePuff)

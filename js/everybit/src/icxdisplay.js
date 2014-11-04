@@ -864,7 +864,7 @@ var ICXSend = React.createClass({ /* Good */
          .toLowerCase()
          this.refs.toUser.getDOMNode().value = toUser
 
-        var prom = PB.getUserRecordPromise(toUser)
+        var prom = PB.Users.getUserRecordPromise(toUser)
 
         prom.then(function(result) {
 
@@ -1568,7 +1568,7 @@ var ICXNewUser = React.createClass({ /* Good */
             })
             return false
         }
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         Events.pub('ui/username/requested', {
             'ICX.newUser.requestedUsername': username,
@@ -1774,7 +1774,7 @@ var ICXLogin = React.createClass({ /* Good */
         }
         //var startsWithICX = (username.substring(0,4) == "icx.")
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function (result) {
             Events.pub('ui/puff-packer/userlookup',{

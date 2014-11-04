@@ -133,7 +133,7 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     var mode = query.mode
     if(mode == 'ancestors')   return PB.Net.getAncestors  ([query.focus], limit)
     if(mode == 'descendants') return PB.Net.getDescendants([query.focus], limit)
-    if(mode == 'siblings')    return PB.Net.getSiblings   ([query.focus], limit)
+    // if(mode == 'siblings')    return PB.Net.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
     var url  = CONFIG.puffApi;
@@ -255,50 +255,6 @@ PB.Net.getDescendants = function(start, limit) {
 PB.Net.getSiblings = function() {
     // this case is ugly, so we're leaving it until the client api can answer questions for us
     return PB.emptyPromise() 
-}
-
-/**
- * get all puffs within the zone (default to CONFIG.zone)
- * @return {promise} on fulfilled passes lisst of puff objects
- */
-PB.Net.getAllPuffs = function() {
-    //// THIS FUNCTION IS DEPRECATED /////
-  
-    // TODO: add zone parameter (default to CONFIG.zone)
-    
-    // TODO: instead of getting all puffs, this should only get all puff shells
-    //       and then we'll get missing puff content on demand.
-    
-    /// old style:
-    
-    
-    if(CONFIG.noNetwork) 
-        return PB.emptyPromise();             // NOTE: this is only for debugging and development
-    
-    var url  = CONFIG.puffApi;
-    // var data = {type: 'getPuffGeneration', gen: 0};
-    var puffs = [];
-    
-    var rec = function(gen, resolve, reject) {
-        PB.Net.getJSON(url, {type: 'getPuffGeneration', gen: gen})
-               .then(function(data) {
-                   if(!Array.isArray(data))         // server error of some kind -- probably beginning of puffs
-                       return resolve(puffs);
-                   puffs = puffs.concat(data);
-                   rec(gen+1, resolve, reject);
-               })
-               .catch(function(err) {
-                   rec(gen, resolve, reject);
-                   // setTimeout(function() {rec(gen, resolve, reject)}, 100);
-                   // reject(PB.catchError('Network error while accumulating puffs')(err))
-               });
-    }
-    
-    var prom = new Promise(function (resolve, reject) {
-        rec(0, resolve, reject);
-    })
-    
-    return prom;
 }
 
 /**
@@ -526,7 +482,7 @@ PB.Net.getJSON = function(url, params) {
  */
 PB.Net.post = function(url, data) {
     var options = { headers: {   
-        // 'Content-type': 'application/x-www-form-urlencoded' 
+//         'Content-type': 'application/x-www-form-urlencoded' 
 //                           , 'Content-length': params.length
 //                           ,     'Connection': 'close'  
                              }

@@ -3,7 +3,8 @@
   PB.Users
 
   Most functions related to userRecords live here.
-  Note that userRecords are entirely public; private key identities are handled elsewhere.
+  Note that userRecords are entirely public; 
+  private key identities are handled elsewhere.
 
 */
 
@@ -11,15 +12,6 @@ PB.Users = {}
 
 PB.Users.records  = {}                              // maps username to an array of DHT userRecords
 PB.Users.promises = {}                              // pending userRecord requests
-
-
-PB.Users.getCachedUserRecord = function(versionedUsername) {
-    return PB.Users.getCachedWithCapa(versionedUsername)
-}
-
-
-
-
 
 
 PB.Users.process = function(userRecord) {
@@ -46,6 +38,48 @@ PB.Users.getCachedUserRecord = function(versionedUsername) {
 
 
 
+
+/**
+ * checks the cache, and always returns a promise
+ * @param {string} username
+ * @returns {object} Promise for a user record
+ * Looks first in the cache, then grabs from the network
+ */
+PB.Users.getUserRecordPromise = function(username, capa) {
+    //// This always checks the cache, and always returns a promise
+    
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    
+    var userRecord = PB.Users.getCachedUserRecord(versionedUsername)
+    
+    if(userRecord)
+        return Promise.resolve(userRecord)
+    
+    var userPromise = PB.Users.promises[versionedUsername]
+    
+    if(userPromise)
+        return userPromise
+    
+    return PB.Users.getUserRecordNoCache(versionedUsername)
+}
+
+/**
+ * Forces a request to the network, ignores cached
+ * @param {string} username
+ * @returns {object} Promise for a user record
+ */
+PB.Users.getUserRecordNoCache = function(username, capa) {
+    //// This never checks the cache
+    
+    capa = capa || 0 // 0 signals PB.Net.getUserRecord to get the latest userRecord
+    
+    var prom = PB.Net.getUserRecord(username, capa) 
+    
+    var versionedUsername = PB.maybeVersioned(username, capa)
+    PB.Users.promises[versionedUsername] = prom
+    
+    return prom
+}
 
 
 
@@ -104,7 +138,7 @@ PB.Users.usernamesToUserRecordsPromise = function(usernames) {
     usernames.forEach(function (username) {
         if (!~userRecordUsernames.indexOf(username)) { // we need this one
             prom = prom.then(function() {
-                return PB.getUserRecordNoCache(username).then(function (userRecord) {
+                return PB.Users.getUserRecordNoCache(username).then(function (userRecord) {
                     userRecords.push(userRecord)
                 })
             })
@@ -137,6 +171,90 @@ PB.Users.getCachedWithCapa = function(versionedUsername) {
 PB.Users.depersist = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
     PB.Users.records = PB.Persist.get('userRecords') || {};
+}
+
+
+
+
+//
+// CLEANUP REQUIRED
+//
+
+
+/**
+ * Get the current user's DHT record, or create a new anon user, or die trying
+ * @return {string}
+ */
+PB.Users.getUpToDateUserAtAnyCost = function() {
+    //// Either get the current user's DHT record, or create a new anon user, or die trying
+
+    var username = PB.getCurrentUsername()
+
+    if(username)
+        return PB.Users.getUserRecordNoCache(username, 0) // 0 tells PB.Net.getUserRecord to fetch the latest
+    
+    var prom = PB.Users.addNewAnonUser()
+    
+    return prom.then(function(userRecord) {
+        PB.switchIdentityTo(userRecord.username)
+        console.log("Setting current user to " + userRecord.username)
+        return userRecord
+    })
+}
+
+
+/**
+ * Generate a random username
+ * @return {string}
+ */
+PB.Users.generateRandomUsername = function() {
+    // TODO: consolidate this with the new username generation functions
+    var generatedName = ''
+    var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
+    for(var i=0; i<10; i++) {
+        generatedName += PB.Crypto.getRandomItem(alphabet)
+        // var randFloat = PB.Crypto.random()
+        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))]
+    }
+    return generatedName
+}
+
+
+PB.Users.addNewAnonUser = function(attachToUsername) {
+    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
+    //// if attachToUsername is false the alias becomes primary for its own identity.
+    //// FIXME: this function isn't currently used, and doesn't currently work.
+
+    // generate private keys
+    var privateRootKey    = PB.Crypto.generatePrivateKey()
+    var privateAdminKey   = PB.Crypto.generatePrivateKey()
+    var privateDefaultKey = PB.Crypto.generatePrivateKey()
+    
+    // generate public keys
+    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    // build new username
+    var anonUsername = PB.Users.generateRandomUsername()
+    var newUsername  = 'anon.' + anonUsername
+
+    // send it off
+    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+
+    return prom
+        .then(function(userRecord) {
+            // store directly because we know they're valid, and so we don't get tangled up in more promises
+            
+            // FIXME: add to identity if attachToUsername
+            
+            // FIXME: otherwise add new identity
+            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
+            
+            
+            return userRecord
+        },
+        PB.catchError('Anonymous user ' + anonUsername + ' could not be added'))
 }
 
 

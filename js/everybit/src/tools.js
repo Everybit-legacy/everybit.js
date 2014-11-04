@@ -56,7 +56,7 @@ var PuffPacker = React.createClass({
         var username = this.refs.username.getDOMNode().value
         var self = this
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function(result) {
             self.state.result = result || ""
@@ -240,7 +240,7 @@ var PuffPacker = React.createClass({
         var username = PB.getCurrentUsername()
         var self = this
 
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
 
         prom.then(function(userRecord) {
             self.state.latest = userRecord.latest

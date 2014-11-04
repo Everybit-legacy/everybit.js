@@ -7,7 +7,7 @@ var SliderMixin = {
     handleCheckAvailability: function(username) {
         if (!this.state.enableCheck) return false
         var self = this;
-        var prom = PB.getUserRecordPromise(username);
+        var prom = PB.Users.getUserRecordPromise(username);
         prom.then(function(){
             self.setState({msg: "Not available.", enableCheck: false})
         })  .catch(function(err){
@@ -413,7 +413,7 @@ var RegisterSubuserWizard = React.createClass({
 
         if (!this.state.enableCheck) return false
         var self = this
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
         prom.then(function(){
             self.setState({msg: "Not available."})
         })  .catch(function(err){
@@ -431,7 +431,7 @@ var RegisterSubuserWizard = React.createClass({
         UsernameImport[network].requestAuthentication()
     },
     render: function() {
-        var generatedName = PB.generateRandomUsername()
+        var generatedName = PB.Users.generateRandomUsername()
         var getUsername = <a href="#" onClick={this.handleRegisterSubuser}>Get it now!</a>
         if (!this.state.nameAvailable)
             getUsername = ""
@@ -486,7 +486,7 @@ var ImportWizard = React.createClass({
         if (!this.state.enableCheck) return false
 
         var self = this
-        var prom = PB.getUserRecordPromise(username)
+        var prom = PB.Users.getUserRecordPromise(username)
         prom.then(function(){
             self.setState({msg: "Not available.", enableCheck: false})
         })  .catch(function(err){

@@ -15,7 +15,8 @@ puffworldprops = {
             questionMessage: '',
             answerStatus: false,
             answerMessage: ''
-        }
+        },
+        uniqueConvoIDs: {}
     },
     
     clusters: {

@@ -177,7 +177,9 @@ function updateUniqueConvoKeys(puff) {
         uniqueConvoIDs[key].sig = puff.sig
         uniqueConvoIDs[key].count = 1
     } else {
-        uniqueConvoIDs[key].count += 1 
+        // we don't know whether to increment count or not
+        // It could be an old puff in which case we are double counting!
+        // uniqueConvoIDs[key].count += 1 
     }
 
     Events.pub('ui/event', {

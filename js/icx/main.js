@@ -247,6 +247,9 @@ var eatPuffs = function(puffs) {
     updateUI()
 }
 
+// ISSUE: This handler runs for every NEW puff that the user just received
+// and for every existing puff that has just been enboarded into the cache
+// Therefore we don't know whether to increment the total count or not
 var updateLatestConvo = function(report) {
     report.private_promise.then(function(private_report) {
         var sigs = private_report.goodsigs

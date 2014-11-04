@@ -11,33 +11,34 @@ function keepNumberBetween(x,a,b) {
 
 // If any puff of interest is already in the
 // local cache, it will return as a bad puff
-function getConvoContent(convoId) {
-    var convoId = convoId || puffworldprops.view.convoId
-    if(!convoId) return []
+// function getConvoContent(convoId) {
+//     var convoId = convoId || puffworldprops.view.convoId
+//     if(!convoId) return []
 
-    var puffs = getLocalConvoContent(convoId)
-    if(puffs.length) 
-        return puffs
+//     var puffs = getLocalConvoContent(convoId)
+//     if(puffs.length) 
+//         return puffs
 
-    // var puffs = []
+//     // var puffs = []
 
-    var prom = PB.Data.getConversationPuffs(convoId)
-    return []
-    // re-render tableview with these puffs
-    // TODO: Optimize the decryption
-    // prom = prom.then(function(result) {
-    //     return result.private_promise.then(function(report) {
-    //         return report.goodsigs.map(PB.Data.getDecryptedLetterBySig)
-    //     })
-    // })
+//     var prom = PB.Data.getConversationPuffs(convoId)
+//     return []
+//     // re-render tableview with these puffs
+//     // TODO: Optimize the decryption
+//     // prom = prom.then(function(result) {
+//     //     return result.private_promise.then(function(report) {
+//     //         return report.goodsigs.map(PB.Data.getDecryptedLetterBySig)
+//     //     })
+//     // })
 
-    // return prom
-}
+//     // return prom
+// }
 
 function getLocalConvoContent(convoId) {
 
     var letters = PB.Data.getCurrentDecryptedLetters()
 
+    // TODO: filter then sort
     letters.sort(function(a,b) {
         if (a.payload.time < b.payload.time)
             return -1
@@ -54,6 +55,7 @@ function getLocalConvoContent(convoId) {
 
 
 //wrapper to get puffs to display in table view
+//deprecated
 function getTableViewContent(query, filters, limit) {
     var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
     return puffs
@@ -139,29 +141,54 @@ function mergeConvoKeys(keys) {
     return mergedKey
 }
 
-// Returns a list of ALL unique conversation IDs, signature, and count
-// Needs to be called only once per lifecycle
+// Initialises a list of unique conversation IDs, all of their signatures in order
+// and two pointers which outline the section of sigs that are onboarded into local storage
 function getUniqueConvoKeys() {
-    var uniqueConvoIDs = {}
     var username = PB.getCurrentUsername()
 
     var prom = PB.Net.getMyPrivatePuffs(username, 0, 0, 'shell')
-    prom.then(function(shells) {
-        shells.map(function(shell) {
-            // shells are returned in order of most to least recent
-            // so we push the sig of the first item returned then start counting
-            key = mergeConvoKeys(shell.keys)
-            ids = Object.keys(uniqueConvoIDs)
-            if(ids.indexOf(key) === -1) {
-                uniqueConvoIDs[key] = {}
-                uniqueConvoIDs[key].key = key
-                uniqueConvoIDs[key].sig = shell.sig
-                uniqueConvoIDs[key].loaded = 0
-                uniqueConvoIDs[key].count = 1
-            } else {
-                uniqueConvoIDs[key].count += 1 
-            }
-        })  
+    prom.then(updateUniqueConvoKeys)
+        .then(updateMinAndMax)
+}
+
+
+// updates the list of unique IDs for incoming puff
+function updateUniqueConvoKeys(shells) {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || {}
+    var convoList = puffworldprops.ICX.convoList || []
+
+    shells.reverse().forEach(function(shell) {
+        // shells are returned from oldest to newest
+        key = mergeConvoKeys(shell.keys)
+        ids = Object.keys(uniqueConvoIDs)
+        if(ids.indexOf(key) === -1) {
+            uniqueConvoIDs[key] = {}
+            uniqueConvoIDs[key].sigs = []
+            uniqueConvoIDs[key].key = key
+            uniqueConvoIDs[key].min = 0
+            uniqueConvoIDs[key].max = 0
+        }
+
+        convoList.unshift(key)
+        uniqueConvoIDs[key].sigs.push(shell.sig)
+    })
+
+    convoList = PB.uniquify(convoList)
+
+    Events.pub('ui/event', {
+        'ICX.uniqueConvoIDs': uniqueConvoIDs,
+        'ICX.convoList': convoList
+    })
+}
+
+function updateMinAndMax() {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
+    var convoList = puffworldprops.ICX.convoList
+
+    convoList.forEach(function (convoId) {
+        var length = uniqueConvoIDs[convoId].sigs.length
+        uniqueConvoIDs[convoId].min = length
+        uniqueConvoIDs[convoId].max = length
     })
 
     Events.pub('ui/event', {
@@ -169,33 +196,45 @@ function getUniqueConvoKeys() {
     })
 }
 
+function getConvoContent(convoId) {
+    return []
+    // var convoId = convoId || puffworldprops.view.convoId
+    //     if(!convoId) return []
 
-// updates the list of unique IDs for incoming puff
-// New puffs coming from the current user, but not to,
-// as well as old puffs after the decryption cycle
-// both go through this function
-function updateUniqueConvoKeys(puff) {
-    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || {}
-    var ids = Object.keys(uniqueConvoIDs)
-    var key = getConvoKeyByPuff(puff)
+    // var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
+    // var currMin = uniqueConvoIDs[convoId].min
+    // var currMax = uniqueConvoIDs[convoId].max    
 
-    if(ids.indexOf(key) === -1) {
-        uniqueConvoIDs[key] = {}
-        uniqueConvoIDs[key].key = key
-        uniqueConvoIDs[key].sig = puff.sig
-        uniqueConvoIDs[key].count = 1
-    } else {
-        // we don't know whether to increment count or not
-        // It could be an old puff in which case we are double counting!
-        // uniqueConvoIDs[key].count += 1
+    // return getConversationPuffs(convoId, currMin-10, currMax)
+}
 
-        // We should definately update the loaded field here
-        // because keep track of that in tableview is a nightmare
-        uniqueConvoIDs[key].loaded += 1
+function getConversationPuffs(convoId, min, max) {
+    var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
+    var convoInfo = uniqueConvoIDs[convoId]
+    var currMin = convoInfo.min
+    var currMax = convoInfo.max
+    var sigs = []
+
+    if(min < currMin) {
+        for(i=min; i<currMin; i++) {
+            sigs.push(convoInfo.sigs[i])
+        }
+        convoInfo.min = min
     }
 
-    Events.pub('ui/event', {
-        'ICX.uniqueConvoIDs': uniqueConvoIDs
+    if(max > currMax) {
+        for(i=currMax; i<max; i++) {
+            sigs.push(convoInfo.sigs[i])
+        }
+        convoInfo.max = max
+    }
+
+    var obj = {}
+    obj['ICX.uniqueConvoIDs.'+convoId] = convoInfo
+    Events.pub('ui/event', obj)
+
+    return sigs.map(function (sig) {
+        return PB.getPuffBySig(sig)
     })
 }
 

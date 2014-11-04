@@ -16,7 +16,8 @@ puffworldprops = {
             answerStatus: false,
             answerMessage: ''
         },
-        uniqueConvoIDs: {}
+        uniqueConvoIDs: {},
+        convoList: []
     },
     
     clusters: {
@@ -278,7 +279,7 @@ CONFIG.noNetwork = true
 CONFIG.icxmode   = true
 
 PB.addNewPuffHandler(eatPuffs)                      // register our update function
-PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
+// PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
 
 // PB.M.Forum.init()                                // don't call this -- it initializes the P2P network
 PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
@@ -288,7 +289,7 @@ PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
 
 // private puff management for ICX:
 
-setInterval(PB.Data.updatePrivateShells, 60*1000)
+// setInterval(PB.Data.updatePrivateShells, 60*1000)
 
 PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells) 
 
@@ -398,8 +399,8 @@ Events.sub('ui/*', function(data) {
 
 
 //tells us if the user has any delicious puffs
-userHasShells(PB.getCurrentUsername(), function(numShells) {
-    Events.pub('ui/event',{
-        'ICX.hasShells': numShells
-    })
-})
+// userHasShells(PB.getCurrentUsername(), function(numShells) {
+//     Events.pub('ui/event',{
+//         'ICX.hasShells': numShells
+//     })
+// })

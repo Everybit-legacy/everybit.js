@@ -3,7 +3,7 @@
 var ConversationListView = React.createClass({
     render: function() {
         var convos = puffworldprops.ICX.uniqueConvoIDs
-        var ids = Object.keys(puffworldprops.ICX.uniqueConvoIDs)
+        var ids = puffworldprops.ICX.convoList
 
         var conversations = ids.map(function (id) {
             return <ConversationItem content={convos[id]} key={convos[id].key} />
@@ -29,7 +29,11 @@ var ConversationItem = React.createClass({
         })
     },
     getPreview: function() {
-        return PB.getPuffBySig(this.props.content.sig)
+        var convo = this.props.content
+        if(convo.min == convo.max)
+            getConversationPuffs(convo.key, convo.min-1, convo.max)
+
+        return PB.Data.getDecryptedLetterBySig(convo.sigs[convo.sigs.length-1]) || false
     },
     render: function() {
         var content = this.props.content
@@ -37,7 +41,7 @@ var ConversationItem = React.createClass({
 
         return (
             <div className="conversationItem" onClick={this.handleShowConvo}>
-                <span>{partners} ({content.count})</span>
+                <span>{partners} ({content.sigs.length})</span>
                 <ConvoPreview puff={this.getPreview()} />
             </div>
             )
@@ -144,22 +148,22 @@ var TableView = React.createClass({
     //     })
     // },
 
-    componentDidMount: function() {
-        if(typeof puffworldprops.ICX.hasShells === "undefined") {
-            userHasShells(PB.getCurrentUsername(), function(numShells) {
-                Events.pub('ui/event',{
-                    'ICX.hasShells': numShells
-                })
-            })
-        }
-    },
+    // componentDidMount: function() {
+    //     if(typeof puffworldprops.ICX.hasShells === "undefined") {
+    //         userHasShells(PB.getCurrentUsername(), function(numShells) {
+    //             Events.pub('ui/event',{
+    //                 'ICX.hasShells': numShells
+    //             })
+    //         })
+    //     }
+    // },
 
     getContent: function() {
         // var query = puffworldprops.view.query
         // var filters = puffworldprops.view.filters
         // var limit = puffworldprops.view.table.loaded
         // return getTableViewContent(query, filters, limit)
-        return getConvoContent()
+        return getConvoContent(puffworldprops.view.convoId)
     },
 
 

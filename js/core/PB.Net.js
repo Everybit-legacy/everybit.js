@@ -325,25 +325,6 @@ PB.Net.getUserRecord = function(username, capa) {
                 , PB.catchError('Unable to access user information from the DHT'))
 }
 
-/**
- * to get the user record file
- * @param {string} username
- * @returns {*}
- */
-// PB.Net.getUserRecordFile = function(username) {
-    // TODO: [from getUserRecord] call PB.Net.getUserRecordFile, add the returned users to PB.Data.users, pull username's user's info back out, cache it in LS, then do the thing you originally intended via the callback (but switch it to a promise asap because that concurrency model fits this use case better)
-    
-//     var url   = CONFIG.userApi;
-//     var data  = {type: 'getUserFile', username: username};
-//     var prom = PB.Net.getJSON(url, data);
-//
-//     return prom.then(
-//                 function(userRecords) {
-//                     return userRecords.map(PB.Users.process)
-//                                       .filter(Boolean);
-//                 }
-//                 , PB.catchError('Unable to access user file from the DHT'));
-// }
 
 /**
  * register a subuser for an existed user

@@ -461,6 +461,36 @@ PB.getPuffBySig = function(sig) {
 }
 
 
+PB.formatIdentityFile = function(username) {
+    // THINK: consider passphrase protecting the identity file by default
+    
+    username = username || PB.getCurrentUsername()
+    
+    if(!username) return false
+
+    var idFile = {}
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // this leaks all of the identity information back to the caller
+        // if we passphrase protect the file, do it here to prevent that leakage
+
+        var identity = identities[username]
+
+        // assemble idFile manually to keep everything in the right order
+        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+
+        idFile.username = username
+        // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases
+        idFile.aliases  = identity.aliases
+        idFile.preferences = identity.preferences
+        idFile.version  = "1.1"
+    })
+
+    return idFile
+}
+
+
+
 
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
@@ -583,37 +613,13 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
 
 ////////////// END SECURE INFORMATION ZONE ////////////////////
 
-PB.formatIdentityFile = function(username) {
-    // THINK: consider passphrase protecting the identity file by default
-    
-    username = username || PB.getCurrentUsername()
-    
-    if(!username) return false
 
-    var idFile = {}
 
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-        // this leaks all of the identity information back to the caller
-        // if we passphrase protect the file, do it here to prevent that leakage
-
-        var identity = identities[username]
-
-        // assemble idFile manually to keep everything in the right order
-        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
-
-        idFile.username = username
-        // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases
-        idFile.aliases  = identity.aliases
-        idFile.preferences = identity.preferences
-        idFile.version  = "1.1"
-    })
-
-    return idFile
-}
 
 
 
 //// VALIDATIONS
+
 // TODO: merge these into PB.Spec
 
 /**
@@ -751,8 +757,37 @@ PB.tryDecodeURIComponent = function(str) {
 }
 
 
+//// something different
 
-// TIMING HELPERS
+PB.promisesPending = {}
+PB.promiseMemoize = function(fun, ohboy) {
+    if(!ohboy) ohboy = PB.removePromisePending                  // this is madness
+    
+    return function() {
+        var key = JSON.stringify([fun.toString(),arguments])    // this is sparta
+        
+        if(PB.promisesPending[key])
+            return PB.promisesPending[key]                      // resistance is futile
+        
+        var prom = fun.apply(fun, arguments)
+        prom = prom.then(function(value) {
+            ohboy(key, value)
+            return value                                        // deliver successes
+        }, function(value) {
+            ohboy(key, value)
+            throw value                                         // propagate failures
+        })
+        
+        PB.promisesPending[key] = prom
+        return prom
+    }
+}
+
+PB.removePromisePending = function(key) {
+    delete PB.promisesPending[key]
+}
+
+//// TIMING HELPERS
 // TODO: move these into a library
 
 ~function() {

@@ -456,6 +456,12 @@ PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
     return prom
 }
 
+PB.Data.getConversationPuffs = PB.promiseMemoize(PB.Data.getConversationPuffs, function(key, report) {
+    report.private_promise.then(function() {
+        PB.removePromisePending(key)
+    })
+})
+
 
 PB.Data.updatePrivateShells = function(offset) {
     var username = PB.getCurrentUsername()

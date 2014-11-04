@@ -969,7 +969,7 @@ function showPuff(sig) {
     if(puff)
         return showPuffDirectly(puff)                               // got it.
 
-    var prom = PB.Data.pendingPuffPromises[sig]                                 // say what?
+    var prom = PB.Data.pendingPuffPromises[sig]                     // say what?
     if(!prom)
         return PB.onError('Bad sig in pushstate')
 

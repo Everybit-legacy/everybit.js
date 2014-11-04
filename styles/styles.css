@@ -1060,6 +1060,27 @@ fieldset[disabled] .btn-primary.active {
 }
 
 /* BEGIN ICX tableview */
+.icx-tableview .conversationListView .conversationItem {
+    margin-bottom: 10px;
+    padding: 10px 5px;
+    cursor: pointer;
+}
+
+.icx-tableview .conversationListView .conversationItem:nth-child(odd) {
+    background-color: #A7A37E;
+}
+
+.icx-tableview .conversationListView .conversationItem:nth-child(even) {
+    background-color: #E6E2AF;
+}
+
+.icx-tableview .conversationItem .preview {
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+
 .icx-tableview {
     height: 100%;
     overflow-y: auto;

@@ -240,6 +240,9 @@ window.requestAnimationFrame = window.requestAnimationFrame       || window.mozR
 
 var updateUI = onceRAF.bind(this, renderPuffWorld)  // only update once per rAF
 
+// This handles new incoming puffs to and from the current user
+// and old puffs after decryption
+// one puff at a time
 var eatPuffs = function(puffs) {
     // if(!Array.isArray(puffs) || !puffs.length)   // THINK: this disrupts cold load of contentless shells...
     //     return false
@@ -247,9 +250,13 @@ var eatPuffs = function(puffs) {
     updateUI()
 }
 
-// ISSUE: This handler runs for every NEW puff that the user just received
-// and for every existing puff that has just been enboarded into the cache
+// This handler ONLY runs for every new puff that the user just POSTED
+// and for every existing puff that has just been onboarded into the cache
 // Therefore we don't know whether to increment the total count or not
+
+// ISSUE: We need to differentiate between 2 cases here
+    // Brand new puffs, to and from this user, increment count
+    // Old puffs after the decryption cycle, increment loaded
 var updateLatestConvo = function(report) {
     report.private_promise.then(function(private_report) {
         var sigs = private_report.goodsigs

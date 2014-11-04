@@ -160,7 +160,7 @@ var ICXWorld = React.createClass({
         ICX.screens = [
             {position: 0, name: 'home',  button: false, color: 'rgba('+c6+', '+op1+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXHome, backgroundColor: 'rgba(255,255,255,0)'},
             {position: 0, name: 'splash', button: false, icon: 'fa-home', fullText: 'ICX', component: ICXSplash},
-            {position: 0, name: 'convo', button: false, icon: 'fa-home', fullText: 'Conversation View', component: ICXTableView},
+            {position: 0, name: 'convo', button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa-home', fullText: 'Conversation View', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0}},
             {position: 1, name: 'send',  button: true, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'SEND a private message or file', component: ICXSend, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 2, name: 'store', button: true, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'login', button: true, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-sign-in', fullText: 'LOG IN', component: ICXLogin, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -168,7 +168,7 @@ var ICXWorld = React.createClass({
             {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
             {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')', styles: {padding: 0}},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},

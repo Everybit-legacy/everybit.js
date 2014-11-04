@@ -104,11 +104,16 @@ function userHasShells(username, callback) {
 
 
 function updateCurrentConvos(puff) {
-    updateUniqueConvoKeys(puff)
+    //updateUniqueConvoKeys(puff)
 }
 
 function getUsernamesFromConvoKey(convoId) {
     var currentId = PB.getCurrentUsername()
+
+    // Only one username in convoId, return it
+    if (convoId == currentId)
+        return currentId
+
     return convoId.split('&').filter(function (username) {
         return username != currentId
     })
@@ -166,6 +171,9 @@ function getUniqueConvoKeys() {
 
 
 // updates the list of unique IDs for incoming puff
+// New puffs coming from the current user, but not to,
+// as well as old puffs after the decryption cycle
+// both go through this function
 function updateUniqueConvoKeys(puff) {
     var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs || {}
     var ids = Object.keys(uniqueConvoIDs)
@@ -179,7 +187,11 @@ function updateUniqueConvoKeys(puff) {
     } else {
         // we don't know whether to increment count or not
         // It could be an old puff in which case we are double counting!
-        // uniqueConvoIDs[key].count += 1 
+        // uniqueConvoIDs[key].count += 1
+
+        // We should definately update the loaded field here
+        // because keep track of that in tableview is a nightmare
+        uniqueConvoIDs[key].loaded += 1
     }
 
     Events.pub('ui/event', {

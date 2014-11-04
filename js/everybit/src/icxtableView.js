@@ -9,8 +9,12 @@ var ConversationListView = React.createClass({
             return <ConversationItem content={convos[id]} key={convos[id].key} />
         })
 
+        var headerStyle = ICX.calculated.pageHeaderTextStyle
+        headerStyle.backgroundColor = '#046380'
+
         return (
-            <div>
+            <div className="conversationListView">
+                <div style={headerStyle}>View your conversations</div>
                 {conversations}
             </div>
             )
@@ -24,17 +28,63 @@ var ConversationItem = React.createClass({
             'view.icx.screen': 'convo'
         })
     },
+    getPreview: function() {
+        return PB.getPuffBySig(this.props.content.sig)
+    },
     render: function() {
         var content = this.props.content
+        var partners = getUsernamesFromConvoKey(content.key)
+
         return (
-            <div onClick={this.handleShowConvo}>
-                <span>Conversation partners: {content.key} | Messages: {content.count}</span>
+            <div className="conversationItem" onClick={this.handleShowConvo}>
+                <span>{partners} ({content.count})</span>
+                <ConvoPreview puff={this.getPreview()} />
             </div>
             )
     }
 })
 
+var ConvoPreview = React.createClass({
+    render: function() {
+        var previewContentStyle = {
+            maxHeight: '1.1em',
+            float: 'left',
+            width: '85%',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden'
+        }
+
+        var timeStyle = {
+            float: 'right',
+            fontSize: '18px',
+            maxWidth: '15%'
+        }
+
+        if(this.props.puff) {
+            var puff = this.props.puff
+            var date = new Date(puff.payload.time)
+            var timeStamp = timeSince(date) + ' ago'
+
+            if(puff.payload.filename)
+                var preview = 'FILE: '+puff.payload.filename
+            else
+                var preview = puff.payload.content
+        }
+
+        return (
+            <div className="preview">
+                <div className="previewContent" style={previewContentStyle}>{preview}</div>
+                <div style={timeStyle}>{timeStamp}</div>
+            </div>
+        )
+    }
+})
+
 var puffContainer = React.createClass({
+    componentDidMount: function() {
+        ICX.loading = true
+    },
 
     render: function() {
         var puffs = this.props.content.map(function (puff) {
@@ -47,10 +97,6 @@ var puffContainer = React.createClass({
                 {puffs}
             </div>
         )
-    },
-
-    componentDidMount: function() {
-        ICX.loading = true
     }
 })
 
@@ -662,10 +708,13 @@ var ViewLoadMore = React.createClass({
         // NOTE: until report.private_promise resolves, not all puffs have been displayed in the GUI. 
         //       use that as the signal to transition from 'Loading' to 'Load More' or 'No more messages found'
 
-        var obj = {}
-        convoInfo.loaded += CONFIG.pageBatchSize
-        obj['ICX.uniqueConvoIDs.' + convoId] = convoInfo
-		return Events.pub('ui/event', obj)
+        // This has wierd behavior
+        // THINK: Where should we keep track of the loaded field?
+        // We could do it when a new puff has been cached, or here
+        // var obj = {}
+        // convoInfo.loaded += CONFIG.pageBatchSize
+        // obj['ICX.uniqueConvoIDs.' + convoId] = convoInfo
+		// return Events.pub('ui/event', obj)
 	},
 	render: function() {
 		var footer = <div></div>

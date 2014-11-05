@@ -1080,6 +1080,21 @@ fieldset[disabled] .btn-primary.active {
     margin: 0;
 }
 
+.icx-tableview .conversationItem .previewContent {
+    max-height: 1.1em;
+    float: left;
+    width: 85%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.icx-tableview .conversationItem .previewTime {
+    float: right;
+    font-size: 18px;
+    max-width: 15%;
+}
+
 
 .icx-tableview {
     height: 100%;

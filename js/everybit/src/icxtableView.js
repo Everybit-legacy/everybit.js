@@ -50,21 +50,6 @@ var ConversationItem = React.createClass({
 
 var ConvoPreview = React.createClass({
     render: function() {
-        var previewContentStyle = {
-            maxHeight: '1.1em',
-            float: 'left',
-            width: '85%',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
-        }
-
-        var timeStyle = {
-            float: 'right',
-            fontSize: '18px',
-            maxWidth: '15%'
-        }
-
         if(this.props.puff) {
             var puff = this.props.puff
             var date = new Date(puff.payload.time)
@@ -78,8 +63,8 @@ var ConvoPreview = React.createClass({
 
         return (
             <div className="preview">
-                <div className="previewContent" style={previewContentStyle}>{preview}</div>
-                <div style={timeStyle}>{timeStamp}</div>
+                <div className="previewContent">{preview}</div>
+                <div className="previewTime">{timeStamp}</div>
             </div>
         )
     }
@@ -159,10 +144,6 @@ var TableView = React.createClass({
     // },
 
     getContent: function() {
-        // var query = puffworldprops.view.query
-        // var filters = puffworldprops.view.filters
-        // var limit = puffworldprops.view.table.loaded
-        // return getTableViewContent(query, filters, limit)
         return getConvoContent(puffworldprops.view.convoId)
     },
 

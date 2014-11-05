@@ -197,15 +197,21 @@ function updateMinAndMax() {
 }
 
 function getConvoContent(convoId) {
-    return []
-    // var convoId = convoId || puffworldprops.view.convoId
-    //     if(!convoId) return []
+    var convoId = convoId || puffworldprops.view.convoId
+        if(!convoId) return []
 
-    // var uniqueConvoIDs = puffworldprops.ICX.uniqueConvoIDs
-    // var currMin = uniqueConvoIDs[convoId].min
-    // var currMax = uniqueConvoIDs[convoId].max    
+    var puffs = getLocalConvoContent(convoId)                   // Do we have 10 already?
+    if (puffs.length >= 10)                                     // Yes?
+        return puffs                                            // Well there we go then
 
-    // return getConversationPuffs(convoId, currMin-10, currMax)
+    var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]  // No we don't
+    var min = convoInfo.min - 10 // TODO: Put this in CONFIG
+    var max = convoInfo.max    
+    if(min < 0)
+        min = 0
+
+    getConversationPuffs(convoId, min, max)                     // Give me what you got
+    return getLocalConvoContent(convoId)
 }
 
 function getConversationPuffs(convoId, min, max) {

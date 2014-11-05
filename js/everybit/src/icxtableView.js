@@ -75,8 +75,12 @@ var puffContainer = React.createClass({
         ICX.loading = true
     },
 
+    getContent: function() {
+        return getConvoContent(puffworldprops.view.convoId)
+    },
+
     render: function() {
-        var puffs = this.props.content.map(function (puff) {
+        var puffs = this.getContent().map(function (puff) {
             return (
                 <ICXContentItem puff={puff} key={puff.sig} />
             )
@@ -143,9 +147,9 @@ var TableView = React.createClass({
     //     }
     // },
 
-    getContent: function() {
-        return getConvoContent(puffworldprops.view.convoId)
-    },
+    // getContent: function() {
+    //     return getConvoContent(puffworldprops.view.convoId)
+    // },
 
 
 	render: function() {
@@ -173,7 +177,7 @@ var TableView = React.createClass({
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
 				<ViewFilters />
-                <puffContainer content={this.getContent()} key="messages"/>
+                <puffContainer key="messages"/>
 
                 <ICXInlineReply convoId={puffworldprops.view.convoId} key={puffworldprops.view.convoId} />
                 <ViewLoadMore convoId={puffworldprops.view.convoId} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>

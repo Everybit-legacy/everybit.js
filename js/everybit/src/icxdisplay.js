@@ -242,7 +242,7 @@ var ICXWorld = React.createClass({
             return (
                 <span>
                     <div style={borderStyle} />
-                    <div style={screenStyle} className="screen">
+                    <div style={screenStyle} id="screen" className="screen">
                         <ICXLogo screenInfo={screenInfo} />
                         <ICXLinks screenInfo={screenInfo} />
                         <div className="tour-item" style={contentDivStyles} key="tableview">

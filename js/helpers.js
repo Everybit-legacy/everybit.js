@@ -203,15 +203,20 @@ function initializeConvoContent(convoId) {
         return puffs                                            // Well there we go then
 
     var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]  // No we don't
+
+    if(!convoInfo) {
+        setTimeout(updateUI, 200) // TODO: Find a better way
+        return []
+    }
+
     var min = convoInfo.min
     var max = convoInfo.max
 
-    if(min == max-1) {
-        getConversationPuffs(convoId, min-10, max)              // Give me what you got
-    }
-
-    if(min == max) {
-        getConversationPuffs(convoId, min-10, max)              // Give me what you got
+    if(min == max-1 || min == max) {
+        min = min - 10
+        if(min < 0)
+            min = 0
+        getConversationPuffs(convoId, min, max)              // Give me what you got
     }
 
     return getLocalConvoContent(convoId)

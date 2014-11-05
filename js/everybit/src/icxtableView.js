@@ -72,15 +72,12 @@ var ConvoPreview = React.createClass({
 })
 
 var puffContainer = React.createClass({
-    componentWillMount: function() {
-        initializeConvoContent(puffworldprops.view.convoId)
-    },
     componentDidMount: function() {
         ICX.loading = true
     },
 
     getContent: function() {
-        return getLocalConvoContent(puffworldprops.view.convoId)
+        return initializeConvoContent(puffworldprops.view.convoId)
     },
 
     render: function() {
@@ -98,6 +95,16 @@ var puffContainer = React.createClass({
 })
 
 var TableView = React.createClass({
+    componentWillUpdate: function() {
+      var node = document.getElementById('screen')
+      this.scrollHeight = node.scrollHeight
+      this.scrollTop = node.scrollTop
+    },
+     
+    componentDidUpdate: function() {
+      var node = document.getElementById('screen')
+      node.scrollTop = this.scrollTop + (node.scrollHeight - this.scrollHeight)
+    },
 	render: function() {
 
         var refreshStyle = {
@@ -115,12 +122,16 @@ var TableView = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
 
         var convoInfo = puffworldprops.ICX.uniqueConvoIDs[puffworldprops.view.convoId]
-        var partners = getUsernamesFromConvoKey(convoInfo.key)
+        if(convoInfo) {
+            var partners = getUsernamesFromConvoKey(convoInfo.key)
+            var min = convoInfo.min
+        }
+
 
 		return (
 			<div className="viewContainer">
                 <div style={headerStyle}>Conversation with {partners}</div>
-                <ViewLoadMore convoId={puffworldprops.view.convoId} update={convoInfo.min} loading={ICX.loading}/>
+                <ViewLoadMore convoId={puffworldprops.view.convoId} update={min} loading={ICX.loading}/>
                 <div style={{fontSize: '60%'}}>
                     <br />
                     <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
@@ -640,7 +651,7 @@ var ICXInlineReply = React.createClass({
 
         // <b>Reply to: {username}</b><br/>
         return (
-            <div ref={"replyBox"+this.props.convoId} style={inlineReplyStyle}>
+            <div id="replyBox" ref={"replyBox"+this.props.convoId} style={inlineReplyStyle}>
                 <div className="replyMessage" style={replyMsgStyle}>
                     <b>Message:</b><br />
                     <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
@@ -695,9 +706,14 @@ var ViewLoadMore = React.createClass({
 
         var convoId = this.props.convoId
         var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
-        var min = convoInfo.min
+        if(convoInfo) {
+            var min = convoInfo.min
+            var max = convoInfo.max
+        }
 
-        if (this.props.loading) {
+        if(min==max-1) {
+            footer = <div>Nothing more to show</div>
+        } else if (this.props.loading) {
             footer = <div>Loading more messages <img src="/img/icx/dotdotdot.gif" /></div>
         } else if (!min) {
             footer = <div>Nothing more to show</div>

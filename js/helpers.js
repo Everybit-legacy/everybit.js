@@ -34,26 +34,6 @@ function keepNumberBetween(x,a,b) {
 //     // return prom
 // }
 
-function getLocalConvoContent(convoId) {
-
-    var letters = PB.Data.getCurrentDecryptedLetters()
-
-    // TODO: filter then sort
-    letters.sort(function(a,b) {
-        if (a.payload.time < b.payload.time)
-            return -1
-        if (a.payload.time > b.payload.time)
-            return 1
-        return 0
-    })
-    return letters.filter(function(letter) {
-        key = getConvoKeyByPuff(letter)
-        return key == convoId
-    })
-
-}
-
-
 //wrapper to get puffs to display in table view
 //deprecated
 function getTableViewContent(query, filters, limit) {
@@ -196,22 +176,59 @@ function updateMinAndMax() {
     })
 }
 
-function getConvoContent(convoId) {
+function getLocalConvoContent(convoId) {
+    var letters = PB.Data.getCurrentDecryptedLetters()
+
+    // TODO: filter then sort
+    letters.sort(function(a,b) {
+        if (a.payload.time < b.payload.time)
+            return -1
+        if (a.payload.time > b.payload.time)
+            return 1
+        return 0
+    })
+    return letters.filter(function(letter) {
+        key = getConvoKeyByPuff(letter)
+        return key == convoId
+    })
+}
+
+// This is for the initial load
+function initializeConvoContent(convoId) {
     var convoId = convoId || puffworldprops.view.convoId
-        if(!convoId) return []
+    if(!convoId) return []
 
     var puffs = getLocalConvoContent(convoId)                   // Do we have 10 already?
     if (puffs.length >= 10)                                     // Yes?
         return puffs                                            // Well there we go then
 
     var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]  // No we don't
-    var min = convoInfo.min - 10 // TODO: Put this in CONFIG
+    var min = convoInfo.min
+    var max = convoInfo.max
+
+    if(min == max-1) {
+        getConversationPuffs(convoId, min-10, max)              // Give me what you got
+    }
+
+    if(min == max) {
+        getConversationPuffs(convoId, min-10, max)              // Give me what you got
+    }
+
+    return getLocalConvoContent(convoId)
+}
+
+// This is linked to LoadMore
+function getConvoContent(convoId) {
+    var convoId = convoId || puffworldprops.view.convoId
+    if(!convoId) return []
+
+    var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
+    var min = convoInfo.min - 10 // TODO: Parametrize this number
     var max = convoInfo.max    
     if(min < 0)
         min = 0
 
-    getConversationPuffs(convoId, min, max)                     // Give me what you got
-    return getLocalConvoContent(convoId)
+    return getConversationPuffs(convoId, min, max)
 }
 
 function getConversationPuffs(convoId, min, max) {

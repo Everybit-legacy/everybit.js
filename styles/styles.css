@@ -1095,6 +1095,28 @@ fieldset[disabled] .btn-primary.active {
     max-width: 15%;
 }
 
+.icx-tableview .viewContainer .loadMore {
+    margin: 10px auto;
+    width: 40%;
+    text-align: center;
+}
+
+.icx-tableview .dropbox {
+    height: 120px;
+}
+
+.icx-tableview .replyBoxButtons .icxNextButton {
+    margin-left: 1%
+}
+
+.icx-tableview .replyBoxButtons .icxNextButton:first-child {
+    margin-left: 0
+}
+
+.icx-tableview .replyBoxButtons .icxNextButton.right {
+    float: right;
+}
+
 
 .icx-tableview {
     height: 100%;

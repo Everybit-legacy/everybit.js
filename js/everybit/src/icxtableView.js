@@ -115,10 +115,11 @@ var TableView = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
 
         var convoInfo = puffworldprops.ICX.uniqueConvoIDs[puffworldprops.view.convoId]
+        var partners = getUsernamesFromConvoKey(convoInfo.key)
 
 		return (
 			<div className="viewContainer">
-                <div style={headerStyle}>View your messages and files</div>
+                <div style={headerStyle}>Conversation with {partners}</div>
                 <ViewLoadMore convoId={puffworldprops.view.convoId} update={convoInfo.min} loading={ICX.loading}/>
                 <div style={{fontSize: '60%'}}>
                     <br />

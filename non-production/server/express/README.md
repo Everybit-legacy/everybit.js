@@ -1,2 +1,0 @@
-# Express server code.
-Put all express server code in this folder. We actually don't need an Express server until we get the Puffball API working. But if you're gung ho, this is the folder for Express.

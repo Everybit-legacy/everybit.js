@@ -504,6 +504,12 @@ var ICXDownloadLink = React.createClass({
 })
 
 var ICXInlineReply = React.createClass({
+    getInitialState: function() {
+        return {
+            msg: 'checked',
+            file: ''
+        }
+    },
     componentWillUnmount: function() {
         var messageToCache = this.refs.messageText.getDOMNode().value
         var sigKey = this.props.convoId
@@ -620,6 +626,19 @@ var ICXInlineReply = React.createClass({
 
     handleToggleReplyOption: function(event) {
         var toggle = event.currentTarget.control.value
+        if(toggle == 'message') {
+            this.setState({
+                msg: 'checked',
+                file: ''
+            })
+        }
+        if(toggle == 'file') {
+            this.setState({
+                file: 'checked',
+                msg: ''
+            })
+        }
+
         Events.pub('ui/reply', {
             'reply.replyType': toggle
         })
@@ -670,10 +689,10 @@ var ICXInlineReply = React.createClass({
                 </div>
                 <div className="replyBoxButtons">
                     <label for="message" className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption}>
-                        <input type="radio" name="replyOption" id="message" value="message" /> Message
+                        <input type="radio" name="replyOption" id="message" value="message" checked={this.state.msg} /> Message
                     </label>
                     <label for="file" className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption}>
-                        <input type="radio" name="replyOption" id="file" value="file" /> File
+                        <input type="radio" name="replyOption" id="file" value="file" checked={this.state.file} /> File
                     </label>
                     
                     <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleReply}><i className="fa fa-paper-plane"></i> SEND</a>

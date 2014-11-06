@@ -179,7 +179,7 @@ puffworlddefaults = puffworldprops                  // it's immutable so we don'
 //// event bindings for controlling core behavior from the display ////
 
 Events.sub('prefs/ephemeralKeychain/toggle', function(data, path) {
-    var new_state = CONFIG.ephemeralKeychain
+    var new_state = PB.CONFIG.ephemeralKeychain
     modConfig('ephemeralKeychain', new_state)
     
     var dir = new_state ? 'on' : 'off'
@@ -275,15 +275,23 @@ var updateLatestConvo = function(report) {
 // START MANUAL FORUM MODULE INIT
 // ONLY RECEIVE PRIVATE PUFFS FOR/FROM THE CURRENT USER
 
-CONFIG.noNetwork = true
-CONFIG.icxmode   = true
+// PB.CONFIG.noNetwork = true
+// PB.CONFIG.icxmode   = true
+
+var options = {
+    disableP2P: true,                           // Disables the P2P network, all content will be pulled directly from API
+    disablePublicPuffs: true,                   // Disables arrival and sending of non-encrypted puffs
+    cryptoworkerURL: 'js/cryptoworker.js'
+}
+
+PB.init(options)
 
 PB.addNewPuffHandler(eatPuffs)                      // register our update function
 // PB.addNewPuffReportHandler(updateLatestConvo)       // conversational update function
 
 // PB.M.Forum.init()                                // don't call this -- it initializes the P2P network
-PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
-PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
+// PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
+// PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
 
 // END MANUAL FORUM MODULE INIT
 
@@ -291,66 +299,33 @@ PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
 
 // setInterval(PB.Data.updatePrivateShells, 60*1000)
 
-PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells) 
+// PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells)
 
 // PB.addPostSwitchIdentityHandler(function(username) {
-//     PB.Data.getMorePrivatePuffs(username, 0, CONFIG.initLoadBatchSize)
+//     PB.Data.getMorePrivatePuffs(username, 0, PB.CONFIG.initLoadBatchSize)
 //     // Events.pub('ui/switchIdentityTo')
 // })
 
 // initialize other modules
 
-PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
+// PB.M.Wardrobe.init()                                // rehydrate identities and resume last used
 
 // handleImportRedirect()                           // check if import
 
 // TODO: PB.Users.init()
-PB.Users.depersist()                                // get cached userRecords
+// PB.Users.depersist()                                // get cached userRecords
 
 setPropsFromURL()                                   // handle pushstate hash
 
-popMods()                                           // deflate any machine prefs
+// popMods()                                           // deflate any machine prefs
 
-PB.addPayloadModifierHandler(function(payload) {
-    payload = payload || {}
-    payload.time = Date.now()
-    return payload
-})
+// PB.addPayloadModifierHandler(function(payload) {
+//     payload = payload || {}
+//     payload.time = Date.now()
+//     return payload
+// })
 
 getUniqueConvoKeys()
-
-
-//// BUILD CRYPTO WORKER
-
-PB.cryptoworker = new Worker("js/cryptoworker.js")
-
-PB.workerqueue = []
-PB.workerautoid = 0
-
-PB.workerreceive = function(msg) {
-    var id = msg.data.id
-    if(!id) return false // TODO: add onError here
-
-    var fun = PB.workerqueue[id]
-    if(!fun) return false // TODO: add onError here
-
-    fun(msg.data.evaluated)
-
-    delete PB.workerqueue[id] // THINK: this leaves a sparse array, but is probably faster than splicing
-}
-
-PB.workersend = function(funstr, args, resolve, reject) {
-    PB.workerautoid += 1
-    PB.workerqueue[PB.workerautoid] = resolve
-    if(!Array.isArray(args))
-        args = [args]
-    PB.cryptoworker.postMessage({fun: funstr, args: args, id: PB.workerautoid})
-}
-
-// PB.cryptoworker.addEventListener("message", console.log.bind(console))
-PB.cryptoworker.addEventListener("message", PB.workerreceive)
-
-//// END BUILD CRYPTO WORKER
 
 
 

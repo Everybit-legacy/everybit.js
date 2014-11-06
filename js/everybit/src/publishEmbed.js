@@ -488,7 +488,7 @@ var PuffPublishFormEmbed = React.createClass({
         } else {
             content = this.refs.content ? this.refs.content.getDOMNode().value.trim() : puffworldprops.reply.content
         }
-        if (content.length < CONFIG.minimumPuffLength) {
+        if (content.length < PB.CONFIG.minimumPuffLength) {
             alert("Not enough content.")
             this.cleanUpSubmit()
             return false
@@ -745,7 +745,7 @@ var PuffPublishFormEmbed = React.createClass({
         var prom = PB.Users.getUserRecordPromise(newUsername)
         prom.then(function(){
             self.setState({usernameError: ''})
-            if (usernames.indexOf(newUsername) == -1 && newUsername != CONFIG.zone) {
+            if (usernames.indexOf(newUsername) == -1 && newUsername != PB.CONFIG.zone) {
                 usernames.push(newUsername)
                 self.setState({username: usernames})
             }
@@ -801,7 +801,7 @@ var PuffPublishFormEmbed = React.createClass({
                                      .map(function(puff) { return puff.payload.replyTo || puff.username })
                                      .filter(PB.unique)
                                      .filter(Boolean)
-                                     .filter(function(value){return value!=CONFIG.zone})
+                                     .filter(function(value){return value!=PB.CONFIG.zone})
         }
         var currentParentUsernames = this.state.parentUsernames
         if (currentParentUsernames.length != parentUsernames.length) {
@@ -941,7 +941,7 @@ var PuffPublishFormEmbed = React.createClass({
             </div>
         )
 
-        var type = this.props.reply.type || this.props.reply.lastType || CONFIG.defaultContentType
+        var type = this.props.reply.type || this.props.reply.lastType || PB.CONFIG.defaultContentType
         var typeLabel = (
             <span>{polyglot.t("replyForm.type_text")}: </span>
         )

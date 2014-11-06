@@ -48,10 +48,10 @@ function getTableViewContent(query, filters, limit) {
 var getPrivateShellsFromMe = function(username) {
     if(!username) return PB.emptyPromise()
 
-    var url  = CONFIG.puffApi
+    var url  = PB.CONFIG.puffApi
     var data = { username: username
         , contentType: 'encryptedpuff', fullOrShell: 'shell'
-        , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+        , type: 'getPuffs', numb: PB.CONFIG.globalBigBatchLimit
     }
 
     return PB.Net.getJSON(url, data)
@@ -60,10 +60,10 @@ var getPrivateShellsFromMe = function(username) {
 var getPrivateShellsForMe = function(username) {
     if(!username) return PB.emptyPromise()
 
-    var url  = CONFIG.puffApi
+    var url  = PB.CONFIG.puffApi
     var data = { route: username
         , contentType: 'encryptedpuff', fullOrShell: 'shell'
-        , type: 'getPuffs', numb: CONFIG.globalBigBatchLimit
+        , type: 'getPuffs', numb: PB.CONFIG.globalBigBatchLimit
     }
 
     return PB.Net.getJSON(url, data)
@@ -1309,21 +1309,12 @@ function getProfilePuff(username) {
 }
 
 function modConfig(key, value) {
-    CONFIG[key] = value
-    if(!CONFIG.mods)
-        CONFIG.mods = {}
-    CONFIG.mods[key] = value
-    PB.Persist.save('CONFIG', CONFIG.mods)
+    PB.CONFIG[key] = value
+    if(!PB.CONFIG.mods)
+        PB.CONFIG.mods = {}
+    PB.CONFIG.mods[key] = value
+    PB.Persist.save('CONFIG', PB.CONFIG.mods)
 }
-
-function popMods() {
-    var mods = PB.Persist.get('CONFIG')
-    if(!mods) return false
-    
-    CONFIG.mods = mods
-    Object.keys(CONFIG.mods).forEach(function(key) { CONFIG[key] = mods[key] })
-}
-
 
 String.prototype.stripCapa = function() {
     return this.replace(/:.*$/,"")

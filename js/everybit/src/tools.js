@@ -285,10 +285,10 @@ var PuffPacker = React.createClass({
     },
 
     handleSetIdentityToAnon: function() {
-        PB.M.Wardrobe.storePrivateKeys('anon', 0, CONFIG.users.anon.adminKey, 0)
+        PB.M.Wardrobe.storePrivateKeys('anon', 0, PB.CONFIG.users.anon.adminKey, 0)
         PB.switchIdentityTo('anon')
         Events.pub('ui/puff-packer/set-identity-to-anon', {})
-        // var keys = PB.buildKeyObject(0, CONFIG.users.anon.adminKey, 0)
+        // var keys = PB.buildKeyObject(0, PB.CONFIG.users.anon.adminKey, 0)
         // PB.M.Wardrobe.addUserReally('anon', keys)
     },
     handleImport: function() {
@@ -337,10 +337,10 @@ var PuffPacker = React.createClass({
         var disabled = importUser ? "disabled" : ""
 
         // Where is our menu?
-        var menuSideSpace = CONFIG.menuWidth + 20
+        var menuSideSpace = PB.CONFIG.menuWidth + 20
         var nonMenuSideSpace = 10
 
-        if(CONFIG.menuRight) {
+        if(PB.CONFIG.menuRight) {
             var rightSpacing = menuSideSpace + 'px'
             var leftSpacing = nonMenuSideSpace + 'px'
         } else {
@@ -349,7 +349,7 @@ var PuffPacker = React.createClass({
         }
 
         var width = window.innerWidth - menuSideSpace - nonMenuSideSpace
-        width = width < CONFIG.minWidthAdvancedTools ? CONFIG.minWidthAdvancedTools : width
+        width = width < PB.CONFIG.minWidthAdvancedTools ? PB.CONFIG.minWidthAdvancedTools : width
 
         var styleInfo = {
                             left: leftSpacing,

@@ -9,7 +9,7 @@ var PuffFancyBox = React.createClass({
         var  width = stats.width
         var height = stats.height
         var    top = stats.y
-        var   left = stats.x + CONFIG.leftMargin
+        var   left = stats.x + PB.CONFIG.leftMargin
         var hidden = !this.props.view.showinfo
 
         // set up classes
@@ -36,8 +36,8 @@ var PuffFancyBox = React.createClass({
         }
         var className = classArray.join(' ')
         
-        var offset = CONFIG.extraSpacing
-        var spacing = CONFIG.minSpacing
+        var offset = PB.CONFIG.extraSpacing
+        var spacing = PB.CONFIG.minSpacing
         if(arrows) {
             width  -= offset
             height -= offset
@@ -101,7 +101,7 @@ var PuffAuthor = React.createClass({
         var routes = this.props.puff.routes || []
         if (routes.length == 0)
             routes = this.props.puff.payload.routes || []
-        routes = routes.filter(function(r){return r!=CONFIG.zone && r!=username})
+        routes = routes.filter(function(r){return r!=PB.CONFIG.zone && r!=username})
         var sendTo = ""
         var self = this
         var total = routes ? routes.length : 0
@@ -284,7 +284,7 @@ var PuffFlagLink = React.createClass({
     },
 
     handleFlagRequest: function() {
-        if (PB.getCurrentUsername() != this.props.username &&PB.getCurrentUsername() != CONFIG.zone)
+        if (PB.getCurrentUsername() != this.props.username &&PB.getCurrentUsername() != PB.CONFIG.zone)
             return false
         if (this.props.flagged) return false
 
@@ -322,7 +322,7 @@ var PuffFlagLink = React.createClass({
         var polyglot = Translate.language[puffworldprops.view.language]
 
         // Does this user have right to flag?
-        if(PB.getCurrentUsername() == this.props.username || PB.getCurrentUsername() == CONFIG.zone) {
+        if(PB.getCurrentUsername() == this.props.username || PB.getCurrentUsername() == PB.CONFIG.zone) {
             return (
                 <span>
                     <a href="#" onClick={this.handleFlagRequest}><i className={newClass} ></i></a>

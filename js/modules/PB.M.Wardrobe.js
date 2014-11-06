@@ -244,7 +244,7 @@ PB.M.Wardrobe = {}
     function processUpdates() {
         // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
 
-        if(!CONFIG.ephemeralKeychain)
+        if(!PB.CONFIG.ephemeralKeychain)
             PB.Persist.save('identities', identities)
     
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)

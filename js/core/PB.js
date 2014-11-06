@@ -18,7 +18,7 @@
 
 */
 
-PB = {}
+if(typeof PB === 'undefined') PB = {}                   // might load config.js first
 
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
@@ -27,19 +27,41 @@ PB.M = PB.Modules
 ////////////// STANDARD API FUNCTIONS //////////////////
 
 
-/**
- * get the ball rolling
- * @param {zones} connect to these zones
- */
-PB.init = function(zone) {
-    PB.Users.depersist()                                // pop URs out of LS // TODO: move this to Users.init()
+PB.init = function(options) {
+    //// initializes all available modules and the platform subsystems.
+    //// options is an object of configuration options that is passed to each module and subsystem.
     
-    PB.Data.importShells()                              // preload relevant shells // TODO: move this to Data.init()
+    options = options || {}
     
-    if(CONFIG.noNetwork) return false                   // THINK: this is only for debugging and development
+    // TODO: push this down deeper
+    if(options.disableP2P)
+        PB.CONFIG.noNetwork = true
+        
+    if(options.disablePublicPuffs)
+        PB.CONFIG.icxmode   = true    
+        
+    PB.Users.init(options)                              // initialize the user record subsystem
+    PB.Data.init(options)                               // initialize the data subsystem
+    PB.Net.init(options)                                // initialize the network subsystem
     
-    PB.Net.init()                                       // initialize the network layer
+    var moduleKeys = Object.keys(PB.M)
+    moduleKeys.forEach(function(key) {                  // call all module initializers
+        if(PB.M[key].init) 
+            PB.M[key].init(options)
+    })
+    
+    popMods()                                           // deflate any machine prefs
+    function popMods() {                                // THINK: maybe move this to PB.Persist.init
+        var mods = PB.Persist.get('CONFIG')
+        if(!mods) return false
+    
+        PB.CONFIG.mods = mods
+        Object.keys(PB.CONFIG.mods).forEach(function(key) { PB.CONFIG[key] = mods[key] })
+    }
+    
+    PB.buildCryptoworker(options)
 }
+
 
 PB.getPuffBySig = function(sig) {
     //// get a particular puff
@@ -316,6 +338,42 @@ PB.formatIdentityFile = function(username) {
 }
 
 
+
+//// BUILD CRYPTO WORKER ////
+
+PB.buildCryptoworker = function(options) {
+    PB.cryptoworker = new Worker("js/cryptoworker.js")
+    PB.cryptoworker.addEventListener("message", PB.workerreceive)
+}
+
+PB.workerqueue = []
+PB.workerautoid = 0
+
+PB.workerreceive = function(msg) {
+    var id = msg.data.id
+    if(!id) return false // TODO: add onError here
+
+    var fun = PB.workerqueue[id]
+    if(!fun) return false // TODO: add onError here
+
+    fun(msg.data.evaluated)
+
+    delete PB.workerqueue[id] // THINK: this leaves a sparse array, but is probably faster than splicing
+}
+
+PB.workersend = function(funstr, args, resolve, reject) {
+    PB.workerautoid += 1
+    PB.workerqueue[PB.workerautoid] = resolve
+    if(!Array.isArray(args))
+        args = [args]
+    PB.cryptoworker.postMessage({fun: funstr, args: args, id: PB.workerautoid})
+}
+
+//// END BUILD CRYPTO WORKER ////
+
+
+
+
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
 PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
@@ -524,7 +582,7 @@ PB.onError = function(msg, obj) {
     toSend = {msg: msg, obj: obj}
 
     if(puffworldprops.prefs.reporting)
-        PB.Net.xhr(CONFIG.eventsApi, {method: 'POST'}, toSend)
+        PB.Net.xhr(PB.CONFIG.eventsApi, {method: 'POST'}, toSend)
 
     console.log(msg, obj) // adding this back in for debugging help
     return false

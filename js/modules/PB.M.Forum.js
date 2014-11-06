@@ -24,18 +24,17 @@ PB.M.Forum.contentTypes = {}
  * set up everything
  */
 PB.M.Forum.init = function() {
-    //// set up everything. 
-    // THINK: maybe you can only call this once?
-    // THINK: maybe take a zone arg, but default to config
-
-    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)
-
-    PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)
-
-    // THINK: maybe don't call this here? maybe PB.init calls all the module inits? ooooh.... yeah, do that.
-    PB.init(CONFIG.zone) // establishes the P2P network, pulls in interesting puffs, caches user information, etc
+    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)              // manages parent-child relationships
+    PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)    // clear private caches 
+    PB.addPayloadModifierHandler(PB.M.Forum.addTimestamp)               // add timestamp to all new puffs
 }
 
+
+PB.M.Forum.addTimestamp = function(payload) {
+    payload = payload || {}
+    payload.time = Date.now()
+    return payload
+}
 
 /**
  * filter puffs by prop filters
@@ -261,7 +260,7 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
 
     var type  = type || 'text'
     var routes = routes ? routes : [];
-    routes = routes.concat(CONFIG.zone);
+    routes = routes.concat(PB.CONFIG.zone);
     
     return function(userRecord) {
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
@@ -350,7 +349,7 @@ PB.M.Forum.addContentType = function(name, type) {
     
     if(!name) 
         return console.log('Invalid content type name');
-    if (CONFIG.supportedContentTypes.indexOf(name) == -1)  // THINK: should this be a blacklist instead?
+    if (PB.CONFIG.supportedContentTypes.indexOf(name) == -1)  // THINK: should this be a blacklist instead?
         return console.log('Unsupported content type: ' + name);
     if(!type.toHtml) 
         return console.log('Invalid content type: object is missing toHtml method', name);
@@ -463,7 +462,7 @@ PB.M.Forum.flagPuff = function (sig) {
                , puff: puff
                };
 
-    var prom = PB.Net.post(CONFIG.puffApi, data);
+    var prom = PB.Net.post(PB.CONFIG.puffApi, data);
     prom = prom.then(function(result){
         // var storedShells = PB.Persist.get('shells');
         // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});

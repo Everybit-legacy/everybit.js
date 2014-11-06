@@ -198,7 +198,7 @@ goodLookupPromise.catch(function(err) { testfail("The user record lookup should 
 /// gridbox tests
 
 getScreenCoords = function() {
-    return { width:  window.innerWidth - CONFIG.leftMargin
+    return { width:  window.innerWidth - PB.CONFIG.leftMargin
            , height: window.innerHeight
            }
 }

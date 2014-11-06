@@ -13,6 +13,11 @@ PB.Users = {}
 PB.Users.records  = {}                              // maps username to an array of DHT userRecords
 PB.Users.promises = {}                              // pending userRecord requests
 
+PB.Users.init = function(options) {
+    PB.Users.depersist()                            // pop userRecords out of localStorage
+}
+
+
 
 PB.Users.process = function(userRecord) {
     //// Processes all incoming userRecords
@@ -283,7 +288,7 @@ PB.Users.addNewAnonUser = function(attachToUsername) {
     var newUsername  = 'anon.' + anonUsername
 
     // send it off
-    var prom = PB.Net.registerSubuser('anon', CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+    var prom = PB.Net.registerSubuser('anon', PB.CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
 
     return prom
         .then(function(userRecord) {

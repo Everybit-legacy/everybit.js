@@ -89,34 +89,36 @@ ICXdefaults = JSON.parse(JSON.stringify(ICX))
 ICX.cachedReplies = {}
 
 // OTHER
-CONFIG = {};
+if(typeof PB === 'undefined') PB = {} // in case we load this before PB.js
 
-CONFIG.version = '0.5';
+if(!PB.CONFIG) PB.CONFIG = {} // in case there's other config files
+
+PB.CONFIG.version = '0.5';
 
 // Array of versions of Puff supported
 // Not yet implemented
-CONFIG.puffVersions = [];
+PB.CONFIG.puffVersions = [];
 
-CONFIG.userApi = 'https://i.cx/api/users/api.php';
-CONFIG.puffApi = 'https://i.cx/api/puffs/api.php';
-CONFIG.eventsApi = 'https://i.cx/api/puffs/api.php';
+PB.CONFIG.userApi = 'https://i.cx/api/users/api.php';
+PB.CONFIG.puffApi = 'https://i.cx/api/puffs/api.php';
+PB.CONFIG.eventsApi = 'https://i.cx/api/puffs/api.php';
 
 // Zone is added in route of every puff publishing using this code
-CONFIG.zone = 'icx';
+PB.CONFIG.zone = 'icx';
 
-CONFIG.url = 'https://i.cx';
-// CONFIG.logo = 'img/EveryBitLogoLeft.svg';
+PB.CONFIG.url = 'https://i.cx';
+// PB.CONFIG.logo = 'img/EveryBitLogoLeft.svg';
 
 /* See translate.js */
-CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
-CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di';
+PB.CONFIG.defaultPuff = '381yXZ2FqXvxAtbY3Csh2Q6X9ByNQUj1nbBWUMGWYoTeK8hHHtKwmsvc8gZKeDnCtfr49Ld9yAayWPV6R8mYQ1Aeh6MJtzEf';
+PB.CONFIG.faqPuff = 'AN1rKvtN7zq6EBhuU8EzBmnaHnb3CgvHa9q2B5LJEzeXs5FakhrArCQRtyBoKrywsupwQKZm5KzDd3yVZWJy4hVhwwdSp12di';
 
 // List of supported content types
-CONFIG.supportedContentTypes = ['image','bbcode','text','markdown','PGN','profile','file'];
-CONFIG.unsupportedContentTypes = [];
-CONFIG.defaultContentType = 'markdown';
+PB.CONFIG.supportedContentTypes = ['image','bbcode','text','markdown','PGN','profile','file'];
+PB.CONFIG.unsupportedContentTypes = [];
+PB.CONFIG.defaultContentType = 'markdown';
 
-CONFIG.users = [
+PB.CONFIG.users = [
     {
         username: 'anon',
         adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'
@@ -128,70 +130,70 @@ CONFIG.users = [
 ];
 
 
-CONFIG.users['anon'] = {adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'}
-CONFIG.users['forum'] = {adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'}
+PB.CONFIG.users['anon'] = {adminKey: '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx'}
+PB.CONFIG.users['forum'] = {adminKey: '5JM6bnJmPHbtGGcukqjc1Yg8QcoDTorPK3NDGGy4w5fr46Rrhwn'}
 
 // How much space to leave on left side of screen, in pixels
-CONFIG.leftMargin = 20;
+PB.CONFIG.leftMargin = 20;
 
-CONFIG.rightMargin = 20;
+PB.CONFIG.rightMargin = 20;
 
-CONFIG.verticalPadding = 70;
+PB.CONFIG.verticalPadding = 70;
 
 // Side of the page you want the menu to go on
-CONFIG.menuRight = false;
+PB.CONFIG.menuRight = false;
 
-CONFIG.menuWidth = 400;
+PB.CONFIG.menuWidth = 400;
 
 // Minimum width for advanced tools
-CONFIG.minWidthAdvancedTools = 400;
+PB.CONFIG.minWidthAdvancedTools = 400;
 
 /* Puffs must be at least this many characters to be submitted */
-CONFIG.minimumPuffLength = 3;
-CONFIG.PGNTimeout = 5;
+PB.CONFIG.minimumPuffLength = 3;
+PB.CONFIG.PGNTimeout = 5;
 
 // Space between puffs in regular view
-CONFIG.minSpacing = 3;
+PB.CONFIG.minSpacing = 3;
 
 // Extra space between puffs in relationship view
-CONFIG.extraSpacing = 25;
+PB.CONFIG.extraSpacing = 25;
 
 // background color
-CONFIG.defaultBgcolor = "E0E0E0";
+PB.CONFIG.defaultBgcolor = "E0E0E0";
 
 
 // configurations for network requests. eventually queries will track their timing and we'll automate these settings.
-CONFIG.pageBatchSize = 10
+PB.CONFIG.pageBatchSize = 10
 
-CONFIG.initLoadBatchSize = 20
-CONFIG.initLoadGiveup    = 300
+PB.CONFIG.initLoadBatchSize = 20
+PB.CONFIG.initLoadGiveup    = 300
 
-CONFIG.fillSlotsBatchSize = 50
-CONFIG.fillSlotsGiveup    = 1000
+PB.CONFIG.fillSlotsBatchSize = 50
+PB.CONFIG.fillSlotsGiveup    = 1000
 
-CONFIG.globalBigBatchLimit = 2000
+PB.CONFIG.globalBigBatchLimit = 2000
 
 
 // default size limits
-CONFIG.localStorageMemoryLimit =  3E6 //  3MB
-CONFIG.inMemoryMemoryLimit     = 30E6 // 30MB
+PB.CONFIG.localStorageMemoryLimit =  3E6 //  3MB
+PB.CONFIG.inMemoryMemoryLimit     = 30E6 // 30MB
 
-CONFIG.localStorageShellLimit =  1000 // maximum number of shells
-CONFIG.inMemoryShellLimit     = 10000 // (shells are removed to compensate)
+PB.CONFIG.localStorageShellLimit =  1000 // maximum number of shells
+PB.CONFIG.inMemoryShellLimit     = 10000 // (shells are removed to compensate)
 
-CONFIG.shellContentThreshold  =  1000 // size of uncompacted content
+PB.CONFIG.shellContentThreshold  =  1000 // size of uncompacted content
 
 // for tableView
-CONFIG.defaultColumn = {
+PB.CONFIG.defaultColumn = {
     show: false,
     weight: 1,
     allowSort: false
 }
-CONFIG.maxGeneration = 5
-CONFIG.maxParentGen = 3
-CONFIG.maxChildGen = 4
+PB.CONFIG.maxGeneration = 5
+PB.CONFIG.maxParentGen = 3
+PB.CONFIG.maxChildGen = 4
 
 //should only be changed if the underlying platform changes
-CONFIG.standards ={}
-CONFIG.standards.usernames = {}
-CONFIG.standards.usernames.maxLength = 255
+PB.CONFIG.standards ={}
+PB.CONFIG.standards.usernames = {}
+PB.CONFIG.standards.usernames.maxLength = 255

@@ -440,7 +440,7 @@ var RegisterSubuserWizard = React.createClass({
                 Register a subuser <br/>
 
                 <select ref="prefix">
-                {CONFIG.users.map(function(u) {
+                {PB.CONFIG.users.map(function(u) {
                     return <option key={u.username} value={u.username}>.{u.username}</option>
                 })}
                 </select> <em>.</em>{' '}
@@ -606,10 +606,10 @@ var PasswordWizard = React.createClass({
 
         var prefix = username.split('.')[0]  
         var prefixKey
-        if (CONFIG.users[prefix]) {
-            prefixKey = CONFIG.users[prefix].adminKey
+        if (PB.CONFIG.users[prefix]) {
+            prefixKey = PB.CONFIG.users[prefix].adminKey
         } else {
-            prefixKey = CONFIG.users["anon"].adminKey
+            prefixKey = PB.CONFIG.users["anon"].adminKey
             prefix = "anon"
         }
 

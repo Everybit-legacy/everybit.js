@@ -2,14 +2,14 @@
 
 var ComputeDimensionMixin = {
 	getScreenCoords: function() {
-        if(CONFIG.menuRight) {
-            var margin = CONFIG.rightMargin
+        if(PB.CONFIG.menuRight) {
+            var margin = PB.CONFIG.rightMargin
         } else {
-            var margin = CONFIG.leftMargin
+            var margin = PB.CONFIG.leftMargin
         }
 
         return { width:  window.innerWidth - margin
-               , height: window.innerHeight - CONFIG.verticalPadding
+               , height: window.innerHeight - PB.CONFIG.verticalPadding
                }
 	},
 	getRowWidth: function() {
@@ -259,13 +259,13 @@ var RowSortMixin = {
 var TableView = React.createClass({
 	mixins: [ViewKeybindingsMixin, ComputeDimensionMixin, RowSortMixin],
 	getInitialState: function() {
-		return {loaded: CONFIG.initLoadBatchSize, 
+		return {loaded: PB.CONFIG.initLoadBatchSize, 
 				noMorePuff: false/*, 
 				headerHeight: 0*/}
 	},
 	loadMore: function() {
 		if (this.state.noMorePuff !== true) {
-			this.setState({loaded: this.state.loaded + CONFIG.pageBatchSize,
+			this.setState({loaded: this.state.loaded + PB.CONFIG.pageBatchSize,
 					   	   noMorePuff: false})
 			this.refs.header.forceUpdate()
 		}
@@ -331,8 +331,8 @@ var TableView = React.createClass({
         var cntr = 0
 
 		// TODO add this to config
-		var top = CONFIG.verticalPadding - 20
-		var left = CONFIG.leftMargin
+		var top = PB.CONFIG.verticalPadding - 20
+		var left = PB.CONFIG.leftMargin
 		var style={
 			top: top, left:left, position: 'absolute'
 		}
@@ -352,8 +352,8 @@ var TableView = React.createClass({
 			var puffs = PB.M.Forum.getPuffList(query, filters, limit).filter(Boolean)
 			puffs = this.sortPuffs(puffs)	
 
-		var overlay = <span className="overlay" style={{backgroundColor: document.body.style.backgroundColor || "#"+CONFIG.defaultBgcolor}}></span>
-		var top = CONFIG.verticalPadding - 20
+		var overlay = <span className="overlay" style={{backgroundColor: document.body.style.backgroundColor || "#"+PB.CONFIG.defaultBgcolor}}></span>
+		var top = PB.CONFIG.verticalPadding - 20
 			return (
 				<div style={style} className="listview">
 					{overlay}
@@ -511,7 +511,7 @@ var RowSingle = React.createClass({
 				currentColumns.indexOf(col) == -1 &&
 				col != 'parents') {
 				var jsonToSet = {}
-				jsonToSet['view.table.column.'+col] = Boron.shallow_copy(CONFIG.defaultColumn)
+				jsonToSet['view.table.column.'+col] = Boron.shallow_copy(PB.CONFIG.defaultColumn)
 				update_puffworldprops(jsonToSet)
 			}
 		}
@@ -676,7 +676,7 @@ var RowBox = React.createClass({
 		var groupArray = []
 		var group = this.getGroup(sig, relation)
 		var level = 2 // start from 2 since 1st generation is the row that's changing itself
-		while (group.length != 0 && level < CONFIG.maxGeneration) {
+		while (group.length != 0 && level < PB.CONFIG.maxGeneration) {
 			var nextSig = group[0].sig // default to first item in list
 			// groupArray.push(group.map(PB.getPuffBySig))
 			groupArray.push(group)

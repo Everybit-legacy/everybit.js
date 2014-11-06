@@ -1561,7 +1561,7 @@ var ICXNewUser = React.createClass({ /* Good */
             return false
         }
 
-        if (username.length > CONFIG.standards.usernames.maxLength) {
+        if (username.length > PB.CONFIG.standards.usernames.maxLength) {
             Events.pub('ui/event', {
                 'ICX.newUser.usernameStatus': 'long',
                 'ICX.newUser.usernameMessage': 'Too Long'

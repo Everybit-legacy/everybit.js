@@ -188,7 +188,7 @@ puffworlddefaults = puffworldprops  // it's immutable so we don't care
 //// event bindings for controlling core behavior from the display ////
 
 Events.sub('prefs/ephemeralKeychain/toggle', function(data, path) {
-    var new_state = !CONFIG.ephemeralKeychain
+    var new_state = !PB.CONFIG.ephemeralKeychain
     modConfig('ephemeralKeychain', new_state)
 
     var dir = new_state ? 'on' : 'off'

@@ -17,6 +17,15 @@ PB.Data.pendingPuffPromises = {}
 
 PB.Data.profiles = {}
 
+PB.Data.init = function() {
+    PB.Data.importShells()                                          // preload relevant shells
+    PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
+}
+
+
+
+
+
 ///////////////// new graph stuff ////////////////////
 
 PB.Data.addSigAsVertex = function(sig) {
@@ -328,7 +337,7 @@ PB.Data.handleAndFilterByGC = function(shells) {
  * @returns {(boolean|*)}
  */
 PB.Data.persistShells = function(shells) {
-    if(CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
+    if(PB.CONFIG.noLocalStorage) return false                      // THINK: this is only for debugging and development
     
     // THINK: when we receive shells directly we should compact them too
     if(!shells) 
@@ -348,7 +357,7 @@ PB.Data.persistShells = function(shells) {
 
 PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
     offset = offset || 0
-    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    batchsize = batchsize || PB.CONFIG.pageBatchSize || 10
     
     var prom
     prom = PB.Net.getConversationPuffs(convoId, batchsize, offset)
@@ -582,8 +591,8 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     if(!username) username = PB.getCurrentUsername()
     
     offset = offset || 0
-    // offset = offset || CONFIG.initLoadBatchSize || 20
-    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    // offset = offset || PB.CONFIG.initLoadBatchSize || 20
+    batchsize = batchsize || PB.CONFIG.pageBatchSize || 10
     
     var prom
     prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
@@ -682,8 +691,8 @@ PB.Data.importRemoteShells = function() {
     //// only called during initial application bootup. handles both cold loads and hot loads.
     
     var offset = 0
-    var giveup = CONFIG.initLoadGiveup
-    var limit  = CONFIG.initLoadBatchSize
+    var giveup = PB.CONFIG.initLoadGiveup
+    var limit  = PB.CONFIG.initLoadBatchSize
     var new_shells = []
     var keep_going = true
     
@@ -788,8 +797,8 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
 
     // OLD STUFF SAVE FOR REFERENCE
 
-    // var batchSize = CONFIG.fillSlotsBatchSize
-    // var giveup = CONFIG.fillSlotsGiveup
+    // var batchSize = PB.CONFIG.fillSlotsBatchSize
+    // var giveup = PB.CONFIG.fillSlotsGiveup
     // var new_shells = []
     //
     // giveup = giveup + my_offset
@@ -1052,9 +1061,9 @@ PB.Data.getNotTopPuffs = function(limit) {
 
 PB.Data.garbageCompactor = function() {
     // are we over the limits?
-    var limit     = CONFIG.inMemoryShellLimit
-    var memlimit  = CONFIG.inMemoryMemoryLimit
-    var sizelimit = CONFIG.shellContentThreshold
+    var limit     = PB.CONFIG.inMemoryShellLimit
+    var memlimit  = PB.CONFIG.inMemoryMemoryLimit
+    var sizelimit = PB.CONFIG.shellContentThreshold
     var didStuff  = false
 
     if(PB.Data.shells.length > limit) {
@@ -1079,9 +1088,9 @@ PB.Data.garbageCompactor = function() {
 }
 
 PB.Data.getShellsForLocalStorage = function() {
-    var limit     = CONFIG.localStorageShellLimit
-    var memlimit  = CONFIG.localStorageMemoryLimit
-    var sizelimit = CONFIG.shellContentThreshold
+    var limit     = PB.CONFIG.localStorageShellLimit
+    var memlimit  = PB.CONFIG.localStorageMemoryLimit
+    var sizelimit = PB.CONFIG.shellContentThreshold
     
     var shells = PB.Data.getTopPuffs(limit)
     var total = shells.reduce(function(size, shell) {

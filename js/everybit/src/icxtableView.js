@@ -695,10 +695,10 @@ var ViewLoadMore = React.createClass({
         var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
 
         getConvoContent(convoId)
-        // var report = PB.Data.getMorePrivatePuffs('', loaded, CONFIG.pageBatchSize) // report is a Promise
-        // PB.Data.getConversationPuffs(convoId, convoInfo.loaded, CONFIG.pageBatchSize)
+        // var report = PB.Data.getMorePrivatePuffs('', loaded, PB.CONFIG.pageBatchSize) // report is a Promise
+        // PB.Data.getConversationPuffs(convoId, convoInfo.loaded, PB.CONFIG.pageBatchSize)
         // TODO: use report to determine next state of button:
-        //       - if report.counts.delivered == CONFIG.pageBatchSize then we can try loading more
+        //       - if report.counts.delivered == PB.CONFIG.pageBatchSize then we can try loading more
         //       - otherwise we failed to gather all the puffs we tried to gather (either No More or Network Error)
         
         // NOTE: until report.private_promise resolves, not all puffs have been displayed in the GUI. 
@@ -708,7 +708,7 @@ var ViewLoadMore = React.createClass({
         // THINK: Where should we keep track of the loaded field?
         // We could do it when a new puff has been cached, or here
         // var obj = {}
-        // convoInfo.loaded += CONFIG.pageBatchSize
+        // convoInfo.loaded += PB.CONFIG.pageBatchSize
         // obj['ICX.uniqueConvoIDs.' + convoId] = convoInfo
 		// return Events.pub('ui/event', obj)
 	},

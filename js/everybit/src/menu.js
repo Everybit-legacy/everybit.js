@@ -526,7 +526,7 @@ var PreferencesMenu = React.createClass({
                 var b = parseFloat(currentBg[2])
                 colorDiv.color.fromRGB(r/255.0, g/255.0, b/255.0)
             } else {
-                colorDiv.color.fromString(CONFIG.defaultBgcolor)
+                colorDiv.color.fromString(PB.CONFIG.defaultBgcolor)
             }
             colorDiv.onchange = this.handlePickBgcolor
         }
@@ -623,7 +623,7 @@ var AboutMenu = React.createClass({
     mixins: [TooltipMixin],
 
     handleShowFaq: function() {
-        showPuff(CONFIG.faqPuff)
+        showPuff(PB.CONFIG.faqPuff)
         return false
     },
 
@@ -1247,7 +1247,7 @@ var NewIdentity = React.createClass({
                 <div className="menuLabel"><span className="message">{polyglot.t("menu.identity.new_identity.msg")}:</span></div><br/>
                 <div className = "menuItem">
                     <select ref="prefix">
-                    {CONFIG.users.map(function(u) {
+                    {PB.CONFIG.users.map(function(u) {
                         return <option key={u.username} value={u.username}>.{u.username}</option>
                     })}
                     </select> <em>.</em>{' '}
@@ -1447,7 +1447,7 @@ var NewIdentity = React.createClass({
         var type = 'updateUserRecord'
         var content = 'requestUsername'
 
-        var puff = PB.buildPuff(prefix, CONFIG.users[prefix].adminKey, routes, type, content, payload) 
+        var puff = PB.buildPuff(prefix, PB.CONFIG.users[prefix].adminKey, routes, type, content, payload) 
         // SUBMIT REQUEST
         var prom = PB.Net.updateUserRecord(puff)
         prom.then(function(userRecord) {

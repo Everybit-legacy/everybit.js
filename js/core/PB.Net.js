@@ -21,6 +21,8 @@ PB.Net = {};
  * fire up networks (currently just the peer connections)
  */
 PB.Net.init = function() {
+    if(PB.CONFIG.noNetwork) return false                   // THINK: this is only for debugging and development
+    
     PB.Net.P2P.init();
 }
 
@@ -30,14 +32,14 @@ PB.Net.init = function() {
  * @return {object}     puff corresponds to the specified signature
  */
 PB.Net.getPuffBySig = function(sig) {
-    var url  = CONFIG.puffApi;
+    var url  = PB.CONFIG.puffApi;
     var data = {type: 'getPuffBySig', sig: sig};
     
     return PB.Net.getJSON(url, data);
 }
 
 PB.Net.getKidSigs = function(sig) {
-    var url  = CONFIG.puffApi;
+    var url  = PB.CONFIG.puffApi;
     var data = {type: 'getChildrenBySig', sig: sig};
     
     return PB.Net.getJSON(url, data);
@@ -48,8 +50,8 @@ PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'l
 
 
 PB.Net.getStarShells = function() {
-    var url  = CONFIG.puffApi;
-    var data = {type: 'getPuffs', contentType: 'star', numb: CONFIG.globalBigBatchLimit};
+    var url  = PB.CONFIG.puffApi;
+    var data = {type: 'getPuffs', contentType: 'star', numb: PB.CONFIG.globalBigBatchLimit};
     
     return PB.Net.getJSON(url, data);
 }
@@ -57,7 +59,7 @@ PB.Net.getStarShells = function() {
 PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) {
     convoId  = convoId.replace('&',',')
 
-    var url  = CONFIG.puffApi
+    var url  = PB.CONFIG.puffApi
     var data = { type: 'getPuffs', contentType: 'encryptedpuff'
                , conversationPartners: convoId
                , numb: batchsize
@@ -69,9 +71,9 @@ PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) 
 
 PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     if(!username) return PB.emptyPromise()
-    batchsize = batchsize || CONFIG.globalBigBatchLimit
+    batchsize = batchsize || PB.CONFIG.globalBigBatchLimit
     
-    var url  = CONFIG.puffApi
+    var url  = PB.CONFIG.puffApi
     var data = { route: username, username: username, fromAndTo: 1
                , type: 'getPuffs', contentType: 'encryptedpuff'
                , fullOrShell: fullOrShell || 'full'
@@ -107,7 +109,7 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
 
 
 PB.Net.getProfilePuff = function(username) {
-    var url  = CONFIG.puffApi
+    var url  = PB.CONFIG.puffApi
     var data = { username: username
                , fullOrShell: 'full'
                , contentType: 'profile'
@@ -136,7 +138,7 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     // if(mode == 'siblings')    return PB.Net.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
-    var url  = CONFIG.puffApi;
+    var url  = PB.CONFIG.puffApi;
 
     //  if(filters.types)   data.type       = filters.types      // filter by types
 
@@ -163,7 +165,7 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     var filterstring = JSON.stringify(filters.types)
     var profile_request = (filterstring == '["profile"]')
     
-    if(CONFIG.noNetwork && !profile_request)                // THINK: this is only for debugging and development
+    if(PB.CONFIG.noNetwork && !profile_request)                // THINK: this is only for debugging and development
         return PB.emptyPromise()
                  .then(function() {return []});
     
@@ -264,7 +266,7 @@ PB.Net.getSiblings = function() {
 PB.Net.distributePuff = function(puff) {
     //// distribute a puff to the network
 
-    if(CONFIG.noNetwork && !CONFIG.icxmode) return false; // THINK: this is only for debugging and development
+    if(PB.CONFIG.noNetwork && !PB.CONFIG.icxmode) return false; // THINK: this is only for debugging and development
 
     PB.Net.sendPuffToServer(puff);                        // add it to the server's pufflist
 
@@ -284,7 +286,7 @@ PB.Net.sendPuffToServer = function(puff) {
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
                
-    return PB.Net.post(CONFIG.puffApi, data)
+    return PB.Net.post(PB.CONFIG.puffApi, data)
                  .then(function(response) { 
                      if(response.slice(0,6) == '{"FAIL')
                          PB.throwError(response)
@@ -299,7 +301,7 @@ PB.Net.sendPuffToServer = function(puff) {
  * @return {promise} on fulfilled passes the user record as object, otherwise re-throw error
  */
 PB.Net.getUserRecord = function(username, capa) {
-    var url   = CONFIG.userApi
+    var url   = PB.CONFIG.userApi
     
     var versionedUsername = PB.Users.makeVersioned(username, capa)
     username = PB.Users.justUsername(versionedUsername)
@@ -366,7 +368,7 @@ PB.Net.updateUserRecord = function(puff) {
                , puff: puff
                }
 
-    var prom = PB.Net.post(CONFIG.userApi, data)
+    var prom = PB.Net.post(PB.CONFIG.userApi, data)
     
     return prom.catch(PB.catchError('Sending user record modification puff failed miserably'))
                .then(JSON.parse) // THINK: this throws on invalid JSON

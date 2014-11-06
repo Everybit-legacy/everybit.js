@@ -279,14 +279,14 @@ var CursorBindingsMixin = {
 
 var GridLayoutMixin = {
     getScreenCoords: function() {
-        if(CONFIG.menuRight) {
-            var margin = CONFIG.rightMargin
+        if(PB.CONFIG.menuRight) {
+            var margin = PB.CONFIG.rightMargin
         } else {
-            var margin = CONFIG.leftMargin
+            var margin = PB.CONFIG.leftMargin
         }
 
         return { width:  window.innerWidth - margin
-               , height: window.innerHeight - CONFIG.verticalPadding
+               , height: window.innerHeight - PB.CONFIG.verticalPadding
                }
     },
     getDimensions: function() {
@@ -359,7 +359,7 @@ var GridLayoutMixin = {
                                                 .filter(function(pair) {return pair[0]})
 
         return (
-            <svg width={screencoords.width} height={screencoords.height} style={{position:'absolute', top:'0px', left:CONFIG.leftMargin}}>
+            <svg width={screencoords.width} height={screencoords.height} style={{position:'absolute', top:'0px', left:PB.CONFIG.leftMargin}}>
                 <defs dangerouslySetInnerHTML={{__html: '<marker id="triangle" viewBox="0 0 20 20" refX="10" refY="10" fill="blue" markerUnits="strokeWidth" markerWidth="18" markerHeight="12" orient="auto"><path d="M 0 5 L 10 10 L 0 15 z" /><circle cx="15" cy="10" r="5" fill="white" /></marker>'}} ></defs>
                 {arrows.map(function(arrow) {
                     return <PuffArrow key={'arrow-' + arrow[0].puff.sig + '-' + arrow[1].puff.sig} arrow={arrow} />
@@ -408,25 +408,25 @@ var PuffWorld = React.createClass({
         var viewprops = this.props.view || {}
 
         if(this.props.menu.show) {
-            CONFIG.rightMargin = 420
-            CONFIG.leftMargin = 420
+            PB.CONFIG.rightMargin = 420
+            PB.CONFIG.leftMargin = 420
         } else {
-            CONFIG.rightMargin = 60
-            CONFIG.leftMargin = 40
+            PB.CONFIG.rightMargin = 60
+            PB.CONFIG.leftMargin = 40
         }
 
         /*
-        if(CONFIG.menuRight) {
+        if(PB.CONFIG.menuRight) {
             if(this.props.menu.show) {
-                CONFIG.leftMargin = 460
+                PB.CONFIG.leftMargin = 460
             } else {
-                CONFIG.leftMargin = 60
+                PB.CONFIG.leftMargin = 60
             }
         } else {
             if(this.props.menu.show) {
-                CONFIG.leftMargin = 460
+                PB.CONFIG.leftMargin = 460
             } else {
-                CONFIG.leftMargin = 60
+                PB.CONFIG.leftMargin = 60
             }
         }
         */
@@ -454,7 +454,7 @@ var PuffWorld = React.createClass({
         // THINK: is this else clause being overridden somewhere? can we remove it?
         
         else {  // no mode? smash cut to default puff.
-            var defaultPuffSig = polyglot.t("puff.default") || CONFIG.defaultPuff
+            var defaultPuffSig = polyglot.t("puff.default") || PB.CONFIG.defaultPuff
             Events.pub('ui/mode/default', { 'view': puffworlddefaults.view
                                           , 'view.mode': 'focus'
                                           , 'view.query.focus': defaultPuffSig })
@@ -865,9 +865,9 @@ var PuffArrow =  React.createClass({
         // Use mod of sig, so we can do same for arrowheads!
         // TODO: Make mini-helper function
         var colNumber = parseInt(Bitcoin.Crypto.MD5(this.props.key.slice(-32)),16)
-        colNumber = colNumber % CONFIG.arrowColors.length
+        colNumber = colNumber % PB.CONFIG.arrowColors.length
 
-        var stroke = CONFIG.arrowColors[colNumber]
+        var stroke = PB.CONFIG.arrowColors[colNumber]
         return <Arrow x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} fill={stroke} />
     }
 })
@@ -902,7 +902,7 @@ var PuffFooter = React.createClass({
 
             <div className="footer" style={{maxWidth: width}}>
                 <div className="footerText">
-                {polyglot.t("footer.powered")} <a href={CONFIG.url} className="footerText">puffball</a>.
+                {polyglot.t("footer.powered")} <a href={PB.CONFIG.url} className="footerText">puffball</a>.
                 {polyglot.t("footer.rest")}
                 </div>
             </div>
@@ -916,8 +916,8 @@ var Logo = React.createClass({
     render: function() {
         return (
             <div>
-                <a href={CONFIG.url}>
-                    <img src={CONFIG.logo} alt="Logo" className="logo" />
+                <a href={PB.CONFIG.url}>
+                    <img src={PB.CONFIG.logo} alt="Logo" className="logo" />
                 </a>
             </div>
             )
@@ -943,7 +943,7 @@ var PuffScroller = React.createClass({
             return (<span></span>)
         }
 
-        var left = CONFIG.leftMargin
+        var left = PB.CONFIG.leftMargin
 
         var col   = this.getDimensions().cols
         var screencoords = this.getScreenCoords()

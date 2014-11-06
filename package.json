@@ -1,0 +1,16 @@
+{
+  "name": "EveryBit",
+  "version": "0.0.0",
+  "description": "EveryBit",
+  "license": "MIT",
+  "dependencies": {
+    "gulp": "^3.8.7",
+    "gulp-concat": "^2.3.4",
+    "gulp-filesize":"^0.0.6",
+    "gulp-jsdoc":"^0.1.4",
+    "gulp-rename":"^1.2.0",
+    "gulp-sourcemaps":"^1.1.4",
+    "gulp-uglify":"^1.0.0",
+    "gulp-zip":"^2.0.1"
+  }
+}

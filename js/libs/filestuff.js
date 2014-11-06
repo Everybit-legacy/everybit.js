@@ -55,7 +55,7 @@ PBFiles.extractLetterPuff = function(content) {
     // var userRecord = PB.getCurrentUserRecord()
     // var pubkey = userRecord.defaultKey
     
-    var letter = PB.getDecryptedPuffPromise(puff)
+    var letter = PB.Data.getDecryptedPuffPromise(puff)
     
     return letter
 }

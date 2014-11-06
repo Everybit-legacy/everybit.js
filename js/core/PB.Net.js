@@ -301,11 +301,11 @@ PB.Net.sendPuffToServer = function(puff) {
 PB.Net.getUserRecord = function(username, capa) {
     var url   = CONFIG.userApi
     
-    var versionedUsername = PB.maybeVersioned(username, capa)
-    username = PB.justUsername(versionedUsername)
+    var versionedUsername = PB.Users.makeVersioned(username, capa)
+    username = PB.Users.justUsername(versionedUsername)
     
     if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
-        capa = PB.justCapa(versionedUsername)
+        capa = PB.Users.justCapa(versionedUsername)
     
     var data  = { type: 'getUser'
                 , username: username

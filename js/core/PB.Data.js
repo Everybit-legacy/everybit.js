@@ -344,6 +344,26 @@ PB.Data.persistShells = function(shells) {
     PB.Persist.save('shells', shells)
 }
 
+
+
+PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
+    offset = offset || 0
+    batchsize = batchsize || CONFIG.pageBatchSize || 10
+    
+    var prom
+    prom = PB.Net.getConversationPuffs(convoId, batchsize, offset)
+    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
+    return prom
+}
+
+PB.Data.getConversationPuffs = PB.promiseMemoize(PB.Data.getConversationPuffs, function(key, report) {
+    report.private_promise.then(function() {
+        PB.removePromisePending(key)
+    })
+})
+
+
+
 /**
  * to import shells from local and remote sources
  */
@@ -432,6 +452,131 @@ PB.Data.removeAllPrivateShells = function() {
     PB.Data.currentDecryptedLetters = [] 
 }
 
+
+
+PB.Data.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
+    //// stick a letter in an envelope. userRecords must be fully instantiated.
+    var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
+    
+    var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
+    var versionedUsername = letter.username
+    
+    if(privateEnvelopeAlias) {
+        myPrivateWif = privateEnvelopeAlias.default
+        versionedUsername = PB.Users.makeVersioned(privateEnvelopeAlias.username, privateEnvelopeAlias.capa)
+    }
+    
+    var envelope = PB.Data.packagePuffStructure(versionedUsername, letter.routes  // envelope is also a puff
+                           , 'encryptedpuff', letterCipher, {}, letter.previous)  // it includes the letter
+    
+    envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
+    envelope.sig = PB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
+    
+    return envelope
+}
+
+PB.Data.extractLetterFromEnvelope = function(envelope) {                // the envelope is a puff
+    if(PB.Data.isBadEnvelope(envelope.sig)) 
+        return Promise.reject('Bad envelope')                           // flagged as invalid envelope
+
+    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
+    
+    if(maybeLetter)
+        return Promise.resolve(maybeLetter)                             // resolve to existing letter
+    
+    var prom = PB.Data.getDecryptedPuffPromise(envelope)                // do the decryption
+    
+    return prom.catch(function(err) { return false })
+               .then(function(letter) {
+                   if(!letter) {
+                       PB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
+                       return PB.throwError('Invalid envelope')         // bail out
+                   }
+
+                   return letter
+               })
+    
+}
+
+PB.Data.getDecryptedPuffPromise = function(envelope) {
+    //// pull a letter out of the envelope -- returns a promise!
+
+    if(!envelope || !envelope.keys) 
+        return PB.emptyPromise('Envelope does not contain an encrypted letter')
+    
+    var senderVersionedUsername = envelope.username
+    var userProm = PB.Users.getUserRecordPromise(senderVersionedUsername)
+    
+    var prom = userProm
+    .catch(PB.catchError('User record acquisition failed'))
+    .then(function(senderVersionedUserRecord) {
+        var prom // used for leaking secure promise
+    
+        PB.useSecureInfo(function(identites, currentUsername) {
+            // NOTE: leaks a promise which resolves to unencrypted puff
+        
+            var keylist = Object.keys(envelope.keys)
+            var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
+            if(!myVersionedUsername)
+                return PB.throwError('No key found for current user')
+
+            var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
+            var privateDefaultKey = alias.privateDefaultKey
+
+            prom = new Promise(function(resolve, reject) {
+                return PB.workersend
+                     ? PB.workersend( 'decryptPuffForReals'
+                                    , [ envelope
+                                      , senderVersionedUserRecord.defaultKey
+                                      , myVersionedUsername
+                                      , privateDefaultKey ]
+                                    , resolve, reject )
+                     : resolve( PB.decryptPuffForReals( envelope
+                                                      , senderVersionedUserRecord.defaultKey
+                                                      , myVersionedUsername
+                                                      , privateDefaultKey ) )
+            })
+        })
+
+        return prom
+    })
+    
+    return prom
+}
+
+
+
+
+PB.Data.packagePuffStructure = function(versionedUsername, routes, type, content, payload, previous) {
+    //// pack all the parameters into an object with puff structure (without signature)
+    
+    payload = payload || {}                     // TODO: check all of these values more carefully
+    payload.content = content
+    payload.type = type
+
+    routes = routes || []
+    previous = previous || false                // false for DHT requests and beginning of blockchain, else valid sig
+
+    var puff = { username: versionedUsername
+               ,   routes: routes
+               , previous: previous
+               ,  version: '0.1.0'              // version accounts for crypto type and puff shape
+               ,  payload: payload              // early versions will be aggressively deprecated and unsupported
+               }
+    
+    return puff
+}
+
+
+
+
+
+
+
+
+
+
+
 PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     // THINK: race condition while toggling identities?
     if(!username) username = PB.getCurrentUsername()
@@ -445,22 +590,6 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     prom = prom.then(PB.Data.addShellsThenMakeAvailable)
     return prom
 }
-
-PB.Data.getConversationPuffs = function(convoId, offset, batchsize) {
-    offset = offset || 0
-    batchsize = batchsize || CONFIG.pageBatchSize || 10
-    
-    var prom
-    prom = PB.Net.getConversationPuffs(convoId, batchsize, offset)
-    prom = prom.then(PB.Data.addShellsThenMakeAvailable)
-    return prom
-}
-
-PB.Data.getConversationPuffs = PB.promiseMemoize(PB.Data.getConversationPuffs, function(key, report) {
-    report.private_promise.then(function() {
-        PB.removePromisePending(key)
-    })
-})
 
 
 PB.Data.updatePrivateShells = function(offset) {
@@ -511,7 +640,7 @@ PB.Data.ingestEncryptedShells = function(shells) {
 }
 
 PB.Data.ingestAnEncryptedShell = function(envelope) {
-    var prom = PB.extractLetterFromEnvelope(envelope)
+    var prom = PB.Data.extractLetterFromEnvelope(envelope)
 
     prom = prom.then(function(letter) {
         if(!letter) return false
@@ -525,9 +654,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
     
     return prom
     
-    // var letterPromises = privateShells.map(PB.extractLetterFromEnvelope)
-    
-    // NOTE: this doesn't appear to do much, mostly because PB.extractLetterFromEnvelope is quite effectful.
+    // NOTE: this doesn't appear to do much, mostly because extractLetterFromEnvelope is quite effectful.
     //       it calls PB.Data.addDecryptedLetter as part of its processing, which does all the real work.
     
     // THINK: consider adding this back in, though remember that each decryption pushes its own errors...
@@ -716,7 +843,7 @@ PB.Data.getPuffBySig = function(sig) {
         
     // locally cached shells that are missing content on the network prevent slotfills from resolving,
     // so we clear it from our cache if we can't find it.
-    var badShellClearCache = function(shells) {
+    function badShellClearCache(shells) {
         if(!shells.length) {
             var fauxshell = {sig: sig}
             if(!PB.Data.getBonus(fauxshell, 'envelope')) {

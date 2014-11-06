@@ -131,7 +131,7 @@ function mergeConvoKeys(keys) {
     keys = Object.keys(keys)
     keys.sort()
     for(var i = 0; i < keys.length; i++) {
-        mergedKey = mergedKey.concat(PB.justUsername(keys[i]))
+        mergedKey = mergedKey.concat(PB.Users.justUsername(keys[i]))
         if(i != keys.length-1)
             mergedKey = mergedKey.concat('&')
     }

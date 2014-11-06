@@ -330,7 +330,7 @@ PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
         return PB.throwError('Invalid userRecords')
     
     return userRecords.reduce(function(acc, userRecord) {
-        var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
+        var versionedUsername = PB.Users.userRecordToVersionedUsername(userRecord)
         acc[versionedUsername] = PB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
         return acc
     }, {})

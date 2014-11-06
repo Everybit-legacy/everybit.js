@@ -48,7 +48,7 @@ PB.Users.getCachedUserRecord = function(versionedUsername) {
 PB.Users.getUserRecordPromise = function(username, capa) {
     //// This always checks the cache, and always returns a promise
     
-    var versionedUsername = PB.maybeVersioned(username, capa)
+    var versionedUsername = PB.Users.makeVersioned(username, capa)
     
     var userRecord = PB.Users.getCachedUserRecord(versionedUsername)
     
@@ -75,17 +75,60 @@ PB.Users.getUserRecordNoCache = function(username, capa) {
     
     var prom = PB.Net.getUserRecord(username, capa) 
     
-    var versionedUsername = PB.maybeVersioned(username, capa)
+    var versionedUsername = PB.Users.makeVersioned(username, capa)
     PB.Users.promises[versionedUsername] = prom
     
     return prom
 }
 
 
+//
+// USERNAME HELPERS
+//
+
+PB.Users.userRecordToVersionedUsername = function(userRecord) {
+    return PB.Users.makeVersioned(userRecord.username, userRecord.capa)
+}
+
+PB.Users.justUsername = function(versionedUsername) {
+    var uc = PB.Users.breakVersionedUsername(versionedUsername)
+    return uc.username
+}
+
+PB.Users.justCapa = function(versionedUsername) {
+    var uc = PB.Users.breakVersionedUsername(versionedUsername)
+    return uc.capa
+}
+
+PB.Users.makeVersioned = function(username, capa) {
+    if(!username)
+        return ''
+    
+    if(capa)
+        return actuallyVersionThisUsernameOkay(username, capa)
+    
+    if(username.indexOf(':') > 0)
+        return username
+    
+    return actuallyVersionThisUsernameOkay(username)
+    
+    function actuallyVersionThisUsernameOkay(username, capa) {
+        capa = capa || 1 // NOTE: default capa
+        return username + ':' + capa
+    }
+}
+
+PB.Users.breakVersionedUsername = function(versionedUsername) {
+    var list = (versionedUsername||'').split(':')
+
+    return { username: list[0]
+           , capa:     list[1] || 1 // NOTE: default capa
+           }
+}
 
 
 //
-// HELPERS
+// GENERAL HELPERS
 //
 
 
@@ -151,7 +194,7 @@ PB.Users.usernamesToUserRecordsPromise = function(usernames) {
 PB.Users.cache = function(userRecord) {
     //// This caches with no validation: use PB.Users.process instead
     
-    var versionedUsername = PB.userRecordToVersionedUsername(userRecord)
+    var versionedUsername = PB.Users.userRecordToVersionedUsername(userRecord)
     
     PB.Users.records[versionedUsername] = userRecord;
 
@@ -164,7 +207,7 @@ PB.Users.cache = function(userRecord) {
 
 PB.Users.getCachedWithCapa = function(versionedUsername) {
     // TODO: map of just username to versionedUsername, so we can always get a user record for a user regardless of version
-    versionedUsername = PB.maybeVersioned(versionedUsername)
+    versionedUsername = PB.Users.makeVersioned(versionedUsername)
     return PB.Users.records[versionedUsername];
 }
 

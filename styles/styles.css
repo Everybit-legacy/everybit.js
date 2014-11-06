@@ -1096,13 +1096,13 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .icx-tableview .viewContainer .loadMore {
-    margin: 10px auto;
-    width: 40%;
-    text-align: center;
+    margin: auto;
+    margin-bottom: 0.5em;
 }
 
 .icx-tableview .dropbox {
     height: 120px;
+    width: 100%;
 }
 
 .icx-tableview .replyBoxButtons .icxNextButton {

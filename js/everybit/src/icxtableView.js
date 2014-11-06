@@ -131,11 +131,12 @@ var TableView = React.createClass({
 		return (
 			<div className="viewContainer">
                 <div style={headerStyle}>Conversation with {partners}</div>
-                <ViewLoadMore convoId={puffworldprops.view.convoId} update={min} loading={ICX.loading}/>
                 <div style={{fontSize: '60%'}}>
                     <br />
-                    <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
+                    <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b>
+                    <div onClick={this.handleBack} style={{cursor: 'pointer'}}><i className="fa fa-chevron-left small"/> Back to Messages</div><br/>
                 </div>
+                <ViewLoadMore convoId={puffworldprops.view.convoId} update={min} loading={ICX.loading}/>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
                 <ViewFilters />
                 <puffContainer key="messages"/>
@@ -144,6 +145,11 @@ var TableView = React.createClass({
 			</div>
 		)
 	},
+    handleBack: function() {
+        return Events.pub('ui/screen', {
+            'view.icx.screen': 'home.table'
+        })
+    },
     sortDate: function(p1, p2) {
         return p2.payload.time - p1.payload.time
     }, 
@@ -365,15 +371,16 @@ var ICXTableUserInfo = React.createClass({
             var username = toUser
             var isSender = true
             var sentOrReceived = 'sent'
-            var fromOrTo = 'To '
+            // var fromOrTo = 'To '
+            var prof = getProfilePuff(fromUser)
         } else {
             var username = fromUser
             var isSender = false
             var sentOrReceived = 'received'
-            var fromOrTo = 'From '
+            // var fromOrTo = 'From '
+            var prof = getProfilePuff(username)
         }
 
-        var prof = getProfilePuff(username)
         var avatar = <span></span>
         if(prof && prof.payload.content) {
             avatar = <span className="rowReference"><img className="iconSized" src={prof.payload.content}  /><div className="rowReferencePreview"><img src={prof.payload.content} /></div> </span>
@@ -381,7 +388,7 @@ var ICXTableUserInfo = React.createClass({
 
         return (
             <span className="userInfo">
-                {avatar} {fromOrTo} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
+                {avatar} <a onClick={this.handleViewUser.bind(this, isSender, username)}>{username}</a>
                 {' '}
                 {sentOrReceived}<ICXTableItemDate date={this.props.puff.payload.time} />
             </span>
@@ -612,7 +619,7 @@ var ICXInlineReply = React.createClass({
     },
 
     handleToggleReplyOption: function(event) {
-        var toggle = event.target.attributes.label.value
+        var toggle = event.currentTarget.control.value
         Events.pub('ui/reply', {
             'reply.replyType': toggle
         })
@@ -659,13 +666,17 @@ var ICXInlineReply = React.createClass({
                 <div className="replyFile" style={replyFileStyle}>
                     <ICXFileUploader styling={headerStyle} />
                     <br />Memo: <br />
-                    <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
+                    <input type="text" ref="caption" style={{ 'width': '100%' }} onBlur={this.handleAddCaption} />
                 </div>
                 <div className="replyBoxButtons">
-                    <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
-                    <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
-                    <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>
-                    <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
+                    <label for="message" className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption}>
+                        <input type="radio" name="replyOption" id="message" value="message" /> Message
+                    </label>
+                    <label for="file" className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption}>
+                        <input type="radio" name="replyOption" id="file" value="file" /> File
+                    </label>
+                    
+                    <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleReply}><i className="fa fa-paper-plane"></i> SEND</a>
                 </div>
             </div>
             )

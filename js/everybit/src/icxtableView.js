@@ -3,7 +3,7 @@
 var ConversationListView = React.createClass({
     render: function() {
         var convos = puffworldprops.ICX.uniqueConvoIDs
-        var ids = Object.keys(puffworldprops.ICX.uniqueConvoIDs)
+        var ids = puffworldprops.ICX.convoList
 
         var conversations = ids.map(function (id) {
             return <ConversationItem content={convos[id]} key={convos[id].key} />
@@ -23,13 +23,18 @@ var ConversationListView = React.createClass({
 
 var ConversationItem = React.createClass({
     handleShowConvo: function() {
+        var key = this.props.content.key
         return Events.pub('ui/event/', {
-            'view.convoId': this.props.content.key,
+            'view.convoId': key,
             'view.icx.screen': 'convo'
         })
     },
     getPreview: function() {
-        return PB.getPuffBySig(this.props.content.sig)
+        var convo = this.props.content
+        if(convo.min == convo.max)
+            getConversationPuffs(convo.key, convo.min-1, convo.max)
+
+        return PB.Data.getDecryptedLetterBySig(convo.sigs[convo.sigs.length-1]) || false
     },
     render: function() {
         var content = this.props.content
@@ -37,7 +42,7 @@ var ConversationItem = React.createClass({
 
         return (
             <div className="conversationItem" onClick={this.handleShowConvo}>
-                <span>{partners} ({content.count})</span>
+                <span>{partners} ({content.sigs.length})</span>
                 <ConvoPreview puff={this.getPreview()} />
             </div>
             )
@@ -46,21 +51,6 @@ var ConversationItem = React.createClass({
 
 var ConvoPreview = React.createClass({
     render: function() {
-        var previewContentStyle = {
-            maxHeight: '1.1em',
-            float: 'left',
-            width: '85%',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden'
-        }
-
-        var timeStyle = {
-            float: 'right',
-            fontSize: '18px',
-            maxWidth: '15%'
-        }
-
         if(this.props.puff) {
             var puff = this.props.puff
             var date = new Date(puff.payload.time)
@@ -74,8 +64,8 @@ var ConvoPreview = React.createClass({
 
         return (
             <div className="preview">
-                <div className="previewContent" style={previewContentStyle}>{preview}</div>
-                <div style={timeStyle}>{timeStamp}</div>
+                <div className="previewContent">{preview}</div>
+                <div className="previewTime">{timeStamp}</div>
             </div>
         )
     }
@@ -86,8 +76,12 @@ var puffContainer = React.createClass({
         ICX.loading = true
     },
 
+    getContent: function() {
+        return initializeConvoContent(puffworldprops.view.convoId)
+    },
+
     render: function() {
-        var puffs = this.props.content.map(function (puff) {
+        var puffs = this.getContent().map(function (puff) {
             return (
                 <ICXContentItem puff={puff} key={puff.sig} />
             )
@@ -101,68 +95,16 @@ var puffContainer = React.createClass({
 })
 
 var TableView = React.createClass({
-	sortDate: function(p1, p2) {
-		return p2.payload.time - p1.payload.time
-	}, 
-	sort_column: function(col) {
-		var functionName = "sort" + col.slice(0, 1).toUpperCase() + col.slice(1)
-		if (this[functionName]) {
-			return this[functionName]
-		}
-		return false
-	},
-	sortPuffs: function(puffs) {
-		var col = puffworldprops.view.table.sort.column
-		var desc = puffworldprops.view.table.sort.desc
-		puffs = puffs || []
-		var fn = this.sort_column(col)
-		if (fn === false) {
-			console.log('Missing sort function', col)
-			return puffs
-		}
-		puffs = puffs.sort(function(p1, p2){
-			if (desc) return fn(p1, p2)
-			else return -fn(p1, p2)
-		})
-		return puffs
-	},
-
-    forceRefreshPuffs: function() {
-        var cl = this.refs.refresh.getDOMNode().classList
-        cl.toggle("fa-spin")
-        PB.Data.updatePrivateShells()
-        setTimeout(
-            function() {cl.toggle("fa-spin")},2000
-        )
+    componentWillUpdate: function() {
+      var node = document.getElementById('screen')
+      this.scrollHeight = node.scrollHeight
+      this.scrollTop = node.scrollTop
     },
-
-    // Note: Instead of loading the LIMIT of puffs
-    // We will try to load the ACTUAL number of puffs in puffContainer
-    // componentWillMount: function() {
-    //     Events.pub('ui/event', {
-    //         'view.table.loaded': CONFIG.initLoadBatchSize
-    //     })
-    // },
-
-    componentDidMount: function() {
-        if(typeof puffworldprops.ICX.hasShells === "undefined") {
-            userHasShells(PB.getCurrentUsername(), function(numShells) {
-                Events.pub('ui/event',{
-                    'ICX.hasShells': numShells
-                })
-            })
-        }
+     
+    componentDidUpdate: function() {
+      var node = document.getElementById('screen')
+      node.scrollTop = this.scrollTop + (node.scrollHeight - this.scrollHeight)
     },
-
-    getContent: function() {
-        // var query = puffworldprops.view.query
-        // var filters = puffworldprops.view.filters
-        // var limit = puffworldprops.view.table.loaded
-        // return getTableViewContent(query, filters, limit)
-        return getConvoContent()
-    },
-
-
 	render: function() {
 
         var refreshStyle = {
@@ -179,22 +121,63 @@ var TableView = React.createClass({
         headerStyle.backgroundColor = ICX.currScreenInfo.color
         var polyglot = Translate.language[puffworldprops.view.language]
 
+        var convoInfo = puffworldprops.ICX.uniqueConvoIDs[puffworldprops.view.convoId]
+        if(convoInfo) {
+            var partners = getUsernamesFromConvoKey(convoInfo.key)
+            var min = convoInfo.min
+        }
+
+
 		return (
 			<div className="viewContainer">
-                <div style={headerStyle}>View your messages and files</div>
+                <div style={headerStyle}>Conversation with {partners}</div>
+                <ViewLoadMore convoId={puffworldprops.view.convoId} update={min} loading={ICX.loading}/>
                 <div style={{fontSize: '60%'}}>
                     <br />
                     <b>All content is encrypted on the user’s device. Only the sender and recipient can decode it.</b><br /><br />
                 </div>
                 <span style={refreshStyle}><a onClick={this.forceRefreshPuffs}><i ref="refresh" className="fa fa-refresh small" /></a></span>
-				<ViewFilters />
-                <puffContainer content={this.getContent()} key="messages"/>
+                <ViewFilters />
+                <puffContainer key="messages"/>
 
                 <ICXInlineReply convoId={puffworldprops.view.convoId} key={puffworldprops.view.convoId} />
-                <ViewLoadMore convoId={puffworldprops.view.convoId} update={puffworldprops.ICX.hasShells} loading={ICX.loading}/>
 			</div>
 		)
-	}
+	},
+    sortDate: function(p1, p2) {
+        return p2.payload.time - p1.payload.time
+    }, 
+    sort_column: function(col) {
+        var functionName = "sort" + col.slice(0, 1).toUpperCase() + col.slice(1)
+        if (this[functionName]) {
+            return this[functionName]
+        }
+        return false
+    },
+    sortPuffs: function(puffs) {
+        var col = puffworldprops.view.table.sort.column
+        var desc = puffworldprops.view.table.sort.desc
+        puffs = puffs || []
+        var fn = this.sort_column(col)
+        if (fn === false) {
+            console.log('Missing sort function', col)
+            return puffs
+        }
+        puffs = puffs.sort(function(p1, p2){
+            if (desc) return fn(p1, p2)
+            else return -fn(p1, p2)
+        })
+        return puffs
+    },
+
+    forceRefreshPuffs: function() {
+        var cl = this.refs.refresh.getDOMNode().classList
+        cl.toggle("fa-spin")
+        PB.Data.updatePrivateShells()
+        setTimeout(
+            function() {cl.toggle("fa-spin")},2000
+        )
+    }
 })
 
 var ViewFilters = React.createClass({
@@ -668,11 +651,7 @@ var ICXInlineReply = React.createClass({
 
         // <b>Reply to: {username}</b><br/>
         return (
-            <div ref={"replyBox"+this.props.convoId} style={inlineReplyStyle}>
-                <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
-                {' '}
-                <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
-
+            <div id="replyBox" ref={"replyBox"+this.props.convoId} style={inlineReplyStyle}>
                 <div className="replyMessage" style={replyMsgStyle}>
                     <b>Message:</b><br />
                     <textarea ref="messageText" onKeyDown={this.handleKeyDown} style={{width: '100%', height: '20%'}} />{' '}
@@ -682,8 +661,12 @@ var ICXInlineReply = React.createClass({
                     <br />Memo: <br />
                     <input type="text" ref="caption" style={{ 'width': '80%' }} onBlur={this.handleAddCaption} />
                 </div>
-                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>{' '}
-                <a className="icxNextButton icx-fade" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
+                <div className="replyBoxButtons">
+                    <a className="icxNextButton icx-fade" label="message" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >Message</a>
+                    <a className="icxNextButton icx-fade" label="file" style={ICX.buttonStyle} onClick={this.handleToggleReplyOption} >File</a>
+                    <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleReply}> Send </a>
+                    <a className="icxNextButton icx-fade right" style={ICX.buttonStyle} onClick={this.handleCleanup}> Cancel </a>
+                </div>
             </div>
             )
 
@@ -699,8 +682,10 @@ var ViewLoadMore = React.createClass({
 	handleLoadMore: function() {
         var convoId = this.props.convoId
         var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
+
+        getConvoContent(convoId)
         // var report = PB.Data.getMorePrivatePuffs('', loaded, CONFIG.pageBatchSize) // report is a Promise
-        PB.Data.getConversationPuffs(convoId, convoInfo.loaded, CONFIG.pageBatchSize)
+        // PB.Data.getConversationPuffs(convoId, convoInfo.loaded, CONFIG.pageBatchSize)
         // TODO: use report to determine next state of button:
         //       - if report.counts.delivered == CONFIG.pageBatchSize then we can try loading more
         //       - otherwise we failed to gather all the puffs we tried to gather (either No More or Network Error)
@@ -719,25 +704,24 @@ var ViewLoadMore = React.createClass({
 	render: function() {
 		var footer = <div></div>
 
-        // TODO: clean up query and friends
-        var query = Boron.shallow_copy(this.props.query)
-        query.offset = 0
-        var filters = puffworldprops.view.filters
-        var showingPuffs = puffworldprops.view.table.loaded
+        var convoId = this.props.convoId
+        var convoInfo = puffworldprops.ICX.uniqueConvoIDs[convoId]
+        if(convoInfo) {
+            var min = convoInfo.min
+            var max = convoInfo.max
+        }
 
-
-        
-        if (puffworldprops.ICX.hasShells == 0) {
-            footer = <div>No messages to display</div>
-        } else if (this.props.loading == true) {
+        if(min==max-1) {
+            footer = <div>Nothing more to show</div>
+        } else if (this.props.loading) {
             footer = <div>Loading more messages <img src="/img/icx/dotdotdot.gif" /></div>
-        } else if (puffworldprops.ICX.hasShells <= showingPuffs) {
+        } else if (!min) {
             footer = <div>Nothing more to show</div>
         } else {
 			footer = <a className="inline" onClick={this.handleLoadMore}>Load more messages</a>
 		}
 		return (
-			<div>{footer}</div>
+			<div className="loadMore">{footer}</div>
 		)
 	}
 })

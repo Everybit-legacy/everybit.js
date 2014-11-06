@@ -168,7 +168,7 @@ var ICXWorld = React.createClass({
             {position: 5, name: 'about', button: true, color: 'rgba('+c5+', '+op1+')', icon: 'fa fa-fw fa-info-circle', fullText: 'ABOUT I.CX', component: ICXAbout, backgroundColor: 'rgba('+c5+', '+op2+')'},
             {position: 0, name: 'send.message',  button: false, color: 'rgba('+c2+', '+op1+')', icon: 'fa fa-fw fa-paper-plane', fullText: 'Send a message', component: ICXSendMessage, backgroundColor: 'rgba('+c2+', '+op2+')'},
             {position: 0, name: 'store.encrypt', button: false, color: 'rgba('+c3+', '+op1+')', icon: 'fa fa-fw fa-database', fullText: 'STORE your content privately', component: ICXStore, backgroundColor: 'rgba('+c3+', '+op2+')'},
-            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXTableView, backgroundColor: 'rgba('+c6+', '+op2+')'},
+            {position: 0, name: 'home.table',    button: false, color: 'rgba('+c7+', '+op4+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXConversations, backgroundColor: 'rgba('+c6+', '+op2+')'},
             {position: 0, name: 'dashboard',    button: false, color: 'rgba('+c1+', '+op3+')', icon: 'fa fa-fw fa-home', fullText: 'HOME page', component: ICXDashboard, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'newuser',    button: false, color: 'rgba('+c1+', '+op1+')', icon: 'fa fa-fw fa-male', fullText: 'Register a new username', component: ICXNewUser, backgroundColor: 'rgba('+c1+', '+op2+')'},
             {position: 0, name: 'send.finish', button: false, color: 'rgba('+c2+', '+op1+')', fullText: "Send of message", component: ICXSendMessageFinish, backgroundColor: 'rgba('+c2+', '+op2+')'},
@@ -242,7 +242,7 @@ var ICXWorld = React.createClass({
             return (
                 <span>
                     <div style={borderStyle} />
-                    <div style={screenStyle} className="screen">
+                    <div style={screenStyle} id="screen" className="screen">
                         <ICXLogo screenInfo={screenInfo} />
                         <ICXLinks screenInfo={screenInfo} />
                         <div className="tour-item" style={contentDivStyles} key="tableview">
@@ -2168,22 +2168,16 @@ var ICXChangePassphraseFinish = React.createClass({ /* Good */
 
 var ICXTableView = React.createClass({ /* Good */
     render: function () {
+        return (
+            <div className="icx-tableview">
+                <TableView />
+            </div>
+        )
+    }
+})
 
-        var viewprops = this.props.view || {}
-
-        // return (
-        //     <div className="icx-tableview">
-        //         <TableView view={viewprops} table={viewprops.table}/>
-        //     </div>
-        //     )
-        if(puffworldprops.view.icx.screen == 'convo') {
-            return (
-                <div className="icx-tableview">
-                    <TableView view={viewprops}/>
-                </div>
-            )
-        }
-
+var ICXConversations = React.createClass({ /* Good */
+    render: function() {
         return (
             <div className="icx-tableview">
                 <ConversationListView />

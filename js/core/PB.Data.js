@@ -827,13 +827,29 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
     End shell collection intake equipment
 */
 
+
+/**
+ * returns a puff from a shell
+ * @param  {(string|object)} shell 
+ * @return {object} returns a puff based on the shell; returns false if the shell is empty
+ */
+PB.Data.getPuffFromShell = function(shell) {
+    if(!shell)
+        return false // so we can filter empty shells out easily, while still loading them on demand
+    
+    if(shell.payload && shell.payload.content !== undefined)
+        return shell // it's actually a full blown puff
+    
+    return PB.Data.getPuffBySig(shell.sig) // returns a puff, or asks the network and returns false
+}
+
 /**
  * to get puff by its sig
  * @param {string} sig
  * @returns {(object|false)}
  */
 PB.Data.getPuffBySig = function(sig) {
-    var shell = PB.Data.getCachedShellBySig(sig)
+    var shell = PB.Data.getCachedShellBySig(sig) // OPT: this happens twice almost always
     
     if(shell && shell.payload && typeof shell.payload.content != 'undefined')
         return shell
@@ -858,8 +874,8 @@ PB.Data.getPuffBySig = function(sig) {
     PB.Data.pendingPuffPromises[sig] = PB.Net.getPuffBySig(sig)      // TODO: drop this down in to PB.Net instead
     PB.Data.pendingPuffPromises[sig].then(badShellClearCache)
                         .then(PB.Data.addShellsThenMakeAvailable)
-                        .then(function() {                                                   // delay GC to prevent
-                            setTimeout(function() { delete PB.Data.pendingPuffPromises[sig] }, 10000) }) // runaway network requests
+                        .then(function() {                           // delay GC to stop runaway network requests
+                            setTimeout(function() { delete PB.Data.pendingPuffPromises[sig] }, 10000) })
     
     return false
 }

@@ -171,7 +171,7 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
 
     var sliced_shells = filtered_shells.slice(offset, offset+limit)
     
-    var puffs = sliced_shells.map(PB.getPuffFromShell)
+    var puffs = sliced_shells.map(PB.Data.getPuffFromShell)
                              .filter(Boolean)
 
     var have = sliced_shells.length

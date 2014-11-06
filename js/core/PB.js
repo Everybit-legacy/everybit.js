@@ -13,11 +13,14 @@
     Most calls to the platform should go through here, 
     rather than accessing core systems like PB.Data and PB.Crypto directly.
 
+    In addition to the public-facing API many general helper functions 
+    are established here for use by the deeper layers.
+
 */
 
 PB = {}
 
-PB.Modules = {}                                     // supplementary extensions live here
+PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
 
 
@@ -29,13 +32,26 @@ PB.M = PB.Modules
  * @param {zones} connect to these zones
  */
 PB.init = function(zone) {
-    PB.Users.depersist()                            // pop URs out of LS // TODO: move this to Users.init()
+    PB.Users.depersist()                                // pop URs out of LS // TODO: move this to Users.init()
     
-    PB.Data.importShells()                          // preload relevant shells // TODO: move this to Data.init()
+    PB.Data.importShells()                              // preload relevant shells // TODO: move this to Data.init()
     
-    if(CONFIG.noNetwork) return false               // THINK: this is only for debugging and development
+    if(CONFIG.noNetwork) return false                   // THINK: this is only for debugging and development
     
-    PB.Net.init()                                   // initialize the network layer
+    PB.Net.init()                                       // initialize the network layer
+}
+
+PB.getPuffBySig = function(sig) {
+    //// get a particular puff
+    var shell = PB.Data.getCachedShellBySig(sig)        // check in regular cache
+    
+    if(!shell)
+        shell = PB.Data.getDecryptedLetterBySig(sig)    // check in private cache
+    
+    if(shell)
+        return PB.Data.getPuffFromShell(shell)          // get a puff from the shell
+        
+    return PB.Data.getPuffBySig(sig)                    // get the puff
 }
 
 PB.postPublicMessage = function(content, type) {
@@ -80,6 +96,9 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     var username = PB.getCurrentUsername()
     var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
+    if(~~['defaultKey', 'adminKey', 'rootKey'].indexOf(keyToModify))
+        return PB.onError('That is not a valid key to modify')
+
     var payload = {}
     var routes = []
     var type = 'updateUserRecord'
@@ -92,7 +111,7 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     var prom = new Promise(function(resolve, reject) {
         var puff
 
-        PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        PB.useSecureInfo(function(_, _, privateRootKey, privateAdminKey, privateDefaultKey) {
             // NOTE: puff leaks, but only contains publicly accessible data
         
             var signingUserKey = 'privateRootKey'  // changing admin or root keys requires root privileges
@@ -114,20 +133,20 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
 
         userRecordPromise.then(function(userRecord) {
             if(keyToModify == 'defaultKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
+                PB.useSecureInfo(function(_, username, privateRootKey, privateAdminKey, _) {
+                    PB.addAlias(username, username, userRecord.capa, privateRootKey, privateAdminKey, newPrivateKey, secrets)
                 })
             }
 
             if(keyToModify == 'adminKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, privateRootKey, newPrivateKey, privateDefaultKey, secrets)
+                PB.useSecureInfo(function(_, username, privateRootKey, _, privateDefaultKey) {
+                    PB.addAlias(username, username, userRecord.capa, privateRootKey, newPrivateKey, privateDefaultKey, secrets)
                 })
             }
 
             if(keyToModify == 'rootKey') {
-                PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-                    PB.addAlias(currentUsername, currentUsername, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
+                PB.useSecureInfo(function(_, username, _, privateAdminKey, privateDefaultKey) {
+                    PB.addAlias(username, username, userRecord.capa, newPrivateKey, privateAdminKey,  privateDefaultKey, secrets)
                 })
             }
 
@@ -185,6 +204,11 @@ PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
 ////////////// End Handler Handlers //////////////
 
 
+
+
+//// PUFF HELPERS ////
+
+
 PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
@@ -230,36 +254,6 @@ PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, pa
 
 
 /**
- * returns a puff from a shell
- * @param  {(string|object)} shell a string which is a signature of a puff; or an object contains partial information of a puff
- * @return {object} returns a puff based on the shell; returns false if the shell is empty
- */
-PB.getPuffFromShell = function(shell_or_sig) {
-    if(!shell_or_sig)
-        return false // false so we can filter empty shells out easily, while still loading them on demand
-    
-    if(shell_or_sig.payload && shell_or_sig.payload.content !== undefined)
-        return shell_or_sig // it's actually a full blown puff
-    
-    var sig = shell_or_sig.sig || shell_or_sig
-    
-    return PB.Data.getPuffBySig(sig) // returns a puff, or asks the network and returns false
-}
-
-PB.getPuffBySig = function(sig) {
-    //// get a particular puff
-    var shell = PB.Data.getCachedShellBySig(sig)                        // check in regular cache
-    
-    if(!shell)
-        shell = PB.Data.getDecryptedLetterBySig(sig)                    // check in private cache
-    
-    return PB.getPuffFromShell(shell || sig)
-}
-
-
-
-
-/**
  * handle a newly created puff: add to our local cache and fire new content callbacks
  * @param {object} puff
  */
@@ -273,6 +267,23 @@ PB.addPuffToSystem = function(puff) {
     
     return puff
 }
+
+
+PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
+    //// interface with PB.Crypto for decrypting a message
+    // TODO: this should be in PB.Data, but is in PB for cryptoworker's sake
+    if(!envelope.keys) return false
+    var keyForMe = envelope.keys[myVersionedUsername]
+    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var letterCipher = envelope.payload.content
+    var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
+    letterString = PB.tryDecodeURIComponent(escape(letterString))   // try decoding
+    return PB.parseJSON(letterString)                               // try parsing
+}
+
+
+
+//// ID FILE ////
 
 
 PB.formatIdentityFile = function(username) {
@@ -302,19 +313,6 @@ PB.formatIdentityFile = function(username) {
     })
 
     return idFile
-}
-
-
-PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
-    //// interface with PB.Crypto for decrypting a message
-    // TODO: this should be in PB.Data, but is in PB for cryptoworker's sake
-    if(!envelope.keys) return false
-    var keyForMe = envelope.keys[myVersionedUsername]
-    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
-    var letterCipher = envelope.payload.content
-    var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = PB.tryDecodeURIComponent(escape(letterString))       // try decoding
-    return PB.parseJSON(letterString)                                   // try parsing
 }
 
 
@@ -516,8 +514,6 @@ PB.isGoodPuff = function(puff) {
 
 
 
-
-
 //// ERROR HELPERS
 
 // TODO: build a more general error handling system for GUI integration
@@ -614,6 +610,8 @@ PB.removePromisePending = function(key) {
 }
 
 //// TIMING HELPERS
+
+
 // TODO: move these into a library
 
 ~function() {

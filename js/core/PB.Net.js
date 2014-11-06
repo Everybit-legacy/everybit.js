@@ -176,17 +176,17 @@ PB.Net.getAncestors = function(start, limit) {
     return PB.emptyPromise()
     
     function getEm(todo, done, remaining) {
-        if(!todo.length) return false               // all done
-        if(!remaining) return false                 // all done
+        if(!todo.length) return false                       // all done
+        if(!remaining) return false                         // all done
     
         var sig = todo[0]
     
         if(~done.indexOf(sig)) {
-            return getEm(todo.slice(1), done, remaining) // we've already done this one
+            return getEm(todo.slice(1), done, remaining)    // we've already done this one
         }
         
         // TODO: set a callback in PB.Net instead of calling PB.Data directly
-        var puff = PB.Data.getPuffBySig(sig) // effectful
+        var puff = PB.Data.getPuffBySig(sig)                // effectful
     
         if(puff) 
             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
@@ -241,11 +241,11 @@ PB.Net.getDescendants = function(start, limit) {
         
         if(!haveShell) { // we don't have the shell yet, so go get it
             // TODO: callback PB.Data erg merb lerb herp derp
-            PB.Data.getPuffBySig(sig)  // effectful
+            PB.Data.getPuffBySig(sig)               // effectful
             remaining--
         }
         
-        var kidsigprom = PB.Net.getKidSigs(sig) // get all its children
+        var kidsigprom = PB.Net.getKidSigs(sig)     // get all its children
         return kidsigprom.then(function(kidsigs) {
             getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
         })

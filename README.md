@@ -1,5 +1,5 @@
 
-EveryBit.js
+![EveryBit Logo](https://raw.githubusercontent.com/EveryBit-com/resources/master/EveryBitLogo.gif)
 ===========
 EveryBit's powerful API gives your web application fully functioning encrypted messaging and user management in a few short lines of code.
 

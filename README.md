@@ -14,7 +14,6 @@ Currently if you want to provide your users with private text messaging and file
 * `git clone https://github.com/EveryBit-com/everybit.js.git`
 * `npm install`
 * `gulp`
-* See [Getting Started](http://everybit.com/getting-started.html)
 
 
 ### Contributors' guide

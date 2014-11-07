@@ -1,5 +1,9 @@
 /*! peerjs.js build:0.3.8, development. Copyright(c) 2013 Michelle Bu <michelle@michellebu.com> */
 (function(exports){
+  //Hack to get peer.js to work in a worker
+  if(typeof window === "undefined") {
+   var window={};
+  }
 var binaryFeatures = {};
 binaryFeatures.useBlobBuilder = (function(){
   try {
@@ -19,9 +23,12 @@ binaryFeatures.useArrayBufferView = !binaryFeatures.useBlobBuilder && (function(
 })();
 
 exports.binaryFeatures = binaryFeatures;
-exports.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
 
-function BufferBuilder(){
+
+  exports.BlobBuilder = window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder || window.BlobBuilder;
+
+
+  function BufferBuilder(){
   this._pieces = [];
   this._parts = [];
 }

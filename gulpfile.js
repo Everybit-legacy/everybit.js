@@ -13,9 +13,10 @@ var zip = require('gulp-zip');
 
 
 var coreBuildList = [
-    'js/vendor/bitcoin-min.js',
+    'js/vendor/bitcoinjs-min.js',
     'js/vendor/peer.js',
     'js/vendor/promise.min.js',
+    'js/vendor/xbbcode.js',
     'js/libs/boron.js',
     'js/libs/filestuff.js',
     'js/libs/events.js',

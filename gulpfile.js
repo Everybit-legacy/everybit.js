@@ -36,13 +36,24 @@ var coreBuildList = [
 gulp.task('coreBuild', function () {
     gulp.src(coreBuildList)
         //.pipe(sourcemaps.init())
-        .pipe(concat('everybit.js'))
+        .pipe(concat('everybit-min.js'))
         .pipe(filesize())
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(filesize())
         //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build/everybitJS'));
 
 });
 
+gulp.task('debugBuild', function() {
+    gulp.src(coreBuildList)
+        .pipe(sourcemaps.init())
+        .pipe(concat('everybit.js'))
+        .pipe(filesize())
+        .pipe(filesize())
+        .pipe(sourcemaps.write())
+        .pipe(gulp.dest('build/everybitJS'));
+})
+
 gulp.task('default',['coreBuild']);
+gulp.task('debug',['debugBuild']);

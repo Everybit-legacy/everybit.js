@@ -1,12 +1,14 @@
 /*
 
-  PB.Users
+    PB.Users
 
-  Most functions related to userRecords live here.
-  Note that userRecords are entirely public; 
-  private key identities are handled elsewhere.
+    Most functions related to userRecords live here.
+    Note that userRecords are entirely public;
+    private key identities are handled elsewhere.
 
-*/
+    Copyright 2014 EveryBit. See README for license information.
+
+ */
 
 PB.Users = {}
 

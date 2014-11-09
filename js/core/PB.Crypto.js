@@ -1,7 +1,7 @@
 /*
-  PB.Crypto
-
   A thin wrapper around bitcoin-lib.js
+
+  Copyright 2014 EveryBit. See README for license information.
 
 */
 

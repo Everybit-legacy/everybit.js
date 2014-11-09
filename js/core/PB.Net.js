@@ -1,19 +1,15 @@
 /*
        _______  __   __  _______  _______  __    _  _______  _______ 
-      |       ||  | |  ||       ||       ||  |  | ||       ||       |
-      |    _  ||  | |  ||    ___||    ___||   |_| ||    ___||_     _|
-      |   |_| ||  |_|  ||   |___ |   |___ |       ||   |___   |   |  
-      |    ___||       ||    ___||    ___||  _    ||    ___|  |   |  
-      |   |    |       ||   |    |   |    | | |   ||   |___   |   |  
-      |___|    |_______||___|    |___|    |_|  |__||_______|  |___|  
-
     Network library for the puffball platform.
 
     Contains a peer.js-based p2p layer, a promise-based XHR implementation, 
     helper functions for accessing various server-based APIs, 
     and helper functions for handling puff distribution and acquisition.
 
-*/
+    Copyright 2014 EveryBit. See README for license information.
+
+
+ */
 
 PB.Net = {};
 

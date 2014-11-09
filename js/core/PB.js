@@ -16,7 +16,9 @@
     In addition to the public-facing API many general helper functions 
     are established here for use by the deeper layers.
 
-*/
+    Copyright 2014 EveryBit. See README for license information.
+
+ */
 
 if(typeof PB === 'undefined') PB = {}                   // might load config.js first
 

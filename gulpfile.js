@@ -13,25 +13,25 @@ var zip = require('gulp-zip');
 
 
 var coreBuildList = [
-    'js/vendor/bitcoinjs-min.js',
-    'js/vendor/peer.js',
-    'js/vendor/promise.min.js',
-    'js/vendor/xbbcode.js',
-    'js/libs/boron.js',
-    'js/libs/filestuff.js',
-    'js/libs/events.js',
-    'js/libs/gridbox.js',
-    'js/libs/dagoba.js',
+    'vendor/bitcoinjs-min.js',
+    'vendor/peer.js',
+    'vendor/promise.min.js',
+    'vendor/xbbcode.js',
+    'libs/boron.js',
+    'libs/filestuff.js',
+    'libs/events.js',
+    'libs/gridbox.js',
+    'libs/dagoba.js',
 
-    'js/core/PB.js',
-    'js/core/PB.Net.js',
-    'js/core/PB.Data.js',
-    'js/core/PB.Users.js',
-    'js/core/PB.Crypto.js',
-    'js/core/PB.Persist.js',
+    'core/PB.js',
+    'core/PB.Net.js',
+    'core/PB.Data.js',
+    'core/PB.Users.js',
+    'core/PB.Crypto.js',
+    'core/PB.Persist.js',
 
-    'js/modules/PB.M.Forum.js',
-    'js/modules/PB.M.Wardrobe.js'
+    'modules/PB.M.Forum.js',
+    'modules/PB.M.Wardrobe.js'
 ];
 
 gulp.task('coreBuild', function () {

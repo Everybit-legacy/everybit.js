@@ -1,11 +1,11 @@
 /*
 
-  PB.Data
+  All puff-related data flows through here:
+  caching, persistence, optimizations and network access are  handled within this module.
 
-  All puff-related data flows through here: 
-  caching, persistence, optimizations and network access are all handled within this module. 
-  
-*/
+ Copyright 2014 EveryBit. See README for license information.
+
+ */
 
 PB.Data = {}
 // PB.Data.puffs = []

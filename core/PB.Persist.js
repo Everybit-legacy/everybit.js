@@ -1,8 +1,11 @@
 /*
     Persistence layer
 
-    It's like a network on your hard drive... which probably implies this should live in PB.Net.
-*/
+    It's like a network on your hard drive... which means this could be part of PB.Net.
+
+    Copyright 2014 EveryBit. See README for license information.
+
+ */
 
 PB.Persist = {};
 PB.Persist.todo = {}

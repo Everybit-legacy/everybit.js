@@ -18,7 +18,8 @@
 
 */
 
-if(typeof PB === 'undefined') PB = {}                   // might load config.js first
+if(typeof PB === 'undefined') PB = {}                   // we might load config.js first
+if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
 
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules

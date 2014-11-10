@@ -49,7 +49,7 @@ PB.init = function(options) {
     setDefault('puffApi', '')
     setDefault('userApi', '')
     setDefault('eventsApi', '')
-    setDefault('workerFile', '')
+    setDefault('cryptoworkerURL', '')
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
     setDefault('noLocalStorage', false)
@@ -138,6 +138,54 @@ PB.postPrivateMessage = function(content, usernames, type) {
     return prom
 }
 
+PB.getMyMessages = true
+
+PB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
+    //// create a brand new top-level user
+
+    // OPT: privateToPublic is expensive -- we could reduce the number of calls if the private keys are identical
+    var rootKeyPublic    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKeyPublic   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKeyPublic = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    var payload = { requestedUsername: username
+                  ,           rootKey: rootKeyPublic
+                  ,          adminKey: adminKeyPublic
+                  ,        defaultKey: defaultKeyPublic
+                  }
+
+    var routes  = []
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+    
+    var prom = PB.Net.updateUserRecord(puff)
+    
+    return prom
+}
+
+/**
+ * register a subuser for the currently active identity
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+PB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
+    //// registers a subuser for the currently active identity
+    
+    var signingUsername = PB.getCurrentUsername()
+    var prom
+    
+    PB.useSecureInfo(function(_, _, _, privateAdminKey, _) {
+        prom = PB.registerSubuserForUser(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    })
+    
+    return prom
+}
+
 
 PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     //// attempts to update a private key for the current user. 
@@ -151,9 +199,9 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
         return PB.onError('That is not a valid key to modify')
 
     var payload = {}
-    var routes = []
-    var type = 'updateUserRecord'
+    var routes  = []
     var content = 'modifyUserKey'
+    var type    = 'updateUserRecord'
 
     payload.keyToModify = keyToModify
     payload.newKey = newPublicKey
@@ -372,11 +420,46 @@ PB.formatIdentityFile = function(username) {
 
 
 
+//// USER CREATION ////
+
+/**
+ * register a subuser
+ * @param  {string} signingUsername username of existed user
+ * @param  {string} privateAdminKey private admin key for existed user
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+PB.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+
+    // build our DHT update puff
+    var payload = { requestedUsername: newUsername
+                  ,        defaultKey: defaultKey
+                  ,          adminKey: adminKey
+                  ,           rootKey: rootKey
+                  ,              time: Date.now()
+                  }
+
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+    return PB.Net.updateUserRecord(puff)
+}
+
+
+
+
 //// BUILD CRYPTO WORKER ////
 
 PB.buildCryptoworker = function(options) {
-    var workerFile = PB.CONFIG.workerFile || 'cryptoworker.js'
-    PB.cryptoworker = new Worker(workerFile)
+    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL || 'cryptoworker.js'
+    PB.cryptoworker = new Worker(cryptoworkerURL)
     PB.cryptoworker.addEventListener("message", PB.workerreceive)
 }
 
@@ -410,10 +493,11 @@ PB.workersend = function(funstr, args, resolve, reject) {
 
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity) {
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
     // addIdentity      = function(username, aliases, preferences)
     // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // setPrimaryAlias  = function(identityUsername, aliasUsername)
     // removeIdentity   = function(username)
     // setPreference    = function(key, value) // for current identity
     // switchIdentityTo = function(username)
@@ -435,6 +519,9 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         
     if(typeof addAlias == 'function')
         PB.addAlias = addAlias
+        
+    if(typeof setPrimaryAlias == 'function')
+        PB.setPrimaryAlias = setPrimaryAlias
         
     if(typeof setPreference == 'function')
         PB.setPreference = setPreference

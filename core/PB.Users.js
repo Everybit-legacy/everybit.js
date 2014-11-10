@@ -293,7 +293,7 @@ PB.Users.addNewAnonUser = function(attachToUsername) {
     var anonAdminKey = ((PB.CONFIG.users||{}).anon||{}).adminKey
     if(!anonAdminKey)
         return PB.onError('No anonymous user admin key registered')
-    var prom = PB.Net.registerSubuser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    var prom = PB.registerSubuserForUser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
 
     return prom
         .then(function(userRecord) {

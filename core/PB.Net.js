@@ -324,36 +324,6 @@ PB.Net.getUserRecord = function(username, capa) {
 
 
 /**
- * register a subuser for an existed user
- * @param  {string} signingUsername username of existed user
- * @param  {string} privateAdminKey private admin key for existed user
- * @param  {string} newUsername     desired new subuser name
- * @param  {string} rootKey         public root key for the new subuser
- * @param  {string} adminKey        public admin key for the new subuser
- * @param  {string} defaultKey      public default key for the new subuser
- * @return {object}                user record for the newly created subuser
- */
-PB.Net.registerSubuser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
-    var payload = {}
-    
-    payload.rootKey = rootKey
-    payload.adminKey = adminKey
-    payload.defaultKey = defaultKey
-
-    payload.time = Date.now()
-    payload.requestedUsername = newUsername
-
-    var routing = [] // THINK: DHT?
-    var type = 'updateUserRecord'
-    var content = 'requestUsername'
-
-    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
-    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-    return PB.Net.updateUserRecord(puff)
-}
-
-/**
  * modify a user record
  * @param  {puff}   puff a signed puff containing information of modified user record
  * @return {object} promise for new userRecord or error when the update fails

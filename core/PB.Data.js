@@ -19,13 +19,11 @@ PB.Data.pendingPuffPromises = {}
 
 PB.Data.profiles = {}
 
-PB.Data.init = function() {
-    PB.Data.importShells()                                          // preload relevant shells
-    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
+PB.Data.init = function(options) {
+    if(!options.disablePublicPuffs)
+        PB.Data.importShells()                                          // preload relevant shells
+    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)   // clear private caches
 }
-
-
-
 
 
 ///////////////// new graph stuff ////////////////////

@@ -43,6 +43,7 @@ PB.M.Wardrobe = {}
 ~function() { // begin the closure
 
     var identities = {}
+    var aliases = {}
     // {asdf: { username: 'asdf', primary: asdf-12, aliases: [asdf-11, asdf-10], preferences: {} } }
 
     // an alias: { username: 'asdf', capa: 12, privateRootKey: '123', privateAdminKey: '333', privateDefaultKey: '444', secrets: {} }
@@ -58,12 +59,12 @@ PB.M.Wardrobe = {}
     PB.M.Wardrobe.init = init
     
     function init() {
-        PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity)
+        PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity)
     
-        var identities = PB.Persist.get('identities') || {}
+        var storedIdentities = PB.Persist.get('identities') || {}
     
-        Object.keys(identities).forEach(function(username) {
-            var identity = identities[username]
+        Object.keys(storedIdentities).forEach(function(username) {
+            var identity = storedIdentities[username]
             addIdentity(username, identity.aliases, identity.preferences, true)
         })
     
@@ -92,8 +93,6 @@ PB.M.Wardrobe = {}
         // TODO: add any unknown aliases
         // THINK: what about aliases that belong to other identities?
         // THINK: ensure primary alias exists?
-
-
 
         var identity = { username: username
                        , primary: {}
@@ -155,12 +154,36 @@ PB.M.Wardrobe = {}
         if(aliasUsername == identityUsername && alias.capa >= (identity.capa||0)) {
             identity.primary = alias                        // set primary for identity (which may have been empty)
         }
+        
+        aliases[aliasUsername] = identity                   // add this to the alias-identity mapping
 
         processUpdates()
 
-       return true
+        return true
     }
 
+    var setPrimaryAlias = function(identityUsername, aliasUsername) {
+        var identity = getIdentity(identityUsername)
+        
+        if(!identity)
+            return PB.onError('Primary alias can only be set for known identities')
+            
+        var alias = getLatestAlias(identity, aliasUsername)
+        
+        if(!alias)
+            return PB.onError('That alias is not associated with that identity')
+    
+        // all clear!
+        
+        identity.username = aliasUsername
+        identity.primary = alias
+
+        delete identities[identityUsername]
+        identities[aliasUsername] = identity
+        
+        return true
+    }
+     
     var setPreference = function(key, value) {
         // NOTE: this only works for the current identity
         var identity = getCurrentIdentity()
@@ -207,6 +230,21 @@ PB.M.Wardrobe = {}
     //// internal helper functions. not exported.
     ////
 
+    function getLatestAlias(identity, aliasUsername) {
+        var maxcapa = 0
+        var alias = false
+        
+        for(var i=0, l=identity.aliases.length; i<l; i++) {
+            var test = identity.aliases[i]
+            if(test.username == aliasUsername && test.capa > maxcapa) {
+                alias = test
+                maxcapa = test.capa
+            }
+        }
+        
+        return alias
+    }
+
     function getOldAlias(identity, alias) {
         for(var i=0, l=identity.aliases.length; i<l; i++) {
             var test = identity.aliases[i]
@@ -244,6 +282,7 @@ PB.M.Wardrobe = {}
     
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
+        // TODO: don't persist primary -- regenerate it at load time, so we don't duplicate the alias
         PB.Persist.save('currentUsername', currentUsername)
         
         PB.runHandlers('identityUpdate')
@@ -259,10 +298,10 @@ PB.M.Wardrobe = {}
 
         var identity = identities[username]
 
-        // TODO: move this error up into the callsite so we don't spam it when adding identities
+        // THINK: we could check the aliases map here in case the username isn't primary
+
         if(!identity) 
             return false
-            // return PB.onError('That username does not match any available identity')
 
         return identity
     }

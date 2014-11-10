@@ -39,6 +39,8 @@ PB.init = function(options) {
     // BEGIN CONFIG AND OPTIONS //
     
     // TODO: push these down deeper
+    // TODO: disableP2P by default
+    // TODO: make network options actually do what they say
     if(options.disableP2P)
         PB.CONFIG.noNetwork  = true
     
@@ -139,6 +141,23 @@ PB.postPrivateMessage = function(content, usernames, type) {
 }
 
 PB.getMyMessages = true
+
+PB.createIdentity = function(username, passphrase) {
+    // TODO: validations and error handling (lots of it)
+    
+    var prependedPassphrase = username + passphrase
+    var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
+    
+    var prom = PB.registerTopLevelUser(username, privateKey, privateKey, privateKey)
+    
+    prom = prom.then(function(userRecord) {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
+        PB.switchIdentityTo(username)
+    })
+    
+    return prom
+}
 
 PB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
     //// create a brand new top-level user

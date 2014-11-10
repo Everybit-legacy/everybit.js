@@ -113,7 +113,7 @@ PB.postPublicMessage = function(content, type) {
     
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
-        return PB.onError('You must have a current identity to post a public message')
+        return PB.emptyPromise('You must have a current identity to post a public message')
     
     var puff = PB.simpleBuildPuff(type, content)
     return PB.addPuffToSystem(puff)
@@ -126,7 +126,7 @@ PB.postPrivateMessage = function(content, usernames, type) {
     
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
-        return PB.onError('You must have a current identity to post a private message')
+        return PB.emptyPromise('You must have a current identity to post a private message')
     
     usernames.push(myUsername)
     usernames = PB.uniquify(usernames)

@@ -657,7 +657,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.runHandlers('newPuffs', letter)
+        PB.runHandlers('newPuffs', [letter])                            // always returns an array of puffs
         return letter
     })
     

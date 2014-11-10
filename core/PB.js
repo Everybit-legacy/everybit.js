@@ -41,10 +41,10 @@ PB.init = function(options) {
     // TODO: push these down deeper
     if(options.disableP2P)
         PB.CONFIG.noNetwork  = true
-        
+    
     if(options.disablePublicPuffs)
         PB.CONFIG.icxmode    = true    
-        
+    
     setDefault('zone', '')
     setDefault('puffApi', '')
     setDefault('userApi', '')
@@ -268,7 +268,6 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
 
-    
     payload = PB.runHandlers('payloadModifier', payload)
 
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {

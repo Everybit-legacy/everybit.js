@@ -181,6 +181,9 @@ PB.M.Wardrobe = {}
         delete identities[identityUsername]
         identities[aliasUsername] = identity
         
+        if(identityUsername == currentUsername)
+            switchIdentityTo(aliasUsername)
+        
         return true
     }
      

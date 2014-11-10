@@ -150,7 +150,7 @@ PB.createIdentity = function(username, passphrase) {
     
     var prom = PB.registerTopLevelUser(username, privateKey, privateKey, privateKey)
     
-    prom = prom.then(function(userRecord) {
+    prom.then(function(userRecord) {
         var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
         PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
         PB.switchIdentityTo(username)

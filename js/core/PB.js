@@ -236,7 +236,8 @@ PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
 PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
-    
+
+
     payload = PB.runHandlers('payloadmodifier', payload)
     
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {

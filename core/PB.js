@@ -211,22 +211,22 @@ PB.makeHandlerHandler = function(type) {
 
 // USEFUL HANDLERS:
 
-PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')                // called when new puffs are available
+PB.addNewPuffHandler = PB.makeHandlerHandler('newPuffs')                // called when new puffs are available
 
 PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')       // manage relationships between puffs
 
-PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')     // handles reports on incoming puffs
+PB.addNewPuffReportHandler = PB.makeHandlerHandler('newPuffReport')     // handles reports on incoming puffs
 
 PB.addIdentityUpdateHandler = PB.makeHandlerHandler('identityUpdate')   // general GUI update trigger
 
-PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
+PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier')
 
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
-// preswitchidentity is called prior to switchIdentity and removeIdentity, while the old identity is active
-// postswitchidentity is called after switchIdentity, once the new identity is active
-PB.addPreSwitchIdentityHandler  = PB.makeHandlerHandler('preswitchidentity')
-PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
+// beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
+// afterSwitchIdentity is called after switchIdentity, once the new identity is active
+PB.addBeforeSwitchIdentityHandler  = PB.makeHandlerHandler('beforeSwitchIdentity')
+PB.addAfterSwitchIdentityHandler = PB.makeHandlerHandler('afterSwitchIdentity')
 
 ////////////// End Handler Handlers //////////////
 
@@ -240,7 +240,7 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
     
-    payload = PB.runHandlers('payloadmodifier', payload)
+    payload = PB.runHandlers('payloadModifier', payload)
     
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
         var previous = false // TODO: get the sig of this user's latest puff
@@ -412,9 +412,9 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         
     if(typeof switchIdentityTo == 'function')
         PB.switchIdentityTo = function(username) {
-            PB.runHandlers('preswitchidentity', username)
+            PB.runHandlers('beforeSwitchIdentity', username)
             switchIdentityTo(username)
-            PB.runHandlers('postswitchidentity', username)
+            PB.runHandlers('afterSwitchIdentity', username)
         }
         
     if(typeof removeIdentity == 'function')

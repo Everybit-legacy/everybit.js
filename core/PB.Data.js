@@ -21,7 +21,7 @@ PB.Data.profiles = {}
 
 PB.Data.init = function() {
     PB.Data.importShells()                                          // preload relevant shells
-    PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
+    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
 }
 
 
@@ -266,8 +266,8 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
 
     report.public_puff_sigs = shells.map(PB.prop('sig'))
     
-    PB.runHandlers('newpuffs', shells)
-    PB.runHandlers('newpuffreport', report)
+    PB.runHandlers('newPuffs', shells)
+    PB.runHandlers('newPuffReport', report)
     
     return report
 }
@@ -659,7 +659,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.runHandlers('newpuffs', letter)
+        PB.runHandlers('newPuffs', letter)
         return letter
     })
     

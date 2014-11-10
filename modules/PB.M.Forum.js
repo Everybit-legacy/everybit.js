@@ -25,7 +25,7 @@ PB.M.Forum.contentTypes = {}
  */
 PB.M.Forum.init = function() {
     PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)              // manages parent-child relationships
-    PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)    // clear private caches 
+    PB.addBeforeSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)    // clear private caches 
     PB.addPayloadModifierHandler(PB.M.Forum.addTimestamp)               // add timestamp to all new puffs
 }
 

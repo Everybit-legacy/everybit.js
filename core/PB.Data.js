@@ -1,9 +1,11 @@
 /*
 
-  All puff-related data flows through here:
-  caching, persistence, optimizations and network access are  handled within this module.
+    Data management for the EveryBit platform.
+    
+    All puff-related data flows through here:
+    caching, persistence, optimizations and network access are  handled within this module.
 
- Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014 EveryBit. See README for license information.
 
  */
 
@@ -19,7 +21,7 @@ PB.Data.profiles = {}
 
 PB.Data.init = function() {
     PB.Data.importShells()                                          // preload relevant shells
-    PB.addPreSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
+    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
 }
 
 
@@ -264,8 +266,8 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
 
     report.public_puff_sigs = shells.map(PB.prop('sig'))
     
-    PB.runHandlers('newpuffs', shells)
-    PB.runHandlers('newpuffreport', report)
+    PB.runHandlers('newPuffs', shells)
+    PB.runHandlers('newPuffReport', report)
     
     return report
 }
@@ -657,7 +659,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.runHandlers('newpuffs', letter)
+        PB.runHandlers('newPuffs', letter)
         return letter
     })
     
@@ -872,7 +874,7 @@ PB.Data.getPuffBySig = function(sig) {
         if(!shells.length) {
             var fauxshell = {sig: sig}
             if(!PB.Data.getBonus(fauxshell, 'envelope')) {
-                PB.Data.removeShellFromCache(sig) // no updateUI call
+                PB.Data.removeShellFromCache(sig)
                 return PB.onError("Content can not be found for shell '" + sig + "'") // THINK: why was this throwError?
                 // THINK: unlock PB.Data.pendingPuffPromises[sig]? probably not, but it might re-appear later...
             }
@@ -903,8 +905,6 @@ PB.Data.removeShellFromCache = function(sig) {
     PB.Data.purgeShellFromGraph(sig)
     
     PB.Data.removeCachedPuffScore(shell)
-    
-    // updateUI() // THINK: this is not the right place for this, but we need to let the system know what's up...
 }
 
 PB.Data.purgeShellFromGraph = function(sig) {

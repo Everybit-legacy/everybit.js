@@ -4,7 +4,7 @@
 
 Gridbox = {}
 
-Gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
+Gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight, verticalPadding) {
     var min = function(a, b) {return Math.min(a, b)}
     var max = function(a, b) {return Math.max(a, b)}
     var gridwidth  = outerwidth  / cols
@@ -32,7 +32,7 @@ Gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight) {
             for(var dy = 0; dy < height; dy++) {
                 for(var dx = 0; dx < width; dx++) {
                     grid[y+dy][x+dx] = pointer || 1 } }
-            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight+(PB.CONFIG.verticalPadding/1.5)}
+            return {width: width*gridwidth, height: height*gridheight, x: x*gridwidth, y: y*gridheight+(verticalPadding/1.5)}
         }
     }
 }

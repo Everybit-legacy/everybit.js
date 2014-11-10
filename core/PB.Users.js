@@ -1,6 +1,6 @@
 /*
 
-    PB.Users
+    User management for the EveryBit platform.
 
     Most functions related to userRecords live here.
     Note that userRecords are entirely public;
@@ -290,7 +290,10 @@ PB.Users.addNewAnonUser = function(attachToUsername) {
     var newUsername  = 'anon.' + anonUsername
 
     // send it off
-    var prom = PB.Net.registerSubuser('anon', PB.CONFIG.users.anon.adminKey, newUsername, rootKey, adminKey, defaultKey)
+    var anonAdminKey = ((PB.CONFIG.users||{}).anon||{}).adminKey
+    if(!anonAdminKey)
+        return PB.onError('No anonymous user admin key registered')
+    var prom = PB.Net.registerSubuser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
 
     return prom
         .then(function(userRecord) {

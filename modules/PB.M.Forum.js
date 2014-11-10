@@ -25,7 +25,7 @@ PB.M.Forum.contentTypes = {}
  */
 PB.M.Forum.init = function() {
     PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)              // manages parent-child relationships
-    PB.addPreSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)    // clear private caches 
+    PB.addBeforeSwitchIdentityHandler(PB.M.Forum.clearPuffContentStash)    // clear private caches 
     PB.addPayloadModifierHandler(PB.M.Forum.addTimestamp)               // add timestamp to all new puffs
 }
 
@@ -349,7 +349,7 @@ PB.M.Forum.addContentType = function(name, type) {
     
     if(!name) 
         return console.log('Invalid content type name');
-    if (PB.CONFIG.supportedContentTypes.indexOf(name) == -1)  // THINK: should this be a blacklist instead?
+    if ((PB.CONFIG.supportedContentTypes||[]).indexOf(name) == -1)  // THINK: should this be a blacklist instead?
         return console.log('Unsupported content type: ' + name);
     if(!type.toHtml) 
         return console.log('Invalid content type: object is missing toHtml method', name);

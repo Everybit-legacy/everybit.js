@@ -20,7 +20,8 @@
 
  */
 
-if(typeof PB === 'undefined') PB = {}                   // might load config.js first
+if(typeof PB === 'undefined') PB = {}                   // we might load config.js first
+if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
 
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
@@ -35,12 +36,38 @@ PB.init = function(options) {
     
     options = options || {}
     
-    // TODO: push this down deeper
+    // BEGIN CONFIG AND OPTIONS //
+    
+    // TODO: push these down deeper
     if(options.disableP2P)
-        PB.CONFIG.noNetwork = true
+        PB.CONFIG.noNetwork  = true
         
     if(options.disablePublicPuffs)
-        PB.CONFIG.icxmode   = true    
+        PB.CONFIG.icxmode    = true    
+        
+    setDefault('zone', '')
+    setDefault('puffApi', '')
+    setDefault('userApi', '')
+    setDefault('eventsApi', '')
+    setDefault('workerFile', '')
+    setDefault('pageBatchSize', 10)
+    setDefault('initLoadGiveup', 200)
+    setDefault('noLocalStorage', false)
+    setDefault('ephemeralKeychain', 2)
+    setDefault('initLoadBatchSize', 20)
+    setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
+    setDefault('globalBigBatchLimit', 2000)
+    setDefault('inMemoryMemoryLimit', 30E6)     // ~30MB
+    setDefault('supportedContentTypes', 2)
+    setDefault('shellContentThreshold', 1000)   // size of uncompacted content
+    setDefault('localStorageShellLimit', 1000)  // maximum number of shells
+    setDefault('localStorageMemoryLimit', 3E6)  // ~3MB
+    
+    function setDefault(key, val) {
+        PB.CONFIG[key] = options[key] || PB.CONFIG[key] || val
+    }
+    
+    // END CONFIG AND OPTIONS //
         
     PB.Users.init(options)                              // initialize the user record subsystem
     PB.Data.init(options)                               // initialize the data subsystem
@@ -210,20 +237,24 @@ PB.makeHandlerHandler = function(type) {
 
 // USEFUL HANDLERS:
 
-PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')
+PB.addErrorHandler = PB.makeHandlerHandler('error')                     // receives all error messages
 
-PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')
+PB.addNewPuffHandler = PB.makeHandlerHandler('newPuffs')                // called when new puffs are available
 
-PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')
+PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')       // manage relationships between puffs
+
+PB.addNewPuffReportHandler = PB.makeHandlerHandler('newPuffReport')     // handles reports on incoming puffs
+
+PB.addIdentityUpdateHandler = PB.makeHandlerHandler('identityUpdate')   // general GUI update trigger
+
+PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier')
 
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
-PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
-
-// preswitchidentity is called prior to switchIdentity and removeIdentity, while the old identity is active
-// postswitchidentity is called after switchIdentity, once the new identity is active
-PB.addPreSwitchIdentityHandler  = PB.makeHandlerHandler('preswitchidentity')
-PB.addPostSwitchIdentityHandler = PB.makeHandlerHandler('postswitchidentity')
+// beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
+// afterSwitchIdentity is called after switchIdentity, once the new identity is active
+PB.addBeforeSwitchIdentityHandler  = PB.makeHandlerHandler('beforeSwitchIdentity')
+PB.addAfterSwitchIdentityHandler = PB.makeHandlerHandler('afterSwitchIdentity')
 
 ////////////// End Handler Handlers //////////////
 
@@ -237,9 +268,9 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
     var puff 
 
-
-    payload = PB.runHandlers('payloadmodifier', payload)
     
+    payload = PB.runHandlers('payloadModifier', payload)
+
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
         var previous = false // TODO: get the sig of this user's latest puff
         var versionedUsername = PB.getCurrentVersionedUsername()
@@ -345,7 +376,8 @@ PB.formatIdentityFile = function(username) {
 //// BUILD CRYPTO WORKER ////
 
 PB.buildCryptoworker = function(options) {
-    PB.cryptoworker = new Worker("js/cryptoworker.js")
+    var workerFile = PB.CONFIG.workerFile || 'cryptoworker.js'
+    PB.cryptoworker = new Worker(workerFile)
     PB.cryptoworker.addEventListener("message", PB.workerreceive)
 }
 
@@ -410,9 +442,9 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         
     if(typeof switchIdentityTo == 'function')
         PB.switchIdentityTo = function(username) {
-            PB.runHandlers('preswitchidentity', username)
+            PB.runHandlers('beforeSwitchIdentity', username)
             switchIdentityTo(username)
-            PB.runHandlers('postswitchidentity', username)
+            PB.runHandlers('afterSwitchIdentity', username)
         }
         
     if(typeof removeIdentity == 'function')
@@ -582,12 +614,13 @@ PB.isGoodPuff = function(puff) {
 PB.onError = function(msg, obj) {
     //// override this for custom error behavior
     
-    toSend = {msg: msg, obj: obj}
+    var composite = {msg: msg, obj: obj}
 
-    if(puffworldprops.prefs.reporting)
-        PB.Net.xhr(PB.CONFIG.eventsApi, {method: 'POST'}, toSend)
+    PB.runHandlers('error', composite)
 
-    console.log(msg, obj) // adding this back in for debugging help
+    // for debugging help, run this in the console:
+    // PB.addErrorHandler(function(composite) {console.log(composite)})
+
     return false
 }
 

@@ -36,12 +36,38 @@ PB.init = function(options) {
     
     options = options || {}
     
-    // TODO: push this down deeper
+    // BEGIN CONFIG AND OPTIONS //
+    
+    // TODO: push these down deeper
     if(options.disableP2P)
-        PB.CONFIG.noNetwork = true
+        PB.CONFIG.noNetwork  = true
         
     if(options.disablePublicPuffs)
-        PB.CONFIG.icxmode   = true    
+        PB.CONFIG.icxmode    = true    
+        
+    setDefault('zone', '')
+    setDefault('puffApi', '')
+    setDefault('userApi', '')
+    setDefault('eventsApi', '')
+    setDefault('workerFile', '')
+    setDefault('pageBatchSize', 10)
+    setDefault('initLoadGiveup', 200)
+    setDefault('noLocalStorage', false)
+    setDefault('ephemeralKeychain', 2)
+    setDefault('initLoadBatchSize', 20)
+    setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
+    setDefault('globalBigBatchLimit', 2000)
+    setDefault('inMemoryMemoryLimit', 30E6)     // ~30MB
+    setDefault('supportedContentTypes', 2)
+    setDefault('shellContentThreshold', 1000)   // size of uncompacted content
+    setDefault('localStorageShellLimit', 1000)  // maximum number of shells
+    setDefault('localStorageMemoryLimit', 3E6)  // ~3MB
+    
+    function setDefault(key, val) {
+        PB.CONFIG[key] = options[key] || PB.CONFIG[key] || val
+    }
+    
+    // END CONFIG AND OPTIONS //
         
     PB.Users.init(options)                              // initialize the user record subsystem
     PB.Data.init(options)                               // initialize the data subsystem
@@ -211,6 +237,8 @@ PB.makeHandlerHandler = function(type) {
 
 // USEFUL HANDLERS:
 
+PB.addErrorHandler = PB.makeHandlerHandler('error')                     // receives all error messages
+
 PB.addNewPuffHandler = PB.makeHandlerHandler('newPuffs')                // called when new puffs are available
 
 PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')       // manage relationships between puffs
@@ -347,7 +375,8 @@ PB.formatIdentityFile = function(username) {
 //// BUILD CRYPTO WORKER ////
 
 PB.buildCryptoworker = function(options) {
-    PB.cryptoworker = new Worker("js/cryptoworker.js")
+    var workerFile = PB.CONFIG.workerFile || 'cryptoworker.js'
+    PB.cryptoworker = new Worker(workerFile)
     PB.cryptoworker.addEventListener("message", PB.workerreceive)
 }
 
@@ -584,12 +613,13 @@ PB.isGoodPuff = function(puff) {
 PB.onError = function(msg, obj) {
     //// override this for custom error behavior
     
-    toSend = {msg: msg, obj: obj}
+    var composite = {msg: msg, obj: obj}
 
-    if(puffworldprops.prefs.reporting)
-        PB.Net.xhr(PB.CONFIG.eventsApi, {method: 'POST'}, toSend)
+    PB.runHandlers('error', composite)
 
-    console.log(msg, obj) // adding this back in for debugging help
+    // for debugging help, run this in the console:
+    // PB.addErrorHandler(function(composite) {console.log(composite)})
+
     return false
 }
 

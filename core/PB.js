@@ -55,7 +55,7 @@ PB.init = function(options) {
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
     setDefault('noLocalStorage', false)
-    setDefault('ephemeralKeychain', 2)
+    setDefault('ephemeralKeychain', false)
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)
@@ -155,6 +155,8 @@ PB.createIdentity = function(username, passphrase) {
         PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
         PB.switchIdentityTo(username)
     })
+    
+    // TODO: on switchIdentityTo false change undefined to ''
     
     return prom
 }

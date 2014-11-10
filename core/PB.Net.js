@@ -1,13 +1,12 @@
 /*
-       _______  __   __  _______  _______  __    _  _______  _______ 
-    Network library for the puffball platform.
+
+    Network library for the EveryBit platform.
 
     Contains a peer.js-based p2p layer, a promise-based XHR implementation, 
     helper functions for accessing various server-based APIs, 
     and helper functions for handling puff distribution and acquisition.
 
     Copyright 2014 EveryBit. See README for license information.
-
 
  */
 

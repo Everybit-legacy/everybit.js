@@ -1,6 +1,6 @@
 /*
 
-    PB.Users
+    User management for the EveryBit platform.
 
     Most functions related to userRecords live here.
     Note that userRecords are entirely public;

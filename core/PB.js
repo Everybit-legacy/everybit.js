@@ -211,15 +211,17 @@ PB.makeHandlerHandler = function(type) {
 
 // USEFUL HANDLERS:
 
-PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')
+PB.addNewPuffHandler = PB.makeHandlerHandler('newpuffs')                // called when new puffs are available
 
-PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')
+PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')       // manage relationships between puffs
 
-PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')
+PB.addNewPuffReportHandler = PB.makeHandlerHandler('newpuffreport')     // handles reports on incoming puffs
 
-// PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
+PB.addIdentityUpdateHandler = PB.makeHandlerHandler('identityUpdate')   // general GUI update trigger
 
 PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadmodifier')
+
+// PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
 // preswitchidentity is called prior to switchIdentity and removeIdentity, while the old identity is active
 // postswitchidentity is called after switchIdentity, once the new identity is active

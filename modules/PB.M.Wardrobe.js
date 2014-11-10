@@ -125,7 +125,6 @@ PB.M.Wardrobe = {}
         // TODO: check for existing username/capa
         // THINK: hit network for confirmation?
         // THINK: maybe only include viable values?
-        // NOTE: this doesn't trigger processUpdates (see notes there)
 
         var alias = { username: aliasUsername
                     , capa: capa || 1
@@ -154,12 +153,8 @@ PB.M.Wardrobe = {}
         }
         
         if(aliasUsername == identityUsername && alias.capa >= (identity.capa||0)) {
-            
             identity.primary = alias                        // set primary for identity (which may have been empty)
         }
-
-
-        // - Wardrobe->PB.M.Identity
 
         processUpdates()
 
@@ -250,8 +245,8 @@ PB.M.Wardrobe = {}
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
         PB.Persist.save('currentUsername', currentUsername)
-            
-        updateUI() // THINK: there should probably be a PB function that calls this for us... or maybe just PB.updateUI?
+        
+        PB.runHandlers('identityUpdate')
     }
 
     function getCurrentIdentity() {

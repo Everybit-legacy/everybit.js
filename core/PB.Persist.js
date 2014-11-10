@@ -1,5 +1,6 @@
 /*
-    Persistence layer
+
+    Persistence layer for the EveryBit platform.
 
     It's like a network on your hard drive... which means this could be part of PB.Net.
 

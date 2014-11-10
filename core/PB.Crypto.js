@@ -1,7 +1,10 @@
 /*
-  A thin wrapper around bitcoin-lib.js
+    Cryptographic management for the EveryBit platform.
 
-  Copyright 2014 EveryBit. See README for license information.
+    Contains various functions that rely on bitcoin-lib.js for their cryptographic functionality,
+    an ECDH implementation, a random number shim for older browsers, and random helper functions.
+
+    Copyright 2014 EveryBit. See README for license information.
 
 */
 

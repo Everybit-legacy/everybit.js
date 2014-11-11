@@ -1,19 +1,22 @@
 
 ![EveryBit Logo](https://raw.githubusercontent.com/EveryBit-com/resources/master/EveryBitLogo.gif)
 ===========
-EveryBit's powerful API gives your web application fully secure encrypted messaging and user management in just a few lines of code.
+EveryBit's powerful API gives your web application fully secure encrypted messaging and user management with just a few lines of code.
 
-Currently if you want to provide your users with private text messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted on the client side before sending over the network. For a technical description of our encryption procedures, see the section [Crypto](#crypto)  Only your users and their intended recipients can view content that is sent. You cannot view the encrypted content your users send to each other. 
+Currently if you want to provide users with private messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted on the client side before sending over the network. For a technical description of our encryption procedures, see the section [Crypto](#crypto). Only your users and their intended recipients can view the original, unecrypted content being sent. No "back door" exists to get in and view the unecrypted content. 
 
 #### **Resources:**
 
 - [Our Website] (http://everybit.com)
+- [Code recipies] (http://everybit.com/getting-started.html)
 
 
 ### Setup Instructions
 * `git clone https://github.com/EveryBit-com/everybit.js.git`
 * `npm install`
 * `gulp`
+* 
+
 
 
 ### Contributors' guide
@@ -24,12 +27,10 @@ Please don't edit files on the Master repository. Create a Branch or a Fork. Thi
 Feature requests, questions, bugs:
 https://github.com/EveryBit-com/everybit.js/issues
 
-Coding standards and guidelines:
-https://github.com/EveryBit-com/everybit.js/tree/master/non-production
 
 *License*: [MIT](http://opensource.org/licenses/MIT)
 
-### <a name="crypto">Crypto</a>
+### <a name="crypto"></a>Crypto
 
 Say Alice wants to send a letter to Bob and Charlie, but she doesn't trust the mailman.
 

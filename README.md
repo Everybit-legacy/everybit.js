@@ -24,9 +24,6 @@ Please don't edit files on the Master repository. Create a Branch or a Fork. Thi
 Feature requests, questions, bugs:
 https://github.com/EveryBit-com/everybit.js/issues
 
-Coding standards and guidelines:
-https://github.com/EveryBit-com/everybit.js/tree/master/non-production
-
 *License*: [MIT](http://opensource.org/licenses/MIT)
 
 ### Crypto

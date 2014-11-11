@@ -3,7 +3,7 @@
 ===========
 EveryBit's powerful API gives your web application fully secure encrypted messaging and user management in just a few lines of code.
 
-Currently if you want to provide your users with private text messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted using ECC and ECDH (see the Crypto section below for a summary) on the client side before sending over the network. Only your users and their intended recipients can view content that is sent. You cannot view the encrypted content your users send to each other. 
+Currently if you want to provide your users with private text messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted on the client side before sending over the network. For a technical description of our encryption procedures, see the section [Crypto](#crypto)  Only your users and their intended recipients can view content that is sent. You cannot view the encrypted content your users send to each other. 
 
 #### **Resources:**
 
@@ -29,7 +29,7 @@ https://github.com/EveryBit-com/everybit.js/tree/master/non-production
 
 *License*: [MIT](http://opensource.org/licenses/MIT)
 
-### Crypto
+### <a name="crypto">Crypto</a>
 A short summary of our process for Alice to encrypt a message for Bob and Charlie:
 
 Alice creates a fully-formed puff (our data protocol) and converts it into a JSON string (aka the letter). Alice then generates a random 256-bit AES key (aka the message key) and uses it to encrypt the letter. 

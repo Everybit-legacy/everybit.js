@@ -579,13 +579,6 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         return PB.Users.makeVersioned(username, PB.getCurrentCapa())
     }
     
-    PB.getAllIdentityUsernames = function() {
-        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
-        var output
-        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
-        return output
-    }
-    
     PB.getCurrentUserRecord = function() {
         var versionedUsername = PB.getCurrentVersionedUsername()
         if(!versionedUsername)
@@ -601,38 +594,14 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     
         return userRecord
     }
-    
-    PB.getAliasByVersionedUsername = function(identities, username, capa) {
-        // this requires identities to be the list of identities from PB.useSecureInfo
-        
-        if(!identities || typeof identities != 'object') 
-            return PB.onError('Invalid identities')
-        if(!username) 
-            return PB.onError('Non-existent username')
-        
-        var versionedUsername = PB.Users.makeVersioned(username, capa)
-        username = PB.Users.justUsername(versionedUsername)
-        capa = PB.Users.justCapa(versionedUsername)
-        
-        var identity = identities[username]
-        if(!identity)
-            return PB.onError('An identity matching that username could not be found') || {}
-        
-        var alias = identity.aliases.filter(function(alias) {
-            return alias.capa == capa && alias.username == username
-        })
-        return alias[0] || {}
-    }
-    
-    PB.getUsernameFromList = function(list, username) {
-        for(var i = 0; i < list.length; i++) {
-            var key = list[i]
-            if(PB.Users.justUsername(key) == username)
-                return key
-        }
-        return false
-    }
 
+    PB.getAllIdentityUsernames = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
+        return output
+    }
+    
 }
 
 ////////////// END SECURE INFORMATION ZONE ////////////////////

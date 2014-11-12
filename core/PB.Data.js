@@ -521,17 +521,25 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
     .then(function(senderVersionedUserRecord) {
         var prom // used for leaking secure promise
     
-        PB.useSecureInfo(function(identites, currentUsername) {
+        PB.useSecureInfo(function(identities, currentUsername) {
             // NOTE: leaks a promise which resolves to unencrypted puff
         
+            var identity = identities[currentUsername]
             var keylist = Object.keys(envelope.keys)
-            var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-            if(!myVersionedUsername)
+            
+            var aliases = identity.aliases.filter(function(alias) {
+                var versionUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+                return keylist.indexOf(versionUsername) !== -1
+            })
+
+            if(!aliases.length)
                 return PB.throwError('No key found for current user')
 
-            var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
-            var privateDefaultKey = alias.privateDefaultKey
+            var alias = aliases[0] // just take the first one
 
+            var myVersionedUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+            var privateDefaultKey = alias.privateDefaultKey
+            
             prom = new Promise(function(resolve, reject) {
                 return PB.workersend
                      ? PB.workersend( 'decryptPuffForReals'

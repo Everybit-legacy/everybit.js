@@ -207,7 +207,7 @@ PB.M.Wardrobe = {}
                 return PB.onError('No identity found with username "' + username + '"')
         }
         
-        currentUsername = username
+        currentUsername = username || false
 
         processUpdates()
         

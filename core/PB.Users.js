@@ -82,10 +82,28 @@ PB.Users.getUserRecordNoCache = function(username, capa) {
     
     var prom = PB.Net.getUserRecord(username, capa) 
     
+    prom = prom.then(
+                function(userRecord) {
+                    var userRecord = PB.Users.process(userRecord)
+                    if(!userRecord)  PB.throwError('Invalid user record returned')
+                    return userRecord
+                }
+                , PB.catchError('Unable to access user information from the DHT'))
+    
     var versionedUsername = PB.Users.makeVersioned(username, capa)
     PB.Users.promises[versionedUsername] = prom
     
     return prom
+}
+
+PB.Users.doesUserExist = function(username) {
+    return PB.Net.getUserRecord(username).then(
+                function(userRecord) {
+                    if(!userRecord || userRecord.FAIL) 
+                        throw 'User does not exist'
+                    return true
+                }
+                , PB.catchError('Unable to access user information from the DHT'))
 }
 
 

@@ -313,15 +313,7 @@ PB.Net.getUserRecord = function(username, capa) {
     if(capa)
         data.capa = capa
 
-    var prom = PB.Net.getJSON(url, data)
-
-    return prom.then(
-                function(userRecord) {
-                    var userRecord = PB.Users.process(userRecord)
-                    if(!userRecord)  PB.throwError('Invalid user record returned')
-                    return userRecord
-                }
-                , PB.catchError('Unable to access user information from the DHT'))
+    return PB.Net.getJSON(url, data)
 }
 
 

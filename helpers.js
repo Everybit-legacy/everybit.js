@@ -1291,23 +1291,6 @@ function publishProfilePuff() {
     }).catch(PB.catchError('Posting failed'))
 }
 
-function getProfilePuff(username) {
-    var existing_profile = PB.Data.profiles[username]
-    if(existing_profile)
-        return existing_profile === true ? false : existing_profile  // 'true' is our placeholder
-
-    PB.Data.profiles[username] = true
-
-    var prom = PB.Net.getProfilePuff(username)
-    prom.then(function(puffs) {
-        var puff = puffs[0]
-        if(!puff) return false
-        PB.Data.profiles[puff.username.stripCapa()] = puff
-    })
-    
-    return false
-}
-
 function modConfig(key, value) {
     PB.CONFIG[key] = value
     if(!PB.CONFIG.mods)

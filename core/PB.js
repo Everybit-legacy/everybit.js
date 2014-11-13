@@ -48,9 +48,9 @@ PB.init = function(options) {
         PB.CONFIG.icxmode    = true    
     
     setDefault('zone', '')
-    setDefault('puffApi', '')
-    setDefault('userApi', '')
-    setDefault('eventsApi', '')
+    setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('userApi', 'https://i.cx/api/users/api.php')
+    setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
     setDefault('cryptoworkerURL', '')
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
@@ -275,6 +275,30 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
         .catch(function(err) {
             reject(PB.makeError(err))
         })
+    })
+
+    return prom
+}
+
+PB.getProfilePuff = function(username) {
+    var cached_profile = PB.Data.profiles[username]
+    
+    if(cached_profile)
+        return Promise.resolve(cached_profile)
+
+    var prom = PB.Net.getProfilePuff(username)
+
+    prom = prom.then(function(puffs) {
+        var puff = puffs[0]
+    
+        if(!puff) {
+            // THINK: we could set the cache, but may want to try again anyway
+            return PB.onError('Profile puff was not found')
+        }
+        
+        PB.Data.profiles[PB.Users.justUsername(puff.username)] = puff
+    
+        return puff
     })
 
     return prom

@@ -116,6 +116,8 @@ PB.Net.getProfilePuff = function(username) {
     return PB.Net.getJSON(url, data)
 }
 
+PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
+
 /**
  * to get some shells
  * @param {string} query

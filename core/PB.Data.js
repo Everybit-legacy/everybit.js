@@ -179,7 +179,10 @@ PB.Data.removeStar = function(sig, username) {
 }
 
 PB.Data.scoreStars = function(usernames) {
-    // TODO: consider moving this to a module
+    
+    return 0
+    
+    // TODO: move this into a module
 
     var tluScore = 0;
     var suScore = 0;
@@ -370,7 +373,6 @@ PB.Data.getConversationPuffs = PB.promiseMemoize(PB.Data.getConversationPuffs, f
         PB.removePromisePending(key)
     })
 })
-
 
 
 /**
@@ -603,7 +605,7 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     batchsize = batchsize || PB.CONFIG.pageBatchSize || 10
     
     var prom
-    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset) // THINK: why switched param order?
     prom = prom.then(PB.Data.addShellsThenMakeAvailable)
     return prom
 }

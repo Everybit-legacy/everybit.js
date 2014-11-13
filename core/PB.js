@@ -293,7 +293,8 @@ PB.getProfilePuff = function(username) {
     
         if(!puff) {
             // THINK: we could set the cache, but may want to try again anyway
-            return PB.onError('Profile puff was not found')
+            return false
+            // return PB.onError('Profile puff was not found')
         }
         
         PB.Data.profiles[PB.Users.justUsername(puff.username)] = puff

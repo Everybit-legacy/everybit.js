@@ -12,10 +12,11 @@ Currently if you want to provide users with private messaging and file sending y
 
 
 ### Setup Instructions
-  `git clone https://github.com/EveryBit-com/everybit.js.git`
-  `npm install`
-  `gulp`
-
+```
+git clone https://github.com/EveryBit-com/everybit.js.git
+npm install
+gulp
+```
 
 ### Contributors' guide
 If you want to contribute to the codebase here at gihub, please [check the issues](https://github.com/EveryBit-com/everybit.js/issues?q=is%3Aopen) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)

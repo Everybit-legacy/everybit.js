@@ -29,6 +29,7 @@ var coreBuildList = [
     'core/PB.Users.js',
     'core/PB.Crypto.js',
     'core/PB.Persist.js',
+    'core/PB.Spec.js',
 
     'modules/PB.M.Forum.js',
     'modules/PB.M.Wardrobe.js'

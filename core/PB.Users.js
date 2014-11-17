@@ -126,7 +126,7 @@ PB.Users.justCapa = function(versionedUsername) {
 }
 
 PB.Users.makeVersioned = function(username, capa) {
-    if(!username)
+    if(!username || !username.indexOf)
         return ''
     
     if(capa)

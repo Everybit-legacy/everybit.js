@@ -216,8 +216,8 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     var username = PB.getCurrentUsername()
     var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
-    if(~~['defaultKey', 'adminKey', 'rootKey'].indexOf(keyToModify))
-        return PB.onError('That is not a valid key to modify')
+    if(['defaultKey', 'adminKey', 'rootKey'].indexOf(keyToModify) == -1)
+        return PB.emptyPromise('That is not a valid key to modify')
 
     var payload = {}
     var routes  = []
@@ -270,10 +270,10 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
                 })
             }
 
-            resolve(userRecord)
+            return resolve(userRecord)
         })
         .catch(function(err) {
-            reject(PB.makeError(err))
+            return reject(PB.makeError(err))
         })
     })
 

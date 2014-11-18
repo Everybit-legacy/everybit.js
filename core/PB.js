@@ -146,7 +146,7 @@ PB.createIdentity = function(username, passphrase) {
     // TODO: validations and error handling (lots of it)
     
     var prependedPassphrase = username + passphrase
-    var privateKey = passphraseToPrivateKeyWif(prependedPassphrase)
+        var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
     
     var prom = PB.registerTopLevelUser(username, privateKey, privateKey, privateKey)
     

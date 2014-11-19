@@ -369,7 +369,7 @@ PB.Net.xhr = function(url, options, data) {
         
         var formdata = new FormData()
         Object.keys(data || {}).forEach(function (key) {
-            var datum = typeof data[key] == 'object' ? JSON.stringify(data[key]) : data[key];
+            var datum = typeof data[key] == 'object' ? PB.stringifyJSON(data[key]) : data[key];
             formdata.append(key, datum);
         });
         

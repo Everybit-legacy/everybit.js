@@ -735,14 +735,14 @@ PB.catchError = function(msg) {
 
 PB.throwError = function(msg, errmsg) {
     //// ex: prom.then(function(foo) {if(!foo) PB.throwError('no foo'); ...})
-    throw PB.makeError(msg, errmsg)
+    var err = errmsg ? Error(errmsg) : ''
+    throw PB.makeError(msg, err)
 }
 
-PB.makeError = function(msg, errmsg) {
+PB.makeError = function(msg, err) {
     //// ex: new Promise(function(resolve, reject) { if(!foo) reject( PB.makeError('no foo') ) ... })
-    var err = Error(errmsg || msg)
     PB.onError(msg, err)
-    return err
+    return Error(msg)
 }
 
 PB.emptyPromise = function(msg) {
@@ -761,6 +761,15 @@ PB.parseJSON = function(str) {
         return JSON.parse(str)
     } catch(err) {
         return PB.onError('Invalid JSON string', err)
+    }
+}
+
+PB.stringifyJSON = function(obj) {
+    //// JSON.stringify throws on dumb DOM objects, so we catch it. throw/catch borks the JS VM optimizer, so we box it.
+    try {
+        return JSON.stringify(obj)
+    } catch(err) {
+        return PB.onError('Invalid object', err)
     }
 }
 

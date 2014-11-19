@@ -283,7 +283,7 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
 PB.getProfilePuff = function(username) {
     var cached_profile = PB.Data.profiles[username]
     
-    if(cached_profile)
+    if(cached_profile) // THINK: allows a second check to the server... but could cause a lot of noise.
         return Promise.resolve(cached_profile)
 
     var prom = PB.Net.getProfilePuff(username)

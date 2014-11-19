@@ -518,11 +518,11 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
     var senderVersionedUsername = envelope.username
     var userProm = PB.Users.getUserRecordPromise(senderVersionedUsername)
     
-    var prom = userProm
+    var puffprom = userProm
     .catch(PB.catchError('User record acquisition failed'))
     .then(function(senderVersionedUserRecord) {
         var prom // used for leaking secure promise
-    
+
         PB.useSecureInfo(function(identities, currentUsername) {
             // NOTE: leaks a promise which resolves to unencrypted puff
         
@@ -560,7 +560,7 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
         return prom
     })
     
-    return prom
+    return puffprom
 }
 
 

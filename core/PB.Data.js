@@ -543,7 +543,7 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
             var privateDefaultKey = alias.privateDefaultKey
             
             prom = new Promise(function(resolve, reject) {
-                return PB.workersend
+                return PB.cryptoworker
                      ? PB.workersend( 'decryptPuffForReals'
                                     , [ envelope
                                       , senderVersionedUserRecord.defaultKey

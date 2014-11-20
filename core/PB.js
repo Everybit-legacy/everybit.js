@@ -43,10 +43,10 @@ PB.init = function(options) {
     setDefault('userApi', 'https://i.cx/api/users/api.php')
     setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
     setDefault('enableP2P', false)
-    setDefault('cryptoworkerURL', '')
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
     setDefault('noLocalStorage', false)
+    setDefault('cryptoworkerURL', '')
     setDefault('ephemeralKeychain', false)
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate

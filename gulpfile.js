@@ -40,7 +40,7 @@ gulp.task('coreBuild', function () {
         //.pipe(sourcemaps.init())
         .pipe(concat('everybit-min.js'))
         .pipe(filesize())
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(filesize())
         //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build/everybitJS'));

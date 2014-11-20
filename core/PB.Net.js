@@ -16,8 +16,6 @@ PB.Net = {};
  * fire up networks (currently just the peer connections)
  */
 PB.Net.init = function() {
-    if(PB.CONFIG.noNetwork) return false                   // THINK: this is only for debugging and development
-    
     PB.Net.P2P.init();
 }
 
@@ -162,7 +160,7 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     var filterstring = JSON.stringify(filters.types)
     var profile_request = (filterstring == '["profile"]')
     
-    if(PB.CONFIG.noNetwork && !profile_request)                // THINK: this is only for debugging and development
+    if(PB.CONFIG.disableReceivePublic && !profile_request)
         return PB.emptyPromise()
                  .then(function() {return []});
     
@@ -263,7 +261,7 @@ PB.Net.getSiblings = function() {
 PB.Net.distributePuff = function(puff) {
     //// distribute a puff to the network
 
-    if(PB.CONFIG.noNetwork && !PB.CONFIG.icxmode) return false; // THINK: this is only for debugging and development
+    if(PB.CONFIG.disableSendToServer) return false;       // so you can work locally
 
     PB.Net.sendPuffToServer(puff);                        // add it to the server's pufflist
 
@@ -453,6 +451,11 @@ PB.Net.P2P.peers = {};
  * initialize the peer-to-peer layer
  */
 PB.Net.P2P.init = function() {
+    // NOTE: you have to manually enable the P2P layer via config or init options
+    // e.g. PB.init({enableP2P: true})
+    // or   PB.CONFIG.enableP2P = true
+    if(!PB.CONFIG.enableP2P) return false
+    
     PB.Net.P2P.Peer = new Peer({   host: '162.219.162.56'
                                  ,  port: 9000
                                  ,  path: '/'

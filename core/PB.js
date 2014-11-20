@@ -38,19 +38,11 @@ PB.init = function(options) {
     
     // BEGIN CONFIG AND OPTIONS //
     
-    // TODO: push these down deeper
-    // TODO: make network options actually do what they say
-    PB.CONFIG.noNetwork = true
-    if(options.enableP2P)
-        PB.CONFIG.noNetwork  = false
-    
-    if(options.disablePublicPuffs)
-        PB.CONFIG.icxmode    = true    
-    
     setDefault('zone', '')
     setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
     setDefault('userApi', 'https://i.cx/api/users/api.php')
     setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('enableP2P', false)
     setDefault('cryptoworkerURL', '')
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
@@ -60,6 +52,8 @@ PB.init = function(options) {
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)
     setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
+    setDefault('disableSendToServer', false)    // so you can work locally
+    setDefault('disableReceivePublic', false)   // no public puffs except profiles
     setDefault('supportedContentTypes', 2)
     setDefault('shellContentThreshold', 1000)   // size of uncompacted content
     setDefault('localStorageShellLimit', 1000)  // maximum number of shells
@@ -122,7 +116,10 @@ PB.postPublicMessage = function(content, type) {
 PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
+
     usernames = usernames || []
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
     
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)

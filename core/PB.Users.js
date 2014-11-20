@@ -12,13 +12,13 @@
 
 PB.Users = {}
 
-PB.Users.records  = {}                              // maps username to an array of DHT userRecords
+PB.Users.records  = {}                              // maps versioned username to an array of DHT userRecords
 PB.Users.promises = {}                              // pending userRecord requests
+
 
 PB.Users.init = function(options) {
     PB.Users.depersist()                            // pop userRecords out of localStorage
 }
-
 
 
 PB.Users.process = function(userRecord) {
@@ -37,10 +37,11 @@ PB.Users.process = function(userRecord) {
 }
 
 
-
-PB.Users.getCachedUserRecord = function(versionedUsername) {
-    //// TODO: start here!
-    return PB.Users.getCachedWithCapa(versionedUsername)
+PB.Users.getCachedUserRecord = function(username) {
+    if(PB.Users.makeVersioned(username) == username)    // username is versioned
+        return PB.Users.records[username]
+    
+    return PB.Users.findFreshest(username)              // username isn't versioned
 }
 
 
@@ -82,10 +83,28 @@ PB.Users.getUserRecordNoCache = function(username, capa) {
     
     var prom = PB.Net.getUserRecord(username, capa) 
     
+    prom = prom.then(
+                function(userRecord) {
+                    var userRecord = PB.Users.process(userRecord)
+                    if(!userRecord)  PB.throwError('Invalid user record returned')
+                    return userRecord
+                }
+                , PB.catchError('Unable to access user information from the DHT'))
+    
     var versionedUsername = PB.Users.makeVersioned(username, capa)
     PB.Users.promises[versionedUsername] = prom
     
     return prom
+}
+
+PB.Users.doesUserExist = function(username) {
+    return PB.Net.getUserRecord(username).then(
+                function(userRecord) {
+                    if(!userRecord || userRecord.FAIL) 
+                        throw 'User does not exist'
+                    return true
+                }
+                , PB.catchError('Unable to access user information from the DHT'))
 }
 
 
@@ -108,7 +127,7 @@ PB.Users.justCapa = function(versionedUsername) {
 }
 
 PB.Users.makeVersioned = function(username, capa) {
-    if(!username)
+    if(!username || !username.indexOf)
         return ''
     
     if(capa)
@@ -203,24 +222,37 @@ PB.Users.cache = function(userRecord) {
     
     var versionedUsername = PB.Users.userRecordToVersionedUsername(userRecord)
     
-    PB.Users.records[versionedUsername] = userRecord;
-
-    delete PB.Users.promises[versionedUsername];
+    PB.Users.records[versionedUsername] = userRecord
     
-    PB.Persist.save('userRecords', PB.Users.records);
+    delete PB.Users.promises[versionedUsername]
     
-    return userRecord;
-}
-
-PB.Users.getCachedWithCapa = function(versionedUsername) {
-    // TODO: map of just username to versionedUsername, so we can always get a user record for a user regardless of version
-    versionedUsername = PB.Users.makeVersioned(versionedUsername)
-    return PB.Users.records[versionedUsername];
+    PB.Persist.save('userRecords', PB.Users.records)
+    
+    return userRecord
 }
 
 PB.Users.depersist = function() {
     //// grab userRecords from local storage. this smashes the current userRecords in memory, so don't call it after init!
-    PB.Users.records = PB.Persist.get('userRecords') || {};
+    PB.Users.records = PB.Persist.get('userRecords') || {}
+}
+
+
+PB.Users.findFreshest = function(username) {
+    username = PB.Users.justUsername(username)
+    
+    var keys = Object.keys(PB.Users.records)
+    var capa = 0
+    
+    keys.filter(function(versionedUsername) {
+        return PB.Users.justUsername(versionedUsername) == username
+    }).forEach( function(versionedUsername) {
+        var this_capa = +PB.Users.justCapa(versionedUsername)
+        if(this_capa > capa)
+            capa = this_capa
+    })
+    
+    var versionedUsername = PB.Users.makeVersioned(username, capa)
+    return PB.Users.records[versionedUsername]
 }
 
 
@@ -293,7 +325,7 @@ PB.Users.addNewAnonUser = function(attachToUsername) {
     var anonAdminKey = ((PB.CONFIG.users||{}).anon||{}).adminKey
     if(!anonAdminKey)
         return PB.onError('No anonymous user admin key registered')
-    var prom = PB.Net.registerSubuser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    var prom = PB.registerSubuserForUser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
 
     return prom
         .then(function(userRecord) {

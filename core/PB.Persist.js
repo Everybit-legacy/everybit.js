@@ -18,6 +18,8 @@ PB.Persist.todoflag = false
  * @param  {string} value
  */
 PB.Persist.save = function(key, value) {
+    if(value == null)
+        value = false
     PB.Persist.todo[key] = value
     if(!PB.Persist.todoflag) {
         onceInAwhile(function() {

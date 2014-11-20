@@ -4,3 +4,4 @@ non-production/*
 npm-debug.lognon-production/tools/scrape/config.php
 build/*
 node_modules/*
+.tm_properties

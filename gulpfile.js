@@ -29,6 +29,7 @@ var coreBuildList = [
     'core/PB.Users.js',
     'core/PB.Crypto.js',
     'core/PB.Persist.js',
+    'core/PB.Spec.js',
 
     'modules/PB.M.Forum.js',
     'modules/PB.M.Wardrobe.js'
@@ -39,7 +40,7 @@ gulp.task('coreBuild', function () {
         //.pipe(sourcemaps.init())
         .pipe(concat('everybit-min.js'))
         .pipe(filesize())
-        //.pipe(uglify())
+        .pipe(uglify())
         .pipe(filesize())
         //.pipe(sourcemaps.write())
         .pipe(gulp.dest('build/everybitJS'));

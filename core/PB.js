@@ -26,6 +26,7 @@ if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
 
+PB.version = '0.7.0'
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 
@@ -38,26 +39,22 @@ PB.init = function(options) {
     
     // BEGIN CONFIG AND OPTIONS //
     
-    // TODO: push these down deeper
-    if(options.disableP2P)
-        PB.CONFIG.noNetwork  = true
-    
-    if(options.disablePublicPuffs)
-        PB.CONFIG.icxmode    = true    
-    
     setDefault('zone', '')
-    setDefault('puffApi', '')
-    setDefault('userApi', '')
-    setDefault('eventsApi', '')
-    setDefault('workerFile', '')
+    setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('userApi', 'https://i.cx/api/users/api.php')
+    setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('enableP2P', false)
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
     setDefault('noLocalStorage', false)
-    setDefault('ephemeralKeychain', 2)
+    setDefault('cryptoworkerURL', '')
+    setDefault('ephemeralKeychain', false)
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)
-    setDefault('inMemoryMemoryLimit', 30E6)     // ~30MB
+    setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
+    setDefault('disableSendToServer', false)    // so you can work locally
+    setDefault('disableReceivePublic', false)   // no public puffs except profiles
     setDefault('supportedContentTypes', 2)
     setDefault('shellContentThreshold', 1000)   // size of uncompacted content
     setDefault('localStorageShellLimit', 1000)  // maximum number of shells
@@ -111,7 +108,7 @@ PB.postPublicMessage = function(content, type) {
     
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
-        return PB.onError('You must have a current identity to post a public message')
+        return PB.emptyPromise('You must have a current identity to post a public message')
     
     var puff = PB.simpleBuildPuff(type, content)
     return PB.addPuffToSystem(puff)
@@ -120,11 +117,14 @@ PB.postPublicMessage = function(content, type) {
 PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
+
     usernames = usernames || []
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
     
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
-        return PB.onError('You must have a current identity to post a private message')
+        return PB.emptyPromise('You must have a current identity to post a private message')
     
     usernames.push(myUsername)
     usernames = PB.uniquify(usernames)
@@ -133,6 +133,73 @@ PB.postPrivateMessage = function(content, usernames, type) {
     return prom.then(function(userRecords) {        
         var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
         return PB.addPuffToSystem(puff)
+    })
+    
+    return prom
+}
+
+PB.getMyMessages = true
+
+PB.createIdentity = function(username, passphrase) {
+    // TODO: validations and error handling (lots of it)
+    
+    var prependedPassphrase = username + passphrase
+        var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
+    
+    var prom = PB.registerTopLevelUser(username, privateKey, privateKey, privateKey)
+    
+    prom.then(function(userRecord) {
+        var capa = 1 // THINK: does capa always start at 1? where should that knowledge live?
+        PB.addAlias(username, username, capa, privateKey, privateKey, privateKey, {passphrase: passphrase})
+        PB.switchIdentityTo(username)
+    })
+    
+    // TODO: on switchIdentityTo false change undefined to ''
+    
+    return prom
+}
+
+PB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
+    //// create a brand new top-level user
+
+    // OPT: privateToPublic is expensive -- we could reduce the number of calls if the private keys are identical
+    var rootKeyPublic    = PB.Crypto.privateToPublic(privateRootKey)
+    var adminKeyPublic   = PB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKeyPublic = PB.Crypto.privateToPublic(privateDefaultKey)
+
+    var payload = { requestedUsername: username
+                  ,           rootKey: rootKeyPublic
+                  ,          adminKey: adminKeyPublic
+                  ,        defaultKey: defaultKeyPublic
+                  }
+
+    var routes  = []
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+    
+    var prom = PB.Net.updateUserRecord(puff)
+    
+    return prom
+}
+
+/**
+ * register a subuser for the currently active identity
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+PB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
+    //// registers a subuser for the currently active identity
+    
+    var signingUsername = PB.getCurrentUsername()
+    var prom
+    
+    PB.useSecureInfo(function(_, _, _, privateAdminKey, _) {
+        prom = PB.registerSubuserForUser(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey)
     })
     
     return prom
@@ -147,13 +214,13 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     var username = PB.getCurrentUsername()
     var newPublicKey = PB.Crypto.privateToPublic(newPrivateKey)
 
-    if(~~['defaultKey', 'adminKey', 'rootKey'].indexOf(keyToModify))
-        return PB.onError('That is not a valid key to modify')
+    if(['defaultKey', 'adminKey', 'rootKey'].indexOf(keyToModify) == -1)
+        return PB.emptyPromise('That is not a valid key to modify')
 
     var payload = {}
-    var routes = []
-    var type = 'updateUserRecord'
+    var routes  = []
     var content = 'modifyUserKey'
+    var type    = 'updateUserRecord'
 
     payload.keyToModify = keyToModify
     payload.newKey = newPublicKey
@@ -201,11 +268,36 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
                 })
             }
 
-            resolve(userRecord)
+            return resolve(userRecord)
         })
         .catch(function(err) {
-            reject(PB.makeError(err))
+            return reject(PB.makeError(err))
         })
+    })
+
+    return prom
+}
+
+PB.getProfilePuff = function(username) {
+    var cached_profile = PB.Data.profiles[username]
+    
+    if(cached_profile) // THINK: allows a second check to the server... but could cause a lot of noise.
+        return Promise.resolve(cached_profile)
+
+    var prom = PB.Net.getProfilePuff(username)
+
+    prom = prom.then(function(puffs) {
+        var puff = puffs[0]
+    
+        if(!puff) {
+            // THINK: we could set the cache, but may want to try again anyway
+            return false
+            // return PB.onError('Profile puff was not found')
+        }
+        
+        PB.Data.profiles[PB.Users.justUsername(puff.username)] = puff
+    
+        return puff
     })
 
     return prom
@@ -271,6 +363,7 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     payload = PB.runHandlers('payloadModifier', payload)
 
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
         var previous = false // TODO: get the sig of this user's latest puff
         var versionedUsername = PB.getCurrentVersionedUsername()
         
@@ -372,11 +465,49 @@ PB.formatIdentityFile = function(username) {
 
 
 
+//// USER CREATION ////
+
+/**
+ * register a subuser
+ * @param  {string} signingUsername username of existed user
+ * @param  {string} privateAdminKey private admin key for existed user
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+PB.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+
+    // build our DHT update puff
+    var payload = { requestedUsername: newUsername
+                  ,        defaultKey: defaultKey
+                  ,          adminKey: adminKey
+                  ,           rootKey: rootKey
+                  ,              time: Date.now()
+                  }
+
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+    return PB.Net.updateUserRecord(puff)
+}
+
+
+
+
 //// BUILD CRYPTO WORKER ////
 
 PB.buildCryptoworker = function(options) {
-    var workerFile = PB.CONFIG.workerFile || 'cryptoworker.js'
-    PB.cryptoworker = new Worker(workerFile)
+    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL // || 'cryptoworker.js'
+    
+    if(!cryptoworkerURL) return false
+    
+    PB.cryptoworker = new Worker(cryptoworkerURL)
     PB.cryptoworker.addEventListener("message", PB.workerreceive)
 }
 
@@ -410,10 +541,11 @@ PB.workersend = function(funstr, args, resolve, reject) {
 
 ////////////// SECURE INFORMATION INTERFACE ////////////////////
 
-PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPreference, switchIdentityTo, removeIdentity) {
+PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity) {
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
     // addIdentity      = function(username, aliases, preferences)
     // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)
+    // setPrimaryAlias  = function(identityUsername, aliasUsername)
     // removeIdentity   = function(username)
     // setPreference    = function(key, value) // for current identity
     // switchIdentityTo = function(username)
@@ -435,6 +567,9 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         
     if(typeof addAlias == 'function')
         PB.addAlias = addAlias
+        
+    if(typeof setPrimaryAlias == 'function')
+        PB.setPrimaryAlias = setPrimaryAlias
         
     if(typeof setPreference == 'function')
         PB.setPreference = setPreference
@@ -471,13 +606,6 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         return PB.Users.makeVersioned(username, PB.getCurrentCapa())
     }
     
-    PB.getAllIdentityUsernames = function() {
-        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
-        var output
-        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
-        return output
-    }
-    
     PB.getCurrentUserRecord = function() {
         var versionedUsername = PB.getCurrentVersionedUsername()
         if(!versionedUsername)
@@ -493,38 +621,14 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     
         return userRecord
     }
-    
-    PB.getAliasByVersionedUsername = function(identities, username, capa) {
-        // this requires identities to be the list of identities from PB.useSecureInfo
-        
-        if(!identities || typeof identities != 'object') 
-            return PB.onError('Invalid identities')
-        if(!username) 
-            return PB.onError('Non-existent username')
-        
-        var versionedUsername = PB.Users.makeVersioned(username, capa)
-        username = PB.Users.justUsername(versionedUsername)
-        capa = PB.Users.justCapa(versionedUsername)
-        
-        var identity = identities[username]
-        if(!identity)
-            return PB.onError('An identity matching that username could not be found') || {}
-        
-        var alias = identity.aliases.filter(function(alias) {
-            return alias.capa == capa && alias.username == username
-        })
-        return alias[0] || {}
-    }
-    
-    PB.getUsernameFromList = function(list, username) {
-        for(var i = 0; i < list.length; i++) {
-            var key = list[i]
-            if(PB.Users.justUsername(key) == username)
-                return key
-        }
-        return false
-    }
 
+    PB.getAllIdentityUsernames = function() {
+        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        var output
+        PB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
+        return output
+    }
+    
 }
 
 ////////////// END SECURE INFORMATION ZONE ////////////////////
@@ -633,14 +737,14 @@ PB.catchError = function(msg) {
 
 PB.throwError = function(msg, errmsg) {
     //// ex: prom.then(function(foo) {if(!foo) PB.throwError('no foo'); ...})
-    throw PB.makeError(msg, errmsg)
+    var err = errmsg ? Error(errmsg) : ''
+    throw PB.makeError(msg, err)
 }
 
-PB.makeError = function(msg, errmsg) {
+PB.makeError = function(msg, err) {
     //// ex: new Promise(function(resolve, reject) { if(!foo) reject( PB.makeError('no foo') ) ... })
-    var err = Error(errmsg || msg)
     PB.onError(msg, err)
-    return err
+    return Error(msg)
 }
 
 PB.emptyPromise = function(msg) {
@@ -659,6 +763,15 @@ PB.parseJSON = function(str) {
         return JSON.parse(str)
     } catch(err) {
         return PB.onError('Invalid JSON string', err)
+    }
+}
+
+PB.stringifyJSON = function(obj) {
+    //// JSON.stringify throws on dumb DOM objects, so we catch it. throw/catch borks the JS VM optimizer, so we box it.
+    try {
+        return JSON.stringify(obj)
+    } catch(err) {
+        return PB.onError('Invalid object', err)
     }
 }
 

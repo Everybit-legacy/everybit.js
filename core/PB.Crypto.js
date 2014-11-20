@@ -148,6 +148,13 @@ PB.Crypto.puffToSiglessString = function(puff) {
 }
 
 
+PB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
+    var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString()
+    hash = Bitcoin.convert.hexToBytes(hashStr)
+    return Bitcoin.ECKey(hash).toWif()
+}
+
+
 /**
  * to encrypt with AES
  * @param  {string} message

@@ -19,13 +19,11 @@ PB.Data.pendingPuffPromises = {}
 
 PB.Data.profiles = {}
 
-PB.Data.init = function() {
-    PB.Data.importShells()                                          // preload relevant shells
-    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)  // clear private caches
+PB.Data.init = function(options) {
+    if(!options.disablePublicPuffs)
+        PB.Data.importShells()                                          // preload relevant shells
+    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)   // clear private caches
 }
-
-
-
 
 
 ///////////////// new graph stuff ////////////////////
@@ -181,7 +179,10 @@ PB.Data.removeStar = function(sig, username) {
 }
 
 PB.Data.scoreStars = function(usernames) {
-    // TODO: consider moving this to a module
+    
+    return 0
+    
+    // TODO: move this into a module
 
     var tluScore = 0;
     var suScore = 0;
@@ -374,7 +375,6 @@ PB.Data.getConversationPuffs = PB.promiseMemoize(PB.Data.getConversationPuffs, f
 })
 
 
-
 /**
  * to import shells from local and remote sources
  */
@@ -392,7 +392,7 @@ PB.Data.importShells = function() {
     PB.Data.importLocalShells()
     // PB.Data.getMoreShells()
     PB.Data.importRemoteShells()
-    PB.Data.importAllStars()
+    // PB.Data.importAllStars()
 }
 
 /**
@@ -518,24 +518,32 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
     var senderVersionedUsername = envelope.username
     var userProm = PB.Users.getUserRecordPromise(senderVersionedUsername)
     
-    var prom = userProm
+    var puffprom = userProm
     .catch(PB.catchError('User record acquisition failed'))
     .then(function(senderVersionedUserRecord) {
         var prom // used for leaking secure promise
-    
-        PB.useSecureInfo(function(identites, currentUsername) {
+
+        PB.useSecureInfo(function(identities, currentUsername) {
             // NOTE: leaks a promise which resolves to unencrypted puff
         
+            var identity = identities[currentUsername]
             var keylist = Object.keys(envelope.keys)
-            var myVersionedUsername = PB.getUsernameFromList(keylist, currentUsername)
-            if(!myVersionedUsername)
+            
+            var aliases = identity.aliases.filter(function(alias) {
+                var versionUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+                return keylist.indexOf(versionUsername) !== -1
+            })
+
+            if(!aliases.length)
                 return PB.throwError('No key found for current user')
 
-            var alias = PB.getAliasByVersionedUsername(identites, myVersionedUsername)
-            var privateDefaultKey = alias.privateDefaultKey
+            var alias = aliases[0] // just take the first one
 
+            var myVersionedUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+            var privateDefaultKey = alias.privateDefaultKey
+            
             prom = new Promise(function(resolve, reject) {
-                return PB.workersend
+                return PB.cryptoworker
                      ? PB.workersend( 'decryptPuffForReals'
                                     , [ envelope
                                       , senderVersionedUserRecord.defaultKey
@@ -552,7 +560,7 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
         return prom
     })
     
-    return prom
+    return puffprom
 }
 
 
@@ -597,7 +605,7 @@ PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
     batchsize = batchsize || PB.CONFIG.pageBatchSize || 10
     
     var prom
-    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset)
+    prom = PB.Net.getMyPrivatePuffs(PB.getCurrentUsername(), batchsize, offset) // THINK: why switched param order?
     prom = prom.then(PB.Data.addShellsThenMakeAvailable)
     return prom
 }
@@ -659,7 +667,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.runHandlers('newPuffs', letter)
+        PB.runHandlers('newPuffs', [letter])                            // always returns an array of puffs
         return letter
     })
     

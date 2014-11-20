@@ -392,7 +392,7 @@ PB.Data.importShells = function() {
     PB.Data.importLocalShells()
     // PB.Data.getMoreShells()
     PB.Data.importRemoteShells()
-    PB.Data.importAllStars()
+    // PB.Data.importAllStars()
 }
 
 /**

@@ -39,10 +39,10 @@ PB.init = function(options) {
     // BEGIN CONFIG AND OPTIONS //
     
     // TODO: push these down deeper
-    // TODO: disableP2P by default
     // TODO: make network options actually do what they say
-    if(options.disableP2P)
-        PB.CONFIG.noNetwork  = true
+    PB.CONFIG.noNetwork = true
+    if(options.enableP2P)
+        PB.CONFIG.noNetwork  = false
     
     if(options.disablePublicPuffs)
         PB.CONFIG.icxmode    = true    
@@ -505,7 +505,10 @@ PB.registerSubuserForUser = function(signingUsername, privateAdminKey, newUserna
 //// BUILD CRYPTO WORKER ////
 
 PB.buildCryptoworker = function(options) {
-    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL || 'cryptoworker.js'
+    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL // || 'cryptoworker.js'
+    
+    if(!cryptoworkerURL) return false
+    
     PB.cryptoworker = new Worker(cryptoworkerURL)
     PB.cryptoworker.addEventListener("message", PB.workerreceive)
 }

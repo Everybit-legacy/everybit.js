@@ -126,7 +126,7 @@ PB.M.Wardrobe = {}
         // THINK: maybe only include viable values?
 
         var alias = { username: aliasUsername
-                    , capa: capa || 1
+                    , capa: capa || 1 // NOTE: default capa
                     , privateRootKey: privateRootKey || false
                     , privateAdminKey: privateAdminKey || false
                     , privateDefaultKey: privateDefaultKey || false

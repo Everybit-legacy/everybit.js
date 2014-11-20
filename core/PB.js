@@ -59,7 +59,7 @@ PB.init = function(options) {
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)
-    setDefault('inMemoryMemoryLimit', 30E6)     // ~30MB
+    setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
     setDefault('supportedContentTypes', 2)
     setDefault('shellContentThreshold', 1000)   // size of uncompacted content
     setDefault('localStorageShellLimit', 1000)  // maximum number of shells
@@ -365,6 +365,7 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
     payload = PB.runHandlers('payloadModifier', payload)
 
     PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
         var previous = false // TODO: get the sig of this user's latest puff
         var versionedUsername = PB.getCurrentVersionedUsername()
         

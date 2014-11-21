@@ -44,6 +44,8 @@ PB.Persist.save = function(key, value) {
  * @return {(false|string)}
  */
 PB.Persist.get = function(key) {
+    // TODO: return empty string instead of false
+
     var realkey = 'PUFF::' + key;
     var str = localStorage.getItem(realkey);
     if(!str) return false;

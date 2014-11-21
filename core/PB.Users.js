@@ -45,11 +45,10 @@ PB.Users.getCachedUserRecord = function(username) {
 }
 
 
-
-
 /**
- * checks the cache, and always returns a promise
+ * Checks the cache, and always returns a promise
  * @param {string} username
+ * @param {int} capa is the version of the username keys
  * @returns {object} Promise for a user record
  * Looks first in the cache, then grabs from the network
  */
@@ -71,9 +70,11 @@ PB.Users.getUserRecordPromise = function(username, capa) {
     return PB.Users.getUserRecordNoCache(versionedUsername)
 }
 
+
 /**
  * Forces a request to the network, ignores cached
  * @param {string} username
+ * @param {int} capa is the version of the username keys
  * @returns {object} Promise for a user record
  */
 PB.Users.getUserRecordNoCache = function(username, capa) {
@@ -158,7 +159,7 @@ PB.Users.breakVersionedUsername = function(versionedUsername) {
 //
 
 
-PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, updated, profile, capa) {
+PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, created, updated, profile, capa) {
     //// returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc)
 
     latest  = latest  || ""                         // signature of the most recent puff published by the user
@@ -178,6 +179,7 @@ PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, updat
            ,    rootKey: rootKey                    // public root key
            ,   adminKey: adminKey                   // public admin key
            , defaultKey: defaultKey                 // public default key
+           ,    created: created                    // Date the record was created
            ,     latest: latest
            ,    updated: updated
            ,    profile: profile

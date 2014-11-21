@@ -1,5 +1,5 @@
 /*
-    Comprehensive, canonical set of functions defining and validating a puff.
+    Comprehensive (in progress!), canonical set of functions defining and validating a puff.
 
     All of these are STRICTLY FORMAL validations: they don't depend on the state of the universe.
 
@@ -26,7 +26,7 @@ PB.Spec.isValidUsername = function(username) {
      */
 
     PB.Spec.isValidUsername.rulesStatement = 'Usernames can only contain lowercase letters, numbers, and periods. They cannot ' +
-        'be longer than 255 characters or end with a period.'
+        'be longer than 255 characters, or begin or end with a period.'
 
     if(!username)
         return false
@@ -49,6 +49,7 @@ PB.Spec.isValidUsername = function(username) {
 
 /**
  * Does everything possible to make a username valid
+ * Note: This may have unintended consequences for the user
  */
 PB.Spec.sanitizeUsername = function(username) {
     /*
@@ -79,6 +80,8 @@ PB.Spec.sanitizeUsername = function(username) {
  * @returns {boolean}
  */
 PB.Spec.isValidPublicKey = function(publicKey) {
+    // TODO: do "checksum" validation
+
     if(!isset(publicKey)) {
         return false;
     } else {
@@ -93,6 +96,8 @@ PB.Spec.isValidPublicKey = function(publicKey) {
  * @returns {boolean}
  */
 PB.Spec.isValidPrivateKey = function(privateKey) {
+    // TODO: Validate by testing if can be converted to public key
+
     if(!isset(privateKey)) {
         return false;
     } else {
@@ -112,7 +117,7 @@ PB.Spec.isValidCapa = function(capa) {
      - Must be a natural number (1 or greater)
      */
 
-    PB.Spec.isValidCapa.rulesStatement = 'Capa must be a natural number.';
+    PB.Spec.isValidCapa.rulesStatement = 'capa must be a natural number.';
 
 
     capa = capa.toString(); // Convert to string

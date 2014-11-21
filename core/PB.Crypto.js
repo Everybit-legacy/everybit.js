@@ -11,7 +11,7 @@
 PB.Crypto = {};
 
 /**
- * to generate private key
+ * Generate private key
  * @return {string} 
  */
 PB.Crypto.generatePrivateKey = function() {
@@ -23,8 +23,9 @@ PB.Crypto.generatePrivateKey = function() {
         return PB.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
 }
 
+
 /**
- * convert public key from private key
+ * Convert public key from private key
  * @param  {string} privateKeyWIF
  * @return {string}
  */
@@ -40,8 +41,9 @@ PB.Crypto.privateToPublic = function(privateKeyWIF) {
     }
 }
 
+
 /**
- * sign the hash of some data with a private key and return the sig in base 58
+ * Sign the hash of some data with a private key and return the sig in base 58
  * @param  {object} unsignedPuff
  * @param  {string} privateKeyWIF
  * @return {(boolean|error)}
@@ -59,6 +61,7 @@ PB.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
         return PB.onError('Could not properly encode signature', [prikey, messageHash, err])
     }
 }
+
 
 /**
  * to verify puff sig
@@ -177,19 +180,19 @@ PB.Crypto.decryptWithAES = function(enc, key) {
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
     var bytes = Bitcoin.convert.wordsToBytes(words.words) 
-    // var uglyRegex = /[\u0002\u0004\u0007\u000e]+$/g // TODO: fix this so AES padding doesn't ever leak out 
-    var uglyRegex = /[\u0000-\u0010]+$/g // TODO: fix this so AES padding doesn't ever leak out 
+    // var uglyRegex = /[\u0002\u0004\u0007\u000e]+$/g
+    var uglyRegex = /[\u0000-\u0010]+$/g // TODO: contain AES padding
     return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(uglyRegex, '')
 }
 
 /**
- * to get the shared secret of two users
+ * Get the shared secret of two users
  * @param  {string} yourPublicWif
  * @param  {string} myPrivateWif
  * @return {string}
  */
 PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
-    // TODO: check our ECDH maths
+    // TODO: unit testing for ECDH maths
     var pubkey = PB.Crypto.wifToPubKey(yourPublicWif)
     var prikey = PB.Crypto.wifToPriKey(myPrivateWif)
     if(!pubkey || !prikey) return false  
@@ -200,7 +203,7 @@ PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
 }
 
 /**
- * to encode private message
+ * Encode private message
  * @param  {string} plaintext
  * @param  {string} yourPublicWif
  * @param  {string} myPrivateWif
@@ -261,9 +264,9 @@ PB.Crypto.getRandomItem = function(list) {
 }
 
 /**
- * get a new AES key
- * @param  {number} length in bytes (defaults to 256 bits)
- * @return {string}
+ * Get a new AES key
+ * @param  {number} len Length in bytes (defaults to 256 bits)
+ * @return {string} AES key
  */
 PB.Crypto.getRandomKey = function(len) {
     len = len || 256/8                                      // AES key size is 256 bits
@@ -290,7 +293,7 @@ PB.Crypto.getRandomValues = function(number, size) {
 PB.Crypto.getRandomValuesShim = function(number, size) {
     // via https://github.com/evanvosberg/crypto-js/issues/7
     // fallback for old browsers that don't support crypto.getRandomValues
-    // a little better than plain Math.random(), worse than crypto.getRandomValues()
+    // better than plain Math.random(), worse than crypto.getRandomValues()
     var words = [];
 
     var r = (function (m_w) {
@@ -327,6 +330,7 @@ PB.Crypto.getRandomValuesShim = function(number, size) {
 
     return words;
 }
+
 
 /**
  * to create key pairs

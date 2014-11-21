@@ -788,14 +788,16 @@ PB.tryDecodeURIComponent = function(str) {
 //// something different
 
 PB.promisesPending = {}
+
+// Major jujitsu here
 PB.promiseMemoize = function(fun, ohboy) {
-    if(!ohboy) ohboy = PB.removePromisePending                  // this is madness
+    if(!ohboy) ohboy = PB.removePromisePending
     
     return function() {
-        var key = JSON.stringify([fun.toString(),arguments])    // this is sparta
+        var key = JSON.stringify([fun.toString(),arguments])
         
         if(PB.promisesPending[key])
-            return PB.promisesPending[key]                      // resistance is futile
+            return PB.promisesPending[key]
         
         var prom = fun.apply(fun, arguments)
         prom = prom.then(function(value) {

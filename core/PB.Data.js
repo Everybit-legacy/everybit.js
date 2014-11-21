@@ -183,7 +183,7 @@ PB.Data.scoreStars = function(usernames) {
     return 0
     
     // TODO: move this into a module
-
+    /*
     var tluScore = 0;
     var suScore = 0;
     var scorePref = Boron.shallow_copy(puffworldprops.view.score);
@@ -208,6 +208,7 @@ PB.Data.scoreStars = function(usernames) {
     score = score.toFixed(1);
     if (score == parseInt(score)) score = parseInt(score);
     return score
+    */
 }
 
 
@@ -273,6 +274,7 @@ PB.Data.addShellsThenMakeAvailable = function(shells) {
     return report
 }
 
+
 PB.Data.handleMetaPuffs = function(shells) {
     // TODO: move this to a module
     var metapuffs = shells.filter(PB.Data.isMetaPuff)
@@ -290,15 +292,18 @@ PB.Data.isMetaPuff = function(shell) {
     return shell.payload.type == 'star'    
 }
 
+
 PB.Data.handlePrivatePuffs = function(shells) {
     var privatepuffs = shells.filter(PB.Data.isPrivatePuff)    
     return PB.Data.ingestEncryptedShells(privatepuffs) // TODO: this returns our promise report
 }
 
+
 PB.Data.isPrivatePuff = function(shell) {
     return shell.payload.type == 'encryptedpuff'
 }
-    
+
+
 PB.Data.handleAndFilterExistingShells = function(shells) {
     // THINK: this can't answer the question of "did we updated an existing shell with content"?
     return shells.filter(function(shell) {
@@ -313,6 +318,7 @@ PB.Data.handleAndFilterExistingShells = function(shells) {
     })
 }
 
+
 PB.Data.handleNewPublicShells = function(shells) {
     shells.forEach(function(shell) {
         PB.Data.shells.push(shell)
@@ -323,6 +329,7 @@ PB.Data.handleNewPublicShells = function(shells) {
     PB.Data.rateSomePuffs(shells)
     PB.Data.persistShells()                                     // drop new stuff into localStorage
 }
+
 
 PB.Data.handleAndFilterByGC = function(shells) {
     var compacted = PB.Data.garbageCompactor()                  // OPT: call this earlier
@@ -658,6 +665,7 @@ PB.Data.ingestEncryptedShells = function(shells) {
     })
 }
 
+
 PB.Data.ingestAnEncryptedShell = function(envelope) {
     var prom = PB.Data.extractLetterFromEnvelope(envelope)
 
@@ -830,7 +838,7 @@ PB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
     //     }
     //
     //     var limit = need - have
-    //     // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches // TODO: blargh fix this
+    //     // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches
     //
     //     var prom = PB.Net.getSomeShells(query, filters, limit, my_offset)
     //     prom.then(getMeSomeShells)
@@ -1085,7 +1093,7 @@ PB.Data.garbageCompactor = function() {
             var shell = PB.Data.shells[i]
             var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
             if (content_size > sizelimit) {
-                delete shell.payload.content // TODO: this is rather dire
+                delete shell.payload.content // THINK: this is hardcore
                 total -= content_size + 13 // NOTE: magic number == '"content":"",'.length
                 if(total <= memlimit) break
             }
@@ -1094,6 +1102,7 @@ PB.Data.garbageCompactor = function() {
     
     return didStuff
 }
+
 
 PB.Data.getShellsForLocalStorage = function() {
     var limit     = PB.CONFIG.localStorageShellLimit
@@ -1132,6 +1141,7 @@ PB.Data.getShellsForLocalStorage = function() {
     
     return shells
 }
+
 
 PB.Data.compactPuff = function(puff) {
     // THINK: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content

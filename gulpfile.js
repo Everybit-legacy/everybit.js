@@ -1,3 +1,10 @@
+/*
+ *
+ * This file is used along with gulp
+ * It turns many files into one and makes them smaller by removing comments
+ *
+ */
+
 
 // include gulp
 var gulp = require('gulp');
@@ -6,10 +13,10 @@ var gulp = require('gulp');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var sourcemaps = require('gulp-sourcemaps');
-var rename = require('gulp-rename');
-var jsdoc = require('gulp-jsdoc');
+// var rename = require('gulp-rename');
+// var jsdoc = require('gulp-jsdoc');
 var filesize = require('gulp-filesize');
-var zip = require('gulp-zip');
+// var zip = require('gulp-zip');
 
 
 var coreBuildList = [

@@ -3,7 +3,7 @@
 */
 
 
-Boron = {} // TODO: make this a proper library and give it a real name
+Boron = {}
 
 Boron.persistent_merge = function(props, data) {
     /// merges a 'flattened' data array into props in a persistent fashion

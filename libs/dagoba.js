@@ -339,7 +339,7 @@ Dagoba.addQFun('take', function(graph, args, gremlin, state) {
     return 'done'
   }
   if(!gremlin) return 'pull'
-  state.taken++ // FIXME: mutating! ugh!
+  state.taken++ // THINK: mutating state
   return gremlin
 })
 

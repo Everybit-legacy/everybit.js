@@ -21,7 +21,7 @@ PB.M.Forum.contentTypes = {}
 
 
 /**
- * set up everything
+ * Bootstrap the forum module
  */
 PB.M.Forum.init = function() {
     PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)              // manages parent-child relationships
@@ -30,20 +30,27 @@ PB.M.Forum.init = function() {
 }
 
 
+/**
+ * Inject a timestamp into the payload
+ * the "time" field is optional for puffs, but mandatory for "forum style" puffs
+ *
+ * @param {Object} payload
+ * @returns {Object|{}}
+ */
 PB.M.Forum.addTimestamp = function(payload) {
     payload = payload || {}
     payload.time = Date.now()
     return payload
 }
 
+
 /**
- * filter puffs by prop filters
+ * Filter puffs by prop filters
  * @param  {string} filters
  * @return {boolean}
  */
 PB.M.Forum.filterByFilters = function(filters) {
-    /// filter puffs by prop filters
-    
+
     if(!filters) return function() {return true}
     
     //// get a filtering function
@@ -87,7 +94,7 @@ PB.M.Forum.filterByFilters = function(filters) {
             if((shell.payload.parents||[]).length) return false
 
         if(filters.ancestors && filters.focus) {
-            var focus = PB.getPuffBySig(filters.focus) // TODO: this is wrong
+            var focus = PB.getPuffBySig(filters.focus) // TODO: find better way to do this
             if(focus.payload && !~focus.payload.parents.indexOf(shell.sig)) return false
         }
 
@@ -108,7 +115,7 @@ PB.M.Forum.filterByFilters = function(filters) {
  * Helper for sorting by payload.time
  * @param  {Object} a
  * @param  {object} b
- * @return {number}
+ * @return {number} based on desired sorting order
  */
 PB.M.Forum.sortByPayload = function(a,b) {
     //// helper for sorting by payload.time
@@ -118,11 +125,13 @@ PB.M.Forum.sortByPayload = function(a,b) {
         return a.payload.time - b.payload.time;
 }
 
+
+
 /**
  * Get the current puff's parents
  * @param  {Object} puff
  * @param  {Object} props
- * @return {Puff[]}
+ * @return {number} The number of parents
  */
 PB.M.Forum.getParentCount = function(puff, props) {
     if(!puff) return 0
@@ -132,10 +141,11 @@ PB.M.Forum.getParentCount = function(puff, props) {
     return PB.Data.graph.v(sig).out('parent').run().length
 }
 
+
 /**
- * get a count of the current puff's children
+ * Get a count of the current puff's children
  * @param  {Object} puff
- * @return {Puff[]}
+ * @return {number} The number of children
  */
 PB.M.Forum.getChildCount = function(puff) {
     if(!puff) return 0
@@ -147,12 +157,11 @@ PB.M.Forum.getChildCount = function(puff) {
 
 
 /**
- * returns a list of puffs
+ * Filter puffs according to criteria
  * @param  {string} query
  * @param  {string} filters
  * @param  {number} limit
- * @param  {object} props
- * @return {array}
+ * @return {array} An array of puffs
  */
 PB.M.Forum.getPuffList = function(query, filters, limit) {
     //// returns a list of puffs
@@ -181,19 +190,18 @@ PB.M.Forum.getPuffList = function(query, filters, limit) {
     PB.Data.fillSomeSlotsPlease(limit, have, query, filters)
     
     return puffs;
-} 
-
+}
 
 
 /**
- * takes a string of content, create a puff and push it into the system
+ * Takes a string of content, create a puff and push it into the system
  * @param {string} type
  * @param {string} content
- * @param {Puff[]} parents
+ * @param {array} parents
  * @param {Object} metadata
  * @param {string[]} userRecordsForWhomToEncrypt
  * @param {string[]} privateEnvelopeAlias
- * @returns {*}
+ * @returns {promise}
  */
 PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     //// Given a string of content, create a puff and push it into the system
@@ -241,11 +249,11 @@ PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWh
  * Make a puff... except the parts that require a user
  * @param {string} type
  * @param {string} content
- * @param {Puff[]} parents
+ * @param {array} parents
  * @param {object} metadata
- * @param {string[]} routes
- * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} privateEnvelopeAlias
+ * @param {array} routes
+ * @param {array} userRecordsForWhomToEncrypt
+ * @param {array} privateEnvelopeAlias
  * @returns {Function}
  */
 PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
@@ -297,8 +305,6 @@ PB.M.Forum.addFamilialEdgesForParent = function(child) {
 /// end graph relationships ///
 
 
-
-
 /**
  * to process the content
  * @param  {string} type
@@ -324,7 +330,7 @@ PB.M.Forum.clearPuffContentStash = function() {
 }
 
 /**
- * to the the processed puff content
+ * Get the content of a puff
  * @param  {puff} puff
  * @return {string}
  */
@@ -340,7 +346,7 @@ PB.M.Forum.getProcessedPuffContent = function(puff) {
 }
 
 /**
- * to add content type
+ * Add support for types of content to the system
  * @param {string} name
  * @param {string} type
  */
@@ -392,6 +398,7 @@ PB.M.Forum.addContentType('markdown', {
     }
 })
 
+// Used to display chess boards
 PB.M.Forum.addContentType('PGN', {
     toHtml: function(content) {
         return chessBoard(content);
@@ -423,6 +430,7 @@ PB.M.Forum.addContentType('file', {
 
 })
 
+// TODO: Add support for LaTex
 /*PB.M.Forum.addContentType('LaTex', {
     toHtml: function(content) {
         var safe_content = XBBCODE.process({ text: content }) 
@@ -431,7 +439,7 @@ PB.M.Forum.addContentType('file', {
 }) */
 
 
-// flag a puff
+// Flag a puff
 PB.M.Forum.flagPuff = function (sig) {
 
     var payload = {};
@@ -480,7 +488,7 @@ PB.M.Forum.flagPuff = function (sig) {
 }
 
 
-// adding default metafields to included in a puff
+// Adding default metafields to included in a puff
 PB.M.Forum.metaFields = []
 PB.M.Forum.context = {};
 PB.M.Forum.addMetaFields = function(fieldInfo, context, excludeContext) {

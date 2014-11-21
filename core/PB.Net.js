@@ -13,14 +13,14 @@
 PB.Net = {};
 
 /**
- * fire up networks (currently just the peer connections)
+ * Fire up networks (currently just the peer connections)
  */
 PB.Net.init = function() {
     PB.Net.P2P.init();
 }
 
 /**
- * given a signature, return puff with that signature
+ * Given a signature, return puff with that signature
  * @param  {string} sig signature of a puff
  * @return {object}     puff corresponds to the specified signature
  */
@@ -38,7 +38,7 @@ PB.Net.getKidSigs = function(sig) {
     return PB.Net.getJSON(url, data);
 }
 
-PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true. // TODO: rework this later
+PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true.
 
 
 
@@ -97,7 +97,7 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
     // TODO: put a timeout in xhr
     // TODO: chain this in to the table view
     
-    // https://i.cx/api/puffs/api.php?conversationPartners=mattasher,icx.adamrafeek&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
+    // https://i.cx/api/puffs/api.php?conversationPartners=alice,bob&contentType=encryptedpuff&fullOrShell=shell&type=getPuffs&numb=10
 }
 
 
@@ -114,6 +114,7 @@ PB.Net.getProfilePuff = function(username) {
     return PB.Net.getJSON(url, data)
 }
 
+
 PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
 
 /**
@@ -125,7 +126,7 @@ PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
  * @returns {Shell[]}
  */
 PB.Net.getSomeShells = function(query, filters, limit, offset) {
-    // TODO: switching by query 'mode' is kind of a hack. we're doing it for now until the network api matches our local api (i.e. once we use browser p2p &headless clients to service requests)
+    // TODO: switching by query 'mode' will need to be changed when the network api matches our local api (i.e. once we use browser p2p & headless clients to service requests)
     
     var mode = query.mode
     if(mode == 'ancestors')   return PB.Net.getAncestors  ([query.focus], limit)
@@ -168,6 +169,7 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
                   .then(function(x) {return x || []}, function() {return []})
 }
 
+
 PB.Net.getAncestors = function(start, limit) {
     getEm(start, [], limit)
     return PB.emptyPromise()
@@ -188,7 +190,8 @@ PB.Net.getAncestors = function(start, limit) {
         if(puff) 
             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
 
-        // no puff? that's ok. attach a then clause to its pending promise. // TODO: this is a major hack
+        // no puff? that's ok. attach a then clause to its pending promise.
+        // TODO: find better method to do this
         remaining-- // because we're adding a new puff, or at least new content
         var prom = PB.Data.pendingPuffPromises[sig]
         prom.then(function(puffs) {
@@ -395,6 +398,7 @@ PB.Net.xhr = function(url, options, data) {
     });
 }
 
+
 /**
  * request an url, get result in JSON
  * @param  {string} url    
@@ -413,6 +417,7 @@ PB.Net.getJSON = function(url, params) {
 
     return PB.Net.xhr(url + qstring, options) 
 }
+
 
 /**
  * send a post request

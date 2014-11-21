@@ -114,8 +114,6 @@ PB.M.Wardrobe = {}
         if(!nosave) // TODO: change processUpdates so it only saves if we're not busy opening all identities? or just let the 100ms throttle handle it...
             processUpdates()
             
-            
-        // TODO: remove this it leaks
         return true
     }
 

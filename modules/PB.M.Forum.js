@@ -355,7 +355,7 @@ PB.M.Forum.addContentType = function(name, type) {
     
     if(!name) 
         return false // console.log('Invalid content type name');
-    if ((PB.CONFIG.supportedContentTypes||[]).indexOf(name) == -1)  // THINK: should this be a blacklist instead?
+    if(PB.CONFIG.supportedContentTypes && PB.CONFIG.supportedContentTypes.indexOf(name) == -1)
         return false // console.log('Unsupported content type: ' + name);
     if(!type.toHtml) 
         return false // console.log('Invalid content type: object is missing toHtml method', name);

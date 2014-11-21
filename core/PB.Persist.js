@@ -41,7 +41,7 @@ PB.Persist.save = function(key, value) {
 /**
  * get the parsed JSON info from the given key
  * @param  {string} key
- * @return {(false|string)}
+ * @return {anything}
  */
 PB.Persist.get = function(key) {
     // TODO: return empty string instead of false

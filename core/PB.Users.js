@@ -25,8 +25,8 @@ PB.Users.process = function(userRecord) {
     //// Processes all incoming userRecords
     
     userRecord = PB.Users.build( userRecord.username, userRecord.defaultKey, userRecord.adminKey
-                               , userRecord.rootKey,  userRecord.latest,     userRecord.updated
-                               , userRecord.profile,  userRecord.capa )
+                               , userRecord.rootKey,  userRecord.latest,     userRecord.created
+                               , userRecord.updated,  userRecord.profile,    userRecord.capa )
     
     if(!userRecord)
         return PB.onError('That is not an acceptable user record', userRecord)

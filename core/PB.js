@@ -47,15 +47,16 @@ PB.init = function(options) {
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
     setDefault('noLocalStorage', false)
-    setDefault('cryptoworkerURL', '')
-    setDefault('ephemeralKeychain', false)
+    setDefault('netblockSuffix', 'local')
+    setDefault('cryptoworkerURL', '')           // point to cryptoworker.js to enable worker thread
+    setDefault('ephemeralKeychain', false)      // prevents keychain from being saved to localStorage
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
-    setDefault('globalBigBatchLimit', 2000)
+    setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once
     setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
     setDefault('disableSendToServer', false)    // so you can work locally
     setDefault('disableReceivePublic', false)   // no public puffs except profiles
-    setDefault('supportedContentTypes', 2)
+    setDefault('supportedContentTypes', false)  // whitelist of context types; false loads all
     setDefault('shellContentThreshold', 1000)   // size of uncompacted content
     setDefault('localStorageShellLimit', 1000)  // maximum number of shells
     setDefault('localStorageMemoryLimit', 3E6)  // ~3MB
@@ -329,24 +330,28 @@ PB.makeHandlerHandler = function(type) {
 
 // USEFUL HANDLERS:
 
-PB.addErrorHandler = PB.makeHandlerHandler('error')                     // receives all error messages
+PB.addErrorHandler           = PB.makeHandlerHandler('error')           // receives all error messages
 
-PB.addNewPuffHandler = PB.makeHandlerHandler('newPuffs')                // called when new puffs are available
+PB.addNewPuffHandler         = PB.makeHandlerHandler('newPuffs')        // called when new puffs are available
 
-PB.addRelationshipHandler = PB.makeHandlerHandler('relationship')       // manage relationships between puffs
+PB.addNetworkErrorHandler    = PB.makeHandlerHandler('DHTError')        // receives DHT error messages
 
-PB.addNewPuffReportHandler = PB.makeHandlerHandler('newPuffReport')     // handles reports on incoming puffs
+PB.addRelationshipHandler    = PB.makeHandlerHandler('relationship')    // manage relationships between puffs
 
-PB.addIdentityUpdateHandler = PB.makeHandlerHandler('identityUpdate')   // general GUI update trigger
+PB.addNetworkErrorHandler    = PB.makeHandlerHandler('networkError')    // receives network error messages
 
-PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier')
+PB.addNewPuffReportHandler   = PB.makeHandlerHandler('newPuffReport')   // handles reports on incoming puffs
+
+PB.addIdentityUpdateHandler  = PB.makeHandlerHandler('identityUpdate')  // general GUI update trigger
+
+PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decorate puff payloads 
 
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
 // beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
 // afterSwitchIdentity is called after switchIdentity, once the new identity is active
-PB.addBeforeSwitchIdentityHandler  = PB.makeHandlerHandler('beforeSwitchIdentity')
-PB.addAfterSwitchIdentityHandler = PB.makeHandlerHandler('afterSwitchIdentity')
+PB.addBeforeSwitchIdentityHandler = PB.makeHandlerHandler('beforeSwitchIdentity')
+PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
 
 ////////////// End Handler Handlers //////////////
 
@@ -714,13 +719,16 @@ PB.isGoodPuff = function(puff) {
 
 // TODO: build a more general error handling system for GUI integration
 
-PB.onError = function(msg, obj) {
+PB.onError = function(msg, obj, trigger) {
     //// override this for custom error behavior
     
     var composite = {msg: msg, obj: obj}
 
     PB.runHandlers('error', composite)
-
+    
+    if(trigger)
+        PB.runHandlers(trigger, composite)
+        
     // for debugging help, run this in the console:
     // PB.addErrorHandler(function(composite) {console.log(composite)})
 
@@ -741,9 +749,9 @@ PB.throwError = function(msg, errmsg) {
     throw PB.makeError(msg, err)
 }
 
-PB.makeError = function(msg, err) {
+PB.makeError = function(msg, err, trigger) {
     //// ex: new Promise(function(resolve, reject) { if(!foo) reject( PB.makeError('no foo') ) ... })
-    PB.onError(msg, err)
+    PB.onError(msg, err, trigger)
     return Error(msg)
 }
 
@@ -753,6 +761,19 @@ PB.emptyPromise = function(msg) {
     return Promise.reject(msg)
 }
 
+PB.throwNetError = function(msg, errmsg) {
+    //// like throw error but triggers the networkError handler
+    var trigger = 'networkError'
+    var err = errmsg ? Error(errmsg) : ''
+    throw PB.makeError(msg, err, trigger)
+}
+
+PB.throwDHTError = function(msg, errmsg) {
+    //// like throw error but triggers the DHTError handler
+    var trigger = 'DHTError'
+    var err = errmsg ? Error(errmsg) : ''
+    throw PB.makeError(msg, err, trigger)
+}
 
 
 //// Exceptional API wrappers

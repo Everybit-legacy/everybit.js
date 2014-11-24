@@ -267,7 +267,7 @@ PB.Net.distributePuff = function(puff) {
     if(PB.CONFIG.netblockSuffix) {                          // block distribution of local puffs
         var usernames = [puff.username]
         if(puff.keys)
-            usernames = usernames.concat(Objects.keys(puff.keys))
+            usernames = usernames.concat(Object.keys(puff.keys))
 
         usernames = usernames.map(PB.Users.justUsername)
         var suffixes = usernames.map(function(username) {

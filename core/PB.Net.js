@@ -28,14 +28,14 @@ PB.Net.getPuffBySig = function(sig) {
     var url  = PB.CONFIG.puffApi
     var data = {type: 'getPuffBySig', sig: sig}
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 PB.Net.getKidSigs = function(sig) {
     var url  = PB.CONFIG.puffApi
     var data = {type: 'getChildrenBySig', sig: sig}
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true.
@@ -46,7 +46,7 @@ PB.Net.getStarShells = function() {
     var url  = PB.CONFIG.puffApi
     var data = {type: 'getPuffs', contentType: 'star', numb: PB.CONFIG.globalBigBatchLimit}
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) {
@@ -59,7 +59,7 @@ PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) 
                , offset: offset
                }
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
@@ -74,7 +74,7 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
                , offset: offset
                }
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
     
 /*
 
@@ -109,7 +109,7 @@ PB.Net.getProfilePuff = function(username) {
                , numb: 1
                }
     
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 
@@ -163,8 +163,8 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
         return PB.emptyPromise()
                  .then(function() {return []})
     
-    return PB.Net.getJSON(url, data)                        // always returns a valid array
-                  .then(function(x) {return x || []}, function() {return []})
+    return PB.Net.PBgetJSON(url, data)                      // always returns a valid array
+                 .then(function(x) {return x || []}, function() {return []})
 }
 
 
@@ -297,11 +297,7 @@ PB.Net.sendPuffToServer = function(puff) {
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
                
-    return PB.Net.post(PB.CONFIG.puffApi, data)
-                 .then(function(response) { 
-                     if(response.slice(0,6) == '{"FAIL')
-                         PB.throwError(response)
-                  }) 
+    return PB.Net.PBpost(PB.CONFIG.puffApi, data)
                  .catch(PB.catchError('Could not send puff to server'))
 }
 
@@ -327,7 +323,7 @@ PB.Net.getUserRecord = function(username, capa) {
     if(capa)
         data.capa = capa
 
-    return PB.Net.getJSON(url, data)
+    return PB.Net.PBgetJSON(url, data)
 }
 
 
@@ -341,14 +337,11 @@ PB.Net.updateUserRecord = function(puff) {
                , puff: puff
                }
 
-    var prom = PB.Net.post(PB.CONFIG.userApi, data)
+    var prom = PB.Net.PBpost(PB.CONFIG.userApi, data)
     
-    return prom.catch(PB.catchError('Sending user record modification puff failed miserably'))
+    return prom.catch(PB.catchError('Sending user record modification puff failed'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
-                   if(!userRecord.username) 
-                       PB.throwError('The DHT did not approve of your request', userRecord.FAIL)
-                       
                    return PB.Users.process(userRecord)
                        || PB.throwError('Invalid user record', JSON.stringify(userRecord))
                })
@@ -402,40 +395,18 @@ PB.Net.xhr = function(url, options, data) {
         }
 
         req.onerror = function(event) {
-            reject(PB.makeError("Network Error", event))
+            reject(PB.makeError("Network Error", event, 'networkError'))
         }
         
         req.ontimeout = function(event) {
-            reject(PB.makeError("Timeout Error", event))
+            reject(PB.makeError("Timeout Error", event, 'timeoutError'))
         }
         
-        req.timeout = 10000 // 10 second timeout
+        req.timeout = PB.CONFIG.networkTimeout
 
         req.send(formdata)
     })
 }
-
-
-/**
- * A customized wrapper over the base xhr promise wrapper
- * @param  {string} url    
- * @param  {object} params 
- * @return {object}
- */
- 
-PB.Net.pbxhr = function(url, options, data) {
-    var prom = PB.Net.xhr(url, options, data)
-    prom.then(function(response) {
-        if(response.FAIL)
-            return PB.throwError(response.FAIL)
-
-        if(response.slice(0,6) == '{"FAIL')
-            return PB.throwError((PB.parseJSON(response.FAIL)||{}).FAIL)
-
-        return response
-    })
-}
-
 
 /**
  * request an url, get result in JSON
@@ -474,6 +445,55 @@ PB.Net.post = function(url, data) {
 
     return PB.Net.xhr(url, options, data)
 }
+
+
+
+/**
+ * A customized wrapper over the base xhr promise wrapper
+ * @param  {string} url    
+ * @param  {object} params 
+ * @return {object}
+ */
+PB.Net.PBxhr = function(url, options, data) {
+    var prom = PB.Net.xhr(url, options, data)
+        
+    return prom.then(function(response) {
+        if(response.FAIL)
+            return PB.throwDHTError(response.FAIL)
+
+        if(response.slice(0,6) == '{"FAIL')
+            return PB.throwDHTError((PB.parseJSON(response)||{}).FAIL)
+
+        return response
+    })
+}
+
+PB.Net.PBpost = function(url, data) {
+    // THINK: should we parametrize over the dispatch function?
+    var options = { headers: {}
+                  ,  method: 'POST'
+                  }
+                  
+    return PB.Net.PBxhr(url, options, data)
+}
+
+PB.Net.PBgetJSON = function(url, params) {
+    // THINK: should we parametrize over the dispatch function?
+    var options = { headers: { 'Accept': 'application/json' }
+                  ,  method: 'GET'
+                  ,    type: 'json'
+                  }
+
+    var params = params || {}
+    var enc = function(param) {return !param && param!==0 ? '' : encodeURIComponent(param)}
+    var qstring = Object.keys(params).reduce(function(acc, key) {return acc + enc(key) +'='+ enc(params[key]) +'&'}, '?')
+
+    return PB.Net.PBxhr(url + qstring, options) 
+}
+
+
+
+
 
 
 

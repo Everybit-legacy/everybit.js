@@ -26,7 +26,7 @@ if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
 
-PB.version = '0.7.1'
+PB.version = '0.7.2'
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 
@@ -46,6 +46,7 @@ PB.init = function(options) {
     setDefault('enableP2P', false)
     setDefault('pageBatchSize', 10)
     setDefault('initLoadGiveup', 200)
+    setDefault('networkTimeout', 20000)         // twenty second timeout
     setDefault('noLocalStorage', false)
     setDefault('netblockSuffix', 'local')
     setDefault('cryptoworkerURL', '')           // point to cryptoworker.js to enable worker thread
@@ -334,9 +335,11 @@ PB.addErrorHandler           = PB.makeHandlerHandler('error')           // recei
 
 PB.addNewPuffHandler         = PB.makeHandlerHandler('newPuffs')        // called when new puffs are available
 
-PB.addNetworkErrorHandler    = PB.makeHandlerHandler('DHTError')        // receives DHT error messages
+PB.addDHTErrorHandler        = PB.makeHandlerHandler('DHTError')        // receives DHT error messages
 
 PB.addRelationshipHandler    = PB.makeHandlerHandler('relationship')    // manage relationships between puffs
+
+PB.addTimeoutErrorHandler    = PB.makeHandlerHandler('timeoutError')    // receives timeout error messages
 
 PB.addNetworkErrorHandler    = PB.makeHandlerHandler('networkError')    // receives network error messages
 

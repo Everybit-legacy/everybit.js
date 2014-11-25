@@ -470,7 +470,8 @@ PB.M.Forum.flagPuff = function (sig) {
                , puff: puff
                };
 
-    var prom = PB.Net.post(PB.CONFIG.puffApi, data);
+    var prom = PB.Net.PBpost(PB.CONFIG.puffApi, data);
+    
     prom = prom.then(function(result){
         // var storedShells = PB.Persist.get('shells');
         // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
@@ -481,7 +482,7 @@ PB.M.Forum.flagPuff = function (sig) {
         PB.Persist.save('flagged', flaggedSig);
         // reload?
         // document.location.reload();
-        Events.pub('ui/flag', {})
+        Events.pub('ui/flag', {});
         return result;
     })
     return prom;

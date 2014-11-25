@@ -461,7 +461,7 @@ PB.Net.PBxhr = function(url, options, data) {
         if(response.FAIL)
             return PB.throwDHTError(response.FAIL)
 
-        if(response.slice(0,6) == '{"FAIL')
+        if(typeof response == 'string' && response.slice(0,6) == '{"FAIL')
             return PB.throwDHTError((PB.parseJSON(response)||{}).FAIL)
 
         return response

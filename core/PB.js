@@ -53,8 +53,9 @@ PB.init = function(options) {
     setDefault('ephemeralKeychain', false)      // prevents keychain from being saved to localStorage
     setDefault('initLoadBatchSize', 20)
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
-    setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once
+    setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once // TODO: align with API
     setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
+    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // Used to register anon. users
     setDefault('disableSendToServer', false)    // so you can work locally
     setDefault('disableReceivePublic', false)   // no public puffs except profiles
     setDefault('supportedContentTypes', false)  // whitelist of context types; false loads all

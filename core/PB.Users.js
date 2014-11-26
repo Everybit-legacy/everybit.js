@@ -291,57 +291,104 @@ PB.Users.getUpToDateUserAtAnyCost = function() {
  * Generate a random username
  * @return {string}
  */
-PB.Users.generateRandomUsername = function() {
-    // TODO: consolidate this with the new username generation functions
+PB.Users.generateRandomUsername = function(len) {
+
+    // Set a default value for length
+    if(!len || len != Math.round(len))
+        len=10
+
     var generatedName = ''
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
     for(var i=0; i<10; i++) {
         generatedName += PB.Crypto.getRandomItem(alphabet)
-        // var randFloat = PB.Crypto.random()
-        // generatedName = generatedName + alphabet[Math.floor(randFloat * (alphabet.length))]
     }
     return generatedName
 }
 
-
-PB.Users.addNewAnonUser = function(attachToUsername) {
+/**
+ *
+ * Register a new anonymous user
+ * @param {string} passphrase optional if included then used
+ * @param {string} attachToUsername
+ * @returns {Promise} a promise that resolves to the user record or fails
+ */
+PB.Users.addNewAnonUser = function(passphrase, attachToUsername) {
     //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
     //// if attachToUsername is false the alias becomes primary for its own identity.
-    //// FIXME: this function isn't currently used, and doesn't currently work.
+    // TODO: make attachToUsername work
+    // THINK: Don't want to switch to this user, but what about alias issue and saving bonus info?
+    // TODO: Split this into two functions, one that registers an anon user based on given info
+    // another that registers anon user AND switches current to that user. Or flag in function to switch to that user.
 
-    // generate private keys
-    var privateRootKey    = PB.Crypto.generatePrivateKey()
-    var privateAdminKey   = PB.Crypto.generatePrivateKey()
-    var privateDefaultKey = PB.Crypto.generatePrivateKey()
-    
-    // generate public keys
-    var rootKey    = PB.Crypto.privateToPublic(privateRootKey)
-    var adminKey   = PB.Crypto.privateToPublic(privateAdminKey)
-    var defaultKey = PB.Crypto.privateToPublic(privateDefaultKey)
+    var newUsername = 'anon.' + PB.Users.generateRandomUsername(12)
 
-    // build new username
-    var anonUsername = PB.Users.generateRandomUsername()
-    var newUsername  = 'anon.' + anonUsername
+    if(typeof passphrase !== undefined && passphrase) {
+        var prependedPassphrase = newUsername + passphrase
+        var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
+    } else {
+        var privateKey = PB.Crypto.generatePrivateKey()
+    }
 
-    // send it off
-    var anonAdminKey = ((PB.CONFIG.users||{}).anon||{}).adminKey
-    if(!anonAdminKey)
-        return PB.onError('No anonymous user admin key registered')
-    var prom = PB.registerSubuserForUser('anon', anonAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    // Set private keys
+    var privateRootKey =    privateKey
+    var privateAdminKey =   privateKey
+    var privateDefaultKey = privateKey
 
-    return prom
-        .then(function(userRecord) {
-            // store directly because we know they're valid, and so we don't get tangled up in more promises
-            
-            // FIXME: add to identity if attachToUsername
-            
-            // FIXME: otherwise add new identity
-            // PB.addIdentity(newUsername, privateRootKey, privateAdminKey, privateDefaultKey)
-            
-            
-            return userRecord
-        },
-        PB.catchError('Anonymous user ' + anonUsername + ' could not be added'))
+    // Generate public keys
+    var rootKey    = PB.Crypto.privateToPublic(privateKey)
+    var adminKey   = PB.Crypto.privateToPublic(privateKey)
+    var defaultKey = PB.Crypto.privateToPublic(privateKey)
+
+    // build our DHT update puff
+    var payload = {
+        requestedUsername: newUsername,
+        defaultKey: defaultKey,
+        adminKey: adminKey,
+        rootKey: rootKey,
+        time: Date.now()
+    }
+
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
+
+    return PB.Net.updateUserRecord(puff)
+
 }
 
+PB.Users.createAnonUserAndMakeCurrent = function() {
+    var newUsername = 'anon.' + PB.Users.generateRandomUsername(12)
+    var passphrase = PB.Crypto.generatePrivateKey().slice(-12)
+    var prependedPassphrase = newUsername + passphrase
+    var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+    // Build puff to register this user
+    var payload = {
+        requestedUsername: newUsername,
+        defaultKey: publicKey,
+        adminKey: publicKey,
+        rootKey: publicKey,
+        time: Date.now()
+    }
+
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
+
+    var prom = PB.Net.updateUserRecord(puff)
+
+    // Works?
+    return prom.then(function(userRecord) {
+        // Switch to this user
+        PB.addAlias(userRecord.username, userRecord.username, 1, privateKey, privateKey, privateKey, {passphrase: passphrase})
+
+        PB.switchIdentityTo(userRecord.username)
+
+    })
+}
 

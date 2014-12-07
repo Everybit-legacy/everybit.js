@@ -348,6 +348,8 @@ PB.addNewPuffReportHandler   = PB.makeHandlerHandler('newPuffReport')   // handl
 
 PB.addIdentityUpdateHandler  = PB.makeHandlerHandler('identityUpdate')  // general GUI update trigger
 
+PB.addNetworkResponseHandler = PB.makeHandlerHandler('networkresponse') // receives all network response
+
 PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decorate puff payloads 
 
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
@@ -434,8 +436,8 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
     var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
     var letterCipher = envelope.payload.content
     var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    letterString = PB.tryDecodeURIComponent(escape(letterString))   // try decoding
-    return PB.parseJSON(letterString)                               // try parsing
+    var betterString = PB.tryDecodeURIComponent(escape(letterString))   // try decoding
+    return PB.parseJSON(betterString)                                   // try parsing
 }
 
 

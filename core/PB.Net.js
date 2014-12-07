@@ -464,6 +464,8 @@ PB.Net.PBxhr = function(url, options, data) {
         if(typeof response == 'string' && response.slice(0,6) == '{"FAIL')
             return PB.throwDHTError((PB.parseJSON(response)||{}).FAIL)
 
+        PB.runHandlers('networkresponse', response)
+        
         return response
     })
 }

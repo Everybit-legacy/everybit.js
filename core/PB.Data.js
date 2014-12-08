@@ -534,19 +534,29 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
             // NOTE: leaks a promise which resolves to unencrypted puff
         
             var identity = identities[currentUsername]
-            var keylist = Object.keys(envelope.keys)
-            
-            var aliases = identity.aliases.filter(function(alias) {
-                var versionUsername = PB.Users.makeVersioned(alias.username, alias.capa)
-                return keylist.indexOf(versionUsername) !== -1
-            })
+            var aliases  = identity.aliases
+            var matchingUsername = ''
+                
+            top: for(var keykey in envelope.keys) {
+                for (var i = 0; i < aliases.length; i++) {
+                    var alias = aliases[i]
+                    
+                    if(alias.username == keykey) {
+                        matchingUsername = alias.username
+                        break top
+                    }
+                    
+                    var versionUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+                    if(versionUsername == keykey) {
+                        matchingUsername = versionUsername
+                        break top
+                    }
+                }
+            }
 
-            if(!aliases.length)
+            if(!matchingUsername)
                 return PB.throwError('No key found for current user')
 
-            var alias = aliases[0] // just take the first one
-
-            var myVersionedUsername = PB.Users.makeVersioned(alias.username, alias.capa)
             var privateDefaultKey = alias.privateDefaultKey
             
             prom = new Promise(function(resolve, reject) {
@@ -554,12 +564,12 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
                      ? PB.workersend( 'decryptPuffForReals'
                                     , [ envelope
                                       , senderVersionedUserRecord.defaultKey
-                                      , myVersionedUsername
+                                      , matchingUsername
                                       , privateDefaultKey ]
                                     , resolve, reject )
                      : resolve( PB.decryptPuffForReals( envelope
                                                       , senderVersionedUserRecord.defaultKey
-                                                      , myVersionedUsername
+                                                      , matchingUsername
                                                       , privateDefaultKey ) )
             })
         })
@@ -649,6 +659,8 @@ PB.Data.ingestEncryptedShells = function(shells) {
         var remaining = proms.length
         var report = {good: 0, bad: 0, goodsigs: []}
         
+        // TODO: add more information about what went wrong to the report
+        
         function unhappy_path() {
             report.bad++
             if(!--remaining) resolve(report)
@@ -675,7 +687,7 @@ PB.Data.ingestAnEncryptedShell = function(envelope) {
         var fresh = PB.Data.addDecryptedLetter(letter, envelope)        // add the letter to our system
         if(!fresh) return false
         
-        PB.runHandlers('newPuffs', [letter])                            // always returns an array of puffs
+        PB.runHandlers('newPuffs', [letter])                            // always receives an array of puffs
         return letter
     })
     

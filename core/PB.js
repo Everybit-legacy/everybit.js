@@ -417,7 +417,6 @@ PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, pa
  * @param {object} puff
  */
 PB.addPuffToSystem = function(puff) {
-    
     if(PB.Data.getCachedShellBySig(puff.sig)) return false
     
     PB.Data.addShellsThenMakeAvailable(puff)

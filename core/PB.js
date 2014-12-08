@@ -295,9 +295,9 @@ PB.getProfilePuff = function(username) {
         // NOTE: Setting this prevents us from re-trying to collect profiles from users who don't have them.
         //       This is good, because it prevents network noise, but requires a refresh to see new profile info.
         if(!puff)
-            puff = {}
+            puff = {payload:{}} // TODO: get a proper empty puff from somewhere
         
-        PB.Data.profiles[PB.Users.justUsername(puff.username)] = puff
+        PB.Data.profiles[PB.Users.justUsername(puff.username || username)] = puff
     
         return puff
     })

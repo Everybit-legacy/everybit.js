@@ -529,8 +529,12 @@ PB.storeIdentityFileInCloud = function() {
     PB.useSecureInfo(function(_, currentUsername, _, privateAdminKey, _) {
         if(!privateAdminKey)
             return PB.onError('You must have an administrative key to upload your identity file')
+        
         update_puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload)
     })
+    
+    if(!update_puff)
+        return false
     
     var update_prom = PB.Net.updateUserRecord(update_puff)
         

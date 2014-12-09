@@ -37,7 +37,12 @@ Boron.set_deep_value = function(props, path, value) {
     ///   and value 456
     ///     returns {fun: {yay:123, ok:456}, cat:{dog:123}}
     
-    var segs = path.split('.')
+    // var segs = path.split('.')
+    // THINK: this is vaguely awful, but without lookbehind it's hard to say "only split on dots that aren't slashed"
+    var segs = path.split('').reverse().join('')
+                   .split(/\.(?!\\)/).reverse()
+                   .map(function(chunk) {return chunk.split('').reverse().join('')}) 
+    
     var last = segs.pop()
     var final = next = Boron.shallow_copy(props)
 

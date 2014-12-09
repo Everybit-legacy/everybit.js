@@ -111,8 +111,6 @@ PB.Net.getProfilePuff = function(username) {
     
     return PB.Net.PBgetJSON(url, data)
 }
-
-
 PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
 
 /**
@@ -521,11 +519,11 @@ PB.Net.P2P.init = function() {
     // or   PB.CONFIG.enableP2P = true
     if(!PB.CONFIG.enableP2P) return false
     
-    PB.Net.P2P.Peer = new Peer({   host: '162.219.162.56'
-                                 ,  port: 9000
-                                 ,  path: '/'
-                                 , debug: 1
-                                 })
+    PB.Net.P2P.Peer = new Peer({ host:  '162.219.162.56'
+                               , port:  9000
+                               , path:  '/'
+                               , debug: 1
+                               })
     
     PB.Net.P2P.Peer.on('open', PB.Net.P2P.openPeerConnection)
     PB.Net.P2P.Peer.on('connection', PB.Net.P2P.connection)

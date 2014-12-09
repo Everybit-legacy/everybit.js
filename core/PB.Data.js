@@ -450,6 +450,8 @@ PB.Data.addDecryptedLetter = function(letter, envelope) {
     var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)
     if(maybeLetter) return false
     
+    if(letter.payload.type == 'identity') return false             // THINK: where should this live?
+    
     PB.Data.currentDecryptedLetters.push(letter)
     
     PB.Data.currentDecryptedLetterMap[envelope.sig] = letter       // letter is a puff too
@@ -537,11 +539,11 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
             var aliases  = identity.aliases
             var matchingUsername = ''
                 
-            top: for(var keykey in envelope.keys) {
+            top: for(var keykey in envelope.keys) {             // match our aliases against all recipients
                 for (var i = 0; i < aliases.length; i++) {
                     var alias = aliases[i]
                     
-                    if(alias.username == keykey) {
+                    if(alias.username == keykey) {              // only for old, unversioned usernames
                         matchingUsername = alias.username
                         break top
                     }
@@ -557,21 +559,10 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
             if(!matchingUsername)
                 return PB.throwError('No key found for current user')
 
-            var privateDefaultKey = alias.privateDefaultKey
+            var recipientPrivateKey = alias.privateDefaultKey
+            var senderPublicKey = senderVersionedUserRecord.defaultKey
             
-            prom = new Promise(function(resolve, reject) {
-                return PB.cryptoworker
-                     ? PB.workersend( 'decryptPuffForReals'
-                                    , [ envelope
-                                      , senderVersionedUserRecord.defaultKey
-                                      , matchingUsername
-                                      , privateDefaultKey ]
-                                    , resolve, reject )
-                     : resolve( PB.decryptPuffForReals( envelope
-                                                      , senderVersionedUserRecord.defaultKey
-                                                      , matchingUsername
-                                                      , privateDefaultKey ) )
-            })
+            prom = PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, matchingUsername, recipientPrivateKey)
         })
 
         return prom
@@ -580,7 +571,21 @@ PB.Data.getDecryptedPuffPromise = function(envelope) {
     return puffprom
 }
 
-
+PB.Data.decryptPuffAlmostForReals = function(envelope, senderPublicKey, recipientUsername, recipientPrivateKey) {
+    return new Promise(function(resolve, reject) {
+        return PB.cryptoworker
+             ? PB.workersend( 'decryptPuffForReals'
+                            , [ envelope
+                              , senderPublicKey
+                              , recipientUsername
+                              , recipientPrivateKey ]
+                            , resolve, reject )
+             : resolve( PB.decryptPuffForReals( envelope
+                                              , senderPublicKey
+                                              , recipientUsername
+                                              , recipientPrivateKey ) )
+    })
+}
 
 
 PB.Data.packagePuffStructure = function(versionedUsername, routes, type, content, payload, previous) {

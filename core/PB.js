@@ -58,6 +58,7 @@ PB.init = function(options) {
     setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // Used to register anon. users
     setDefault('disableSendToServer', false)    // so you can work locally
     setDefault('disableReceivePublic', false)   // no public puffs except profiles
+    setDefault('disableCloudIdentity', false)   // don't store encrypted identity in the cloud
     setDefault('supportedContentTypes', false)  // whitelist of context types; false loads all
     setDefault('shellContentThreshold', 1000)   // size of uncompacted content
     setDefault('localStorageShellLimit', 1000)  // maximum number of shells
@@ -388,7 +389,7 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
  * build a new puff object based on the parameters  
  * does not hit the network, hence does no real verification whatsoever
  * @param  {string} username                    user who sign the puff
- * @param  {string} privatekey                  private default key for the user
+ * @param  {string} privateKey                  private default key for the user
  * @param  {string} routes                      routes of the puff
  * @param  {string} type                        type of the puff
  * @param  {string} content                     content of the puff
@@ -398,13 +399,13 @@ PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhom
  * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.buildPuff = function(versionedUsername, privatekey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+PB.buildPuff = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
     var puff = PB.Data.packagePuffStructure(versionedUsername, routes, type, content, payload, previous)
 
-    puff.sig = PB.Crypto.signPuff(puff, privatekey)
+    puff.sig = PB.Crypto.signPuff(puff, privateKey)
     
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.Data.encryptPuff(puff, privatekey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        puff = PB.Data.encryptPuff(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
     
     return puff
@@ -440,8 +441,99 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
 
 
 
-//// ID FILE ////
+//// ID FILE (LOGIN + FORMAT) ////
 
+
+PB.login = function(username, privateKey) {
+    //// privateKey is the key for your identity file
+    
+    userprom = PB.Users.getUserRecordNoCache(username)
+    
+    return userprom.then(function(userRecord) {
+        var identitySig = userRecord.identity
+            
+        if(!identitySig) 
+            return PB.onError('That user record has no identity')
+        
+        puffprom = PB.Net.getPuffBySig(identitySig)
+    
+        return puffprom.then(function(puffs) {
+            var envelope = puffs[0]
+            var senderPublicKey = userRecord.defaultKey
+            var recipientUsername = PB.Users.makeVersioned(userRecord.username, userRecord.capa)
+            var recipientPrivateKey = privateKey
+
+            var decryptprom = PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
+
+            return decryptprom.then(function(letter) {
+                if(letter && letter.payload && letter.payload.content)
+                    return PB.loginWithIdentityFile(letter.payload.content)
+            })
+        })        
+    })
+}
+
+PB.loginWithIdentityFile = function(object) {
+    //// takes a canonical identity file object, adds it to the wardrobe, and signs you in
+    
+    var username = object.username
+    var aliases  = object.aliases
+    var preferences = object.preferences
+    
+    if(!username || !aliases || !preferences)
+        return PB.onError('That is not a valid identity object')
+    
+    PB.addIdentity(username, aliases, preferences)
+        
+    return PB.switchIdentityTo(username)
+}
+
+PB.loginWithPassphrase = function(username, passphrase) {
+    var prependedPassphrase = username + passphrase
+    var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
+    return PB.login(username, privateKey)
+}
+
+
+PB.storeIdentityFileInCloud = function() {
+    // get identity file
+    var content = PB.formatIdentityFile()
+    
+    // package as encrypted puff
+    var payload = {}
+    var routes  = []
+    var type    = 'identity'
+        
+    var userRecord = PB.getCurrentUserRecord()
+    var userRecordsForWhomToEncrypt = [userRecord]
+
+    if(!content || !userRecord) return false
+
+    var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
+    
+    if(!puff) return false
+        
+    if(puff.sig == userRecord.identity) return false
+    
+    PB.Net.distributePuff(puff)                         // send it to the server
+    
+    // update user record
+    var payload = {}                                    // NOTE: the double "var"s don't hurt, and help keep us focused
+    var routes  = []
+    var type    = 'updateUserRecord'
+    var content = 'setIdentity'
+    var update_puff
+
+    payload.identity = puff.sig
+
+    PB.useSecureInfo(function(_, currentUsername, _, privateAdminKey, _) {
+        update_puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload)
+    })
+    
+    var update_prom = PB.Net.updateUserRecord(update_puff)
+        
+    return update_prom
+}
 
 PB.formatIdentityFile = function(username) {
     // THINK: consider passphrase protecting the identity file by default

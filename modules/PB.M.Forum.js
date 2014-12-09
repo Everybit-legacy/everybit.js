@@ -354,11 +354,11 @@ PB.M.Forum.addContentType = function(name, type) {
     // THINK: move this down into PB?
     
     if(!name) 
-        return false // console.log('Invalid content type name');
+        return PB.onError('Invalid content type name')
     if(PB.CONFIG.supportedContentTypes && PB.CONFIG.supportedContentTypes.indexOf(name) == -1)
-        return false // console.log('Unsupported content type: ' + name);
+        return PB.onError('Unsupported content type: ' + name)
     if(!type.toHtml) 
-        return false // console.log('Invalid content type: object is missing toHtml method', name);
+        return PB.onError('Invalid content type: object is missing toHtml method', name)
     
     PB.M.Forum.contentTypes[name] = type
 }
@@ -402,6 +402,12 @@ PB.M.Forum.addContentType('markdown', {
 PB.M.Forum.addContentType('PGN', {
     toHtml: function(content) {
         return chessBoard(content);
+    }
+})
+
+PB.M.Forum.addContentType('identity', {
+    toHtml: function() {
+        return ''
     }
 })
 

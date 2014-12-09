@@ -26,7 +26,8 @@ PB.Users.process = function(userRecord) {
     
     userRecord = PB.Users.build( userRecord.username, userRecord.defaultKey, userRecord.adminKey
                                , userRecord.rootKey,  userRecord.latest,     userRecord.created
-                               , userRecord.updated,  userRecord.profile,    userRecord.capa )
+                               , userRecord.updated,  userRecord.profile,    userRecord.identity
+                               , userRecord.capa )
     
     if(!userRecord)
         return PB.onError('That is not an acceptable user record', userRecord)
@@ -159,13 +160,14 @@ PB.Users.breakVersionedUsername = function(versionedUsername) {
 //
 
 
-PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, created, updated, profile, capa) {
+PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, created, updated, profile, identity, capa) {
     //// returns a canonical user object: use this everywhere user objects are needed (DHT, identities, etc)
 
-    latest  = latest  || ""                         // signature of the most recent puff published by the user
-    updated = updated || ""                         // date of the most recent update to the username
-    profile = profile || ""                         // profile puff signature
-    capa    = capa    || 1                          // version of the username
+    latest   = latest   || ""                       // signature of the most recent puff published by the user
+    updated  = updated  || ""                       // date of the most recent update to the username
+    profile  = profile  || ""                       // profile puff signature
+    identity = identity || ""                       // identity puff signature
+    capa     = capa     || 1                        // version of the username
     
     // THINK: should we check for valid keys? valid timestamp for updated? what if you want a partially invalid user like anon?
     
@@ -183,6 +185,7 @@ PB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, creat
            ,     latest: latest
            ,    updated: updated
            ,    profile: profile
+           ,   identity: identity
            }
 }
 

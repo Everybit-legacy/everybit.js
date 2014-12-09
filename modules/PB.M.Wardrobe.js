@@ -60,6 +60,11 @@ PB.M.Wardrobe = {}
     
     function init() {
         PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity)
+        
+        PB.addIdentityUpdateHandler(function() { // THINK: where should this live?
+            if(!PB.CONFIG.disableCloudIdentity)
+                PB.storeIdentityFileInCloud()
+        })
     
         var storedIdentities = PB.Persist.get('identities') || {}
     
@@ -93,6 +98,7 @@ PB.M.Wardrobe = {}
         // TODO: add any unknown aliases
         // THINK: what about aliases that belong to other identities?
         // THINK: ensure primary alias exists?
+        // TODO: remove primary (use username+maxcapa instead)
 
         var identity = { username: username
                        , primary: {}
@@ -276,8 +282,6 @@ PB.M.Wardrobe = {}
     }
 
     function processUpdates() {
-        // TODO: only persist if the CONFIG setting for saving keys is turned on. (also, store CONFIG overrides in localStorage -- machine prefs issue solved!)
-
         if(!PB.CONFIG.ephemeralKeychain)
             PB.Persist.save('identities', identities)
     
@@ -288,7 +292,7 @@ PB.M.Wardrobe = {}
         
         PB.runHandlers('identityUpdate')
     }
-
+    
     function getCurrentIdentity() {
         return getIdentity(currentUsername)
     }

@@ -5,14 +5,19 @@ importScripts('core/PB.Crypto.js')
 onmessage = function (event) {
     var args = event.data.args
     var fun = event.data.fun
+    var result
     
-    // console.log(event, event.data, fun, args)
-    // postMessage([event, event.data, fun, args])
-    
-	postMessage({
-		"id": event.data.id,
-		"evaluated": PB[fun].apply(PB, args)
-	});
+    try {
+        result = PB[fun].apply(PB, args)
+        postMessage({ id: event.data.id
+                    , evaluated: result
+                    })
+    } catch(e) {
+        postMessage({ id: event.data.id
+                    , error: e
+                    , evaluated: false
+                    })
+    }    
 }
 
 PB.onError = function(msg, obj) {

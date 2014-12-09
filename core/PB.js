@@ -527,6 +527,8 @@ PB.storeIdentityFileInCloud = function() {
     payload.identity = puff.sig
 
     PB.useSecureInfo(function(_, currentUsername, _, privateAdminKey, _) {
+        if(!privateAdminKey)
+            return PB.onError('You must have an administrative key to upload your identity file')
         update_puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload)
     })
     

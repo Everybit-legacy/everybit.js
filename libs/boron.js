@@ -39,9 +39,16 @@ Boron.set_deep_value = function(props, path, value) {
     
     // var segs = path.split('.')
     // THINK: this is vaguely awful, but without lookbehind it's hard to say "only split on dots that aren't slashed"
-    var segs = path.split('').reverse().join('')
-                   .split(/\.(?!\\)/).reverse()
-                   .map(function(chunk) {return chunk.split('').reverse().join('')}) 
+    // var segs = path.split('').reverse().join('')
+    //                .split(/\.(?!\\)/).reverse()
+    //                .map(function(chunk) {return chunk.split('').reverse().join('')})
+    //                .map(function(chunk) {return chunk.replace(/[\\]$/, '')})
+    
+    // THINK: this is vaguely awfuller, but works and is fairly fast and readable. 
+    var magic = "___MAGIC___"
+    var magic_regex = new RegExp(magic, 'g');
+    var path = path.replace(/\\\./g, magic)
+    var segs = path.split('.').map(function(chunk) {return chunk.replace(magic_regex, '.')})
     
     var last = segs.pop()
     var final = next = Boron.shallow_copy(props)

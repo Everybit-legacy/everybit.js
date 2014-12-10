@@ -447,6 +447,10 @@ PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, 
 PB.login = function(username, privateKey) {
     //// privateKey is the key for your identity file
     
+    // TODO: handle offline case...
+    // TODO: encrypted localStorage identity files
+    // TODO: cache encrypted puffs in localStorage
+    
     userprom = PB.Users.getUserRecordNoCache(username)
     
     return userprom.then(function(userRecord) {
@@ -483,8 +487,10 @@ PB.loginWithIdentityFile = function(object) {
     if(!username || !aliases || !preferences)
         return PB.onError('That is not a valid identity object')
     
+    PB.currentIdentityHash = PB.Crypto.createMessageHash(JSON.stringify(object))
+    
     PB.addIdentity(username, aliases, preferences)
-        
+    
     return PB.switchIdentityTo(username)
 }
 
@@ -496,8 +502,18 @@ PB.loginWithPassphrase = function(username, passphrase) {
 
 
 PB.storeIdentityFileInCloud = function() {
+    if(!PB.currentIdentityHash) {
+        // THINK: user did not log in with identity file... so what should we do here?
+    }
+
     // get identity file
     var content = PB.formatIdentityFile()
+    if(!content) return false
+    
+    // check against latest
+    var newIdentityHash = PB.Crypto.createMessageHash(JSON.stringify(content))
+    if(PB.currentIdentityHash == newIdentityHash) return false
+    PB.currentIdentityHash = newIdentityHash
     
     // package as encrypted puff
     var payload = {}
@@ -507,13 +523,14 @@ PB.storeIdentityFileInCloud = function() {
     var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
 
-    if(!content || !userRecord) return false
+    if(!userRecord) return false
 
+    // THINK: using simpleBuildPuff puts a timestamp in the identity file...
     var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
     
     if(!puff) return false
         
-    if(puff.sig == userRecord.identity) return false
+    // if(puff.sig == userRecord.identity) return false // always false, because of the timestamp -- if you remove it, add this back
     
     PB.Net.distributePuff(puff)                         // send it to the server
     
@@ -558,7 +575,7 @@ PB.formatIdentityFile = function(username) {
         var identity = identities[username]
 
         // assemble idFile manually to keep everything in the right order
-        idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
+        // idFile.comment = "This file contains your private passphrase. It was generated at i.cx. The information here can be used to login to websites on the puffball.io platform. Keep this file safe and secure!"
 
         idFile.username = username
         // idFile.primary  = identity.primary // NOTE: primary is automatically gathered from aliases

@@ -65,14 +65,20 @@ PB.M.Wardrobe = {}
             if(!PB.CONFIG.disableCloudIdentity)
                 PB.storeIdentityFileInCloud()
         })
-    
+        
+        // TODO: find a better way to do this
+        var oldConfigValue = PB.CONFIG.disableCloudIdentity
+        PB.CONFIG.disableCloudIdentity = true
+        
         var storedIdentities = PB.Persist.get('identities') || {}
     
         Object.keys(storedIdentities).forEach(function(username) {
             var identity = storedIdentities[username]
             addIdentity(username, identity.aliases, identity.preferences, true)
         })
-    
+        
+        PB.CONFIG.disableCloudIdentity = oldConfigValue
+        
         var lastUsername = PB.Persist.get('currentUsername')
         
         if (lastUsername)
@@ -213,10 +219,15 @@ PB.M.Wardrobe = {}
         
         currentUsername = username || false
 
+        if(!PB.currentIdentityHash) // THINK: what are the cases?
+            PB.currentIdentityHash = PB.Crypto.createMessageHash(JSON.stringify(PB.formatIdentityFile()))
+        
         processUpdates()
         
         if(username && identity && identity.primary)
             PB.Users.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
+
+        return true
     }
     
     var removeIdentity = function(username) {
@@ -284,15 +295,15 @@ PB.M.Wardrobe = {}
     function processUpdates() {
         if(!PB.CONFIG.ephemeralKeychain)
             PB.Persist.save('identities', identities)
-    
+
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
         // TODO: don't persist primary -- regenerate it at load time, so we don't duplicate the alias
         PB.Persist.save('currentUsername', currentUsername)
-        
+
         PB.runHandlers('identityUpdate')
     }
-    
+
     function getCurrentIdentity() {
         return getIdentity(currentUsername)
     }
@@ -310,6 +321,5 @@ PB.M.Wardrobe = {}
 
         return identity
     }
-    
 
 }() // end the closure

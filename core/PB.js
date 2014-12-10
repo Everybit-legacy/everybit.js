@@ -455,10 +455,29 @@ PB.login = function(username, privateKey) {
     userprom = PB.Users.getUserRecordNoCache(username)
     
     return userprom.then(function(userRecord) {
+        if(!userRecord)
+            return PB.onError('Could not access user record')
+        
         var identitySig = userRecord.identity
             
-        if(!identitySig) 
-            return PB.onError('That user record has no identity')
+        if(!identitySig) {
+            // try it the old fashioned way
+            var publicKey = PB.Crypto.privateToPublic(privateKey)
+            
+            if( (userRecord.defaultKey != publicKey) 
+             && (userRecord.adminKey   != publicKey) 
+             && (userRecord.rootKey    != publicKey) )
+                return PB.onError('That user record has no identity file, and the public key provided does not match')
+        
+            var secrets = {} // {passphrase: passphrase} // THINK: maybe move this up a level to loginWithPassphrase
+            PB.addAlias(username, username, userRecord.capa, privateKey, privateKey, privateKey, secrets)
+
+            PB.switchIdentityTo(username)
+            
+            PB.storeIdentityFileInCloud()
+            
+            return true
+        }
         
         puffprom = PB.Net.getPuffBySig(identitySig)
     
@@ -506,6 +525,9 @@ PB.loginWithPassphrase = function(username, passphrase, legacy) {
     var userprom = PB.Users.getUserRecordNoCache(username)
 
     return userprom.then(function(userRecord) {
+        if(!userRecord)
+            return PB.onError('Could not access user record')
+        
         if( (userRecord.defaultKey != publicKey) 
          && (userRecord.adminKey   != publicKey) 
          && (userRecord.rootKey    != publicKey) )

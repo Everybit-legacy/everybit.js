@@ -716,8 +716,9 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     if(typeof switchIdentityTo == 'function')
         PB.switchIdentityTo = function(username) {
             PB.runHandlers('beforeSwitchIdentity', username)
-            switchIdentityTo(username)
+            var output = switchIdentityTo(username)
             PB.runHandlers('afterSwitchIdentity', username)
+            return output
         }
         
     if(typeof removeIdentity == 'function')

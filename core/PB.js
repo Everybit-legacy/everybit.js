@@ -498,13 +498,7 @@ PB.loginWithIdentityFile = function(object) {
 PB.loginWithPassphrase = function(username, passphrase, legacy) {
     // First attempt to prepend username to passphrase
     // If fails, then try just using the passphrase
-    legacy = legacy || false
-    var pass = ''
-
-    if(legacy)
-        pass = passphrase
-    else
-        pass = username + passphrase
+    var pass = legacy ? passphrase : username + passphrase
 
     var privateKey = PB.Crypto.passphraseToPrivateKeyWif(pass)
     var publicKey = PB.Crypto.privateToPublic(privateKey)
@@ -512,7 +506,9 @@ PB.loginWithPassphrase = function(username, passphrase, legacy) {
     var userprom = PB.Users.getUserRecordNoCache(username)
 
     return userprom.then(function(userRecord) {
-        if( (userRecord.adminKey != publicKey) && (userRecord.defaultKey != publicKey) && (userRecord.rootKey != publicKey) )
+        if( (userRecord.defaultKey != publicKey) 
+         && (userRecord.adminKey   != publicKey) 
+         && (userRecord.rootKey    != publicKey) )
             return (legacy) ? false : PB.loginWithPassphrase(username, passphrase, true)
 
         return PB.login(username, privateKey)

@@ -450,6 +450,7 @@ PB.login = function(username, privateKey) {
     // TODO: handle offline case...
     // TODO: encrypted localStorage identity files
     // TODO: cache encrypted puffs in localStorage
+    // TODO: grab the user record from PB.loginWithPassphrase
     
     userprom = PB.Users.getUserRecordNoCache(username)
     
@@ -494,10 +495,28 @@ PB.loginWithIdentityFile = function(object) {
     return PB.switchIdentityTo(username)
 }
 
-PB.loginWithPassphrase = function(username, passphrase) {
-    var prependedPassphrase = username + passphrase
-    var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
-    return PB.login(username, privateKey)
+PB.loginWithPassphrase = function(username, passphrase, legacy) {
+    // First attempt to prepend username to passphrase
+    // If fails, then try just using the passphrase
+    legacy = legacy || false
+    var pass = ''
+
+    if(legacy)
+        pass = passphrase
+    else
+        pass = username + passphrase
+
+    var privateKey = PB.Crypto.passphraseToPrivateKeyWif(pass)
+    var publicKey = PB.Crypto.privateToPublic(privateKey)
+
+    var userprom = PB.Users.getUserRecordNoCache(username)
+
+    return userprom.then(function(userRecord) {
+        if( (userRecord.adminKey != publicKey) && (userRecord.defaultKey != publicKey) && (userRecord.rootKey != publicKey) )
+            return (legacy) ? false : PB.loginWithPassphrase(username, passphrase, true)
+
+        return PB.login(username, privateKey)
+    })
 }
 
 

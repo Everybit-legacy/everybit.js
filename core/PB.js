@@ -26,7 +26,7 @@ if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
 PB.Modules = {}                                         // supplementary extensions live here
 PB.M = PB.Modules
 
-PB.version = '0.7.2'
+PB.version = '0.7.3'
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 

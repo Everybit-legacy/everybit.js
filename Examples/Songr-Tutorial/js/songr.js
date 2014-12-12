@@ -106,32 +106,34 @@ function getFriends() {
 *
 *  Effects: shows alert based on the success of sending the clip
 */
-function sendClip(content, fileName) {
-    var prefs = getPrefs();
+function sendClip() {
 
-    if (!prefs.friends || prefs.friends.length == 0) {
-        var usernames = [PB.getCurrentUsername()];
-        PB.setPreference("friends",[PB.getCurrentUsername()]);
-    } else {
-        var usernames = prefs.friends
-    }
+    var usernmes = getSendToList();
 
-    //set up additional info
-    var type = "audio";
-    var routes = usernames;
-    var payload = {};
-    payload.filename = fileName;
+    var clipToSend = $("#sendInput")[0];
 
-    var prom = PB.Users.usernamesToUserRecordsPromise(usernames);
+    var clipEncodingPromise = PBFiles.openBinaryFile(clipToSend);
 
-    prom.then(function(userRecords) {        
-        var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecords);
-        PB.addPuffToSystem(puff);
-        alert("Sent successfully!");
+    clipEncodingPromise.then (function(encodedURI) {
+
+        //set up additional info
+        var type = "audio";
+        var routes = usernames;
+        var payload = {};
+        payload.filename = clipToSend.files[0].name;
+
+        var prom = PB.Users.usernamesToUserRecordsPromise(usernames);
+
+        prom.then(function(userRecords) {        
+            var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecords);
+            PB.addPuffToSystem(puff);
+            alert("Sent successfully!");
+        })
+        .catch(function(err) {
+            alert(err);
+        })
     })
-    .catch(function(err) {
-        alert(err);
-    })
+
 }
 
 /* getSongsForMe:
@@ -247,6 +249,17 @@ function handleSignup() {
     })
 }
 
+function getSendToList() {
+    var prefs = getPrefs();
+
+    if (!prefs.friends || prefs.friends.length == 0) {
+        PB.setPreference("friends",[PB.getCurrentUsername()]);
+        return [PB.getCurrentUsername()];
+    } else {
+        return prefs.friends
+    }
+}
+
 $(document).ready(function() {
     $("#submitFile").bind("click", function(e) {
         e.preventDefault();
@@ -257,12 +270,9 @@ $(document).ready(function() {
 
         if (!sendContent) {
             alert("you need to select a file to send");
-            return false
+        } else {
+            sendClip();
         }
-
-        sendContent.then(function (blob) {
-            sendClip(blob, fileToSend.name);
-        });
 
     });
     $("#getNewClips").bind("click",getSongsForMe);

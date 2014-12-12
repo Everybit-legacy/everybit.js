@@ -1,29 +1,13 @@
-$(document).ready(function() {
-	$("#submitFile").bind("click", function(e) {
-		e.preventDefault();
-		var toUser = $("#sendTo").val();
-		var fileToSend = $("#sendInput")[0].files[0];
+PB.init();
 
-        var sendContent = PBFiles.openBinaryFile($("#sendInput")[0])
+PB.M.Forum.addContentType('audio', {
+    toHtml: function(content) {
+        return '<audio controls><source src=' + content + ' type=\"audio/mpeg\">' + '</audio>'
+    }
+});
 
-		if (!sendContent) {
-			alert("you need to select a file to send");
-			return false
-		}
 
-        sendContent.then(function (blob) {
-            sendClip(blob, fileToSend.name);
-        });
 
-	});
-    $("#getNewClips").bind("click",getSongsForMe);
-
-    manageUserArea();
-
-    getSongsForMe();
-
-    getFriends();
-}); 
 
 // Helpers
 
@@ -262,3 +246,30 @@ function handleSignup() {
         alert(err);
     })
 }
+
+$(document).ready(function() {
+    $("#submitFile").bind("click", function(e) {
+        e.preventDefault();
+        var toUser = $("#sendTo").val();
+        var fileToSend = $("#sendInput")[0].files[0];
+
+        var sendContent = PBFiles.openBinaryFile($("#sendInput")[0])
+
+        if (!sendContent) {
+            alert("you need to select a file to send");
+            return false
+        }
+
+        sendContent.then(function (blob) {
+            sendClip(blob, fileToSend.name);
+        });
+
+    });
+    $("#getNewClips").bind("click",getSongsForMe);
+
+    manageUserArea();
+
+    getSongsForMe();
+
+    getFriends();
+});

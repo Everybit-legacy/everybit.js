@@ -108,7 +108,7 @@ function getFriends() {
 */
 function sendClip() {
 
-    var usernmes = getSendToList();
+    var usernames = getSendToList();
 
     var clipToSend = $("#sendInput")[0];
 

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+    <title>
+        Songr Tutorial
+    </title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+    <div id="songrApp">
+        <div id="userArea"></div>
+        <div id="sendArea">
+            <div>Add a friend: <input type="text" id="friendToAdd" /> <button id="addFriend" onclick="addFriend()">Add</button></div>
+            <div>Remove a friend: <input type="text" id="friendToRemove" /> <button id="addFriend" onclick="removeFriend()">Remove</button></div>
+            <h2>Friends</h2>
+            <ul id="friendsList"></ul>
+            <br />
+            <form>
+                <div>File: <input type="file" id="sendInput" /></div>
+                <br />
+                <div><input type="submit" id="submitFile" value="Submit" /></div>
+            </form>
+        </div>
+
+        <button id="getNewClips">Check for new clips</button>
+        <div id="inbox"></div>
+
+    </div>
+
+    <script src="js/everybit.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

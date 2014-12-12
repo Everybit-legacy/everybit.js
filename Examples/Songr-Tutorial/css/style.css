@@ -1,0 +1,23 @@
+audio {
+	display: block;
+	width: 100%;
+	margin-bottom: 5px;
+}
+
+#songrApp {
+	width: 50%;
+	margin: 15% auto;
+	text-align: center;
+}
+
+#inbox {
+	width:100%;
+	height:250px;
+	border:1px solid black;
+	margin-top: 15px;
+	overflow-y: scroll;
+}
+
+#userArea {
+	margin-bottom: 20px;
+}

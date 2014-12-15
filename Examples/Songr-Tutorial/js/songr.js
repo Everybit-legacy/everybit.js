@@ -62,7 +62,7 @@ function removeFriend() {
     prefs.friends.splice(index,1);
     PB.setPreference("friends",prefs.friends);
     $("#friendsList").html('');
-    getFriends();
+    showFriends();
 }
 
 /* getPrefs:
@@ -81,7 +81,7 @@ function getPrefs() {
     return prefs;
 }
 
-/* getFriends:
+/* showFriends:
 *
 *  Purpose: Populates #friendsList with the contents of preferences.friends for the current user
 *
@@ -89,13 +89,22 @@ function getPrefs() {
 *
 *  Effects: Appends a <li> to #friendsList for each friend in preferences.friends
 */
-function getFriends() {
-    var prefs = getPrefs();
-    if (!prefs == {})
-        return false;
-    prefs.friends.forEach(function(friend) {
+function showFriends() {
+    var friends = getFriends();
+    friends.forEach(function(friend) {
         $("#friendsList").append("<li>" + friend + "</li>");
     });
+}
+
+function getFriends() {
+    var prefs = getPrefs();
+
+    if (!prefs.friends || prefs.friends.length == 0) {
+        PB.setPreference("friends",[PB.getCurrentUsername()]);
+        return [PB.getCurrentUsername()];
+    } else {
+        return prefs.friends
+    }
 }
 
 /* sendClip: string string
@@ -108,7 +117,7 @@ function getFriends() {
 */
 function sendClip() {
 
-    var usernames = getSendToList();
+    var usernames = getFriends();
 
     var clipToSend = $("#sendInput")[0];
 
@@ -221,7 +230,7 @@ function handleLogin() {
             alert("Login Successful!");
             manageUserArea();
             getSongsForMe();
-            getFriends();
+            showFriends();
         } else {
             alert("Login Failed. Please try again")
         }
@@ -249,17 +258,6 @@ function handleSignup() {
     })
 }
 
-function getSendToList() {
-    var prefs = getPrefs();
-
-    if (!prefs.friends || prefs.friends.length == 0) {
-        PB.setPreference("friends",[PB.getCurrentUsername()]);
-        return [PB.getCurrentUsername()];
-    } else {
-        return prefs.friends
-    }
-}
-
 $(document).ready(function() {
     $("#submitFile").bind("click", function(e) {
         e.preventDefault();
@@ -281,5 +279,5 @@ $(document).ready(function() {
 
     getSongsForMe();
 
-    getFriends();
+    showFriends();
 });

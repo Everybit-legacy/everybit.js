@@ -184,11 +184,11 @@ function getSongsForMe() {
 */
 function manageUserArea() {
     if(PB.getCurrentUsername()) {
-        $("#userArea").html("Logged in as: "+ PB.getCurrentUsername() + "<button id='logout' >Logout</button>");
+        $("#userArea").html("Logged in as: "+ PB.getCurrentUsername() + " <button id='logout' class='btn btn-primary' >Logout</button>");
         $("#logout").bind("click",handleLogout);
         $("#submitFile").removeAttr("disabled");
     } else {
-        $("#userArea").html("<input type='text' id='username'><input type='text' id='password'><button id='login'>Login</button><button id='signup'>Sign up</button>");
+        $("#userArea").html("<input type='text' id='username' placeholder='username'><br /><input type='text' id='password' placeholder='password'><br /><button id='login' class='btn btn-primary'>Login</button> or <button id='signup' class='btn btn-primary'>Create new user</button>");
         $("#login").bind("click",handleLogin);
         $("#signup").bind("click",handleSignup);
         $("#submitFile").attr("disabled","true");
@@ -282,5 +282,8 @@ $(document).ready(function() {
 
     getSongsForMe();
 
-    showFriends();
+    if(PB.getCurrentUsername()) {
+        showFriends();
+    }
+
 });

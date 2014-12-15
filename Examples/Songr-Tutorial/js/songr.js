@@ -254,6 +254,7 @@ function handleSignup() {
         alert("user creation successfull!")
         manageUserArea();
         getSongsForMe();
+        showFriends();
     })
     .catch(function(err) {
         alert(err);

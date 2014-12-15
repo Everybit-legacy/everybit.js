@@ -134,7 +134,7 @@ function sendClip() {
         var prom = PB.Users.usernamesToUserRecordsPromise(usernames);
 
         prom.then(function(userRecords) {        
-            var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecords);
+            var puff = PB.simpleBuildPuff(type, encodedURI, payload, routes, userRecords);
             PB.addPuffToSystem(puff);
             alert("Sent successfully!");
         })

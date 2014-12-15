@@ -210,6 +210,7 @@ function handleLogout() {
     PB.removeIdentity(username);
     PB.Data.removeAllPrivateShells();
     manageUserArea();
+    $("#friendsList").html("");
 }
 
 /* handleLogin:
@@ -252,6 +253,7 @@ function handleSignup() {
     prom.then(function() {
         alert("user creation successfull!")
         manageUserArea();
+        getSongsForMe();
     })
     .catch(function(err) {
         alert(err);

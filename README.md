@@ -8,7 +8,7 @@ Currently if you want to provide users with private messaging and file sending y
 #### **Resources:**
 
 - [Our Website] (http://everybit.com)
-- [Code recipies] (http://everybit.com/getting-started.html)
+- [Tutorial and examples] (http://everybit.com/tutorial.html)
 
 
 ### Setup Instructions

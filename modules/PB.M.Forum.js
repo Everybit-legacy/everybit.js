@@ -452,6 +452,7 @@ PB.M.Forum.flagPuff = function (sig) {
     var routes = [];
     var type = 'flagPuff';
     var content = sig;
+    var puff; // variable for leaking the signed puff out of the secure zone
     
     payload.time = Date.now();
 
@@ -469,7 +470,7 @@ PB.M.Forum.flagPuff = function (sig) {
             return false;
         }
     
-        var puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload);
+        puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload);
     })
 
     var data = { type: 'flagPuff'

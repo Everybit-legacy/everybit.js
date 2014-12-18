@@ -6,10 +6,19 @@ audio {
 
 #songrApp {
 	width: 50%;
-	margin: 15% auto;
-	text-align: center;
+	margin: auto;
+	font-size: 18px;
 }
 
+input {
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+
+h3 {
+	padding-top: 20px;
+}
+/*
 #inbox {
 	width:100%;
 	height:250px;
@@ -17,6 +26,7 @@ audio {
 	margin-top: 15px;
 	overflow-y: scroll;
 }
+*/
 
 #userArea {
 	margin-bottom: 20px;

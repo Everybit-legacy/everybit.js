@@ -2,35 +2,53 @@
 <html>
 <head>
     <title>
-        Songr Tutorial
+        Songr sample application built on EveryBit.js
     </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <div id="songrApp">
-        <div id="userArea"></div>
-        <div id="sendArea">
-            <div>Add a friend: <input type="text" id="friendToAdd" /> <button id="addFriend" onclick="addFriend()">Add</button></div>
-            <div>Remove a friend: <input type="text" id="friendToRemove" /> <button id="removeFriend" onclick="removeFriend()">Remove</button></div>
-            <h2>Friends</h2>
-            <ul id="friendsList"></ul>
-            <br />
-            <form>
-                <div>File: <input type="file" id="sendInput" /></div>
-                <br />
-                <div><input type="submit" id="submitFile" value="Submit" /></div>
-            </form>
-        </div>
+<div id="songrApp">
+    <h1>Songr: A sample app built on EveryBit.js</h1>
 
-        <button id="getNewClips">Check for new clips</button>
-        <div id="inbox"></div>
+    <h3>User options</h3>
+    Please enter a username and password to login or create a new user. New usernames must be at least 10 characters long.
+    <div id="userArea"></div>
 
+
+    <h3>Friends options</h3>
+    <div id="sendArea">
+        Please login before you manage friends.<br />
+        <input type="text" id="friendToAdd" placeholder="username" /> <button class="btn btn-primary" id="addFriend"  onclick="addFriend()">+ Add</button>
+        <br />
+        <input type="text"  placeholder="username" id="friendToRemove" /> <button id="removeFriend" onclick="removeFriend()" class="btn btn-primary">- Remove</button>
+        <br />
+
+
+        <h3>Friends list</h3>
+        <ul id="friendsList"></ul>
+        <br />
+
+
+        <form>
+            <h3>Audio clip to share</h3>
+            Please keep clips under 1MB in size. You need to login before sharing.<br />
+            <input type="file" id="sendInput" />
+            <input type="submit" id="submitFile" value="Submit" class="btn btn-primary" />
+        </form>
     </div>
+    <br />
 
-    <script src="js/everybit.js"></script>
-    <script src="js/jquery-2.1.1.min.js"></script>
-    <script src="js/songr.js"></script>
+    <h3>Shared audio clips:</h3>
+    <div id="inbox"></div>
+
+    <button id="getNewClips" class="btn btn-primary">Check for new clips</button>
+</div>
+<br /><br />
+<script src="js/everybit.js"></script>
+<script src="js/jquery-2.1.1.min.js"></script>
+<script src="js/songr.js"></script>
 </body>
 </html>

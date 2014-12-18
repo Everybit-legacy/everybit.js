@@ -7,21 +7,12 @@ PB.M.Forum.addContentType('audio', {
 });
 
 
-
-
-// Helpers
-
-
-
-/* addFriend:
-*
-*  Purpose: Adds a valid username to the current user's friends list in the "preferences" field of their user record.
-*           If the current user does not have a "friends" field, one is created and defaulted to [PB.getCurrentUsername(),friendToAdd]
-*
-*  Returns: nothing     
-*  
-*  Effects: If the desired friend is added, their username is appended to #friendsList, else error is shown in 'alert'
-*/
+/**
+ *  Adds a valid username to the current user's friends list in the "preferences" field of their user record. If the current user does not have a "friends" field, one is created and defaulted to [PB.getCurrentUsername(),friendToAdd]
+ *
+ *  If the desired friend is added, their username is appended to #friendsList, otherwise error is shown in 'alert'
+ *
+ */
 function addFriend() {
     var friendToAdd = $("#friendToAdd").val();
     var prom = PB.Users.getUserRecordPromise(friendToAdd);
@@ -41,14 +32,14 @@ function addFriend() {
     });
 }
 
-/* removeFriend:
-*
-*  Purpose: Removes a user from the current user's preferences.friends if it exists
-*
-*  Returns: nothing
-*  
-*  Effects: Clears and regenerates #friendsList if changes were made to preferences.friends, alert otherwise
-*/
+
+/**
+ * Removes a user from the current user's preferences.friends if it exists
+ *
+ * Clears and regenerates #friendsList if changes were made to preferences.friends array, alert otherwise
+ *
+ * @returns {boolean}
+ */
 function removeFriend() {
     var friendToRemove = $("#friendToRemove").val();
     var prefs = getPrefs();
@@ -65,14 +56,12 @@ function removeFriend() {
     showFriends();
 }
 
-/* getPrefs:
-*
-*  Purpose: Wrapper for PB.useSecureInfo used to access the current user's preferences in their user record
-*
-*  Returns: Object
-*
-*  Effects: none
-*/
+
+/**
+ * Wrapper for PB.useSecureInfo used to access the current user's preferences in their user record
+ *
+ * @returns Object prefs
+ */
 function getPrefs() {
     var prefs = {};
     PB.useSecureInfo(function(identities,currentUsername) {
@@ -81,14 +70,12 @@ function getPrefs() {
     return prefs;
 }
 
-/* showFriends:
-*
-*  Purpose: Populates #friendsList with the contents of preferences.friends for the current user
-*
-*  Returns: nothing
-*
-*  Effects: Appends a <li> to #friendsList for each friend in preferences.friends
-*/
+
+/**
+ * Populates #friendsList with the contents of preferences.friends for the current user
+ *
+ * Appends <li> to #friendsList for each friend in preferences.friends
+ */
 function showFriends() {
     var friends = getFriends();
     friends.forEach(function(friend) {
@@ -96,6 +83,12 @@ function showFriends() {
     });
 }
 
+/**
+ * Gets the array of friends for a user from their preferences, if this user doesn't have any friends
+ * the array is initialized with themselves
+ *
+ * @returns Array the list of friends for this user
+ */
 function getFriends() {
     var prefs = getPrefs();
 
@@ -107,14 +100,11 @@ function getFriends() {
     }
 }
 
-/* sendClip: string string
-*
-*  Purpose: Sends an audio clip to all friends of the current user
-*
-*  Returns: nothing
-*
-*  Effects: shows alert based on the success of sending the clip
-*/
+/**
+ * Sends an audio clip to all friends of the current user
+ *
+ * Raises an alert on failure or success
+ */
 function sendClip() {
 
     var usernames = getFriends();
@@ -145,14 +135,13 @@ function sendClip() {
 
 }
 
-/* getSongsForMe:
-*
-*  Purpose: Gets the 10 latest puffs for the current user and displays the audio clips among them
-*
-*  Returns: nothing || false
-*
-*  Effects: Populates  #inbox with an <audio> for each audio clip in the 10 latest puffs
-*/
+/**
+ * Gets the 10 latest puffs for the current user and displays the audio clips among them
+ *
+ * Populates  #inbox with <audio> for each audio clip in the 10 latest puffs
+ *
+ * @returns {boolean}
+ */
 function getSongsForMe() {
     var inbox = $("#inbox");
     if (!PB.getCurrentUsername()) {
@@ -171,24 +160,22 @@ function getSongsForMe() {
                 }
             });
         });
+        return true;
     });
 }
 
-/* manageUserArea:
-*
-*  Purpose: Displays the relevant fields for a user based on if they are logged in or not
-*
-*  Returns: nothing
-* 
-*  Effects: Changes the content of #userArea based on the return value of PB.getCurrentUsername
-*/
+/**
+ * Displays the relevant fields for a user based on if they are logged in or not
+ *
+ * Changes the content of #userArea based on the return value of PB.getCurrentUsername
+ */
 function manageUserArea() {
     if(PB.getCurrentUsername()) {
-        $("#userArea").html("Logged in as: "+ PB.getCurrentUsername() + "<button id='logout' >Logout</button>");
+        $("#userArea").html("Logged in as: "+ PB.getCurrentUsername() + " <button id='logout' class='btn btn-primary' >Logout</button>");
         $("#logout").bind("click",handleLogout);
         $("#submitFile").removeAttr("disabled");
     } else {
-        $("#userArea").html("<input type='text' id='username'><input type='text' id='password'><button id='login'>Login</button><button id='signup'>Sign up</button>");
+        $("#userArea").html("<input type='text' id='username' placeholder='username'><br /><input type='text' id='password' placeholder='password'><br /><button id='login' class='btn btn-primary'>Login</button> or <button id='signup' class='btn btn-primary'>Create new user</button>");
         $("#login").bind("click",handleLogin);
         $("#signup").bind("click",handleSignup);
         $("#submitFile").attr("disabled","true");
@@ -196,14 +183,12 @@ function manageUserArea() {
     }
 }
 
-/* handleLogout:
-*
-*  Purpose: Removes the current user's identity and data from the brower's storage
-*
-*  Returns: nothing
-*
-*  Effects: #userArea may change after the call to manageUserArea
-*/
+
+/**
+ * Removes the current user's identity and data from the browser's storage
+ *
+ * #userArea may change after the call to manageUserArea
+ */
 function handleLogout() {
     var username = PB.getCurrentUsername();
     PB.switchIdentityTo();
@@ -213,14 +198,12 @@ function handleLogout() {
     $("#friendsList").html("");
 }
 
-/* handleLogin:
-*
-*  Purpose: Authenticates a user and add's their information and makes them the current identity if successful
-*
-*  Returns: nothing
-*
-*  Effects: updates #userArea, updates #inbox, updates #friendsList
-*/
+
+/**
+ * Authenticates a user and adds their information and makes them the current identity if successful
+ *
+ * Updates #userArea, updates #inbox, updates #friendsList
+ */
 function handleLogin() {
     var username = $("#username").val();
     var password = $("#password").val();
@@ -238,14 +221,12 @@ function handleLogin() {
     });
 }
 
-/* handleSignup:
-*
-*  Purpose: Creates a new user account and makes it the current user
-*
-*  Returns: nothing
-*
-*  Effects: updates #userArea if a new user was created
-*/
+
+/**
+ * Creates a new user account and makes it the current user
+ *
+ * Updates #userArea if a new user was created
+ */
 function handleSignup() {
     var requestedUser = $("#username").val();
     var password = $("#password").val();

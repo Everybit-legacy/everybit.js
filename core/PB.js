@@ -461,7 +461,7 @@ PB.login = function(username, privateKey) {
         var identitySig = userRecord.identity
         
         if(identitySig) {
-            var decryptprom = PB.Data.getIdentityPuff(userRecord, privateKey)
+            var decryptprom = PB.Users.getIdentityPuff(userRecord, privateKey)
             
             return decryptprom.then(function(letter) {
                 if(letter && letter.payload && letter.payload.content)

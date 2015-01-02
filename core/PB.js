@@ -459,41 +459,37 @@ PB.login = function(username, privateKey) {
             return PB.onError('Could not access user record')
         
         var identitySig = userRecord.identity
-            
-        if(!identitySig) {
-            // try it the old fashioned way
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            
-            if( (userRecord.defaultKey != publicKey) 
-             && (userRecord.adminKey   != publicKey) 
-             && (userRecord.rootKey    != publicKey) )
-                return PB.onError('That user record has no identity file, and the public key provided does not match')
         
-            var secrets = {} // {passphrase: passphrase} // THINK: maybe move this up a level to loginWithPassphrase
-            PB.addAlias(username, username, userRecord.capa, privateKey, privateKey, privateKey, secrets)
-
-            PB.switchIdentityTo(username)
+        if(identitySig) {
+            var decryptprom = PB.Data.getIdentityPuff(userRecord, privateKey)
             
-            PB.storeIdentityFileInCloud()
-            
-            return true
-        }
-        
-        puffprom = PB.Net.getPuffBySig(identitySig)
-    
-        return puffprom.then(function(puffs) {
-            var envelope = puffs[0]
-            var senderPublicKey = userRecord.defaultKey
-            var recipientUsername = PB.Users.makeVersioned(userRecord.username, userRecord.capa)
-            var recipientPrivateKey = privateKey
-
-            var decryptprom = PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
-
             return decryptprom.then(function(letter) {
                 if(letter && letter.payload && letter.payload.content)
                     return PB.loginWithIdentityFile(letter.payload.content)
+                else
+                    return PB.throwError('Invalid password') // THINK: this could happen for other reasons
+            }, function(err) {
+                return PB.catchError('Could not access identity file')
             })
-        })        
+        }
+        
+        // no identity puff, so try it the old fashioned way
+        // TODO: move this in to a helper function
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
+        
+        if( (userRecord.defaultKey != publicKey) 
+         && (userRecord.adminKey   != publicKey) 
+         && (userRecord.rootKey    != publicKey) )
+            return PB.onError('That user record has no identity file, and the public key provided does not match')
+    
+        var secrets = {} // {passphrase: passphrase} // THINK: maybe move this up a level to loginWithPassphrase
+        PB.addAlias(username, username, userRecord.capa, privateKey, privateKey, privateKey, secrets)
+
+        PB.switchIdentityTo(username)
+        
+        PB.storeIdentityFileInCloud()
+        
+        return true
     })
 }
 

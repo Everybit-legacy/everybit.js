@@ -620,7 +620,7 @@ PB.Data.packagePuffStructure = function(versionedUsername, routes, type, content
 
 
 PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
-    // THINK: race condition while toggling identities?
+    // THINK: race condition while toggling identities? username isn't used below.
     if(!username) username = PB.getCurrentUsername()
     
     offset = offset || 0
@@ -968,6 +968,32 @@ PB.Data.getMyPuffChain = function(username) {
     
     return shells.filter(function(puff) { return puff && puff.username == username }) // TODO: use the graph
     // return PB.M.Forum.getByUser(username) // TODO: test this 
+}
+
+
+PB.Data.getIdentityPuff = function(userRecord, privateKey) {
+    //// userRecord is the user's canonical user record
+    //// privateKey is the user's private default key
+    
+    if(!userRecord || !userRecord.defaultKey || !userRecord.username)
+        return PB.emptyPromise('Invalid user record')
+    
+    if(!userRecord.identity)
+        return PB.emptyPromise('User record has no identity')
+    
+    puffprom = PB.Net.getPuffBySig(userRecord.identity)
+
+    return puffprom.then(function(puffs) {
+        var envelope = puffs[0]
+        if(!envelope || !envelope.sig)
+            return PB.throwError('Invalid identity puff')
+        
+        var senderPublicKey = userRecord.defaultKey
+        var recipientUsername = PB.Users.makeVersioned(userRecord.username, userRecord.capa)
+        var recipientPrivateKey = privateKey
+
+        return PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
+    })        
 }
 
 

@@ -55,7 +55,7 @@ PB.init = function(options) {
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once // TODO: align with API
     setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
-    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // Used to register anon. users
+    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // for registering anon users
     setDefault('disableSendToServer', false)    // so you can work locally
     setDefault('disableReceivePublic', false)   // no public puffs except profiles
     setDefault('disableCloudIdentity', false)   // don't store encrypted identity in the cloud
@@ -122,13 +122,13 @@ PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
 
-    usernames = usernames || []
-    if(!Array.isArray(usernames))
-        usernames = [usernames]
-    
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
         return PB.emptyPromise('You must have a current identity to post a private message')
+    
+    usernames = usernames || []
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
     
     usernames.push(myUsername)
     usernames = PB.uniquify(usernames)

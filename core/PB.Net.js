@@ -447,7 +447,7 @@ PB.Net.post = function(url, data) {
 
 
 /**
- * A customized wrapper over the base xhr promise wrapper
+ * A customized wrapper for the EveryBit server over the base XHR promise wrapper
  * @param  {string} url    
  * @param  {object} params 
  * @return {object}
@@ -469,6 +469,7 @@ PB.Net.PBxhr = function(url, options, data) {
 }
 
 PB.Net.PBpost = function(url, data) {
+    //// This is the EveryBit server version of PB.Net.getJSON -- use that function if you're not accessing the EveryBit server
     // THINK: should we parametrize over the dispatch function?
     var options = { headers: {}
                   ,  method: 'POST'
@@ -478,6 +479,7 @@ PB.Net.PBpost = function(url, data) {
 }
 
 PB.Net.PBgetJSON = function(url, params) {
+    //// This is the EveryBit server version of PB.Net.getJSON -- use that function if you're not accessing the EveryBit server
     // THINK: should we parametrize over the dispatch function?
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'

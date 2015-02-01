@@ -8,6 +8,7 @@
   <div id="mocha"></div>
   <script src="../build/everybitJS/everybit-min.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
   <script src="../node_modules/mocha/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   
@@ -16,6 +17,7 @@
   <script>
     mocha.checkLeaks();
     // mocha.globals(['jQuery']);
+    PB.init()
     mocha.run();
   </script>
 </body>

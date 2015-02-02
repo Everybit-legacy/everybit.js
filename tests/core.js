@@ -4,7 +4,6 @@
 var expect = chai.expect
 var should = chai.should()
 
-
 describe('Validations', function() {
   describe('PB.validateUsername', function() {
     it('should reject empty usernames', function() {
@@ -52,26 +51,72 @@ describe('Validations', function() {
 
 //// Integration tests
 
-// describe('Basic API', function() {
-//   describe('Get a profile puff', function() {
-//     it('should get a profile puff', function(done) {
-//       var prom = PB.getProfilePuff('everybit')
-//       prom.should.eventually.have.deep.property('payload.type', 'profile')
-//       prom.should.eventually.have.property('payload.type').which.contains('everybit')
-//       return prom
-//
-//     //   prom.then(function(data) {
-//     //     it('should get a profile puff', function(done) {
-//     //
-//     //     data.payload.type.should.equal('profile')
-//     //     PB.Users.justUsername(data.username).should.equal('everybit')
-//     //     done()
-//     // })
-//     //   }, function(err) {
-//     //     done(err)
-//     })
-//   })
-// })
+describe('Basic API', function() {
+  this.timeout(3000)
+  
+  describe('Get a profile puff', function() {
+    it('should get a profile puff', function() {
+      var prom = PB.getProfilePuff('everybit')
+      var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
+      var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
+      return p2
+    })
+  })
+  
+  describe('Create and use an anonymous user', function() {
+    var username, public_puff_sig
+    
+    it('should create a new anonymous user and log us in', function(done) { // explicit done
+      var prom = PB.Users.createAnonUserAndMakeCurrent()
+      
+      prom.then(function(userRecord) {
+        // TODO: test for userRecord
+        username = PB.getCurrentUsername()
+        username.should.contain('anon.')
+        done()
+      })
+    })
+    
+    describe('Then add messages', function() {
+      it('should add a public puff', function() {
+        var puff = PB.postPublicMessage('Hello World', 'text')
+        
+        puff.username.should.contain(username)
+        puff.payload.content.should.equal('Hello World')
+        puff.payload.type.should.equal('text')
+        public_puff_sig = puff.sig
+      })
+
+      it('should add a private puff', function() {
+        var prom = PB.postPrivateMessage('Hello World', username) // to ourself
+        
+        var p1 = prom.should.eventually.have.deep.property('payload.content')
+        var p2 = prom.should.eventually.have.deep.property('payload.type', 'encryptedpuff')
+        var p3 = prom.should.eventually.have.property('keys').and.property(username + ':1') // THINK: hardcoded capa
+        var p4 = prom.should.eventually.have.property('username').and.contain(username)
+        var p5 = prom.should.eventually.have.property('routes').and.contain(username)
+        return Promise.all([p1, p2, p3, p4, p5])
+      })
+
+      it('should add an anonymous private puff', function() {
+        var prom = PB.postAnonymousPrivateMessage('Hello World', username) // to ourself
+        
+        var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
+        var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
+        return p2
+      })
+
+      it('should add a paranoid private puff', function() {
+        var prom = PB.postParanoidPrivateMessage('Hello World', username) // to ourself
+        
+        var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
+        var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
+        return p2
+      })
+    })
+    
+  })
+})
 
 
 
@@ -80,7 +125,7 @@ describe('Validations', function() {
 
 describe('timeout', function() {
   describe('#blip()', function() {
-    it('should timeout and increment', function(done) {
+    it('should timeout and increment', function(done) { // explicit 'done' param means manual async mode
       setTimeout(done, 5)
     })
   })
@@ -88,6 +133,6 @@ describe('timeout', function() {
 
 describe('Array', function() {
   describe('#indexOf()', function() {
-    it('should return -1 when the value is not present')
+    it('should return -1 when the value is not present') // no function arg means pending (or use .skip)
   })
 })

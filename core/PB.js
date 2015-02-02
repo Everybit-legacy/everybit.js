@@ -142,6 +142,9 @@ PB.postPrivateMessage = function(content, usernames, type) {
     return prom
 }
 
+PB.postAnonymousPrivateMessage = function(content, usernames, type) {}
+PB.postParanoidPrivateMessage = function(content, usernames, type) {}
+
 PB.getMyMessages = true
 
 PB.createIdentity = function(username, passphrase) {

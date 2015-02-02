@@ -418,6 +418,7 @@ PB.Users.createAnonUserAndMakeCurrent = function() {
 
         PB.switchIdentityTo(userRecord.username)
 
+        return userRecord
     })
 }
 

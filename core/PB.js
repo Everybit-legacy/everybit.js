@@ -358,7 +358,7 @@ PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decor
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
 // beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
-// afterSwitchIdentity is called after switchIdentity, once the new identity is active
+// afterSwitchIdentity  is called after switchIdentity, once the new identity is active
 PB.addBeforeSwitchIdentityHandler = PB.makeHandlerHandler('beforeSwitchIdentity')
 PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
 

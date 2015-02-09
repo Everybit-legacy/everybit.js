@@ -108,7 +108,7 @@ In a decentralized context we need alternative ways to solve these problems — 
 
 <a name="importanceofsig"></a>
 ###Sig, the linchpin of decentralization
-<img src="http://i.imgur.com/2CM4iuY.gif" alt="Signing scheme" align="right">
+<img src="http://i.imgur.com/2CM4iuY.gif" alt="Signing scheme" align="right" width="450">
 The solution that ties everything together in EveryBit.js is the signature, or `sig` field. To generate a `sig`, we start with a puff as a JS object, with all of the fields in their [canonical order](#ordermatters). We convert the object into a string using `JSON.stringify`. Then take the SHA256 hash of the object's string. We pass the hash and the user's private signing key to the [ECDSA](http://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) routine. Finally, we encode the returned signature in base58 format and add a new field `sig` to the original puff object with this value. All of this happens automatically in EveryBit.js with a single API call. 
 
 Once the procedure is complete, we have created an [immutable signature](#immutability) — any changes to the puff, no matter how small, result in a different value for the `sig`. Because the signature is immutable, content can passed around without worrying about having the most recent version of that piece of content. Each `sig` is (practically) guaranteed to be unique<sup>[7](#footnotes)</sup>, so we can treat signatures as ids.

@@ -2,7 +2,7 @@
 ###EveryBit.js: A client-side library for secure, decentralized publishing
 <small>*By Matt Asher and Dann Toliver for EveryBit. Last revised February 9, 2015*</small>
 ##Summary
-Over time, publishing has become significantly more accessible, decentralized, and free (as in liberty). This trend accelerated in the early days of the internet, but is increasingly threatened by the rise of powerful private gatekeepers and government agencies. The JavaScript library EveryBit.js routes users around these intermediaries and reestablishes their privacy. It provides tools for publishing and sharing content in ways that are cryptographically secure, based on open standards, and use the latest P2P JS tools to implement a decentralized network. 
+Over time, publishing has become significantly more accessible, decentralized, and free (as in liberty). This trend accelerated in the early days of the internet, but is increasingly threatened by the rise of powerful private gatekeepers and government agencies. The JavaScript library EveryBit.js routes users around these intermediaries and reestablishes their privacy. It provides tools for publishing and sharing content in ways that are cryptographically secure, based on open standards, and uses the latest P2P JS tools to implement a decentralized network. 
 
 
 ##Outline
@@ -215,7 +215,7 @@ Taken together, these requirements suggest the need for a multi-tiered API, whic
 
 A further requirement is for extensibility. Because EB's defaults won't be perfect for everyone's needs, we've built it so developers can augment or even replace portions of the platform. For example, while identity management is a core concern and the functions for it are used extensively both in application code and in the EveryBit platform itself, those functions are powered by a module that is injected as part of the platform bootup process. Plugging in a different identity module (for example, one based on biometric data), can be done with a simple configuration change. 
 
-Another dimension of extensibility lies in the data structures and their interpretation. Adding support for a new type of puff is trivial for types with existing library support like markdown or PGN. The meaning of a puff's metadata fields are also determined by the application: tags, timestamps, location, language, copyright, and licensing information are just a few of the possibilities. 
+Another dimension of extensibility lies in the data structures and their interpretation. Adding support for a new type of puff is trivial for types with existing library support like markdown or [PGN](http://en.wikipedia.org/wiki/Portable_Game_Notation). The meaning of a puff's metadata fields are also determined by the application: tags, timestamps, location, language, copyright, and licensing information are just a few of the possibilities. 
 
 This control over the meaning of the metadata becomes even more interesting when it's used to encode relationships, like one puff being a reply to another. Want to create a system for liking or upvoting content? Publish a new puff that points to the liked puff in its metadata. Could you build a system where a single message is related in different ways to multiple parents posts simultaneously? Absolutely. And you can embed those new relationships in our client-side graph database with a single line of code.
 
@@ -230,18 +230,18 @@ Under this new model, the cloud is a decentralized repository of well-structured
 
 All of the "thinking" happens at the client level, protected by the privacy inherent in that device itself. The client decides what content to request, and no private data is ever sent naked over the network. For applications using EB, the relationships between end users are not embedded in, or dependent on, the applications they use. Instead, an application expresses and implements the user's desire to communicate in certain ways with certain people. While this limits a developers ability to lock-in users by walling off their content and connections, it frees them up to focus on creating feature-rich applications and on perfecting client-side interfaces.
  
-By including a P2P wrapper around WebRTC, EveryBit.js can be used to turn every regular browser-based user in the system into a maintainer of the system. Instead of implementing a particular vision of what a social network should be, individual application developers can build interfaces and tools that are broad or intended to meet the needs of a select group of users, industry, or sub-culture.
+By including a P2P wrapper around WebRTC, EveryBit.js can be used to turn every regular browser-based user in the system into a maintainer of the system. Instead of copying an existing model for what a social network should be, each application developer can build interfaces and tools intended to meet the needs of a select group of users, industry, or sub-culture.
 
 <a name="thistimeisdifferent"></a>
 ##Why this time it's different
-People have been trying to create decentralized versions of services like Facebook, Twitter, and DNS itself for many years. Here's why we think this time -- and this project -- really is different:
+People have been trying to create decentralized versions of services like Facebook, Twitter, and DNS itself for many years. Here's why we think this time — and this project — really is different:
 
 <a name="timeisright"></a>
 ###The time is right
-All around, there are signs of people working to protect publishing liberty, increase privacy, maintain access to content, and provide simplicity despite the growing number of logins and messaging buckets. Most of these are piecemeal, stopgap tools that address a single problem, like how to backup data from social networks (SocialSafe), combined inboxes for reading and posting (HootSuite), and provably secure storage (MaidSafe). 
+All around, there are signs of people working to protect publishing freedoms, increase privacy, maintain access to content, and provide simplicity despite the growing number of logins and messaging buckets. Most of these are piecemeal, stopgap tools that address a single problem, like how to backup data from social networks (SocialSafe), combined inboxes for reading and posting (HootSuite), and provably secure storage (MaidSafe).
 
 ###The vision is right
-Instead of building one more tool to plug the gaps, EveryBit.js has broad tools to support secure communication and shared identity management, and isn't bound to any particular implementation. 
+Instead of building more specifics tools to plug individual gaps, EveryBit.js has broad tools to support secure communication and shared identity management, and isn't bound to any particular implementation. 
 
 ###The architecture is right
 <a name="architectureisright"></a>
@@ -249,17 +249,17 @@ By making all content auditable, static, and stateless, by using signatures for 
 
 ###No installation required, for users or developers
 <a name="namecoin"></a>
-For end users, it just works. Right in the web browser, without having to download, install, or configure anything. All recent versions of the common browsers are supported<sup>[11](#footnotes)</sup>. In part, this entire project springs from a developer's failed attempt to run Namecoin and register a username in the system. After many hours of configuring and compiling software, battling errors, looking for online help, downloading a dozen gigabytes of transaction data, and trying on two different computers, the system still didn't work. It just shouldn't be that hard. 
+For end users, it just works. Right in the web browser, without having to download, install, or configure anything. All recent versions of common browsers are supported<sup>[11](#footnotes)</sup>. In part, this entire project springs from a developer's failed attempt to run Namecoin and register a username in the system. After many hours of configuring and compiling software, battling errors, looking for online help, downloading a dozen gigabytes of transaction data, and trying on two different computers, the system still didn't work. It just shouldn't be that hard. 
 
 For web developers, the barrier to entry is near the absolute minimum. No database to configure, no unhelpful "500 Internal Server Error" messages to worry about, nothing to install on the server. 
 
 <a name="therightcrypto"></a>
 ###The crypto is tried, tested, and audited
-The Core crypto used by EveryBit.js used the same technology as Bitcoin. For years now there has been a billion dollar plus incentive to break this encryption scheme. All of the vulnerabilities exposed so far have been related to referral issues like transaction malleability, and not the underlying signing routines. In late 2014, EveryBit.js underwent an extensive crypto-audit of its particular implementation by Bitcoinsultants Inc. 
+The Core crypto used by EveryBit.js is the same technology used by Bitcoin. For years now there has been a billion dollar plus incentive to break this encryption scheme. All of the vulnerabilities exposed so far have been related to peripheral issues like transaction malleability, and not the underlying signing routines. In late 2014, EveryBit.js underwent an extensive crypto-audit of its particular implementation by Bitcoinsultants Inc. 
 
 <a name="internalnetworkeffects"></a>
 ###Internal network effects
-As a broad, application agnostic platform, EveryBit.js allows developers to compete based on their functionality, instead of based on how many users they've locked in. It creates an ecosystem where many different applications can fulfill the ecological niches in that system instead of being clumsily ruled by a single monoculture. These different applications share the same pool of potential users -- no one application has to individually scale the network-effects hurdle imposed by proprietary systems like Facebook.
+As a broad, application agnostic platform, EveryBit.js allows developers to compete based on functionality, instead of how many users they've locked in. It creates an ecosystem where many different applications can fulfill the ecological niches in that system instead of being clumsily ruled by a single monoculture. These different applications share the same pool of potential users — no one application has to individually scale the network-effects hurdle imposed by proprietary systems like Facebook.
 
 <a name="betterbusinessmodel"></a>
 ###The business model rewards good behavior
@@ -268,7 +268,7 @@ There are clear benefits to becoming an intermediary. Once an entity controls th
 
 <a name="maintainingthenetwork"></a>
 ###A network maintenance scheme with a future
-As the number of sites using EveryBit.js grows, and as we work on the challenges related to decentralized storage and delivery of content, we face the problem of how to provide incentives for users of the p2p network to continue to share their resources with the network. In some ways we get this for free, as developers who include EveryBit.js turn their clients into temporary nodes on the network. To encourage more persistent connections, we're working on a system that relies on "Proof of Presence" to reward available nodes and ensure consensus among unranked peers. 
+As the number of sites using EveryBit.js grows, and as we work on the challenges related to decentralized storage and delivery of content, we face the problem of how to provide incentives for users of the p2p network to continue to share their resources with the network. In some ways we get this for free, as developers who include EveryBit.js turn their clients into temporary nodes on the network. To encourage more persistent connections, we're working on a system that relies on ["Proof of Presence"](#proofofpresence) to reward available nodes and ensure consensus among unranked peers. 
 
 
 ###It's open source and open to your contributions
@@ -314,15 +314,19 @@ Currently any valid JavaScript key and value will validate, though individual cl
 
 There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format).
 
-Note: The order of the top-level fields is important. For a puff to be verifiable the top-level fields (username, routes, previous, version, payload and sig) must conform to the order listed above. Field names within payload should conform to the order listed above, but that ordering is not currently required. 
-
 The version field corresponds to the version of the specification used by the puff. Right now the current version is 0.4.X. Until version 1.0 is reached, there may be changes to the structure of a puff. However, by specifying a version with each puff, it should be easier to deal with backward and forward compatibility issues. 
 
 In order to re-publish someone else's content, the entire puff is bundled up and put into the content field of the new puff, with type specified as "puff". 
 
+<a name="ordermatters"></a>
+##The importance of ordering
+The JS specifications state that an object is an unordered collection of properties. This means the order of traversal of the keys of an object may vary between browsers. Additionally, two otherwise identical objects may have different property orderings even within the same browser. When those objects are serialized their string forms will not be identical even though the objects are value-wise equivalent. Their signatures won't match and they won't validate properly.
+
+Fortunately, all modern browsers order the keys of freshly created objects the same way (so long as they don't include  numeric keys). By creating a fresh object, EveryBit.js sidesteps these issues, and also prevents any clumsily added decoration properties from blocking validation.
+
 <a name="decentralizingusernames"></a>
 ###Decentralizing the username system
-At present, updates to username records must be performed using a single API access point at https://<span></span>i.cx/api/users/api.php. 
+At present, updates to username records must be performed using a single API access point at https://<span>i</span>.cx/api/users/api.php. 
 
 Although not yet fully distributed, the username system has been built from the beginning with the needs of decentralization and trustless consensus in mind. No private data is stored in username records, so the records can be held in a distributed way by all participants in the system, without worry about who has access to the data. The initial reservation of a username still requires authorization from an initial provider, but because all key update requests need to be signed by the current owner of the username, and because every key change results in a new record, all changes can verified back to the original registration. 
 
@@ -363,24 +367,20 @@ Right now there is a large effort to solve the problems of key management, and E
 
 <a name="immutability"></a>
 ##How I learned to stop worrying and love immutability
-Because of how puffs are constructed and chained, there is no way to edit a single puff without changing its id (signature), and disrupting the chain of content published thereafter. This is an intentional design decision. Here's why we do it this way: 
+Because of how puffs are constructed and chained, there is no way to edit a single puff without changing its id (signature), and disrupting the chain of content published thereafter. This is an intentional design decision. Here's why we do it this way:
 
 When user replies to content and embeds this parent puff's id in the new puff's parents array, they can be assured that so long as the puff they replied to still exists, it will not change (it's immutable). This creates an official, digitally signed conversation between the parties (that may be public or private). No party can claim to have written something they didn't, or change their words to make another user look bad. Because all discussion is contextual, we intentionally break all incoming connections to that user's more recent puffs as well. 
 
 This is an extreme thing to do, but we believe that the integrity of the system depends on it. We wish to encourage a culture where changing the content of a puff (especially one that has been around for a while and has generated a significant number of replies), is considered an extreme thing to do. 
 
-We wish to extend the cultural norms established by bloggers who pioneered the use of strikethrough to show that they edited a document for accuracy, usually based on feedback from others, and to fostering a culture of honesty and integrity in communication. Everyone makes mistakes, and we've found that there is a generally high level of tolerance to these. To encourage users to amend previous puffs instead of deleting and re-creating them, replies by the original author should be shown first. This way, the "OP" can post a reply amending their previous puff and know that this reply won't get buried by a torrent of angry replies that pick up on a mistake or omission. 
+We wish to extend the cultural norms established by bloggers who pioneered the use of strikethrough to show that they edited a document for accuracy, usually based on feedback from others, and to fostering a culture of honesty and integrity in communication. Everyone makes mistakes, and we've found that there is a generally high level of tolerance to these. To encourage users to amend previous puffs instead of deleting and re-creating them, replies by the original author should be shown first. This way, the original poster can post a reply amending their previous puff and know that this reply won't get buried by a torrent of angry replies that pick up on a mistake or omission. 
 
 Another way to mitigate the need to break your full content history just to correct a "bad" puff is to use different sub-users for different purposes. For example, if you create a EveryBit-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could set up .username.toaster, or even .username.toaster.leavins, to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
 
 Once the EveryBit platform is fully implemented, we imagine that developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understanding of EveryBit's core strengths.
 
 
-<a name="ordermatters"></a>
-##The importance of ordering
-The JS specifications state that an object is an unordered collection of properties. This means the order of traversal of the keys of an object may vary between browsers. Additionally, two otherwise identical objects may have different property orderings even within the same browser. When those objects are serialized their string forms will not be identical even though the objects are value-wise equivalent. Their signatures won't match and they won't validate properly.
 
-Fortunately, all modern browsers order the keys of freshly created objects the same way (so long as they don't include  numeric keys). By creating a fresh object, EveryBit.js sidesteps these issues, and also prevents any clumsily added decoration properties from blocking validation.
 
 <a name="proofofpresence"></a>
 ##Proof of presence

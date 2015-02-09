@@ -428,9 +428,6 @@ Suppose we want our party to grow over time, or at least not shrink as guests oc
 At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
 
 
-
-
-
 <a name="footnotes"></a>
 #Footnotes
 

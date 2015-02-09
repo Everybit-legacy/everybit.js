@@ -55,7 +55,7 @@ PB.init = function(options) {
     setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
     setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once // TODO: align with API
     setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
-    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // Used to register anon. users
+    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // for registering anon users
     setDefault('disableSendToServer', false)    // so you can work locally
     setDefault('disableReceivePublic', false)   // no public puffs except profiles
     setDefault('disableCloudIdentity', false)   // don't store encrypted identity in the cloud
@@ -122,13 +122,13 @@ PB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
 
-    usernames = usernames || []
-    if(!Array.isArray(usernames))
-        usernames = [usernames]
-    
     var myUsername = PB.getCurrentUsername()
     if(!myUsername)
         return PB.emptyPromise('You must have a current identity to post a private message')
+    
+    usernames = usernames || []
+    if(!Array.isArray(usernames))
+        usernames = [usernames]
     
     usernames.push(myUsername)
     usernames = PB.uniquify(usernames)
@@ -141,6 +141,9 @@ PB.postPrivateMessage = function(content, usernames, type) {
     
     return prom
 }
+
+PB.postAnonymousPrivateMessage = function(content, usernames, type) {}
+PB.postParanoidPrivateMessage = function(content, usernames, type) {}
 
 PB.getMyMessages = true
 
@@ -355,7 +358,7 @@ PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decor
 // PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
 
 // beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
-// afterSwitchIdentity is called after switchIdentity, once the new identity is active
+// afterSwitchIdentity  is called after switchIdentity, once the new identity is active
 PB.addBeforeSwitchIdentityHandler = PB.makeHandlerHandler('beforeSwitchIdentity')
 PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
 
@@ -459,41 +462,37 @@ PB.login = function(username, privateKey) {
             return PB.onError('Could not access user record')
         
         var identitySig = userRecord.identity
-            
-        if(!identitySig) {
-            // try it the old fashioned way
-            var publicKey = PB.Crypto.privateToPublic(privateKey)
-            
-            if( (userRecord.defaultKey != publicKey) 
-             && (userRecord.adminKey   != publicKey) 
-             && (userRecord.rootKey    != publicKey) )
-                return PB.onError('That user record has no identity file, and the public key provided does not match')
         
-            var secrets = {} // {passphrase: passphrase} // THINK: maybe move this up a level to loginWithPassphrase
-            PB.addAlias(username, username, userRecord.capa, privateKey, privateKey, privateKey, secrets)
-
-            PB.switchIdentityTo(username)
+        if(identitySig) {
+            var decryptprom = PB.Users.getIdentityPuff(userRecord, privateKey)
             
-            PB.storeIdentityFileInCloud()
-            
-            return true
-        }
-        
-        puffprom = PB.Net.getPuffBySig(identitySig)
-    
-        return puffprom.then(function(puffs) {
-            var envelope = puffs[0]
-            var senderPublicKey = userRecord.defaultKey
-            var recipientUsername = PB.Users.makeVersioned(userRecord.username, userRecord.capa)
-            var recipientPrivateKey = privateKey
-
-            var decryptprom = PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
-
             return decryptprom.then(function(letter) {
                 if(letter && letter.payload && letter.payload.content)
                     return PB.loginWithIdentityFile(letter.payload.content)
+                else
+                    return PB.throwError('Invalid password') // THINK: this could happen for other reasons
+            }, function(err) {
+                return PB.catchError('Could not access identity file')
             })
-        })        
+        }
+        
+        // no identity puff, so try it the old fashioned way
+        // TODO: move this in to a helper function
+        var publicKey = PB.Crypto.privateToPublic(privateKey)
+        
+        if( (userRecord.defaultKey != publicKey) 
+         && (userRecord.adminKey   != publicKey) 
+         && (userRecord.rootKey    != publicKey) )
+            return PB.onError('That user record has no identity file, and the public key provided does not match')
+    
+        var secrets = {} // {passphrase: passphrase} // THINK: maybe move this up a level to loginWithPassphrase
+        PB.addAlias(username, username, userRecord.capa, privateKey, privateKey, privateKey, secrets)
+
+        PB.switchIdentityTo(username)
+        
+        PB.storeIdentityFileInCloud()
+        
+        return true
     })
 }
 

@@ -3,7 +3,7 @@
     Data management for the EveryBit platform.
     
     All puff-related data flows through here:
-    caching, persistence, optimizations and network access are  handled within this module.
+    caching, persistence, optimizations and network access are managed through this module.
 
     Copyright 2014 EveryBit. See README for license information.
 
@@ -20,8 +20,9 @@ PB.Data.pendingPuffPromises = {}
 PB.Data.profiles = {}
 
 PB.Data.init = function(options) {
-    if(!options.disablePublicPuffs)
-        PB.Data.importShells()                                          // preload relevant shells
+    // THINK: disabling preloading may affect older EB example code
+    // if(!options.disablePublicPuffs)
+    //     PB.Data.importShells()                                          // preload relevant shells
     PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)   // clear private caches
 }
 
@@ -619,7 +620,7 @@ PB.Data.packagePuffStructure = function(versionedUsername, routes, type, content
 
 
 PB.Data.getMorePrivatePuffs = function(username, offset, batchsize) {
-    // THINK: race condition while toggling identities?
+    // THINK: race condition while toggling identities? username isn't used below.
     if(!username) username = PB.getCurrentUsername()
     
     offset = offset || 0

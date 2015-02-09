@@ -11,7 +11,7 @@ Over time, publishing has become significantly more accessible, decentralized, a
 - [Case study: HedHelth](#hedhelth)
 - [Other applications](#otherapplications)
 - [Philosophy of architecture](#philosophyofarchitecture)
-- [Bilaterlalism](#bilateralism)
+- [Changing the flow](#changingtheflow")
 - [Why this time it's different](#thistimeisdifferent)
 - [A “Join or Die” moment](#joinordie)
 - [Appendix](#appendix)

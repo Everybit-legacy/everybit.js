@@ -307,16 +307,7 @@ It’s getting harder and harder for small developers to compete, but working to
 <a name="appendix"></a>
 #Appendix
 
-<a name="puffstructure"></a>
-##Additional Puff Notes
-Extra payload properties:
-Currently any valid JavaScript key and value will validate, though individual client applications may place restrictions on key length, key characters, value length, or other characteristics of the value. Since puffs are converted to JSON strings during transmission, only JSONifiable values are valid within a puff: strings, numbers, objects, array, booleans and null. 
-
-There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format).
-
-The version field corresponds to the version of the specification used by the puff. Right now the current version is 0.4.X. Until version 1.0 is reached, there may be changes to the structure of a puff. However, by specifying a version with each puff, it should be easier to deal with backward and forward compatibility issues. 
-
-In order to re-publish someone else's content, the entire puff is bundled up and put into the content field of the new puff, with type specified as "puff". 
+ 
 
 <a name="ordermatters"></a>
 ##The importance of ordering
@@ -426,6 +417,19 @@ Turns out that every lock looks different depending on its key (though we can't 
 Suppose we want our party to grow over time, or at least not shrink as guests occasionally lose the keys to their masks, or get buried by a falling chandelier. In that case, we could come up with a lottery system that permits a few randomly chosen masks to duplicate during the transition period between parties. Or we might allow every mask to clone itself once every thousand parties. 
 
 At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
+
+
+<a name="puffstructure"></a>
+##Additional Puff Notes
+Extra `payload` properties:
+
+Currently any valid JavaScript key and value will validate, though individual applications may place restrictions on key length, key characters, value length, or other characteristics of the value. Since puffs are converted to JSON strings during transmission, only JSONifiable values are valid within a puff: strings, numbers, objects, array, booleans and null. 
+
+There are no rules about the other fields which can be included in payload, other than technical limitations to how they are specified (keys must be alphanumeric and less than 128 characters, values must be storable in JSON format).
+
+The version field corresponds to the version of the specification used by the puff. Right now the current version is 0.4.X. Until version 1.0 is reached, there may be changes to the structure of a puff. However, by specifying a version with each puff, it should be easier to deal with backward and forward compatibility issues. 
+
+In order to re-publish someone else's content, the entire puff is bundled up and put into the content field of the new puff, with type specified as "puff".
 
 
 <a name="footnotes"></a>

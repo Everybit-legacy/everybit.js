@@ -57,7 +57,7 @@ The archaic, insecure, and frustrating system of passwords has been replaced wit
 
 The shift from passwords to keys represents — and makes possible — a broader shift towards decentralization of authority and intelligence. Just as publishing is no longer confined to massive pillars and stone walls, our most powerful computers have evolved from clunky hardware occupying an entire building, to devices that fit in our pockets and around our wrists. Even within the remnants of this centralized computing system, in the immense data centers managed by Facebook and Google, small, densely networked machines have taken the place of big hardware. 
 
-With the rise of key based authentication, peer-to-peer networking over the browser, and shared decentralized ledgers, we are poised to make the final step in decentralization. In this future, all intelligence and authority derives from our individual devices. The client, alongside the rich, full-featured applications that run in our web browsers, does the heavy lifting of computation and gatekeeping. Our client requests the content we want, lets us manage our preferences, and encrypts and signs our private data before sending it out to others. 
+With the rise of key based authentication, peer-to-peer networking over the browser, and shared decentralized ledgers, we are poised to make the final step in decentralization. In this future, all intelligence and authority derives from our individual devices. The client (web browser), alongside the rich, full-featured applications that run in it, does the heavy lifting of computation and gatekeeping. Our client requests the content we want, lets us manage our preferences, and encrypts and signs our private data before sending it out to others.
 
 A decentralized, shared username system, in combination with a standardized data format, lets us consolidate our dozens of inboxes and alerts under single username, a irrevocable identity we can control for life.
 
@@ -65,16 +65,16 @@ In this vision of the future, people will look back in amazement at the hassles 
 
 <a name="introducingeverybit"></a>
 ##Introducing EveryBit.js
-With EveryBit.js, we've taken a strong first step in the direction of this future, providing developers with a comprehensive library for secure communication, decentralized publishing, and federated identity management.  
+With EveryBit.js (EB), we've taken a strong first step in the direction of this future, providing developers with a comprehensive library for secure communication, decentralized publishing, and federated identity management.  
 
 Over the next few sections, we'll outline the main components that make this possible: "[puffs](#whatispuff)", [usernames](#usernamesystem), [signatures](#importanceofsig), [identity files](#identityincloud), and a [protocol for secure communication](#abcincryptoland).
 
 <a name="whatispuff"></a>
 ###What is a puff?
 <img src="http://i.imgur.com/sGDTN2P.png" alt="Puff structure" width="350" align="right">
-For historical reasons that aren't entirely clear, the central unit of content in the EveryBit.js system is called a puff. A puff is a signed, static unit of data with a single content type. Let's examine its anatomy:
+The central unit of content in the EveryBit.js system is called a puff. A puff is a signed, static unit of data with a single content type. Let's examine its anatomy:
 
-A puff has six required, top-level properties: `username`, `routes`, `previous`, `version`, `payload`, and `sig`. Another field, `keys`, is optional. No other fields are allowed, and puffs with additional top-level fields will not validate. Puffs are serialized as JSON strings and can contain only JSONifiable values.
+A puff has six required, top-level properties: `username`, `routes`, `previous`, `version`, `payload`, and `sig`. Another field, `keys`, is optional. No other top-level fields are allowed. Puffs are serialized as JSON strings and can contain only JSONifiable values.
 
 The `payload` field is an object. It must contain non-empty values for the `content` and `type` properties. Additional payload properties are allowed. The meaning of these optional payload properties is determined by the client application: relationships between puffs, rankings, evaluations, display properties — all of these are application extensible. Conventions are beginning to form around additional payload fields such as `tags`, `time`, `parents`, `author`, `title`, `geo`, and `copyright`.
 
@@ -118,7 +118,7 @@ In addition to their use as a unique id for each puff, signatures allow users to
 <a name="usernamesystem"></a>
 ###The username system
 <img src="http://i.imgur.com/sVmaxqb.png" alt="Username structure" width="350" align="right">
-You may have noticed that signatures depend on the existance of username records we can look up. These are maintained in a [Distributed Hash Table](#decentralizingusernames). Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. A field called `updated` stores the date of the most recent update to the username record, and anytime new content is created, the `latest` field is changed to point to their most recent content. Usernames are built up using strings of lowercase letters and numbers, [no other characters are allowed](#displaynames).
+You may have noticed that signatures depend on the existance of username records we can look up. These are maintained in a [Distributed Hash Table](#decentralizingusernames) (DHT). Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. A field called `updated` stores the date of the most recent update to the username record, and anytime new content is created, the `latest` field is changed to point to their most recent content. Usernames are built up using strings of lowercase letters and numbers, [no other characters are allowed](#displaynames).
 
 The owner of a username controls their sub-user space as well. For example, user `foo` can create sub-users `foo.bar` and `foo.fighters`. There are three keys stored in each username record. New content is signed using the private key related to the `defaultKey`. This is the key used to verify the `sig` of a regular content puff. 
 
@@ -150,9 +150,9 @@ Bob may need to reply to the message, and when he does there will be a record of
 
 To prevent leaking additional information about their conversation, Alice can create a second anonymous user and put that username in the `replyTo` field of the letter. To indicate that she wants her conversation partners to reply anonymously, she sets the `replyAs` field to `anon`. Bob and Charlie then use this same method to reply to Alice’s anonymous address. The only information that leaks out to the network is that an anonymous message has been sent to Bob and Charlie. After that, every message in their conversation is from one-time anonymous users, to other one-time anonymous users. 
 
-For large group conversations, addition precautions might be taken to hide the original list of recipients. More work needs to be done in this area, and to ensure that group anonymous messaging scales properly beyond dozens of users.
+For large group conversations, addition precautions might be taken to hide the original list of recipients. More work needs to be done in this area, and individual users might wish to take [additional steps to limit information leakage](#limitstoencyrption).    
 
-Note that nothing in EB prevents a user’s ISP from seeing the envelopes that a user sends, or which username records someone requests. This data could be used to attempt to guess at the participants in a conversation, especially if the recipients use the same ISP (or data is shared). An anonymous router like Tor could be used with EB if desired. Overall, the more encrypted messages a user sends and receives, and the more encrypted traffic in the network in general, the harder it would be to trace the users involved in conversations between anons.  
+
 
 <a name="identityincloud"></a>
 ###Identity file in the cloud
@@ -172,21 +172,22 @@ HedHelth uses EveryBit.js for user and data management. If a user already has an
 
 Using EveryBit.js, the stream of data from Alice's HH device is published in a sequence of encrypted puffs with `type` set equal to `EDF`<sup>[10](#footnotes)</sup>. By encrypting these puffs, Alice's private data is hidden from HH itself, a fact that the company uses to promote the security of it's device. Even if their servers get hacked, Alice's brain wave information is safe. Nor can HH be held liable for their failure to detect and report on evidence of criminal intent in Alice's data under the new Preventing Revealed Electroencephalographic Criminal Outlawed Propensities act. 
 
-Some users may *want* to share their data — with friends, or in a public but anonymous way. Using EveryBit.js, HH maintains a Enlightenment Partners<sup>TM</sup> list for Bob in his Identity File. His `EDF` puffs are encrypted with keys for each of his partners. He can also send private messages to the group, and have multi-threaded discussion about their respective progress. For users who are willing to share their data anonymously, HH makes a single API call to create a random subuser like *.xh4532c* on the [shared top level user](#specialusers) *anon*. By sharing data in this way, Bob can get feedback about his brain waves without exposing his real identity. He can view his Enlightenment Rank<sup>TM</sup> and see how it compares to other anonymous users. 
+Some users may *want* to share their data — with friends, or in a public but anonymous way. Using EveryBit.js, HH maintains a Enlightenment Partners<sup>TM</sup> list for Bob in his Identity File. His `EDF` puffs are encrypted with keys for each of his partners. He can also send private messages to the group, and have multi-threaded discussion about their respective progress. For users who are willing to share their data anonymously, HH makes a single API call to create a random subuser like *.xh4532c* on the [shared top level user](#specialusers) *anon*. By publishing his data under an anonymous pseudonym, Bob can get feedback about his brain waves without exposing his real identity. He can view his Enlightenment Rank<sup>TM</sup> and see how it compares to other anonymous users. 
 
 HedHelth credits most of their growth to the community that grew up around this anonymous data. By publishing their data as puffs with a standard content type, any other developer or regular user can access the unencrypted data. Since everyone has access to the full "fire hose" of data, dozens of other tools sprung up around HH's service, like happiness visualizers and global sentiment analysis. 
 
-After a few months, HedHelth began to see the kind of explosive growth all startups dream about. These growth spurts often come with financial and logistical pains, as companies are forced to scale up their servers, or else spend a fortune on outsourcing their infrastructure. If HedHelth had assumed sole responsibility for managing their user’s data, this growth could put them in a particularly vulnerable position, given the large amount of data each user generates. 
+###Turning your users into your cloud
+After a few months, HedHelth began to see the kind of explosive growth all startups dream about. Such growth often comes with financial and logistical pains, as companies are forced to scale up their servers, or else spend a fortune on outsourcing their infrastructure. If HedHelth had to assume sole responsibility for managing their user’s data, this growth would have put them in a particularly vulnerable position, given the large amount of data each user generates. 
 
-Fortunately, though, EB turns HedHelth's users into their cloud. Each additional user means HedHelth has access to more computational power and storage, not less. Even user's preference data, stored in their Identity Files, is managed completely on the client. HedHelth doesn’t have to worry about maintaining state on a multi-server database, nor do HH's servers need to run expensive queries to make sure the client receives the information it needs, filtered according to its wishes. The vast majority of the data flowing through the network is shared directly over the P2P layer. And because all of the content is static, HH can provide a low latency, high-availability backstop by storing a copy of all puffs to a generic CDN.
+Fortunately, though, EB lets HedHelth rely on their users for their cloud. Each web browser running the HH website (and thus including the EB library), becomes a contributing node, with its own slice of CPU cycles and hard drive space to contribute. Even a user’s preference data, stored in their Identity Files, is managed completely on the client. HedHelth doesn’t have to worry about maintaining state on a multi-server database, nor do HH’s servers need to run expensive queries to make sure the client receives the information it needs, filtered according to its wishes. The vast majority of the data flowing through the network is shared directly over the P2P layer. And because all of the content is static, HH can provide a low latency, high-availability backstop by storing a copy of all puffs to a generic content delivery network.
 
-With the time and money they saved on infrastructure, server-side page-rendering, and database management, HedHealth focused on building a rich, beautiful dashboards for their users, and a fantastic GUI for managing users' Enlightenment Partners<sup>TM</sup>. They also had more money to spend improving the proprietary head band itself, which is a major source of their income.
+With the time and money they saved on infrastructure, server-side page-rendering, and database management, HedHealth focused on building a rich, beautiful dashboards for their users, and a fantastic GUI for managing users’ Enlightenment Partners<sup>TM</sup>. They also had more money to spend improving the proprietary head band itself, which is a major source of their income.
 
 As a secondary source of income, HH has been experimenting with doing complex, big data computations across their network of users. Using advances in holomorphic encryption, they are able to split huge tasks into slices of code that obscure their own functionality.
 
 <a name="otherapplications"></a>
 ##Other applications
-Going beyond the "HedHelth" example above, the combination of signed, chainable content and built-in cryptographic tools makes EveryBit.js the perfect library for building applications that require privacy, or ones that can be broken into a sequence of discrete publishing events. We've already built the secure messaging service [I.CX](https://i.cx) on EB. Here are a few other services that would be a good match for EB:
+Going beyond the "HedHelth" example above, the combination of signed, chainable content and built-in cryptographic tools makes EveryBit.js the perfect library for building applications that require privacy, or ones that can be broken into a sequence of discrete publishing events. We’ve already built the secure messaging service [I.CX](https://i.cx) on EB. Here are a few other services that would be a good match for EB:
 
 <a name="turnbasedgames"></a>
 ###Turn-based games
@@ -409,6 +410,10 @@ Turns out that every lock looks different depending on its key (though we can't 
 Suppose we want our party to grow over time, or at least not shrink as guests occasionally lose the keys to their masks, or get buried by a falling chandelier. In that case, we could come up with a lottery system that permits a few randomly chosen masks to duplicate during the transition period between parties. Or we might allow every mask to clone itself once every thousand parties. 
 
 At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
+
+<a name="limitstoencyrption"></a>
+##Hiding information beyond encryption
+Note that nothing in EveryBit.js prevents a user’s ISP from reading the (unencrypted, outer) envelope puffs that a user sends, or which username records someone requests. This data could be used to attempt to guess at the participants in a conversation, especially if the recipients use the same ISP (or data is shared). An anonymous router like Tor might provide an additional layer of privacy. Overall, the more encrypted messages a user sends and receives, and the more encrypted traffic in the network in general, the harder it would be to trace the real usernames involved in conversations between anons.
 
 <a name="ordermatters"></a>
 ##The importance of ordering

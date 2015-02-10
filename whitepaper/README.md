@@ -360,7 +360,7 @@ We wish to extend the cultural norms established by bloggers who pioneered the u
 
 Another way to mitigate the need to break your full content history just to correct a "bad" puff is to use different sub-users for different purposes. For example, if you create a EveryBit-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could set up .username.toaster, or even .username.toaster.leavins, to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
 
-Once the EveryBit platform is fully implemented, we imagine that developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's build upon an understanding of EveryBit's core strengths.
+Once the EveryBit platform is fully implemented, we imagine that developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's built upon an understanding of EveryBit's core strengths.
 
 
 

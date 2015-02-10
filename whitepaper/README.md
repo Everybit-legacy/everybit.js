@@ -300,17 +300,12 @@ It’s getting harder and harder for small developers to compete, but working to
 
 
 
-
-
-
-
-
 <a name="appendix"></a>
 #Appendix
 
 <a name="decentralizingusernames"></a>
 ###Decentralizing the username system
-At present, updates to username records must be performed using a single API access point at https://<span>i</span>.cx/api/users/api.php. 
+At present, updates to username records must be performed using a single API access point at `https://i.cx/api/users/api.php`. 
 
 Although not yet fully distributed, the username system has been built from the beginning with the needs of decentralization and trustless consensus in mind. No private data is stored in username records, so the records can be held in a distributed way by all participants in the system, without worry about who has access to the data. The initial reservation of a username still requires authorization from an initial provider, but because all key update requests need to be signed by the current owner of the username, and because every key change results in a new record, all changes can verified back to the original registration. 
 
@@ -320,7 +315,7 @@ Another side effect of this system is that no central authority can recover lost
 
 <a name="displaynames"></a>
 ###Display names
-By limiting username characters strictly to lowercase letters and numbers (plus the "." to separate sub-users), EveryBit.js avoids confusion between names that are highly similar. This decision is informed by the experience of forums, where look-alike accounts have been sources of confusion or attempted identity fraud. Sometimes a single popular of famous *username* can spawn a dozen knock-offs like *user-name*, *Username*, *user_name*, and *_username*. The introduction of international characters into domain names has made the situation even worse, as for example a bank domain could faked using Cyrillic characters that look almost identical.<sup>[12](#footnotes) 
+By limiting username characters strictly to lowercase letters and numbers (plus the "." to separate sub-users), EveryBit.js avoids confusion between names that are highly similar. This decision is informed by the experience of forums, where look-alike accounts have been sources of confusion or attempted identity fraud. Sometimes a single famous *username* can spawn a dozen knock-offs like *user-name*, *Username*, *user_name*, and *_username*. In the world of domain names, the introduction of international characters has made the situation even worse, as for example a bank's domain could faked using Cyrillic characters that look almost identical.<sup>[12](#footnotes) 
 
 To allow users more flexibility in how their usernames display, without reducing security or increasing confusion, we recommend the use of "display names". These are variations on a username that can be converted into a valid username by removing invalid characters and converting all letters to lowercase. So user "johndoe" could set their display name to "John Doe" or johnDoe or "john_DOE!" but not "Johnny Doe", since that display name corresponds to the username "johnnydoe". An example of the use of display names can be seen in how the recipient is show for [I.CX's embeddable contact form](https://i.cx/?icx.screen=formCreator).
  
@@ -340,11 +335,11 @@ Passwords have been decried for years by security researchers as fundamentally f
 
 Passwords require a trusted third party, someone who receives your password over the network and then allows you to perform actions based on its validity. This third party vouches that the messages you send are authentic.
 
-In a decentralized, distributed system there is no central trusted third party, so we need a new method of verifying authenticity. Rather than having to send your identifying information over the network before being allowed to communicate with others, you sign your own messages with an unforgeable signature, right in the browser.
+In a decentralized, distributed system there is no central trusted third party, so we need a new method of verifying authenticity. Rather than having to send identifying information over the network before being allowed to communicate with others, users sign their own messages with an unforgeable signature, right in the browser.
 
-There are many benefits to this approach: no third party can read (and possibly leak) your private data, a reader of a message can tell if it has been altered, messages gain an aspect of non-repudiation, and many others — innovative ways to use public key systems to perform otherwise impossible tasks are being conceived of almost every day.
+There are many benefits to this approach: no third party can read (and possibly leak) a users private data, a reader of a message can tell if it has been altered, and messages gain an aspect of non-repudiation. Innovative ways to use public key systems to perform otherwise impossible tasks are being conceived of almost every day.
 
-All public key systems have to strike a balance between keeping keys secure, and allowing them to be used. The EveryBit.js approach of splitting authority among three different keys provides more flexibility in achieving both availability and confidentiality, but at the cost of added complexity. Developers can use EB to manage keys on behalf of users, but there are still limitations on how much these trade-offs can be mitigated.  
+All public key systems have to strike a balance between keeping keys secure, and allowing them to be used. The EveryBit.js approach of splitting authority among three different keys provides flexibility for achieving both availability and confidentiality, but at the cost of added complexity. Developers can use EB to manage keys on behalf of users, but there are still limitations to how much these trade-offs can be mitigated.  
 
 Right now there is a large effort to solve the problems of key management, and EB is poised to take advantage of any promising innovations in this space <sup>[8](#footnotes)</sup>.
 
@@ -362,7 +357,6 @@ We wish to extend the cultural norms established by bloggers who pioneered the u
 Another way to mitigate the need to break your full content history just to correct a "bad" puff is to use different sub-users for different purposes. For example, if you create a EveryBit-enabled toaster that sends out a new puff any time the toaster leavin's are ready for harvesting, you could set up .username.toaster, or even .username.toaster.leavins, to publish these notifications. That way, if your toaster goes rogue and begins broadcasting bad information, you can roll back its chain of content without affecting your other streams of content. 
 
 Once the EveryBit platform is fully implemented, we imagine that developers will create tools to implement some kind of version control system with content merging (so that you could publish a "diff" puff to update a previous one). We encourage such development, so long as it's built upon an understanding of EveryBit's core strengths.
-
 
 
 
@@ -413,7 +407,7 @@ At this point we have everything we need (conceptually) to turn our masks into a
 
 <a name="limitstoencyrption"></a>
 ##Hiding information beyond encryption
-Note that nothing in EveryBit.js prevents a user’s ISP from reading the (unencrypted, outer) envelope puffs that a user sends, or which username records someone requests. This data could be used to attempt to guess at the participants in a conversation, especially if the recipients use the same ISP (or data is shared). An anonymous router like Tor might provide an additional layer of privacy. Overall, the more encrypted messages a user sends and receives, and the more encrypted traffic in the network in general, the harder it would be to trace the real usernames involved in conversations between anons.
+Note that nothing in EveryBit.js prevents a user’s ISP from reading the (unencrypted, outer) envelope puffs that a user sends, or seeing which username records someone requests. This data could be used to attempt to guess at the participants in a conversation, especially if the recipients use the same ISP (or data is shared). An anonymous router like Tor might provide an additional layer of privacy. Overall, the more encrypted messages a user sends and receives, and the more encrypted traffic in the network in general, the harder it would be to trace the real usernames involved in conversations between anons.
 
 <a name="ordermatters"></a>
 ##The importance of ordering
@@ -444,10 +438,10 @@ In order to re-publish someone else's content, the entire puff is bundled up and
 4. [Feds Seized Hip-Hop Site for a Year, Waiting for Proof of Infringement](http://www.wired.com/2012/05/weak-evidence-seizure/) 
 [Verisign seizes .com domain registered via foreign Registrar on behalf of US Authorities](http://blog.easydns.org/2012/02/29/verisign-seizes-com-domain-registered-via-foreign-registrar-on-behalf-of-us-authorities/)
 5. [Are You Suffering from Social Media Fatigue Syndrome?](http://technologytherapy.com/social-media-how-tos/suffering-social-media-fatigue-syndrome/)
-6. See "What Technology Wants" by Kevin Kelly for an in-depth look a the long history of simultaneous discoveries and inventions. 
+6. See the book "What Technology Wants" by Kevin Kelly for an in-depth look a the long history of simultaneous discoveries and inventions. 
 7. Signatures are approximately 80 characters long and written in base 58. This gives a total language size on the order of 58^80. Collisions aren't expected until roughly the square root this, or 58^40, a number similar to some estimates for the number of atoms in the universe.
-8. EveryBit.js uses the same Elliptic Curve Cryptography (ECC) as Bitcoin. A search for "Bitcoin hardware wallet" will result in a number of devices which support the offline storage of private keys.
-9. EveryBit.js developer Matt Asher has proposed the following variation on Zawinski's law: over time, every application will expand to include some form of version control
+8. EveryBit.js uses the same Elliptic Curve Cryptography (ECC) as Bitcoin. Search for "Bitcoin hardware wallet" to view the many existing devices which support offline storage of private keys.
+9. EveryBit.js developer Matt Asher has proposed the following variation on Zawinski's law: over time, every application will expand to include some form of version control.
 10. [European Data Format](http://en.wikipedia.org/wiki/European_Data_Format)
-11. Full support for all EveryBit.js functionality in Firefox, Chrome, and Android. Internet Explorer and Safari do not yet support WebRTC, so EB gets all content from a server, instead of using P2P. Safari doesn't support downloads of files generated client side, which means these users can't view decrypted files unless they are of a recognized type, like jpeg.  
+11. There is full support for all EveryBit.js functionality in Firefox, Chrome, and Android. Internet Explorer and Safari do not yet support WebRTC, so EB gets all content from a server, instead of using P2P. Safari doesn't support downloads of files generated client side, which means users can't view decrypted files unless they are of a recognized type that can be opened directly in the browser, like jpeg.  
 12. See http://en.wikipedia.org/wiki/IDN_homograph_attack

@@ -95,6 +95,7 @@ describe('Integration Tests for the Basic API', function() {
       
       it('should add a public message', function() {
         puff = PB.postPublicMessage('Hello World', 'text')
+        puff.should.be.an('object')
         public_puff_sig = puff.sig
       })
       

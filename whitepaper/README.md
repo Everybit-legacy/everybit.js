@@ -307,14 +307,6 @@ It’s getting harder and harder for small developers to compete, but working to
 <a name="appendix"></a>
 #Appendix
 
- 
-
-<a name="ordermatters"></a>
-##The importance of ordering
-The JS specifications state that an object is an unordered collection of properties. This means the order of traversal of the keys of an object may vary between browsers. Additionally, two otherwise identical objects may have different property orderings even within the same browser. When those objects are serialized their string forms will not be identical even though the objects are value-wise equivalent. Their signatures won't match and they won't validate properly.
-
-Fortunately, all modern browsers order the keys of freshly created objects the same way (so long as they don't include  numeric keys). By creating a fresh object, EveryBit.js sidesteps these issues, and also prevents any clumsily added decoration properties from blocking validation.
-
 <a name="decentralizingusernames"></a>
 ###Decentralizing the username system
 At present, updates to username records must be performed using a single API access point at https://<span>i</span>.cx/api/users/api.php. 
@@ -417,6 +409,12 @@ Turns out that every lock looks different depending on its key (though we can't 
 Suppose we want our party to grow over time, or at least not shrink as guests occasionally lose the keys to their masks, or get buried by a falling chandelier. In that case, we could come up with a lottery system that permits a few randomly chosen masks to duplicate during the transition period between parties. Or we might allow every mask to clone itself once every thousand parties. 
 
 At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
+
+<a name="ordermatters"></a>
+##The importance of ordering
+The JS specifications state that an object is an unordered collection of properties. This means the order of traversal of the keys of an object may vary between browsers. Additionally, two otherwise identical objects may have different property orderings even within the same browser. When those objects are serialized their string forms will not be identical even though the objects are value-wise equivalent. Their signatures won't match and they won't validate properly.
+
+Fortunately, all modern browsers order the keys of freshly created objects the same way (so long as they don't include  numeric keys). By creating a fresh object, EveryBit.js sidesteps these issues, and also prevents any clumsily added decoration properties from blocking validation.
 
 
 <a name="puffstructure"></a>

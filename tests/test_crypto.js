@@ -227,6 +227,13 @@ describe('Crypto', function() {
   })
 
   // TODO: test randomness functions
+  
+  // PB.Crypto.random
+  // PB.Crypto.getRandomInteger
+  // PB.Crypto.getRandomItem
+  // PB.Crypto.getRandomKey
+  // PB.Crypto.getRandomValues
+  // PB.Crypto.getRandomValuesShim
 
   describe('PB.Crypto.createKeyPairs', function() {
     var faux_puff = {username: 'foo', sig: sig}

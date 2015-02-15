@@ -51,6 +51,7 @@ Boron.set_deep_value = function(props, path, value) {
     var segs = path.split('.').map(function(chunk) {return chunk.replace(magic_regex, '.')})
     
     var last = segs.pop()
+    var next
     var final = next = Boron.shallow_copy(props)
 
     segs.forEach(function(seg) {
@@ -67,21 +68,21 @@ Boron.shallow_copy = function(obj) {
     return Object.keys(obj || {}).reduce(function(acc, key) {acc[key] = obj[key]; return acc}, {})
 }
 
-Boron.shallow_diff = function(oldObj, newObj) { // results come from newObj
+Boron.shallow_diff = function(oldObj, newObj) {                         // results come from newObj
     return Object.keys(oldObj).reduce(function(acc, key) {
         if(JSON.stringify(oldObj[key]) != JSON.stringify(newObj[key]))
-            acc[key] = newObj[key] // this pointer copies deep data
+            acc[key] = newObj[key]                                      // this pointer copies deep data
         return acc
     }, oldObj.constructor())
 }
 
-Boron.deep_diff = function(oldObj, newObj) { // results come from newObj
+Boron.deep_diff = function(oldObj, newObj) {                            // results come from newObj
     return Object.keys(newObj).reduce(function(acc, key) {
         var oldtype = typeof oldObj[key]
         var newtype = typeof newObj[key]
         
         if(oldtype != newtype) {
-            acc[key] = newObj[key] // this pointer copies deep data
+            acc[key] = newObj[key]                                      // this pointer copies deep data
             return acc
         }
         
@@ -124,7 +125,7 @@ Boron.unflatten = function(obj) {
     // return Object.keys(obj||{}).reduce(function(acc, key) {return Boron.set_deep_value(acc, key, obj[key])}, {}) // OPT: GC
 }
 
-Boron.proper_object = function(obj) { return typeof obj == 'object' && !Array.isArray(obj) } 
+Boron.proper_object = function(obj) { return typeof obj == 'object' && !Array.isArray(obj) && !!obj} 
 
 Boron.extend = function() {
     /// given ({fun:123, yay:123}, {yay:456, ok:789}) as args, returns a new object {fun:123, yay:456, ok:789}

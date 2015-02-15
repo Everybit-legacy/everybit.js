@@ -6,18 +6,18 @@
 </head>
 <body>
   <div id="mocha"></div>
-  <script src="../build/everybitJS/everybit-min.js"></script>
+  <script src="../build/everybitJS/everybit.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
   <script src="../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
   <script src="../node_modules/mocha/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   
   
-  <script src="test_spec.js"></script>       <!-- tests for spec validations -->
+  <script src="/test_spec.js"></script>       <!-- tests for spec validations -->
   <script src="test_basic_api.js"></script>  <!-- tests for core functionality -->
-  <script src="test_crypto.js"></script>     <!-- tests for crypto functionality -->
-  <script src="test_persist.js"></script>    <!-- tests for persistence library -->
-  <script src="test_boron.js"></script>      <!-- tests for boron library -->
+  <script src="/test_crypto.js"></script>     <!-- tests for crypto functionality -->
+  <script src="/test_persist.js"></script>    <!-- tests for persistence library -->
+  <script src="/test_boron.js"></script>      <!-- tests for boron library -->
   
   <script>
     mocha.checkLeaks();

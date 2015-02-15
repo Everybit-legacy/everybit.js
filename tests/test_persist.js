@@ -27,7 +27,7 @@ describe('PB.Persist (localStorage)', function() {
 
     it('should get the object value of the key', function() {
       var val = PB.Persist.get(objkey)
-      JSON.stringify(val).should.equal(JSON.stringify(obj))
+      val.should.deep.equal(obj)
     })
   })
 

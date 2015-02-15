@@ -310,12 +310,12 @@ PB.Data.handleAndFilterExistingShells = function(shells) {
     return shells.filter(function(shell) {
         var existing = PB.Data.getCachedShellBySig(shell.sig)
 
-        if(existing) {
-            if(existing.payload.content) return false
-            if(shell.payload.content === undefined) return false    // it's an empty shell
-            existing.payload.content = shell.payload.content        // add the missing content
-            return true // true because we changed it
-        }
+        if(!existing) return true                               // it's new
+        if(existing.payload.content) return false               // it's known
+
+        if(shell.payload.content === undefined) return false    // it's an empty shell,
+        existing.payload.content = shell.payload.content        // so add the missing content
+        return true                                             // true because we changed it
     })
 }
 

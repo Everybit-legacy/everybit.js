@@ -1,8 +1,6 @@
 var expect = chai.expect
 var should = chai.should()
 
-//// Integration tests
-
 describe('Integration Tests for the Basic API', function() {
   this.timeout(3000)
   

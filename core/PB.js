@@ -35,9 +35,9 @@ PB.init = function(options) {
     //// initializes all available modules and the platform subsystems.
     //// options is an object of configuration options that is passed to each module and subsystem.
     
-    options = options || {}
-    
     // BEGIN CONFIG AND OPTIONS //
+    
+    options = options || {}
     
     setDefault('zone', '')
     setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
@@ -1010,108 +1010,6 @@ PB.promiseMemoize = function(fun, ohboy) {
 PB.removePromisePending = function(key) {
     delete PB.promisesPending[key]
 }
-
-//// TIMING HELPERS
-
-
-// TODO: move these into a library
-
-~function() {
-    //// postpone until next tick
-    // inspired by http://dbaron.org/log/20100309-faster-timeouts
-    var later = []
-    var messageName = 12345
-    var gimme_a_tick = true
-
-    function setImmediate(fun) {
-        later.push(fun)
-        
-        if(gimme_a_tick) {
-            gimme_a_tick = false
-            window.postMessage(messageName, "*")
-        }
-        
-        return false
-    }
-
-    function handleMessage(event) {
-        if(event.data != messageName) return false
-
-        event.stopPropagation()
-        gimme_a_tick = true
-
-        var now = later
-        later = []
-
-        for(var i=0, l=now.length; i < l; i++)
-            now[i]()
-    }
-  
-    if(typeof window != 'undefined') {
-        window.addEventListener('message', handleMessage, true)
-        window.setImmediate = setImmediate
-    }
-}()
-
-PB.queuer = function() {
-    //// do something after some other things
-    var queue = []
-    
-    var nexttime = function(invoker) {
-        invoker(function() {
-            if(!queue.length) return false
-            queue.shift()()
-            nexttime(invoker)
-        })
-    }
-            
-    var queuer = function(invoker, fun) {
-        queue.push(fun)
-        if(queue.length > 1) return false // THINK: possible race condition
-        nexttime(invoker) 
-    }
-    
-    return queuer
-}
-
-PB.once = function() {
-    //// do something later, but only once
-    var later = []
-
-    var step = function() {
-        var now = later
-        later = []
-        for(var i=0, l=now.length; i < l; i++)
-            now[i]()
-    }
-            
-    var once = function(invoker, fun) {
-        if(~later.indexOf(fun)) return false
-        later.push(fun)
-        if(later.length > 1) return false // THINK: possible race condition
-        invoker(step) 
-    }
-    
-    return once
-}
-
-~function() {
-    if(typeof window != 'undefined') {
-        window.queueImmediate = PB.queuer().bind(null, setImmediate)
-        window.onceImmediate  = PB.once().bind(null, setImmediate)
-        window.queueRAF = PB.queuer().bind(null, requestAnimationFrame)
-        window.onceRAF  = PB.once().bind(null, requestAnimationFrame)
-    
-        var timefunbind = {}
-        window.onceInAwhile = function(fun, time) {
-            //// NOTE: don't use the same fun with different times
-            if(timefunbind[fun]) return false
-            timefunbind[fun] = setTimeout(function() {fun(); timefunbind[fun] = false}, time)
-        }
-    }
-}()
-
-
 
 
 ////////////// A few small helpers for building functional pipelines ///////////////

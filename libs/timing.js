@@ -35,7 +35,7 @@
             for(var i=0, l=now.length; i < l; i++)
                 now[i]()
         }
-    }
+    }()
 
     function queuer() {
         //// do something after some other things

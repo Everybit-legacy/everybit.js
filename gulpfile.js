@@ -25,6 +25,7 @@ var coreBuildList = [
     'vendor/promise.min.js',
     'vendor/xbbcode.js',
     'libs/boron.js',
+    'libs/timing.js',
     'libs/filefile.js',
     'libs/events.js',
     'libs/gridbox.js',

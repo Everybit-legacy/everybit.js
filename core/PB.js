@@ -31,67 +31,7 @@ PB.version = '0.7.3'
 ////////////// STANDARD API FUNCTIONS //////////////////
 
 
-PB.init = function(options) {
-    //// initializes all available modules and the platform subsystems.
-    //// options is an object of configuration options that is passed to each module and subsystem.
-    
-    // BEGIN CONFIG AND OPTIONS //
-    
-    options = options || {}
-    
-    setDefault('zone', '')
-    setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
-    setDefault('userApi', 'https://i.cx/api/users/api.php')
-    setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
-    setDefault('enableP2P', false)
-    setDefault('pageBatchSize', 10)
-    setDefault('initLoadGiveup', 200)
-    setDefault('networkTimeout', 20000)         // twenty second timeout
-    setDefault('noLocalStorage', false)
-    setDefault('netblockSuffix', 'local')
-    setDefault('cryptoworkerURL', '')           // point to cryptoworker.js to enable worker thread
-    setDefault('ephemeralKeychain', false)      // prevents keychain from being saved to localStorage
-    setDefault('initLoadBatchSize', 20)
-    setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
-    setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once // TODO: align with API
-    setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
-    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // for registering anon users
-    setDefault('disableSendToServer', false)    // so you can work locally
-    setDefault('disableReceivePublic', false)   // no public puffs except profiles
-    setDefault('disableCloudIdentity', false)   // don't store encrypted identity in the cloud
-    setDefault('supportedContentTypes', false)  // whitelist of context types; false loads all
-    setDefault('shellContentThreshold', 1000)   // size of uncompacted content
-    setDefault('localStorageShellLimit', 1000)  // maximum number of shells
-    setDefault('localStorageMemoryLimit', 3E6)  // ~3MB
-    
-    function setDefault(key, val) {
-        PB.CONFIG[key] = options[key] || PB.CONFIG[key] || val
-    }
-    
-    // END CONFIG AND OPTIONS //
-        
-    PB.Users.init(options)                              // initialize the user record subsystem
-    PB.Data.init(options)                               // initialize the data subsystem
-    PB.Net.init(options)                                // initialize the network subsystem
-    
-    var moduleKeys = Object.keys(PB.M)
-    moduleKeys.forEach(function(key) {                  // call all module initializers
-        if(PB.M[key].init) 
-            PB.M[key].init(options)
-    })
-    
-    popMods()                                           // deflate any machine prefs
-    function popMods() {                                // THINK: maybe move this to PB.Persist.init
-        var mods = PB.Persist.get('CONFIG')
-        if(!mods) return false
-    
-        PB.CONFIG.mods = mods
-        Object.keys(PB.CONFIG.mods).forEach(function(key) { PB.CONFIG[key] = mods[key] })
-    }
-    
-    PB.buildCryptoworker(options)
-}
-
+//// MESSAGES
 
 PB.getPuffBySig = function(sig) {
     //// get a particular puff
@@ -145,24 +85,10 @@ PB.postPrivateMessage = function(content, usernames, type) {
 PB.postAnonymousPrivateMessage = function(content, usernames, type) {}
 PB.postParanoidPrivateMessage = function(content, usernames, type) {}
 
-
-PB.createPrivatePuff = function(content, type) {
-    var payload = {}
-    
-    var type   = type || 'file'
-    var routes = ['local']
-
-    var userRecord = PB.getCurrentUserRecord()
-    var userRecordsForWhomToEncrypt = [userRecord]
-    var previous, puff
-    
-    puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
-    
-    return puff
-}
-
-
 PB.getMyMessages = true
+
+
+//// IDENTITY AND USER MANAGEMENT
 
 PB.createIdentity = function(username, passphrase) {
     // TODO: validations and error handling (lots of it)
@@ -223,7 +149,7 @@ PB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
     var prom
     
     PB.useSecureInfo(function(_, _, _, privateAdminKey, _) {
-        prom = PB.registerSubuserForUser(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey)
+        prom = PB.Users.registerSubuserForUser(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey)
     })
     
     return prom
@@ -327,142 +253,7 @@ PB.getProfilePuff = function(username) {
 }
 
 
-////////////// END STANDARD API //////////////////
-
-
-////////////// Handler Handlers //////////////////
-
-PB.handlers = {}
-
-PB.addHandler = function(type, callback) {
-  if(!PB.handlers[type]) PB.handlers[type] = []
-  PB.handlers[type].push(callback)
-}
-
-PB.runHandlers = function(type) {
-  var args = [].slice.call(arguments, 1)
-  return (PB.handlers[type] || []).reduce(
-      function(acc, callback) {
-          return callback.apply(null, acc == null ? args : Array.isArray(acc) ? acc : [acc])}, args)
-}
-
-PB.makeHandlerHandler = function(type) {
-    return function(callback) {return PB.addHandler(type, callback)}
-}
-
-// USEFUL HANDLERS:
-
-PB.addErrorHandler           = PB.makeHandlerHandler('error')           // receives all error messages
-
-PB.addNewPuffHandler         = PB.makeHandlerHandler('newPuffs')        // called when new puffs are available
-
-PB.addDHTErrorHandler        = PB.makeHandlerHandler('DHTError')        // receives DHT error messages
-
-PB.addRelationshipHandler    = PB.makeHandlerHandler('relationship')    // manage relationships between puffs
-
-PB.addTimeoutErrorHandler    = PB.makeHandlerHandler('timeoutError')    // receives timeout error messages
-
-PB.addNetworkErrorHandler    = PB.makeHandlerHandler('networkError')    // receives network error messages
-
-PB.addNewPuffReportHandler   = PB.makeHandlerHandler('newPuffReport')   // handles reports on incoming puffs
-
-PB.addIdentityUpdateHandler  = PB.makeHandlerHandler('identityUpdate')  // general GUI update trigger
-
-PB.addNetworkResponseHandler = PB.makeHandlerHandler('networkresponse') // receives all network response
-
-PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decorate puff payloads 
-
-// PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
-
-// beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
-// afterSwitchIdentity  is called after switchIdentity, once the new identity is active
-PB.addBeforeSwitchIdentityHandler = PB.makeHandlerHandler('beforeSwitchIdentity')
-PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
-
-////////////// End Handler Handlers //////////////
-
-
-
-
-//// PUFF HELPERS ////
-
-
-PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
-    var puff 
-
-    payload = PB.runHandlers('payloadModifier', payload)
-
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-        // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
-        var previous = false // TODO: get the sig of this user's latest puff
-        var versionedUsername = PB.getCurrentVersionedUsername()
-        
-        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    })
-    
-    return puff
-}
-
-
-/**
- * build a new puff object based on the parameters  
- * does not hit the network, hence does no real verification whatsoever
- * @param  {string} username                    user who sign the puff
- * @param  {string} privateKey                  private default key for the user
- * @param  {string} routes                      routes of the puff
- * @param  {string} type                        type of the puff
- * @param  {string} content                     content of the puff
- * @param  {object} payload                     other payload information for the puff
- * @param  {string} previous                    most recently published content by the user
- * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} privateEnvelopeAlias
- * @return {object}                             the new puff object
- */
-PB.buildPuff = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    var puff = PB.Data.packagePuffStructure(versionedUsername, routes, type, content, payload, previous)
-
-    puff.sig = PB.Crypto.signPuff(puff, privateKey)
-    
-    if(userRecordsForWhomToEncrypt) {
-        puff = PB.Data.encryptPuff(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    }
-    
-    return puff
-}
-
-
-/**
- * handle a newly created puff: add to our local cache and fire new content callbacks
- * @param {object} puff
- */
-PB.addPuffToSystem = function(puff) {
-    if(PB.Data.getCachedShellBySig(puff.sig)) return false
-    
-    PB.Data.addShellsThenMakeAvailable(puff)
-
-    PB.Net.distributePuff(puff)
-    
-    return puff
-}
-
-
-PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
-    //// interface with PB.Crypto for decrypting a message
-    // TODO: this should be in PB.Data, but is in PB for cryptoworker's sake
-    if(!envelope.keys) return false
-    var keyForMe = envelope.keys[myVersionedUsername]
-    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
-    var letterCipher = envelope.payload.content
-    var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
-    var betterString = PB.tryDecodeURIComponent(escape(letterString))   // try decoding
-    return PB.parseJSON(betterString)                                   // try parsing
-}
-
-
-
-//// ID FILE (LOGIN + FORMAT) ////
-
+//// LOGIN & ID FILE MANAGEMENT
 
 PB.login = function(username, privateKey) {
     //// privateKey is the key for your identity file
@@ -642,81 +433,7 @@ PB.formatIdentityFile = function(username) {
 
 
 
-//// USER CREATION ////
-
-/**
- * register a subuser
- * @param  {string} signingUsername username of existed user
- * @param  {string} privateAdminKey private admin key for existed user
- * @param  {string} newUsername     desired new subuser name
- * @param  {string} rootKey         public root key for the new subuser
- * @param  {string} adminKey        public admin key for the new subuser
- * @param  {string} defaultKey      public default key for the new subuser
- * @return {object}                user record for the newly created subuser
- */
-PB.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
-
-    // build our DHT update puff
-    var payload = { requestedUsername: newUsername
-                  ,        defaultKey: defaultKey
-                  ,          adminKey: adminKey
-                  ,           rootKey: rootKey
-                  ,              time: Date.now()
-                  }
-
-    var routing = [] // THINK: DHT?
-    var content = 'requestUsername'
-    var type    = 'updateUserRecord'
-
-    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
-    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-    return PB.Net.updateUserRecord(puff)
-}
-
-
-
-
-//// BUILD CRYPTO WORKER ////
-
-PB.buildCryptoworker = function(options) {
-    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL // || 'cryptoworker.js'
-    
-    if(!cryptoworkerURL) return false
-    
-    PB.cryptoworker = new Worker(cryptoworkerURL)
-    PB.cryptoworker.addEventListener("message", PB.workerreceive)
-}
-
-PB.workerqueue = []
-PB.workerautoid = 0
-
-PB.workerreceive = function(msg) {
-    var id = msg.data.id
-    if(!id) return false // TODO: add onError here
-
-    var fun = PB.workerqueue[id]
-    if(!fun) return false // TODO: add onError here
-
-    fun(msg.data.evaluated)
-
-    delete PB.workerqueue[id] // THINK: this leaves a sparse array, but is probably faster than splicing
-}
-
-PB.workersend = function(funstr, args, resolve, reject) {
-    PB.workerautoid += 1
-    PB.workerqueue[PB.workerautoid] = resolve
-    if(!Array.isArray(args))
-        args = [args]
-    PB.cryptoworker.postMessage({fun: funstr, args: args, id: PB.workerautoid})
-}
-
-//// END BUILD CRYPTO WORKER ////
-
-
-
-
-////////////// SECURE INFORMATION INTERFACE ////////////////////
+//// SECURE INFORMATION INTERFACE
 
 PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity) {
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
@@ -809,8 +526,261 @@ PB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     
 }
 
-////////////// END SECURE INFORMATION ZONE ////////////////////
 
+//// INITIALIZATION
+
+PB.init = function(options) {
+    //// initializes all available modules and the platform subsystems.
+    //// options is an object of configuration options that is passed to each module and subsystem.
+    
+    // BEGIN CONFIG AND OPTIONS //
+    
+    options = options || {}
+    
+    setDefault('zone', '')
+    setDefault('puffApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('userApi', 'https://i.cx/api/users/api.php')
+    setDefault('eventsApi', 'https://i.cx/api/puffs/api.php')
+    setDefault('enableP2P', false)
+    setDefault('pageBatchSize', 10)
+    setDefault('initLoadGiveup', 200)
+    setDefault('networkTimeout', 20000)         // twenty second timeout
+    setDefault('noLocalStorage', false)
+    setDefault('netblockSuffix', 'local')
+    setDefault('cryptoworkerURL', '')           // point to cryptoworker.js to enable worker thread
+    setDefault('ephemeralKeychain', false)      // prevents keychain from being saved to localStorage
+    setDefault('initLoadBatchSize', 20)
+    setDefault('inMemoryShellLimit', 10000)     // shells are removed to compensate
+    setDefault('globalBigBatchLimit', 2000)     // maximum number of shells to receive at once // TODO: align with API
+    setDefault('inMemoryMemoryLimit', 300E6)    // ~300MB
+    setDefault('anonPrivateAdminKey', '5KdVjQwjhMchrZudFVfeRiiPMdrN6rc4CouNh7KPZmh8iHEiWMx') // for registering anon users
+    setDefault('disableSendToServer', false)    // so you can work locally
+    setDefault('disableReceivePublic', false)   // no public puffs except profiles
+    setDefault('disableCloudIdentity', false)   // don't store encrypted identity in the cloud
+    setDefault('supportedContentTypes', false)  // whitelist of context types; false loads all
+    setDefault('shellContentThreshold', 1000)   // size of uncompacted content
+    setDefault('localStorageShellLimit', 1000)  // maximum number of shells
+    setDefault('localStorageMemoryLimit', 3E6)  // ~3MB
+    
+    function setDefault(key, val) {
+        PB.CONFIG[key] = options[key] || PB.CONFIG[key] || val
+    }
+    
+    // END CONFIG AND OPTIONS //
+        
+    PB.Users.init(options)                              // initialize the user record subsystem
+    PB.Data.init(options)                               // initialize the data subsystem
+    PB.Net.init(options)                                // initialize the network subsystem
+    
+    var moduleKeys = Object.keys(PB.M)
+    moduleKeys.forEach(function(key) {                  // call all module initializers
+        if(PB.M[key].init) 
+            PB.M[key].init(options)
+    })
+    
+    popMods()                                           // deflate any machine prefs
+    function popMods() {                                // THINK: maybe move this to PB.Persist.init
+        var mods = PB.Persist.get('CONFIG')
+        if(!mods) return false
+    
+        PB.CONFIG.mods = mods
+        Object.keys(PB.CONFIG.mods).forEach(function(key) { PB.CONFIG[key] = mods[key] })
+    }
+    
+    PB.buildCryptoworker(options)
+}
+
+
+////////////// END STANDARD API //////////////////
+
+
+
+////////////// HANDLER HANDLERS //////////////////
+
+PB.handlers = {}
+
+PB.addHandler = function(type, callback) {
+  if(!PB.handlers[type]) PB.handlers[type] = []
+  PB.handlers[type].push(callback)
+}
+
+PB.runHandlers = function(type) {
+  var args = [].slice.call(arguments, 1)
+  return (PB.handlers[type] || []).reduce(
+      function(acc, callback) {
+          return callback.apply(null, acc == null ? args : Array.isArray(acc) ? acc : [acc])}, args)
+}
+
+PB.makeHandlerHandler = function(type) {
+    return function(callback) {return PB.addHandler(type, callback)}
+}
+
+// USEFUL HANDLERS:
+
+PB.addErrorHandler           = PB.makeHandlerHandler('error')           // receives all error messages
+
+PB.addNewPuffHandler         = PB.makeHandlerHandler('newPuffs')        // called when new puffs are available
+
+PB.addDHTErrorHandler        = PB.makeHandlerHandler('DHTError')        // receives DHT error messages
+
+PB.addRelationshipHandler    = PB.makeHandlerHandler('relationship')    // manage relationships between puffs
+
+PB.addTimeoutErrorHandler    = PB.makeHandlerHandler('timeoutError')    // receives timeout error messages
+
+PB.addNetworkErrorHandler    = PB.makeHandlerHandler('networkError')    // receives network error messages
+
+PB.addNewPuffReportHandler   = PB.makeHandlerHandler('newPuffReport')   // handles reports on incoming puffs
+
+PB.addIdentityUpdateHandler  = PB.makeHandlerHandler('identityUpdate')  // general GUI update trigger
+
+PB.addNetworkResponseHandler = PB.makeHandlerHandler('networkresponse') // receives all network response
+
+PB.addPayloadModifierHandler = PB.makeHandlerHandler('payloadModifier') // decorate puff payloads 
+
+// PB.addClearPuffCacheHandler = PB.makeHandlerHandler('clearpuffcache')
+
+// beforeSwitchIdentity is called prior to switchIdentity and removeIdentity, while the old identity is active
+// afterSwitchIdentity  is called after switchIdentity, once the new identity is active
+PB.addBeforeSwitchIdentityHandler = PB.makeHandlerHandler('beforeSwitchIdentity')
+PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
+
+////////////// END HANDLER HANDLERS //////////////
+
+
+
+
+//// PUFF HELPERS ////
+
+PB.createPrivatePuff = function(content, type) {
+    var payload = {}
+    
+    var type   = type || 'file'
+    var routes = ['local']
+
+    var userRecord = PB.getCurrentUserRecord()
+    var userRecordsForWhomToEncrypt = [userRecord]
+    var previous, puff
+    
+    puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
+    
+    return puff
+}
+
+
+PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
+    var puff 
+
+    payload = PB.runHandlers('payloadModifier', payload)
+
+    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+        // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
+        var previous = false // TODO: get the sig of this user's latest puff
+        var versionedUsername = PB.getCurrentVersionedUsername()
+        
+        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    })
+    
+    return puff
+}
+
+
+/**
+ * build a new puff object based on the parameters  
+ * does not hit the network, hence does no real verification whatsoever
+ * @param  {string} username                    user who sign the puff
+ * @param  {string} privateKey                  private default key for the user
+ * @param  {string} routes                      routes of the puff
+ * @param  {string} type                        type of the puff
+ * @param  {string} content                     content of the puff
+ * @param  {object} payload                     other payload information for the puff
+ * @param  {string} previous                    most recently published content by the user
+ * @param  {object} userRecordsForWhomToEncrypt
+ * @param  {object} privateEnvelopeAlias
+ * @return {object}                             the new puff object
+ */
+PB.buildPuff = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    var puff = PB.Data.packagePuffStructure(versionedUsername, routes, type, content, payload, previous)
+
+    puff.sig = PB.Crypto.signPuff(puff, privateKey)
+    
+    if(userRecordsForWhomToEncrypt) {
+        puff = PB.Data.encryptPuff(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+    }
+    
+    return puff
+}
+
+
+/**
+ * handle a newly created puff: add to our local cache and fire new content callbacks
+ * @param {object} puff
+ */
+PB.addPuffToSystem = function(puff) {
+    if(PB.Data.getCachedShellBySig(puff.sig)) return false
+    
+    PB.Data.addShellsThenMakeAvailable(puff)
+
+    PB.Net.distributePuff(puff)
+    
+    return puff
+}
+
+
+PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
+    //// interface with PB.Crypto for decrypting a message
+    // TODO: this should be in PB.Data, but is in PB for cryptoworker's sake
+    if(!envelope.keys) return false
+    var keyForMe = envelope.keys[myVersionedUsername]
+    var puffkey  = PB.Crypto.decryptPrivateMessage(keyForMe, yourPublicWif, myPrivateWif)
+    var letterCipher = envelope.payload.content
+    var letterString = PB.Crypto.decryptWithAES(letterCipher, puffkey)
+    var betterString = PB.tryDecodeURIComponent(escape(letterString))   // try decoding
+    return PB.parseJSON(betterString)                                   // try parsing
+}
+
+//// END PUFF HELPERS ////
+
+
+
+
+
+
+//// BUILD CRYPTO WORKER ////
+
+PB.buildCryptoworker = function(options) {
+    var cryptoworkerURL = options.cryptoworkerURL || PB.CONFIG.cryptoworkerURL // || 'cryptoworker.js'
+    
+    if(!cryptoworkerURL) return false
+    
+    PB.cryptoworker = new Worker(cryptoworkerURL)
+    PB.cryptoworker.addEventListener("message", PB.workerreceive)
+}
+
+PB.workerqueue = []
+PB.workerautoid = 0
+
+PB.workerreceive = function(msg) {
+    var id = msg.data.id
+    if(!id) return false // TODO: add onError here
+
+    var fun = PB.workerqueue[id]
+    if(!fun) return false // TODO: add onError here
+
+    fun(msg.data.evaluated)
+
+    delete PB.workerqueue[id] // THINK: this leaves a sparse array, but is probably faster than splicing
+}
+
+PB.workersend = function(funstr, args, resolve, reject) {
+    PB.workerautoid += 1
+    PB.workerqueue[PB.workerautoid] = resolve
+    if(!Array.isArray(args))
+        args = [args]
+    PB.cryptoworker.postMessage({fun: funstr, args: args, id: PB.workerautoid})
+}
+
+//// END BUILD CRYPTO WORKER ////
 
 
 

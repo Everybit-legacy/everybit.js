@@ -12,14 +12,12 @@ describe('Integration Tests for Identity Management', function() {
       // return prom = PB.registerTopLevelUser
       // return prom = PB.registerSubuser
       // return prom = PB.updatePrivateKey
-      // return prom = PB.updatePrivateKey
       // return prom = PB.login
       // return prom = PB.loginWithIdentityFile
       // return prom = PB.loginWithPassphrase
       // return prom = PB.storeIdentityFileInCloud
       // return prom = PB.formatIdentityFile
-      // return prom = PB.registerSubuserForUser
-      // return prom = PB.registerSubuserForUser
+      // return prom = PB.Users.registerSubuserForUser
     })
 
   })

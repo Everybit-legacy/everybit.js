@@ -422,3 +422,33 @@ PB.Users.createAnonUserAndMakeCurrent = function() {
     })
 }
 
+/**
+ * register a subuser
+ * @param  {string} signingUsername username of existed user
+ * @param  {string} privateAdminKey private admin key for existed user
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+PB.Users.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+
+    // build our DHT update puff
+    var payload = { requestedUsername: newUsername
+                  ,        defaultKey: defaultKey
+                  ,          adminKey: adminKey
+                  ,           rootKey: rootKey
+                  ,              time: Date.now()
+                  }
+
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+
+    return PB.Net.updateUserRecord(puff)
+}
+

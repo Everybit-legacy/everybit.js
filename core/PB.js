@@ -145,6 +145,23 @@ PB.postPrivateMessage = function(content, usernames, type) {
 PB.postAnonymousPrivateMessage = function(content, usernames, type) {}
 PB.postParanoidPrivateMessage = function(content, usernames, type) {}
 
+
+PB.createPrivatePuff = function(content, type) {
+    var payload = {}
+    
+    var type   = type || 'file'
+    var routes = ['local']
+
+    var userRecord = PB.getCurrentUserRecord()
+    var userRecordsForWhomToEncrypt = [userRecord]
+    var previous, puff
+    
+    puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
+    
+    return puff
+}
+
+
 PB.getMyMessages = true
 
 PB.createIdentity = function(username, passphrase) {

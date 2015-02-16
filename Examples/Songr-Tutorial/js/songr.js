@@ -111,7 +111,7 @@ function sendClip() {
 
     var clipToSend = $("#sendInput")[0];
 
-    var clipEncodingPromise = PBFiles.openBinaryFile(clipToSend);
+    var clipEncodingPromise = FileFile.openBinaryFile(clipToSend);
 
     clipEncodingPromise.then (function(encodedURI) {
 
@@ -248,7 +248,7 @@ $(document).ready(function() {
         var toUser = $("#sendTo").val();
         var fileToSend = $("#sendInput")[0].files[0];
 
-        var sendContent = PBFiles.openBinaryFile($("#sendInput")[0])
+        var sendContent = FileFile.openBinaryFile($("#sendInput")[0])
 
         if (!sendContent) {
             alert("you need to select a file to send");

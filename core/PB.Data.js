@@ -77,6 +77,73 @@ PB.Data.addToGraph = function(shells) {
 ///////////////// end new graph stuff ////////////////////
 
 
+//// CONTENT TYPES ////
+
+PB.Data.contentTypes = {}
+
+// TODO: this might get big, need some GC here
+PB.Data.puffContentStash = {}
+
+PB.Data.clearPuffContentStash = function() {
+    PB.Data.puffContentStash = {}
+}
+
+
+/**
+ * to process the content
+ * @param  {string} type
+ * @param  {string} content
+ * @param  {puff} puff
+ * @return {string}
+ */
+PB.Data.processContent = function(type, content, puff) {
+    var typeObj = PB.Data.contentTypes[type]
+    
+    if(!typeObj)
+        typeObj = PB.Data.contentTypes['text']
+
+    return typeObj.toHtml(content, puff)
+}
+
+
+/**
+ * Get the content of a puff
+ * @param  {puff} puff
+ * @return {string}
+ */
+PB.Data.getProcessedPuffContent = function(puff) {
+    // THINK: we've already ensured these are proper puffs, so we don't have to check for payload... right?
+    if(PB.Data.puffContentStash[puff.sig])
+        return PB.Data.puffContentStash[puff.sig]
+    
+    var content = PB.Data.processContent(puff.payload.type, puff.payload.content, puff)
+    PB.Data.puffContentStash[puff.sig] = content
+    
+    return content
+}
+
+/**
+ * Add support for types of content to the system
+ * @param {string} name
+ * @param {string} type
+ */
+PB.Data.addContentType = function(name, type) {
+    // THINK: move this down into PB?
+    
+    if(!name) 
+        return PB.onError('Invalid content type name')
+    if(PB.CONFIG.supportedContentTypes && PB.CONFIG.supportedContentTypes.indexOf(name) == -1)
+        return PB.onError('Unsupported content type: ' + name)
+    if(!type.toHtml) 
+        return PB.onError('Invalid content type: object is missing toHtml method', name)
+    
+    PB.Data.contentTypes[name] = type
+}
+
+//// END CONTENT TYPES ////
+
+
+
 
 PB.Data.getAllMyShells = function() {
     var publicShells = PB.Data.getPublicShells()
@@ -479,10 +546,8 @@ PB.Data.removeAllPrivateShells = function() {
     
     PB.Data.currentDecryptedLetterMap = {}
     PB.Data.currentDecryptedLetters = [] 
+    PB.Data.clearPuffContentStash()
 }
-
-
-
 
 
 

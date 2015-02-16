@@ -1,6 +1,6 @@
 PB.init();
 
-PB.M.Forum.addContentType('audio', {
+PB.Data.addContentType('audio', {
     toHtml: function(content) {
         return '<audio controls><source src=' + content + ' type=\"audio/mpeg\">' + '</audio>'
     }
@@ -155,7 +155,7 @@ function getSongsForMe() {
             inbox.html("");
             myClips.forEach(function(puff) {
                 if(puff.payload.type == "audio") {
-                    var content = PB.M.Forum.getProcessedPuffContent(puff);
+                    var content = PB.Data.getProcessedPuffContent(puff);
                     inbox.append(content);
                 }
             });

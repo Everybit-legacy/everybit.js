@@ -767,7 +767,7 @@ PB.isGoodPuff = function(puff) {
     
     // TODO: rewrite this function to give a consistent return value
     
-    if (!PB.M.Forum.contentTypes[shell.payload.type]) {
+    if (!PB.Data.contentTypes[shell.payload.type]) {
         // TODO: this needs to include 'encryptedpuff' as a valid type
         Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig})
         return false

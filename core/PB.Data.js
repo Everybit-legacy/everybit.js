@@ -511,7 +511,7 @@ PB.Data.extractLetterFromEnvelope = function(envelope) {                // the e
                .then(function(letter) {
                    if(!letter) {
                        PB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
-                       return PB.throwError('Invalid envelope')         // bail out
+                       return PB.throwError('Invalid envelope')         // then bail out
                    }
 
                    return letter

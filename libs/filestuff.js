@@ -1,3 +1,5 @@
+// TODO: change PBFiles to FileFile, and change filename to filefile.js
+
 PBFiles = {}
 
 PBFiles.oldFile = null
@@ -6,7 +8,7 @@ PBFiles.createPuff = function(content, type) {
     var payload = {}
     
     var type   = type || 'file'
-    var routes = ['local'];
+    var routes = ['local']
 
     var userRecord = PB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
@@ -14,7 +16,6 @@ PBFiles.createPuff = function(content, type) {
     
     puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
     
-
     // PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
     //     var privateEnvelopeAlias
     //     puff = PB.buildPuff(currentUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
@@ -22,6 +23,23 @@ PBFiles.createPuff = function(content, type) {
 
     return puff
 }
+
+PBFiles.extractLetterPuff = function(content) {
+    // TODO: the only difference between this and PB.Data.extractLetterFromEnvelope is that this takes a JSON string instead of an object
+    
+    var puff = PB.parseJSON(content)
+    if(!puff) 
+        return PB.emptyPromise('Envelope was not JSON encoded')
+    
+    // var userRecord = PB.getCurrentUserRecord()
+    // var pubkey = userRecord.defaultKey
+    
+    var letter = PB.Data.getDecryptedPuffPromise(puff)
+    
+    return letter
+}
+
+
 
 PBFiles.prepBlob = function(str, type) {
     if (typeof str != 'string')
@@ -35,29 +53,15 @@ PBFiles.prepBlob = function(str, type) {
         blob = new Blob([str], {type: 'text/plain'})
 
 
-    // IE needs to directly save the blob object
-    if (navigator.appVersion.toString().indexOf('.NET') > 0)
+    if (navigator.appVersion.toString().indexOf('.NET') > 0)            // IE needs to directly save the blob object
         return blob
 
-    if(PBFiles.oldFile)
+    if(PBFiles.oldFile)                                                 // prevents old blobs from causing mem leaks
        window.URL.revokeObjectURL(PBFiles.oldFile)
 
     PBFiles.oldFile = window.URL.createObjectURL(blob)
 
     return PBFiles.oldFile
-}
-
-PBFiles.extractLetterPuff = function(content) {
-    var puff = PB.parseJSON(content)
-    if(!puff) 
-        return PB.emptyPromise('Envelope was not JSON encoded')
-    
-    // var userRecord = PB.getCurrentUserRecord()
-    // var pubkey = userRecord.defaultKey
-    
-    var letter = PB.Data.getDecryptedPuffPromise(puff)
-    
-    return letter
 }
 
 PBFiles.openPuffFile = function(element) {                
@@ -96,20 +100,21 @@ PBFiles.handleFileOpen = function(element, asDataURI) {
 // via http://stackoverflow.com/questions/4998908/convert-data-uri-to-file-then-append-to-formdata
 PBFiles.dataURItoBlob = function(dataURI) {
     // convert base64/URLEncoded data component to raw binary data held in a Blob
-    var byteString;
+    var byteString
+    
     if (dataURI.split(',')[0].indexOf('base64') >= 0)
-        byteString = atob(dataURI.split(',')[1]);
+        byteString = atob(dataURI.split(',')[1])
     else
-        byteString = unescape(dataURI.split(',')[1]);
+        byteString = unescape(dataURI.split(',')[1])
 
     // separate out the mime component
     var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
 
     // write the bytes of the string to a typed array
-    var ia = new Uint8Array(byteString.length);
+    var ia = new Uint8Array(byteString.length)
     for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
+        ia[i] = byteString.charCodeAt(i)
     }
 
-    return new Blob([ia], {type:mimeString});
+    return new Blob([ia], {type:mimeString})
 }

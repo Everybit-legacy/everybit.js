@@ -5,20 +5,20 @@
       |   |_| ||  |_|  ||   |___ |   |___ |       ||       ||   |    |   |    
       |    ___||       ||    ___||    ___||  _   | |       ||   |___ |   |___ 
       |   |    |       ||   |    |   |    | |_|   ||   _   ||       ||       |
-      |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|                                                
- 
-  
-    The main interface for the puffball platform. 
-    
-    Most calls to the platform should go through here, 
+      |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|
+
+
+    The main interface for the EveryBit platform.
+
+    Most calls to the platform should go through here,
     rather than accessing core systems like PB.Data and PB.Crypto directly.
 
-    In addition to the public-facing API many general helper functions 
+    In addition to the public-facing API many general helper functions
     are established here for use by the deeper layers.
 
     Copyright 2014 EveryBit. See README for license information.
 
- */
+*/
 
 if(typeof PB === 'undefined') PB = {}                   // we might load config.js first
 if(!PB.CONFIG) PB.CONFIG = {}                           // or we might not
@@ -197,7 +197,7 @@ PB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, pr
  * @param  {string} rootKey         public root key for the new subuser
  * @param  {string} adminKey        public admin key for the new subuser
  * @param  {string} defaultKey      public default key for the new subuser
- * @return {object}                user record for the newly created subuser
+ * @return {object}                 user record for the newly created subuser
  */
 PB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
     //// registers a subuser for the currently active identity
@@ -239,11 +239,11 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
         PB.useSecureInfo(function(_, _, privateRootKey, privateAdminKey, privateDefaultKey) {
             // NOTE: puff leaks, but only contains publicly accessible data
         
-            var signingUserKey = 'privateRootKey'  // changing admin or root keys requires root privileges
+            var signingUserKey = 'privateRootKey'       // changing admin or root keys requires root privileges
             var privateKey = privateRootKey
 
             if (keyToModify == 'defaultKey') { 
-                signingUserKey = 'privateAdminKey' // changing the default key only requires admin privileges
+                signingUserKey = 'privateAdminKey'      // changing the default key only requires admin privileges
                 privateKey = privateAdminKey
             }
 

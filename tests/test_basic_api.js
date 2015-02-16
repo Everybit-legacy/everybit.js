@@ -65,9 +65,8 @@ describe('Integration Tests for the Basic API', function() {
       
       it('should get the public message from cache', function() {
         puff = PB.getPuffBySig(public_puff_sig)
-        // TODO: the public puff isn't getting saved in the local cache
         // THINK: PB.Net.getPuffBySig works (test elsewhere)
-        // THINK: should PB.getPuffBySig just always return a promise?
+        // THINK: should PB.getPuffBySig just always return a promise? probably.
         console.log('asdf!', puff, public_puff_sig)
       })
       

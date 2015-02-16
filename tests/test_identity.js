@@ -8,6 +8,10 @@ describe('Integration Tests for Identity Management', function() {
     var prom
 
     it('should get a profile puff', function() {
+        {}.should.exist()
+    })
+
+    it('should get a profile puff' , function() {
       // return prom = PB.createIdentity
       // return prom = PB.registerTopLevelUser
       // return prom = PB.registerSubuser
@@ -22,5 +26,4 @@ describe('Integration Tests for Identity Management', function() {
 
   })
   
-  })
 })

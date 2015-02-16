@@ -159,71 +159,71 @@ describe('Crypto', function() {
   describe('PB.Crypto.encryptWithAES', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
   
   describe('PB.Crypto.decryptWithAES', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
   
   describe('PB.Crypto.getOurSharedSecret', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
   
   describe('PB.Crypto.encryptPrivateMessage', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
   
   describe('PB.Crypto.decryptPrivateMessage', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
 
   // TODO: test randomness functions
@@ -238,15 +238,15 @@ describe('Crypto', function() {
   describe('PB.Crypto.createKeyPairs', function() {
     var faux_puff = {username: 'foo', sig: sig}
     
-    it('should fail on a bad key', function() {
-      var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
-      response.should.be.false()
-    })
-
-    it('should validate a good match', function() {
-      var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
-      response.should.be.true()
-    })
+    // it('should fail on a bad key', function() {
+    //   var response = PB.Crypto.verifyMessage(message, sig, 'FAKEKEY')
+    //   response.should.be.false()
+    // })
+    //
+    // it('should validate a good match', function() {
+    //   var response = PB.Crypto.verifyPuffSig(faux_puff, pubkey)
+    //   response.should.be.true()
+    // })
   })
 
 })

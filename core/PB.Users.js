@@ -282,7 +282,7 @@ PB.Users.getIdentityPuff = function(userRecord, privateKey) {
         var recipientUsername = PB.Users.makeVersioned(userRecord.username, userRecord.capa)
         var recipientPrivateKey = privateKey
 
-        return PB.Data.decryptPuffAlmostForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
+        return PB.Puff.promiseToDecryptForReals(envelope, senderPublicKey, recipientUsername, recipientPrivateKey)
     })        
 }
 

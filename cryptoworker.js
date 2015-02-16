@@ -8,7 +8,7 @@ onmessage = function (event) {
     var result
     
     try {
-        result = PB[fun].apply(PB, args)
+        result = PB[fun].apply(PB, args) // THINK: can we call in to PB.Data instead?
         postMessage({ id: event.data.id
                     , evaluated: result
                     })

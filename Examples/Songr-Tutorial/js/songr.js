@@ -124,8 +124,8 @@ function sendClip() {
         var prom = PB.Users.usernamesToUserRecordsPromise(usernames);
 
         prom.then(function(userRecords) {        
-            var puff = PB.simpleBuildPuff(type, encodedURI, payload, routes, userRecords);
-            PB.addPuffToSystem(puff);
+            var puff = PB.Puff.simpleBuild(type, encodedURI, payload, routes, userRecords);
+            PB.Data.addPuffToSystem(puff);
             alert("Sent successfully!");
         })
         .catch(function(err) {

@@ -22,7 +22,7 @@
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
-        return PB.buildPuff(username, privateAdminKey, routes, type, content, payload);
+        return PB.Puff.build(username, privateAdminKey, routes, type, content, payload);
     }
 
     function handleSignup() {
@@ -50,7 +50,7 @@
             var type    = 'updateUserRecord'
 
 
-            var puff = PB.buildPuff('updateUserRecord', privateKey, routing, type, content, payload)
+            var puff = PB.Puff.build('updateUserRecord', privateKey, routing, type, content, payload)
 
             var prom = PB.Net.updateUserRecord(puff);
 

@@ -274,9 +274,9 @@ PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, 
         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
 
         var previous = userRecord.latest
-        var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        var puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
 
-        return PB.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
+        return PB.Data.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
     }
 }
 
@@ -470,7 +470,7 @@ PB.M.Forum.flagPuff = function (sig) {
             return false;
         }
     
-        puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload);
+        puff = PB.Puff.build(currentUsername, privateAdminKey, routes, type, content, payload);
     })
 
     var data = { type: 'flagPuff'

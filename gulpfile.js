@@ -34,6 +34,7 @@ var coreBuildList = [
     'core/PB.js',
     'core/PB.Net.js',
     'core/PB.Data.js',
+    'core/PB.Puff.js',
     'core/PB.Users.js',
     'core/PB.Crypto.js',
     'core/PB.Persist.js',

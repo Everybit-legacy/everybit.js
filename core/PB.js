@@ -54,8 +54,8 @@ PB.postPublicMessage = function(content, type) {
     if(!myUsername)
         return PB.emptyPromise('You must have a current identity to post a public message')
     
-    var puff = PB.simpleBuildPuff(type, content)
-    return PB.addPuffToSystem(puff)
+    var puff = PB.Puff.simpleBuild(type, content)
+    return PB.Data.addPuffToSystem(puff)
 }
 
 PB.postPrivateMessage = function(content, usernames, type) {
@@ -75,8 +75,8 @@ PB.postPrivateMessage = function(content, usernames, type) {
     var prom = PB.Users.usernamesToUserRecordsPromise(usernames)
     
     return prom.then(function(userRecords) {        
-        var puff = PB.simpleBuildPuff(type, content, null, usernames, userRecords)
-        return PB.addPuffToSystem(puff)
+        var puff = PB.Puff.simpleBuild(type, content, null, usernames, userRecords)
+        return PB.Data.addPuffToSystem(puff)
     })
     
     return prom
@@ -127,7 +127,7 @@ PB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, pr
     var content = 'requestUsername'
     var type    = 'updateUserRecord'
 
-    var puff = PB.buildPuff(username, privateAdminKey, routes, type, content, payload)
+    var puff = PB.Puff.build(username, privateAdminKey, routes, type, content, payload)
     
     var prom = PB.Net.updateUserRecord(puff)
     
@@ -193,7 +193,7 @@ PB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
             if(!privateKey) {
                 return reject(PB.makeError("You need the " + signingUserKey + " to change the " + keyToModify + " key."))
             } else {
-                puff = PB.buildPuff(username, privateKey, routes, type, content, payload)
+                puff = PB.Puff.build(username, privateKey, routes, type, content, payload)
             }
         })
 
@@ -370,7 +370,7 @@ PB.storeIdentityFileInCloud = function() {
     if(!userRecord) return false
 
     // THINK: using simpleBuildPuff puts a timestamp in the identity file...
-    var puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
+    var puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt)
     
     if(!puff) return false
         
@@ -391,7 +391,7 @@ PB.storeIdentityFileInCloud = function() {
         if(!privateAdminKey)
             return PB.onError('You must have an administrative key to upload your identity file')
         
-        update_puff = PB.buildPuff(currentUsername, privateAdminKey, routes, type, content, payload)
+        update_puff = PB.Puff.build(currentUsername, privateAdminKey, routes, type, content, payload)
     })
     
     if(!update_puff)
@@ -650,82 +650,6 @@ PB.addAfterSwitchIdentityHandler  = PB.makeHandlerHandler('afterSwitchIdentity')
 
 
 //// PUFF HELPERS ////
-
-PB.createPrivatePuff = function(content, type) {
-    var payload = {}
-    
-    var type   = type || 'file'
-    var routes = ['local']
-
-    var userRecord = PB.getCurrentUserRecord()
-    var userRecordsForWhomToEncrypt = [userRecord]
-    var previous, puff
-    
-    puff = PB.simpleBuildPuff(type, content, payload, routes, userRecordsForWhomToEncrypt)
-    
-    return puff
-}
-
-
-PB.simpleBuildPuff = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
-    var puff 
-
-    payload = PB.runHandlers('payloadModifier', payload)
-
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
-        // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
-        var previous = false // TODO: get the sig of this user's latest puff
-        var versionedUsername = PB.getCurrentVersionedUsername()
-        
-        puff = PB.buildPuff(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    })
-    
-    return puff
-}
-
-
-/**
- * build a new puff object based on the parameters  
- * does not hit the network, hence does no real verification whatsoever
- * @param  {string} username                    user who sign the puff
- * @param  {string} privateKey                  private default key for the user
- * @param  {string} routes                      routes of the puff
- * @param  {string} type                        type of the puff
- * @param  {string} content                     content of the puff
- * @param  {object} payload                     other payload information for the puff
- * @param  {string} previous                    most recently published content by the user
- * @param  {object} userRecordsForWhomToEncrypt
- * @param  {object} privateEnvelopeAlias
- * @return {object}                             the new puff object
- */
-PB.buildPuff = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    var puff = PB.Data.packagePuffStructure(versionedUsername, routes, type, content, payload, previous)
-
-    puff.sig = PB.Crypto.signPuff(puff, privateKey)
-    
-    if(userRecordsForWhomToEncrypt) {
-        puff = PB.Data.encryptPuff(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    }
-    
-    return puff
-}
-
-
-/**
- * handle a newly created puff: add to our local cache and fire new content callbacks
- * @param {object} puff
- */
-PB.addPuffToSystem = function(puff) {
-    if(PB.Data.getCachedShellBySig(puff.sig)) return false
-    
-    PB.Data.addShellsThenMakeAvailable(puff)
-
-    PB.Net.distributePuff(puff)
-    
-    return puff
-}
-
 
 PB.decryptPuffForReals = function(envelope, yourPublicWif, myVersionedUsername, myPrivateWif) {
     //// interface with PB.Crypto for decrypting a message

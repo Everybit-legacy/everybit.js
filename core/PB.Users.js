@@ -381,7 +381,7 @@ PB.Users.addNewAnonUser = function(passphrase, attachToUsername) {
     var content = 'requestUsername'
     var type    = 'updateUserRecord'
 
-    var puff = PB.buildPuff('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
+    var puff = PB.Puff.build('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
 
     return PB.Net.updateUserRecord(puff)
 
@@ -407,7 +407,7 @@ PB.Users.createAnonUserAndMakeCurrent = function() {
     var content = 'requestUsername'
     var type    = 'updateUserRecord'
 
-    var puff = PB.buildPuff('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
+    var puff = PB.Puff.build('anon', PB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
 
     var prom = PB.Net.updateUserRecord(puff)
 
@@ -446,7 +446,7 @@ PB.Users.registerSubuserForUser = function(signingUsername, privateAdminKey, new
     var content = 'requestUsername'
     var type    = 'updateUserRecord'
 
-    var puff = PB.buildPuff(signingUsername, privateAdminKey, routing, type, content, payload)
+    var puff = PB.Puff.build(signingUsername, privateAdminKey, routing, type, content, payload)
     // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
 
     return PB.Net.updateUserRecord(puff)

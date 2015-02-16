@@ -2,7 +2,7 @@ var expect = chai.expect
 var should = chai.should()
 
 describe('Integration Tests for the Basic API', function() {
-  this.timeout(3000)
+  this.timeout(4000)
   
   describe('Get a profile puff', function() {
     var prom

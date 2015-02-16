@@ -10,11 +10,9 @@
  */
 
 PB.Data = {}
-// PB.Data.puffs = []
 PB.Data.bonii = {}
 PB.Data.shells = []
 PB.Data.shellSort = {}
-// PB.Data.shelf = []
 PB.Data.pendingPuffPromises = {}
 
 PB.Data.profiles = {}
@@ -22,8 +20,8 @@ PB.Data.profiles = {}
 PB.Data.init = function(options) {
     // THINK: disabling preloading may affect older EB example code
     // if(!options.disablePublicPuffs)
-    //     PB.Data.importShells()                                          // preload relevant shells
-    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)   // clear private caches
+    //     PB.Data.importShells()                                       // preload relevant shells
+    PB.addBeforeSwitchIdentityHandler(PB.Data.removeAllPrivateShells)   // clear private caches on id change
 }
 
 
@@ -213,6 +211,21 @@ PB.Data.scoreStars = function(usernames) {
 }
 
 
+/**
+ * handle a newly created puff: add to our local cache and fire new content callbacks
+ * @param {object} puff
+ */
+PB.Data.addPuffToSystem = function(puff) {
+    if(PB.Data.getCachedShellBySig(puff.sig)) return false
+    
+    PB.Data.addShellsThenMakeAvailable(puff)
+
+    PB.Net.distributePuff(puff)
+    
+    return puff
+}
+
+
 
 
 
@@ -297,11 +310,6 @@ PB.Data.isMetaPuff = function(shell) {
 PB.Data.handlePrivatePuffs = function(shells) {
     var privatepuffs = shells.filter(PB.Data.isPrivatePuff)    
     return PB.Data.ingestEncryptedShells(privatepuffs) // TODO: this returns our promise report
-}
-
-
-PB.Data.isPrivatePuff = function(shell) {
-    return shell.payload.type == 'encryptedpuff'
 }
 
 
@@ -474,6 +482,9 @@ PB.Data.removeAllPrivateShells = function() {
 }
 
 
+PB.Data.isPrivatePuff = function(shell) {
+    return shell.payload.type == 'encryptedpuff'
+}
 
 PB.Data.encryptPuff = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.

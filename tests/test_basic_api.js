@@ -24,7 +24,7 @@ describe('Integration Tests for the Basic API', function() {
     var username, public_puff_sig, prom
     
     it('should create a new anonymous user', function() {
-      return prom = PB.Users.createAnonUserAndMakeCurrent()
+      prom = PB.Users.createAnonUserAndMakeCurrent()
     })
     
     it('should login as that user', function(done) { // explicit done
@@ -37,25 +37,25 @@ describe('Integration Tests for the Basic API', function() {
     })
     
     describe('Add a public message', function() {
-      var puff
+      var prom
       
       it('should add a public message', function() {
-        puff = PB.postPublicMessage('Hello World', 'text')
-        puff.should.be.an('object')
-        public_puff_sig = puff.sig
+        prom = PB.postPublicMessage('Hello World', 'text')
+        prom.should.eventually.be.an('object')
+        prom.then(function(puff) { public_puff_sig = puff.sig })
       })
       
       it('should have our anon username', function() {
-        puff.username.should.contain(username)
+        prom.should.eventually.have.property('username').and.contain(username)
       })
       
       it('should have the right content', function() {
-        puff.payload.content.should.equal('Hello World')
+        prom.should.eventually.have.deep.property('payload.content', 'Hello World')
       })
       
       it('should be of type text', function() {
-        puff.payload.type.should.equal('text')
-      })
+        prom.should.eventually.have.deep.property('payload.type', 'text')
+      })      
     })
     
     describe('Get the public message', function() {

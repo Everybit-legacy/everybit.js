@@ -8,20 +8,20 @@ describe('Integration Tests for Identity Management', function() {
     var prom
 
     it('should get a profile puff', function() {
-        {}.should.exist()
+        ({}).should.exist()
     })
 
     it('should get a profile puff' , function() {
-      // return prom = PB.createIdentity
-      // return prom = PB.registerTopLevelUser
-      // return prom = PB.registerSubuser
-      // return prom = PB.updatePrivateKey
-      // return prom = PB.login
-      // return prom = PB.loginWithIdentityFile
-      // return prom = PB.loginWithPassphrase
-      // return prom = PB.storeIdentityFileInCloud
-      // return prom = PB.formatIdentityFile
-      // return prom = PB.Users.registerSubuserForUser
+      // return prom = EB.createIdentity
+      // return prom = EB.registerTopLevelUser
+      // return prom = EB.registerSubuser
+      // return prom = EB.updatePrivateKey
+      // return prom = EB.login
+      // return prom = EB.loginWithIdentityFile
+      // return prom = EB.loginWithPassphrase
+      // return prom = EB.storeIdentityFileInCloud
+      // return prom = EB.formatIdentityFile
+      // return prom = EB.Users.registerSubuserForUser
     })
 
   })

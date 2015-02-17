@@ -1,4 +1,4 @@
-PB.Data.addContentType('identity', {
+EB.Data.addContentType('identity', {
     toHtml: function() {
         return ''
     }

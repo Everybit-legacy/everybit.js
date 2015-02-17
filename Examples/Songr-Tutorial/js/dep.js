@@ -1,7 +1,7 @@
     function prepareNewAccount(username, password) {
         var prependedPassword = username + passphrase;
-        var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassword);
-        var publicKey = PB.Crypto.privateToPublic(privateKey);
+        var privateKey = EB.Crypto.passphraseToPrivateKeyWif(prependedPassword);
+        var publicKey = EB.Crypto.privateToPublic(privateKey);
 
         var rootKeyPublic     = publicKey;
         var adminKeyPublic    = publicKey;
@@ -22,7 +22,7 @@
         var type = 'updateUserRecord';
         var content = 'requestUsername';
 
-        return PB.Puff.build(username, privateAdminKey, routes, type, content, payload);
+        return EB.Puff.build(username, privateAdminKey, routes, type, content, payload);
     }
 
     function handleSignup() {
@@ -34,8 +34,8 @@
             return false;
         } else {
             var prependedPassword = requestedUser + password; // explain why we do this
-            var privateKey = PB.Crypto.passphraseToPrivateKeyWif(prependedPassword) // explain this function
-            var publicKey = PB.Crypto.privateToPublic(privateKey);
+            var privateKey = EB.Crypto.passphraseToPrivateKeyWif(prependedPassword) // explain this function
+            var publicKey = EB.Crypto.privateToPublic(privateKey);
 
             var payload = {
                 requestedUsername: newUsername,
@@ -50,13 +50,13 @@
             var type    = 'updateUserRecord'
 
 
-            var puff = PB.Puff.build('updateUserRecord', privateKey, routing, type, content, payload)
+            var puff = EB.Puff.build('updateUserRecord', privateKey, routing, type, content, payload)
 
-            var prom = PB.Net.updateUserRecord(puff);
+            var prom = EB.Net.updateUserRecord(puff);
 
             prom.then(function(userRecord) {
-                PB.addAlias(userRecord.username, userRecord.username, 1, privateKey, privateKey, privateKey, {passphrase: passphrase});
-                PB.switchIdentityTo(userRecord.username);
+                EB.addAlias(userRecord.username, userRecord.username, 1, privateKey, privateKey, privateKey, {passphrase: passphrase});
+                EB.switchIdentityTo(userRecord.username);
             })
         }
     }

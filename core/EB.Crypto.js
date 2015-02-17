@@ -8,19 +8,19 @@
 
 */
 
-PB.Crypto = {};
+EB.Crypto = {};
 
 /**
  * Generate private key
  * @return {string} 
  */
-PB.Crypto.generatePrivateKey = function() {
+EB.Crypto.generatePrivateKey = function() {
     // OPT: remove this test once Bitcoin.ECKey no longer generates invalid keys (about 1 in 1,000 right now)
     var prikey = new Bitcoin.ECKey().toWif()
-    if(PB.Crypto.wifToPriKey(prikey))
+    if(EB.Crypto.wifToPriKey(prikey))
         return prikey
     else
-        return PB.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
+        return EB.Crypto.generatePrivateKey()  // THINK: this could generate an eternal error explosion
 }
 
 
@@ -29,15 +29,15 @@ PB.Crypto.generatePrivateKey = function() {
  * @param  {string} privateKeyWIF
  * @return {string}
  */
-PB.Crypto.privateToPublic = function(privateKeyWIF) {
+EB.Crypto.privateToPublic = function(privateKeyWIF) {
     // TODO: This should return false if string is empty
     if(!privateKeyWIF)
-        return PB.onError('That private key contained no data')
+        return EB.onError('That private key contained no data')
         
     try {
-        return PB.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
+        return EB.Crypto.wifToPriKey(privateKeyWIF).getPub(true).toWif()
     } catch(err) {
-        return PB.onError('Invalid private key: could not convert to public key', [privateKeyWIF, err])
+        return EB.onError('Invalid private key: could not convert to public key', [privateKeyWIF, err])
     }
 }
 
@@ -48,17 +48,17 @@ PB.Crypto.privateToPublic = function(privateKeyWIF) {
  * @param  {string} privateKeyWIF
  * @return {(boolean|error)}
  */
-PB.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
+EB.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
     //// sign the hash of some data with a private key and return the sig in base 58
 
-    var prikey = PB.Crypto.wifToPriKey(privateKeyWIF)
-    var message = PB.Crypto.puffToSiglessString(unsignedPuff)
-    var messageHash = PB.Crypto.createMessageHash(message)
+    var prikey = EB.Crypto.wifToPriKey(privateKeyWIF)
+    var message = EB.Crypto.puffToSiglessString(unsignedPuff)
+    var messageHash = EB.Crypto.createMessageHash(message)
     
     try {
         return Bitcoin.base58.encode(prikey.sign(messageHash))
     } catch(err) {
-        return PB.onError('Could not properly encode signature', [prikey, messageHash, err])
+        return EB.onError('Could not properly encode signature', [prikey, messageHash, err])
     }
 }
 
@@ -69,9 +69,9 @@ PB.Crypto.signPuff = function(unsignedPuff, privateKeyWIF) {
  * @param  {string} defaultKey
  * @return {boolean}
  */
-PB.Crypto.verifyPuffSig = function(puff, defaultKey) {
-    var puffString = PB.Crypto.puffToSiglessString(puff);
-    return PB.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
+EB.Crypto.verifyPuffSig = function(puff, defaultKey) {
+    var puffString = EB.Crypto.puffToSiglessString(puff);
+    return EB.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
 }
 
 /**
@@ -81,20 +81,20 @@ PB.Crypto.verifyPuffSig = function(puff, defaultKey) {
  * @param  {string} publicKeyWIF
  * @return {boolean}
  */
-PB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
+EB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     //// accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
   
     try {
-        var pubkey = PB.Crypto.wifToPubKey(publicKeyWIF)
+        var pubkey = EB.Crypto.wifToPubKey(publicKeyWIF)
         
         var sigBytes = Bitcoin.base58.decode(sig).toJSON()
         sigBytes = sigBytes.data || sigBytes
         
-        var messageHash = PB.Crypto.createMessageHash(message)
+        var messageHash = EB.Crypto.createMessageHash(message)
         
         return pubkey.verify(messageHash, sigBytes)
     } catch(err) {
-        return PB.onError('Invalid key or sig: could not verify message', [messageHash, sig, publicKeyWIF, err])
+        return EB.onError('Invalid key or sig: could not verify message', [messageHash, sig, publicKeyWIF, err])
     }
 }
 
@@ -103,7 +103,7 @@ PB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
  * @param  {string} message
  * @return {string}
  */
-PB.Crypto.createMessageHash = function(message) {
+EB.Crypto.createMessageHash = function(message) {
     return Bitcoin.Crypto.SHA256(message).toString()
 }
 
@@ -112,14 +112,14 @@ PB.Crypto.createMessageHash = function(message) {
  * @param  {string} privateKeyWIF
  * @return {boolean}
  */
-PB.Crypto.wifToPriKey = function(privateKeyWIF) {
+EB.Crypto.wifToPriKey = function(privateKeyWIF) {
     if(!privateKeyWIF)
-        return PB.onError('That private key wif contains no data')
+        return EB.onError('That private key wif contains no data')
 
     try {
         return new Bitcoin.ECKey(privateKeyWIF, true)
     } catch(err) {
-        return PB.onError('Invalid private key: are you sure it is properly WIFfed?', [privateKeyWIF, err])
+        return EB.onError('Invalid private key: are you sure it is properly WIFfed?', [privateKeyWIF, err])
     }
 }
 
@@ -128,16 +128,16 @@ PB.Crypto.wifToPriKey = function(privateKeyWIF) {
  * @param  {string} publicKeyWIF
  * @return {boolean}
  */
-PB.Crypto.wifToPubKey = function(publicKeyWIF) {
+EB.Crypto.wifToPubKey = function(publicKeyWIF) {
     if(!publicKeyWIF)
-        return PB.onError('That public key wif contains no data')
+        return EB.onError('That public key wif contains no data')
 
     try {
         var pubkeyBytes = Bitcoin.base58check.decode(publicKeyWIF).payload.toJSON()
         pubkeyBytes = pubkeyBytes.data || pubkeyBytes
         return new Bitcoin.ECPubKey(pubkeyBytes, true)
     } catch(err) {
-        return PB.onError('Invalid public key: are you sure it is properly WIFfed?', [publicKeyWIF, err])
+        return EB.onError('Invalid public key: are you sure it is properly WIFfed?', [publicKeyWIF, err])
     }
 }
 
@@ -146,12 +146,12 @@ PB.Crypto.wifToPubKey = function(publicKeyWIF) {
  * @param  {object} puff
  * @return {string}
  */
-PB.Crypto.puffToSiglessString = function(puff) {
+EB.Crypto.puffToSiglessString = function(puff) {
     return JSON.stringify(puff, function(key, value) {if(key == 'sig') return undefined; return value})
 }
 
 
-PB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
+EB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
     var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString()
     var hash = Bitcoin.convert.hexToBytes(hashStr)
     return Bitcoin.ECKey(hash).toWif()
@@ -164,7 +164,7 @@ PB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
  * @param  {string} key
  * @return {string}
  */
-PB.Crypto.encryptWithAES = function(message, key) {
+EB.Crypto.encryptWithAES = function(message, key) {
     var enc = Bitcoin.Crypto.AES.encrypt(message, key)
     return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
 }
@@ -175,7 +175,7 @@ PB.Crypto.encryptWithAES = function(message, key) {
  * @param  {string} key
  * @return {string}
  */
-PB.Crypto.decryptWithAES = function(enc, key) {
+EB.Crypto.decryptWithAES = function(enc, key) {
     if(!key || !enc) return false
     var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
@@ -191,10 +191,10 @@ PB.Crypto.decryptWithAES = function(enc, key) {
  * @param  {string} myPrivateWif
  * @return {string}
  */
-PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
+EB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     // TODO: unit testing for ECDH maths
-    var pubkey = PB.Crypto.wifToPubKey(yourPublicWif)
-    var prikey = PB.Crypto.wifToPriKey(myPrivateWif)
+    var pubkey = EB.Crypto.wifToPubKey(yourPublicWif)
+    var prikey = EB.Crypto.wifToPriKey(myPrivateWif)
     if(!pubkey || !prikey) return false  
     var secret = pubkey.multiply(prikey).toWif()
     var key = Bitcoin.Crypto.SHA256(secret).toString()
@@ -209,10 +209,10 @@ PB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
  * @param  {string} myPrivateWif
  * @return {string}
  */
-PB.Crypto.encryptPrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
-    var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+EB.Crypto.encryptPrivateMessage = function(plaintext, yourPublicWif, myPrivateWif) {
+    var key = EB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key) return false
-    var ciphertext = PB.Crypto.encryptWithAES(plaintext, key)
+    var ciphertext = EB.Crypto.encryptWithAES(plaintext, key)
     return ciphertext
 }
 
@@ -223,18 +223,18 @@ PB.Crypto.encryptPrivateMessage = function(plaintext, yourPublicWif, myPrivateWi
  * @param  {string} myPrivateWif
  * @return {string}
  */
-PB.Crypto.decryptPrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
-    var key = PB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
+EB.Crypto.decryptPrivateMessage = function(ciphertext, yourPublicWif, myPrivateWif) {
+    var key = EB.Crypto.getOurSharedSecret(yourPublicWif, myPrivateWif)
     if(!key || !ciphertext) return false
-    var plaintext = PB.Crypto.decryptWithAES(ciphertext, key)
+    var plaintext = EB.Crypto.decryptWithAES(ciphertext, key)
     return plaintext // .replace(/\n+$/g, '')
 }
 
 
-PB.Crypto.random = function() { // just like Math.random, but better
+EB.Crypto.random = function() { // just like Math.random, but better
     // via http://stackoverflow.com/questions/13694626/generating-random-numbers-0-to-1-with-crypto-generatevalues
 
-    var list = PB.Crypto.getRandomValues(2, 32)
+    var list = EB.Crypto.getRandomValues(2, 32)
 
     // keep all 32 bits of the the first, top 20 of the second for 52 random bits
     var mantissa = (list[0] * Math.pow(2,20)) + (list[1] >> 12)
@@ -248,18 +248,18 @@ PB.Crypto.random = function() { // just like Math.random, but better
     // var size = Math.ceil(log2) + 1 // NOTE: this is about 8 times higher than necessary
 }
 
-PB.Crypto.getRandomInteger = function(max, min) { // NOTE: min is inclusive, max is exclusive
+EB.Crypto.getRandomInteger = function(max, min) { // NOTE: min is inclusive, max is exclusive
     // TODO: error if max and min are not proper (non-NaN) numbers
     min = Math.floor(min || 0)
     max = Math.floor(max || 0x7fffffff) // 0x7fffffff == Math.pow(2, 31) - 1 // the largest bitop safe int
     var range = max - min
-    var randFloat = PB.Crypto.random()
+    var randFloat = EB.Crypto.random()
     return Math.floor(randFloat*range + min)
 }
 
-PB.Crypto.getRandomItem = function(list) {
+EB.Crypto.getRandomItem = function(list) {
     // TODO: error if list is not an array or string
-    var index = PB.Crypto.getRandomInteger(list.length)
+    var index = EB.Crypto.getRandomInteger(list.length)
     return list[index]
 }
 
@@ -268,15 +268,15 @@ PB.Crypto.getRandomItem = function(list) {
  * @param  {number} len Length in bytes (defaults to 256 bits)
  * @return {string} AES key
  */
-PB.Crypto.getRandomKey = function(len) {
+EB.Crypto.getRandomKey = function(len) {
     len = len || 256/8                                      // AES key size is 256 bits
-    var bytes = PB.Crypto.getRandomValues(len, 8)
+    var bytes = EB.Crypto.getRandomValues(len, 8)
     // var bytes = new Uint8Array(size)
     // crypto.getRandomValues(bytes)
     return Bitcoin.convert.bytesToBase64(bytes)
 }
 
-PB.Crypto.getRandomValues = function(number, size) {
+EB.Crypto.getRandomValues = function(number, size) {
     if(window.crypto && window.crypto.getRandomValues) {
         var bytes
         if(size == 32)
@@ -287,10 +287,10 @@ PB.Crypto.getRandomValues = function(number, size) {
         return window.crypto.getRandomValues(bytes)
     }
 
-    return PB.Crypto.getRandomValuesShim(number, size)
+    return EB.Crypto.getRandomValuesShim(number, size)
 }
 
-PB.Crypto.getRandomValuesShim = function(number, size) {
+EB.Crypto.getRandomValuesShim = function(number, size) {
     // via https://github.com/evanvosberg/crypto-js/issues/7
     // fallback for old browsers that don't support crypto.getRandomValues
     // better than plain Math.random(), worse than crypto.getRandomValues()
@@ -339,22 +339,22 @@ PB.Crypto.getRandomValuesShim = function(number, size) {
  * @param  {object} userRecords
  * @return {object}
  */
-PB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
+EB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
     if(!Array.isArray(userRecords))
-        return PB.throwError('Invalid userRecords')
+        return EB.throwError('Invalid userRecords')
     
     return userRecords.reduce(function(acc, userRecord) {
-        var versionedUsername = PB.Users.userRecordToVersionedUsername(userRecord)
-        acc[versionedUsername] = PB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
+        var versionedUsername = EB.Users.userRecordToVersionedUsername(userRecord)
+        acc[versionedUsername] = EB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
         return acc
     }, {})
 }
 
 
-// PB.Crypto.verifyBlock = function(block, publicKeyBase58) {
-//     return PB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
+// EB.Crypto.verifyBlock = function(block, publicKeyBase58) {
+//     return EB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
 // }
 
-// PB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
-//     return PB.Crypto.signPayload(blockPayload, privateKeyWIF);
+// EB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+//     return EB.Crypto.signPayload(blockPayload, privateKeyWIF);
 // }

@@ -1,6 +1,6 @@
-PB.init();
+EB.init();
 
-PB.Data.addContentType('audio', {
+EB.Data.addContentType('audio', {
     toHtml: function(content) {
         return '<audio controls><source src=' + content + ' type=\"audio/mpeg\">' + '</audio>'
     }
@@ -8,21 +8,21 @@ PB.Data.addContentType('audio', {
 
 
 /**
- *  Adds a valid username to the current user's friends list in the "preferences" field of their user record. If the current user does not have a "friends" field, one is created and defaulted to [PB.getCurrentUsername(),friendToAdd]
+ *  Adds a valid username to the current user's friends list in the "preferences" field of their user record. If the current user does not have a "friends" field, one is created and defaulted to [EB.getCurrentUsername(),friendToAdd]
  *
  *  If the desired friend is added, their username is appended to #friendsList, otherwise error is shown in 'alert'
  *
  */
 function addFriend() {
     var friendToAdd = $("#friendToAdd").val();
-    var prom = PB.Users.getUserRecordPromise(friendToAdd);
+    var prom = EB.Users.getUserRecordPromise(friendToAdd);
     prom.then(function() {
         var prefs = getPrefs();
         if (!prefs.friends) {
-            PB.setPreference("friends",[PB.getCurrentUsername(),friendToAdd]);
+            EB.setPreference("friends",[EB.getCurrentUsername(),friendToAdd]);
         } else {
             prefs.friends.push(friendToAdd);
-            PB.setPreference("friends",prefs.friends);
+            EB.setPreference("friends",prefs.friends);
         }
 
         $("#friendsList").append("<li>" + friendToAdd + "</li>");
@@ -51,20 +51,20 @@ function removeFriend() {
     var index = prefs.friends.indexOf(friendToRemove);
 
     prefs.friends.splice(index,1);
-    PB.setPreference("friends",prefs.friends);
+    EB.setPreference("friends",prefs.friends);
     $("#friendsList").html('');
     showFriends();
 }
 
 
 /**
- * Wrapper for PB.useSecureInfo used to access the current user's preferences in their user record
+ * Wrapper for EB.useSecureInfo used to access the current user's preferences in their user record
  *
  * @returns Object prefs
  */
 function getPrefs() {
     var prefs = {};
-    PB.useSecureInfo(function(identities,currentUsername) {
+    EB.useSecureInfo(function(identities,currentUsername) {
         prefs = identities[currentUsername].preferences;
     });
     return prefs;
@@ -93,8 +93,8 @@ function getFriends() {
     var prefs = getPrefs();
 
     if (!prefs.friends || prefs.friends.length == 0) {
-        PB.setPreference("friends",[PB.getCurrentUsername()]);
-        return [PB.getCurrentUsername()];
+        EB.setPreference("friends",[EB.getCurrentUsername()]);
+        return [EB.getCurrentUsername()];
     } else {
         return prefs.friends
     }
@@ -121,11 +121,11 @@ function sendClip() {
         var payload = {};
         payload.filename = clipToSend.files[0].name;
 
-        var prom = PB.Users.usernamesToUserRecordsPromise(usernames);
+        var prom = EB.Users.usernamesToUserRecordsPromise(usernames);
 
         prom.then(function(userRecords) {        
-            var puff = PB.Puff.simpleBuild(type, encodedURI, payload, routes, userRecords);
-            PB.Data.addPuffToSystem(puff);
+            var puff = EB.Puff.simpleBuild(type, encodedURI, payload, routes, userRecords);
+            EB.Data.addPuffToSystem(puff);
             alert("Sent successfully!");
         })
         .catch(function(err) {
@@ -144,18 +144,18 @@ function sendClip() {
  */
 function getSongsForMe() {
     var inbox = $("#inbox");
-    if (!PB.getCurrentUsername()) {
+    if (!EB.getCurrentUsername()) {
         inbox.html("<p>You are not logged in.</p>");
         return false;
     }
-    var prom = PB.Data.getMorePrivatePuffs(PB.getCurrentUsername(),0,10)
+    var prom = EB.Data.getMorePrivatePuffs(EB.getCurrentUsername(),0,10)
     prom.then( function(report) {
         report.private_promise.then(function() {
-            var myClips = PB.Data.getCurrentDecryptedLetters();
+            var myClips = EB.Data.getCurrentDecryptedLetters();
             inbox.html("");
             myClips.forEach(function(puff) {
                 if(puff.payload.type == "audio") {
-                    var content = PB.Data.getProcessedPuffContent(puff);
+                    var content = EB.Data.getProcessedPuffContent(puff);
                     inbox.append(content);
                 }
             });
@@ -167,11 +167,11 @@ function getSongsForMe() {
 /**
  * Displays the relevant fields for a user based on if they are logged in or not
  *
- * Changes the content of #userArea based on the return value of PB.getCurrentUsername
+ * Changes the content of #userArea based on the return value of EB.getCurrentUsername
  */
 function manageUserArea() {
-    if(PB.getCurrentUsername()) {
-        $("#userArea").html("Logged in as: "+ PB.getCurrentUsername() + " <button id='logout' class='btn btn-primary' >Logout</button>");
+    if(EB.getCurrentUsername()) {
+        $("#userArea").html("Logged in as: "+ EB.getCurrentUsername() + " <button id='logout' class='btn btn-primary' >Logout</button>");
         $("#logout").bind("click",handleLogout);
         $("#submitFile").removeAttr("disabled");
     } else {
@@ -190,10 +190,10 @@ function manageUserArea() {
  * #userArea may change after the call to manageUserArea
  */
 function handleLogout() {
-    var username = PB.getCurrentUsername();
-    PB.switchIdentityTo();
-    PB.removeIdentity(username);
-    PB.Data.removeAllPrivateShells();
+    var username = EB.getCurrentUsername();
+    EB.switchIdentityTo();
+    EB.removeIdentity(username);
+    EB.Data.removeAllPrivateShells();
     manageUserArea();
     $("#friendsList").html("");
 }
@@ -207,7 +207,7 @@ function handleLogout() {
 function handleLogin() {
     var username = $("#username").val();
     var password = $("#password").val();
-    var prom = PB.loginWithPassphrase(username, password);
+    var prom = EB.loginWithPassphrase(username, password);
     prom.then(function(success) {
         console.log(success);
         if(success) {
@@ -230,7 +230,7 @@ function handleLogin() {
 function handleSignup() {
     var requestedUser = $("#username").val();
     var password = $("#password").val();
-    var prom = PB.createIdentity(requestedUser, password);
+    var prom = EB.createIdentity(requestedUser, password);
     prom.then(function() {
         alert("user creation successfull!")
         manageUserArea();

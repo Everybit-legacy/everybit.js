@@ -1,47 +1,47 @@
 var expect = chai.expect
 var should = chai.should()
 
-describe('PB.Persist (localStorage)', function() {
+describe('EB.Persist (localStorage)', function() {
   var key    = 'foobazlala'
   var value  = 123123
   var objkey = 'foobazlala-obj'
   var obj    = {a: 1, b: 'b', c: {d: 4}}
   
-  describe('PB.Persist.save', function() {
+  describe('EB.Persist.save', function() {
     it('should save a primitive value', function(cb) {
-      PB.Persist.save(key, value)
+      EB.Persist.save(key, value)
       setTimeout(cb, 111) // persist calls are batched every 100ms
     })
 
     it('should save a JSONifiable value', function(cb) {
-      PB.Persist.save(objkey, obj)
+      EB.Persist.save(objkey, obj)
       setTimeout(cb, 111) // persist calls are batched every 100ms      
     })
   })
 
-  describe('PB.Persist.get', function() {
+  describe('EB.Persist.get', function() {
     it('should get the primitive value of the key', function() {
-      var val = PB.Persist.get(key)
+      var val = EB.Persist.get(key)
       val.should.equal(value)
     })
 
     it('should get the object value of the key', function() {
-      var val = PB.Persist.get(objkey)
+      var val = EB.Persist.get(objkey)
       val.should.deep.equal(obj)
     })
   })
 
-  describe('PB.Persist.remove', function() {
+  describe('EB.Persist.remove', function() {
     it('should remove the item from storage', function() {
-      var val = PB.Persist.get(key)
+      var val = EB.Persist.get(key)
       val.should.equal(value)
       
-      PB.Persist.remove(key)
-      val = PB.Persist.get(key)
+      EB.Persist.remove(key)
+      val = EB.Persist.get(key)
       val.should.be.false()
       
-      PB.Persist.remove(objkey)
-      val = PB.Persist.get(objkey)
+      EB.Persist.remove(objkey)
+      val = EB.Persist.get(objkey)
       val.should.be.false()
     })
   })

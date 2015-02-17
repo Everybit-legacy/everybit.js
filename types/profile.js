@@ -1,4 +1,4 @@
-PB.Data.addContentType('profile', {
+EB.Data.addContentType('profile', {
     toHtml: function(content, puff) {
         if(puffworldprops.view.mode == "tableView")
             return '<img src=' + content + ' />';

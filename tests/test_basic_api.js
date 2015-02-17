@@ -8,7 +8,7 @@ describe('Integration Tests for the Basic API', function() {
     var prom
 
     it('should get a profile puff', function() {
-      return prom = PB.getProfilePuff('everybit')
+      return prom = EB.getProfilePuff('everybit')
     })
 
     it('should be a profile puff', function() {
@@ -24,13 +24,13 @@ describe('Integration Tests for the Basic API', function() {
     var username, public_puff_sig, prom
     
     it('should create a new anonymous user', function() {
-      prom = PB.Users.createAnonUserAndMakeCurrent()
+      prom = EB.Users.createAnonUserAndMakeCurrent()
     })
     
     it('should login as that user', function(done) { // explicit done
       prom.then(function(userRecord) {
         // TODO: test for userRecord
-        username = PB.getCurrentUsername()
+        username = EB.getCurrentUsername()
         username.should.contain('anon.')
         done()
       })
@@ -40,7 +40,7 @@ describe('Integration Tests for the Basic API', function() {
       var prom
       
       it('should add a public message', function() {
-        prom = PB.postPublicMessage('Hello World', 'text')
+        prom = EB.postPublicMessage('Hello World', 'text')
         prom.should.eventually.be.an('object')
         prom.then(function(puff) { public_puff_sig = puff.sig })
       })
@@ -62,9 +62,9 @@ describe('Integration Tests for the Basic API', function() {
       var puff
       
       it('should get the public message from cache', function() {
-        puff = PB.getPuffBySig(public_puff_sig)
-        // THINK: PB.Net.getPuffBySig works (test elsewhere)
-        // THINK: should PB.getPuffBySig just always return a promise? probably.
+        puff = EB.getPuffBySig(public_puff_sig)
+        // THINK: EB.Net.getPuffBySig works (test elsewhere)
+        // THINK: should EB.getPuffBySig just always return a promise? probably.
         console.log('asdf!', puff, public_puff_sig)
       })
       
@@ -85,7 +85,7 @@ describe('Integration Tests for the Basic API', function() {
       var prom 
       
       it('should add a private message', function() {
-        return prom = PB.postPrivateMessage('Hello World', username) // send to ourself
+        return prom = EB.postPrivateMessage('Hello World', username) // send to ourself
       })
       
       it('should have some content', function() {
@@ -113,7 +113,7 @@ describe('Integration Tests for the Basic API', function() {
     describe('Add an anonymous private message', function() {
 
       it('should add an anonymous private message', function() {
-        var prom = PB.postAnonymousPrivateMessage('Hello World', username) // send to ourself
+        var prom = EB.postAnonymousPrivateMessage('Hello World', username) // send to ourself
         
         var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
         var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
@@ -125,7 +125,7 @@ describe('Integration Tests for the Basic API', function() {
     describe('Add a paranoid private message', function() {
 
       it('should add a paranoid private puff', function() {
-        var prom = PB.postParanoidPrivateMessage('Hello World', username) // send to ourself
+        var prom = EB.postParanoidPrivateMessage('Hello World', username) // send to ourself
         
         var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
         var p2 = prom.should.eventually.have.property('username').and.contain('everybit')

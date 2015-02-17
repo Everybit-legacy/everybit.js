@@ -10,13 +10,13 @@
 
  */
 
-PB.Net = {}
+EB.Net = {}
 
 /**
  * Fire up networks (currently just the peer connections)
  */
-PB.Net.init = function() {
-    PB.Net.P2P.init()
+EB.Net.init = function() {
+    EB.Net.P2P.init()
 }
 
 /**
@@ -24,49 +24,49 @@ PB.Net.init = function() {
  * @param  {string} sig signature of a puff
  * @return {object}     puff corresponds to the specified signature
  */
-PB.Net.getPuffBySig = function(sig) {
-    var url  = PB.CONFIG.puffApi
+EB.Net.getPuffBySig = function(sig) {
+    var url  = EB.CONFIG.puffApi
     var data = {type: 'getPuffBySig', sig: sig}
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
 
-PB.Net.getKidSigs = function(sig) {
-    var url  = PB.CONFIG.puffApi
+EB.Net.getKidSigs = function(sig) {
+    var url  = EB.CONFIG.puffApi
     var data = {type: 'getChildrenBySig', sig: sig}
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
 
-PB.Net.getKidSigs = Boron.memoize(PB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true.
+EB.Net.getKidSigs = Boron.memoize(EB.Net.getKidSigs) // THINK: this assumes we'll get all new things over the P2P network, which won't always be true.
 
 
 
-PB.Net.getStarShells = function() {
-    var url  = PB.CONFIG.puffApi
-    var data = {type: 'getPuffs', contentType: 'star', numb: PB.CONFIG.globalBigBatchLimit}
+EB.Net.getStarShells = function() {
+    var url  = EB.CONFIG.puffApi
+    var data = {type: 'getPuffs', contentType: 'star', numb: EB.CONFIG.globalBigBatchLimit}
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
 
-PB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) {
+EB.Net.getConversationPuffs = function(convoId, batchsize, offset, fullOrShell) {
     convoId  = convoId.replace('&',',')
 
-    var url  = PB.CONFIG.puffApi
+    var url  = EB.CONFIG.puffApi
     var data = { type: 'getPuffs', contentType: 'encryptedpuff'
                , conversationPartners: convoId
                , numb: batchsize
                , offset: offset
                }
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
 
-PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
-    if(!username) return PB.emptyPromise()
-    batchsize = batchsize || PB.CONFIG.globalBigBatchLimit
+EB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
+    if(!username) return EB.emptyPromise()
+    batchsize = batchsize || EB.CONFIG.globalBigBatchLimit
     
-    var url  = PB.CONFIG.puffApi
+    var url  = EB.CONFIG.puffApi
     var data = { route: username, username: username, fromAndTo: 1
                , type: 'getPuffs', contentType: 'encryptedpuff'
                , fullOrShell: fullOrShell || 'full'
@@ -74,21 +74,21 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
                , offset: offset
                }
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
     
 /*
 
     So something like:
 
-    PB.getSomePuffs(query, limit, etc)
+    EB.getSomePuffs(query, limit, etc)
 
     helper.js:
     tryGettingMorePuffs(visibleLimit) {
-        // figure out how many we've requested already (ICX.currentOffset)
-        // figure out how many we actually have (PB.Data.getDecryptedPuffs)
-        var delta = visibleLimit - PB.Data.getDecryptedPuffs().length
-        ICX.currentOffset += delta
-        return PB.getSomePuffs(query, ICX.currentOffset)
+        // figure out how many we've requested already (EB.currentOffset)
+        // figure out how many we actually have (EB.Data.getDecryptedPuffs)
+        var delta = visibleLimit - EB.Data.getDecryptedPuffs().length
+        EB.currentOffset += delta
+        return EB.getSomePuffs(query, EB.currentOffset)
     }
 
 
@@ -99,8 +99,8 @@ PB.Net.getMyPrivatePuffs = function(username, batchsize, offset, fullOrShell) {
 }
 
 
-PB.Net.getProfilePuff = function(username) {
-    var url  = PB.CONFIG.puffApi
+EB.Net.getProfilePuff = function(username) {
+    var url  = EB.CONFIG.puffApi
     var data = { username: username
                , fullOrShell: 'full'
                , contentType: 'profile'
@@ -109,9 +109,9 @@ PB.Net.getProfilePuff = function(username) {
                , numb: 1
                }
     
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
-PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
+EB.Net.getProfilePuff = EB.promiseMemoize(EB.Net.getProfilePuff)
 
 /**
  * to get some shells
@@ -121,16 +121,16 @@ PB.Net.getProfilePuff = PB.promiseMemoize(PB.Net.getProfilePuff)
  * @param {number} offset
  * @returns {Shell[]}
  */
-PB.Net.getSomeShells = function(query, filters, limit, offset) {
+EB.Net.getSomeShells = function(query, filters, limit, offset) {
     // TODO: switching by query 'mode' will need to be changed when the network api matches our local api (i.e. once we use browser p2p & headless clients to service requests)
     
     var mode = query.mode
-    if(mode == 'ancestors')   return PB.Net.getAncestors  ([query.focus], limit)
-    if(mode == 'descendants') return PB.Net.getDescendants([query.focus], limit)
-    // if(mode == 'siblings')    return PB.Net.getSiblings   ([query.focus], limit)
+    if(mode == 'ancestors')   return EB.Net.getAncestors  ([query.focus], limit)
+    if(mode == 'descendants') return EB.Net.getDescendants([query.focus], limit)
+    // if(mode == 'siblings')    return EB.Net.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
-    var url  = PB.CONFIG.puffApi
+    var url  = EB.CONFIG.puffApi
 
     //  if(filters.types)   data.type       = filters.types      // filter by types
 
@@ -157,18 +157,18 @@ PB.Net.getSomeShells = function(query, filters, limit, offset) {
     var filterstring = JSON.stringify(filters.types)
     var profile_request = (filterstring == '["profile"]')
     
-    if(PB.CONFIG.disableReceivePublic && !profile_request)
-        return PB.emptyPromise()
+    if(EB.CONFIG.disableReceivePublic && !profile_request)
+        return EB.emptyPromise()
                  .then(function() {return []})
     
-    return PB.Net.PBgetJSON(url, data)                      // always returns a valid array
+    return EB.Net.EBgetJSON(url, data)                      // always returns a valid array
                  .then(function(x) {return x || []}, function() {return []})
 }
 
 
-PB.Net.getAncestors = function(start, limit) {
+EB.Net.getAncestors = function(start, limit) {
     getEm(start, [], limit)
-    return PB.emptyPromise()
+    return EB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false                       // all done
@@ -180,8 +180,8 @@ PB.Net.getAncestors = function(start, limit) {
             return getEm(todo.slice(1), done, remaining)    // we've already done this one
         }
         
-        // TODO: set a callback in PB.Net instead of calling PB.Data directly
-        var puff = PB.Data.getPuffBySig(sig)                // effectful
+        // TODO: set a callback in EB.Net instead of calling EB.Data directly
+        var puff = EB.Data.getPuffBySig(sig)                // effectful
     
         if(puff) 
             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
@@ -189,7 +189,7 @@ PB.Net.getAncestors = function(start, limit) {
         // no puff? that's ok. attach a then clause to its pending promise.
         // TODO: find better method to do this
         remaining-- // because we're adding a new puff, or at least new content
-        var prom = PB.Data.pendingPuffPromises[sig]
+        var prom = EB.Data.pendingPuffPromises[sig]
         prom.then(function(puffs) {
             getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
         })
@@ -202,25 +202,25 @@ PB.Net.getAncestors = function(start, limit) {
     //     return Promise.resolve(results)             // all done
     //
     // var sig = todo[0]
-    // var shell = PB.Data.getCachedShellBySig(sig)   // TODO: set a callback in PB.Net instead of calling this directly
+    // var shell = EB.Data.getCachedShellBySig(sig)   // TODO: set a callback in EB.Net instead of calling this directly
     //          || results.filter(function(result) {return result.sig == sig})[0]
     //
     // // if we already have a puff for sig, then we just need to put its parents on the todo stack
     // if(shell) {
     //     todo.shift() // take off the shell we just worked on
-    //     return PB.Net.getAncestors(todo.concat(shell.payload.parents), limit, results)
+    //     return EB.Net.getAncestors(todo.concat(shell.payload.parents), limit, results)
     // }
     //
     // // otherwise, get a promise for the shell, then add it to results
-    // var prom = PB.Net.getPuffBySig(sig)
+    // var prom = EB.Net.getPuffBySig(sig)
     // return prom.then(function(puffs) {
-    //     return PB.Net.getAncestors(todo, limit, results.concat(puffs))
+    //     return EB.Net.getAncestors(todo, limit, results.concat(puffs))
     // })
 }
 
-PB.Net.getDescendants = function(start, limit) {
+EB.Net.getDescendants = function(start, limit) {
     getEm(start, [], limit)
-    return PB.emptyPromise()
+    return EB.emptyPromise()
     
     function getEm(todo, done, remaining) {
         if(!todo.length) return false                       // all done
@@ -232,54 +232,54 @@ PB.Net.getDescendants = function(start, limit) {
             return getEm(todo.slice(1), done, remaining)    // we've already done this one
         }
         
-        // TODO: set a callback in PB.Net instead of calling PB.Data directly
-        var haveShell = PB.Data.getCachedShellBySig(sig) 
+        // TODO: set a callback in EB.Net instead of calling EB.Data directly
+        var haveShell = EB.Data.getCachedShellBySig(sig) 
         
         if(!haveShell) {                                    // we don't have the shell yet, so go get it
-            // TODO: use above callback to PB.Data
-            PB.Data.getPuffBySig(sig)                       // effectful
+            // TODO: use above callback to EB.Data
+            EB.Data.getPuffBySig(sig)                       // effectful
             remaining--
         }
         
-        var kidsigprom = PB.Net.getKidSigs(sig)             // get all its children
+        var kidsigprom = EB.Net.getKidSigs(sig)             // get all its children
         return kidsigprom.then(function(kidsigs) {
             getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
         })
     }
 }
 
-PB.Net.getSiblings = function() {
+EB.Net.getSiblings = function() {
     // this case is ugly, so we're leaving it until the client api can answer questions for us
-    return PB.emptyPromise() 
+    return EB.emptyPromise() 
 }
 
 /**
  * add puff to the server and broadcast to peers
  * @param  {object} puff the puff to be added to the server
  */
-PB.Net.distributePuff = function(puff) {
+EB.Net.distributePuff = function(puff) {
     //// distribute a puff to the network
 
-    if(PB.CONFIG.disableSendToServer) return false          // so you can work locally
+    if(EB.CONFIG.disableSendToServer) return false          // so you can work locally
 
-    if(PB.CONFIG.netblockSuffix) {                          // block distribution of local puffs
+    if(EB.CONFIG.netblockSuffix) {                          // block distribution of local puffs
         var usernames = [puff.username]
         if(puff.keys)
             usernames = usernames.concat(Object.keys(puff.keys))
 
-        usernames = usernames.map(PB.Users.justUsername)
+        usernames = usernames.map(EB.Users.justUsername)
         var suffixes = usernames.map(function(username) {
             var chunks = username.split('.')
             return chunks[chunks.length-1]
         })
         
-        if(suffixes.indexOf(PB.CONFIG.netblockSuffix) > -1)
+        if(suffixes.indexOf(EB.CONFIG.netblockSuffix) > -1)
             return false
     }
 
-    PB.Net.sendPuffToServer(puff)                           // add it to the server's pufflist
+    EB.Net.sendPuffToServer(puff)                           // add it to the server's pufflist
 
-    PB.Net.P2P.sendPuffToPeers(puff)                        // broadcast it to peers
+    EB.Net.P2P.sendPuffToPeers(puff)                        // broadcast it to peers
 }
 
 /**
@@ -287,7 +287,7 @@ PB.Net.distributePuff = function(puff) {
  * @param  {object} puff
  * @return {object}
  */
-PB.Net.sendPuffToServer = function(puff) {
+EB.Net.sendPuffToServer = function(puff) {
     // THINK: this is fire-and-forget, but we should do something smart if the network is offline or it otherwise fails. 
     //        on the other hand, we'll probably want to do this with sockets instead of ajax ultimately...
     //        or manage it entirely with routing, even for server-sent puffs?
@@ -295,8 +295,8 @@ PB.Net.sendPuffToServer = function(puff) {
     var data = { type: 'addPuff'
                , puff: JSON.stringify(puff) }
                
-    return PB.Net.PBpost(PB.CONFIG.puffApi, data)
-                 .catch(PB.catchError('Could not send puff to server'))
+    return EB.Net.EBpost(EB.CONFIG.puffApi, data)
+                 .catch(EB.catchError('Could not send puff to server'))
 }
 
 /**
@@ -305,14 +305,14 @@ PB.Net.sendPuffToServer = function(puff) {
  * @param  {string}  capa 
  * @return {promise} on fulfilled passes the user record as object, otherwise re-throw error
  */
-PB.Net.getUserRecord = function(username, capa) {
-    var url   = PB.CONFIG.userApi
+EB.Net.getUserRecord = function(username, capa) {
+    var url   = EB.CONFIG.userApi
     
-    var versionedUsername = PB.Users.makeVersioned(username, capa)
-    username = PB.Users.justUsername(versionedUsername)
+    var versionedUsername = EB.Users.makeVersioned(username, capa)
+    username = EB.Users.justUsername(versionedUsername)
     
     if(capa !== 0) // 0 signals that we need to fetch the latest userRecord
-        capa = PB.Users.justCapa(versionedUsername)
+        capa = EB.Users.justCapa(versionedUsername)
     
     var data  = { type: 'getUser'
                 , username: username
@@ -321,7 +321,7 @@ PB.Net.getUserRecord = function(username, capa) {
     if(capa)
         data.capa = capa
 
-    return PB.Net.PBgetJSON(url, data)
+    return EB.Net.EBgetJSON(url, data)
 }
 
 
@@ -330,25 +330,25 @@ PB.Net.getUserRecord = function(username, capa) {
  * @param  {puff}   puff a signed puff containing information of modified user record
  * @return {object} promise for new userRecord or error when the update fails
  */
-PB.Net.updateUserRecord = function(puff) {
+EB.Net.updateUserRecord = function(puff) {
     var data = { type: 'updateUsingPuff'
                , puff: puff
                }
 
-    var prom = PB.Net.PBpost(PB.CONFIG.userApi, data)
+    var prom = EB.Net.EBpost(EB.CONFIG.userApi, data)
     
-    return prom.catch(PB.catchError('Sending user record modification puff failed'))
+    return prom.catch(EB.catchError('Sending user record modification puff failed'))
                .then(JSON.parse) // THINK: this throws on invalid JSON
                .then(function(userRecord) {
-                   return PB.Users.process(userRecord)
-                       || PB.throwError('Invalid user record', JSON.stringify(userRecord))
+                   return EB.Users.process(userRecord)
+                       || EB.throwError('Invalid user record', JSON.stringify(userRecord))
                })
 }
 
 
 
 /**
- * PB.Net promise-based XHR layer
+ * EB.Net promise-based XHR layer
  * 
  * We use promises as our default concurrency construct, 
  * because ultimately this platform is composed of a 
@@ -361,7 +361,7 @@ PB.Net.updateUserRecord = function(puff) {
  * @param  {object} data    
  * @return {object}
  */
-PB.Net.xhr = function(url, options, data) {
+EB.Net.xhr = function(url, options, data) {
     //// very simple promise-based XHR implementation
     
     return new Promise(function(resolve, reject) {
@@ -374,7 +374,7 @@ PB.Net.xhr = function(url, options, data) {
         
         var formdata = new FormData()
         Object.keys(data || {}).forEach(function (key) {
-            var datum = typeof data[key] == 'object' ? PB.stringifyJSON(data[key]) : data[key]
+            var datum = typeof data[key] == 'object' ? EB.stringifyJSON(data[key]) : data[key]
             formdata.append(key, datum)
         })
         
@@ -383,24 +383,24 @@ PB.Net.xhr = function(url, options, data) {
                 
         req.onload = function() {
             if(req.status != 200) // silly safari
-                return reject(PB.makeError(req.statusText))
+                return reject(EB.makeError(req.statusText))
             
             if(req.responseType == 'json' && req.response === null) // NOTE: traps JSONified 'null' responses also: use empty string or [] to indicate an empty result
-                return reject(PB.makeError("Invalid JSON in response", req.response))
+                return reject(EB.makeError("Invalid JSON in response", req.response))
             
             resolve( (req.responseType != options.type) // manually convert json for old browsers
-                  && options.type == 'json' ? PB.parseJSON(req.response) : req.response)
+                  && options.type == 'json' ? EB.parseJSON(req.response) : req.response)
         }
 
         req.onerror = function(event) {
-            reject(PB.makeError("Network Error", event, 'networkError'))
+            reject(EB.makeError("Network Error", event, 'networkError'))
         }
         
         req.ontimeout = function(event) {
-            reject(PB.makeError("Timeout Error", event, 'timeoutError'))
+            reject(EB.makeError("Timeout Error", event, 'timeoutError'))
         }
         
-        req.timeout = PB.CONFIG.networkTimeout
+        req.timeout = EB.CONFIG.networkTimeout
 
         req.send(formdata)
     })
@@ -412,7 +412,7 @@ PB.Net.xhr = function(url, options, data) {
  * @param  {object} params 
  * @return {object}
  */
-PB.Net.getJSON = function(url, params) {
+EB.Net.getJSON = function(url, params) {
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'
                   ,    type: 'json'
@@ -422,7 +422,7 @@ PB.Net.getJSON = function(url, params) {
     var enc = function(param) {return !param && param!==0 ? '' : encodeURIComponent(param)}
     var qstring = Object.keys(params).reduce(function(acc, key) {return acc + enc(key) +'='+ enc(params[key]) +'&'}, '?')
 
-    return PB.Net.xhr(url + qstring, options) 
+    return EB.Net.xhr(url + qstring, options) 
 }
 
 
@@ -432,7 +432,7 @@ PB.Net.getJSON = function(url, params) {
  * @param  {object} data 
  * @return {object}
  */
-PB.Net.post = function(url, data) {
+EB.Net.post = function(url, data) {
     var options = { headers: {   
 //         'Content-type': 'application/x-www-form-urlencoded' 
 //                           , 'Content-length': params.length
@@ -441,7 +441,7 @@ PB.Net.post = function(url, data) {
                   ,  method: 'POST'
                   }
 
-    return PB.Net.xhr(url, options, data)
+    return EB.Net.xhr(url, options, data)
 }
 
 
@@ -452,34 +452,34 @@ PB.Net.post = function(url, data) {
  * @param  {object} params 
  * @return {object}
  */
-PB.Net.PBxhr = function(url, options, data) {
-    var prom = PB.Net.xhr(url, options, data)
+EB.Net.EBxhr = function(url, options, data) {
+    var prom = EB.Net.xhr(url, options, data)
         
     return prom.then(function(response) {
         if(response.FAIL)
-            return PB.throwDHTError(response.FAIL)
+            return EB.throwDHTError(response.FAIL)
 
         if(typeof response == 'string' && response.slice(0,6) == '{"FAIL')
-            return PB.throwDHTError((PB.parseJSON(response)||{}).FAIL)
+            return EB.throwDHTError((EB.parseJSON(response)||{}).FAIL)
 
-        PB.runHandlers('networkresponse', response)
+        EB.runHandlers('networkresponse', response)
         
         return response
     })
 }
 
-PB.Net.PBpost = function(url, data) {
-    //// This is the EveryBit server version of PB.Net.getJSON -- use that function if you're not accessing the EveryBit server
+EB.Net.EBpost = function(url, data) {
+    //// This is the EveryBit server version of EB.Net.getJSON -- use that function if you're not accessing the EveryBit server
     // THINK: should we parametrize over the dispatch function?
     var options = { headers: {}
                   ,  method: 'POST'
                   }
                   
-    return PB.Net.PBxhr(url, options, data)
+    return EB.Net.EBxhr(url, options, data)
 }
 
-PB.Net.PBgetJSON = function(url, params) {
-    //// This is the EveryBit server version of PB.Net.getJSON -- use that function if you're not accessing the EveryBit server
+EB.Net.EBgetJSON = function(url, params) {
+    //// This is the EveryBit server version of EB.Net.getJSON -- use that function if you're not accessing the EveryBit server
     // THINK: should we parametrize over the dispatch function?
     var options = { headers: { 'Accept': 'application/json' }
                   ,  method: 'GET'
@@ -490,7 +490,7 @@ PB.Net.PBgetJSON = function(url, params) {
     var enc = function(param) {return !param && param!==0 ? '' : encodeURIComponent(param)}
     var qstring = Object.keys(params).reduce(function(acc, key) {return acc + enc(key) +'='+ enc(params[key]) +'&'}, '?')
 
-    return PB.Net.PBxhr(url + qstring, options) 
+    return EB.Net.EBxhr(url + qstring, options) 
 }
 
 
@@ -502,41 +502,41 @@ PB.Net.PBgetJSON = function(url, params) {
 
 /*
 
-    PB.Net Peer-to-Peer layer
+    EB.Net Peer-to-Peer layer
 
     We're currently using peer.js to negotiate the WebRTC connection. There's a lot of work left to be done here.
 
 */
 
 
-PB.Net.P2P = {}
-PB.Net.P2P.peers = {}
+EB.Net.P2P = {}
+EB.Net.P2P.peers = {}
 
 /**
  * initialize the peer-to-peer layer
  */
-PB.Net.P2P.init = function() {
+EB.Net.P2P.init = function() {
     // NOTE: you have to manually enable the P2P layer via config or init options
-    // e.g. PB.init({enableP2P: true})
-    // or   PB.CONFIG.enableP2P = true
-    if(!PB.CONFIG.enableP2P) return false
+    // e.g. EB.init({enableP2P: true})
+    // or   EB.CONFIG.enableP2P = true
+    if(!EB.CONFIG.enableP2P) return false
     
-    PB.Net.P2P.Peer = new Peer({ host:  '162.219.162.56'
+    EB.Net.P2P.Peer = new Peer({ host:  '162.219.162.56'
                                , port:  9000
                                , path:  '/'
                                , debug: 1
                                })
     
-    PB.Net.P2P.Peer.on('open', PB.Net.P2P.openPeerConnection)
-    PB.Net.P2P.Peer.on('connection', PB.Net.P2P.connection)
+    EB.Net.P2P.Peer.on('open', EB.Net.P2P.openPeerConnection)
+    EB.Net.P2P.Peer.on('connection', EB.Net.P2P.connection)
 }
 
 /**
  * to reload peers
  * @return {object} 
  */
-PB.Net.P2P.reloadPeers = function() {
-    return PB.Net.P2P.Peer.listAllPeers(PB.Net.P2P.handlePeers)
+EB.Net.P2P.reloadPeers = function() {
+    return EB.Net.P2P.Peer.listAllPeers(EB.Net.P2P.handlePeers)
 }
 
 /**
@@ -544,10 +544,10 @@ PB.Net.P2P.reloadPeers = function() {
  * @param  {string} id 
  * @return {object[]}
  */
-PB.Net.P2P.openPeerConnection = function(id) {
+EB.Net.P2P.openPeerConnection = function(id) {
     // OPT: do we really need this? 
-    // THINK: why not just call PB.Net.P2P.reloadPeers?
-    return PB.Net.P2P.Peer.listAllPeers(PB.Net.P2P.handlePeers)
+    // THINK: why not just call EB.Net.P2P.reloadPeers?
+    return EB.Net.P2P.Peer.listAllPeers(EB.Net.P2P.handlePeers)
 }
 
 /**
@@ -555,11 +555,11 @@ PB.Net.P2P.openPeerConnection = function(id) {
  * @param connection
  * @returns {*}
  */
-PB.Net.P2P.connection = function(connection) {
-    PB.Net.P2P.reloadPeers() // OPT: do we really need this? 
+EB.Net.P2P.connection = function(connection) {
+    EB.Net.P2P.reloadPeers() // OPT: do we really need this? 
 
     return connection.on('data', function(data) {
-        PB.Data.addShellsThenMakeAvailable(data) // TODO: pass a callback in to PB.Net instead of calling this directly
+        EB.Data.addShellsThenMakeAvailable(data) // TODO: pass a callback in to EB.Net instead of calling this directly
     })
 }
 
@@ -568,11 +568,11 @@ PB.Net.P2P.connection = function(connection) {
  * @param  {object} peers 
  * @return {boolean}   
  */
-PB.Net.P2P.handlePeers = function(peers) {
+EB.Net.P2P.handlePeers = function(peers) {
     peers.forEach(function(peer) {
-        if(PB.Net.P2P.peers[peer]) 
+        if(EB.Net.P2P.peers[peer]) 
             return false
-        PB.Net.P2P.peers[peer] = PB.Net.P2P.Peer.connect(peer)
+        EB.Net.P2P.peers[peer] = EB.Net.P2P.Peer.connect(peer)
     })
 }
 
@@ -580,8 +580,8 @@ PB.Net.P2P.handlePeers = function(peers) {
  * to send puff to peers
  * @param  {object} puff
  */
-PB.Net.P2P.sendPuffToPeers = function(puff) {
-    for(var peer in PB.Net.P2P.peers) {
-        PB.Net.P2P.peers[peer].send(puff)
+EB.Net.P2P.sendPuffToPeers = function(puff) {
+    for(var peer in EB.Net.P2P.peers) {
+        EB.Net.P2P.peers[peer].send(puff)
     }
 }

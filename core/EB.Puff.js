@@ -2,36 +2,36 @@
     Puffs are the lifeblood of EveryBit. This file contains relatively pure functions for working with them.
 */
 
-PB.Puff = {}
+EB.Puff = {}
 
-PB.Puff.createPrivate = function(content, type) {
+EB.Puff.createPrivate = function(content, type) {
     var payload = {}
     
     var type   = type || 'file'
     var routes = ['local']
 
-    var userRecord = PB.getCurrentUserRecord()
+    var userRecord = EB.getCurrentUserRecord()
     var userRecordsForWhomToEncrypt = [userRecord]
     var previous, puff
     
-    puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt)
+    puff = EB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt)
     
     return puff
 }
 
 
-PB.Puff.simpleBuild = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// build a puff for the 'current user', as determined by the key manager (by default PB.M.Wardrobe)
+EB.Puff.simpleBuild = function(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    //// build a puff for the 'current user', as determined by the key manager (by default EB.M.Wardrobe)
     var puff 
 
-    payload = PB.runHandlers('payloadModifier', payload)
+    payload = EB.runHandlers('payloadModifier', payload)
 
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
+    EB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {
         // THINK: should we confirm that our local capa matches the DHT's latest capa for the current user here? it turns the output into a promise...
         var previous = false // TODO: get the sig of this user's latest puff
-        var versionedUsername = PB.getCurrentVersionedUsername()
+        var versionedUsername = EB.getCurrentVersionedUsername()
         
-        puff = PB.Puff.build(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        puff = EB.Puff.build(versionedUsername, privateDefaultKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     })
     
     return puff
@@ -52,20 +52,20 @@ PB.Puff.simpleBuild = function(type, content, payload, routes, userRecordsForWho
  * @param  {object} privateEnvelopeAlias
  * @return {object}                             the new puff object
  */
-PB.Puff.build = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    var puff = PB.Puff.packageStructure(versionedUsername, routes, type, content, payload, previous)
+EB.Puff.build = function(versionedUsername, privateKey, routes, type, content, payload, previous, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+    var puff = EB.Puff.packageStructure(versionedUsername, routes, type, content, payload, previous)
 
-    puff.sig = PB.Crypto.signPuff(puff, privateKey)
+    puff.sig = EB.Crypto.signPuff(puff, privateKey)
     
     if(userRecordsForWhomToEncrypt) {
-        puff = PB.Puff.encrypt(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+        puff = EB.Puff.encrypt(puff, privateKey, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
     }
     
     return puff
 }
 
 
-PB.Puff.packageStructure = function(versionedUsername, routes, type, content, payload, previous) {
+EB.Puff.packageStructure = function(versionedUsername, routes, type, content, payload, previous) {
     //// pack all the parameters into an object with puff structure (without signature)
     
     payload = payload || {}                     // TODO: check all of these values more carefully
@@ -86,48 +86,48 @@ PB.Puff.packageStructure = function(versionedUsername, routes, type, content, pa
 }
 
 
-PB.Puff.isPrivate = function(shell) {
+EB.Puff.isPrivate = function(shell) {
     return shell.payload.type == 'encryptedpuff'
 }
 
 
-PB.Puff.encrypt = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
+EB.Puff.encrypt = function(letter, myPrivateWif, userRecords, privateEnvelopeAlias) {
     //// stick a letter in an envelope. userRecords must be fully instantiated.
-    var puffkey = PB.Crypto.getRandomKey()                                        // get a new random key
+    var puffkey = EB.Crypto.getRandomKey()                                        // get a new random key
     
-    var letterCipher = PB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
+    var letterCipher = EB.Crypto.encryptWithAES(JSON.stringify(letter), puffkey)  // encrypt the letter
     var versionedUsername = letter.username
     
     if(privateEnvelopeAlias) {
         myPrivateWif = privateEnvelopeAlias.default
-        versionedUsername = PB.Users.makeVersioned(privateEnvelopeAlias.username, privateEnvelopeAlias.capa)
+        versionedUsername = EB.Users.makeVersioned(privateEnvelopeAlias.username, privateEnvelopeAlias.capa)
     }
     
-    var envelope = PB.Puff.packageStructure(versionedUsername, letter.routes      // envelope is also a puff
+    var envelope = EB.Puff.packageStructure(versionedUsername, letter.routes      // envelope is also a puff
                            , 'encryptedpuff', letterCipher, {}, letter.previous)  // it includes the letter
     
-    envelope.keys = PB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
-    envelope.sig = PB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
+    envelope.keys = EB.Crypto.createKeyPairs(puffkey, myPrivateWif, userRecords)  // add decryption keys
+    envelope.sig = EB.Crypto.signPuff(envelope, myPrivateWif)                     // sign the envelope
     
     return envelope
 }
 
-PB.Puff.promiseLetter = function(envelope) {                            // the envelope is a puff
-    if(PB.Data.isBadEnvelope(envelope.sig)) 
+EB.Puff.promiseLetter = function(envelope) {                            // the envelope is a puff
+    if(EB.Data.isBadEnvelope(envelope.sig)) 
         return Promise.reject('Bad envelope')                           // flagged as invalid envelope
 
-    var maybeLetter = PB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
+    var maybeLetter = EB.Data.getDecryptedLetterBySig(envelope.sig)     // have we already opened it?
     
     if(maybeLetter)
         return Promise.resolve(maybeLetter)                             // resolve to existing letter
     
-    var prom = PB.Puff.promiseDecryptedLetter(envelope)                 // do the decryption
+    var prom = EB.Puff.promiseDecryptedLetter(envelope)                 // do the decryption
     
     return prom.catch(function(err) { return false })
                .then(function(letter) {
                    if(!letter) {
-                       PB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
-                       return PB.throwError('Invalid envelope')         // then bail out
+                       EB.Data.addBadEnvelope(envelope.sig)             // decryption failed: flag envelope
+                       return EB.throwError('Invalid envelope')         // then bail out
                    }
 
                    return letter
@@ -135,21 +135,21 @@ PB.Puff.promiseLetter = function(envelope) {                            // the e
     
 }
 
-PB.Puff.promiseDecryptedLetter = function(envelope) {
+EB.Puff.promiseDecryptedLetter = function(envelope) {
     //// pull a letter out of the envelope -- returns a promise!
 
     if(!envelope || !envelope.keys) 
-        return PB.emptyPromise('Envelope does not contain an encrypted letter')
+        return EB.emptyPromise('Envelope does not contain an encrypted letter')
     
     var senderVersionedUsername = envelope.username
-    var userProm = PB.Users.getUserRecordPromise(senderVersionedUsername)
+    var userProm = EB.Users.getUserRecordPromise(senderVersionedUsername)
     
     var puffprom = userProm
-    .catch(PB.catchError('User record acquisition failed'))
+    .catch(EB.catchError('User record acquisition failed'))
     .then(function(senderVersionedUserRecord) {
         var prom // used for leaking secure promise
 
-        PB.useSecureInfo(function(identities, currentUsername) {
+        EB.useSecureInfo(function(identities, currentUsername) {
             // NOTE: leaks a promise which resolves to unencrypted puff
         
             var identity = identities[currentUsername]
@@ -165,7 +165,7 @@ PB.Puff.promiseDecryptedLetter = function(envelope) {
                         break top
                     }
                     
-                    var versionUsername = PB.Users.makeVersioned(alias.username, alias.capa)
+                    var versionUsername = EB.Users.makeVersioned(alias.username, alias.capa)
                     if(versionUsername == keykey) {
                         matchingUsername = versionUsername
                         break top
@@ -174,12 +174,12 @@ PB.Puff.promiseDecryptedLetter = function(envelope) {
             }
 
             if(!matchingUsername)
-                return PB.throwError('No key found for current user')
+                return EB.throwError('No key found for current user')
 
             var recipientPrivateKey = alias.privateDefaultKey
             var senderPublicKey = senderVersionedUserRecord.defaultKey
             
-            prom = PB.Puff.promiseToDecryptForReals(envelope, senderPublicKey, matchingUsername, recipientPrivateKey)
+            prom = EB.Puff.promiseToDecryptForReals(envelope, senderPublicKey, matchingUsername, recipientPrivateKey)
         })
 
         return prom
@@ -188,16 +188,16 @@ PB.Puff.promiseDecryptedLetter = function(envelope) {
     return puffprom
 }
 
-PB.Puff.promiseToDecryptForReals = function(envelope, senderPublicKey, recipientUsername, recipientPrivateKey) {
+EB.Puff.promiseToDecryptForReals = function(envelope, senderPublicKey, recipientUsername, recipientPrivateKey) {
     return new Promise(function(resolve, reject) {
-        return PB.cryptoworker
-             ? PB.workersend( 'decryptPuffForReals'
+        return EB.cryptoworker
+             ? EB.workersend( 'decryptPuffForReals'
                             , [ envelope
                               , senderPublicKey
                               , recipientUsername
                               , recipientPrivateKey ]
                             , resolve, reject )
-             : resolve( PB.decryptPuffForReals( envelope
+             : resolve( EB.decryptPuffForReals( envelope
                                               , senderPublicKey
                                               , recipientUsername
                                               , recipientPrivateKey ) )

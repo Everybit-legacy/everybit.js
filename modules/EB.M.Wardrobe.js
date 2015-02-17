@@ -6,7 +6,7 @@
     |   __/|____/ |__|   |__|    \/\_/  (____  /__|  \____ | |__|   \____/|___  /\___  >
     |__|                                     \/           \/                  \/     \/ 
   
-  A Puffball module for managing identities and private data locally.
+  An EveryBit module for managing identities and private data locally.
   ==================================================
 
   The Wardrobe manages identities, aliases, and private data.
@@ -26,19 +26,19 @@
   Private data is a black box for 
 
   Usage examples:
-      PB.switchIdentityTo(username)
+      EB.switchIdentityTo(username)
 
 */
 
 /*
   THINK:
     - register callback handlers for user record creation and modification
-    - PB.M.Wardrobe.init registers those with PB.onUserCreation and PB.onUserModification
+    - EB.M.Wardrobe.init registers those with EB.onUserCreation and EB.onUserModification
     - identity file encryption using a passphrase
 */
 
 
-PB.M.Wardrobe = {}
+EB.M.Wardrobe = {}
 
 ~function() { // begin the closure
 
@@ -56,33 +56,33 @@ PB.M.Wardrobe = {}
     // TODO: get anon creation working
 
 
-    PB.M.Wardrobe.init = init
+    EB.M.Wardrobe.init = init
     
     function init() {
-        PB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity)
+        EB.implementSecureInterface(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity)
         
-        PB.addIdentityUpdateHandler(function() { // THINK: where should this live?
-            if(!PB.CONFIG.disableCloudIdentity)
-                PB.storeIdentityFileInCloud()
+        EB.addIdentityUpdateHandler(function() { // THINK: where should this live?
+            if(!EB.CONFIG.disableCloudIdentity)
+                EB.storeIdentityFileInCloud()
         })
         
         // TODO: find a better way to do this
-        var oldConfigValue = PB.CONFIG.disableCloudIdentity
-        PB.CONFIG.disableCloudIdentity = true
+        var oldConfigValue = EB.CONFIG.disableCloudIdentity
+        EB.CONFIG.disableCloudIdentity = true
         
-        var storedIdentities = PB.Persist.get('identities') || {}
+        var storedIdentities = EB.Persist.get('identities') || {}
     
         Object.keys(storedIdentities).forEach(function(username) {
             var identity = storedIdentities[username]
             addIdentity(username, identity.aliases, identity.preferences, true)
         })
         
-        PB.CONFIG.disableCloudIdentity = oldConfigValue
+        EB.CONFIG.disableCloudIdentity = oldConfigValue
         
-        var lastUsername = PB.Persist.get('currentUsername')
+        var lastUsername = EB.Persist.get('currentUsername')
         
         if (lastUsername)
-            PB.switchIdentityTo(lastUsername) // NOTE: call wrapped version to get handlers
+            EB.switchIdentityTo(lastUsername) // NOTE: call wrapped version to get handlers
     }
     
     
@@ -176,12 +176,12 @@ PB.M.Wardrobe = {}
         var identity = getIdentity(identityUsername)
         
         if(!identity)
-            return PB.onError('Primary alias can only be set for known identities')
+            return EB.onError('Primary alias can only be set for known identities')
             
         var alias = getLatestAlias(identity, aliasUsername)
         
         if(!alias)
-            return PB.onError('That alias is not associated with that identity')
+            return EB.onError('That alias is not associated with that identity')
     
         // all clear!
         
@@ -202,7 +202,7 @@ PB.M.Wardrobe = {}
         var identity = getCurrentIdentity()
     
         if(!identity)
-            return PB.onError('Preferences can only be set for an active identity')
+            return EB.onError('Preferences can only be set for an active identity')
     
         identity.preferences[key] = value
 
@@ -214,18 +214,18 @@ PB.M.Wardrobe = {}
             var identity = getIdentity(username)
 
             if(!identity)
-                return PB.onError('No identity found with username "' + username + '"')
+                return EB.onError('No identity found with username "' + username + '"')
         }
         
         currentUsername = username || false
 
-        if(!PB.currentIdentityHash) // THINK: what are the cases?
-            PB.currentIdentityHash = PB.Crypto.createMessageHash(JSON.stringify(PB.formatIdentityFile()))
+        if(!EB.currentIdentityHash) // THINK: what are the cases?
+            EB.currentIdentityHash = EB.Crypto.createMessageHash(JSON.stringify(EB.formatIdentityFile()))
         
         processUpdates()
         
         if(username && identity && identity.primary)
-            PB.Users.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
+            EB.Users.getUserRecordPromise(username, identity.primary.capa) // fetch our userRecord 
 
         return true
     }
@@ -234,7 +234,7 @@ PB.M.Wardrobe = {}
         var identity = getIdentity(username)
 
         if(!identity)
-            return PB.onError('Could not find that identity for removal')
+            return EB.onError('Could not find that identity for removal')
 
         delete identities[username]
 
@@ -275,33 +275,33 @@ PB.M.Wardrobe = {}
         // CURRENTLY UNUSED
         //// Ensure keys match the userRecord
     
-        var prom = PB.Users.getUserRecordPromise(username, capa)
+        var prom = EB.Users.getUserRecordPromise(username, capa)
     
         return prom
             .then(function(userRecord) {
                 // validate any provided private keys against the userRecord's public keys
-                if(   privateRootKey && PB.Crypto.privateToPublic(privateRootKey) != userRecord.rootKey)
-                    PB.throwError('That private root key does not match the public root key on record')
-                if(  privateAdminKey && PB.Crypto.privateToPublic(privateAdminKey) != userRecord.adminKey)
-                    PB.throwError('That private admin key does not match the public admin key on record')
-                if(privateDefaultKey && PB.Crypto.privateToPublic(privateDefaultKey) != userRecord.defaultKey)
-                    PB.throwError('That private default key does not match the public default key on record')
+                if(   privateRootKey && EB.Crypto.privateToPublic(privateRootKey) != userRecord.rootKey)
+                    EB.throwError('That private root key does not match the public root key on record')
+                if(  privateAdminKey && EB.Crypto.privateToPublic(privateAdminKey) != userRecord.adminKey)
+                    EB.throwError('That private admin key does not match the public admin key on record')
+                if(privateDefaultKey && EB.Crypto.privateToPublic(privateDefaultKey) != userRecord.defaultKey)
+                    EB.throwError('That private default key does not match the public default key on record')
         
                 return userRecord
             }
-            , PB.catchError('Could not store private keys due to faulty user record'))
+            , EB.catchError('Could not store private keys due to faulty user record'))
     }
 
     function processUpdates() {
-        if(!PB.CONFIG.ephemeralKeychain)
-            PB.Persist.save('identities', identities)
+        if(!EB.CONFIG.ephemeralKeychain)
+            EB.Persist.save('identities', identities)
 
         // THINK: consider zipping identities in localStorage to prevent shoulder-surfing and save space (same for puffs)
         // THINK: consider passphrase protecting identities and private puffs in localStorage
         // TODO: don't persist primary -- regenerate it at load time, so we don't duplicate the alias
-        PB.Persist.save('currentUsername', currentUsername)
+        EB.Persist.save('currentUsername', currentUsername)
 
-        PB.runHandlers('identityUpdate')
+        EB.runHandlers('identityUpdate')
     }
 
     function getCurrentIdentity() {

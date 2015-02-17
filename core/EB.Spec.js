@@ -8,14 +8,14 @@
  */
 
 
-PB.Spec = {}
+EB.Spec = {}
 
 
 /**
  * Validate the username
  * @param  {string} username
  */
-PB.Spec.isValidUsername = function(username) {
+EB.Spec.isValidUsername = function(username) {
     /*
     RULES:
     - Minimum length is 1
@@ -25,7 +25,7 @@ PB.Spec.isValidUsername = function(username) {
     - Cannot begin or end with a .
      */
 
-    PB.Spec.isValidUsername.rulesStatement = 'Usernames can only contain lowercase letters, numbers, and periods. They cannot ' +
+    EB.Spec.isValidUsername.rulesStatement = 'Usernames can only contain lowercase letters, numbers, and periods. They cannot ' +
         'be longer than 255 characters, or begin or end with a period.'
 
     if(!username)
@@ -51,7 +51,7 @@ PB.Spec.isValidUsername = function(username) {
  * Does everything possible to make a username valid
  * Note: This may have unintended consequences for the user
  */
-PB.Spec.sanitizeUsername = function(username) {
+EB.Spec.sanitizeUsername = function(username) {
     /*
      TRANSFORMATIONS:
      - Remove leading and trailing space
@@ -79,7 +79,7 @@ PB.Spec.sanitizeUsername = function(username) {
  * @param {string} publicKey
  * @returns {boolean}
  */
-PB.Spec.isValidPublicKey = function(publicKey) {
+EB.Spec.isValidPublicKey = function(publicKey) {
     // TODO: do "checksum" validation
 
     if(!isset(publicKey)) {
@@ -95,7 +95,7 @@ PB.Spec.isValidPublicKey = function(publicKey) {
  * @param {string} privateKey
  * @returns {boolean}
  */
-PB.Spec.isValidPrivateKey = function(privateKey) {
+EB.Spec.isValidPrivateKey = function(privateKey) {
     // TODO: Validate by testing if can be converted to public key
 
     if(!isset(privateKey)) {
@@ -110,14 +110,14 @@ PB.Spec.isValidPrivateKey = function(privateKey) {
  * @param capa
  * @returns {boolean}
  */
-PB.Spec.isValidCapa = function(capa) {
+EB.Spec.isValidCapa = function(capa) {
 
     /*
      RULES:
      - Must be a natural number (1 or greater)
      */
 
-    PB.Spec.isValidCapa.rulesStatement = 'capa must be a natural number.';
+    EB.Spec.isValidCapa.rulesStatement = 'capa must be a natural number.';
 
 
     capa = capa.toString(); // Convert to string

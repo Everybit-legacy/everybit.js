@@ -10,38 +10,38 @@
 
 */
 
-PB.M.Messages = {}
+EB.M.Messages = {}
 
-PB.M.Messages.init = function() {
-    PB.addRelationshipHandler(PB.M.Messages.addFamilialEdges)              // manages parent-child relationships
-    PB.addPayloadModifierHandler(PB.M.Messages.addTimestamp)               // add timestamp to all new puffs
+EB.M.Messages.init = function() {
+    EB.addRelationshipHandler(EB.M.Messages.addFamilialEdges)              // manages parent-child relationships
+    EB.addPayloadModifierHandler(EB.M.Messages.addTimestamp)               // add timestamp to all new puffs
 }
 
 
-PB.M.Messages.addTimestamp = function(payload) {
+EB.M.Messages.addTimestamp = function(payload) {
     payload = payload || {}
     payload.time = payload.time || Date.now()
     return payload
 }
 
 
-PB.M.Messages.addFamilialEdges = function(shells) {
-    shells.forEach(PB.M.Messages.addFamilialEdgesForShell)
+EB.M.Messages.addFamilialEdges = function(shells) {
+    shells.forEach(EB.M.Messages.addFamilialEdgesForShell)
 }
 
-PB.M.Messages.addFamilialEdgesForShell = function(child) {
-    var addParentEdges = PB.M.Messages.addFamilialEdgesForParent(child);
+EB.M.Messages.addFamilialEdgesForShell = function(child) {
+    var addParentEdges = EB.M.Messages.addFamilialEdgesForParent(child);
     (child.payload.parents||[]).forEach(addParentEdges);
 }
 
-PB.M.Messages.addFamilialEdgesForParent = function(child) {
-    var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(PB.prop('sig'))
+EB.M.Messages.addFamilialEdgesForParent = function(child) {
+    var existingParents = EB.Data.graph.v(child.sig).out('parent').property('shell').run().map(EB.prop('sig'))
     
     return function(parentSig) {
         if(~existingParents.indexOf(parentSig)) return false                       // done?
-        PB.Data.addSigAsVertex(parentSig)                                          // idempotent
-        PB.Data.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
-        PB.Data.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
+        EB.Data.addSigAsVertex(parentSig)                                          // idempotent
+        EB.Data.graph.addEdge({_label: 'parent', _in: parentSig, _out: child.sig}) // not idempotent
+        EB.Data.graph.addEdge({_label: 'child', _out: parentSig,  _in: child.sig})
     }
 }
 
@@ -61,7 +61,7 @@ PB.M.Messages.addFamilialEdgesForParent = function(child) {
 
 
 
-PB.M.Messages.flagPuff = function (sig) {
+EB.M.Messages.flagPuff = function (sig) {
     // TODO: move this out of the Message module and rewrite it
 
     var payload = {};
@@ -72,13 +72,13 @@ PB.M.Messages.flagPuff = function (sig) {
     
     payload.time = Date.now();
 
-    PB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
+    EB.useSecureInfo(function(identities, currentUsername, privateRootKey, privateAdminKey, privateDefaultKey) {    
 
         if(!currentUsername) {
             alert("You must first set your username before you can flag content");
             return false;
         }
-        /*if(!currentUsername == PB.getPuffBySig(sig).username) {
+        /*if(!currentUsername == EB.getPuffBySig(sig).username) {
             alert("You must set your identity to the author of the puff you want to flag");
         }*/
         if(!privateAdminKey) {
@@ -86,23 +86,23 @@ PB.M.Messages.flagPuff = function (sig) {
             return false;
         }
     
-        puff = PB.Puff.build(currentUsername, privateAdminKey, routes, type, content, payload);
+        puff = EB.Puff.build(currentUsername, privateAdminKey, routes, type, content, payload);
     })
 
     var data = { type: 'flagPuff'
                , puff: puff
                };
 
-    var prom = PB.Net.PBpost(PB.CONFIG.puffApi, data);
+    var prom = EB.Net.EBpost(EB.CONFIG.puffApi, data);
     
     prom = prom.then(function(result){
-        // var storedShells = PB.Persist.get('shells');
+        // var storedShells = EB.Persist.get('shells');
         // var filteredShells = storedShells.filter(function(s){return s.sig != content && s.content != content});
-        var flaggedSig = PB.Persist.get('flagged') || [];
+        var flaggedSig = EB.Persist.get('flagged') || [];
         flaggedSig.push(content);
 
-        // PB.Persist.save('shells', filteredShells);
-        PB.Persist.save('flagged', flaggedSig);
+        // EB.Persist.save('shells', filteredShells);
+        EB.Persist.save('flagged', flaggedSig);
         // reload?
         // document.location.reload();
         Events.pub('ui/flag', {});
@@ -140,7 +140,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param  {number} limit
 //  * @return {array} An array of puffs
 //  */
-// PB.M.Forum.getPuffList = function(query, filters, limit) {
+// EB.M.Forum.getPuffList = function(query, filters, limit) {
 //     //// returns a list of puffs
 //
 //     // THINK: the graph can help us here, but only if we're more clever about forming relationships and using those in our filters.
@@ -148,15 +148,15 @@ PB.M.Messages.flagPuff = function (sig) {
 //     limit = limit || Infinity
 //     var offset = +query.offset||0
 //
-//     // var shells = PB.M.Forum.getShells(query, filters)
-//     var shells = PB.Data.getAllMyShells()
+//     // var shells = EB.M.Forum.getShells(query, filters)
+//     var shells = EB.Data.getAllMyShells()
 //
-//     var filtered_shells = shells.filter(PB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
-//                                 .sort(PB.M.Forum.sortByPayload) // TODO: sort by query
+//     var filtered_shells = shells.filter(EB.M.Forum.filterByFilters(Boron.extend({}, query, filters)))
+//                                 .sort(EB.M.Forum.sortByPayload) // TODO: sort by query
 //
 //     var sliced_shells = filtered_shells.slice(offset, offset+limit)
 //
-//     var puffs = sliced_shells.map(PB.Data.getPuffFromShell)
+//     var puffs = sliced_shells.map(EB.Data.getPuffFromShell)
 //                              .filter(Boolean)
 //
 //     var have = sliced_shells.length
@@ -164,7 +164,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //     if(have >= limit)
 //         return puffs  // as long as we have enough filtered shells the puffs will eventually fill in empty spots
 //
-//     PB.Data.fillSomeSlotsPlease(limit, have, query, filters)
+//     EB.Data.fillSomeSlotsPlease(limit, have, query, filters)
 //
 //     return puffs;
 // }
@@ -175,7 +175,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param  {string} filters
 //  * @return {boolean}
 //  */
-// PB.M.Forum.filterByFilters = function(filters) {
+// EB.M.Forum.filterByFilters = function(filters) {
 //
 //     if(!filters) return function() {return true}
 //
@@ -213,14 +213,14 @@ PB.M.Messages.flagPuff = function (sig) {
 //
 //         // USERS
 //         if(filters.users && filters.users.length > 0)
-//             if(!~filters.users.indexOf(PB.Users.justUsername(shell.username))) return false
+//             if(!~filters.users.indexOf(EB.Users.justUsername(shell.username))) return false
 //
 //
 //         if(filters.roots)
 //             if((shell.payload.parents||[]).length) return false
 //
 //         if(filters.ancestors && filters.focus) {
-//             var focus = PB.getPuffBySig(filters.focus) // TODO: find better way to do this
+//             var focus = EB.getPuffBySig(filters.focus) // TODO: find better way to do this
 //             if(focus.payload && !~focus.payload.parents.indexOf(shell.sig)) return false
 //         }
 //
@@ -242,7 +242,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param  {object} b
 //  * @return {number} based on desired sorting order
 //  */
-// PB.M.Forum.sortByPayload = function(a,b) {
+// EB.M.Forum.sortByPayload = function(a,b) {
 //     //// helper for sorting by payload.time
 //     if(puffworldprops.view.query.sort == 'DESC')
 //         return b.payload.time - a.payload.time;
@@ -258,12 +258,12 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param  {Object} props
 //  * @return {number} The number of parents
 //  */
-// PB.M.Forum.getParentCount = function(puff, props) {
+// EB.M.Forum.getParentCount = function(puff, props) {
 //     if(!puff) return 0
 //
 //     var sig = puff.sig || puff
 //
-//     return PB.Data.graph.v(sig).out('parent').run().length
+//     return EB.Data.graph.v(sig).out('parent').run().length
 // }
 
 
@@ -272,19 +272,19 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param  {Object} puff
 //  * @return {number} The number of children
 //  */
-// PB.M.Forum.getChildCount = function(puff) {
+// EB.M.Forum.getChildCount = function(puff) {
 //     if(!puff) return 0
 //
 //     var sig = puff.sig || puff
 //
-//     return PB.Data.graph.v(sig).out('child').run().length
+//     return EB.Data.graph.v(sig).out('child').run().length
 // }
 
 
 // // Adding default metafields to included in a puff
-// PB.M.Forum.metaFields = []
-// PB.M.Forum.context = {};
-// PB.M.Forum.addMetaFields = function(fieldInfo, context, excludeContext) {
+// EB.M.Forum.metaFields = []
+// EB.M.Forum.context = {};
+// EB.M.Forum.addMetaFields = function(fieldInfo, context, excludeContext) {
 //     // NOTE: this isn't used outside of publishEmbed.js, but it might provide a good basis for generic/required metadata
 //
 //     if (!fieldInfo.name) return console.log('Invalid meta field name.');
@@ -296,55 +296,55 @@ PB.M.Messages.flagPuff = function (sig) {
 //         fieldInfo.validator = false;
 //     }
 //
-//     context = context || Object.keys(PB.Data.contentTypes);
+//     context = context || Object.keys(EB.Data.contentTypes);
 //     if (typeof context == 'string') {
 //         context = [context];
 //     } else if (!Array.isArray(context)) {
-//         return PB.onError('Invalid context.')
+//         return EB.onError('Invalid context.')
 //     }
 //
 //     excludeContext = excludeContext || [];
 //     if (typeof excludeContext == 'string') {
 //         excludeContext = [excludeContext];
 //     }else if (!Array.isArray(excludeContext)) {
-//         return PB.onError('Invalid context.')
+//         return EB.onError('Invalid context.')
 //     }
 //
-//     PB.M.Forum.metaFields.push(fieldInfo);
+//     EB.M.Forum.metaFields.push(fieldInfo);
 //     for (var i=0; i<context.length; i++) {
 //         if (excludeContext.indexOf(context[i]) != -1)
 //             continue;
-//         var contextFields = PB.M.Forum.context[context[i]] || [];
+//         var contextFields = EB.M.Forum.context[context[i]] || [];
 //         contextFields.push(fieldInfo.name);
-//         PB.M.Forum.context[context[i]] = contextFields;
+//         EB.M.Forum.context[context[i]] = contextFields;
 //     }
 // }
 //
-// PB.M.Forum.addMetaFields(
+// EB.M.Forum.addMetaFields(
 //     {name: 'reply privacy',
 //      type: 'pulldown',
 //      enum: ['', 'public', 'private', 'anonymous', 'invisible'],
 //      defaultValue: ''});
 //
-// PB.M.Forum.addMetaFields(
+// EB.M.Forum.addMetaFields(
 //     {name: 'content license',
 //      type: 'pulldown',
 //      enum: ['', 'CreativeCommonsAttribution', 'GNUPublicLicense', 'Publicdomain', 'Rights-managed', 'Royalty-free'],
 //      defaultValue: ''});
 //
-// PB.M.Forum.addMetaFields(
+// EB.M.Forum.addMetaFields(
 //     {name: 'tags',
 //      type: 'array',
 //      validator: function(v){return /^[a-z0-9]+$/i.test(v)}
 //      },
 //     false, 'profile');
 //
-// PB.M.Forum.addMetaFields(
+// EB.M.Forum.addMetaFields(
 //     {name: 'language',
 //      type: 'text',
 //      defaultValue: function(){return puffworldprops.view.language}});
 //
-// PB.M.Forum.addMetaFields(
+// EB.M.Forum.addMetaFields(
 //     {name: 'name',
 //      type: 'text'},
 //     'profile');
@@ -360,7 +360,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param {string[]} privateEnvelopeAlias
 //  * @returns {promise}
 //  */
-// PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+// EB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
 //     //// Given a string of content, create a puff and push it into the system
 //
 //     // ensure parents is an array
@@ -368,15 +368,15 @@ PB.M.Messages.flagPuff = function (sig) {
 //     if(!Array.isArray(parents)) parents = [parents]
 //
 //     // ensure parents contains only puff ids
-//     if(parents.map(PB.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
-//         return PB.emptyPromise('Those are not good parents')
+//     if(parents.map(EB.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
+//         return EB.emptyPromise('Those are not good parents')
 //
 //     // ensure parents are unique
-//     parents = PB.uniquify(parents)
+//     parents = EB.uniquify(parents)
 //
 //     // find the routes using parents
 //     var routes = parents.map(function(id) {
-//         return PB.getPuffBySig(id).username
+//         return EB.getPuffBySig(id).username
 //     });
 //     if (metadata.routes) {
 //         routes = metadata.routes // THINK: this should probably merge with above instead of replacing it...
@@ -384,16 +384,16 @@ PB.M.Messages.flagPuff = function (sig) {
 //     }
 //
 //     // ensure all routes are unique
-//     routes = PB.uniquify(routes)
+//     routes = EB.uniquify(routes)
 //
-//     var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+//     var takeUserMakePuff = EB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
 //
 //     // get a user promise
-//     var userprom = PB.Users.getUpToDateUserAtAnyCost()
+//     var userprom = EB.Users.getUpToDateUserAtAnyCost()
 //
-//     var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
+//     var prom = userprom.catch(EB.catchError('Failed to add post: could not access or create a valid user'))
 //                        .then(takeUserMakePuff)
-//                        .catch(PB.catchError('Posting failed'))
+//                        .catch(EB.catchError('Posting failed'))
 //
 //     return prom
 //
@@ -413,7 +413,7 @@ PB.M.Messages.flagPuff = function (sig) {
 //  * @param {array} privateEnvelopeAlias
 //  * @returns {Function}
 //  */
-// PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+// EB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
 //     //// Make a puff... except the parts that require a user
 //
 //     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
@@ -425,14 +425,14 @@ PB.M.Messages.flagPuff = function (sig) {
 //
 //     var type  = type || 'text'
 //     var routes = routes ? routes : [];
-//     routes = routes.concat(PB.CONFIG.zone);
+//     routes = routes.concat(EB.CONFIG.zone);
 //
 //     return function(userRecord) {
 //         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here
 //
 //         var previous = userRecord.latest
-//         var puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+//         var puff = EB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
 //
-//         return PB.Data.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
+//         return EB.Data.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
 //     }
 // }

@@ -22,8 +22,8 @@ var filesize = require('gulp-filesize');
 var coreBuildList = [
     'vendor/*',
     'libs/*',
-    'core/PB.js',
-    'core/PB.*.js',
+    'core/EB.js',
+    'core/EB.*.js',
     'modules/*',
     'types/*'
 ];

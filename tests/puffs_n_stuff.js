@@ -13,7 +13,7 @@
 
     - privateToPublic false condition
     - promise throw/catch errors 
-    - PB.checkUsername (pass through network response)
+    - EB.checkUsername (pass through network response)
     - firefox
 
 */
@@ -23,7 +23,7 @@
 // // -- High level flows using user-facing API functions
 //
 // // create an anonymous user
-// var userPromise = PB.Users.addNewAnonUser()
+// var userPromise = EB.Users.addNewAnonUser()
 // userPromise.then(function(userRecord) {
 //                if(!userRecord)
 //                    throwfail('No user record in anon user creation', userRecord)
@@ -37,7 +37,7 @@
 //
 // // make the new identity the currently active one
 // userPromise.then(function(userRecord) {
-//                if(!PB.switchIdentityTo(userRecord.username))
+//                if(!EB.switchIdentityTo(userRecord.username))
 //                    throwfail('Could not set currently active user', userRecord)
 //            })
 //
@@ -47,7 +47,7 @@
 //                var content = 'some content'
 //                var parents = []
 //                var metadata = {}
-//                var postPromise = PB.M.Forum.addPost(type, content, parents, metadata)
+//                var postPromise = EB.M.Forum.addPost(type, content, parents, metadata)
 //
 //                postPromise.catch(function(err) {
 //                    throwfail('Could not post new puff', err)
@@ -55,7 +55,7 @@
 //
 //                // post a reply puff to that first puff
 //                postPromise.then(function(puff) {
-//                    var replyPromise = PB.M.Forum.addPost('text', 'reply content', [puff.sig], {})
+//                    var replyPromise = EB.M.Forum.addPost('text', 'reply content', [puff.sig], {})
 //
 //                    replyPromise.catch(function(err) {
 //                        throwfail('Could not post reply puff', err)
@@ -86,17 +86,17 @@
 // // -- (in general the high level functions are preferred, as they have error handling baked in)
 //
 // // generate new random username
-// var randomUsername = PB.Users.generateRandomUsername()
+// var randomUsername = EB.Users.generateRandomUsername()
 // if(!/[0-9a-z]/.test(randomUsername))
 //     testfail('Random username failed: ', randomUsername)
 //
 // // generate random private key
-// var randomPrivateKey = PB.Crypto.generatePrivateKey()
+// var randomPrivateKey = EB.Crypto.generatePrivateKey()
 // if(!randomPrivateKey)
 //     testfail('Private key gen failed: ', randomPrivateKey)
 //
 // // convert public to private
-// var randomPublicKey = PB.Crypto.privateToPublic(randomPrivateKey)
+// var randomPublicKey = EB.Crypto.privateToPublic(randomPrivateKey)
 // if(!randomPublicKey)
 //     testfail('Public key gen failed: ', randomPublicKey, randomPrivateKey)
 //
@@ -104,40 +104,40 @@
 // //// Identity management
 //
 // // get current keys
-// // var keys = PB.M.Wardrobe.getCurrentKeys()
+// // var keys = EB.M.Wardrobe.getCurrentKeys()
 //
 // // get current username
-// var username = PB.getCurrentUsername()
+// var username = EB.getCurrentUsername()
 //
 // // get current user record
-// var userRecord = PB.getCurrentUserRecord()
+// var userRecord = EB.getCurrentUserRecord()
 //
 // // get all of the identities being saved on this browser
-// // var keychain = PB.M.Wardrobe.getAll()
+// // var keychain = EB.M.Wardrobe.getAll()
 //
 // // switch current user
-// PB.switchIdentityTo(username)
+// EB.switchIdentityTo(username)
 //
 // // store a new username and keys
 // // note that this checks the keys against the DHT, so this will *fail*
 // // note that this DOES NOT check keys against the DHT, and doesn't perform any validation, and doesn't return a value
-// // PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey) // FIXME: upgrade this before use
+// // EB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey) // FIXME: upgrade this before use
 //
-// // var newUserPromise = PB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
+// // var newUserPromise = EB.M.Wardrobe.storePrivateKeys(randomUsername, randomPublicKey, randomPublicKey, randomPublicKey)
 // // newUserPromise.then(function(userRecord) { testfail("The wardrobe stored keys when it shouldn't have", userRecord) })
 //
 //
 // // user lookup
-// var badLookupPromise = PB.Net.getUserRecord(randomUsername)
+// var badLookupPromise = EB.Net.getUserRecord(randomUsername)
 // badLookupPromise.then(function(userRecord) { testfail("The user record lookup should have failed", userRecord) })
 //
-// var goodLookupPromise = PB.Net.getUserRecord('anon')
+// var goodLookupPromise = EB.Net.getUserRecord('anon')
 // goodLookupPromise.catch(function(err) { testfail("The user record lookup should have succeeded", err) })
 //
 //
 // // use this style to interact with the anon user created above
 // // userPromise.then(function(userRecord) {
-// //     var keys = PB.M.Wardrobe.getKeys(userRecord.username)
+// //     var keys = EB.M.Wardrobe.getKeys(userRecord.username)
 // // })
 // // .catch(function(err) {
 // //     testfail('Could not collect current keys', err)
@@ -202,7 +202,7 @@
 // /// gridbox tests
 //
 // getScreenCoords = function() {
-//     return { width:  window.innerWidth - PB.CONFIG.leftMargin
+//     return { width:  window.innerWidth - EB.CONFIG.leftMargin
 //            , height: window.innerHeight
 //            }
 // }

@@ -55,7 +55,7 @@ PB.postPublicMessage = function(content, type) {
         return PB.emptyPromise('You must have a current identity to post a public message')
     
     var puff = PB.Puff.simpleBuild(type, content)
-    return PB.Data.addPuffToSystem(puff)
+    return Promise.resolve(PB.Data.addPuffToSystem(puff))
 }
 
 PB.postPrivateMessage = function(content, usernames, type) {

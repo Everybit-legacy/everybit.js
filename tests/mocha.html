@@ -12,7 +12,6 @@
   <script src="../node_modules/mocha/mocha.js"></script>
   <script>mocha.setup('bdd')</script>
   
-  
   <script src="test_basic_api.js"></script>  <!-- tests for core functionality -->
   <script src="test_crypto.js"></script>     <!-- tests for crypto functionality -->
   <script src="test_persist.js"></script>    <!-- tests for persistence library -->
@@ -21,10 +20,9 @@
   <script src="test_spec.js"></script>       <!-- tests for spec validations -->
   
   <script>
-    mocha.checkLeaks();
-    // mocha.globals(['jQuery']);
+    mocha.checkLeaks()
     PB.init()
-    mocha.run();
+    mocha.run()
   </script>
 </body>
 </html>

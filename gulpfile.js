@@ -20,28 +20,12 @@ var filesize = require('gulp-filesize');
 
 
 var coreBuildList = [
-    'vendor/bitcoinjs-min.js',
-    'vendor/peer.js',
-    'vendor/promise.min.js',
-    'vendor/xbbcode.js',
-    'libs/boron.js',
-    'libs/timing.js',
-    'libs/filefile.js',
-    'libs/events.js',
-    'libs/gridbox.js',
-    'libs/dagoba.js',
-
+    'vendor/*',
+    'libs/*',
     'core/PB.js',
-    'core/PB.Net.js',
-    'core/PB.Data.js',
-    'core/PB.Puff.js',
-    'core/PB.Users.js',
-    'core/PB.Crypto.js',
-    'core/PB.Persist.js',
-    'core/PB.Spec.js',
-
-    'modules/PB.M.Forum.js',
-    'modules/PB.M.Wardrobe.js'
+    'core/PB.*.js',
+    'modules/*',
+    'types/*'
 ];
 
 gulp.task('coreBuild', function () {

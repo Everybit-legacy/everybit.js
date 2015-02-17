@@ -1,58 +1,40 @@
 /* 
-                   _____  _____  _____                           
-    ______  __ ___/ ____\/ ____\/ ____\___________ __ __  _____  
-    \____ \|  |  \   __\\   __\\   __\/  _ \_  __ \  |  \/     \ 
-    |  |_> >  |  /|  |   |  |   |  | (  <_> )  | \/  |  /  Y Y  \
-    |   __/|____/ |__|   |__|   |__|  \____/|__|  |____/|__|_|  /
-    |__|                                                      \/ 
+     _  _  ____  ____  ____   __    ___  ____  ____ 
+    ( \/ )(  __)/ ___)/ ___) / _\  / __)(  __)/ ___)
+    / \/ \ ) _) \___ \\___ \/    \( (_ \ ) _) \___ \
+    \_)(_/(____)(____/(____/\_/\_/ \___/(____)(____/  
   
-  
-  A Puffball module for managing forum-style puffs. Wraps the core Puffball API in a fluffy layer of syntactic spun sugar.
-
-  Usage example:
-  PB.M.Forum.init()
-  ...
+  When included this module adds two passive enhancements:
+  - all puffs receive a payload.time field containing the current time in milliseconds
+  - any puff containing an array of signatures in the payload.parents field will have have those parents lifted in to the graph
 
 */
 
-PB.M.Forum = {};
+PB.M.Messages = {}
 
-
-/**
- * Bootstrap the forum module
- */
-PB.M.Forum.init = function() {
-    PB.addRelationshipHandler(PB.M.Forum.addFamilialEdges)              // manages parent-child relationships
-    PB.addPayloadModifierHandler(PB.M.Forum.addTimestamp)               // add timestamp to all new puffs
+PB.M.Messages.init = function() {
+    PB.addRelationshipHandler(PB.M.Messages.addFamilialEdges)              // manages parent-child relationships
+    PB.addPayloadModifierHandler(PB.M.Messages.addTimestamp)               // add timestamp to all new puffs
 }
 
 
-/**
- * Inject a timestamp into the payload
- * the "time" field is optional for puffs, but mandatory for "forum style" puffs
- *
- * @param {Object} payload
- * @returns {Object|{}}
- */
-PB.M.Forum.addTimestamp = function(payload) {
+PB.M.Messages.addTimestamp = function(payload) {
     payload = payload || {}
-    payload.time = Date.now()
+    payload.time = payload.time || Date.now()
     return payload
 }
 
 
-/// graph relationships ///
-
-PB.M.Forum.addFamilialEdges = function(shells) {
-    shells.forEach(PB.M.Forum.addFamilialEdgesForShell)
+PB.M.Messages.addFamilialEdges = function(shells) {
+    shells.forEach(PB.M.Messages.addFamilialEdgesForShell)
 }
 
-PB.M.Forum.addFamilialEdgesForShell = function(child) {
-    var addParentEdges = PB.M.Forum.addFamilialEdgesForParent(child);
+PB.M.Messages.addFamilialEdgesForShell = function(child) {
+    var addParentEdges = PB.M.Messages.addFamilialEdgesForParent(child);
     (child.payload.parents||[]).forEach(addParentEdges);
 }
 
-PB.M.Forum.addFamilialEdgesForParent = function(child) {
+PB.M.Messages.addFamilialEdgesForParent = function(child) {
     var existingParents = PB.Data.graph.v(child.sig).out('parent').property('shell').run().map(PB.prop('sig'))
     
     return function(parentSig) {
@@ -63,195 +45,6 @@ PB.M.Forum.addFamilialEdgesForParent = function(child) {
     }
 }
 
-/// end graph relationships ///
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Takes a string of content, create a puff and push it into the system
- * @param {string} type
- * @param {string} content
- * @param {array} parents
- * @param {Object} metadata
- * @param {string[]} userRecordsForWhomToEncrypt
- * @param {string[]} privateEnvelopeAlias
- * @returns {promise}
- */
-PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// Given a string of content, create a puff and push it into the system
-    
-    // ensure parents is an array
-    if(!parents) parents = []
-    if(!Array.isArray(parents)) parents = [parents]
-    
-    // ensure parents contains only puff ids
-    if(parents.map(PB.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
-        return PB.emptyPromise('Those are not good parents')
-    
-    // ensure parents are unique
-    parents = PB.uniquify(parents)
-
-    // find the routes using parents
-    var routes = parents.map(function(id) {
-        return PB.getPuffBySig(id).username
-    });
-    if (metadata.routes) {
-        routes = metadata.routes // THINK: this should probably merge with above instead of replacing it...
-        delete metadata['routes']
-    }
-    
-    // ensure all routes are unique
-    routes = PB.uniquify(routes)
-    
-    var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-    
-    // get a user promise
-    var userprom = PB.Users.getUpToDateUserAtAnyCost()
-    
-    var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
-                       .then(takeUserMakePuff)
-                       .catch(PB.catchError('Posting failed'))
-    
-    return prom
-    
-    // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
-    // TODO: make an official interface fulfillment thing
-}
-
-
-/**
- * Make a puff... except the parts that require a user
- * @param {string} type
- * @param {string} content
- * @param {array} parents
- * @param {object} metadata
- * @param {array} routes
- * @param {array} userRecordsForWhomToEncrypt
- * @param {array} privateEnvelopeAlias
- * @returns {Function}
- */
-PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
-    //// Make a puff... except the parts that require a user
-    
-    // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
-    
-    var payload = metadata || {}                            // metadata becomes the basis of payload
-    payload.parents = payload.parents || parents            // ids of the parent puffs
-    payload.time = metadata.time || Date.now()              // time is always a unix timestamp
-    payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
-
-    var type  = type || 'text'
-    var routes = routes ? routes : [];
-    routes = routes.concat(PB.CONFIG.zone);
-    
-    return function(userRecord) {
-        // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here 
-
-        var previous = userRecord.latest
-        var puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
-
-        return PB.Data.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-// DEFAULT CONTENT TYPES
-
-PB.Data.addContentType('text', {
-    toHtml: function(content) {
-        var safe_content = XBBCODE.process({ text: content })   // not ideal, but it does seem to strip out raw html
-        safe_content.html = safe_content.html.replace(/\n/g, '</br>');  // Set line breaks
-        return '<span>' + safe_content.html + '</span>'
-    }
-})
-
-PB.Data.addContentType('bbcode', {
-    toHtml: function(content) {
-        var bbcodeParse = XBBCODE.process({ text: content });
-        var parsedText  = bbcodeParse.html.replace(/\n/g, '<br />'); 
-        return parsedText;
-    }
-})
-
-PB.Data.addContentType('image', {
-    toHtml: function(content) {
-        if(puffworldprops.view.mode == "tableView")
-            return '<img src=' + content + ' />';
-        else
-            return '<img class="imgInBox" src=' + content + ' />';
-    }
-})
-
-PB.Data.addContentType('markdown', {
-    toHtml: function(content) {
-        var converter = new Markdown.Converter();
-        return '<span>'+converter.makeHtml(content)+'</span>';
-    }
-})
-
-// Used to display chess boards
-PB.Data.addContentType('PGN', {
-    toHtml: function(content) {
-        return chessBoard(content);
-    }
-})
-
-PB.Data.addContentType('identity', {
-    toHtml: function() {
-        return ''
-    }
-})
-
-PB.Data.addContentType('profile', {
-    toHtml: function(content, puff) {
-        if(puffworldprops.view.mode == "tableView")
-            return '<img src=' + content + ' />';
-        else
-            return '<img class="imgInBox" src=' + content + ' />';
-        /*var keysNotShow = ['content', 'type'];
-        for (var key in puff.payload) {
-            var value = puff.payload[key];
-            if (keysNotShow.indexOf(key)==-1 && value && value.length) {
-                toRet += '<div><span class="profileKey">' + key + ': </span><span class="profileValue">' + value + '</span></div>';
-            }
-        }*/
-    }
-})
-
-PB.Data.addContentType('file', {
-    toHtml: function(content, puff) {
-        return (
-            puff.payload.filename
-            )
-    }
-
-})
-
-// TODO: Add support for LaTex
-/*PB.Data.addContentType('LaTex', {
-    toHtml: function(content) {
-        var safe_content = XBBCODE.process({ text: content }) 
-        return '<p>' + safe_content.html + '</p>'
-    }
-}) */
 
 
 
@@ -268,15 +61,8 @@ PB.Data.addContentType('file', {
 
 
 
-
-
-
-
-
-
-
-// Flag a puff
-PB.M.Forum.flagPuff = function (sig) {
+PB.M.Messages.flagPuff = function (sig) {
+    // TODO: move this out of the Message module and rewrite it
 
     var payload = {};
     var routes = [];
@@ -562,3 +348,91 @@ PB.M.Forum.flagPuff = function (sig) {
 //     {name: 'name',
 //      type: 'text'},
 //     'profile');
+
+
+// /**
+//  * Takes a string of content, create a puff and push it into the system
+//  * @param {string} type
+//  * @param {string} content
+//  * @param {array} parents
+//  * @param {Object} metadata
+//  * @param {string[]} userRecordsForWhomToEncrypt
+//  * @param {string[]} privateEnvelopeAlias
+//  * @returns {promise}
+//  */
+// PB.M.Forum.addPost = function(type, content, parents, metadata, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+//     //// Given a string of content, create a puff and push it into the system
+//
+//     // ensure parents is an array
+//     if(!parents) parents = []
+//     if(!Array.isArray(parents)) parents = [parents]
+//
+//     // ensure parents contains only puff ids
+//     if(parents.map(PB.getPuffBySig).filter(function(x) { return x != null }).length != parents.length)
+//         return PB.emptyPromise('Those are not good parents')
+//
+//     // ensure parents are unique
+//     parents = PB.uniquify(parents)
+//
+//     // find the routes using parents
+//     var routes = parents.map(function(id) {
+//         return PB.getPuffBySig(id).username
+//     });
+//     if (metadata.routes) {
+//         routes = metadata.routes // THINK: this should probably merge with above instead of replacing it...
+//         delete metadata['routes']
+//     }
+//
+//     // ensure all routes are unique
+//     routes = PB.uniquify(routes)
+//
+//     var takeUserMakePuff = PB.M.Forum.partiallyApplyPuffMaker(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+//
+//     // get a user promise
+//     var userprom = PB.Users.getUpToDateUserAtAnyCost()
+//
+//     var prom = userprom.catch(PB.catchError('Failed to add post: could not access or create a valid user'))
+//                        .then(takeUserMakePuff)
+//                        .catch(PB.catchError('Posting failed'))
+//
+//     return prom
+//
+//     // NOTE: any puff that has 'time' and 'parents' fields fulfills the forum interface
+//     // TODO: make an official interface fulfillment thing
+// }
+//
+//
+// /**
+//  * Make a puff... except the parts that require a user
+//  * @param {string} type
+//  * @param {string} content
+//  * @param {array} parents
+//  * @param {object} metadata
+//  * @param {array} routes
+//  * @param {array} userRecordsForWhomToEncrypt
+//  * @param {array} privateEnvelopeAlias
+//  * @returns {Function}
+//  */
+// PB.M.Forum.partiallyApplyPuffMaker = function(type, content, parents, metadata, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias) {
+//     //// Make a puff... except the parts that require a user
+//
+//     // THINK: if you use the same metadata object for multiple puffs your cached version of the older puffs will get messed up
+//
+//     var payload = metadata || {}                            // metadata becomes the basis of payload
+//     payload.parents = payload.parents || parents            // ids of the parent puffs
+//     payload.time = metadata.time || Date.now()              // time is always a unix timestamp
+//     payload.tags = metadata.tags || []                      // an array of tags // TODO: make these work
+//
+//     var type  = type || 'text'
+//     var routes = routes ? routes : [];
+//     routes = routes.concat(PB.CONFIG.zone);
+//
+//     return function(userRecord) {
+//         // userRecord is always an up-to-date record from the DHT, so we can use its 'latest' value here
+//
+//         var previous = userRecord.latest
+//         var puff = PB.Puff.simpleBuild(type, content, payload, routes, userRecordsForWhomToEncrypt, privateEnvelopeAlias)
+//
+//         return PB.Data.addPuffToSystem(puff) // THINK: this fails silently if the sig exists already
+//     }
+// }

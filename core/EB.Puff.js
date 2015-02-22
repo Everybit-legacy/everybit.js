@@ -1,5 +1,9 @@
 /*
+
     Puffs are the lifeblood of EveryBit. This file contains relatively pure functions for working with them.
+
+    Copyright 2015 EveryBit. See README for license information.
+
 */
 
 EB.Puff = {}
@@ -209,8 +213,8 @@ EB.Puff.promiseToDecryptForReals = function(envelope, senderPublicKey, recipient
 
 
 EB.Puff.isFull = function(shell) {
-    // A puff has payload.content. A shell does not.
-    return (shell.payload||{}).content !== undefined
+    // A puff has payload.content -- a shell does not
+    return ((shell||{}).payload||{}).content !== undefined
 }
 
 EB.Puff.isEmpty = function(shell) {

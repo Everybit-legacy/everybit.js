@@ -5,7 +5,7 @@
     All puff-related data flows through here:
     caching, persistence, optimizations and network access are managed through this module.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
  */
 
@@ -711,37 +711,46 @@ EB.Data.importRemoteShells = function() {
 
 
 /**
- * returns a puff from a shell
- * @param  {(string|object)} shell 
- * @return {promise}
- */
-EB.Data.getPuffFromShell = function(shell) {
-    // TODO: rewrite. also, isn't used.
-    if(!shell)
-        return Promise.reject()
-    
-    if(EB.Puff.isFull(shell))
-        return Promise.resolve(shell) // it's actually a full blown puff
-    
-    return EB.Data.getPuffBySig(shell.sig) // returns a puff, or asks the network and returns false
-}
-
-/**
  * get a puff by its sig
  * @param {string} sig
  * @returns {promise}
  */
 EB.Data.getPuffBySig = function(sig) {
-    var shell = EB.Data.getCachedShellBySig(sig)
+    var shell = EB.Data.getCachedShellBySig(sig)                    // check in public cache
+    
+    if(!shell)
+        shell = EB.Data.getDecryptedLetterBySig(sig)                // check in private cache
     
     if(EB.Puff.isFull(shell))
-        return Promise.resolve(shell)
+        return Promise.resolve(shell)                               // it has content
     
-    if(EB.Data.pendingPuffPromises[sig])
+    if(EB.Data.pendingPuffPromises[sig])                            // establish a foothold
         return EB.Data.pendingPuffPromises[sig]
     
-    return EB.Data.getPuffBySigFromElsewhere(sig)
+    return EB.Data.getPuffBySigFromElsewhere(sig)                   // gather a promise
 }
+
+EB.Data.getPuffOrNot = function(sig) {
+    // Supports the fire-and-forget style, where we ask for a puff and either
+    // - receiving it directly if it's in the cache, or
+    // - receiving false, but meanwhile a request is sent.
+    // This can be easier than dealing with promises for e.g. showing cat photos, 
+    // since you just always show whichever ones you have. When more cats arrive 
+    // a refresh is triggered and all available cats are shown. 
+    
+    var shell = EB.Data.getCachedShellBySig(sig)                    // check in public cache
+    
+    if(!shell)
+        shell = EB.Data.getDecryptedLetterBySig(sig)                // check in private cache
+
+    if(EB.Puff.isFull(shell))
+        return shell                                                // it has content
+        
+    EB.Data.getPuffBySigFromElsewhere(sig)                          // get the puff from the network
+        
+    return false                                                    // but return false for easy filtering
+}
+
 
 /**
  * get a puff by its sig from elsewhere
@@ -753,7 +762,7 @@ EB.Data.getPuffBySigFromElsewhere = function(sig) {
     var output = EB.Data.pendingPuffPromises[sig].then(badShellClearCache)
 
     output.then(EB.Data.addShellsThenMakeAvailable)
-          .then(function() {                                         // delay GC to stop runaway network requests
+          .then(function() {                                        // delay GC to stop runaway network requests
                     setTimeout(function() { delete EB.Data.pendingPuffPromises[sig] }, 10000) })
     
     return output
@@ -773,39 +782,17 @@ EB.Data.getPuffBySigFromElsewhere = function(sig) {
     }
 }
 
-EB.Data.getPuffOrNot = function(sig) {
-    // Supports the fire-and-forget style, where we ask for a puff and either
-    // - receiving it directly if it's in the cache, or
-    // - receiving false, but meanwhile a request is sent.
-    // This can be easier than dealing with promises for e.g. showing cat photos, 
-    // since you just always show whichever ones you have. When more cats arrive 
-    // a refresh is triggered and all available cats are shown. 
-    
-    var shell = EB.Data.getCachedShellBySig(sig)
-    
-    if(!shell)
-        shell = EB.Data.getDecryptedLetterBySig(sig)    // check in private cache
-
-    if(shell)
-        return EB.Data.getPuffFromShell(shell)          // get a puff from the shell
-
-    EB.Data.getPuffBySigFromElsewhere(sig)              // get the puff from the network
-        
-    return false                                        // but return false for easy filtering
-}
-
-
 EB.Data.removeShellFromCache = function(sig) {
-    var shell = EB.Data.getCachedShellBySig(sig)                     // remove from EB.Data.shells
+    var shell = EB.Data.getCachedShellBySig(sig)                    // remove from EB.Data.shells
     EB.Data.shells.splice( EB.Data.shells.indexOf(shell), 1 )
     
-    delete EB.Data.shellSort[sig]                                    // remove from EB.Data.shellSort
+    delete EB.Data.shellSort[sig]                                   // remove from EB.Data.shellSort
     
-    delete EB.Data.bonii[sig]                                        // remove shell's bonii
+    delete EB.Data.bonii[sig]                                       // remove shell's bonii
     
-    EB.Data.purgeShellFromGraph(sig)                                 // remove from graph
+    EB.Data.purgeShellFromGraph(sig)                                // remove from graph
     
-    EB.Data.removeCachedPuffScore(shell)                             // remove allocator score
+    EB.Data.removeCachedPuffScore(shell)                            // remove allocator score
 }
 
 EB.Data.purgeShellFromGraph = function(sig) {

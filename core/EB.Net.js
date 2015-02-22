@@ -6,7 +6,7 @@
     helper functions for accessing various server-based APIs, 
     and helper functions for handling puff distribution and acquisition.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
  */
 

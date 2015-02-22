@@ -10,10 +10,10 @@
     Most calls to the platform should go through here,
     rather than accessing core systems like EB.Data and EB.Crypto directly.
 
-    In addition to the public-facing API many general helper functions
+    In addition to the public-facing API some general helper functions
     are established here for use by the deeper layers.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
 */
 
@@ -28,29 +28,55 @@ EB.version = '0.7.13'
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 
-// Almost all of the EB.* API functions return a promise, with the exception of EB.formatIdentityFile and possibly EB.formatIdentityFile (depending on which wardrobe module is included). 
-
+// Note that almost all of the EB.* API functions return a promise, with the exception of EB.formatIdentityFile and EB.loginWithIdentityFile. 
 
 
 //// RECEIVE MESSAGES
 
+
+/**
+ * Try to get a particular puff by its signature
+ * @param {string}  sig
+ * @return {promise}
+ */
 EB.getPuffBySig = function(sig) {
     return EB.Data.getPuffBySig(sig)                    // get a promise for the puff from cache or network
 }
 
+
+/**
+ * Try to get a puff by its sig from the local cache,
+ * or ask the network and return false
+ * @param {string}  sig
+ * @return {(puff|false)}
+ */
 EB.getPuffOrNot = function(sig) {
     return EB.Data.getPuffOrNot(sig)                    // fire-and-forget style -- see note on EB.Data.getPuffOrNot
 }
 
+
+/**
+ * Get a list of the current identity's currently cached puffs,
+ * and ask the network for more
+ * @return {[puffs]}
+ */
 EB.getMyMessagesOrNot = function() {
     // get current username
     // ask the network for anything new from or for me
     // return things from caches
-    // -- why not a promise? because we don't know how many things we'll receive: halting problem.
+    // -- why not a promise? because we don't know how many things we'll receive: halting problem. so F-A-F instead.
 }
+
 
 //// SEND MESSAGES
 
+
+/**
+ * Send a public message
+ * @param {string}  content
+ * @param {string}  type
+ * @return {promise}
+ */
 EB.postPublicMessage = function(content, type) {
     //// post a public puff. type is optional and defaults to 'text'
     type = type || 'text'
@@ -63,6 +89,14 @@ EB.postPublicMessage = function(content, type) {
     return Promise.resolve(EB.Data.addPuffToSystem(puff))
 }
 
+
+/**
+ * Send a private message
+ * @param {string}  content
+ * @param {string}  usernames
+ * @param {string}  type
+ * @return {promise}
+ */
 EB.postPrivateMessage = function(content, usernames, type) {
     //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
@@ -87,12 +121,36 @@ EB.postPrivateMessage = function(content, usernames, type) {
     return prom
 }
 
+
+/**
+ * Send an anonymous private message
+ * @param {string}  content
+ * @param {string}  usernames
+ * @param {string}  type
+ * @return {promise}
+ */
 EB.postAnonymousPrivateMessage = function(content, usernames, type) {}
+
+
+/**
+ * Send a traceless private message
+ * @param {string}  content
+ * @param {string}  usernames
+ * @param {string}  type
+ * @return {promise}
+ */
 EB.postParanoidPrivateMessage = function(content, usernames, type) {}
 
 
 //// IDENTITY AND USER MANAGEMENT
 
+
+/**
+ * Create a new identity
+ * @param {string} username             new username
+ * @param {string} passphrase           a string passphrase
+ * @return {promise}                    userRecord for the newly created user
+ */
 EB.createIdentity = function(username, passphrase) {
     // TODO: validations and error handling (lots of it)
     
@@ -112,9 +170,16 @@ EB.createIdentity = function(username, passphrase) {
     return prom
 }
 
-EB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
-    //// create a brand new top-level user
 
+/**
+ * Register a new top-level user
+ * @param {string}  username            new username
+ * @param {string}  privateRootKey      new private root key
+ * @param {string}  privateAdminKey     new private admin key
+ * @param {string}  privateDefaultKey   new private default key
+ * @return {promise}                    userRecord for the newly created user
+ */
+EB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
     // OPT: privateToPublic is expensive -- we could reduce the number of calls if the private keys are identical
     var rootKeyPublic    = EB.Crypto.privateToPublic(privateRootKey)
     var adminKeyPublic   = EB.Crypto.privateToPublic(privateAdminKey)
@@ -137,17 +202,16 @@ EB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, pr
     return prom
 }
 
+
 /**
  * register a subuser for the currently active identity
  * @param  {string} newUsername     desired new subuser name
  * @param  {string} rootKey         public root key for the new subuser
  * @param  {string} adminKey        public admin key for the new subuser
  * @param  {string} defaultKey      public default key for the new subuser
- * @return {object}                 user record for the newly created subuser
+ * @return {promise}                userRecord for the newly created subuser
  */
 EB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
-    //// registers a subuser for the currently active identity
-    
     var signingUsername = EB.getCurrentUsername()
     var prom
     
@@ -159,11 +223,15 @@ EB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
 }
 
 
-EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
-    //// attempts to update a private key for the current user. 
-    //// if successful it adds the new alias to the current identity.
-    //// returns a promise for the new userRecord.
-    
+/**
+ * Attempts to update a private key for the current user
+ * If successful it adds the new alias to the current identity.
+ * @param {string} keyToModify          'defaultKey', 'adminKey', or 'rootKey'
+ * @param {string} newPrivateKey        the new private key
+ * @param {string} secrets              secret information to include in the userRecord
+ * @return {promise}                    the new userRecord
+ */
+EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {    
     var username = EB.getCurrentUsername()
     var newPublicKey = EB.Crypto.privateToPublic(newPrivateKey)
 
@@ -180,11 +248,9 @@ EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     payload.time = Date.now()
 
     var prom = new Promise(function(resolve, reject) {
-        var puff
+        var puff                                        // we use this var to return publicly accessible data 
 
         EB.useSecureInfo(function(_, _, privateRootKey, privateAdminKey, privateDefaultKey) {
-            // NOTE: puff leaks, but only contains publicly accessible data
-        
             var signingUserKey = 'privateRootKey'       // changing admin or root keys requires root privileges
             var privateKey = privateRootKey
 
@@ -231,6 +297,12 @@ EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
     return prom
 }
 
+
+/**
+ * Try to get a user's profile puff
+ * @param {string}  username
+ * @return {promise}
+ */
 EB.getProfilePuff = function(username) {
     var cached_profile = EB.Data.profiles[username]
     
@@ -258,9 +330,14 @@ EB.getProfilePuff = function(username) {
 
 //// LOGIN & ID FILE MANAGEMENT
 
+
+/**
+ * Make an identity the current one
+ * @param {string}  username
+ * @param {string}  privateKey          // the key for the user's identity file
+ * @return {promise}
+ */
 EB.login = function(username, privateKey) {
-    //// privateKey is the key for your identity file
-    
     // TODO: handle offline case...
     // TODO: encrypted localStorage identity files
     // TODO: cache encrypted puffs in localStorage
@@ -307,8 +384,14 @@ EB.login = function(username, privateKey) {
     })
 }
 
+
+/**
+ * Takes a canonical identity file object, adds it to the wardrobe, and signs you in
+ * @param {object} Identity file
+ * @return 
+ */
 EB.loginWithIdentityFile = function(object) {
-    //// takes a canonical identity file object, adds it to the wardrobe, and signs you in
+    //// 
     
     var username = object.username
     var aliases  = object.aliases
@@ -324,9 +407,17 @@ EB.loginWithIdentityFile = function(object) {
     return EB.switchIdentityTo(username)
 }
 
+
+/**
+ * Try to access the system with a username/passphrase combo
+ * @param {string} username
+ * @param {string} passphrase
+ * @param {string} legacy
+ * @return {promise}
+ */
 EB.loginWithPassphrase = function(username, passphrase, legacy) {
     // First attempt to prepend username to passphrase
-    // If fails, then try just using the passphrase
+    // If that fails then try just using the passphrase
     var pass = legacy ? passphrase : username + passphrase
 
     var privateKey = EB.Crypto.passphraseToPrivateKeyWif(pass)
@@ -348,6 +439,10 @@ EB.loginWithPassphrase = function(username, passphrase, legacy) {
 }
 
 
+/**
+ * Store the current identity's identity file in the cloud
+ * @return {promise}
+ */
 EB.storeIdentityFileInCloud = function() {
     if(!EB.currentIdentityHash) {
         // THINK: user did not log in with identity file... so what should we do here?
@@ -405,6 +500,12 @@ EB.storeIdentityFileInCloud = function() {
     return update_prom
 }
 
+
+/**
+ * Try to get an identity file and format it correctly
+ * @param {string} username
+ * @return {(object|false)}
+ */
 EB.formatIdentityFile = function(username) {
     // THINK: consider passphrase protecting the identity file by default
     // TODO: add authFromIdFile -- need consistency both ways
@@ -433,6 +534,10 @@ EB.formatIdentityFile = function(username) {
 
     return idFile
 }
+
+//// END STANDARD API ////
+
+
 
 
 

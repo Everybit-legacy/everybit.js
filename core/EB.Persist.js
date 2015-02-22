@@ -4,7 +4,7 @@
 
     It's like a network on your hard drive... which means this could be part of EB.Net.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
  */
 

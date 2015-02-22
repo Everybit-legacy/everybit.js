@@ -58,14 +58,34 @@ describe('Integration Tests for the Basic API', function() {
       })      
     })
     
+    describe('Get the public message, fire-and-forget style', function() {
+      var puff
+      
+      it('should get the public message from cache', function() {
+        puff = EB.getPuffOrNot(public_puff_sig)
+        puff.should.exist()
+        puff.should.not.be.false()
+      })
+      
+      it('should have our anon username', function() {
+        puff.username.should.contain(username)
+      })
+      
+      it('should have the right content', function() {
+        puff.payload.content.should.equal('Hello World')
+      })
+      
+      it('should be of type text', function() {
+        puff.payload.type.should.equal('text')
+      })
+    })
+    
     describe('Get the public message', function() {
       var prom
       
-      it('should get the public message from cache', function() {
+      it('should get a promise for the public message', function() {
         prom = EB.getPuffBySig(public_puff_sig)
-        // THINK: EB.Net.getPuffBySig works (test elsewhere)
-        // THINK: should EB.getPuffBySig just always return a promise? probably.
-        console.log('asdf!', prom, public_puff_sig)
+        prom.should.exist()
       })
       
       it('should have our anon username', function() {

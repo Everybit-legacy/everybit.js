@@ -6,7 +6,7 @@
     Note that userRecords are entirely public;
     private key identities are handled elsewhere.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
  */
 
@@ -173,8 +173,8 @@ EB.Users.build = function(username, defaultKey, adminKey, rootKey, latest, creat
     
     // THINK: split username and capa if it's a versionedUsername?
 
-    if(!EB.validateUsername(username))
-        return false                                // error is logged inside EB.validateUsername
+    if(!EB.Spec.validateUsername(username))
+        return false                                // error is logged inside EB.Spec.validateUsername
     
     return {   username: username                   // unversioned username
            ,       capa: capa

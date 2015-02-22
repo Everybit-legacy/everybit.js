@@ -326,7 +326,7 @@ EB.Data.addShellsThenMakeAvailable = function(shells) {
     shells = Array.isArray(shells) ? shells : [shells]
     report.counts.delivered = shells.length
     
-    shells = shells.filter(EB.isValidShell)
+    shells = shells.filter(EB.Spec.isValidShell)
     report.counts.valid = shells.length
     
     report.meta = EB.Data.handleMetaPuffs(shells)

@@ -1,9 +1,10 @@
 /*
+
     Comprehensive (in progress!), canonical set of functions defining and validating a puff.
 
     All of these are STRICTLY FORMAL validations: they don't depend on the state of the universe.
 
-    Copyright 2014 EveryBit. See README for license information.
+    Copyright 2014-2015 EveryBit. See README for license information.
 
  */
 
@@ -128,4 +129,72 @@ EB.Spec.isValidCapa = function(capa) {
         return false
 
     return !isNaN(n1) && n2 === n1 && n1.toString() === n;
+}
+
+
+
+/**
+ * check if a username is valid
+ *     a username must be shorter than 256 characters, all lowercase and contains only alphanumeric and . sign
+ * @param  {string} username the string to be check
+ * @return {boolean}          return true if  the parameter string is a valid username, otherwise throw error
+ */
+EB.Spec.validateUsername = function(username) {
+    if(!username) 
+        return EB.onError('Username is required', username)
+
+    if(username.length > 256) 
+        return EB.onError('Usernames must be shorter than 256 characters', username)
+
+    if(username != username.toLowerCase()) 
+        return EB.onError('Usernames must be lowercase', username)
+    
+    if(!/^[0-9a-z.]+$/.test(username))
+        return EB.onError('Usernames must be alphanumeric', username)
+    
+    return true
+}
+
+
+/**
+ * determine if it is a good shell, checks for the existence of required fields
+ * @param {Shell[]}
+ * @returns {boolean}
+ */
+EB.Spec.isValidShell = function(shell) {
+    //// this just checks for the existence of required fields
+    if(!shell.sig) return false
+    if(!shell.routes) return false
+    if(!shell.username) return false
+    if(typeof shell.payload != 'object') return false
+    if(!shell.payload.type) return false
+        
+    return true
+}
+
+/**
+ * to verify a puff
+ * @param  {object} puff
+ * @return {(string|boolean)}
+ */
+EB.Spec.isGoodPuff = function(puff) {
+    // CURRENTLY UNUSED
+    // TODO: check previous sig, maybe
+    // TODO: check for well-formed-ness
+    // TODO: use this to verify incoming puffs
+    // TODO: if prom doesn't match, try again with getUserRecordNoCache
+    
+    // TODO: rewrite this function to give a consistent return value
+    
+    if (!EB.Data.contentTypes[shell.payload.type]) {
+        // TODO: this needs to include 'encryptedpuff' as a valid type
+        Events.pub('track/unsupported-content-type', {type: shell.payload.type, sig: shell.sig})
+        return false
+    }
+    
+    var prom = EB.Users.getUserRecordPromise(puff.username) // NOTE: versionedUsername
+    
+    return prom.then(function(user) {
+        return EB.Crypto.verifyPuffSig(puff, user.defaultKey)
+    })
 }

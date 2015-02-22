@@ -140,6 +140,7 @@ Boron.extend = function() {
 
 Boron.memoize = function(f) {
     var table = {}
+    f = typeof f == 'function' ? f : function() {}
     return function() {
         var args = Array.prototype.slice.call(arguments)
         var key = args.toString()

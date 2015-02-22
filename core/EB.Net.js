@@ -111,7 +111,9 @@ EB.Net.getProfilePuff = function(username) {
     
     return EB.Net.EBgetJSON(url, data)
 }
+
 EB.Net.getProfilePuff = EB.promiseMemoize(EB.Net.getProfilePuff)
+
 
 /**
  * to get some shells
@@ -125,8 +127,8 @@ EB.Net.getSomeShells = function(query, filters, limit, offset) {
     // TODO: switching by query 'mode' will need to be changed when the network api matches our local api (i.e. once we use browser p2p & headless clients to service requests)
     
     var mode = query.mode
-    if(mode == 'ancestors')   return EB.Net.getAncestors  ([query.focus], limit)
-    if(mode == 'descendants') return EB.Net.getDescendants([query.focus], limit)
+    // if(mode == 'ancestors')   return EB.Net.getAncestors  ([query.focus], limit)
+    // if(mode == 'descendants') return EB.Net.getDescendants([query.focus], limit)
     // if(mode == 'siblings')    return EB.Net.getSiblings   ([query.focus], limit)
 
     // "normal" mode (just ask for shells from lists or something)
@@ -165,93 +167,6 @@ EB.Net.getSomeShells = function(query, filters, limit, offset) {
                  .then(function(x) {return x || []}, function() {return []})
 }
 
-
-EB.Net.getAncestors = function(start, limit) {
-    getEm(start, [], limit)
-    return EB.emptyPromise()
-    
-    function getEm(todo, done, remaining) {
-        if(!todo.length) return false                       // all done
-        if(!remaining) return false                         // all done
-    
-        var sig = todo[0]
-    
-        if(~done.indexOf(sig)) {
-            return getEm(todo.slice(1), done, remaining)    // we've already done this one
-        }
-        
-        // TODO: set a callback in EB.Net instead of calling EB.Data directly
-        var puff = EB.Data.getPuffBySig(sig)                // effectful
-    
-        if(puff) 
-            return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
-
-        // no puff? that's ok. attach a then clause to its pending promise.
-        // TODO: find better method to do this
-        remaining-- // because we're adding a new puff, or at least new content
-        var prom = EB.Data.pendingPuffPromises[sig]
-        prom.then(function(puffs) {
-            getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
-        })
-    }
-    
-    //
-    // if(!todo.length)
-    //     return Promise.resolve(results)             // all done
-    // if(results.length >= limit)
-    //     return Promise.resolve(results)             // all done
-    //
-    // var sig = todo[0]
-    // var shell = EB.Data.getCachedShellBySig(sig)   // TODO: set a callback in EB.Net instead of calling this directly
-    //          || results.filter(function(result) {return result.sig == sig})[0]
-    //
-    // // if we already have a puff for sig, then we just need to put its parents on the todo stack
-    // if(shell) {
-    //     todo.shift() // take off the shell we just worked on
-    //     return EB.Net.getAncestors(todo.concat(shell.payload.parents), limit, results)
-    // }
-    //
-    // // otherwise, get a promise for the shell, then add it to results
-    // var prom = EB.Net.getPuffBySig(sig)
-    // return prom.then(function(puffs) {
-    //     return EB.Net.getAncestors(todo, limit, results.concat(puffs))
-    // })
-}
-
-EB.Net.getDescendants = function(start, limit) {
-    getEm(start, [], limit)
-    return EB.emptyPromise()
-    
-    function getEm(todo, done, remaining) {
-        if(!todo.length) return false                       // all done
-        if(!remaining) return false                         // all done
-        
-        var sig = todo[0]
-        
-        if(~done.indexOf(sig)) {
-            return getEm(todo.slice(1), done, remaining)    // we've already done this one
-        }
-        
-        // TODO: set a callback in EB.Net instead of calling EB.Data directly
-        var haveShell = EB.Data.getCachedShellBySig(sig) 
-        
-        if(!haveShell) {                                    // we don't have the shell yet, so go get it
-            // TODO: use above callback to EB.Data
-            EB.Data.getPuffBySig(sig)                       // effectful
-            remaining--
-        }
-        
-        var kidsigprom = EB.Net.getKidSigs(sig)             // get all its children
-        return kidsigprom.then(function(kidsigs) {
-            getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
-        })
-    }
-}
-
-EB.Net.getSiblings = function() {
-    // this case is ugly, so we're leaving it until the client api can answer questions for us
-    return EB.emptyPromise() 
-}
 
 /**
  * add puff to the server and broadcast to peers
@@ -585,3 +500,100 @@ EB.Net.P2P.sendPuffToPeers = function(puff) {
         EB.Net.P2P.peers[peer].send(puff)
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+// EB.Net.getAncestors = function(start, limit) {
+//     getEm(start, [], limit)
+//     return EB.emptyPromise()
+//
+//     function getEm(todo, done, remaining) {
+//         if(!todo.length) return false                       // all done
+//         if(!remaining) return false                         // all done
+//
+//         var sig = todo[0]
+//
+//         if(~done.indexOf(sig)) {
+//             return getEm(todo.slice(1), done, remaining)    // we've already done this one
+//         }
+//
+//         // TODO: set a callback in EB.Net instead of calling EB.Data directly
+//         var puff = EB.Data.getPuffBySig(sig)                // effectful
+//
+//         if(puff)
+//             return getEm(todo.slice(1).concat(puff.payload.parents), done.concat(sig), remaining)
+//
+//         // no puff? that's ok. attach a then clause to its pending promise.
+//         // TODO: find better method to do this
+//         remaining-- // because we're adding a new puff, or at least new content
+//         var prom = EB.Data.pendingPuffPromises[sig]
+//         prom.then(function(puffs) {
+//             getEm(todo.slice(1).concat(((puffs[0]||{}).payload||{}).parents), done.concat(sig), remaining)
+//         })
+//     }
+//
+//     //
+//     // if(!todo.length)
+//     //     return Promise.resolve(results)             // all done
+//     // if(results.length >= limit)
+//     //     return Promise.resolve(results)             // all done
+//     //
+//     // var sig = todo[0]
+//     // var shell = EB.Data.getCachedShellBySig(sig)   // TODO: set a callback in EB.Net instead of calling this directly
+//     //          || results.filter(function(result) {return result.sig == sig})[0]
+//     //
+//     // // if we already have a puff for sig, then we just need to put its parents on the todo stack
+//     // if(shell) {
+//     //     todo.shift() // take off the shell we just worked on
+//     //     return EB.Net.getAncestors(todo.concat(shell.payload.parents), limit, results)
+//     // }
+//     //
+//     // // otherwise, get a promise for the shell, then add it to results
+//     // var prom = EB.Net.getPuffBySig(sig)
+//     // return prom.then(function(puffs) {
+//     //     return EB.Net.getAncestors(todo, limit, results.concat(puffs))
+//     // })
+// }
+
+// EB.Net.getDescendants = function(start, limit) {
+//     getEm(start, [], limit)
+//     return EB.emptyPromise()
+//
+//     function getEm(todo, done, remaining) {
+//         if(!todo.length) return false                       // all done
+//         if(!remaining) return false                         // all done
+//
+//         var sig = todo[0]
+//
+//         if(~done.indexOf(sig)) {
+//             return getEm(todo.slice(1), done, remaining)    // we've already done this one
+//         }
+//
+//         // TODO: set a callback in EB.Net instead of calling EB.Data directly
+//         var haveShell = EB.Data.getCachedShellBySig(sig)
+//
+//         if(!haveShell) {                                    // we don't have the shell yet, so go get it
+//             // TODO: use above callback to EB.Data
+//             EB.Data.getPuffBySig(sig)                       // effectful
+//             remaining--
+//         }
+//
+//         var kidsigprom = EB.Net.getKidSigs(sig)             // get all its children
+//         return kidsigprom.then(function(kidsigs) {
+//             getEm(todo.slice(1).concat(kidsigs), done.concat(sig), remaining)
+//         })
+//     }
+// }
+
+// EB.Net.getSiblings = function() {
+//     // this case is ugly, so we're leaving it until the client api can answer questions for us
+//     return EB.emptyPromise()
+// }

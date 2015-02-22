@@ -203,3 +203,29 @@ EB.Puff.promiseToDecryptForReals = function(envelope, senderPublicKey, recipient
                                               , recipientPrivateKey ) )
     })
 }
+
+
+//// Shells and Puffs
+
+
+EB.Puff.isFull = function(shell) {
+    // A puff has payload.content. A shell does not.
+    return (shell.payload||{}).content !== undefined
+}
+
+EB.Puff.isEmpty = function(shell) {
+    return !EB.Puff.isFull(shell)
+}
+
+EB.Puff.compactPuff = function(puff) {
+    // THINK: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
+    var new_shell = Boron.extend(puff)
+    var new_payload = {}
+    for(var prop in puff.payload)
+        if(prop != 'content')
+            new_payload[prop] = puff.payload[prop] 
+
+    new_shell.payload = new_payload
+    return new_shell
+}
+

@@ -1,12 +1,9 @@
 /*
-       _______  __   __  _______  _______  _______  _______  ___      ___     
-      |       ||  | |  ||       ||       ||  _    ||   _   ||   |    |   |    
-      |    _  ||  | |  ||    ___||    ___|| |_|   ||  |_|  ||   |    |   |    
-      |   |_| ||  |_|  ||   |___ |   |___ |       ||       ||   |    |   |    
-      |    ___||       ||    ___||    ___||  _   | |       ||   |___ |   |___ 
-      |   |    |       ||   |    |   |    | |_|   ||   _   ||       ||       |
-      |___|    |_______||___|    |___|    |_______||__| |__||_______||_______|
-
+     ______     __   __   ______     ______     __  __     ______     __     ______  
+    /\  ___\   /\ \ / /  /\  ___\   /\  == \   /\ \_\ \   /\  == \   /\ \   /\__  _\ 
+    \ \  __\   \ \ \'/   \ \  __\   \ \  __<   \ \____ \  \ \  __<   \ \ \  \/_/\ \/ 
+     \ \_____\  \ \__|    \ \_____\  \ \_\ \_\  \/\_____\  \ \_____\  \ \_\    \ \_\ 
+      \/_____/   \/_/      \/_____/   \/_/ /_/   \/_____/   \/_____/   \/_/     \/_/ 
 
     The main interface for the EveryBit platform.
 
@@ -26,25 +23,33 @@ if(!EB.CONFIG) EB.CONFIG = {}                           // or we might not
 EB.Modules = {}                                         // supplementary extensions live here
 EB.M = EB.Modules
 
-EB.version = '0.7.3'
+EB.version = '0.7.13'
+
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 
+// Almost all of the EB.* API functions return a promise, with the exception of EB.formatIdentityFile and possibly EB.formatIdentityFile (depending on which wardrobe module is included). 
 
-//// MESSAGES
+
+
+//// RECEIVE MESSAGES
 
 EB.getPuffBySig = function(sig) {
-    //// get a particular puff
-    var shell = EB.Data.getCachedShellBySig(sig)        // check in regular cache
-    
-    if(!shell)
-        shell = EB.Data.getDecryptedLetterBySig(sig)    // check in private cache
-    
-    if(shell)
-        return EB.Data.getPuffFromShell(shell)          // get a puff from the shell
-        
-    return EB.Data.getPuffBySig(sig)                    // get the puff
+    return EB.Data.getPuffBySig(sig)                    // get a promise for the puff from cache or network
 }
+
+EB.getPuffOrNot = function(sig) {
+    return EB.Data.getPuffOrNot(sig)                    // fire-and-forget style -- see note on EB.Data.getPuffOrNot
+}
+
+EB.getMyMessagesOrNot = function() {
+    // get current username
+    // ask the network for anything new from or for me
+    // return things from caches
+    // -- why not a promise? because we don't know how many things we'll receive: halting problem.
+}
+
+//// SEND MESSAGES
 
 EB.postPublicMessage = function(content, type) {
     //// post a public puff. type is optional and defaults to 'text'
@@ -84,8 +89,6 @@ EB.postPrivateMessage = function(content, usernames, type) {
 
 EB.postAnonymousPrivateMessage = function(content, usernames, type) {}
 EB.postParanoidPrivateMessage = function(content, usernames, type) {}
-
-EB.getMyMessages = true
 
 
 //// IDENTITY AND USER MANAGEMENT

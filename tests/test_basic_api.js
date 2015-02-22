@@ -59,25 +59,25 @@ describe('Integration Tests for the Basic API', function() {
     })
     
     describe('Get the public message', function() {
-      var puff
+      var prom
       
       it('should get the public message from cache', function() {
-        puff = EB.getPuffBySig(public_puff_sig)
+        prom = EB.getPuffBySig(public_puff_sig)
         // THINK: EB.Net.getPuffBySig works (test elsewhere)
         // THINK: should EB.getPuffBySig just always return a promise? probably.
-        console.log('asdf!', puff, public_puff_sig)
+        console.log('asdf!', prom, public_puff_sig)
       })
       
       it('should have our anon username', function() {
-        puff.username.should.contain(username)
+        prom.should.eventually.have.property('username').and.contain('username')
       })
       
       it('should have the right content', function() {
-        puff.payload.content.should.equal('Hello World')
+        prom.should.eventually.have.deep.property('payload.content', 'Hello World')
       })
       
       it('should be of type text', function() {
-        puff.payload.type.should.equal('text')
+        prom.should.eventually.have.deep.property('payload.type', 'text')
       })
     })
     

@@ -376,20 +376,20 @@ EB.Data.isMetaPuff = function(shell) {
 
 EB.Data.handlePrivatePuffs = function(shells) {
     var privatepuffs = shells.filter(EB.Puff.isPrivate)    
-    return EB.Data.ingestEncryptedShells(privatepuffs) // TODO: this returns our promise report
+    return EB.Data.ingestEncryptedShells(privatepuffs)          // TODO: this returns our promise report
 }
 
 
 EB.Data.handleAndFilterExistingShells = function(shells) {
     // THINK: this can't answer the question of "did we updated an existing shell with content"?
-    return shells.filter(function(shell) {
+    return shells.filter(function(shell) {                      // returns all new (and newly full) puffs
         var existing = EB.Data.getCachedShellBySig(shell.sig)
 
         if(!existing) return true                               // it's new
-        if(existing.payload.content) return false               // it's known
+        if(EB.Puff.isFull(existing)) return false               // it's known
+        if(EB.Puff.isEmpty(shell)) return false                 // it's an empty shell
 
-        if(shell.payload.content === undefined) return false    // it's an empty shell,
-        existing.payload.content = shell.payload.content        // so add the missing content
+        existing.payload.content = shell.payload.content        // add the missing content
         return true                                             // true because we changed it
     })
 }
@@ -704,104 +704,6 @@ EB.Data.importRemoteShells = function() {
 }
 
 
-/**
- * to fill some slots
- * @param {number} need
- * @param {number} have
- * @param {string} query
- * @param {string} filters
- * @returns {boolean}
- */
-EB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
-    //// we have empty slots on screen. fill them with puffs.
-    
-    if(have >= need) return false
-    
-    // -- redraw screen on new puffs being ingested (w/o looping)
-    // -- cycle all new puffs through graph stuff
-    // -- call fillSomeSlotsPlease every time we have slots to fill
-    // -- get focused puff immediately
-    
-    // - perform GC on in-memory puffs (can remove content also)
-    // - use GC funs for persisting shells
-    // - store size of each shell/puff for GC
-    // - manage empty vertices better (different type?)
-
-    var args = [query, filters]
-    // var args = [query, filters, need]
-    // if(!query.mode) args.push(have) // hack for alternate query modes
-
-    var key = JSON.stringify(args)
-    var my_offset = EB.Data.slotLocker[key] || 0
-    
-    if(my_offset < 0)
-        return false // slot is locked, go elsewhere
-    
-    EB.Data.slotLocker[key] = -1 // prevent concurrent versions of the same request
-    
-    //////
-
-    // var limit = need - have + 3 // 3 for luck
-    
-    var limit = need // so... if we only do this once, and we have half the puffs already, we might only grab that half again. this is true even if we send an offset of 'have' to the server, because what we have might map to that slice (or to anything else -- our offsets are totally different than the servers). so we have to grab enough to cover the difference, which means grabbing the same shells multiple times... (but only empty shells, fortunately. but still.)
-    
-    // var received_shells = 0
-    
-    var prom = EB.Net.getSomeShells(query, filters, limit, query.offset)
-    // prom.then(function(shells) {received_shells = shells.length; return shells})
-    prom.then(EB.Data.addShellsThenMakeAvailable)
-        .then(function(delta) { 
-            EB.Data.slotLocker[key] = delta ? 1 : -1}) 
-            // if the request is fruitful, unlock it (but be careful of offsets here).
-            // also, this locks when we received data but chose not to keep it (either dups or GC),
-            // so we could have an issue with locked queries that would be fruitful w/ different offset / limits...
-    
-    
-    // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated. 
-    //       so send query.offset+have to getSomeShells, and store that same offset as part of the slotLocker.
-    //       then you can track how much of some type of stuff is on the server... except that doesn't work for the P2P network.
-    
-    return true
-    
-    //////
-
-
-    // OLD STUFF SAVE FOR REFERENCE
-
-    // var batchSize = EB.CONFIG.fillSlotsBatchSize
-    // var giveup = EB.CONFIG.fillSlotsGiveup
-    // var new_shells = []
-    //
-    // giveup = giveup + my_offset
-    //
-    // function getMeSomeShells(puffs) {
-    //     if(puffs) {
-    //         var my_new_shells = EB.Data.hereHaveSomeNewShells(puffs)
-    //         new_shells = new_shells.concat(my_new_shells)
-    //         var delta = my_new_shells.length
-    //         // THINK: but do they pass the filter?
-    //         // TODO: can we make available here now that we're locking?
-    //         have += delta || 0
-    //     }
-    //
-    //     if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
-    //         EB.Data.makeShellsAvailable(new_shells)
-    //         EB.Data.slotLocker[key] = my_offset-limit
-    //         return false
-    //     }
-    //
-    //     var limit = need - have
-    //     // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches
-    //
-    //     var prom = EB.Net.getSomeShells(query, filters, limit, my_offset)
-    //     prom.then(getMeSomeShells)
-    //
-    //     my_offset += limit
-    // }
-    //
-    // getMeSomeShells()
-}
-
 
 /*
     End shell collection intake equipment
@@ -811,31 +713,50 @@ EB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
 /**
  * returns a puff from a shell
  * @param  {(string|object)} shell 
- * @return {object} returns a puff based on the shell; returns false if the shell is empty
+ * @return {promise}
  */
 EB.Data.getPuffFromShell = function(shell) {
+    // TODO: rewrite. also, isn't used.
     if(!shell)
-        return false // so we can filter empty shells out easily, while still loading them on demand
+        return Promise.reject()
     
-    if(shell.payload && shell.payload.content !== undefined)
-        return shell // it's actually a full blown puff
+    if(EB.Puff.isFull(shell))
+        return Promise.resolve(shell) // it's actually a full blown puff
     
     return EB.Data.getPuffBySig(shell.sig) // returns a puff, or asks the network and returns false
 }
 
 /**
- * to get puff by its sig
+ * get a puff by its sig
  * @param {string} sig
- * @returns {(object|false)}
+ * @returns {promise}
  */
 EB.Data.getPuffBySig = function(sig) {
-    var shell = EB.Data.getCachedShellBySig(sig) // OPT: this happens twice almost always
+    var shell = EB.Data.getCachedShellBySig(sig)
     
-    if(shell && shell.payload && typeof shell.payload.content != 'undefined')
-        return shell
+    if(EB.Puff.isFull(shell))
+        return Promise.resolve(shell)
     
     if(EB.Data.pendingPuffPromises[sig])
-        return false
+        return EB.Data.pendingPuffPromises[sig]
+    
+    return EB.Data.getPuffBySigFromElsewhere(sig)
+}
+
+/**
+ * get a puff by its sig from elsewhere
+ * @param {string} sig
+ * @returns {promise}
+ */
+EB.Data.getPuffBySigFromElsewhere = function(sig) {
+    EB.Data.pendingPuffPromises[sig] = EB.Net.getPuffBySig(sig)
+    var output = EB.Data.pendingPuffPromises[sig].then(badShellClearCache)
+
+    output.then(EB.Data.addShellsThenMakeAvailable)
+          .then(function() {                                         // delay GC to stop runaway network requests
+                    setTimeout(function() { delete EB.Data.pendingPuffPromises[sig] }, 10000) })
+    
+    return output
         
     // locally cached shells that are missing content on the network prevent slotfills from resolving,
     // so we clear it from our cache if we can't find it.
@@ -850,30 +771,41 @@ EB.Data.getPuffBySig = function(sig) {
         }
         return shells
     }
-    
-    EB.Data.pendingPuffPromises[sig] = EB.Net.getPuffBySig(sig)      // TODO: drop this down in to EB.Net instead
-    EB.Data.pendingPuffPromises[sig].then(badShellClearCache)
-                        .then(EB.Data.addShellsThenMakeAvailable)
-                        .then(function() {                           // delay GC to stop runaway network requests
-                            setTimeout(function() { delete EB.Data.pendingPuffPromises[sig] }, 10000) })
-    
-    return false
 }
 
-EB.Data.removeShellFromCache = function(sig) {
-    // remove from EB.Data.shells
+EB.Data.getPuffOrNot = function(sig) {
+    // Supports the fire-and-forget style, where we ask for a puff and either
+    // - receiving it directly if it's in the cache, or
+    // - receiving false, but meanwhile a request is sent.
+    // This can be easier than dealing with promises for e.g. showing cat photos, 
+    // since you just always show whichever ones you have. When more cats arrive 
+    // a refresh is triggered and all available cats are shown. 
+    
     var shell = EB.Data.getCachedShellBySig(sig)
+    
+    if(!shell)
+        shell = EB.Data.getDecryptedLetterBySig(sig)    // check in private cache
+
+    if(shell)
+        return EB.Data.getPuffFromShell(shell)          // get a puff from the shell
+
+    EB.Data.getPuffBySigFromElsewhere(sig)              // get the puff from the network
+        
+    return false                                        // but return false for easy filtering
+}
+
+
+EB.Data.removeShellFromCache = function(sig) {
+    var shell = EB.Data.getCachedShellBySig(sig)                     // remove from EB.Data.shells
     EB.Data.shells.splice( EB.Data.shells.indexOf(shell), 1 )
     
-    // remove from EB.Data.shellSort
-    delete EB.Data.shellSort[sig]
+    delete EB.Data.shellSort[sig]                                    // remove from EB.Data.shellSort
     
-    // remove shell's bonii
-    delete EB.Data.bonii[sig]
+    delete EB.Data.bonii[sig]                                        // remove shell's bonii
     
-    EB.Data.purgeShellFromGraph(sig)
+    EB.Data.purgeShellFromGraph(sig)                                 // remove from graph
     
-    EB.Data.removeCachedPuffScore(shell)
+    EB.Data.removeCachedPuffScore(shell)                             // remove allocator score
 }
 
 EB.Data.purgeShellFromGraph = function(sig) {
@@ -1074,7 +1006,7 @@ EB.Data.getShellsForLocalStorage = function() {
         var shell = shells[i]
         var content_size = (shell.payload.content||"").toString().length // THINK: non-flat content borks this
         if (content_size > sizelimit) {
-            var new_shell = EB.Data.compactPuff(shell)
+            var new_shell = EB.Puff.compactPuff(shell)
             shells[i] = new_shell
             total -= content_size + 13 // NOTE: magic number == '"content":"",'.length
             if(total <= memlimit) break
@@ -1096,14 +1028,105 @@ EB.Data.getShellsForLocalStorage = function() {
 }
 
 
-EB.Data.compactPuff = function(puff) {
-    // THINK: instead of rebuilding the puff, use a JSON.stringify reducer that strips out the content
-    var new_shell = Boron.extend(puff)
-    var new_payload = {}
-    for(var prop in puff.payload)
-        if(prop != 'content')
-            new_payload[prop] = puff.payload[prop] 
 
-    new_shell.payload = new_payload
-    return new_shell
-}
+
+
+
+// /**
+//  * to fill some slots
+//  * @param {number} need
+//  * @param {number} have
+//  * @param {string} query
+//  * @param {string} filters
+//  * @returns {boolean}
+//  */
+// EB.Data.fillSomeSlotsPlease = function(need, have, query, filters) {
+//     //// we have empty slots on screen. fill them with puffs.
+//
+//     if(have >= need) return false
+//
+//     // -- redraw screen on new puffs being ingested (w/o looping)
+//     // -- cycle all new puffs through graph stuff
+//     // -- call fillSomeSlotsPlease every time we have slots to fill
+//     // -- get focused puff immediately
+//
+//     // - perform GC on in-memory puffs (can remove content also)
+//     // - use GC funs for persisting shells
+//     // - store size of each shell/puff for GC
+//     // - manage empty vertices better (different type?)
+//
+//     var args = [query, filters]
+//     // var args = [query, filters, need]
+//     // if(!query.mode) args.push(have) // hack for alternate query modes
+//
+//     var key = JSON.stringify(args)
+//     var my_offset = EB.Data.slotLocker[key] || 0
+//
+//     if(my_offset < 0)
+//         return false // slot is locked, go elsewhere
+//
+//     EB.Data.slotLocker[key] = -1 // prevent concurrent versions of the same request
+//
+//     //////
+//
+//     // var limit = need - have + 3 // 3 for luck
+//
+//     var limit = need // so... if we only do this once, and we have half the puffs already, we might only grab that half again. this is true even if we send an offset of 'have' to the server, because what we have might map to that slice (or to anything else -- our offsets are totally different than the servers). so we have to grab enough to cover the difference, which means grabbing the same shells multiple times... (but only empty shells, fortunately. but still.)
+//
+//     // var received_shells = 0
+//
+//     var prom = EB.Net.getSomeShells(query, filters, limit, query.offset)
+//     // prom.then(function(shells) {received_shells = shells.length; return shells})
+//     prom.then(EB.Data.addShellsThenMakeAvailable)
+//         .then(function(delta) {
+//             EB.Data.slotLocker[key] = delta ? 1 : -1})
+//             // if the request is fruitful, unlock it (but be careful of offsets here).
+//             // also, this locks when we received data but chose not to keep it (either dups or GC),
+//             // so we could have an issue with locked queries that would be fruitful w/ different offset / limits...
+//
+//
+//     // TODO: the slotLocker really should keep track of what 'slices' of the server you've seen, so we know not to re-request those over and over. this is... complicated.
+//     //       so send query.offset+have to getSomeShells, and store that same offset as part of the slotLocker.
+//     //       then you can track how much of some type of stuff is on the server... except that doesn't work for the P2P network.
+//
+//     return true
+//
+//     //////
+//
+//
+//     // OLD STUFF SAVE FOR REFERENCE
+//
+//     // var batchSize = EB.CONFIG.fillSlotsBatchSize
+//     // var giveup = EB.CONFIG.fillSlotsGiveup
+//     // var new_shells = []
+//     //
+//     // giveup = giveup + my_offset
+//     //
+//     // function getMeSomeShells(puffs) {
+//     //     if(puffs) {
+//     //         var my_new_shells = EB.Data.hereHaveSomeNewShells(puffs)
+//     //         new_shells = new_shells.concat(my_new_shells)
+//     //         var delta = my_new_shells.length
+//     //         // THINK: but do they pass the filter?
+//     //         // TODO: can we make available here now that we're locking?
+//     //         have += delta || 0
+//     //     }
+//     //
+//     //     if(have >= need || my_offset > giveup || (query.mode && (my_offset - giveup < 0))) {
+//     //         EB.Data.makeShellsAvailable(new_shells)
+//     //         EB.Data.slotLocker[key] = my_offset-limit
+//     //         return false
+//     //     }
+//     //
+//     //     var limit = need - have
+//     //     // if(!query.mode) limit += 50 // grab a few extras to help work through bare patches
+//     //
+//     //     var prom = EB.Net.getSomeShells(query, filters, limit, my_offset)
+//     //     prom.then(getMeSomeShells)
+//     //
+//     //     my_offset += limit
+//     // }
+//     //
+//     // getMeSomeShells()
+// }
+

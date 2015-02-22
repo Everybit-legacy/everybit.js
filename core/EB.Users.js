@@ -294,27 +294,6 @@ EB.Users.getIdentityPuff = function(userRecord, privateKey) {
 //
 
 
-/**
- * Get the current user's DHT record, or create a new anon user, or die trying
- * @return {string}
- */
-EB.Users.getUpToDateUserAtAnyCost = function() {
-    //// Either get the current user's DHT record, or create a new anon user, or die trying
-
-    var username = EB.getCurrentUsername()
-
-    if(username)
-        return EB.Users.getUserRecordNoCache(username, 0) // 0 tells EB.Net.getUserRecord to fetch the latest
-    
-    var prom = EB.Users.addNewAnonUser()
-    
-    return prom.then(function(userRecord) {
-        EB.switchIdentityTo(userRecord.username)
-        console.log("Setting current user to " + userRecord.username)
-        return userRecord
-    })
-}
-
 
 /**
  * Generate a random username

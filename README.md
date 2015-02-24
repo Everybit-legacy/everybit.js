@@ -3,12 +3,17 @@
 ===========
 EveryBit's powerful API gives your web application fully secure encrypted messaging and user management with just a few lines of code.
 
-Currently if you want to provide users with private messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted on the client side before sending over the network. For a technical description of our encryption procedures, see the section [Crypto](#crypto). Only your users and their intended recipients can view the original, unecrypted content being sent. No "back door" exists to get in and view the unecrypted content. 
+Currently if you want to provide users with private messaging and file sending you have to rely on external services like Facebook, or build your own system. The same goes for managing usernames and passwords. This means you have to rely on a third party to manage your user's sensitive data. With EveryBit, all private data is encrypted on the client side before sending over the network. For a technical description of our encryption procedures, see the section [Crypto](#crypto). Only your users and their intended recipients can view the original, unencrypted content being sent. No "back door" exists to get in and view the unencrypted content. 
 
-#### **Resources:**
+### Repository
 
-- [Our Website] (http://everybit.com)
-- [Code recipies] (http://everybit.com/getting-started.html)
+We do our development on the ```develop``` branch, and only pull to master for semantically versioned tagged releases.
+
+### Resources
+
+- [Website] (http://everybit.com)
+- [Code recipes] (http://everybit.com/getting-started.html)
+- [White paper] (https://github.com/EveryBit-com/everybit.js/tree/develop/whitepaper)
 
 
 ### Setup Instructions
@@ -19,7 +24,7 @@ gulp
 ```
 
 ### Contributors' guide
-If you want to contribute to the codebase here at gihub, please [check the issues](https://github.com/EveryBit-com/everybit.js/issues?q=is%3Aopen) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)
+If you want to contribute to the codebase here at github, please [check the issues](https://github.com/EveryBit-com/everybit.js/issues?q=is%3Aopen) and/or post a question here before making any changes. This will help avoid duplicate efforts. Happy coding :-)
 
 Please don't edit files on the Master repository. Create a Branch or a Fork. This will help avoid collisions and prevent defects from being introduced from merges and pull requests.
 

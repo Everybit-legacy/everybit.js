@@ -75,6 +75,7 @@ EB.Crypto.verifyPuffSig = function(puff, defaultKey) {
     return EB.Crypto.verifyMessage(puffString, puff.sig, defaultKey);
 }
 
+
 /**
  * accept a base 58 sig, a message (must be a string) and a base 58 public key. returns true if they match, false otherwise
  * @param  {string} message
@@ -99,6 +100,7 @@ EB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
     }
 }
 
+
 /**
  * to create message hash
  * @param  {string} message
@@ -107,6 +109,7 @@ EB.Crypto.verifyMessage = function(message, sig, publicKeyWIF) {
 EB.Crypto.createMessageHash = function(message) {
     return Bitcoin.Crypto.SHA256(message).toString()
 }
+
 
 /**
  * crypt wif to private key
@@ -142,6 +145,7 @@ EB.Crypto.wifToPubKey = function(publicKeyWIF) {
     }
 }
 
+
 /**
  * crypt puff to string without sig
  * @param  {object} puff
@@ -152,6 +156,11 @@ EB.Crypto.puffToSiglessString = function(puff) {
 }
 
 
+/**
+ * Convert a passphrase to a private key
+ * @param  {string} passphrase
+ * @return {string} private key WIF
+ */
 EB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
     var hashStr = Bitcoin.Crypto.SHA256(passphrase).toString()
     var hash = Bitcoin.convert.hexToBytes(hashStr)
@@ -160,31 +169,44 @@ EB.Crypto.passphraseToPrivateKeyWif = function(passphrase) {
 
 
 /**
- * to encrypt with AES
+ * Encrypt a string with AES
  * @param  {string} message
  * @param  {string} key
  * @return {string}
  */
 EB.Crypto.encryptWithAES = function(message, key) {
+    if(typeof message != 'string')
+        return EB.onError('The message to encryptWithAES must be a string')
+    if(typeof key != 'string')
+        return EB.onError('The key to encryptWithAES must be a string')
+        
     var enc = Bitcoin.Crypto.AES.encrypt(message, key)
     return Bitcoin.Crypto.format.OpenSSL.stringify(enc)
 }
 
+
 /**
- * to decrypt with AES
- * @param  {string} message
+ * Decrypt a string with AES
+ * @param  {string} ciphertext
  * @param  {string} key
  * @return {string}
  */
-EB.Crypto.decryptWithAES = function(enc, key) {
-    if(!key || !enc) return false
-    var message = Bitcoin.Crypto.format.OpenSSL.parse(enc)
+EB.Crypto.decryptWithAES = function(ciphertext, key) {
+    if(!key || !ciphertext) return false
+
+    if(typeof ciphertext != 'string')
+        return EB.onError('The ciphertext to decryptWithAES must be a string')
+    if(typeof key != 'string')
+        return EB.onError('The key to decryptWithAES must be a string')
+
+    var message = Bitcoin.Crypto.format.OpenSSL.parse(ciphertext)
     var words = Bitcoin.Crypto.AES.decrypt(message, key)
     var bytes = Bitcoin.convert.wordsToBytes(words.words) 
     // var uglyRegex = /[\u0002\u0004\u0007\u000e]+$/g
     var uglyRegex = /[\u0000-\u0010]+$/g // TODO: contain AES padding
     return bytes.map(function(x) {return String.fromCharCode(x)}).join('').replace(uglyRegex, '')
 }
+
 
 /**
  * Get the shared secret of two users
@@ -203,8 +225,9 @@ EB.Crypto.getOurSharedSecret = function(yourPublicWif, myPrivateWif) {
     return key
 }
 
+
 /**
- * Encode private message
+ * Encrypt a private message
  * @param  {string} plaintext
  * @param  {string} yourPublicWif
  * @param  {string} myPrivateWif
@@ -217,8 +240,9 @@ EB.Crypto.encryptPrivateMessage = function(plaintext, yourPublicWif, myPrivateWi
     return ciphertext
 }
 
+
 /**
- * to decode private message
+ * Decrypt a private message
  * @param  {string} plaintext
  * @param  {string} yourPublicWif
  * @param  {string} myPrivateWif
@@ -232,7 +256,45 @@ EB.Crypto.decryptPrivateMessage = function(ciphertext, yourPublicWif, myPrivateW
 }
 
 
-EB.Crypto.random = function() { // just like Math.random, but better
+/**
+ * Get the 'keys' object for a private puff
+ * @param  {string} puffkey
+ * @param  {string} myPrivateWif
+ * @param  {object} userRecords
+ * @return {object}
+ */
+EB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
+    if(!Array.isArray(userRecords))
+        return EB.throwError('Invalid userRecords')
+    
+    return userRecords.reduce(function(acc, userRecord) {
+        var versionedUsername = EB.Users.userRecordToVersionedUsername(userRecord)
+        acc[versionedUsername] = EB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
+        return acc
+    }, {})
+}
+
+
+// EB.Crypto.verifyBlock = function(block, publicKeyBase58) {
+//     return EB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
+// }
+
+// EB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
+//     return EB.Crypto.signPayload(blockPayload, privateKeyWIF);
+// }
+
+
+
+//// Randomness enhancements
+
+
+
+/**
+ * Get a random number between 0 and 1
+ * @return {number}
+ */
+EB.Crypto.random = function() { 
+    // just like Math.random, but better
     // via http://stackoverflow.com/questions/13694626/generating-random-numbers-0-to-1-with-crypto-generatevalues
 
     var list = EB.Crypto.getRandomValues(2, 32)
@@ -249,20 +311,35 @@ EB.Crypto.random = function() { // just like Math.random, but better
     // var size = Math.ceil(log2) + 1 // NOTE: this is about 8 times higher than necessary
 }
 
-EB.Crypto.getRandomInteger = function(max, min) { // NOTE: min is inclusive, max is exclusive
+
+/**
+ * Get a random integer
+ * @param  {number} Maximum integer. Defaults to 2^31 - 1, the largest bitop safe integer.
+ * @param  {number} Minimum integer. Defaults to 0.
+ * @return {number}
+ */
+EB.Crypto.getRandomInteger = function(max, min) { 
+    // NOTE: min is inclusive, max is exclusive
     // TODO: error if max and min are not proper (non-NaN) numbers
     min = Math.floor(min || 0)
-    max = Math.floor(max || 0x7fffffff) // 0x7fffffff == Math.pow(2, 31) - 1 // the largest bitop safe int
+    max = Math.floor(max || 0x7fffffff) // 0x7fffffff == Math.pow(2, 31) - 1, the largest bitop safe int
     var range = max - min
     var randFloat = EB.Crypto.random()
     return Math.floor(randFloat*range + min)
 }
 
+
+/**
+ * Get a random item from a list
+ * @param  {(array|string)} An array or string from which to choose an element
+ * @return {any} 
+ */
 EB.Crypto.getRandomItem = function(list) {
     // TODO: error if list is not an array or string
     var index = EB.Crypto.getRandomInteger(list.length)
     return list[index]
 }
+
 
 /**
  * Get a new AES key
@@ -277,13 +354,20 @@ EB.Crypto.getRandomKey = function(len) {
     return Bitcoin.convert.bytesToBase64(bytes)
 }
 
+
+/**
+ * A wrapper for crypto.getRandomValues
+ * @param  {number} Number of samples 
+ * @param  {number} Size of samples in bits (32 or 8, defaults to 8)
+ * @return {array}
+ */
 EB.Crypto.getRandomValues = function(number, size) {
     if(window.crypto && window.crypto.getRandomValues) {
         var bytes
         if(size == 32)
-            bytes = new Uint32Array(size)
+            bytes = new Uint32Array(number)
         else
-            bytes = new Uint8Array(size)
+            bytes = new Uint8Array(number)
     
         return window.crypto.getRandomValues(bytes)
     }
@@ -291,6 +375,13 @@ EB.Crypto.getRandomValues = function(number, size) {
     return EB.Crypto.getRandomValuesShim(number, size)
 }
 
+
+/**
+ * A shim for crypto.getRandomValues
+ * @param  {number} Number of samples 
+ * @param  {number} Size of samples in bits (32 or 8, defaults to 8)
+ * @return {array}
+ */
 EB.Crypto.getRandomValuesShim = function(number, size) {
     // via https://github.com/evanvosberg/crypto-js/issues/7
     // fallback for old browsers that don't support crypto.getRandomValues
@@ -331,31 +422,3 @@ EB.Crypto.getRandomValuesShim = function(number, size) {
 
     return words;
 }
-
-
-/**
- * to create key pairs
- * @param  {string} puffkey
- * @param  {string} myPrivateWif
- * @param  {object} userRecords
- * @return {object}
- */
-EB.Crypto.createKeyPairs = function(puffkey, myPrivateWif, userRecords) {
-    if(!Array.isArray(userRecords))
-        return EB.throwError('Invalid userRecords')
-    
-    return userRecords.reduce(function(acc, userRecord) {
-        var versionedUsername = EB.Users.userRecordToVersionedUsername(userRecord)
-        acc[versionedUsername] = EB.Crypto.encryptPrivateMessage(puffkey, userRecord.defaultKey, myPrivateWif)
-        return acc
-    }, {})
-}
-
-
-// EB.Crypto.verifyBlock = function(block, publicKeyBase58) {
-//     return EB.Crypto.verifyMessage(block.blockPayload, block.blockSig.replace(/\*/g, ""), publicKeyBase58);
-// }
-
-// EB.Crypto.signBlock = function(blockPayload, privateKeyWIF) {
-//     return EB.Crypto.signPayload(blockPayload, privateKeyWIF);
-// }

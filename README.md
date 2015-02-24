@@ -7,7 +7,7 @@ Currently if you want to provide users with private messaging and file sending y
 
 ### Repository
 
-We do our development on the ```develop``` branch, and only pull to master for semantically versioned tagged releases.
+We do our development on the ```develop``` branch, and only pull to master for our semantically versioned releases.
 
 ### Resources
 

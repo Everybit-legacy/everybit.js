@@ -1,29 +1,91 @@
 var expect = chai.expect
 var should = chai.should()
 
+// TODO: lots of work left to do here
+
 describe('Integration Tests for Identity Management', function() {
   this.timeout(3000)
     
-  describe('Create a new identity', function() {
-    var prom
+  describe('EB.createIdentity', function() {
 
-    it('should get a profile puff', function() {
-        ({}).should.exist()
-    })
-
-    it('should get a profile puff' , function() {
-      // return prom = EB.createIdentity
-      // return prom = EB.registerTopLevelUser
-      // return prom = EB.registerSubuser
-      // return prom = EB.updatePrivateKey
-      // return prom = EB.login
-      // return prom = EB.loginWithIdentityFile
-      // return prom = EB.loginWithPassphrase
-      // return prom = EB.storeIdentityFileInCloud
-      // return prom = EB.formatIdentityFile
-      // return prom = EB.Users.registerSubuserForUser
+    it.skip('should make a new identity', function() {
+      
     })
 
   })
+  
+  describe('EB.registerTopLevelUser', function() {
+
+    it.skip('should register a new TLU', function() {
+      
+    })
+
+  })
+  
+  describe('EB.registerSubuser', function() {
+    
+    it.skip('should register a new subuser', function() {
+      
+    })
+
+  })
+  
+  describe('EB.updatePrivateKey', function() {
+    
+    it.skip('should update the default private key', function() {
+      
+    })
+
+  })
+  
+  describe('EB.login', function() {
+    
+    it.skip('should activate the identity', function() {
+      
+    })
+
+  })
+  
+  describe('EB.loginWithIdentityFile', function() {
+    
+    it.skip('should activate the identity', function() {
+      
+    })
+
+  })
+  
+  describe('EB.loginWithPassphrase', function() {
+    
+    it.skip('should activate the identity', function() {
+      
+    })
+
+  })
+  
+  describe('EB.storeIdentityFileInCloud', function() {
+    
+    it.skip('should store the identity file remotely', function() {
+      
+    })
+
+  })
+  
+  describe('EB.formatIdentityFile', function() {
+    
+    it.skip('should return a canonical Identity File object', function() {
+      
+    })
+
+  })
+  
+  describe('EB.Users.registerSubuserForUser', function() {
+    
+    it.skip('should register a new subuser (helper function)', function() {
+      
+    })
+
+  })
+  
+  
   
 })

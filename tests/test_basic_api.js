@@ -62,7 +62,7 @@ describe('Integration Tests for the Basic API', function() {
       var puff
       
       it('should get the public message from cache', function() {
-        puff = EB.getPuffOrNot(public_puff_sig)
+        puff = EB.FAF.getPuffBySig(public_puff_sig)
         puff.should.exist()
         puff.should.not.be.false()
       })
@@ -89,7 +89,7 @@ describe('Integration Tests for the Basic API', function() {
       })
       
       it('should have our anon username', function() {
-        prom.should.eventually.have.property('username').and.contain('username')
+        prom.should.eventually.have.property('username').and.contain(username)
       })
       
       it('should have the right content', function() {
@@ -157,23 +157,3 @@ describe('Integration Tests for the Basic API', function() {
     // TODO: logout and check for non-existence of user in the persistent store
   })
 })
-
-
-
-
-/// examples
-/*
-describe('timeout', function() {
-  describe('#blip()', function() {
-    it('should timeout and increment', function(done) { // explicit 'done' param means manual async mode
-      setTimeout(done, 5)
-    })
-  })
-})
-
-describe('Array', function() {
-  describe('#indexOf()', function() {
-    it('should return -1 when the value is not present') // no function arg means pending (or use .skip)
-  })
-})
-*/

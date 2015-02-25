@@ -597,14 +597,13 @@ EB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
         EB.removeIdentity = removeIdentity
         
     EB.getCurrentUsername = function() {
-        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
+        // NOTE: we're using the output var to leak information out of useSecureInfo. be careful with this technique.
         var output
         EB.useSecureInfo(function(identities, username) { output = username })
         return output
     }
     
     EB.getCurrentCapa = function() {
-        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
         var output
         EB.useSecureInfo(function(identities, username) { output = ((identities[username]||{}).primary||{}).capa||0 })
         return output
@@ -635,7 +634,6 @@ EB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, set
     }
 
     EB.getAllIdentityUsernames = function() {
-        // yes, this technique allows you to leak data out of useSecureInfo. no, you should not use it.
         var output
         EB.useSecureInfo(function(identities, username) { output = Object.keys(identities) })
         return output

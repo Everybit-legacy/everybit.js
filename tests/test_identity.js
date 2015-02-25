@@ -86,6 +86,107 @@ describe('Integration Tests for Identity Management', function() {
 
   })
   
+
+// SECURE INFORMATION INTERFACE
+
+
+  describe('EB.useSecureInfo', function() {
+    
+    it.skip('should allow access to the secure information module', function() {
+      
+    })
+
+  })
+
+  describe('EB.addIdentity', function() {
+    
+    it.skip('should allow direct identity creation', function() {
+      
+    })
+
+  })
+
+  describe('EB.addAlias', function() {
+    
+    it.skip('should allow addition of an alias to an identity', function() {
+      
+    })
+
+  })
+
+  // TODO: ..asdf,asdfjasldkfjaslkdjf
+  describe('EB.setPrimaryAlias', function() {
+    
+    it.skip('should allow ', function() {
+      
+    })
+
+  })
+  
+  describe('EB.setPreference', function() {
+    
+    it.skip('should allow setting of preference particular preference', function() {
+      
+    })
+
+  })
+  
+  describe('EB.switchIdentityTo', function() {
+    
+    it.skip('should allow switching the currently active identity', function() {
+      
+    })
+
+  })
+  
+  describe('EB.removeIdentity', function() {
+    
+    it.skip('should allow removing an identity', function() {
+      
+    })
+
+  })
+  
+  describe('EB.getCurrentUsername', function() {
+    
+    it.skip('should get the current username', function() {
+      
+    })
+
+  })
+  
+  describe('EB.getCurrentCapa', function() {
+    
+    it.skip('should get the version of the current username', function() {
+      
+    })
+
+  })
+  
+  describe('EB.getCurrentVersionedUsername', function() {
+    
+    it.skip('should get the versioned version of the current username', function() {
+      
+    })
+
+  })
+  
+  describe('EB.getCurrentUserRecord', function() {
+    
+    it.skip('should get the current userRecord', function() {
+      
+    })
+
+  })
+  
+  describe('EB.getAllIdentityUsernames', function() {
+    
+    it.skip('should get the primary usernames for existing identities', function() {
+      
+    })
+
+  })
+  
   
   
 })

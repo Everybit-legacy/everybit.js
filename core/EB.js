@@ -28,7 +28,44 @@ EB.version = '0.7.13'
 
 ////////////// STANDARD API FUNCTIONS //////////////////
 
-// Note that almost all of the EB.* API functions return a promise, with the exception of EB.formatIdentityFile and EB.loginWithIdentityFile. 
+// Note that almost all of the EB.* API functions return a promise, with the exception of EB.formatIdentityFile and EB.loginWithIdentityFile. (The fire-and-forget interface housed in this file is also non-promise-based.)
+
+
+//// THE FIRE AND FORGET INTERFACE FOR RECEIVING MESSAGES
+
+// The fire-and-forget style interface, where we ask for a puff and either
+// - receive it directly if it's in the cache, or
+// - receive false, but meanwhile a request is sent
+// This can be easier than dealing with promises when e.g. showing cat photos:
+// start by showing whichever cats you have in the cache at that moment. 
+// When more cats arrive a refresh is triggered and those additional cats are shown too.
+// If you return a promise then you'd have to wait for 'all available cats' before resolving it,
+// but there's no way to know when the last cat has arrived -- halting problem.
+
+
+EB.FAF = {}
+
+/**
+ * Try to get a puff by its sig from the local cache, or ask the network and return false
+ * @param {string}  sig
+ * @return {(puff|false)}
+ */
+EB.FAF.getPuffBySig = function(sig) {
+    return EB.Data.getPuffOrNot(sig)
+}
+
+
+/**
+ * Get a list of the current identity's currently cached puffs, and ask the network for more
+ * @return {[puffs]}
+ */
+EB.FAF.getMyMessages = function() {
+    // get current username
+    // ask the network for anything new from or for me
+    // return things from caches
+}
+
+
 
 
 //// RECEIVE MESSAGES
@@ -44,41 +81,16 @@ EB.getPuffBySig = function(sig) {
 }
 
 
-/**
- * Try to get a puff by its sig from the local cache,
- * or ask the network and return false
- * @param {string}  sig
- * @return {(puff|false)}
- */
-EB.getPuffOrNot = function(sig) {
-    return EB.Data.getPuffOrNot(sig)                    // fire-and-forget style -- see note on EB.Data.getPuffOrNot
-}
-
-
-/**
- * Get a list of the current identity's currently cached puffs,
- * and ask the network for more
- * @return {[puffs]}
- */
-EB.getMyMessagesOrNot = function() {
-    // get current username
-    // ask the network for anything new from or for me
-    // return things from caches
-    // -- why not a promise? because we don't know how many things we'll receive: halting problem. so F-A-F instead.
-}
-
-
 //// SEND MESSAGES
 
 
 /**
  * Send a public message
- * @param {string}  content
- * @param {string}  type
+ * @param {string} A message string
+ * @param {string} Optional, defaults to 'text'
  * @return {promise}
  */
 EB.postPublicMessage = function(content, type) {
-    //// post a public puff. type is optional and defaults to 'text'
     type = type || 'text'
     
     var myUsername = EB.getCurrentUsername()
@@ -92,13 +104,12 @@ EB.postPublicMessage = function(content, type) {
 
 /**
  * Send a private message
- * @param {string}  content
- * @param {string}  usernames
- * @param {string}  type
+ * @param {string}  A message string
+ * @param {array}   A list of usernames
+ * @param {string}  Optional, defaults to 'text'
  * @return {promise}
  */
 EB.postPrivateMessage = function(content, usernames, type) {
-    //// post an encrypted puff. type is optional and defaults to 'text'. usernames is an array of usernames.
     type = type || 'text'
 
     var myUsername = EB.getCurrentUsername()
@@ -391,8 +402,6 @@ EB.login = function(username, privateKey) {
  * @return 
  */
 EB.loginWithIdentityFile = function(object) {
-    //// 
-    
     var username = object.username
     var aliases  = object.aliases
     var preferences = object.preferences

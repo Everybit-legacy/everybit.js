@@ -731,13 +731,8 @@ EB.Data.getPuffBySig = function(sig) {
 }
 
 EB.Data.getPuffOrNot = function(sig) {
-    // Supports the fire-and-forget style, where we ask for a puff and either
-    // - receiving it directly if it's in the cache, or
-    // - receiving false, but meanwhile a request is sent.
-    // This can be easier than dealing with promises for e.g. showing cat photos, 
-    // since you just always show whichever ones you have. When more cats arrive 
-    // a refresh is triggered and all available cats are shown. 
-    
+    // Supports the fire-and-forget style -- see note in EB.js
+   
     var shell = EB.Data.getCachedShellBySig(sig)                    // check in public cache
     
     if(!shell)

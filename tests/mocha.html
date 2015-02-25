@@ -1,0 +1,29 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+  <script src="../build/everybitJS/everybit.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
+  <script src="../node_modules/chai-as-promised/lib/chai-as-promised.js"></script>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script>mocha.setup('bdd')</script>
+  
+  <script src="test_basic_api.js"></script>  <!-- tests for core functionality -->
+  <script src="test_crypto.js"></script>     <!-- tests for crypto functionality -->
+  <script src="test_persist.js"></script>    <!-- tests for persistence library -->
+  <script src="test_boron.js"></script>      <!-- tests for boron library -->
+  <script src="test_identity.js"></script>   <!-- tests for identity management -->
+  <script src="test_spec.js"></script>       <!-- tests for spec validations -->
+  
+  <script>
+    mocha.checkLeaks()
+    EB.init()
+    EB.addErrorHandler(function(composite) {console.log(composite)})
+    mocha.run()
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 importScripts('vendor/bitcoinjs-min.js')
-importScripts('core/PB.js')
-importScripts('core/PB.Crypto.js')
+importScripts('core/EB.js')
+importScripts('core/EB.Crypto.js')
 
 onmessage = function (event) {
     var args = event.data.args
@@ -8,7 +8,7 @@ onmessage = function (event) {
     var result
     
     try {
-        result = PB[fun].apply(PB, args)
+        result = EB[fun].apply(EB, args) // THINK: can we call in to EB.Data instead?
         postMessage({ id: event.data.id
                     , evaluated: result
                     })
@@ -20,7 +20,7 @@ onmessage = function (event) {
     }    
 }
 
-PB.onError = function(msg, obj) {
+EB.onError = function(msg, obj) {
     console.log(msg, obj) // adding this back in for debugging help
     return false
 }

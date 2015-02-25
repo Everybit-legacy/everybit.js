@@ -19,7 +19,7 @@ Gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight, vertical
         , add: function(width, height, miny, minx, maxy, maxx, pointer) {
             maxy = min(maxy||rows-height, rows-height), maxx = min(maxx||cols-width, cols-width)
             miny = min(miny||0, maxy), minx = min(minx||0, maxx)
-            if(maxx<0 || maxy<0) return PB.onError('Block is too big for the grid')
+            if(maxx<0 || maxy<0) return EB.onError('Block is too big for the grid')
 
             top: for(var y = miny; y <= maxy; y++) {
                 bot: for(var x = minx; x <= maxx;  x++) {
@@ -27,8 +27,8 @@ Gridbox.getGridCoordBox = function(rows, cols, outerwidth, outerheight, vertical
                         for(var dx = 0; dx < width; dx++) {
                             if(grid[y+dy][x+dx]) continue bot }}
                     break top }}
-            if(x == maxx+1 && y == maxy+1) return PB.onError('No room in the grid')
-            if(x == null || y == null) return PB.onError('Block too big for the grid')
+            if(x == maxx+1 && y == maxy+1) return EB.onError('No room in the grid')
+            if(x == null || y == null) return EB.onError('Block too big for the grid')
             for(var dy = 0; dy < height; dy++) {
                 for(var dx = 0; dx < width; dx++) {
                     grid[y+dy][x+dx] = pointer || 1 } }

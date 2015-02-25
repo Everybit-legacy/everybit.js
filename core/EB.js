@@ -73,7 +73,7 @@ EB.FAF.getMyMessages = function() {
 
 /**
  * Try to get a particular puff by its signature
- * @param {string}  sig
+ * @param {string}  The signature of a puff
  * @return {promise}
  */
 EB.getPuffBySig = function(sig) {
@@ -86,8 +86,8 @@ EB.getPuffBySig = function(sig) {
 
 /**
  * Send a public message
- * @param {string} A message string
- * @param {string} Optional, defaults to 'text'
+ * @param {string}    A message string
+ * @param {string}    Optional, defaults to 'text'
  * @return {promise}
  */
 EB.postPublicMessage = function(content, type) {
@@ -104,9 +104,9 @@ EB.postPublicMessage = function(content, type) {
 
 /**
  * Send a private message
- * @param {string}  A message string
- * @param {array}   A list of usernames
- * @param {string}  Optional, defaults to 'text'
+ * @param {string}    A message string
+ * @param {array}     A list of usernames
+ * @param {string}    Optional, defaults to 'text'
  * @return {promise}
  */
 EB.postPrivateMessage = function(content, usernames, type) {
@@ -135,22 +135,26 @@ EB.postPrivateMessage = function(content, usernames, type) {
 
 /**
  * Send an anonymous private message
- * @param {string}  content
- * @param {string}  usernames
- * @param {string}  type
+ * @param {string}    A message string
+ * @param {array}     A list of usernames
+ * @param {string}    Optional, defaults to 'text'
  * @return {promise}
  */
-EB.postAnonymousPrivateMessage = function(content, usernames, type) {}
+EB.postAnonymousPrivateMessage = function(content, usernames, type) {
+    return EB.Data.sendAnonModePuff(content, usernames, type, 'anon')
+}
 
 
 /**
  * Send a traceless private message
- * @param {string}  content
- * @param {string}  usernames
- * @param {string}  type
+ * @param {string}    A message string
+ * @param {array}     A list of usernames
+ * @param {string}    Optional, defaults to 'text'
  * @return {promise}
  */
-EB.postParanoidPrivateMessage = function(content, usernames, type) {}
+EB.postTracelessPrivateMessage = function(content, usernames, type) {
+    return EB.Data.sendAnonModePuff(content, usernames, type, 'doublyanon')
+}
 
 
 //// IDENTITY AND USER MANAGEMENT
@@ -158,9 +162,9 @@ EB.postParanoidPrivateMessage = function(content, usernames, type) {}
 
 /**
  * Create a new identity
- * @param {string} username             new username
- * @param {string} passphrase           a string passphrase
- * @return {promise}                    userRecord for the newly created user
+ * @param {string}    new username
+ * @param {string}    a string passphrase
+ * @return {promise}  userRecord for the newly created user
  */
 EB.createIdentity = function(username, passphrase) {
     // TODO: validations and error handling (lots of it)
@@ -184,30 +188,19 @@ EB.createIdentity = function(username, passphrase) {
 
 /**
  * Register a new top-level user
- * @param {string}  username            new username
- * @param {string}  privateRootKey      new private root key
- * @param {string}  privateAdminKey     new private admin key
- * @param {string}  privateDefaultKey   new private default key
- * @return {promise}                    userRecord for the newly created user
+ * @param {string}     new username
+ * @param {string}     new private root key
+ * @param {string}     new private admin key
+ * @param {string}     new private default key
+ * @return {promise}   userRecord for the newly created user
  */
 EB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, privateDefaultKey) {
     // OPT: privateToPublic is expensive -- we could reduce the number of calls if the private keys are identical
-    var rootKeyPublic    = EB.Crypto.privateToPublic(privateRootKey)
-    var adminKeyPublic   = EB.Crypto.privateToPublic(privateAdminKey)
-    var defaultKeyPublic = EB.Crypto.privateToPublic(privateDefaultKey)
+    var rootKey    = EB.Crypto.privateToPublic(privateRootKey)
+    var adminKey   = EB.Crypto.privateToPublic(privateAdminKey)
+    var defaultKey = EB.Crypto.privateToPublic(privateDefaultKey)
 
-    var payload = { requestedUsername: username
-                  ,           rootKey: rootKeyPublic
-                  ,          adminKey: adminKeyPublic
-                  ,        defaultKey: defaultKeyPublic
-                  }
-
-    var routes  = []
-    var content = 'requestUsername'
-    var type    = 'updateUserRecord'
-
-    var puff = EB.Puff.build(username, privateAdminKey, routes, type, content, payload)
-    
+    var puff = EB.Puff.buildUserRegistration(username, privateAdminKey, username, rootKey, adminKey, defaultKey)
     var prom = EB.Net.updateUserRecord(puff)
     
     return prom
@@ -215,12 +208,12 @@ EB.registerTopLevelUser = function(username, privateRootKey, privateAdminKey, pr
 
 
 /**
- * register a subuser for the currently active identity
- * @param  {string} newUsername     desired new subuser name
- * @param  {string} rootKey         public root key for the new subuser
- * @param  {string} adminKey        public admin key for the new subuser
- * @param  {string} defaultKey      public default key for the new subuser
- * @return {promise}                userRecord for the newly created subuser
+ * Register a subuser for the currently active identity
+ * @param  {string}    desired new subuser name
+ * @param  {string}    public root key for the new subuser
+ * @param  {string}    public admin key for the new subuser
+ * @param  {string}    public default key for the new subuser
+ * @return {promise}   userRecord for the newly created subuser
  */
 EB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
     var signingUsername = EB.getCurrentUsername()
@@ -237,10 +230,10 @@ EB.registerSubuser = function(newUsername, rootKey, adminKey, defaultKey) {
 /**
  * Attempts to update a private key for the current user
  * If successful it adds the new alias to the current identity.
- * @param {string} keyToModify          'defaultKey', 'adminKey', or 'rootKey'
- * @param {string} newPrivateKey        the new private key
- * @param {string} secrets              secret information to include in the userRecord
- * @return {promise}                    the new userRecord
+ * @param {string}     'defaultKey', 'adminKey', or 'rootKey'
+ * @param {string}     the new private key
+ * @param {string}     secret information to include in the userRecord
+ * @return {promise}   the new userRecord
  */
 EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {    
     var username = EB.getCurrentUsername()
@@ -311,7 +304,7 @@ EB.updatePrivateKey = function(keyToModify, newPrivateKey, secrets) {
 
 /**
  * Try to get a user's profile puff
- * @param {string}  username
+ * @param {string}  The username
  * @return {promise}
  */
 EB.getProfilePuff = function(username) {
@@ -344,8 +337,8 @@ EB.getProfilePuff = function(username) {
 
 /**
  * Make an identity the current one
- * @param {string}  username
- * @param {string}  privateKey          // the key for the user's identity file
+ * @param {string}   main username for the identity
+ * @param {string}   the key for the user's identity file
  * @return {promise}
  */
 EB.login = function(username, privateKey) {
@@ -376,7 +369,7 @@ EB.login = function(username, privateKey) {
         }
         
         // no identity puff, so try it the old fashioned way
-        // TODO: move this in to a helper function
+        // TODO: move this into a helper function
         var publicKey = EB.Crypto.privateToPublic(privateKey)
         
         if( (userRecord.defaultKey != publicKey) 
@@ -419,9 +412,9 @@ EB.loginWithIdentityFile = function(object) {
 
 /**
  * Try to access the system with a username/passphrase combo
- * @param {string} username
- * @param {string} passphrase
- * @param {string} legacy
+ * @param {string}   Identity's primary username
+ * @param {string}   Passphrase to unlock the identity file
+ * @param {string}   Used internally
  * @return {promise}
  */
 EB.loginWithPassphrase = function(username, passphrase, legacy) {
@@ -512,7 +505,7 @@ EB.storeIdentityFileInCloud = function() {
 
 /**
  * Try to get an identity file and format it correctly
- * @param {string} username
+ * @param {string} Identity's primary username
  * @return {(object|false)}
  */
 EB.formatIdentityFile = function(username) {
@@ -553,6 +546,7 @@ EB.formatIdentityFile = function(username) {
 //// SECURE INFORMATION INTERFACE
 
 EB.implementSecureInterface = function(useSecureInfo, addIdentity, addAlias, setPrimaryAlias, setPreference, switchIdentityTo, removeIdentity) {
+    // API cheatsheet:
     // useSecureInfo    = function( function(identities, username, privateRootKey, privateAdminKey, privateDefaultKey) )
     // addIdentity      = function(username, aliases, preferences)
     // addAlias         = function(identityUsername, aliasUsername, capa, privateRootKey, privateAdminKey, privateDefaultKey, secrets)

@@ -22,6 +22,7 @@
   <script>
     mocha.checkLeaks()
     EB.init()
+    EB.addErrorHandler(function(composite) {console.log(composite)})
     mocha.run()
   </script>
 </body>

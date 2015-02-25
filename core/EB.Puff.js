@@ -8,6 +8,9 @@
 
 EB.Puff = {}
 
+
+//// Building puffs
+
 EB.Puff.createPrivate = function(content, type) {
     var payload = {}
     
@@ -90,6 +93,44 @@ EB.Puff.packageStructure = function(versionedUsername, routes, type, content, pa
 }
 
 
+/**
+ * Build user registration puff
+ * @param  {string}  username of existing user
+ * @param  {string}  private admin key for existing user
+ * @param  {string}  desired new user name
+ * @param  {string}  public root key for the new user
+ * @param  {string}  public admin key for the new user
+ * @param  {string}  public default key for the new user
+ * @return {object}  puff to register the user
+ */
+EB.Puff.buildUserRegistration = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+
+    // the DHT update puff payload
+    var payload = { requestedUsername: newUsername
+                  ,        defaultKey: defaultKey
+                  ,          adminKey: adminKey
+                  ,           rootKey: rootKey
+                  ,              time: Date.now()
+                  }
+
+    // build the DHT update puff
+    var routing = [] // THINK: DHT?
+    var content = 'requestUsername'
+    var type    = 'updateUserRecord'
+
+    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
+    var puff = EB.Puff.build(signingUsername, privateAdminKey, routing, type, content, payload)
+
+    return puff
+}
+
+
+
+
+
+//// Encryption and decryption
+
+
 EB.Puff.isPrivate = function(shell) {
     return shell.payload.type == 'encryptedpuff'
 }
@@ -103,7 +144,7 @@ EB.Puff.encrypt = function(letter, myPrivateWif, userRecords, privateEnvelopeAli
     var versionedUsername = letter.username
     
     if(privateEnvelopeAlias) {
-        myPrivateWif = privateEnvelopeAlias.default
+        myPrivateWif = privateEnvelopeAlias.privateDefaultKey
         versionedUsername = EB.Users.makeVersioned(privateEnvelopeAlias.username, privateEnvelopeAlias.capa)
     }
     
@@ -209,7 +250,7 @@ EB.Puff.promiseToDecryptForReals = function(envelope, senderPublicKey, recipient
 }
 
 
-//// Shells and Puffs
+//// Shells and puffs
 
 
 EB.Puff.isFull = function(shell) {

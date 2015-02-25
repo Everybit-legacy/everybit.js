@@ -2,7 +2,7 @@ var expect = chai.expect
 var should = chai.should()
 
 describe('Integration Tests for the Basic API', function() {
-  this.timeout(4000)
+  this.timeout(7000)
   
   describe('Get a profile puff', function() {
     var prom
@@ -21,7 +21,7 @@ describe('Integration Tests for the Basic API', function() {
   })
   
   describe('Create and use an anonymous user', function() {
-    var username, public_puff_sig, prom
+    var username, public_puff_sig, prom, recipient
     
     it('should create a new anonymous user', function() {
       prom = EB.Users.createAnonUserAndMakeCurrent()
@@ -112,44 +112,102 @@ describe('Integration Tests for the Basic API', function() {
         return prom.should.eventually.have.deep.property('payload.content')
       })
       
-      it('should add have type encryptedpuff', function() {
+      it('should have type encryptedpuff', function() {
         return prom.should.eventually.have.deep.property('payload.type', 'encryptedpuff')
       })
       
-      it('should add have our username as a key', function() {
+      it('should have our username as a key', function() {
         return prom.should.eventually.have.property('keys').and.property(username + ':1') // THINK: hardcoded capa
       })
       
-      it('should add be from our username', function() {
+      it('should be from our username', function() {
         return prom.should.eventually.have.property('username').and.contain(username)
       })
       
-      it('should add have our username in the routes', function() {
+      it('should have our username in the routes', function() {
         return prom.should.eventually.have.property('routes').and.contain(username)
       })
       
     })
 
-    describe('Add an anonymous private message', function() {
+    describe('Add an anonymous mode private message', function() {
+      var prom
 
-      it('should add an anonymous private message', function() {
-        var prom = EB.postAnonymousPrivateMessage('Hello World', username) // send to ourself
-        
-        var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
-        var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
-        return p2
+      it('should add an anonymous private message', function(done) {
+        var userprom = EB.Users.addAnonymousUser()
+        userprom.then(function(userRecord) {
+          recipient = userRecord.username
+          prom = EB.postAnonymousPrivateMessage('Hello World', recipient)
+        }).then(done)
+      })
+      
+      it('should have some content', function() {
+        return prom.should.eventually.have.deep.property('payload.content')
+      })
+      
+      it('should have type encryptedpuff', function() {
+        return prom.should.eventually.have.deep.property('payload.type', 'encryptedpuff')
+      })
+      
+      it('should have recipient as a key', function() {
+        return prom.should.eventually.have.property('keys').and.property(recipient + ':1') // THINK: hardcoded capa
+      })
+      
+      it('should not have our username as a key', function() {
+        return prom.should.eventually.have.property('keys').and.not.property(username + ':1') // THINK: hardcoded capa
+      })
+      
+      it('should not be from our username', function() {
+        return prom.should.eventually.have.property('username').and.not.contain(username)
+      })
+      
+      it('should not have our username in the routes', function() {
+        return prom.should.eventually.have.property('routes').and.not.contain(username)
+      })
+      
+      it.skip('should have our username as the letter', function() {
+        // return prom.should.eventually.have.property('routes').and.not.contain(username)
       })
       
     })
       
-    describe('Add a paranoid private message', function() {
+    describe('Add a doubly anonymous mode private message', function() {
+      var prom
 
-      it('should add a paranoid private puff', function() {
-        var prom = EB.postParanoidPrivateMessage('Hello World', username) // send to ourself
-        
-        var p1 = prom.should.eventually.have.deep.property('payload.type', 'profile')
-        var p2 = prom.should.eventually.have.property('username').and.contain('everybit')
-        return p2
+      it('should add an anonymous private message', function() {
+        prom = EB.postTracelessPrivateMessage('Hello World', recipient)
+      })
+      
+      it('should have some content', function() {
+        return prom.should.eventually.have.deep.property('payload.content')
+      })
+      
+      it('should have type encryptedpuff', function() {
+        return prom.should.eventually.have.deep.property('payload.type', 'encryptedpuff')
+      })
+      
+      it('should have recipient as a key', function() {
+        return prom.should.eventually.have.property('keys').and.property(recipient + ':1') // THINK: hardcoded capa
+      })
+      
+      it('should not have our username as a key', function() {
+        return prom.should.eventually.have.property('keys').and.not.property(username + ':1') // THINK: hardcoded capa
+      })
+      
+      it('should not be from our username', function() {
+        return prom.should.eventually.have.property('username').and.not.contain(username)
+      })
+      
+      it('should not have our username in the routes', function() {
+        return prom.should.eventually.have.property('routes').and.not.contain(username)
+      })
+      
+      it.skip('should have our username as the letter', function() {
+        // return prom.should.eventually.have.property('routes').and.not.contain(username)
+      })
+      
+      it.skip('should have an anonymous user as the reply-to', function() {
+        // return prom.should.eventually.have.property('routes').and.not.contain(username)
       })
     })
     

@@ -680,7 +680,7 @@ EB.Data.importRemoteShells = function() {
             // new_shells = new_shells.concat(my_new_shells)
             // var delta = my_new_shells.length
             
-            if(delta != limit) // some shells were already in our cache
+            if(delta != limit)                                          // some shells were already in our cache
                 keep_going = false
         }
         
@@ -708,6 +708,56 @@ EB.Data.importRemoteShells = function() {
 /*
     End shell collection intake equipment
 */
+
+
+/**
+ * Send a private puff using a new anonymous user as the sender and possibly another as reply-to
+ * @param {string} Either 'anon' or 'doublyanon'
+ * @returns {promise}
+ */
+EB.Data.sendAnonModePuff = function(content, usernames, type, mode, payload, routes) {
+    if(!EB.getCurrentUsername())
+        return EB.emptyPromise('You must have a current identity to send messages')
+        
+    payload = payload || {}
+    if(!Array.isArray(usernames))
+        usernames = usernames ? [usernames] : []
+    
+    var privateEnvelopeAlias                                            // escapes the private keys of new anon user
+    var prom = Promise.resolve()                                        // a promise we use to string everything along 
+
+    prom = prom.then(function() {                                       // we'd like to be anonymous, so make a new user
+        return EB.Users.addAnonymousUser().then(function(userRecord) {
+            EB.useSecureInfo(function(identities, currentUsername) {
+                var identity = identities[currentUsername]
+                var aliases = identity.aliases
+                privateEnvelopeAlias = aliases[aliases.length-1]        // our new anon aliases should be the last one
+                usernames.push(userRecord.username)                     // add new anon username to the list of recipients
+            })
+        })
+    })
+
+    if(mode == 'doublyanon') {                                          // are we doubly anonymous? make another new user
+        prom = prom.then(function() {
+            return EB.Users.addAnonymousUser().then(function(userRecord) {
+                payload.replyTo = userRecord.username
+            })
+        })
+    }
+
+    prom = prom.then(function() {                                       // once the users are made, send off the puff
+        var userprom = EB.Users.usernamesToUserRecordsPromise(usernames)
+        
+        return userprom.then(function(userRecords) {        
+            var puff = EB.Puff.simpleBuild(type, content, payload, routes, userRecords, privateEnvelopeAlias)
+            return EB.Data.addPuffToSystem(puff)
+        })
+    }).catch(function(err) {
+        EB.catchError(err)
+    })
+    
+    return prom
+}
 
 
 /**

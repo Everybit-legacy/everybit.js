@@ -287,86 +287,112 @@ EB.Users.getIdentityPuff = function(userRecord, privateKey) {
 }
 
 
+/**
+ * register a subuser
+ * @param  {string} signingUsername username of existed user
+ * @param  {string} privateAdminKey private admin key for existed user
+ * @param  {string} newUsername     desired new subuser name
+ * @param  {string} rootKey         public root key for the new subuser
+ * @param  {string} adminKey        public admin key for the new subuser
+ * @param  {string} defaultKey      public default key for the new subuser
+ * @return {object}                user record for the newly created subuser
+ */
+EB.Users.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
+    var puff = EB.Puff.buildUserRegistration(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    return EB.Net.updateUserRecord(puff)
+}
 
 
-//
-// CLEANUP REQUIRED
-//
 
+//// ANONYMOUS USERS
+
+
+/**
+ * Add a new user and attach it to the current identity as an alias
+ * This is by the most common use case, since most anon users are created to send/receive messages
+ * @param {string} Optional private default key
+ * @param {string} Optional private admin key
+ * @param {string} Optional private root key
+ * @returns {promise} Resolves to the user record or fails
+ */
+EB.Users.addAnonymousUser = function(privateDefaultKey, privateAdminKey, privateRootKey) {
+    var currentUsername = EB.getCurrentUsername()
+    return EB.Users.addAnonymousUserToIdentity(currentUsername, privateDefaultKey, privateAdminKey, privateRootKey)
+}
+
+
+/**
+ * Add a new user and attach to an identity as an alias
+ * @param {string} The username of the identity to which to attach
+ * @param {string} Optional private default key
+ * @param {string} Optional private admin key
+ * @param {string} Optional private root key
+ * @returns {promise} Resolves to the user record or fails
+ */
+EB.Users.addAnonymousUserToIdentity = function(username, privateDefaultKey, privateAdminKey, privateRootKey) {
+    var callback = function(userRecord, privateDefaultKey, privateAdminKey, privateRootKey) {
+        EB.addAlias(username, userRecord.username, null, privateRootKey, privateAdminKey, privateDefaultKey)
+        return userRecord
+    }
+    
+    return EB.Users.addAnonymousUserToDHT(callback, privateDefaultKey, privateAdminKey, privateRootKey)
+}
+
+
+/**
+ * Register a new anonymous user
+ * @param {string} This callback takes userRecord, privateDefaultKey, privateAdminKey, and privateRootKey as args
+ * @param {string} Optional private default key
+ * @param {string} Optional private admin key
+ * @param {string} Optional private root key
+ * @returns {promise} Resolves to the user record or fails
+ */
+EB.Users.addAnonymousUserToDHT = function(callback, privateDefaultKey, privateAdminKey, privateRootKey) {
+    // get username
+    var newUsername = 'anon.' + EB.Users.generateRandomUsername(12)
+    
+    // generate private keys
+    privateDefaultKey = privateDefaultKey || EB.Crypto.generatePrivateKey()
+    privateAdminKey   = privateAdminKey   || EB.Crypto.generatePrivateKey()
+    privateRootKey    = privateRootKey    || EB.Crypto.generatePrivateKey()
+    
+    // generate public keys
+    var defaultKey = EB.Crypto.privateToPublic(privateDefaultKey)
+    var adminKey   = EB.Crypto.privateToPublic(privateAdminKey)
+    var rootKey    = EB.Crypto.privateToPublic(privateRootKey)
+    
+    var puff = EB.Puff.buildUserRegistration('anon', EB.CONFIG.anonPrivateAdminKey, newUsername, rootKey, adminKey, defaultKey)
+    
+    // send DHT update puff
+    return EB.Net.updateUserRecord(puff).then(function(userRecord) {
+        if(callback)
+            return callback(userRecord, privateDefaultKey, privateAdminKey, privateRootKey)
+        return userRecord
+    })
+}
 
 
 /**
  * Generate a random username
+ * @param {number} length of username
  * @return {string}
  */
-EB.Users.generateRandomUsername = function(len) {
-
-    // Set a default value for length
-    if(!len || len != Math.round(len))
-        len=10
+EB.Users.generateRandomUsername = function(size) {
+    size = +size|0||0
 
     var generatedName = ''
     var alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
-    for(var i=0; i<10; i++) {
+    for(var i=0; i<size; i++) {
         generatedName += EB.Crypto.getRandomItem(alphabet)
     }
     return generatedName
 }
 
-/**
- *
- * Register a new anonymous user
- * @param {string} passphrase optional if included then used
- * @param {string} attachToUsername
- * @returns {Promise} a promise that resolves to the user record or fails
- */
-EB.Users.addNewAnonUser = function(passphrase, attachToUsername) {
-    //// create a new anonymous alias. if attachToUsername is provided it becomes an alias for that identity.
-    //// if attachToUsername is false the alias becomes primary for its own identity.
-    // TODO: make attachToUsername work
-    // THINK: Don't want to switch to this user, but what about alias issue and saving bonus info?
-    // TODO: Split this into two functions, one that registers an anon user based on given info
-    // another that registers anon user AND switches current to that user. Or flag in function to switch to that user.
 
-    var newUsername = 'anon.' + EB.Users.generateRandomUsername(12)
-
-    if(typeof passphrase !== undefined && passphrase) {
-        var prependedPassphrase = newUsername + passphrase
-        var privateKey = EB.Crypto.passphraseToPrivateKeyWif(prependedPassphrase)
-    } else {
-        var privateKey = EB.Crypto.generatePrivateKey()
-    }
-
-    // Set private keys
-    var privateRootKey =    privateKey
-    var privateAdminKey =   privateKey
-    var privateDefaultKey = privateKey
-
-    // Generate public keys
-    var rootKey    = EB.Crypto.privateToPublic(privateKey)
-    var adminKey   = EB.Crypto.privateToPublic(privateKey)
-    var defaultKey = EB.Crypto.privateToPublic(privateKey)
-
-    // build our DHT update puff
-    var payload = {
-        requestedUsername: newUsername,
-        defaultKey: defaultKey,
-        adminKey: adminKey,
-        rootKey: rootKey,
-        time: Date.now()
-    }
-
-    var routing = [] // THINK: DHT?
-    var content = 'requestUsername'
-    var type    = 'updateUserRecord'
-
-    var puff = EB.Puff.build('anon', EB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
-
-    return EB.Net.updateUserRecord(puff)
-
-}
 
 EB.Users.createAnonUserAndMakeCurrent = function() {
+    // TODO: convert this to use EB.Users.addAnonymousUserToDHT
+    
     var newUsername = 'anon.' + EB.Users.generateRandomUsername(12)
     var passphrase = EB.Crypto.generatePrivateKey().slice(-12)
     var prependedPassphrase = newUsername + passphrase
@@ -374,19 +400,7 @@ EB.Users.createAnonUserAndMakeCurrent = function() {
     var publicKey = EB.Crypto.privateToPublic(privateKey)
 
     // Build puff to register this user
-    var payload = {
-        requestedUsername: newUsername,
-        defaultKey: publicKey,
-        adminKey: publicKey,
-        rootKey: publicKey,
-        time: Date.now()
-    }
-
-    var routing = [] // THINK: DHT?
-    var content = 'requestUsername'
-    var type    = 'updateUserRecord'
-
-    var puff = EB.Puff.build('anon', EB.CONFIG.anonPrivateAdminKey, routing, type, content, payload)
+    var puff = EB.Puff.buildUserRegistration('anon', EB.CONFIG.anonPrivateAdminKey, newUsername, publicKey, publicKey, publicKey)
 
     var prom = EB.Net.updateUserRecord(puff)
 
@@ -400,34 +414,3 @@ EB.Users.createAnonUserAndMakeCurrent = function() {
         return userRecord
     })
 }
-
-/**
- * register a subuser
- * @param  {string} signingUsername username of existed user
- * @param  {string} privateAdminKey private admin key for existed user
- * @param  {string} newUsername     desired new subuser name
- * @param  {string} rootKey         public root key for the new subuser
- * @param  {string} adminKey        public admin key for the new subuser
- * @param  {string} defaultKey      public default key for the new subuser
- * @return {object}                user record for the newly created subuser
- */
-EB.Users.registerSubuserForUser = function(signingUsername, privateAdminKey, newUsername, rootKey, adminKey, defaultKey) {
-
-    // build our DHT update puff
-    var payload = { requestedUsername: newUsername
-                  ,        defaultKey: defaultKey
-                  ,          adminKey: adminKey
-                  ,           rootKey: rootKey
-                  ,              time: Date.now()
-                  }
-
-    var routing = [] // THINK: DHT?
-    var content = 'requestUsername'
-    var type    = 'updateUserRecord'
-
-    var puff = EB.Puff.build(signingUsername, privateAdminKey, routing, type, content, payload)
-    // NOTE: we're skipping previous, because requestUsername-style puffs don't use it.
-
-    return EB.Net.updateUserRecord(puff)
-}
-

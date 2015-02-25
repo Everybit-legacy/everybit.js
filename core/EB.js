@@ -23,7 +23,7 @@ if(!EB.CONFIG) EB.CONFIG = {}                           // or we might not
 EB.Modules = {}                                         // supplementary extensions live here
 EB.M = EB.Modules
 
-EB.version = '0.7.13'
+EB.version = '0.8.0'
 
 
 ////////////// STANDARD API FUNCTIONS //////////////////

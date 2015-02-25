@@ -85,7 +85,7 @@ EB.Puff.packageStructure = function(versionedUsername, routes, type, content, pa
     var puff = { username: versionedUsername
                ,   routes: routes
                , previous: previous
-               ,  version: '0.1.0'              // version accounts for crypto type and puff shape
+               ,  version: '0.4.0'              // version accounts for crypto type and puff shape
                ,  payload: payload              // early versions will be aggressively deprecated and unsupported
                }
     

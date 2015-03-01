@@ -263,8 +263,6 @@ $(document).ready(function() {
 
     getSongsForMe();
 
-    if(PB.getCurrentUsername()) {
-        showFriends();
-    }
+    showFriends();
 
 });

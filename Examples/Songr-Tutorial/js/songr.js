@@ -25,7 +25,7 @@ function addFriend() {
             EB.setPreference("friends",prefs.friends);
         }
 
-        $("#friendsList").append("<li>" + friendToAdd + "<button onclick='removeFriend(\""+ friendToAdd +"\")' class=\"btn btn-primary\">x</button></li>");
+        $("#friendsList").append("<li><button onclick='removeFriend(\""+ friendToAdd+"\")' class=\"btn btn-primary\" title='Remove " + friendToAdd + "'>x</button>" + friendToAdd + "</li>");
     })
     .catch (function(err) {
         alert(err)
@@ -78,7 +78,7 @@ function getPrefs() {
 function showFriends() {
     var friends = getFriends();
     friends.forEach(function(friend) {
-        $("#friendsList").append("<li>" + friend + "<button onclick='removeFriend(\""+ friendToAdd +"\")' class=\"btn btn-primary\">x</button></li>");
+        $("#friendsList").append("<li><button onclick='removeFriend(\""+ friend +"\")' class=\"btn btn-primary\" title='Remove " + friend + "'>x</button>" + friend + "</li>");
     });
 }
 

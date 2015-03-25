@@ -25,7 +25,7 @@ function addFriend() {
             EB.setPreference("friends",prefs.friends);
         }
 
-        $("#friendsList").append("<li><button onclick='removeFriend(\""+ friendToAdd+"\")' class=\"btn btn-primary\" title='Remove " + friendToAdd + "'>x</button>" + friendToAdd + "</li>");
+        $("#friendsList").append("<li><button onclick=\"removeFriend('" + friendToAdd + "')\" class=\"btn btn-primary\" title=\"Remove " + friendToAdd + "\">x</button>" + friendToAdd + "</li>");
     })
     .catch (function(err) {
         alert(err)
@@ -40,8 +40,8 @@ function addFriend() {
  *
  * @returns {boolean}
  */
-function removeFriend() {
-    var friendToRemove = $("#friendToRemove").val();
+function removeFriend(friendToRemove) {
+    friendToRemove = friendToRemove || $("#friendToRemove").val();
     var prefs = getPrefs();
     if(!prefs.friends || prefs.friends.indexOf(friendToRemove) < 0){
         alert("This person isn't on your friends list");

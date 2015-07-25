@@ -132,13 +132,13 @@ Public keys also let users send private, encrypted messages to one another. By a
 ###Alice, Bob & Charlie in Cryptoland
 Suppose Alice wants to send an encrypted message to Bob and Charlie. She first creates a puff out of the message she wants to send, with no encryption. We’ll call this the “letter”. It’s the same puff she would create if she intended to post her message publicly.
 
-Alice then converts the letter from a JS object into a JSON string, and encrypts that string using a randomly generated 256-bit AES key. This is the “message key”. AES is a symmetric encryption protocol, so applying this same message key to the letter again will decrypt it.
+Alice then converts the letter from a JS object into a JSON string, and encrypts that string using a randomly generated 256-bit AES key. This is the “message key.” AES is a symmetric encryption protocol, so applying this same message key to the letter again will decrypt it.
 
 Alice needs to encrypt this secret message key before sharing it, so Alice uses her private ECC key and Bob's public ECC key to generate a shared secret using ECDH. She then takes a SHA256 hash of this shared secret to generate a new 256-bit AES key. This AES key is used to encrypt the message key, so that Bob can later decrypt the message key and then use it to decrypt the letter.
 
 Alice repeats the message key encryption procedure for Charlie, generating a new key from their shared secret and encrypting the message key with it. Then she packages the letter and the encrypted keys into a new puff which we’ll call the “envelope”. Once the envelope is complete, Alice signs the “envelope” puff, just like she signed the inner “letter” puff. Her signature allows Bob and Charlie to validate her identity, and serves as a unique identifier for her message. See the section on [signatures](#importanceofsig) above.
 
-This procedure analogous to the lock boxes used to provide access to an apartment to several realtors. Each realtor has a separate lock box outside the building containing a key to the front door. In the case of EB, access to Alice's message is controlled by separate “lock boxes” for Bob and Charlie, which their respective private keys can unlock. Inside each box is a key to unlock the message.
+This procedure is analogous to the lock boxes used to provide access to an apartment to several realtors. Each realtor has a separate lock box outside the building containing a key to the front door. In the case of EB, access to Alice's message is controlled by separate “lock boxes” for Bob and Charlie, which their respective private keys can unlock. Inside each box is a key to unlock the message.
 
 <a name="anonymousmodeftw"></a>
 ###Breaking the chain with Anonymous Mode 

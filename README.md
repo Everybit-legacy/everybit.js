@@ -12,7 +12,7 @@ We do our development on the ```develop``` branch, and only pull to master for o
 ### Resources
 
 - [Website] (http://everybit.com)
-- [Code recipes] (http://everybit.com/getting-started.html)
+- [Code recipes] (http://everybit.com/tutorial.html)
 - [White paper] (https://github.com/EveryBit-com/everybit.js/tree/develop/whitepaper)
 
 ### Setup Instructions

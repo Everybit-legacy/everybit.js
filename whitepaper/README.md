@@ -61,7 +61,7 @@ With the rise of key based authentication, peer-to-peer networking over the brow
 
 A decentralized, shared username system, in combination with a standardized data format, lets us consolidate our dozens of inboxes and alerts under single username, a irrevocable identity we can control for life.
 
-In this vision of the future, people will look back in amazement at the hassles we endured during the era when private messaging systems at Facebook, LinkedIn, Twitter, and G+ were non-interoperable. They’ll be astounded that we trusted our identities to companies whose interests lay in convincing us to build elaborate virtual homes on land we didn’t own, knowing that the more we invest in our homes, the more rent these companies will eventually be able to change us. 
+In this vision of the future, people will look back in amazement at the hassles we endured during the era when private messaging systems at Facebook, LinkedIn, Twitter, and G+ were non-interoperable. They’ll be astounded that we trusted our identities to companies whose interests lay in convincing us to build elaborate virtual homes on land we didn’t own, knowing that the more we invest in our homes, the more rent these companies will eventually be able to charge us. 
 
 <a name="introducingeverybit"></a>
 ##Introducing EveryBit.js

@@ -1,11 +1,16 @@
 <img src="http://i.imgur.com/SsfjVjB.gif" alt="EveryBit.js Logo" width="500">
-###EveryBit.js: A client-side library for secure, decentralized publishing
+
+### EveryBit.js: A client-side library for secure, decentralized publishing
+
 <small>*By Matt Asher and Dann Toliver for EveryBit. Last revised February 9, 2015*</small>
-##Summary
+
+## Summary
+
 Over time, publishing has become significantly more accessible, decentralized, and free (as in liberty). This trend accelerated in the early days of the internet, but is increasingly threatened by the rise of powerful private gatekeepers and government agencies. The JavaScript library EveryBit.js routes users around these intermediaries and reestablishes their privacy. It provides tools for publishing and sharing content in ways that are cryptographically secure, based on open standards, and uses the latest P2P JS tools to implement a decentralized network. 
 
 
-##Outline
+## Outline
+
 - [A brief history of publishing](#publishinghistory)
 - [Introducing EveryBit.js](#introducingeverybit)
 - [Case study: HedHelth](#hedhelth)
@@ -18,7 +23,8 @@ Over time, publishing has become significantly more accessible, decentralized, a
 - [Footnotes](#footnotes)
 
 <a name="publishinghistory"></a>
-##A brief history of publishing: past, present and future
+## A brief history of publishing: past, present and future
+
 The long arc of publishing history shows a strong tendency towards decentralization. In the earliest days of recorded history, publishing was the exclusive right of rulers and gods (or their presumptive agents on earth). The flow of information went in one direction only. In the story of Moses, stone tablets were literally brought down from on high to the people. And, as a New Yorker cartoon observed, they had no "comments section". There’s evidence that ancient citizens created documents in clay tablets, but these were used for accounting and math. Except for graffiti, the official stories carved into stone were of the ruling elite and their deeds.
 
 During the Middle Ages, a select group of scribes copied over manuscripts by hand. Each copy was expensive, and most of the population was illiterate. Published works were tightly controlled and highly limited in distribution. Attempts to circumvent the flow of published information, such as Martin Luther posting his grievances on the church door, were considered so rebellious that they could get the offender killed.
@@ -38,13 +44,17 @@ We are beginning to see the rise of re-intermediation, where tech giants take on
 Meanwhile, governments have been using mass surveillance to intercept private communication. And they've been using enhanced regulatory powers to seize domains related to internet gambling or music piracy, converting the force of law into a tool to protect the business models of established intermediaries and gatekeepers.<sup>[4](#footnotes)</sup> 
 
 <a name="daysofdiscontent"></a>
-###Days of discontent and fatigue
+
+### Days of discontent and fatigue
+
 Signs of discontent with this system have begun to grow. User unease has manifested itself in several waves of "anyone but Facebook" momentum, generating buzz for projects like Join Diaspora and Ello. The desire to communicate and do commerce outside the purview of the state has led to the rise of Bitcoin and several generations of dark markets like Silk Road.
 
 Even if they aren't yet concerned with the increasing power governments and companies have over our communication, users may be suffering from social media fatigue.<sup>[5](#footnotes)</sup> Each new account we sign up for is one more username and password to manage, one more bucket that fills up with messages, notifications, and required actions.  
 
 <a name="whatfuturewants"></a>
-###What the future really wants
+
+### What the future really wants
+
 Many of the technological innovations and social changes that seem to come out of nowhere are in fact presaged by earlier, similar technologies, and intense activity that culminates in many inventors arriving at the same radical idea at the same time.<sup>[6](#footnotes)</sup>
 
 Right now, in various bits and pieces, in small and disconnected ways, we see the beginnings of an alternate vision for the future, growing alongside the tools to make it possible. In this future, control over publishing resides at the most individual level. Access to public content is independent of which social networks a user signed up for, and access to private content is strictly limited to the sender and the recipient. 
@@ -64,13 +74,16 @@ A decentralized, shared username system, in combination with a standardized data
 In this vision of the future, people will look back in amazement at the hassles we endured during the era when private messaging systems at Facebook, LinkedIn, Twitter, and G+ were non-interoperable. They’ll be astounded that we trusted our identities to companies whose interests lay in convincing us to build elaborate virtual homes on land we didn’t own, knowing that the more we invest in our homes, the more rent these companies will eventually be able to charge us. 
 
 <a name="introducingeverybit"></a>
-##Introducing EveryBit.js
+## Introducing EveryBit.js
+
 With EveryBit.js (EB), we've taken a strong first step in the direction of this future, providing developers with a comprehensive library for secure communication, decentralized publishing, and federated identity management.  
 
 Over the next few sections, we'll outline the main components that make this possible: "[puffs](#whatispuff)", [usernames](#usernamesystem), [signatures](#importanceofsig), [identity files](#identityincloud), and a [protocol for secure communication](#abcincryptoland).
 
 <a name="whatispuff"></a>
-###What is a puff?
+
+### What is a puff?
+
 <img src="http://i.imgur.com/sGDTN2P.png" alt="Puff structure" width="350" align="right">
 The central unit of content in the EveryBit.js system is called a puff. A puff is a signed, static unit of data with a single content type. Let's examine its anatomy:
 
@@ -95,7 +108,9 @@ The `keys` field is supplied if the content of the puff is encrypted. It provide
 The `sig` (signature) field provides a unique identifier for the puff, and binds it to the `username`. Signatures are the lynchpins of the EveryBit.js — they tie the content system and username system together, and help us solve the biggest challenges in decentralized publishing.
 
 <a name="problemsofdecentralization"></a>
-###The problems of decentralization
+
+### The problems of decentralization
+
 When moving from a centralized model of publishing to a decentralized one we face three main difficulties:
 
 1. **Authenticating identity:** How can we be sure the document really came from the person who says they sent it?
@@ -107,7 +122,9 @@ In the current system of publishing, a central gatekeeper is in charge of all th
 In a decentralized context we need alternative ways to solve these problems — solutions that don't rely on a single trusted authority. 
 
 <a name="importanceofsig"></a>
-###Sig, the linchpin of decentralization
+
+### Sig, the linchpin of decentralization
+
 <img src="http://i.imgur.com/2CM4iuY.gif" alt="Signing scheme" align="right" width="450">
 The solution that ties everything together in EveryBit.js is the signature, or `sig` field. To generate a `sig`, we start with a puff as a JS object, with all of the fields in their [canonical order](#ordermatters). We convert the object into a string using `JSON.stringify`. Then take the SHA256 hash of the object's string. We pass the hash and the user's private signing key to the [ECDSA](http://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) routine. Finally, we encode the returned signature in base58 format and add a new field `sig` to the original puff object with this value. All of this happens automatically in EveryBit.js with a single API call. 
 
@@ -116,7 +133,9 @@ Once the procedure is complete, we have created an [immutable signature](#immuta
 In addition to their use as a unique id for each puff, signatures allow users to verify the identity of the puff creator. A string encrypted with a private key can only be decoded with the matching public key, and vice versa. So to validate the `sig`, we look up the public key that corresponds to the claimed `username` on the puff. We strip off the signature field and follow the same signing procedure to get hash of the string object, which we run through ECDSA using the the public key. Unless the resulting string matches the `sig`, some other private key was used to sign the content. We reject this puff as invalid, and don't trust the sender. 
 
 <a name="usernamesystem"></a>
-###The username system
+
+### The username system
+
 <img src="http://i.imgur.com/sVmaxqb.png" alt="Username structure" width="350" align="right">
 You may have noticed that signatures depend on the existance of username records we can look up. These are maintained in a [Distributed Hash Table](#decentralizingusernames) (DHT). Once a username is created, it is permanently owned by whoever controls the private keys, subject only to the requirement that the user publish at least one piece of content per year. A field called `updated` stores the date of the most recent update to the username record, and anytime new content is created, the `latest` field is changed to point to their most recent content. Usernames are built up using strings of lowercase letters and numbers, [no other characters are allowed](#displaynames).
 
@@ -129,7 +148,9 @@ Every time a public key is changed, a new entry in the username DHT is created. 
 Public keys also let users send private, encrypted messages to one another. By appending the current `capa` to each message, the sender lets the recipient know which key to use to decrypt the message.
 
 <a name="abcincryptoland"></a>
-###Alice, Bob & Charlie in Cryptoland
+
+### Alice, Bob & Charlie in Cryptoland
+
 Suppose Alice wants to send an encrypted message to Bob and Charlie. She first creates a puff out of the message she wants to send, with no encryption. We’ll call this the “letter”. It’s the same puff she would create if she intended to post her message publicly.
 
 Alice then converts the letter from a JS object into a JSON string, and encrypts that string using a randomly generated 256-bit AES key. This is the “message key.” AES is a symmetric encryption protocol, so applying this same message key to the letter again will decrypt it.
@@ -141,7 +162,9 @@ Alice repeats the message key encryption procedure for Charlie, generating a new
 This procedure is analogous to the lock boxes used to provide access to an apartment to several realtors. Each realtor has a separate lock box outside the building containing a key to the front door. In the case of EB, access to Alice's message is controlled by separate “lock boxes” for Bob and Charlie, which their respective private keys can unlock. Inside each box is a key to unlock the message.
 
 <a name="anonymousmodeftw"></a>
-###Breaking the chain with Anonymous Mode 
+
+### Breaking the chain with Anonymous Mode 
+
 Alice's username is visible on the outer (envelope) puff, and the names of her recipients are visible next to the keys. EveryBit.js uses this information to route messages efficiently, so that users make network requests for just those private messages they can decrypt. The downside is that others can see that Alice has sent Bob and Charlie a message; she might want to keep this information private.
 
 For an additional layer of privacy Alice can create a temporary anonymous user (see section on [special users](#specialusers)), and then have this anonymous user create the outer envelope. The letter inside is unchanged — it still has Alice’s normal username on it, and is still signed with her username’s private key via [ECDSA](http://en.wikipedia.org/wiki/Elliptic_Curve_Digital_Signature_Algorithm) — so once Bob has decrypted the letter he can still tell it is from Alice. The envelope, however, has no features which point back to her.
@@ -155,7 +178,9 @@ For large group conversations, addition precautions might be taken to hide the o
 
 
 <a name="identityincloud"></a>
-###Identity file in the cloud
+
+### Identity file in the cloud
+
 If Alice sends a large number of messages in Anonymous Mode, tracking all of her anonymous aliases could be a challenge. To store these alias, and to provide secure storage for her general preferences, EveryBit.js uses an identity file that lives, encrypted, in the cloud. The identity file itself is an encrypted puff that only Alice can decrypt.
 
 All content in the EB system is static, so whenever the identity file is changed, a completely new version is encrypted and published to the network. To ensure Alice always has the most recent version of her identity file, the signature of this puff is stored in her username record. Likewise, before publishing a new identity puff, the client application ensures that Alice isn’t overwriting a file that changed since the application began changing it. More work will need to be done on this front as it becomes more likely for a user to have multiple EB powered websites open and modifying preferences at once. The EveryBit.js roadmap includes developing a special puff of content type `diff` that could be used in a lightweight, low-conflict way to “update” the state of a chain of puffs.<sup>[9](#footnotes)</sup> 
@@ -163,7 +188,9 @@ All content in the EB system is static, so whenever the identity file is changed
 The identity file contains a preferences block. This provides a powerful tool for shielding information from the services they use. In the old paradigm, websites like Facebook are entrusted (regardless of our actual level of trust towards them) with maintaining our settings. With EB, settings like “never share my status updates publicly”, “never open messages from user *badcharlie*”, or “notify me whenever *handsomerob* posts a new jpeg”, could be maintained, client-side, by the user. Note that this reverses the power dynamic and places a shield around a user’s private data. Just as hackers and malicious employees are blocked from Alice’s messages, they are also kept from preference information that might be equally revealing.
 
 <a name="hedhelth"></a>
-##Case study: HedHelth  ##
+
+## Case study: HedHelth 
+
 <img src="http://i.imgur.com/WQmkAmm.png" alt="HedHelth logo" height="300" align="right">
 
 How do these pieces come together to help a specific developer build applications of the future? To see that, let’s imagine an entrant into the emerging field of “enlightenment tracking”. HedHelth (HH) is a band you wear on your forehead. It reads your brainwaves and tracks your levels of bliss throughout the day. (By 2020, the username *headhealth* had already been taken, so the company jumped on the next great trend in internet naming conventions and removed the second vowels.)
@@ -176,7 +203,8 @@ Some users may *want* to share their data — with friends, or in a public but a
 
 HedHelth credits most of their growth to the community that grew up around this anonymous data. By publishing their data as puffs with a standard content type, any other developer or regular user can access the unencrypted data. Since everyone has access to the full "fire hose" of data, dozens of other tools sprung up around HH's service, like happiness visualizers and global sentiment analysis. 
 
-###Turning your users into your cloud
+### Turning your users into your cloud
+
 After a few months, HedHelth began to see the kind of explosive growth all startups dream about. Such growth often comes with financial and logistical pains, as companies are forced to scale up their servers, or else spend a fortune on outsourcing their infrastructure. If HedHelth had to assume sole responsibility for managing their user’s data, this growth would have put them in a particularly vulnerable position, given the large amount of data each user generates. 
 
 Fortunately, though, EB lets HedHelth rely on their users for their cloud. Each web browser running the HH website (and thus including the EB library), becomes a contributing node, with its own slice of CPU cycles and hard drive space to contribute. Even a user’s preference data, stored in their Identity Files, is managed completely on the client. HedHelth doesn’t have to worry about maintaining state on a multi-server database, nor do HH’s servers need to run expensive queries to make sure the client receives the information it needs, filtered according to its wishes. The vast majority of the data flowing through the network is shared directly over the P2P layer. And because all of the content is static, HH can provide a low latency, high-availability backstop by storing a copy of all puffs to a generic content delivery network.
@@ -186,28 +214,40 @@ With the time and money they saved on infrastructure, server-side page-rendering
 As a secondary source of income, HH has been experimenting with doing complex, big data computations across their network of users. Using advances in holomorphic encryption, they are able to split huge tasks into slices of code that obscure their own functionality.
 
 <a name="otherapplications"></a>
-##Other applications
+
+## Other applications
+
 Going beyond the "HedHelth" example above, the combination of signed, chainable content and built-in cryptographic tools makes EveryBit.js the perfect library for building applications that require privacy, or ones that can be broken into a sequence of discrete publishing events. We’ve already built the secure messaging service [I.CX](https://i.cx) on EB. Here are a few other services that would be a good match for EB:
 
 <a name="turnbasedgames"></a>
-###Turn-based games
+
+### Turn-based games
+
 Developers could use EveryBit.js to manage the username system and ensure the integrity of multiplayer, turn-based strategy games. Each "move" in the system could be represented by an individual puff, with usernames corresponding to in-game identities. Since sub-users are cheap, easy to create, and hierarchal, players could generate an "army" of characters they control directly, or recruit other players to join their "tribe". By choosing EB, developers automatically get private communication between individual players and among all tribe members. If the moves themselves were conducted with public puffs, players and other developers could create macros and modules to automate moves and analyze the data.
 
 <a name="mentalpoker"></a>
-###Mental poker
+
+### Mental poker
+
 Another possibility opened up by EveryBit.js is for distributed games that involve randomization and betting. For example, Mental Poker is a protocol that lets people shuffle and deal a virtual deck of cards without relying on a trusted dealer. The key ingredients needed to make Mental Poker work include an auditable chain of events that can't be edited, betting contracts that are indisputably signed by the players, and ways to encrypt information so that players commit to a particular shuffle by revealing a hash of the pattern, without giving away the actual shuffle itself. These can be implemented with EB using chained puffs, the username system, and encrypted inner puffs that induce unique outer signatures, respectively.  
 
 <a name="publicforums"></a>
-###Public forums
+
+### Public forums
+
 By using EveryBit.js as the foundation for a public forum, developers can leverage the built-in username system, standardized content formats, and flexible meta-data. They might solve the hard problem of flat-vs-threaded discussions by allowing each post to have multiple parents and multiple children, and use EB's built-in graph database to easily let users focus on and follow the sub-discussions that interest them, or view connections in a richly linked web of though. 
 
 <a name="autonomousagents"></a>
-###Autonomous bots, agents, and decentralized applications
+
+### Autonomous bots, agents, and decentralized applications
+
 Because puffs can be used both for content publishing, and to communicate authenticated commands (as in the user record update puffs), and because they are nestable (as in puff-ception), EveryBit.js is the perfect library  for autonomous bots or agents that publish content on a user's behalf, or perform tasks for them based on new incoming data. Imagine a decentralized version of [If This Then That](https://ifttt.com/) which takes action for you based on the content of new public or private puffs. Or imagine automatically wrapping and republishing certain puffs with additional meta-data, as a means of organizing and archiving data. 
 
 
 <a name="philosophyofarchitecture"></a>
-##Philosophy of architecture
+
+## Philosophy of architecture
+
 As a platform which provides both the identity system and the data management layer for its host applications, EveryBit.js has to be robust enough to meet the needs those applications have — even novel needs that haven't yet been imagined. This requires exposing as much functionality as possible.
 
 The platform also has to be easy to use. The majority of applications have a core set of basic requirements: create and manage users, post messages, process incoming messages, etc. These features require easy-to-use interfaces, but the features themselves are complex — each one requires several asynchronous network trips, cryptographic work (ideally off the main thread), data and cache management, updates to `localStorage` and so on.
@@ -221,7 +261,8 @@ Another dimension of extensibility lies in the data structures and their interpr
 This control over the meaning of the metadata becomes even more interesting when it's used to encode relationships, like one puff being a reply to another. Want to create a system for liking or upvoting content? Publish a new puff that points to the liked puff in its metadata. Could you build a system where a single message is related in different ways to multiple parents posts simultaneously? Absolutely. And you can embed those new relationships in our client-side graph database with a single line of code.
 
 <a name="changingtheflow"></a>
-##Changing the flow
+## Changing the flow
+
 <img src="http://i.imgur.com/fuoMr4W.gif" alt="Flow of content" width="350" align="right">
 By creating an atomic unit of content with a single type, and opening up metadata to any conventions developers want to implement, both individually and by consensus, EveryBit.js represents a move towards a significant shift in relationships, flow, and structure.
 
@@ -234,50 +275,61 @@ All of the "thinking" happens at the client level, protected by the privacy inhe
 By including a P2P wrapper around WebRTC, EveryBit.js can be used to turn every regular browser-based user in the system into a maintainer of the system. Instead of copying an existing model for what a social network should be, each application developer can build interfaces and tools intended to meet the needs of a select group of users, industry, or sub-culture.
 
 <a name="thistimeisdifferent"></a>
-##Why this time it's different
+## Why this time it's different
+
 People have been trying to create decentralized versions of services like Facebook, Twitter, and DNS itself for many years. Here's why we think this time — and this project — really is different:
 
 <a name="timeisright"></a>
-###The time is right
+### The time is right
+
 All around, there are signs of people working to protect publishing freedoms, increase privacy, maintain access to content, and provide simplicity despite the growing number of logins and messaging buckets. Most of these are piecemeal, stopgap tools that address a single problem, like how to backup data from social networks (SocialSafe), combined inboxes for reading and posting (HootSuite), and provably secure storage (MaidSafe).
 
-###The vision is right
+### The vision is right
+
 Instead of building more specifics tools to plug individual gaps, EveryBit.js has broad tools to support secure communication and shared identity management, and isn't bound to any particular implementation. 
 
-###The architecture is right
+### The architecture is right
+
 <a name="architectureisright"></a>
 By making all content auditable, static, and stateless, by using signatures for content identification and identity validation, and by building a system that is modular, extensible, and content-agnostic, EveryBit.js reduces many of the hassles of building applications: managing users and communication, storing content, achieving scalability, and maintaining a secure database that includes up-to-date preference information for each user.     
 
-###No installation required, for users or developers
+### No installation required, for users or developers
+
 <a name="namecoin"></a>
 For end users, it just works. Right in the web browser, without having to download, install, or configure anything. All recent versions of common browsers are supported<sup>[11](#footnotes)</sup>. In part, this entire project springs from a developer's failed attempt to run Namecoin and register a username in the system. After many hours of configuring and compiling software, battling errors, looking for online help, downloading a dozen gigabytes of transaction data, and trying on two different computers, the system still didn't work. It just shouldn't be that hard. 
 
 For web developers, the barrier to entry is near the absolute minimum. No database to configure, no unhelpful "500 Internal Server Error" messages to worry about, nothing to install on the server. 
 
 <a name="therightcrypto"></a>
-###The crypto is tried, tested, and audited
+### The crypto is tried, tested, and audited
+
 The Core crypto used by EveryBit.js is the same technology used by Bitcoin. For years now there has been a billion dollar plus incentive to break this encryption scheme. All of the vulnerabilities exposed so far have been related to peripheral issues like transaction malleability, and not the underlying signing routines. In late 2014, EveryBit.js underwent an extensive crypto-audit of its particular implementation by Bitcoinsultants Inc. 
 
 <a name="internalnetworkeffects"></a>
-###Internal network effects
+### Internal network effects
+
 As a broad, application agnostic platform, EveryBit.js allows developers to compete based on functionality, instead of how many users they've locked in. It creates an ecosystem where many different applications can fulfill the ecological niches in that system instead of being clumsily ruled by a single monoculture. These different applications share the same pool of potential users — no one application has to individually scale the network-effects hurdle imposed by proprietary systems like Facebook.
 
 <a name="betterbusinessmodel"></a>
-###The business model rewards good behavior
+### The business model rewards good behavior
+
 There are clear benefits to becoming an intermediary. Once an entity controls the flow of content, they can setup toll-booths, filter and sort the content in ways that maximize their business objectives. To ensure that our incentives depend only on the overall success of the platform, and not interfering with the relationship between app developers and end users, we've based our business model on the value of our initial collection of reserved usernames. This way our financial interests are aligned with the overall success of the ecosystem, and nothing else. Not advertising revenue, not subscriptions, not proprietary content or formats. Our boat rises if and only if the library itself is widely adopted by developers and end users. 
 
 
 <a name="maintainingthenetwork"></a>
-###A network maintenance scheme with a future
+### A network maintenance scheme with a future
+
 As the number of sites using EveryBit.js grows, and as we work on the challenges related to decentralized storage and delivery of content, we face the problem of how to provide incentives for users of the p2p network to continue to share their resources with the network. In some ways we get this for free, as developers who include EveryBit.js turn their clients into temporary nodes on the network. To encourage more persistent connections, we're working on a system that relies on ["Proof of Presence"](#proofofpresence) to reward available nodes and ensure consensus among unranked peers. 
 
 
-###It's open source and open to your contributions
+### It's open source and open to your contributions
+
 EveryBit.js is an open source project, written in a language web developers are intimately familiar with. Our repository is on Github, and we love pull requests. Although not everyone loves JavaScript, it seems clear that some evolved version of it will become the [central language of the future](https://www.destroyallsoftware.com/talks/the-birth-and-death-of-javascript). 
 
 
 <a name="joinordie"><a/>
-##A “Join or Die” moment
+## A “Join or Die” moment
+
 EveryBit.js embodies a radically different direction from the one currently being pushed by tech giants and governments. We are convinced this direction is not only possible, but inevitable, so long as we work together to make it happen. The bridge to this future lies in working within the existing system, carving out spaces for more user control and privacy inside existing walled gardens, and creating ways for users to easily move their content and relationships in and out of them. Bridge (tunnel?) applications might include a plugin to let users combine the encryption capabilities of EB with the ease of use of Dropbox, an app to let users send truly private messages within Facebook, or a service that converts all of your tweets to puffs, so they can be used by anyone who builds an alternative service.
 
 
@@ -295,16 +347,14 @@ It’s getting harder and harder for small developers to compete, but working to
 
 
 
-
-
-
-
-
 <a name="appendix"></a>
-#Appendix
+# Appendix
 
 <a name="decentralizingusernames"></a>
-###Decentralizing the username system
+
+
+# Decentralizing the username system
+
 At present, updates to username records must be performed using a single API access point at `https://i.cx/api/users/api.php`. 
 
 Although not yet fully distributed, the username system has been built from the beginning with the needs of decentralization and trustless consensus in mind. No private data is stored in username records, so the records can be held in a distributed way by all participants in the system, without worry about who has access to the data. The initial reservation of a username still requires authorization from an initial provider, but because all key update requests need to be signed by the current owner of the username, and because every key change results in a new record, all changes can verified back to the original registration. 
@@ -314,13 +364,15 @@ As an intentional side effect, there's no mechanism within the system to depreca
 Another side effect of this system is that no central authority can recover lost keys. The benefit of this arrangement is no one can access a username (and, importantly, all private communication sent to that username) without guessing the private key. No back door exists. The downside is that lost keys mean lost usernames. EveryBit.js mitigates against this happening by providing [different levels of keys](#usernamesystem), so that the `rootKey` can be kept as secure as possible and used only in case the others are lost or compromised. The possible loss of keys also motivates the only requirement to maintain ownership of a name: a user must publish content (or update a key) once every 12 months. This way, usernames with lost keys, or no longer in use for any other reason, are deprecated and become available to register again. 
 
 <a name="displaynames"></a>
-###Display names
+### Display names
+
 By limiting username characters strictly to lowercase letters and numbers (plus the "." to separate sub-users), EveryBit.js avoids confusion between names that are highly similar. This decision is informed by the experience of forums, where look-alike accounts have been sources of confusion or attempted identity fraud. Sometimes a single famous *username* can spawn a dozen knock-offs like *user-name*, *Username*, *user_name*, and *_username*. In the world of domain names, the introduction of international characters has made the situation even worse, as for example a bank's domain could faked using Cyrillic characters that look almost identical.<sup>[12](#footnotes) 
 
 To allow users more flexibility in how their usernames display, without reducing security or increasing confusion, we recommend the use of "display names". These are variations on a username that can be converted into a valid username by removing invalid characters and converting all letters to lowercase. So user "johndoe" could set their display name to "John Doe" or johnDoe or "john_DOE!" but not "Johnny Doe", since that display name corresponds to the username "johnnydoe". An example of the use of display names can be seen in how the recipient is show for [I.CX's embeddable contact form](https://i.cx/?icx.screen=formCreator).
  
 <a name="specialusers"></a>
-###Special users
+### Special users
+
 The EveryBit.js system includes a few special usernames.
 
 Any username that ends with the subuser *.local* is prevented from sending information out over the network. 
@@ -330,7 +382,8 @@ The username *anon* has a shared admin key, which allows anyone who wants to cre
 An additional username, *example*, is being created with a set of provably unknowable private keys. By setting the public key for this user to the very first (alphabetical) key to pass the checksum for a valid key, we are in effect demonstrating that don't know the corresponding private key, since guessing it would be as hard as guessing the private key to any public key. Thus *example* can be used to send encrypted test messages that only the sender can see. 
 
 <a name="keysnotpasswords"></a>
-###Keys not passwords
+### Keys not passwords
+
 Passwords have been decried for years by security researchers as fundamentally flawed, and there's a growing demand for something better. Users, however, have grown comfortable with passwords, despite their flaws. So why take on the extra burden of moving to a public key system?
 
 Passwords require a trusted third party, someone who receives your password over the network and then allows you to perform actions based on its validity. This third party vouches that the messages you send are authentic.
@@ -345,7 +398,8 @@ Right now there is a large effort to solve the problems of key management, and E
 
 
 <a name="immutability"></a>
-##How I learned to stop worrying and love immutability
+## How I learned to stop worrying and love immutability
+
 Because of how puffs are constructed and chained, there is no way to edit a single puff without changing its id (signature), and disrupting the chain of content published thereafter. This is an intentional design decision. Here's why we do it this way:
 
 When user replies to content and embeds this parent puff's id in the new puff's parents array, they can be assured that so long as the puff they replied to still exists, it will not change (it's immutable). This creates an official, digitally signed conversation between the parties (that may be public or private). No party can claim to have written something they didn't, or change their words to make another user look bad. Because all discussion is contextual, we intentionally break all incoming connections to that user's more recent puffs as well. 
@@ -361,14 +415,16 @@ Once the EveryBit platform is fully implemented, we imagine that developers will
 
 
 <a name="proofofpresence"></a>
-##Proof of presence
+## Proof of presence
+
 Because they lack a single trusted authority, all decentralized networks need to solve the problem of consensus. So far, most of the approaches involve "mining", where nodes on the system compete to solve computationally complex problems. The idea is that so long as no single entity controls more than half of the total computing power, there's no way to successfully "fork" the shared ledger. The success of Bitcoin shows that mining can be an effective way to establish consensus, but it also has significant downsides: it consumes vast amounts of energy in doing otherwise pointless computations, the single shared ledger scales poorly, and it requires specific dedicated hardware and pooling, which turns mining into a niche activity and risks centralization. These problems are well known, and newer cryptocurrencies have proposed tweaking mining to address some of these. 
 
 We suggest a different approach, in which the desired behavior (persistence of working nodes on the network) is rewarded directly. We call our system Proof of Presence, and it addresses the problem of creating consensus in a decentralized context by requiring that each participant maintain a chain of partial snapshots of the state of the system, taken at regular intervals. 
 
 The proposed mechanism for achieving consensus with EveryBit.js is **Proof of Presence** (PoP). To see how the username system, puffs, and even an advanced application (like a crypto-currency) can use PoP to transition from a trusted "genesis" condition to trustless consensus, we'll describe how a leaderless group of partiers could agree on a historical account of each party. If you're wondering about the technical implementation, imagine that all of the record keeping is done using [bloom filters](http://billmill.org/bloomfilter-tutorial/) and chained, signed puffs.  
 
-###Crypto at the masquerade ball  
+### Crypto at the masquerade ball  
+
 Let's imagine we want to throw an ongoing series of parties. For the first one, we'll start with a list of invited guests that everyone in our group can agree to. In the early stages, no one new will be invited to future parties. We want to encourage everyone to come to every party, so if someone misses a party, they're out and can no longer join in the fun.
 
 Unlike most parties that have an authoritative host who decides who does (and doesn't) belong at each party, we want to find a way for the guests to police each other. Here's how we do it: 
@@ -378,7 +434,9 @@ At each party, each guest has to find everyone who shares a birth month with the
 This is the core idea behind PoP. In this basic form it's not very secure or robust, so let's *enhance*! 
 
 <a name="preventingcollusion"></a>
-###Preventing collusion, punishing malfeasants
+
+### Preventing collusion, punishing malfeasants
+
 As you might imagine, over time the group of May's might get chummy and begin to collude with each other to miss parties or sneak in additional guests. To minimize this risk, we change the rules slightly with each new gathering. For one party you might be taking photos of people who were born on the same day of the month as yourself, the next party it might be people with the same number of brothers and sisters. 
 
 In order to mix things up even more, we can begin to generate the groups based on the outcome of an unpredictable function. For example, we could ask every guest to write down a number on a piece of paper and put it into a fish bowl at the beginning of the party. Then we add up all those numbers to get a total. If we have a pre-determined set of 100 rules for forming groups, we divide our sum by 100 and look at the remainder. If our remainder is 25, then we use the 25th (starting our count at 0) rule to split up groups at that particular party. 
@@ -388,7 +446,8 @@ Because everyone keeps track of the rules for every past party, before I include
 To make things even more secure, we can come up with a different rule of who to photograph for on a guest-by-guest basis, then randomly shuffle those rules for each new party. At this point we've made colluding to sneak in a new guest, or skipping a party, almost impossible, because everyone is always taking photos of a different group of people, because we don't know in advance who they will be, and because these people might or might not be photographing you back.
 
 <a name="growingtheparty"></a>
-###Bringing in anonymity, growing the party
+### Bringing in anonymity, growing the party
+
 We've now eliminated all easy ways to cheat, but our party has started to feel less fun. Let's make it a masquerade ball! 
 
 We no longer require that the same person show up at every event, now we're only concerned that the same set of masks shows up every night. To do this, we reboot our ongoing parties with a fresh list of invited guests, and give each one a special mask that can only be unlocked if the wearer has the right key. Let's also assume there's a way for guests to prove that they control the key without showing it off, just like I can demonstrate my ability to open a padlock while keeping the key itself hidden under a piece of cloth. 
@@ -406,18 +465,21 @@ Suppose we want our party to grow over time, or at least not shrink as guests oc
 At this point we have everything we need (conceptually) to turn our masks into a fully fledged, secure, completely anonymous digital currency.
 
 <a name="limitstoencyrption"></a>
-##Hiding information beyond encryption
+## Hiding information beyond encryption
+
 Note that nothing in EveryBit.js prevents a user’s ISP from reading the (unencrypted, outer) envelope puffs that a user sends, or seeing which username records someone requests. This data could be used to attempt to guess at the participants in a conversation, especially if the recipients use the same ISP (or data is shared). An anonymous router like Tor might provide an additional layer of privacy. Overall, the more encrypted messages a user sends and receives, and the more encrypted traffic in the network in general, the harder it would be to trace the real usernames involved in conversations between anons.
 
 <a name="ordermatters"></a>
-##The importance of ordering
+## The importance of ordering
+
 The JS specifications state that an object is an unordered collection of properties. This means the order of traversal of the keys of an object may vary between browsers. Additionally, two otherwise identical objects may have different property orderings even within the same browser. When those objects are serialized their string forms will not be identical even though the objects are value-wise equivalent. Their signatures won't match and they won't validate properly.
 
 Fortunately, all modern browsers order the keys of freshly created objects the same way (so long as they don't include  numeric keys). By creating a fresh object, EveryBit.js sidesteps these issues, and also prevents any clumsily added decoration properties from blocking validation.
 
 
 <a name="puffstructure"></a>
-##Additional Puff Notes
+## Additional Puff Notes
+
 Extra `payload` properties:
 
 Currently any valid JavaScript key and value will validate, though individual applications may place restrictions on key length, key characters, value length, or other characteristics of the value. Since puffs are converted to JSON strings during transmission, only JSONifiable values are valid within a puff: strings, numbers, objects, array, booleans and null. 
@@ -430,7 +492,7 @@ In order to re-publish someone else's content, the entire puff is bundled up and
 
 
 <a name="footnotes"></a>
-#Footnotes
+# Footnotes
 
 1. [Join, or Die](http://en.wikipedia.org/wiki/Join,_or_Die) 	
 2. [Twitter manipulates newsfeeds to benefit paying customers](https://biz.twitter.com/en-gb/products/promoted-tweets) 

@@ -10,10 +10,7 @@ Currently if you want to provide users with private messaging and file sending y
 We do our development on the ```develop``` branch, and only pull to master for our semantically versioned releases.
 
 ### Resources
-
-- [Website] (http://everybit.com)
-- [Code recipes] (http://everybit.com/tutorial.html)
-- [White paper] (https://github.com/EveryBit-com/everybit.js/tree/develop/whitepaper)
+- [White paper](https://github.com/EveryBit-com/everybit.js/tree/develop/whitepaper)
 
 ### Setup Instructions
 
